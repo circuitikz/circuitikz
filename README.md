@@ -11,25 +11,25 @@ So I based everything with the very impressive (if somewhat verbose at times) \T
 
 --------------
 
-** Requirements
+## Requirements
 Tikz graphics library, version 2
 xstrings not older than 2009/03/13
 
-** Installation
+## Installation
 Unpack everything in a directory in the TeX search path and refresh the TeX db.
 
-** Usage
+## Usage
 Just place
-
+````latex
   \usepackage{circuitikz}
-  
+````
 or, for ConTeXt, 
-
+````latex
   \usemodule[circuitikz]
-
+````
 in the preamble and compile away, both with PS and PDF target output.
 
-** Contact the author
+## Contact the author
 m.redaelli@gmail.com
 git: https://github.com/mredaelli/circuitikz
 
