@@ -5,15 +5,15 @@ This is CircuiTikz, version 0.3.0.
 
 This package provides a set of macros for naturally typesetting electrical and (somewhat less naturally, perhaps) electronical networks.
 
-It was born mainly for writing my own exercise book and exams sheets for the Elettrotecnica courses at Politecnico di Milano, Italy. I wanted a tool that was easy to use, with a lean syntax, native to \LaTeX, and supporting directly PDF output format.
+It was born mainly for writing my own exercise book and exams sheets for the Elettrotecnica courses at Politecnico di Milano, Italy. I wanted a tool that was easy to use, with a lean syntax, native to LaTeX, and supporting directly PDF output format.
 
-So I based everything with the very impressive (if somewhat verbose at times) \TikZ\ package.
+So I based everything with the very impressive (if somewhat verbose at times) TikZ package.
 
 --------------
 
 ## Requirements
-Tikz graphics library, version 2
-xstrings not older than 2009/03/13
+* Tikz graphics library, version 2
+* xstrings not older than 2009/03/13
 
 ## Installation
 Unpack everything in a directory in the TeX search path and refresh the TeX db.
@@ -30,8 +30,8 @@ or, for ConTeXt,
 in the preamble and compile away, both with PS and PDF target output.
 
 ## Contact the author
-m.redaelli@gmail.com
-git: https://github.com/mredaelli/circuitikz
+* m.redaelli@gmail.com
+* git: https://github.com/mredaelli/circuitikz
 
 -------------
 
