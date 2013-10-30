@@ -1934,6 +1934,49 @@
 		\pgfusepath{draw}
 }
 
+%% ADC
+\pgfcircdeclarebipole{}{\ctikzvalof{bipoles/adc/width}}{adc}{\ctikzvalof{bipoles/adc/width}}{\ctikzvalof{bipoles/adc/width}}{
+		\pgf@circ@res@step = \ctikzvalof{bipoles/adc/width}\pgf@circ@Rlen
+		\divide \pgf@circ@res@step by 2
+
+		\pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@zero}}
+		\pgf@circ@res@other = \pgf@circ@res@left
+		\advance\pgf@circ@res@other by \pgf@circ@res@step 
+
+		\pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}\pgfstartlinewidth}
+		\pgfpathrectanglecorners{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@up}}{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@down}}
+		\pgfusepath{draw}
+		
+		% rotate inner symbol
+		\def\texti{A}
+		\def\textii{D}
+		\def\pgfcircmathresult{\expandafter\pgf@circ@stripdecimals\pgf@circ@direction\pgf@nil}
+		\ifnum \pgfcircmathresult > 45 \ifnum \pgfcircmathresult < 135
+			\def\texti{D}
+			\def\textii{A}
+			\pgftransformrotate{270}
+		\fi\fi
+		\ifnum \pgfcircmathresult > 134 \ifnum \pgfcircmathresult < 225  % 134 degree, because >= 135 is not possible
+			\def\texti{D}
+			\def\textii{A}
+			\pgftransformrotate{180}
+		\fi\fi
+		\ifnum \pgfcircmathresult > 225 \ifnum \pgfcircmathresult < 315
+			\pgftransformrotate{90}
+			\def\texti{A}
+			\def\textii{D}
+		\fi\fi
+
+		% draw inner symbol					
+		\pgfsetlinewidth{\pgfstartlinewidth}
+		\pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@down}}
+		\pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@up}}
+		\pgfusepath{draw}
+		
+		\pgftext[center,x=0.45\pgf@circ@res@left,y=0.45\pgf@circ@res@up]{\textsf{\texti}}
+		\pgftext[center,x=0.45\pgf@circ@res@right,y=0.45\pgf@circ@res@down]{\textsf{\textii}}
+}
+
 
 
 \endinput
