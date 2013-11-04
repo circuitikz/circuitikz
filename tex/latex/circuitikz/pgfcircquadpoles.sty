@@ -424,3 +424,155 @@
 
 }{}
 
+%% coupler
+% defines a general outer box for couplers
+% TikZ usage: 
+%		\draw (0,0) node[coupler](coup){\SI{-3}{dB}}
+%		(coup.port1) to[short,-o] ++(-1,0)
+%		(coup.port1text) node[] {1};
+%
+
+\long\def\pgfcircdeclarecoupler#1#2{
+	\pgfdeclareshape{#1}{
+		\anchor{center}{
+			\northwest
+			\pgf@x=0pt
+			\pgf@y=0pt
+		}
+		\savedanchor\northwest{%
+			\pgf@y= \pgfkeysvalueof{/tikz/circuitikz/bipoles/length}
+			\pgf@y=\pgfkeysvalueof{/tikz/circuitikz/quadpoles/coupler/height}\pgf@y
+			\pgf@y=.5\pgf@y
+			\pgf@x= \pgfkeysvalueof{/tikz/circuitikz/bipoles/length}
+			\pgf@x=.5\pgf@x
+			\pgf@x=-\pgfkeysvalueof{/tikz/circuitikz/quadpoles/coupler/width}\pgf@x
+			}
+		\anchor{north}{
+			\northwest
+			\pgf@x=0pt
+		}
+		\anchor{south}{
+			\northwest
+			\pgf@x=0pt
+			\pgf@y=-\pgf@y
+		}
+		\anchor{west}{
+			\northwest
+			\pgf@y=0pt
+		}
+		\anchor{east}{
+			\northwest
+			\pgf@y=0pt
+			\pgf@x=-\pgf@x
+		}
+		\anchor{south west}{
+			\northwest
+			\pgf@y=-\pgf@y
+		}
+		\anchor{north east}{
+			\northwest
+			\pgf@x=-\pgf@x
+		}
+			\anchor{north west}{
+			\northwest
+		}
+		\anchor{south east}{
+			\northwest
+			\pgf@x=-\pgf@x
+			\pgf@y=-\pgf@y
+		}
+		\anchor{port1}{
+			\northwest
+			\pgf@y=-0.5\pgf@y
+		}
+		\anchor{port2}{
+			\northwest
+			\pgf@x=-\pgf@x
+			\pgf@y=-0.5\pgf@y
+		}
+		\anchor{port3}{
+			\northwest
+			\pgf@x=-\pgf@x
+			\pgf@y=0.5\pgf@y
+		}
+		\anchor{port4}{
+			\northwest
+			\pgf@y=0.5\pgf@y
+		}
+		\anchor{text}{
+			\northwest
+			\advance \pgf@y by 0.5\ht\pgfnodeparttextbox
+			\pgf@x=-.5\wd\pgfnodeparttextbox
+		}
+		\backgroundpath{			
+				\pgfsetcolor{\pgfkeysvalueof{/tikz/circuitikz/color}}	
+			
+				\northwest
+				\pgf@circ@res@up = \pgf@y 
+				\pgf@circ@res@down = -\pgf@y
+				\pgf@circ@res@right = -\pgf@x
+				\pgf@circ@res@left = \pgf@x
+			
+				\pgfstartlinewidth=\pgflinewidth
+
+				% draw outer box
+				\pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}\pgfstartlinewidth}
+				\pgfpathrectanglecorners{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@up}}{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@down}}
+				\pgfusepath{draw}
+				
+				% draw inner stuff
+				#2
+
+		}
+	}
+}
+
+% straight coupler
+\pgfcircdeclarecoupler{coupler}{
+	\pgfsetlinewidth{\pgfstartlinewidth}
+	\pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{0.5\pgf@circ@res@up}}
+	\pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{0.5\pgf@circ@res@up}}
+	\pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{0.5\pgf@circ@res@down}}
+	\pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{0.5\pgf@circ@res@down}}
+	\pgfusepath{draw}
+	
+	\pgfpathmoveto{\pgfpoint{0.7\pgf@circ@res@left}{0.4\pgf@circ@res@down}}
+	\pgfpathlineto{\pgfpoint{0.7\pgf@circ@res@right}{0.4\pgf@circ@res@up}}
+	\pgfsetarrows{latex-latex}
+	\pgfusepath{draw}
+	\pgfpathmoveto{\pgfpoint{0.7\pgf@circ@res@left}{0.4\pgf@circ@res@up}}
+	\pgfpathlineto{\pgfpoint{0.7\pgf@circ@res@right}{0.4\pgf@circ@res@down}}
+	\pgfsetarrows{latex-latex}
+	\pgfusepath{draw}
+}
+
+% "bended" coupler
+\pgfcircdeclarecoupler{coupler2}{
+	\pgfsetlinewidth{\pgfstartlinewidth}
+	\pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{0.5\pgf@circ@res@up}}
+	\pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{0.5\pgf@circ@res@up}}
+	\pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{0.5\pgf@circ@res@down}}
+	\pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{0.5\pgf@circ@res@down}}
+	\pgfusepath{draw}
+	
+	\pgfpathmoveto{\pgfpoint{0.1\pgf@circ@res@left}{0pt}}
+	\pgfpatharc{0}{90} {0.4\pgf@circ@res@up}
+	\pgfsetarrowsend{latex}
+	\pgfusepath{draw}
+	\pgfpathmoveto{\pgfpoint{0.1\pgf@circ@res@left}{0pt}}
+	\pgfpatharc{0}{-90} {0.4\pgf@circ@res@up}
+	\pgfsetarrowsend{latex}
+	\pgfusepath{draw}
+	
+	\pgfpathmoveto{\pgfpoint{0.1\pgf@circ@res@right}{0pt}}
+	\pgfpatharc{180}{90} {0.4\pgf@circ@res@up}
+	\pgfsetarrowsend{latex}
+	\pgfusepath{draw}
+	\pgfpathmoveto{\pgfpoint{0.1\pgf@circ@res@right}{0pt}}
+	\pgfpatharc{-180}{-90} {0.4\pgf@circ@res@up}
+	\pgfsetarrowsend{latex}
+	\pgfusepath{draw}
+	
+	
+}
+
