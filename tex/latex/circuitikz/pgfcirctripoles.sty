@@ -3018,5 +3018,128 @@
 	}
 }
 
+% Wilkinson divider
+\pgfdeclareshape{wilkinson}{
+		\anchor{center}{
+			\northwest
+			\pgf@x=0pt
+			\pgf@y=0pt
+		}
+		\savedanchor\northwest{%
+			\pgf@y= \pgfkeysvalueof{/tikz/circuitikz/bipoles/length}
+			\pgf@y=\pgfkeysvalueof{/tikz/circuitikz/tripoles/wilkinson/height}\pgf@y
+			\pgf@y=.5\pgf@y
+			\pgf@x= \pgfkeysvalueof{/tikz/circuitikz/bipoles/length}
+			\pgf@x=.5\pgf@x
+			\pgf@x=-\pgfkeysvalueof{/tikz/circuitikz/tripoles/wilkinson/width}\pgf@x
+			}
+		\anchor{north}{
+			\northwest
+			\pgf@x=0pt
+		}
+		\anchor{south}{
+			\northwest
+			\pgf@x=0pt
+			\pgf@y=-\pgf@y
+		}
+		\anchor{west}{
+			\northwest
+			\pgf@y=0pt
+		}
+		\anchor{east}{
+			\northwest
+			\pgf@y=0pt
+			\pgf@x=-\pgf@x
+		}
+		\anchor{south west}{
+			\northwest
+			\pgf@y=-\pgf@y
+		}
+		\anchor{north east}{
+			\northwest
+			\pgf@x=-\pgf@x
+		}
+			\anchor{north west}{
+			\northwest
+		}
+		\anchor{south east}{
+			\northwest
+			\pgf@x=-\pgf@x
+			\pgf@y=-\pgf@y
+		}
+		\anchor{in}{
+			\northwest
+			\pgf@y=0pt
+		}
+		\anchor{out1}{
+			\northwest
+			\pgf@x=-\pgf@x
+			\pgf@y=-0.5\pgf@y
+		}
+		\anchor{out2}{
+			\northwest
+			\pgf@x=-\pgf@x
+			\pgf@y=0.5\pgf@y
+		}
+		\anchor{text}{
+			\northwest
+			\advance \pgf@y by 0.5\ht\pgfnodeparttextbox
+			\pgf@x=-.5\wd\pgfnodeparttextbox
+		}
+		\backgroundpath{			
+				\pgfsetcolor{\pgfkeysvalueof{/tikz/circuitikz/color}}	
+			
+				\northwest
+				\pgf@circ@res@up = \pgf@y 
+				\pgf@circ@res@down = -\pgf@y
+				\pgf@circ@res@right = -\pgf@x
+				\pgf@circ@res@left = \pgf@x
+			
+				\pgfstartlinewidth=\pgflinewidth
+
+				% draw outer box
+				\pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}\pgfstartlinewidth}
+				\pgfpathrectanglecorners{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@up}}{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@down}}
+				\pgfusepath{draw}
+				
+				% draw inner stuff
+				\pgfsetlinewidth{\pgfstartlinewidth}
+				\pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{0pt}}
+				\pgfpathlineto{\pgfpoint{0.5\pgf@circ@res@left}{0pt}}
+				\pgfpathmoveto{\pgfpoint{\pgf@circ@res@right}{0.5\pgf@circ@res@up}}
+				\pgfpathlineto{\pgfpoint{0.5\pgf@circ@res@right}{0.5\pgf@circ@res@up}}
+				\pgfpathlineto{\pgfpoint{0.5\pgf@circ@res@left}{0pt}}
+				\pgfpathlineto{\pgfpoint{0.5\pgf@circ@res@right}{0.5\pgf@circ@res@down}}
+				\pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{0.5\pgf@circ@res@down}}				
+				
+				\pgfusepath{draw}
+				
+				% draw inner resisitor - european or american style is recognised
+				{
+					\pgftransformshift{\pgfpoint{0.5\pgf@circ@res@right}{0pt}}
+					\pgftransformrotate{90}
+					
+					% calculate size of resistor
+					\ifpgf@circuit@europeanresistor
+						\pgfmathparse{\pgf@circ@res@up / \pgf@circ@Rlen / \ctikzvalof{bipoles/generic/width} / 2}
+						\pgftransformscale{\pgfmathresult}
+						\pgfnode{genericshape}{center}{}{pgf@generic}{\pgfusepath{fill}}
+					\else
+						\pgfmathparse{\pgf@circ@res@up / \pgf@circ@Rlen / \ctikzvalof{bipoles/resistor/width} / 2}
+						\pgftransformscale{\pgfmathresult}
+						\pgfnode{resistorshape}{center}{}{pgf@resistor}{\pgfusepath{fill}}
+					\fi
+				}
+				
+				\pgfpathmoveto{\pgfpoint{0.5\pgf@circ@res@right}{0.5\pgf@circ@res@up}}
+				\pgfpathlineto{\pgfpoint{0.5\pgf@circ@res@right}{0.25\pgf@circ@res@up}}
+				
+				\pgfpathmoveto{\pgfpoint{0.5\pgf@circ@res@right}{0.25\pgf@circ@res@down}}
+				\pgfpathlineto{\pgfpoint{0.5\pgf@circ@res@right}{0.5\pgf@circ@res@down}}
+				\pgfusepath{draw}
+
+		}
+}
+
 
 \endinput
