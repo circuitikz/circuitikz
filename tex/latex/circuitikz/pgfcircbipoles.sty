@@ -1776,6 +1776,30 @@
 	  }
 	}
 	
+%% Generic two port box
+\pgfcircdeclarebipole{}{\ctikzvalof{bipoles/twoport/width}}{twoport}{\ctikzvalof{bipoles/twoport/width}}{\ctikzvalof{bipoles/twoport/width}}{
+		\pgf@circ@res@step = \ctikzvalof{bipoles/twoport/width}\pgf@circ@Rlen
+		\divide \pgf@circ@res@step by 2
+
+		\pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@zero}}
+		\pgf@circ@res@other = \pgf@circ@res@left
+		\advance\pgf@circ@res@other by \pgf@circ@res@step 
+
+		% draw outer box
+		\pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}\pgfstartlinewidth}
+		\pgfpathrectanglecorners{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@up}}{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@down}}
+		\pgfusepath{draw}
+		
+		\ifpgf@circuit@inputarrow
+			{
+				\advance \pgf@circ@res@left by -.5\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}\pgfstartlinewidth
+				\pgftransformshift{\pgfpoint{\pgf@circ@res@left}{0pt}}
+				\pgfnode{inputarrow}{tip}{}{pgf@inputarrow}{\pgfusepath{fill}}
+			}
+		\fi
+		
+}
+
 %% bandpass filter
 \pgfcircdeclarebipole{}{\ctikzvalof{bipoles/bandpass/width}}{bandpass}{\ctikzvalof{bipoles/bandpass/width}}{\ctikzvalof{bipoles/bandpass/width}}{
 		
@@ -2467,16 +2491,16 @@
 		\pgftext[center,x=0,y=0]{\Large$\varphi$}
 		
 		\pgfsetdash{}{0pt}	% always draw solid line for inner symbol
-		\pgfsetlinewidth{\pgfstartlinewidth}		
+		\pgfsetlinewidth{\pgfstartlinewidth}
 		\pgfsetarrowsend{latex}
 		\pgfpathmoveto{\pgfpoint{0.75\pgf@circ@res@left}{0.65\pgf@circ@res@down}}
 		\pgfpathlineto{\pgfpoint{0.7\pgf@circ@res@right}{0.65\pgf@circ@res@up}}
 		\pgfusepath{draw}
 }
 
-%% Generic two port
-\pgfcircdeclarebipole{}{\ctikzvalof{bipoles/twoport/width}}{twoport}{\ctikzvalof{bipoles/twoport/width}}{\ctikzvalof{bipoles/twoport/width}}{
-		\pgf@circ@res@step = \ctikzvalof{bipoles/twoport/width}\pgf@circ@Rlen
+%% detector
+\pgfcircdeclarebipole{}{\ctikzvalof{bipoles/detector/width}}{detector}{\ctikzvalof{bipoles/detector/width}}{\ctikzvalof{bipoles/detector/width}}{
+		\pgf@circ@res@step = \ctikzvalof{bipoles/detector/width}\pgf@circ@Rlen
 		\divide \pgf@circ@res@step by 2
 
 		\pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@zero}}
@@ -2494,6 +2518,22 @@
 				\pgftransformshift{\pgfpoint{\pgf@circ@res@left}{0pt}}
 				\pgfnode{inputarrow}{tip}{}{pgf@inputarrow}{\pgfusepath{fill}}
 			}
+		\fi
+		
+		% draw inner stuff
+		\pgfsetlinewidth{0.8\pgfstartlinewidth}
+		\pgfpathmoveto{\pgfpoint{0.75\pgf@circ@res@left}{0}}
+		\pgfpathlineto{\pgfpoint{0.75\pgf@circ@res@right}{0}}
+		\pgfusepath{draw}
+		
+		\ifpgf@circuit@fulldiode
+			\pgfmathparse{2\pgf@circ@res@up / \pgf@circ@Rlen / \ctikzvalof{bipoles/generic/width}}
+			\pgftransformscale{\pgfmathresult}
+			\pgfnode{fulldiodeshape}{center}{}{pgf@fulldiode}{\pgfusepath{fill}}
+		\else
+			\pgfmathparse{2\pgf@circ@res@up / \pgf@circ@Rlen / \ctikzvalof{bipoles/resistor/width}}
+			\pgftransformscale{\pgfmathresult}
+			\pgfnode{emptydiodeshape}{center}{}{pgf@emptydiode}{\pgfusepath{fill}}
 		\fi
 		
 }
