@@ -38,7 +38,8 @@ for line in filein:
 		fileout.write(line)
 	
 
-shutil.copy2('../../../../dev/hf-symbols-DE.pdf', '../../../../dev/out/hf-symbols_%s.pdf' %date)
+shutil.copy2('../../../../dev/hf-symbols-DE.pdf', '../../../../dev/out/hf-symbols-DE_%s.pdf' %date)
+shutil.copy2('../../../../dev/hf-symbols-DE.tex', '../../../../dev/out/hf-symbols-DE_%s.tex' %date)
 
 fileout.close()
 filein.close()
