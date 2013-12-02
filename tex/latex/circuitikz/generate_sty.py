@@ -7,11 +7,12 @@
 
 import time
 import datetime
+import shutil
 
 date=datetime.datetime.now().strftime("%Y-%m-%d")
 
 filein = open("circuitikz.sty", "r")
-fileout = open("../../../../circuitikz_%s.sty" %date, "w")
+fileout = open("../../../../dev/out/circuitikz_%s.sty" %date, "w")
 
 def readin(filename):
 	filein2 = open(filename, "r")
@@ -37,7 +38,7 @@ for line in filein:
 		fileout.write(line)
 	
 
-#fileout.write(x)
+shutil.copy2('../../../../dev/hf-symbols-DE.pdf', '../../../../dev/out/hf-symbols_%s.pdf' %date)
 
 fileout.close()
 filein.close()
