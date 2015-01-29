@@ -2236,19 +2236,34 @@
 }
 
 %% Amplifier
-\pgfcircdeclarebipole{}{\ctikzvalof{bipoles/amp/width}}{amp}{\ctikzvalof{bipoles/amp/width}}{\ctikzvalof{bipoles/amp/width}}{
+\pgfcircdeclarebipole{}{
+		\ifpgf@circuit@box
+			\ctikzvalof{bipoles/twoport/width}
+		\else
+			\ctikzvalof{bipoles/amp/width}
+		\fi
+	}{amp}{
+		\ifpgf@circuit@box
+			\ctikzvalof{bipoles/twoport/width}
+		\else
+			\ctikzvalof{bipoles/amp/width}
+		\fi
+	}{
+		\ifpgf@circuit@box
+			\ctikzvalof{bipoles/twoport/width}
+		\else
+			\ctikzvalof{bipoles/amp/width}
+		\fi
+	}{
 		\pgf@circ@res@step = \ctikzvalof{bipoles/amp/width}\pgf@circ@Rlen
-		\divide \pgf@circ@res@step by 2
 
-		\pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@zero}}
-		\pgf@circ@res@other = \pgf@circ@res@left
-		\advance\pgf@circ@res@other by \pgf@circ@res@step 
 
 		% draw outer box
-		\pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}\pgfstartlinewidth}
-		\pgfpathrectanglecorners{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@up}}{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@down}}
-		\pgfusepath{draw}
-		
+		\ifpgf@circuit@box
+			\pgfnode{box}{center}{}{pgf@box}{\pgfusepath{draw}}
+		\fi
+
+		% draw input arrow
 		\ifpgf@circuit@inputarrow
 			{
 				\advance \pgf@circ@res@left by -.5\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}\pgfstartlinewidth
@@ -2259,12 +2274,13 @@
 		
 		\pgfsetdash{}{0pt}	% always draw solid line for inner symbol
 		\pgfsetlinewidth{\pgfstartlinewidth}
-		\pgfpathmoveto{\pgfpoint{0.5\pgf@circ@res@left}{0.75\pgf@circ@res@up}}
-		\pgfpathlineto{\pgfpoint{0.63\pgf@circ@res@right}{0}}
-		\pgfpathlineto{\pgfpoint{0.5\pgf@circ@res@left}{0.75\pgf@circ@res@down}}
+		\pgfpathmoveto{\pgfpoint{-0.5\pgf@circ@res@step}{0.7\pgf@circ@res@step}}
+		\pgfpathlineto{\pgfpoint{0.5\pgf@circ@res@step}{0}}
+		\pgfpathlineto{\pgfpoint{-0.5\pgf@circ@res@step}{-0.7\pgf@circ@res@step}}
 		\pgfpathclose
-		\pgfusepath{draw}	
+		\pgfusepath{draw}
 }
+
 
 %% variable amplifier
 \pgfcircdeclarebipole{}{\ctikzvalof{bipoles/vamp/width}}{vamp}{\ctikzvalof{bipoles/vamp/width}}{\ctikzvalof{bipoles/vamp/width}}{
