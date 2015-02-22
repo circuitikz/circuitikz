@@ -15,7 +15,7 @@
 
 
 % Names
-\ctikzset{name/.style = { n=#1 } }
+\ctikzset{name/.style = { n=#1 } } %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%@@@
 \ctikzset{n/.code = { 
 	\pgfkeys{/tikz/circuitikz/bipole/name=#1}
 }}
@@ -212,13 +212,22 @@
 \def\pgf@circ@detector@path#1{\pgf@circ@bipole@path{detector}{#1}}
 
 
+
+\def\pgf@circ@gfsurgearrester@path#1{\ifpgf@circuit@europeangfsurgearrester\pgf@circ@europeangfsurgearrester@path{#1}\else\pgf@circ@americangfsurgearrester@path{#1}\fi}
+\def\pgf@circ@europeangfsurgearrester@path#1{\pgf@circ@bipole@path{european gas filled surge arrester}{#1}}
+\def\pgf@circ@americangfsurgearrester@path#1{\pgf@circ@bipole@path{american gas filled surge arrester}{#1}}
+
 %% Styles
 
 %% Aggiungere per thyristor e tripoli semplici
 
+\def\comnpatname{\ifpgf@circuit@compat *\else\fi}
+\def\compattikzset#1{\tikzset{\comnpatname#1}}
+
 %\def\ctikzsetbipole#1#2{%
 %	\compattikzset{#1/.style= {to path=#2, \circuitikzbasekey, l=##1}}%
 %}
+
 %\ctikzsetbipole{resistor}{\pgf@circ@resistor@path}
 
 \compattikzset{resistor/.style= {\circuitikzbasekey, /tikz/to path=\pgf@circ@resistor@path, l=#1}}
@@ -243,6 +252,12 @@
 \compattikzset{battery/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@battery@path, \circuitikzbasekey/bipole/is voltage=true, v=#1}}
 \compattikzset{battery1/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@battery1@path, \circuitikzbasekey/bipole/is voltage=true, v=#1}}
 \compattikzset{inductor/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@inductor@path, l=#1}}
+
+\compattikzset{gf surge arrester/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@gfsurgearrester@path, l=#1}}
+\compattikzset{american gas filled surge arrester/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@americangfsurgearrester@path, l=#1}}
+\compattikzset{european gas filled surge arrester/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@europeangfsurgearrester@path, l=#1}}
+\compattikzset{gas filled surge arrester/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@gfsurgearrester@path, l=#1}}
+
 \compattikzset{american inductor/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@americaninductor@path, l=#1}}
 \compattikzset{cute inductor/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@cuteinductor@path, l=#1}}
 \compattikzset{european inductor/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@europeaninductor@path, l=#1}}
@@ -267,10 +282,11 @@
 \compattikzset{controlled sinusoidal voltage source/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@cvsourcesin@path, \circuitikzbasekey/bipole/is voltage=true, v=#1}}
 \compattikzset{controlled sinusoidal current source/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@cisourcesin@path, \circuitikzbasekey/bipole/is current=true, i=#1}}
 
-\compattikzset{voltage source/.style = {\ifpgf@circuit@europeanvoltage european \else american \fi voltage source, \circuitikzbasekey/bipole/is voltage=true, v=#1}}
-\compattikzset{current source/.style = {\ifpgf@circuit@europeancurrent european \else american \fi current source, \circuitikzbasekey/bipole/is current=true, i=#1}}
-\compattikzset{controlled voltage source/.style = {\ifpgf@circuit@europeanvoltage european \else american \fi controlled voltage source, \circuitikzbasekey/bipole/is voltage=true, v=#1}}
-\compattikzset{controlled current source/.style = {\ifpgf@circuit@europeancurrent european \else american \fi controlled current source, \circuitikzbasekey/bipole/is current=true, i=#1}}
+
+\compattikzset{voltage source/.style = {\comnpatname \ifpgf@circuit@europeanvoltage european \else american \fi voltage source, \circuitikzbasekey/bipole/is voltage=true, v=#1}}
+\compattikzset{current source/.style = {\comnpatname \ifpgf@circuit@europeancurrent european \else american \fi current source, \circuitikzbasekey/bipole/is current=true, i=#1}}
+\compattikzset{controlled voltage source/.style = {\comnpatname \ifpgf@circuit@europeanvoltage european \else american \fi controlled voltage source, \circuitikzbasekey/bipole/is voltage=true, v=#1}}
+\compattikzset{controlled current source/.style = {\comnpatname \ifpgf@circuit@europeancurrent european \else american \fi controlled current source, \circuitikzbasekey/bipole/is current=true, i=#1}}
 
 
 \compattikzset{generic/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@generic@path, l=#1}}
@@ -288,6 +304,7 @@
 \compattikzset{thermocouple/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@thermocouple@path}}
 \compattikzset{fuse/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@fuse@path}}
 \compattikzset{asymmetric fuse/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@afuse@path}}
+
 
 \compattikzset{twoport/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@twoport@path}}
 \compattikzset{vco/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@vco@path}}
@@ -309,7 +326,6 @@
 \compattikzset{detector/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@detector@path}}
 
 
-
 \compattikzset{full diode/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@fulldiode@path}}
 \compattikzset{full Schottky diode/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@fullsdiode@path}}
 \compattikzset{full Zener diode/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@fullzdiode@path}}
@@ -326,13 +342,14 @@
 \compattikzset{empty led/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@emptylediode@path}}
 \compattikzset{empty varcap/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@emptyvarcap@path}}
 
-	\compattikzset{Schottky diode/.style = {\ifpgf@circuit@fulldiode full \else empty \fi Schottky diode}}
-	\compattikzset{Zener diode/.style = {\ifpgf@circuit@fulldiode full \else empty \fi Zener diode}}
-	\compattikzset{tunnel diode/.style = {\ifpgf@circuit@fulldiode full \else empty \fi tunnel diode}}
-	\compattikzset{photodiode/.style = {\ifpgf@circuit@fulldiode full \else empty \fi photodiode}}
-	\compattikzset{led/.style = {\ifpgf@circuit@fulldiode full \else empty \fi led}}
-	\compattikzset{varcap/.style = {\ifpgf@circuit@fulldiode full \else empty \fi varcap}}
-	\compattikzset{diode/.style = {\ifpgf@circuit@fulldiode full \else empty \fi diode}}
+
+	\compattikzset{Schottky diode/.style = {\comnpatname \ifpgf@circuit@fulldiode full \else empty \fi Schottky diode}}
+	\compattikzset{Zener diode/.style = {\comnpatname \ifpgf@circuit@fulldiode full \else empty \fi Zener diode}}
+	\compattikzset{tunnel diode/.style = {\comnpatname \ifpgf@circuit@fulldiode full \else empty \fi tunnel diode}}
+	\compattikzset{photodiode/.style = {\comnpatname \ifpgf@circuit@fulldiode full \else empty \fi photodiode}}
+	\compattikzset{led/.style = {\comnpatname \ifpgf@circuit@fulldiode full \else empty \fi led}}
+	\compattikzset{varcap/.style = {\comnpatname \ifpgf@circuit@fulldiode full \else empty \fi varcap}}
+	\compattikzset{diode/.style = {\comnpatname \ifpgf@circuit@fulldiode full \else empty \fi diode}}
 	
 \compattikzset{thyristor/.style =  {\circuitikzbasekey, /tikz/to path=\pgf@circ@thyristor@path}}
 \compattikzset{memristor/.style =  {\circuitikzbasekey, /tikz/to path=\pgf@circ@memristor@path}}
@@ -346,90 +363,92 @@
 \compattikzset{ammeter/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@ammeter@path}}
 \compattikzset{voltmeter/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@voltmeter@path}}
 
-% short forms
-\compattikzset{vsource/.style = {voltage source = #1}}
-\compattikzset{isource/.style = {current source = #1}}
-\compattikzset{cisource/.style = {controlled current source = #1}}
-\compattikzset{cvsource/.style = {controlled voltage source = #1}}
-\compattikzset{vsourcesin/.style = {sinusoidal voltage source = #1}}
-\compattikzset{vsourcesquare/.style = {square voltage source = #1}}
-\compattikzset{isourcesin/.style = {sinusoidal current source = #1}}
-\compattikzset{cisourcesin/.style = {controlled sinusoidal current source = #1}}
-\compattikzset{cvsourcesin/.style = {controlled sinusoidal  voltage source = #1}}
+\compattikzset{vsource/.style = {\comnpatname voltage source = #1}}
+\compattikzset{isource/.style = {\comnpatname current source = #1}}
+\compattikzset{cisource/.style = {\comnpatname controlled current source = #1}}
+\compattikzset{cvsource/.style = {\comnpatname controlled voltage source = #1}}
+\compattikzset{vsourcesin/.style = {\comnpatname sinusoidal voltage source = #1}}
+\compattikzset{vsourcesquare/.style = {\comnpatname square voltage source = #1}}
+\compattikzset{isourcesin/.style = {\comnpatname sinusoidal current source = #1}}
+\compattikzset{cisourcesin/.style = {\comnpatname controlled sinusoidal current source = #1}}
+\compattikzset{cvsourcesin/.style = {\comnpatname controlled sinusoidal  voltage source = #1}}
 
-\compattikzset{controlled vsource/.style = {controlled voltage source = #1}}
-\compattikzset{controlled isource/.style = {controlled current source = #1}}
-\compattikzset{controlled vsourcesin/.style = {controlled sinusoidal  voltage source = #1}}
-\compattikzset{controlled isourcesin/.style = {controlled sinusoidal current source = #1}}
+\compattikzset{controlled vsource/.style = {\comnpatname controlled voltage source = #1}}
+\compattikzset{controlled isource/.style = {\comnpatname controlled current source = #1}}
+\compattikzset{controlled vsourcesin/.style = {\comnpatname controlled sinusoidal  voltage source = #1}}
+\compattikzset{controlled isourcesin/.style = {\comnpatname controlled sinusoidal current source = #1}}
 
-\compattikzset{R/.style= {resistor = #1}}
-\compattikzset{vR/.style= {variable resistor = #1}}
-\compattikzset{phR/.style= {photoresistor = #1}}
-\compattikzset{thR/.style= {thermistor = #1}}
-\compattikzset{thRp/.style= {thermistor ptc= #1}}
-\compattikzset{thRn/.style= {thermistor ntc= #1}}
-\compattikzset{pR/.style= {potentiometer = #1}}
-\compattikzset{C/.style = {capacitor = #1}}
-\compattikzset{pC/.style = {polar capacitor = #1}}
-\compattikzset{vC/.style = {variable capacitor = #1}}
-\compattikzset{L/.style = {inductor = #1}}
-\compattikzset{vL/.style = {variable inductor = #1}}
-\compattikzset{V/.style = {voltage source = #1}}
-\compattikzset{cV/.style = {controlled voltage source = #1}}
-\compattikzset{sV/.style = {sinusoidal voltage source = #1}}
-\compattikzset{sqV/.style = {square voltage source = #1}}
-\compattikzset{csV/.style = {controlled sinusoidal voltage source = #1}}
+\compattikzset{R/.style= {\comnpatname resistor = #1}}
+%\ifpgf@circuit@compat\else\compattikzset{R/.style= {resistor = #1}}\fi
+\compattikzset{vR/.style= {\comnpatname variable resistor = #1}}
+\compattikzset{phR/.style= {\comnpatname photoresistor = #1}}
+\compattikzset{thR/.style= {\comnpatname thermistor = #1}}
+\compattikzset{thRp/.style= {\comnpatname thermistor ptc= #1}}
+\compattikzset{thRn/.style= {\comnpatname thermistor ntc= #1}}
+\compattikzset{pR/.style= {\comnpatname potentiometer = #1}}
+\compattikzset{C/.style = {\comnpatname capacitor = #1}}
+\compattikzset{pC/.style = {\comnpatname polar capacitor = #1}}
+\compattikzset{vC/.style = {\comnpatname variable capacitor = #1}}
+\compattikzset{L/.style = {\comnpatname inductor = #1}}
+\compattikzset{vL/.style = {\comnpatname variable inductor = #1}}
+\compattikzset{V/.style = {\comnpatname voltage source = #1}}
+\compattikzset{cV/.style = {\comnpatname controlled voltage source = #1}}
+\compattikzset{sV/.style = {\comnpatname sinusoidal voltage source = #1}}
+\compattikzset{sqV/.style = {\comnpatname square voltage source = #1}}
+\compattikzset{csV/.style = {\comnpatname controlled sinusoidal voltage source = #1}}
 \def\pgf@temp#1{ 
-	\compattikzset{V#1/.style = {voltage source, v#1=##1} } 
-	\compattikzset{cV#1/.style = {controlled  voltage source, v#1=##1} } 
-	\compattikzset{sV#1/.style = {sinusoidal  voltage source, v#1=##1} } 
-	\compattikzset{csV#1/.style = {controlled sinusoidal voltage source, v#1=##1} } 
+	\compattikzset{V#1/.style = {\comnpatname voltage source, v#1=##1} } 
+	\compattikzset{cV#1/.style = {\comnpatname controlled  voltage source, v#1=##1} } 
+	\compattikzset{sV#1/.style = {\comnpatname sinusoidal  voltage source, v#1=##1} } 
+	\compattikzset{csV#1/.style = {\comnpatname controlled sinusoidal voltage source, v#1=##1} } 
 }
 \pgf@temp{_>} \pgf@temp{_<} \pgf@temp{^>} \pgf@temp{^<} 
 \pgf@temp{>} \pgf@temp{<} \pgf@temp{^} \pgf@temp{_} 
-\compattikzset{I/.style = {current source = #1}}
-\compattikzset{cI/.style = {controlled current source = #1}}
-\compattikzset{sI/.style = {sinusoidal current source = #1}}
-\compattikzset{csI/.style = {controlled sinusoidal current source = #1}}
+\compattikzset{I/.style = {\comnpatname current source = #1}}
+\compattikzset{cI/.style = {\comnpatname controlled current source = #1}}
+\compattikzset{sI/.style = {\comnpatname sinusoidal current source = #1}}
+\compattikzset{csI/.style = {\comnpatname controlled sinusoidal current source = #1}}
 \def\pgf@temp#1{ 
-	\compattikzset{I#1/.style = {current source, i#1=##1} } 
-	\compattikzset{cI#1/.style = {controlled current source, i#1=##1} } 
-	\compattikzset{sI#1/.style = {sinusoidal current source, i#1=##1} } 
-	\compattikzset{csI#1/.style = {controlled sinusoidal current source, i#1=##1} } 
+	\compattikzset{I#1/.style = {\comnpatname current source, i#1=##1} } 
+	\compattikzset{cI#1/.style = {\comnpatname controlled current source, i#1=##1} } 
+	\compattikzset{sI#1/.style = {\comnpatname sinusoidal current source, i#1=##1} } 
+	\compattikzset{csI#1/.style = {\comnpatname controlled sinusoidal current source, i#1=##1} } 
 }
 \pgf@temp{_>} \pgf@temp{_<} \pgf@temp{^>} \pgf@temp{^<} 
 \pgf@temp{>_} \pgf@temp{<_} \pgf@temp{>^} \pgf@temp{<^} 
 \pgf@temp{>} \pgf@temp{<} \pgf@temp{^} \pgf@temp{_} 
-\compattikzset{Do/.style = {empty diode}}
-\compattikzset{tDo/.style = {empty tunnel diode}}
-\compattikzset{zDo/.style = {empty Zener diode}}
-\compattikzset{sDo/.style = {empty Schottky diode}}
-\compattikzset{pDo/.style = {empty photodiode}}
-\compattikzset{leDo/.style = {empty led}}
-\compattikzset{VCo/.style = {empty varcap}}
-\compattikzset{D*/.style = {full diode}}
-\compattikzset{tD*/.style = {full tunnel diode}}
-\compattikzset{zD*/.style = {full Zener diode}}
-\compattikzset{sD*/.style = {full Schottky diode}}
-\compattikzset{pD*/.style = {full photodiode}}
-\compattikzset{leD*/.style = {full led}}
-\compattikzset{VC*/.style = {full varcap}}
-\compattikzset{D/.style = {diode}}
-\compattikzset{tD/.style = {tunnel diode}}
-\compattikzset{zD/.style = {Zener diode}}
-\compattikzset{sD/.style = {Schottky diode}}
-\compattikzset{pD/.style = {photodiode}}
-\compattikzset{leD/.style = {led}}
-\compattikzset{VC/.style = {varcap}}
 
-\compattikzset{Tr/.style = {triac}}
-\compattikzset{Mr/.style = {memristor}}
-\compattikzset{Ty/.style = {thyristor}}
+\compattikzset{Do/.style = {\comnpatname empty diode}}
+\compattikzset{tDo/.style = {\comnpatname empty tunnel diode}}
+\compattikzset{zDo/.style = {\comnpatname empty Zener diode}}
+\compattikzset{sDo/.style = {\comnpatname empty Schottky diode}}
+\compattikzset{pDo/.style = {\comnpatname empty photodiode}}
+\compattikzset{leDo/.style = {\comnpatname empty led}}
+\compattikzset{VCo/.style = {\comnpatname empty varcap}}
+\compattikzset{D*/.style = {\comnpatname full diode}}
+\compattikzset{tD*/.style = {\comnpatname full tunnel diode}}
+\compattikzset{zD*/.style = {\comnpatname full Zener diode}}
+\compattikzset{sD*/.style = {\comnpatname full Schottky diode}}
+\compattikzset{pD*/.style = {\comnpatname full photodiode}}
+\compattikzset{leD*/.style = {\comnpatname full led}}
+\compattikzset{VC*/.style = {\comnpatname full varcap}}
+\compattikzset{D/.style = {\comnpatname diode}}
+\compattikzset{tD/.style = {\comnpatname tunnel diode}}
+\compattikzset{zD/.style = {\comnpatname Zener diode}}
+\compattikzset{sD/.style = {\comnpatname Schottky diode}}
+\compattikzset{pD/.style = {\comnpatname photodiode}}
+\compattikzset{leD/.style = {\comnpatname led}}
+\compattikzset{VC/.style = {\comnpatname varcap}}
 
-\compattikzset{cspst/.style = {closing switch = #1}}
-\compattikzset{ospst/.style = {opening switch = #1}}
+\compattikzset{Tr/.style = {\comnpatname triac}}
+\compattikzset{Mr/.style = {\comnpatname memristor}}
+\compattikzset{Ty/.style = {\comnpatname thyristor}}
 
-\compattikzset{afuse/.style = {asymmetric fuse=#1}}
+\compattikzset{cspst/.style = {\comnpatname closing switch = #1}}
+\compattikzset{ospst/.style = {\comnpatname opening switch = #1}}
+
+\compattikzset{afuse/.style = {\comnpatname asymmetric fuse=#1}}
+
 
 
 \def\inheritlogicport#1#2{

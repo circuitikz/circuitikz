@@ -10,8 +10,11 @@
 \usepackage{microtype}
 	
 \usepackage[siunitx]{circuitikz}
+
 \sisetup{load=derived} % loading \siemens
 \usepackage{showexpl}
+\lstset{pos=l,width=-99pt, overhang=0pt,hsep=\columnsep,vsep=\bigskipamount,rframe=single,numbers=left,numberstyle=\tiny,numbersep=.3em, xleftmargin=1em, columns=flexible, language=[LaTeX]TEX}
+
 \usepackage{framed}
 \usepackage{hyperref}
 \hypersetup{
@@ -102,7 +105,9 @@ Much appreciated: \email{mailto:m.redaelli@gmail.com}. Although I don't guarante
 
 \subsection{Incompatible packages}
 
-None, as far as I know.
+\TikZ's own \texttt{circuit} library, which is based on \Circuitikz, (re?)defines several styles used by this library. In order to have them work together I added the \texttt{compatibility} package option, which basically prefixes the names of all \Circuitikz\ \texttt{to[]} styles with an asterisk.
+
+So, if loaded with said option, one must write \verb!(0,0) to[*R] (2,0)! and, for transistors on a path, \verb!(0,0) to[*Tnmos] (2,0)!, and so on (but \verb!(0,0) node [nmos] {}!). See example at page~\pageref{ex:compatibility}.
 
 \subsection{Introduction to version 0.3.0}
 
@@ -175,8 +180,10 @@ As far as I know, this is a bug in \TikZ, and I notified the author, but until h
 	\item \texttt{cuteinductors}: uses my personal favorite, "pig-tailed" shape for inductors;
 	\item \texttt{americanports}: uses triangular logic ports, as per american standards;
 	\item \texttt{europeanports}: uses rectangular logic ports, as per european standards;
-	\item \texttt{european}: equivalent to \texttt{europeancurrents}, \texttt{europeanvoltages}, \texttt{europeanresistors}, \texttt{europeaninductors}, \texttt{europeanports};
-	\item \texttt{american}: equivalent to \texttt{americancurrents}, \texttt{americanvoltages}, \texttt{americanresistors}, \texttt{americaninductors}, \texttt{americanports};
+	\item \texttt{americangfsurgearrester}: uses round gas filled surge arresters, as per american standards;
+	\item \texttt{europeangfsurgearrester}: uses rectangular gas filled surge arresters, as per european standards;
+	\item \texttt{european}: equivalent to \texttt{europeancurrents}, \texttt{europeanvoltages}, \texttt{europeanresistors}, \texttt{europeaninductors}, \texttt{europeanports}, \texttt{europeangfsurgearrester};
+	\item \texttt{american}: equivalent to \texttt{americancurrents}, \texttt{americanvoltages}, \texttt{americanresistors}, \texttt{americaninductors}, \texttt{americanports}, \texttt{americangfsurgearrester};
 	\item \texttt{siunitx}: integrates with \texttt{SIunitx} package. If labels, currents or voltages are of the form \verb!#1<#2>! then what is shown is actually \verb!\SI{#1}{#2}!; 
 	\item \texttt{nosiunitx}: labels are not interpreted as above;
 	\item \texttt{fulldiodes}: the various diodes are drawn \emph{and} filled by default, i.e. when using styles such as \texttt{diode}, \texttt{D}, \texttt{sD}, \ldots Un-filled diode can always be forced with \texttt{Do}, \texttt{sDo}, \ldots
@@ -185,7 +192,8 @@ As far as I know, this is a bug in \TikZ, and I notified the author, but until h
 	\item \texttt{noarrowmos}: pmos and nmos do not have arrows analogous to those of pnp and npn transistors;
 	\item \texttt{straightlabels}: labels on bipoles are always printed straight up, i.e.~with horizontal baseline;
 	\item \texttt{rotatelabels}: labels on bipoles are always printed aligned along the bipole;
-	\item \texttt{smartlabels}: labels on bipoles are rotated along the bipoles, unless the rotation is very close to multiples of 90°.
+	\item \texttt{smartlabels}: labels on bipoles are rotated along the bipoles, unless the rotation is very close to multiples of 90°;
+	\item \texttt{compatibility}: makes it possibile to load \Circuitikz\ and \TikZ\ circuit library together.
 \end{itemize}	
 
 The old options in the singular (like \texttt{american voltage}) are still available for compatibility, but are discouraged.
@@ -340,6 +348,17 @@ The options \texttt{fulldiodes} and \texttt{emptydiodes} (and the styles \texttt
 	\circuititembip{squid}{Squid}{}
 	\circuititembip{barrier}{Barrier}{}
 \end{itemize}
+
+\begin{itemize}
+	\circuititembip{european gas filled surge arrester}{European gas filled surge arrester}{}
+	\circuititembip{american gas filled surge arrester}{American gas filled surge arrester}{}
+\end{itemize}
+
+\begin{framed}
+If (default behaviour) \texttt{europeangfsurgearrester} option is active (or the style \texttt{[european gas filled surge arrester]} is used), the shorthands \texttt{gas filled surge arrester} and \texttt{gf surge arrester} are equivalent to the european version of the component.
+
+If otherwise \texttt{americangfsurgearrester} option is active (or the style \texttt{[american gas filled surge arrester]} is used), the shorthands the shorthands \texttt{gas filled surge arrester} and \texttt{gf surge arrester} are equivalent to the american version of the component.
+\end{framed}
 
 \subsubsection{Basic dynamical bipoles}
 \begin{itemize}
@@ -1491,7 +1510,7 @@ And yes: this is a bug and \emph{not} a feature\ldots
 \noindent A: The \TikZ\ manual states:
 \begin{quotation}
 Furthermore, the library assumes that all \LaTeX\ pictures are ended
-    with \verb!\end{tikzpicture}\verb!.
+    with \verb!\end{tikzpicture}!.
 \end{quotation}
 
 Just substitute every occurrence of the environment \verb!circuitikz! with \verb!tikzpicture!. They are actually pretty much the same.
@@ -1578,7 +1597,7 @@ Just substitute every occurrence of the environment \verb!circuitikz! with \verb
 ;\end{circuitikz}
 \end{LTXexample}
  
- \begin{LTXexample}[pos=t,varwidth=true]
+\begin{LTXexample}[pos=t,varwidth=true]\label{ex:compatibility}
 \begin{circuitikz}[scale=1.2, american]\draw
   (0,2) to[I=1<\milli\ampere>] (2,2)
         to[R, l_=2<\kilo\ohm>, *-*] (0,0)
@@ -1603,9 +1622,39 @@ Just substitute every occurrence of the environment \verb!circuitikz! with \verb
 \end{circuitikz}
 \end{LTXexample}
 
+\begin{tabular}{l}
+	\fbox{\includegraphics{compatibility.pdf}}
+	\\
+	\begin{lstlisting}
+\usepackage{tikz}
+\usetikzlibrary{circuits.ee.IEC}
+\usetikzlibrary{positioning}
+
+\usepackage[compatibility]{circuitikz}
+\ctikzset{bipoles/length=.9cm}
+
+\begin{document}
+ \begin{tikzpicture}[circuit ee IEC]
+  \draw (0,0) to [resistor={name=R}] (0,2)
+	to[diode={name=D}] (3,2);
+  \draw (0,0) to[*R=$R_1$] (1.5,0) to[*Tnpn] (3,0)
+    to[*D](3,2);
+ \end{tikzpicture}
+\end{document}
+	\end{lstlisting}
+\end{tabular}
+
 \section{Revision history}
 
 \begin{itemize}
+\item[\itshape version 0.3.1] (?)
+	\begin{enumerate}
+    	\item typo in documentation
+	\item fixed an error in the angle computation in voltage and current routines
+	\item fixed problem with label size when scaling a tikz picture
+	\item added gas filled surge arrester
+	\item added compatibility option to work with Tikz's own circuit library
+    \end{enumerate}
 \item[\itshape version 0.3.0] (20121229)
 	\begin{enumerate}
 	\item fixed gate node for a few transistors
