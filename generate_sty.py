@@ -10,7 +10,7 @@ import datetime
 import shutil
 
 date=datetime.datetime.now().strftime("%Y-%m-%d")
-codefolder="code/"
+codefolder="tex/latex/circuitikz/"
 filein = open(codefolder+"circuitikz.sty", "r")
 fileout = open("circuitikz_merged.sty", "w")
 
