@@ -328,21 +328,28 @@
 
 \pgfcircdeclarebipole{}{\ctikzvalof{bipoles/cuteinductor/height}}{cuteinductor}{\ctikzvalof{bipoles/cuteinductor/height}}{\ctikzvalof{bipoles/cuteinductor/width}}{
 	\pgf@circ@res@step=\ctikzvalof{bipoles/cuteinductor/width}\pgf@circ@Rlen
-	\divide \pgf@circ@res@step by \ctikzvalof{bipoles/cuteinductor/coils}
+	\divide \pgf@circ@res@step by \ctikzvalof{bipoles/cuteinductor/coils} %divide by number of coils
+	\divide \pgf@circ@res@step by 2 %div by two for arcs
 
-	\pgfdecorationsegmentamplitude=\ctikzvalof{bipoles/cuteinductor/height}\pgf@circ@Rlen
-	\pgfdecorationsegmentamplitude=.5\pgfdecorationsegmentamplitude
-	\pgfdecorationsegmentlength = \pgf@circ@res@step
-	\pgfdecorationsegmentaspect=.6
+	\def\pgf@circ@coilsmall@width{\ctikzvalof{bipoles/cuteinductor/coil aspect}\pgf@circ@res@step}
 	
-	\pgfdecoration{{coil}{\pgfdecoratedremainingdistance}}
-		\pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@zero}}
-		\pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@zero}}
-	\endpgfdecoration
-		\pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}\pgfstartlinewidth}
+	\advance \pgf@circ@res@step by \pgf@circ@coilsmall@width %adjust for overlapping lower arc
+
+	\def\pgf@circ@coilwide@width{\pgf@circ@res@step}	
+		
+	\pgf@circ@res@other = \ctikzvalof{bipoles/cuteinductor/coil height}\pgf@circ@Rlen
+	\pgf@circ@res@temp =\ctikzvalof{bipoles/cuteinductor/lower coil height}\pgf@circ@Rlen
+
+	\pgfpathmoveto{\pgfpoint{\pgf@circ@res@left+0.5\pgfstartlinewidth}{-0.5\pgfstartlinewidth}}
+	\foreach \x in {2,...,\ctikzvalof{bipoles/cuteinductor/coils}}
+	{
+		\pgfpatharc{180}{0}{\pgf@circ@coilwide@width and 	\pgf@circ@res@other}
+		\pgfpatharc{0}{-180}{\pgf@circ@coilsmall@width and  \pgf@circ@res@temp}
+	}
+	\pgfpatharc{180}{0}{\pgf@circ@coilwide@width and  \pgf@circ@res@other}
+	\pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}\pgfstartlinewidth}
 	\pgfusepath{stroke}	
 }
-
 
 
 %% american inductor
@@ -350,19 +357,18 @@
 \pgfcircdeclarebipole{}{\ctikzvalof{bipoles/americaninductor/height 2}}{americaninductor}{\ctikzvalof{bipoles/americaninductor/height}}{\ctikzvalof{bipoles/americaninductor/width}}{
 	\pgf@circ@res@step=\ctikzvalof{bipoles/americaninductor/width}\pgf@circ@Rlen
 	\divide \pgf@circ@res@step by \ctikzvalof{bipoles/americaninductor/coils}
+	\divide \pgf@circ@res@step by 2
+	\pgf@circ@res@other = \ctikzvalof{bipoles/americaninductor/coil height}\pgf@circ@Rlen
 
-	\pgfdecorationsegmentamplitude=\ctikzvalof{bipoles/americaninductor/height}\pgf@circ@Rlen
-	\pgfdecorationsegmentamplitude=.45\pgfdecorationsegmentamplitude
-	\pgfdecorationsegmentlength = 1.99\pgf@circ@res@step
-	
-	\pgfdecoration{{bumps}{\pgfdecoratedremainingdistance}}
-		\pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@zero}}
-		\pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@zero}}
-	\endpgfdecoration
-		\pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}\pgfstartlinewidth}
+	\pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{-0.5\pgfstartlinewidth}}
+	\pgfpatharc{180}{0}{\pgf@circ@res@step and  \pgf@circ@res@other}
+	\pgfpatharc{180}{0}{\pgf@circ@res@step and  \pgf@circ@res@other}
+	\pgfpatharc{180}{0}{\pgf@circ@res@step and  \pgf@circ@res@other}
+	\pgfpatharc{180}{0}{\pgf@circ@res@step and  \pgf@circ@res@other}
+	\pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{-0.5\pgfstartlinewidth}}
+	\pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}\pgfstartlinewidth}
 	\pgfusepath{stroke}	
 }
-
 
 
 
@@ -398,7 +404,7 @@
 
 
 %% Independent sinusoidal voltage source
-
+ 
 \pgfcircdeclarebipole{}{\ctikzvalof{bipoles/vsourcesin/height}}{vsourcesin}{\ctikzvalof{bipoles/vsourcesin/height}}{\ctikzvalof{bipoles/vsourcesin/width}}{
 
 	\pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}\pgfstartlinewidth}
@@ -1474,30 +1480,38 @@
 }
 
 
-%% Variable Cute Inductor
+%% variable cute inductor
 
 \pgfcircdeclarebipole{}{\ctikzvalof{bipoles/vcuteinductor/height}}{vcuteinductor}{\ctikzvalof{bipoles/vcuteinductor/height}}{\ctikzvalof{bipoles/vcuteinductor/width}}{
 	\pgf@circ@res@step=\ctikzvalof{bipoles/vcuteinductor/width}\pgf@circ@Rlen
-	\divide \pgf@circ@res@step by \ctikzvalof{bipoles/vcuteinductor/coils}
+	\divide \pgf@circ@res@step by \ctikzvalof{bipoles/vcuteinductor/coils} %divide by number of coils
+	\divide \pgf@circ@res@step by 2 %div by two for arcs
 
-	\pgfdecorationsegmentamplitude=\ctikzvalof{bipoles/vcuteinductor/coil height}\pgf@circ@Rlen
-	\pgfdecorationsegmentamplitude=.5\pgfdecorationsegmentamplitude
-	\pgfdecorationsegmentlength = \pgf@circ@res@step
-	\pgfdecorationsegmentaspect=.6
+	\def\pgf@circ@coilsmall@width{\ctikzvalof{bipoles/vcuteinductor/coil aspect}\pgf@circ@res@step}
 	
-	\pgfdecoration{{coil}{\pgfdecoratedremainingdistance}}
-		\pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@zero}}
-		\pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@zero}}
-	\endpgfdecoration
-		\pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}\pgfstartlinewidth}
+	\advance \pgf@circ@res@step by \pgf@circ@coilsmall@width %adjust for overlapping lower arc
+
+	\def\pgf@circ@coilwide@width{\pgf@circ@res@step}	
+		
+	\pgf@circ@res@other = \ctikzvalof{bipoles/vcuteinductor/coil height}\pgf@circ@Rlen
+	\pgf@circ@res@temp =\ctikzvalof{bipoles/vcuteinductor/lower coil height}\pgf@circ@Rlen
+
+	\pgfpathmoveto{\pgfpoint{\pgf@circ@res@left+0.5\pgfstartlinewidth}{-0.5\pgfstartlinewidth}}
+	\foreach \x in {2,...,\ctikzvalof{bipoles/vcuteinductor/coils}}
+	{
+		\pgfpatharc{180}{0}{\pgf@circ@coilwide@width and 	\pgf@circ@res@other}
+		\pgfpatharc{0}{-180}{\pgf@circ@coilsmall@width and  \pgf@circ@res@temp}
+	}
+	\pgfpatharc{180}{0}{\pgf@circ@coilwide@width and  \pgf@circ@res@other}
+	\pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}\pgfstartlinewidth}
 	\pgfusepath{stroke}	
 	
-		\pgfscope
+\pgfscope
 		\pgfsetarrowsend{latex'}
-		\pgfpathmoveto{\pgfpoint{.4\pgf@circ@res@left}{\pgf@circ@res@up}}
-		\pgfpathlineto{\pgfpoint{-.4\pgf@circ@res@left}{\pgf@circ@res@down}}
+		\pgfpathmoveto{\pgfpoint{.5\pgf@circ@res@left}{1.5\pgf@circ@res@down}}
+		\pgfpathlineto{\pgfpoint{-.5\pgf@circ@res@left}{2.5\pgf@circ@res@up}}
 		\pgfusepath{draw}
-		\endpgfscope
+	\endpgfscope
 }
 
 
@@ -1506,25 +1520,24 @@
 \pgfcircdeclarebipole{}{\ctikzvalof{bipoles/vamericaninductor/height 2}}{vamericaninductor}{\ctikzvalof{bipoles/vamericaninductor/height}}{\ctikzvalof{bipoles/vamericaninductor/width}}{
 	\pgf@circ@res@step=\ctikzvalof{bipoles/vamericaninductor/width}\pgf@circ@Rlen
 	\divide \pgf@circ@res@step by \ctikzvalof{bipoles/vamericaninductor/coils}
+	\divide \pgf@circ@res@step by 2
+	\pgf@circ@res@other = \ctikzvalof{bipoles/vamericaninductor/coil height}\pgf@circ@Rlen
 
-	\pgfdecorationsegmentamplitude=\ctikzvalof{bipoles/vamericaninductor/height}\pgf@circ@Rlen
-	\pgfdecorationsegmentamplitude=.45\pgfdecorationsegmentamplitude
-	\pgfdecorationsegmentamplitude=.45\pgfdecorationsegmentamplitude % per freccia
-	\pgfdecorationsegmentlength = 1.99\pgf@circ@res@step
-	
-	\pgfdecoration{{bumps}{\pgfdecoratedremainingdistance}}
-		\pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@zero}}
-		\pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@zero}}
-	\endpgfdecoration
-		\pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}\pgfstartlinewidth}
+	\pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{-0.5\pgfstartlinewidth}}
+	\pgfpatharc{180}{0}{\pgf@circ@res@step and  \pgf@circ@res@other}
+	\pgfpatharc{180}{0}{\pgf@circ@res@step and  \pgf@circ@res@other}
+	\pgfpatharc{180}{0}{\pgf@circ@res@step and  \pgf@circ@res@other}
+	\pgfpatharc{180}{0}{\pgf@circ@res@step and  \pgf@circ@res@other}
+	\pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@zero}}
+	\pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}\pgfstartlinewidth}
 	\pgfusepath{stroke}	
 	
-		\pgfscope
+	\pgfscope
 		\pgfsetarrowsend{latex'}
 		\pgfpathmoveto{\pgfpoint{.4\pgf@circ@res@left}{\pgf@circ@res@down}}
 		\pgfpathlineto{\pgfpoint{-.4\pgf@circ@res@left}{\pgf@circ@res@up}}
 		\pgfusepath{draw}
-		\endpgfscope
+	\endpgfscope
 }
 
 
