@@ -1,21 +1,20 @@
 \documentclass[a4paper]{article}
+	
+\usepackage[siunitx]{circuitikz}
+
 
 \usepackage{fontspec}
 \defaultfontfeatures{Ligatures=TeX, Numbers=OldStyle, SmallCapsFeatures={LetterSpace=8, Numbers=OldStyle}}
 
-\setmainfont
-% {Linux Libertine}
- {Gentium Book Basic} 
+\setmainfont{Gentium Book Basic} 
 
 \usepackage{microtype}
-	
-\usepackage[siunitx]{circuitikz}
 
 \sisetup{load=derived} % loading \siemens
 \usepackage{showexpl}
 \lstset{pos=l,width=-99pt, overhang=0pt,hsep=\columnsep,vsep=\bigskipamount,rframe=single,numbers=left,numberstyle=\tiny,numbersep=.3em, xleftmargin=1em, columns=flexible, language=[LaTeX]TEX}
 
-\usepackage{framed}
+\usepackage{framed, xtab}
 \usepackage{hyperref}
 \hypersetup{
     bookmarks=false,         % show bookmarks bar?
@@ -245,9 +244,12 @@ Please notice that for user convenience transistors can also be inputted using t
 	\circuititem{pground}{Protective ground}{}
 	\circuititem{cground}{Chassis ground\footnote{These last three were contributed by Luigi «Liverpool»)}}{}
 	\circuititem{antenna}{Antenna}{}
-	\circuititem{rxantenna}{Transmitting antenna}{}
-	\circuititem{txantenna}{Receiving antenna}{}
+	\circuititem{rxantenna}{Receiving antenna}{}
+	\circuititem{txantenna}{Transmitting antenna}{}
 	\circuititem{tlinestub}{Transmission line stub}{}
+	\circuititem{vcc}{VCC}{}
+	\circuititem{match}{match}{}
+	\circuititem{oscillator}{LO\footnote{These last three come from Stefan Erhardt's contribution of HF components}}{}
 \end{itemize}
 
 
@@ -279,7 +281,7 @@ If (default behaviour) \texttt{americanresistors} option is active (or the style
 \begin{itemize}
   	\ctikzset{resistor=american}
   	\circuititembip{R}{Resistor}{american resistor}
-	\circuititembip{vR}{Variable resistor}{american variable resistor}
+	\circuititembip{vR}{Variable resistor}{variable american resistor}
 	\circuititembip{pR}{Potentiometer}{american potentiometer}
 \end{itemize}
 
@@ -416,6 +418,30 @@ There is also a transmission line:
 	\circuititembip{push button}{Push button}{}
 \end{itemize}	
 
+\subsubsection{HF components}
+\noindent Contributed by Stefan Erhardt.
+\begin{itemize}
+	\circuititembip{twoport}{generic two port\footnote{To specify text to be put in the component: \texttt{twoport[t=text]}): \tikz \draw[scale=.5, transform shape] (0,0) to[twoport,>,t=text] (2,0); }}{}
+	\circuititembip{vco}{vco}{}
+	\circuititembip{bandpass}{bandpass}{}
+	\circuititembip{highpass}{highpass}{}
+	\circuititembip{lowpass}{lowpass}{}
+	\circuititembip{adc}{A/D converter}{}
+	\circuititembip{dac}{D/A converter}{}
+	\circuititembip{dsp}{DSP}{}
+	\circuititembip{fft}{FFT}{}
+	\circuititembip{amp}{amplifier}{}
+	\circuititembip{vamp}{VGA}{}
+	\circuititembip{piattenuator}{$\pi$ attenuator}{}
+	\circuititembip{vpiattenuator}{var. $\pi$ attenuator}{}
+	\circuititembip{tattenuator}{T attenuator}{}
+	\circuititembip{vtattenuator}{var.\ T attenuator}{}
+	\circuititembip{phaseshifter}{phase shifter}{}
+	\circuititembip{vphaseshifter}{var.\ phase shifter}{}
+	\circuititembip{detector}{detector}{}
+\end{itemize}	
+
+
 
 
 \subsection{Tripoles}
@@ -479,6 +505,16 @@ Borsche:
 	\circuititem{isfet}{\scshape isfet}{}
 \end{itemize}
 
+\subsubsection{HF}
+These come from Stefan Erhardt's contribution of HF components.
+\begin{itemize}
+	\circuititem{circulator}{\scshape circulator}{}
+	\circuititem{wilkinson}{\scshape wilkinson divider}{}
+\end{itemize}
+
+
+		
+		
 \subsubsection{Switch}
 \begin{itemize}
 	\circuititem{spdt}{\scshape spdt}{}
@@ -523,8 +559,11 @@ Transformers with core are also available:
 
 \begin{itemize}
 	\circuititem{gyrator}{Gyrator}{}
+	\circuititem{coupler}{Coupler}{}
+	\circuititem{coupler2}{Coupler, 2}{}
 \end{itemize}
 
+	
 
 \subsection{Logic gates}
 
@@ -563,6 +602,10 @@ If otherwise \texttt{europeanports} option is active (or the style \texttt{[euro
 	\circuititem{buffer}{Buffer}{}
 \end{itemize}
 
+
+
+
+
 \subsection{Support shapes}
 
 \begin{itemize}
@@ -570,6 +613,9 @@ If otherwise \texttt{europeanports} option is active (or the style \texttt{[euro
 	\circuititem{circ}{Connected terminal}{}
 	\circuititem{ocirc}{Unconnected terminal}{}
 \end{itemize}
+
+
+
 
 
 
@@ -1286,6 +1332,32 @@ The fully differential op amp defines two outputs:
 ;\end{circuitikz}
 \end{LTXexample}
 
+
+The circulator defined ports 1, 2 and 3:
+\begin{LTXexample}[varwidth=true]
+		\begin{circuitikz} \draw
+			(0,0) node[circulator] (c) {}
+			(c.1) node[left] {\texttt{1}}
+			(c.2) node[right] {\texttt{2}}
+			(c.3) node[below] {\texttt{3}}
+			;
+		\end{circuitikz}
+\end{LTXexample}			
+		
+The Wilkinson divider has:
+		\begin{LTXexample}[varwidth=true]
+		\begin{circuitikz} \draw
+			(0,0) node[wilkinson] (w) {\SI{3}{dB}}
+			(w.in) to[short,-o] ++(-0.5,0)
+			(w.out1) to[short,-o] ++(0.5,0)
+			(w.out2) to[short,-o] ++(0.5,0)
+			(w.in) node[below left] {\texttt{in}}
+			(w.out1) node[below right] {\texttt{out1}}
+			(w.out2) node[above right] {\texttt{out2}}
+			;
+		\end{circuitikz}
+\end{LTXexample}
+
 \subsubsection{Double bipoles} All the (few, actually) double bipoles/quadrupoles have
 the four anchors, two for each port. The first port, to the left, is port \texttt{A}, having the anchors \texttt{A1} (up) and \texttt{A2} (down); same for port \texttt{B}. They also expose the \texttt{base} anchor, for labelling:
 
@@ -1310,6 +1382,66 @@ the four anchors, two for each port. The first port, to the left, is port \textt
   (G.base) node{K}
 ;\end{circuitikz}
 \end{LTXexample}
+
+However:
+\begin{LTXexample}[varwidth=true]
+		\begin{circuitikz} \draw
+			(0,0) node[coupler] (c) {\SI{10}{dB}}
+			(c.1) to[short,-o] ++(-0.5,0)
+			(c.2) to[short,-o] ++(0.5,0)
+			(c.3) to[short,-o] ++(0.5,0)
+			(c.4) to[short,-o] ++(-0.5,0)
+			(c.1) node[below left] {\texttt{1}}
+			(c.2) node[below right] {\texttt{2}}
+			(c.3) node[above right] {\texttt{3}}
+			(c.4) node[above left] {\texttt{4}}
+			;
+		\end{circuitikz}
+		\end{LTXexample}
+		
+		\begin{LTXexample}[varwidth=true]
+		\begin{circuitikz} \draw
+			(0,0) node[coupler2] (c) {\SI{3}{dB}}
+			(c.1) to[short,-o] ++(-0.5,0)
+			(c.2) to[short,-o] ++(0.5,0)
+			(c.3) to[short,-o] ++(0.5,0)
+			(c.4) to[short,-o] ++(-0.5,0)
+			(c.1) node[below left] {\texttt{1}}
+			(c.2) node[below right] {\texttt{2}}
+			(c.3) node[above right] {\texttt{3}}
+			(c.4) node[above left] {\texttt{4}}
+			;
+		\end{circuitikz}
+\end{LTXexample}
+
+
+\subsection{Input arrows}
+\subsubsection*{two ports}
+The new two ports all have a defined direction. If one needs opposite direction, just place them from right to left.  With the option \texttt{>} a input arrow is drawn:
+\begin{LTXexample}[varwidth=true]
+	\begin{circuitikz} \draw
+		(0,0) to[short,o-] ++(0.3,0)
+		to[lowpass,>] ++(2,0)
+		to[adc,>] ++(2,0)
+		to[fft,>] ++(2,0)
+		to[short,-o] ++(0.3,0);
+	\end{circuitikz}
+\end{LTXexample}
+
+\subsubsection*{multi ports}
+Since inputs and outputs can vary, input arrows can be placed as nodes:
+\begin{LTXexample}[varwidth=true]
+	\begin{circuitikz} \draw
+		(0,0) node[mixer] (m) {}
+		(m.in1) to[short,-o] ++(-1,0)
+		(m.in2) to[short,-o] ++(0,-1)
+		(m.out) to[short,-o] ++(1,0)
+		(m.in1) node[inputarrow] {}
+		(m.in2) node[inputarrow,rotate=90] {};
+	\end{circuitikz}
+\end{LTXexample}
+
+
 
 \subsection{Transistor paths}\label{sec:transasbip}
 
@@ -1622,27 +1754,36 @@ Just substitute every occurrence of the environment \verb!circuitikz! with \verb
 \end{circuitikz}
 \end{LTXexample}
 
-\begin{tabular}{l}
-	\fbox{\includegraphics{compatibility.pdf}}
-	\\
-	\begin{lstlisting}
-\usepackage{tikz}
-\usetikzlibrary{circuits.ee.IEC}
-\usetikzlibrary{positioning}
 
-\usepackage[compatibility]{circuitikz}
-\ctikzset{bipoles/length=.9cm}
-
-\begin{document}
- \begin{tikzpicture}[circuit ee IEC]
-  \draw (0,0) to [resistor={name=R}] (0,2)
-	to[diode={name=D}] (3,2);
-  \draw (0,0) to[*R=$R_1$] (1.5,0) to[*Tnpn] (3,0)
-    to[*D](3,2);
- \end{tikzpicture}
-\end{document}
-	\end{lstlisting}
-\end{tabular}
+\begin{LTXexample}[pos=t,varwidth=true]
+	\begin{circuitikz}[scale=1]
+		\ctikzset{bipoles/detector/width=.35}
+		\ctikzset{quadpoles/coupler/width=1}
+		\ctikzset{quadpoles/coupler/height=1}
+		\ctikzset{tripoles/wilkinson/width=1}
+		\ctikzset{tripoles/wilkinson/height=1}
+		%\draw[help lines,red,thin,dotted] (0,-5) grid (5,5);
+		\draw
+		(-2,0) node[wilkinson](w1){}
+		(2,0) node[coupler] (c1) {}
+		(0,2) node[coupler,rotate=90] (c2) {}
+		(0,-2) node[coupler,rotate=90] (c3) {}
+		(w1.out1) .. controls ++(0.8,0) and ++(0,0.8) .. (c3.3)
+		(w1.out2) .. controls ++(0.8,0) and ++(0,-0.8) .. (c2.4)
+		(c1.1) .. controls ++(-0.8,0) and ++(0,0.8) .. (c3.2)
+		(c1.4) .. controls ++(-0.8,0) and ++(0,-0.8) .. (c2.1)
+		(w1.in) to[short,-o] ++(-1,0)
+		(w1.in) node[left=30] {LO}
+		(c1.2) node[match,yscale=1] {}
+		(c1.3) to[short,-o] ++(1,0)
+		(c1.3) node[right=30] {RF}
+		(c2.3) to[detector,-o] ++(0,1.5)
+		(c2.2) to[detector,-o] ++(0,1.5)
+		(c3.1) to[detector,-o] ++(0,-1.5)
+		(c3.4) to[detector,-o] ++(0,-1.5)
+		;
+	\end{circuitikz}
+\end{LTXexample}
 
 \section{Revision history}
 
