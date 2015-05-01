@@ -440,6 +440,24 @@
 		\endpgfscope
 }
 
+% Triangle Voltage source – contributed by Ralf Farkas
+\pgfcircdeclarebipole{}{\ctikzvalof{bipoles/vsourcetri/height}}{vsourcetri}{\ctikzvalof{bipoles/vsourcetri/height}}{\ctikzvalof{bipoles/vsourcetri/width}}{
+
+	\pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}\pgfstartlinewidth}
+	\pgfpathellipse{\pgfpointorigin}{\pgfpoint{0}{\pgf@circ@res@up}}{\pgfpoint{\pgf@circ@res@left}{0}}
+	\pgfusepath{draw}		
+		
+		\pgf@circ@res@up = .5\pgf@circ@res@up
+		\pgfscope
+			\pgftransformrotate{90}
+			\pgfpathmoveto{\pgfpoint{-1\pgf@circ@res@up}{0cm}}
+			\pgfpathlineto{\pgfpoint{-0.5\pgf@circ@res@up}{0.75\pgf@circ@res@up}}
+			\pgfpathlineto{\pgfpoint{0.5\pgf@circ@res@up}{-0.75\pgf@circ@res@up}}
+			\pgfpathlineto{\pgfpoint{1\pgf@circ@res@up}{0\pgf@circ@res@up}}
+			\pgfusepath{draw}
+		\endpgfscope
+}
+
 
 %% Independent current source
 
@@ -1061,6 +1079,49 @@
 	\pgfusepath{draw}
 
 	\pgfnode{circle}{center}{\textbf{A}}{}{}
+}
+
+%% Ohmmeter – contributed by Ralf Farkas
+
+\pgfcircdeclarebipole{}{\ctikzvalof{bipoles/ohmmeter/height}}{ohmmeter}{\ctikzvalof{bipoles/ohmmeter/height}}{\ctikzvalof{bipoles/ohmmeter/width}}{
+	\def\pgf@circ@temp{right}
+	\ifx\tikz@res@label@pos\pgf@circ@temp
+		\pgf@circ@res@step=-1.2\pgf@circ@res@up
+	\else
+		\def\pgf@circ@temp{below}
+		\ifx\tikz@res@label@pos\pgf@circ@temp
+			\pgf@circ@res@step=-1.2\pgf@circ@res@up
+		\else
+			\pgf@circ@res@step=1.2\pgf@circ@res@up
+		\fi
+	\fi
+
+	\pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@zero}}		
+	\pgfpointorigin	\pgf@circ@res@other =  \pgf@x  \advance \pgf@circ@res@other by -\pgf@circ@res@up
+	\pgfpathlineto{\pgfpoint{\pgf@circ@res@other}{\pgf@circ@res@zero}}
+	\pgfusepath{draw}
+
+	\pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}\pgfstartlinewidth}
+
+		\pgfscope
+			\pgfpathcircle{\pgfpointorigin}{.9\pgf@circ@res@up}
+			\pgfusepath{draw}		
+		\endpgfscope	
+
+	\pgfsetlinewidth{\pgfstartlinewidth}
+
+	\pgfsetarrowsend{latex}
+	\pgfpathmoveto{\pgfpoint{\pgf@circ@res@other}{\pgf@circ@res@down}}
+	\pgfpathlineto{\pgfpoint{-\pgf@circ@res@other}{\pgf@circ@res@up}}
+	\pgfusepath{draw}
+	\pgfsetarrowsend{}
+
+	
+	\pgfpathmoveto{\pgfpoint{-\pgf@circ@res@other}{\pgf@circ@res@zero}}
+	\pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@zero}}
+	\pgfusepath{draw}
+
+	\pgfnode{circle}{center}{\boldmath$\Omega$}{}{}
 }
 
 %% Voltmeter
