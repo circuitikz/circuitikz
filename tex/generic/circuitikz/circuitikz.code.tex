@@ -17,7 +17,10 @@
 \def\ctikzvalof#1{\pgfkeysvalueof{\circuitikzbasekey/#1}}
 \def\ctikzsetvalof#1#2{\pgfkeyssetvalue{\circuitikzbasekey/#1}{#2}}
 
-\newif\ifpgf@circuit@compat
+\newif\ifpgf@circuit@inputarrow
+\ctikzset{inputarrow/.is choice}
+\ctikzset{inputarrow/true/.code={\pgf@circuit@inputarrowtrue}}
+\ctikzset{inputarrow/false/.code={\pgf@circuit@inputarrowfalse}}
 
 \ctikzset{bipoles/.is family}
 \ctikzset{bipoles/border margin/.initial=1.1}
@@ -26,6 +29,7 @@
 \ctikzset{nodes width/.initial=.04}
 \newdimen\pgf@circ@Rlen 
 \ctikzset{bipoles/length/.code={\pgf@circ@Rlen = #1}} 
+
 
 \ctikzset{monopoles/.is family}
 \ctikzset{monopoles/ground/width/.initial=.25}
@@ -42,6 +46,10 @@
 \ctikzset{monopoles/rxantenna/label/xanchor/.initial=.4}            
 \ctikzset{monopoles/rxantenna/label/yanchor/.initial=.75}            
 \ctikzset{monopoles/rxantenna/width/.initial=.25}
+\ctikzset{monopoles/tground/thickness/.initial=3}
+\ctikzset{monopoles/vcc/width/.initial=.2}
+\ctikzset{monopoles/match/width/.initial=.4}
+\ctikzset{monopoles/oscillator/width/.initial=.7}
 
 \ctikzset{bipoles/resistor/height/.initial=.3}
 \ctikzset{bipoles/resistor/width/.initial=.8}
@@ -183,6 +191,26 @@
 \ctikzset{bipoles/pushbutton/height/.initial=.5}
 \ctikzset{bipoles/pushbutton/height 2/.initial=.0}
 \ctikzset{bipoles/pushbutton/width/.initial=.50}
+\ctikzset{bipoles/twoport/width/.initial=.7}
+\ctikzset{bipoles/twoport/height/.initial=.7}
+\ctikzset{bipoles/twoport/text/.initial=}
+\ctikzset{bipoles/vco/width/.initial=.7}
+\ctikzset{bipoles/bandpass/width/.initial=.7}
+\ctikzset{bipoles/highpass/width/.initial=.7}
+\ctikzset{bipoles/lowpass/width/.initial=.7}
+\ctikzset{bipoles/adc/width/.initial=.7}
+\ctikzset{bipoles/dac/width/.initial=.7}
+\ctikzset{bipoles/dsp/width/.initial=.7}
+\ctikzset{bipoles/fft/width/.initial=.7}
+\ctikzset{bipoles/amp/width/.initial=.7}
+\ctikzset{bipoles/vamp/width/.initial=.7}
+\ctikzset{bipoles/piattenuator/width/.initial=.7}
+\ctikzset{bipoles/vpiattenuator/width/.initial=.7}
+\ctikzset{bipoles/tattenuator/width/.initial=.7}
+\ctikzset{bipoles/vtattenuator/width/.initial=.7}
+\ctikzset{bipoles/phaseshifter/width/.initial=.7}
+\ctikzset{bipoles/vphaseshifter/width/.initial=.7}
+\ctikzset{bipoles/detector/width/.initial=.7}
 
 \newif\ifpgf@circuit@mos@arrows
 \ctikzset{tripoles/mos style/.is choice}
@@ -422,9 +450,12 @@
 \ctikzset{tripoles/toggleswitch/height 2/.initial=.0}
 \ctikzset{tripoles/toggleswitch/width/.initial=.80}
 
-\ctikzset{tripoles/mixer/height/.initial=.85}
-\ctikzset{tripoles/mixer/width/.initial=.85}
-\ctikzset{tripoles/mixer/margin/.initial=.75}
+\ctikzset{tripoles/mixer/width/.initial=0.7}
+\ctikzset{tripoles/adder/width/.initial=0.7}
+\ctikzset{tripoles/circulator/width/.initial=.7}
+
+\ctikzset{tripoles/wilkinson/height/.initial=1.3}
+\ctikzset{tripoles/wilkinson/width/.initial=1.3}
 
 \ctikzset{quadpoles/transformer/width/.initial=1.5}
 \ctikzset{quadpoles/transformer/width1/.initial=.4}
@@ -436,8 +467,8 @@
 \ctikzset{quadpoles/transformer core/core width/.initial=.05}
 \ctikzset{quadpoles/gyrator/width/.initial=1.5}
 \ctikzset{quadpoles/gyrator/height/.initial=1.5}
-
-
+\ctikzset{quadpoles/coupler/width/.initial=1.3}
+\ctikzset{quadpoles/coupler/height/.initial=1.3}
 
 \ctikzset{bipole/.is family}
 \ctikzset{bipole/kind/.initial = }
@@ -494,8 +525,6 @@
 \ctikzset{bipole/nodes/right/full/.code={\ctikzsetvalof{bipole/nodes/right}{full}}}
 
 
-
-
 \newif\ifpgf@circuit@europeanresistor
 \ctikzset{resistor/.is choice}
 \ctikzset{resistor/american/.code = \pgf@circuit@europeanresistorfalse }
@@ -512,7 +541,7 @@
 \ctikzset{diode/empty/.code = \pgf@circuit@fulldiodefalse }
 \ctikzset{diode/full/.code = \pgf@circuit@fulldiodetrue }
 \ctikzset{thickness/.initial=2}
-\ctikzset{color/.initial=.}
+\ctikzset{color/.initial=black}
 \pgfkeys{/tikz/color/.add code={}{\ctikzset{color=#1}}}
 
 
@@ -608,16 +637,8 @@
 
 
 
-
-
 %%%%%%%%%% new
 \pgfkeys{\circuitikzbasekey/.search also={/tikz}}
-
-
-
-
-
-
 
 
 
@@ -630,11 +651,12 @@
 \input pgfcircbipoles.tex
 \input pgfcirctripoles.tex
 \input pgfcircquadpoles.tex
+\input pgfcircnpoles.tex
 
 \input pgfcirclabel.tex
 \input pgfcircvoltage.tex
 \input pgfcirccurrent.tex
-
+\input pgfcircinputarrows.tex
 
 
 
