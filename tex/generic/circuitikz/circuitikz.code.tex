@@ -1,3 +1,4 @@
+
 %% Options
 
 
@@ -16,6 +17,10 @@
 \def\ctikzvalof#1{\pgfkeysvalueof{\circuitikzbasekey/#1}}
 \def\ctikzsetvalof#1#2{\pgfkeyssetvalue{\circuitikzbasekey/#1}{#2}}
 
+
+\newif\ifpgf@circ@siunitx
+\newif\ifpgf@circuit@compat
+
 \newif\ifpgf@circuit@inputarrow
 \ctikzset{inputarrow/.is choice}
 \ctikzset{inputarrow/true/.code={\pgf@circuit@inputarrowtrue}}
@@ -29,9 +34,12 @@
 \newdimen\pgf@circ@Rlen 
 \ctikzset{bipoles/length/.code={\pgf@circ@Rlen = #1}} 
 
-
 \ctikzset{monopoles/.is family}
 \ctikzset{monopoles/ground/width/.initial=.25}
+\ctikzset{monopoles/tground/thickness/.initial=3}
+\ctikzset{monopoles/vcc/width/.initial=.2}
+\ctikzset{monopoles/match/width/.initial=.4}
+\ctikzset{monopoles/oscillator/width/.initial=.7}
 \ctikzset{monopoles/chassis/width/.initial=.25}
 \ctikzset{monopoles/alternative chassis/width/.initial=.25}
 \ctikzset{monopoles/equipotentiality/width/.initial=.25}
@@ -45,10 +53,6 @@
 \ctikzset{monopoles/rxantenna/label/xanchor/.initial=.4}            
 \ctikzset{monopoles/rxantenna/label/yanchor/.initial=.75}            
 \ctikzset{monopoles/rxantenna/width/.initial=.25}
-\ctikzset{monopoles/tground/thickness/.initial=3}
-\ctikzset{monopoles/vcc/width/.initial=.2}
-\ctikzset{monopoles/match/width/.initial=.4}
-\ctikzset{monopoles/oscillator/width/.initial=.7}
 
 \ctikzset{bipoles/resistor/height/.initial=.3}
 \ctikzset{bipoles/resistor/width/.initial=.8}
@@ -75,22 +79,37 @@
 \ctikzset{bipoles/vresistor/height/.initial=.6}
 \ctikzset{bipoles/vresistor/width/.initial=.8}
 \ctikzset{bipoles/cuteinductor/height/.initial=.3}
-\ctikzset{bipoles/cuteinductor/width/.initial=.8}
+\ctikzset{bipoles/cuteinductor/width/.initial=.6}
 \ctikzset{bipoles/cuteinductor/coils/.initial=6}
+\ctikzset{bipoles/cuteinductor/coil height/.initial=.15}
+\ctikzset{bipoles/cuteinductor/coil aspect/.initial=.25}	
+\ctikzset{bipoles/cuteinductor/lower coil height/.initial=.05}	
 \ctikzset{bipoles/americaninductor/height/.initial=.3}
 \ctikzset{bipoles/americaninductor/height 2/.initial=.1}
 \ctikzset{bipoles/americaninductor/width/.initial=.8}
 \ctikzset{bipoles/americaninductor/coils/.initial=4}
-\ctikzset{bipoles/vcuteinductor/height/.initial=.6}
-\ctikzset{bipoles/vcuteinductor/coil height/.initial=.3}
-\ctikzset{bipoles/vcuteinductor/width/.initial=.8}
+\ctikzset{bipoles/americaninductor/coil height/.initial=.15}
+\ctikzset{bipoles/vcuteinductor/height/.initial=.3}
+\ctikzset{bipoles/vcuteinductor/width/.initial=.6}
 \ctikzset{bipoles/vcuteinductor/coils/.initial=6}
+\ctikzset{bipoles/vcuteinductor/coil height/.initial=.15}
+\ctikzset{bipoles/vcuteinductor/coil aspect/.initial=.25}	
+\ctikzset{bipoles/vcuteinductor/lower coil height/.initial=.05}	
 \ctikzset{bipoles/vamericaninductor/height/.initial=.6}
 \ctikzset{bipoles/vamericaninductor/height 2/.initial=.2}
 \ctikzset{bipoles/vamericaninductor/width/.initial=.8}
 \ctikzset{bipoles/vamericaninductor/coils/.initial=4}
+\ctikzset{bipoles/vamericaninductor/coil height/.initial=.15}
+\ctikzset{bipoles/esource/height/.initial=.60}
+\ctikzset{bipoles/esource/width/.initial=.60}
 \ctikzset{bipoles/isource/height/.initial=.60}
 \ctikzset{bipoles/isource/width/.initial=.60}
+\ctikzset{bipoles/dcisource/height/.initial=.60}
+\ctikzset{bipoles/dcisource/width/.initial=.60}
+\ctikzset{bipoles/dcvsource/height/.initial=.60}
+\ctikzset{bipoles/dcvsource/width/.initial=.60}
+\ctikzset{bipoles/vsourcetri/height/.initial=.60}
+\ctikzset{bipoles/vsourcetri/width/.initial=.60}
 \ctikzset{bipoles/isourceam/height/.initial=.60}
 \ctikzset{bipoles/isourceam/width/.initial=.60}
 \ctikzset{bipoles/vsource/height/.initial=.60}
@@ -104,8 +123,6 @@
 \ctikzset{bipoles/vsourcesin/width/.initial=.60}
 \ctikzset{bipoles/vsourcesquare/height/.initial=.60}
 \ctikzset{bipoles/vsourcesquare/width/.initial=.60}
-\ctikzset{bipoles/vsourcetri/height/.initial=.60}
-\ctikzset{bipoles/vsourcetri/width/.initial=.60}
 \ctikzset{bipoles/cisource/height/.initial=.7}
 \ctikzset{bipoles/cisource/width/.initial=.7}
 \ctikzset{bipoles/cisourceam/height/.initial=.7}
@@ -194,6 +211,7 @@
 \ctikzset{bipoles/pushbutton/height/.initial=.5}
 \ctikzset{bipoles/pushbutton/height 2/.initial=.0}
 \ctikzset{bipoles/pushbutton/width/.initial=.50}
+
 \ctikzset{bipoles/twoport/width/.initial=.7}
 \ctikzset{bipoles/twoport/height/.initial=.7}
 \ctikzset{bipoles/twoport/text/.initial=}
@@ -260,6 +278,13 @@
 \ctikzset{tripoles/nigfetd/base width/.initial=.5}
 \ctikzset{tripoles/nigfetd/gate width/.initial=.62}
 
+\ctikzset{tripoles/nigfetebulk/width/.initial=.7}
+\ctikzset{tripoles/nigfetebulk/gate height/.initial=.35}
+\ctikzset{tripoles/nigfetebulk/base height/.initial=.5}
+\ctikzset{tripoles/nigfetebulk/height/.initial=1.1}
+\ctikzset{tripoles/nigfetebulk/base width/.initial=.5}
+\ctikzset{tripoles/nigfetebulk/gate width/.initial=.62}
+
 \ctikzset{tripoles/pigfete/width/.initial=.7}
 \ctikzset{tripoles/pigfete/gate height/.initial=.35}
 \ctikzset{tripoles/pigfete/base height/.initial=.5}
@@ -273,6 +298,13 @@
 \ctikzset{tripoles/pigfetd/height/.initial=1.1}
 \ctikzset{tripoles/pigfetd/base width/.initial=.5}
 \ctikzset{tripoles/pigfetd/gate width/.initial=.62}
+
+\ctikzset{tripoles/pigfetebulk/width/.initial=.7}
+\ctikzset{tripoles/pigfetebulk/gate height/.initial=.35}
+\ctikzset{tripoles/pigfetebulk/base height/.initial=.5}
+\ctikzset{tripoles/pigfetebulk/height/.initial=1.1}
+\ctikzset{tripoles/pigfetebulk/base width/.initial=.5}
+\ctikzset{tripoles/pigfetebulk/gate width/.initial=.62}
 
 \ctikzset{tripoles/npn/width/.initial=.6}
 \ctikzset{tripoles/npn/gate height/.initial=.45}
@@ -428,6 +460,11 @@
 \ctikzset{tripoles/op amp/input height/.initial=.5}
 \ctikzset{tripoles/op amp/up pos/.initial=.45}
 \ctikzset{tripoles/op amp/font/.initial=}
+\ctikzset{tripoles/gm amp/width/.initial=1.7}
+\ctikzset{tripoles/gm amp/port width/.initial=.7}
+\ctikzset{tripoles/gm amp/height/.initial=1.4}
+\ctikzset{tripoles/gm amp/input height/.initial=.5}
+\ctikzset{tripoles/gm amp/up pos/.initial=.45}
 \ctikzset{tripoles/plain amp/width/.initial=1.7}
 \ctikzset{tripoles/plain amp/port width/.initial=.7}
 \ctikzset{tripoles/plain amp/height/.initial=1.4}
@@ -473,6 +510,8 @@
 \ctikzset{quadpoles/gyrator/height/.initial=1.5}
 \ctikzset{quadpoles/coupler/width/.initial=1.3}
 \ctikzset{quadpoles/coupler/height/.initial=1.3}
+
+
 
 \ctikzset{bipole/.is family}
 \ctikzset{bipole/kind/.initial = }
@@ -527,6 +566,8 @@
 \ctikzset{bipole/nodes/right/none/.code={\ctikzsetvalof{bipole/nodes/right}{none}}}
 \ctikzset{bipole/nodes/right/empty/.code={\ctikzsetvalof{bipole/nodes/right}{empty}}}
 \ctikzset{bipole/nodes/right/full/.code={\ctikzsetvalof{bipole/nodes/right}{full}}}
+
+
 
 
 \newif\ifpgf@circuit@europeanresistor
@@ -637,6 +678,8 @@
 \ctikzset{label/align/rotate/.code={\ctikzsetvalof{label/align}{rotate}}}
 \ctikzset{label/align/smart/.code={\ctikzsetvalof{label/align}{smart}}}
 %% dependencies
+
+
 
 
 

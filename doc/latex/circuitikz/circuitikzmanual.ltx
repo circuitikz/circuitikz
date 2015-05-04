@@ -1,12 +1,28 @@
 \documentclass[a4paper]{article}
-	
+
+
+\def\modern{
+	\usepackage{fontspec}
+	\defaultfontfeatures{Ligatures=TeX, Numbers=OldStyle,Mapping=tex-text ,SmallCapsFeatures={LetterSpace=8, Numbers=OldStyle}}
+	\setmainfont{Gentium Book Basic} 
+}
+
 \usepackage[siunitx]{circuitikz}
 
+\usepackage{ifxetex,ifluatex}
+\ifxetex
+	\modern
+\else
+	\ifluatex
+		\modern
+	\else
+	% pdflatex
+		\usepackage[T1]{fontenc}
+		\usepackage[utf8]{inputenc}
+		%\usepackage{babel}
+	\fi
+\fi
 
-\usepackage{fontspec}
-\defaultfontfeatures{Ligatures=TeX, Numbers=OldStyle, SmallCapsFeatures={LetterSpace=8, Numbers=OldStyle}}
-
-\setmainfont{Gentium Book Basic} 
 
 \usepackage{microtype}
 
@@ -32,6 +48,7 @@
     urlcolor=black           % color of external links
 }
 \usepackage{imakeidx}
+\usepackage{textcomp}
 \makeindex[title=Index of the components, intoc=true]
 
 \def\circuititem#1#2#3{\item {#2} (\texttt{#1}) \index{#1} \par \begin{center}\begin{circuitikz} \draw (0,0) node[#1] {}; \end{circuitikz} \end{center}
@@ -86,6 +103,7 @@ So I based everything with the very impressive (if somewhat verbose at times) \T
 
 \subsection{Loading the package}
 
+
 \begin{table}[h]
 \centering
 \begin{tabular}{ll}\toprule
@@ -124,7 +142,7 @@ Much appreciated: \email{mailto:m.redaelli@gmail.com}. Although I don't guarante
 
 \TikZ's own \texttt{circuit} library, which is based on \Circuitikz, (re?)defines several styles used by this library. In order to have them work together I added the \texttt{compatibility} package option, which basically prefixes the names of all \Circuitikz\ \texttt{to[]} styles with an asterisk.
 
-So, if loaded with said option, one must write \verb!(0,0) to[*R] (2,0)! and, for transistors on a path, \verb!(0,0) to[*Tnmos] (2,0)!, and so on (but \verb!(0,0) node [nmos] {}!). 
+So, if loaded with said option, one must write \verb!(0,0) to[*R] (2,0)! and, for transistors on a path, \verb!(0,0) to[*Tnmos] (2,0)!, and so on (but \verb!(0,0) node [nmos] {}!). See example at page~\pageref{ex:compatibility}.
 
 \subsection{Introduction to version 0.3.0}
 
@@ -272,6 +290,7 @@ Please notice that for user convenience transistors can also be inputted using t
 \begin{itemize}
 	\circuititembip{ammeter}{Ammeter}{}
 	\circuititembip{voltmeter}{Voltmeter}{}
+	\circuititembip{ohmmeter}{Ohmmeter}{}
 \end{itemize}	
 
 \subsubsection{Basic resistive bipoles}
@@ -414,10 +433,19 @@ There is also a transmission line:
 	\circuititembip{sinusoidal current source}{Sinusoidal current source}{isourcesin, sI}
 \end{itemize}
 
-\subsubsection{Square sources}
+\subsubsection{Special sources}
 \begin{itemize}
 	\circuititembip{square voltage source}{Square voltage source}{vsourcesquare, sqV}
+	\circuititembip{vsourcetri}{Square voltage source}{}
+	\circuititembip{esource}{Empty voltage source}{}
 \end{itemize}
+
+\subsubsection{DC sources}
+\begin{itemize}
+	\circuititembip{dcvsource}{DC voltage source}{}
+	\circuititembip{dcisource}{DC current source}{}
+\end{itemize}
+
 %\begin{framed}
 %The options \texttt{europeancurrent} [resp. \texttt{europeanvoltage}] (the default) and \texttt{americancurrent} [resp. \texttt{americanvoltage}] define which sinusoidal current [resp. voltage] source is selected by default when the abbreviated styles \texttt{sinusoidal current source}, \texttt{csourcesin}, \texttt{cI} [resp. \texttt{sinusoidal voltage source}, \texttt{vsourcesin}, \texttt{cV}] are used.
 
@@ -502,9 +530,11 @@ Borsche:
 \begin{itemize}
 	\circuititem{nfet}{\scshape nfet}{}
 	\circuititem{nigfete}{\scshape nigfete}{}
+	\circuititem{nigfetebulk}{\scshape nigfetebulk}{}
 	\circuititem{nigfetd}{\scshape nigfetd}{}
 	\circuititem{pfet}{\scshape pfet}{}
 	\circuititem{pigfete}{\scshape pigfete}{}
+	\circuititem{pigfetebulk}{\scshape pigfetebulk}{}
 	\circuititem{pigfetd}{\scshape pigfetd}{}
 \end{itemize}
 
@@ -577,7 +607,6 @@ Transformers with core are also available:
 	\circuititem{coupler2}{Coupler, 2}{}
 \end{itemize}
 
-	
 
 \subsection{Logic gates}
 
@@ -612,13 +641,10 @@ If otherwise \texttt{europeanports} option is active (or the style \texttt{[euro
 \begin{itemize}
 	\circuititem{op amp}{Operational amplifier}{}
 	\circuititem{fd op amp}{Fully differential operational amplifier\footnote{Contributed by Kristofer M. Monisit.}}{}
+	\circuititem{gm amp}{transconductance amplifier}{}
 	\circuititem{plain amp}{Plain amplifier}{}
 	\circuititem{buffer}{Buffer}{}
 \end{itemize}
-
-
-
-
 
 \subsection{Support shapes}
 
@@ -627,9 +653,6 @@ If otherwise \texttt{europeanports} option is active (or the style \texttt{[euro
 	\circuititem{circ}{Connected terminal}{}
 	\circuititem{ocirc}{Unconnected terminal}{}
 \end{itemize}
-
-
-
 
 
 
@@ -1146,7 +1169,11 @@ Sorry about that.
 
 Since only bipoles (but see section~\ref{sec:transasbip}) can be placed "along a line", components with more than two terminals are placed as nodes:
 \begin{LTXexample}[varwidth=true]
-\tikz \node[npn]  at (0,0) {};
+\begin{circuitikz}
+\draw (0,0) node[npn](npn)  at (0,0) {};
+\draw (npn.C) --++(0,0.5) node[vcc]{+5\,\textnormal{V}};
+\draw (npn.E) --++(0,-0.5) node[vee]{-5\,\textnormal{V}};
+\end{circuitikz}
 \end{LTXexample}
 
 \subsection{Anchors}
@@ -1274,7 +1301,7 @@ Similarly, transistors and other components can be reflected vertically:
     \end{circuitikz} 
 \end{LTXexample}
 
-\subsubsection{Other tripoles} When inserting a thrystor, a triac or a potentiometer, one needs to refer to the third node — gate (\texttt{gate} or \texttt{G}) for the former two; wiper (\texttt{wiper} or \texttt{W}) for the latter one. This is done by giving a name to the bipole:
+\subsubsection{Other tripoles} When inserting a thrystor, a triac or a potentiometer, one needs to refer to the third node--gate (\texttt{gate} or \texttt{G}) for the former two; wiper (\texttt{wiper} or \texttt{W}) for the latter one. This is done by giving a name to the bipole:
 
 \begin{LTXexample}[varwidth=true]
 \begin{circuitikz} \draw 
@@ -1755,8 +1782,8 @@ Just substitute every occurrence of the environment \verb!circuitikz! with \verb
         to [R, l=1<\kilo\ohm>] (4,-1.5);
 
    \begin{scope}[xshift=6.5cm, yshift=.5cm]
-    \draw [->] (-2,0) -- (2.5,0) node[anchor=west] {$v_1/\si{\volt}$};
-    \draw [->] (0,-2) -- (0,2) node[anchor=west] {$i_1/\si{\milli\ampere}$} ;
+    \draw [->] (-2,0) -- (2.5,0) node[anchor=west] {$v_1/\volt$};
+    \draw [->] (0,-2) -- (0,2) node[anchor=west] {$i_1/\SI{}{\milli\ampere}$} ;
     \draw (-1,0) node[anchor=north] {-2} (1,0) node[anchor=south] {2}
           (0,1) node[anchor=west] {4} (0,-1) node[anchor=east] {-4} 
           (2,0) node[anchor=north west] {4}
@@ -1767,7 +1794,6 @@ Just substitute every occurrence of the environment \verb!circuitikz! with \verb
    \end{scope}  
 \end{circuitikz}
 \end{LTXexample}
-
 
 \begin{LTXexample}[pos=t,varwidth=true]
 	\begin{circuitikz}[scale=1]
@@ -1799,69 +1825,103 @@ Just substitute every occurrence of the environment \verb!circuitikz! with \verb
 	\end{circuitikz}
 \end{LTXexample}
 
+
+\begin{tabular}{l}\label{ex:compatibility}
+	\fbox{\includegraphics{compatibility.pdf}}
+	\\
+	\begin{lstlisting}
+\documentclass{standalone}
+
+\usepackage{tikz}
+\usetikzlibrary{circuits.ee.IEC}
+\usetikzlibrary{positioning}
+
+\usepackage[compatibility]{circuitikz}
+\ctikzset{bipoles/length=.9cm}
+
+\begin{document}
+ \begin{tikzpicture}[circuit ee IEC]
+  \draw (0,0) to [resistor={name=R}] (0,2)
+	to[diode={name=D}] (3,2);
+  \draw (0,0) to[*R=$R_1$] (1.5,0) to[*Tnpn] (3,0)
+    to[*D](3,2);
+ \end{tikzpicture}
+\end{document}
+	\end{lstlisting}
+\end{tabular}
+
 \section{Revision history}
 
 \begin{itemize}
-\item[\itshape version 0.3.1] (?)
+	\item[\itshape version 0.4] (in progress)
+	\begin{enumerate}
+		\item minor improvements to documentation
+		\item comply with TDS
+		\item merge high frequency symbols by Stefan Erhardt
+		\item added switch (not opening nor closing)
+		\item added added solder dot in some transistors
+		\item improved ConTeXt compatibility
+    \end{enumerate}
+\item[\itshape version 0.3.1]
 	\begin{enumerate}
     	\item typo in documentation
-	\item fixed an error in the angle computation in voltage and current routines
-	\item fixed problem with label size when scaling a tikz picture
-	\item added gas filled surge arrester
-	\item added compatibility option to work with Tikz's own circuit library
+		\item fixed an error in the angle computation in voltage and current routines
+		\item fixed problem with label size when scaling a tikz picture
+		\item added gas filled surge arrester
+		\item added compatibility option to work with Tikz's own circuit library
     \end{enumerate}
 \item[\itshape version 0.3.0] (20121229)
 	\begin{enumerate}
-	\item fixed gate node for a few transistors
-    \item added mixer
-    \item added fully differential op amp (by Kristofer M.~Monisit)
-    \item now general settings for the drawing of voltage can be overridden for specific components
-    \item made arrows more homogeneous (either the current/voltage one, or latex' by pgf)
-    \item added the single battery cell
-    \item added fuse and asymmetric fuse
-    \item added toggle switch
-    \item added varistor, photoresistor, thermocouple, push button
-    \item added thermistor, thermistor ptc, thermistor ptc
-    \item fixed misalignment of voltage label in vertical bipoles with names
-    \item added isfet
-    \item added noiseless, protective, chassis, signal and reference grounds (Luigi Luigi «Liverpool»)
+		\item fixed gate node for a few transistors
+		\item added mixer
+		\item added fully differential op amp (by Kristofer M.~Monisit)
+		\item now general settings for the drawing of voltage can be overridden for specific components
+		\item made arrows more homogeneous (either the current/voltage one, or latex' by pgf)
+		\item added the single battery cell
+		\item added fuse and asymmetric fuse
+		\item added toggle switch
+		\item added varistor, photoresistor, thermocouple, push button
+		\item added thermistor, thermistor ptc, thermistor ptc
+		\item fixed misalignment of voltage label in vertical bipoles with names
+		\item added isfet
+		\item added noiseless, protective, chassis, signal and reference grounds (Luigi Luigi «Liverpool»)
     \end{enumerate}
 \item[\itshape version 0.2.4]  (20110911).
 	\begin{enumerate}
-	\item added square voltage source (contributed by Alistair Kwan)
-	\item added buffer and plain amplifier (contributed by Danilo Piazzalunga)
-	\item added squid and barrier (contributed by  Cor Molenaar)
-	\item added antenna and transmission line symbols contributed by Leonardo Azzinnari
-	\item added the changeover switch spdt (suggestion of Fabio Maria Antoniali)
-	\item rename of context.tex and context.pdf (thanks to Karl Berry)
-	\item updated the email address
-    \item in documentation, fixed wrong (non-standard) labelling of the axis in an example (thanks to prof. Claudio Beccaria)
-    \item fixed scaling inconsistencies in quadrupoles    
-    \item fixed division by zero error on certain vertical paths
-    \item introduced options straighlabels, rotatelabels, smartlabels
+		\item added square voltage source (contributed by Alistair Kwan)
+		\item added buffer and plain amplifier (contributed by Danilo Piazzalunga)
+		\item added squid and barrier (contributed by  Cor Molenaar)
+		\item added antenna and transmission line symbols contributed by Leonardo Azzinnari
+		\item added the changeover switch spdt (suggestion of Fabio Maria Antoniali)
+		\item rename of context.tex and context.pdf (thanks to Karl Berry)
+		\item updated the email address
+		\item in documentation, fixed wrong (non-standard) labelling of the axis in an example (thanks to prof. Claudio Beccaria)
+		\item fixed scaling inconsistencies in quadrupoles    
+		\item fixed division by zero error on certain vertical paths
+		\item introduced options straighlabels, rotatelabels, smartlabels
     \end{enumerate}
 \item[\itshape version 0.2.3]  (20091118).
    \begin{enumerate}
-	\item fixed compatibility problem with label option from tikz
-	\item Fixed resizing problem for shape ground
-	\item Variable capacitor
-	\item polarized capacitor
-	\item \ConTeXt\ support (read the manual!)
-	\item nfet, nigfete, nigfetd, pfet, pigfete, pigfetd (contribution of Clemens Helfmeier and Theodor 
-Borsche)
-	\item njfet, pjfet (contribution of Danilo Piazzalunga)
-	\item pigbt, nigbt
-	\item \emph{backward incompatibility} potentiometer is now the standard resistor-with-arrow-in-the-middle; the old potentiometer is now known as variable resistor (or vR), similarly to variable inductor and variable capacitor
-	\item triac, thyristor, memristor
-	\item new property "name" for bipoles
-	\item fixed voltage problem for batteries in american voltage mode
-	\item european logic gates
-	\item \emph{backward incompatibility} new american standard inductor. Old american inductor now called "cute inductor"
-	\item \emph{backward incompatibility} transformer now linked with the chosen type of inductor, and version with core, too. Similarly for variable inductor
-	\item \emph{backward incompatibility} styles for selecting shape variants now end are in the plural to avoid conflict with paths
-	\item new placing option for some tripoles (mostly transistors)
-	\item mirror path style
-\end{enumerate}
+		\item fixed compatibility problem with label option from tikz
+		\item Fixed resizing problem for shape ground
+		\item Variable capacitor
+		\item polarized capacitor
+		\item \ConTeXt\ support (read the manual!)
+		\item nfet, nigfete, nigfetd, pfet, pigfete, pigfetd (contribution of Clemens Helfmeier and Theodor 
+	Borsche)
+		\item njfet, pjfet (contribution of Danilo Piazzalunga)
+		\item pigbt, nigbt
+		\item \emph{backward incompatibility} potentiometer is now the standard resistor-with-arrow-in-the-middle; the old potentiometer is now known as variable resistor (or vR), similarly to variable inductor and variable capacitor
+		\item triac, thyristor, memristor
+		\item new property "name" for bipoles
+		\item fixed voltage problem for batteries in american voltage mode
+		\item european logic gates
+		\item \emph{backward incompatibility} new american standard inductor. Old american inductor now called "cute inductor"
+		\item \emph{backward incompatibility} transformer now linked with the chosen type of inductor, and version with core, too. Similarly for variable inductor
+		\item \emph{backward incompatibility} styles for selecting shape variants now end are in the plural to avoid conflict with paths
+		\item new placing option for some tripoles (mostly transistors)
+		\item mirror path style
+	\end{enumerate}
 	
 \item[\itshape version 0.2.2]  (20090520).
    \begin{enumerate}
