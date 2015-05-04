@@ -14,6 +14,9 @@
 \usepackage{showexpl}
 \lstset{pos=l,width=-99pt, overhang=0pt,hsep=\columnsep,vsep=\bigskipamount,rframe=single,numbers=left,numberstyle=\tiny,numbersep=.3em, xleftmargin=1em, columns=flexible, language=[LaTeX]TEX}
 
+\usepackage{booktabs}
+\renewcommand{\arraystretch}{1.2}
+
 \usepackage{framed, xtab}
 \usepackage{hyperref}
 \hypersetup{
@@ -82,9 +85,24 @@ It was born mainly for writing my own exercise book and exams sheets for the Ele
 So I based everything with the very impressive (if somewhat verbose at times) \TikZ\ package.
 
 \subsection{Loading the package}
-\verb!\usepackage{circuitikz}!
 
-\TikZ\ will be automatically loaded.
+\begin{table}[h]
+\centering
+\begin{tabular}{ll}\toprule
+	\LaTeX       					& \ConTeXt\footnotemark \\ \midrule
+	\verb!\usepackage{circuitikz}!	& \verb!\usemodule[circuitikz]!\\
+	\bottomrule
+\end{tabular}
+\end{table}
+\footnotetext{\ConTeXt\ suppurt was added mostly thanks to Mojca Miklavec and Aditya Mahajan.}
+
+\noindent \TikZ\ will be automatically loaded.
+
+\noindent Circui\TikZ\ commands are just \TikZ\ commands, so a minimum usage example would be:
+
+\begin{LTXexample}[varwidth=true]
+\tikz \draw (0,0) to[R=$R_1$] (2,0);
+\end{LTXexample}
 
 \subsection{License}
 Copyright \copyright\ 2007--2011 Massimo Redaelli. This package is author-maintained.
@@ -126,47 +144,42 @@ There are a number of backward incompatibilities — I'm sorry, but I had to
 	\item styles for selecting shape variants (like \texttt{[american resistors]}) are now in the plural to avoid conflict with paths (like \texttt{to[american resistor]}).
 \end{itemize}
 
-\subsection{\ConTeXt\ compatibility}
 
-As requested by some users, I fixed the package for it to be compatible with \ConTeXt. Just use \verb!\usemodule[circuitikz]! in your preamble and include the code between \verb!\startcircuitikz! and \verb!\endcircuitikz!. Please notice that the package \texttt{siunitx} in \emph{not} available for \ConTeXt: the option \texttt{siunitx} simply defines a few measurement units typical in electric sciences.
+\section{Package options}
 
-\medskip
+\noindent Circuit people are very opinionated about their symbols. The package, left to its own devices, loads with drawing conventions that \emph{I} like, so for instance you get this:
+\begin{LTXexample}[varwidth=true]
+\begin{circuitikz}
+   \draw (0,0) to[R=2<\ohm>, i=?, v=84<\volt>] (2,0) -- 
+         (2,2) to[V=84<\volt>] (0,2) 
+         -- (0,0);
+\end{circuitikz}
+\end{LTXexample}
 
-In actually using \Circuitikz\ with \TikZ\ version 2 in \ConTeXt\ an error comes up, saying something like
-\begin{verbatim}
-! Undefined control sequence.
-\tikz@cc@mid@checks -> \pgfutil@ifnextchar!
-\end{verbatim}
-
-
-The solution has been suggested to me by Aditya Mahajan, and involves modifying a file in \TikZ:
-\begin{verbatim}
-Here is the fix. In tikzlibrarycalc.code.tex change
-
-\def\tikz@cc@mid@checks{
-   \pgfutil@ifnextchar !{%AM: Added space
-     \tikz@cc@mid%
-   }{%
-     \advance\pgf@xa by\tikz@cc@factor\pgf@xb%
-     \advance\pgf@ya by\tikz@cc@factor\pgf@yb%
-     \tikz@cc@parse% continue
-   }%
-}
-
-\def\tikz@cc@mid !{%AM Added space
-   \pgfutil@ifnextchar({%
-     \tikz@scan@one@point\tikz@cc@project%
-   }{%
-     \tikz@cc@mid@num%
-   }%
-}
-\end{verbatim}
-
-As far as I know, this is a bug in \TikZ, and I notified the author, but until he fixes it, you know the workaround.
+But if you really, \emph{really} want your circuit ugly, you can load the package with:
 
 
-\section{Options}
+\begin{center}
+\begin{tabular}{ll}\toprule
+	\LaTeX       					& \ConTeXt \\ \midrule
+	\verb!\usepackage[american]{circuitikz}!	& \verb!\usemodule[circuitikz][american]!\\
+	\bottomrule
+\end{tabular}
+\end{center}
 
+\noindent and you get (don't blame me)
+
+\begin{center}
+\begin{circuitikz}[circuitikz/voltage=american, circuitikz/resistor=american]
+   \draw (0,0) to[R=2<\ohm>, i=?, v=84<\volt>] (2,0) -- 
+         (2,2) to[V=84<\volt>] (0,2) 
+         -- (0,0);
+\end{circuitikz}
+\end{center}
+
+\medskip{}
+
+\noindent Here is the list of all the options:
 \begin{itemize}
 	\item \texttt{europeanvoltages}: uses arrows to define voltages, and uses european-style voltage sources;
 	\item \texttt{americanvoltages}: uses $-$ and $+$ to define voltages, and uses american-style voltage sources;
@@ -1833,7 +1846,7 @@ Just substitute every occurrence of the environment \verb!circuitikz! with \verb
 	\item Fixed resizing problem for shape ground
 	\item Variable capacitor
 	\item polarized capacitor
-	\item ConTeXt support (read the manual!)
+	\item \ConTeXt\ support (read the manual!)
 	\item nfet, nigfete, nigfetd, pfet, pigfete, pigfetd (contribution of Clemens Helfmeier and Theodor 
 Borsche)
 	\item njfet, pjfet (contribution of Danilo Piazzalunga)
