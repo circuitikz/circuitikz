@@ -2,36 +2,39 @@
 \usepackage{ifxetex}
 %for xelatex:
 
-
-\ifxetex
-	%compiler is xetex
+\def\modern{
 	\usepackage{fontspec}
 	\defaultfontfeatures{Ligatures=TeX, Numbers=OldStyle,Mapping=tex-text ,SmallCapsFeatures={LetterSpace=8, Numbers=OldStyle}}
-	\setmainfont
-	% {Linux Libertine}
-	{Gentium Book Basic} 
+	\setmainfont{Gentium Book Basic} 
+}
+
+\usepackage[siunitx]{circuitikz}
+
+\usepackage{ifxetex,ifluatex}
+\ifxetex
+	\modern
 \else
-	%for pdflatex:
-	\usepackage[T1]{fontenc}
-	\usepackage[utf8]{inputenc}
-	\usepackage[shorthands=off,ngerman]{babel}
+	\ifluatex
+		\modern
+	\else
+	% pdflatex
+		\usepackage[T1]{fontenc}
+		\usepackage[utf8]{inputenc}
+		%\usepackage{babel}
+	\fi
 \fi
 
 
-
-
-
-
 \usepackage{microtype}
-	
-%\usepackage[siunitx]{./../../../tex/latex/circuitikz/circuitikz}
-\usepackage[siunitx]{../../../circuitikz_merged}
 
 \sisetup{load=derived} % loading \siemens
 \usepackage{showexpl}
 \lstset{pos=l,width=-99pt, overhang=0pt,hsep=\columnsep,vsep=\bigskipamount,rframe=single,numbers=left,numberstyle=\tiny,numbersep=.3em, xleftmargin=1em, columns=flexible, language=[LaTeX]TEX}
 
-\usepackage{framed}
+\usepackage{booktabs}
+\renewcommand{\arraystretch}{1.2}
+
+\usepackage{framed, xtab}
 \usepackage{hyperref}
 \hypersetup{
     bookmarks=false,         % show bookmarks bar?
@@ -100,9 +103,25 @@ It was born mainly for writing my own exercise book and exams sheets for the Ele
 So I based everything with the very impressive (if somewhat verbose at times) \TikZ\ package.
 
 \subsection{Loading the package}
-\verb!\usepackage{circuitikz}!
 
-\TikZ\ will be automatically loaded.
+
+\begin{table}[h]
+\centering
+\begin{tabular}{ll}\toprule
+	\LaTeX       					& \ConTeXt\footnotemark \\ \midrule
+	\verb!\usepackage{circuitikz}!	& \verb!\usemodule[circuitikz]!\\
+	\bottomrule
+\end{tabular}
+\end{table}
+\footnotetext{\ConTeXt\ suppurt was added mostly thanks to Mojca Miklavec and Aditya Mahajan.}
+
+\noindent \TikZ\ will be automatically loaded.
+
+\noindent Circui\TikZ\ commands are just \TikZ\ commands, so a minimum usage example would be:
+
+\begin{LTXexample}[varwidth=true]
+\tikz \draw (0,0) to[R=$R_1$] (2,0);
+\end{LTXexample}
 
 \subsection{License}
 Copyright \copyright\ 2007--2011 Massimo Redaelli. This package is author-maintained.
@@ -144,47 +163,42 @@ There are a number of backward incompatibilities--I'm sorry, but I had to make a
 	\item styles for selecting shape variants (like \texttt{[american resistors]}) are now in the plural to avoid conflict with paths (like \texttt{to[american resistor]}).
 \end{itemize}
 
-\subsection{\ConTeXt\ compatibility}
 
-As requested by some users, I fixed the package for it to be compatible with \ConTeXt. Just use \verb!\usemodule[circuitikz]! in your preamble and include the code between \verb!\startcircuitikz! and \verb!\endcircuitikz!. Please notice that the package \texttt{siunitx} in \emph{not} available for \ConTeXt: the option \texttt{siunitx} simply defines a few measurement units typical in electric sciences.
+\section{Package options}
 
-\medskip
+\noindent Circuit people are very opinionated about their symbols. The package, left to its own devices, loads with drawing conventions that \emph{I} like, so for instance you get this:
+\begin{LTXexample}[varwidth=true]
+\begin{circuitikz}
+   \draw (0,0) to[R=2<\ohm>, i=?, v=84<\volt>] (2,0) -- 
+         (2,2) to[V=84<\volt>] (0,2) 
+         -- (0,0);
+\end{circuitikz}
+\end{LTXexample}
 
-In actually using \Circuitikz\ with \TikZ\ version 2 in \ConTeXt\ an error comes up, saying something like
-\begin{verbatim}
-! Undefined control sequence.
-\tikz@cc@mid@checks -> \pgfutil@ifnextchar!
-\end{verbatim}
-
-
-The solution has been suggested to me by Aditya Mahajan, and involves modifying a file in \TikZ:
-\begin{verbatim}
-Here is the fix. In tikzlibrarycalc.code.tex change
-
-\def\tikz@cc@mid@checks{
-   \pgfutil@ifnextchar !{%AM: Added space
-     \tikz@cc@mid%
-   }{%
-     \advance\pgf@xa by\tikz@cc@factor\pgf@xb%
-     \advance\pgf@ya by\tikz@cc@factor\pgf@yb%
-     \tikz@cc@parse% continue
-   }%
-}
-
-\def\tikz@cc@mid !{%AM Added space
-   \pgfutil@ifnextchar({%
-     \tikz@scan@one@point\tikz@cc@project%
-   }{%
-     \tikz@cc@mid@num%
-   }%
-}
-\end{verbatim}
-
-As far as I know, this is a bug in \TikZ, and I notified the author, but until he fixes it, you know the workaround.
+But if you really, \emph{really} want your circuit ugly, you can load the package with:
 
 
-\section{Options}
+\begin{center}
+\begin{tabular}{ll}\toprule
+	\LaTeX       					& \ConTeXt \\ \midrule
+	\verb!\usepackage[american]{circuitikz}!	& \verb!\usemodule[circuitikz][american]!\\
+	\bottomrule
+\end{tabular}
+\end{center}
 
+\noindent and you get (don't blame me)
+
+\begin{center}
+\begin{circuitikz}[circuitikz/voltage=american, circuitikz/resistor=american]
+   \draw (0,0) to[R=2<\ohm>, i=?, v=84<\volt>] (2,0) -- 
+         (2,2) to[V=84<\volt>] (0,2) 
+         -- (0,0);
+\end{circuitikz}
+\end{center}
+
+\medskip{}
+
+\noindent Here is the list of all the options:
 \begin{itemize}
 	\item \texttt{europeanvoltages}: uses arrows to define voltages, and uses european-style voltage sources;
 	\item \texttt{americanvoltages}: uses $-$ and $+$ to define voltages, and uses american-style voltage sources;
@@ -265,6 +279,9 @@ Please notice that for user convenience transistors can also be inputted using t
 	\circuititem{rxantenna}{Receiving antenna}{}
 	\circuititem{txantenna}{Transmitting antenna}{}
 	\circuititem{tlinestub}{Transmission line stub}{}
+	\circuititem{vcc}{VCC}{}
+	\circuititem{match}{match}{}
+	\circuititem{oscillator}{LO\footnote{These last three come from Stefan Erhardt's contribution of HF components}}{}
 \end{itemize}
 
 
@@ -430,6 +447,7 @@ There is also a transmission line:
 	\circuititembip{dcisource}{DC current source}{}
 \end{itemize}
 
+
 %\begin{framed}
 %The options \texttt{europeancurrent} [resp. \texttt{europeanvoltage}] (the default) and \texttt{americancurrent} [resp. \texttt{americanvoltage}] define which sinusoidal current [resp. voltage] source is selected by default when the abbreviated styles \texttt{sinusoidal current source}, \texttt{csourcesin}, \texttt{cI} [resp. \texttt{sinusoidal voltage source}, \texttt{vsourcesin}, \texttt{cV}] are used.
 
@@ -438,10 +456,35 @@ There is also a transmission line:
 
 \subsubsection{Switch}
 \begin{itemize}
+	\circuititembip{switch}{Switch}{spst}
 	\circuititembip{closing switch}{Closing switch}{cspst}
 	\circuititembip{opening switch}{Opening switch}{ospst}
 	\circuititembip{push button}{Push button}{}
 \end{itemize}	
+
+\subsubsection{HF components}
+\noindent Contributed by Stefan Erhardt.
+\begin{itemize}
+	\circuititembip{twoport}{generic two port\footnote{To specify text to be put in the component: \texttt{twoport[t=text]}): \tikz \draw[scale=.5, transform shape] (0,0) to[twoport,>,t=text] (2,0); }}{}
+	\circuititembip{vco}{vco}{}
+	\circuititembip{bandpass}{bandpass}{}
+	\circuititembip{highpass}{highpass}{}
+	\circuititembip{lowpass}{lowpass}{}
+	\circuititembip{adc}{A/D converter}{}
+	\circuititembip{dac}{D/A converter}{}
+	\circuititembip{dsp}{DSP}{}
+	\circuititembip{fft}{FFT}{}
+	\circuititembip{amp}{amplifier}{}
+	\circuititembip{vamp}{VGA}{}
+	\circuititembip{piattenuator}{$\pi$ attenuator}{}
+	\circuititembip{vpiattenuator}{var. $\pi$ attenuator}{}
+	\circuititembip{tattenuator}{T attenuator}{}
+	\circuititembip{vtattenuator}{var.\ T attenuator}{}
+	\circuititembip{phaseshifter}{phase shifter}{}
+	\circuititembip{vphaseshifter}{var.\ phase shifter}{}
+	\circuititembip{detector}{detector}{}
+\end{itemize}	
+
 
 
 
@@ -508,6 +551,16 @@ Borsche:
 	\circuititem{isfet}{\scshape isfet}{}
 \end{itemize}
 
+\subsubsection{HF}
+These come from Stefan Erhardt's contribution of HF components.
+\begin{itemize}
+	\circuititem{circulator}{\scshape circulator}{}
+	\circuititem{wilkinson}{\scshape wilkinson divider}{}
+\end{itemize}
+
+
+		
+		
 \subsubsection{Switch}
 \begin{itemize}
 	\circuititem{spdt}{\scshape spdt}{}
@@ -552,6 +605,8 @@ Transformers with core are also available:
 
 \begin{itemize}
 	\circuititem{gyrator}{Gyrator}{}
+	\circuititem{coupler}{Coupler}{}
+	\circuititem{coupler2}{Coupler, 2}{}
 \end{itemize}
 
 
@@ -1320,6 +1375,32 @@ The fully differential op amp defines two outputs:
 ;\end{circuitikz}
 \end{LTXexample}
 
+
+The circulator defined ports 1, 2 and 3:
+\begin{LTXexample}[varwidth=true]
+		\begin{circuitikz} \draw
+			(0,0) node[circulator] (c) {}
+			(c.1) node[left] {\texttt{1}}
+			(c.2) node[right] {\texttt{2}}
+			(c.3) node[below] {\texttt{3}}
+			;
+		\end{circuitikz}
+\end{LTXexample}			
+		
+The Wilkinson divider has:
+		\begin{LTXexample}[varwidth=true]
+		\begin{circuitikz} \draw
+			(0,0) node[wilkinson] (w) {\SI{3}{dB}}
+			(w.in) to[short,-o] ++(-0.5,0)
+			(w.out1) to[short,-o] ++(0.5,0)
+			(w.out2) to[short,-o] ++(0.5,0)
+			(w.in) node[below left] {\texttt{in}}
+			(w.out1) node[below right] {\texttt{out1}}
+			(w.out2) node[above right] {\texttt{out2}}
+			;
+		\end{circuitikz}
+\end{LTXexample}
+
 \subsubsection{Double bipoles} All the (few, actually) double bipoles/quadrupoles have
 the four anchors, two for each port. The first port, to the left, is port \texttt{A}, having the anchors \texttt{A1} (up) and \texttt{A2} (down); same for port \texttt{B}. They also expose the \texttt{base} anchor, for labelling:
 
@@ -1344,6 +1425,66 @@ the four anchors, two for each port. The first port, to the left, is port \textt
   (G.base) node{K}
 ;\end{circuitikz}
 \end{LTXexample}
+
+However:
+\begin{LTXexample}[varwidth=true]
+		\begin{circuitikz} \draw
+			(0,0) node[coupler] (c) {\SI{10}{dB}}
+			(c.1) to[short,-o] ++(-0.5,0)
+			(c.2) to[short,-o] ++(0.5,0)
+			(c.3) to[short,-o] ++(0.5,0)
+			(c.4) to[short,-o] ++(-0.5,0)
+			(c.1) node[below left] {\texttt{1}}
+			(c.2) node[below right] {\texttt{2}}
+			(c.3) node[above right] {\texttt{3}}
+			(c.4) node[above left] {\texttt{4}}
+			;
+		\end{circuitikz}
+		\end{LTXexample}
+		
+		\begin{LTXexample}[varwidth=true]
+		\begin{circuitikz} \draw
+			(0,0) node[coupler2] (c) {\SI{3}{dB}}
+			(c.1) to[short,-o] ++(-0.5,0)
+			(c.2) to[short,-o] ++(0.5,0)
+			(c.3) to[short,-o] ++(0.5,0)
+			(c.4) to[short,-o] ++(-0.5,0)
+			(c.1) node[below left] {\texttt{1}}
+			(c.2) node[below right] {\texttt{2}}
+			(c.3) node[above right] {\texttt{3}}
+			(c.4) node[above left] {\texttt{4}}
+			;
+		\end{circuitikz}
+\end{LTXexample}
+
+
+\subsection{Input arrows}
+\subsubsection*{two ports}
+The new two ports all have a defined direction. If one needs opposite direction, just place them from right to left.  With the option \texttt{>} a input arrow is drawn:
+\begin{LTXexample}[varwidth=true]
+	\begin{circuitikz} \draw
+		(0,0) to[short,o-] ++(0.3,0)
+		to[lowpass,>] ++(2,0)
+		to[adc,>] ++(2,0)
+		to[fft,>] ++(2,0)
+		to[short,-o] ++(0.3,0);
+	\end{circuitikz}
+\end{LTXexample}
+
+\subsubsection*{multi ports}
+Since inputs and outputs can vary, input arrows can be placed as nodes:
+\begin{LTXexample}[varwidth=true]
+	\begin{circuitikz} \draw
+		(0,0) node[mixer] (m) {}
+		(m.in1) to[short,-o] ++(-1,0)
+		(m.in2) to[short,-o] ++(0,-1)
+		(m.out) to[short,-o] ++(1,0)
+		(m.in1) node[inputarrow] {}
+		(m.in2) node[inputarrow,rotate=90] {};
+	\end{circuitikz}
+\end{LTXexample}
+
+
 
 \subsection{Transistor paths}\label{sec:transasbip}
 
@@ -1631,7 +1772,7 @@ Just substitute every occurrence of the environment \verb!circuitikz! with \verb
 ;\end{circuitikz}
 \end{LTXexample}
  
-\begin{LTXexample}[pos=t,varwidth=true]\label{ex:compatibility}
+\begin{LTXexample}[pos=t,varwidth=true]
 \begin{circuitikz}[scale=1.2, american]\draw
   (0,2) to[I=1<\milli\ampere>] (2,2)
         to[R, l_=2<\kilo\ohm>, *-*] (0,0)
@@ -1656,9 +1797,44 @@ Just substitute every occurrence of the environment \verb!circuitikz! with \verb
 \end{circuitikz}
 \end{LTXexample}
 
-\begin{tabular}{l}uit	\fbox{}
+
+\begin{LTXexample}[pos=t,varwidth=true]
+	\begin{circuitikz}[scale=1]
+		\ctikzset{bipoles/detector/width=.35}
+		\ctikzset{quadpoles/coupler/width=1}
+		\ctikzset{quadpoles/coupler/height=1}
+		\ctikzset{tripoles/wilkinson/width=1}
+		\ctikzset{tripoles/wilkinson/height=1}
+		%\draw[help lines,red,thin,dotted] (0,-5) grid (5,5);
+		\draw
+		(-2,0) node[wilkinson](w1){}
+		(2,0) node[coupler] (c1) {}
+		(0,2) node[coupler,rotate=90] (c2) {}
+		(0,-2) node[coupler,rotate=90] (c3) {}
+		(w1.out1) .. controls ++(0.8,0) and ++(0,0.8) .. (c3.3)
+		(w1.out2) .. controls ++(0.8,0) and ++(0,-0.8) .. (c2.4)
+		(c1.1) .. controls ++(-0.8,0) and ++(0,0.8) .. (c3.2)
+		(c1.4) .. controls ++(-0.8,0) and ++(0,-0.8) .. (c2.1)
+		(w1.in) to[short,-o] ++(-1,0)
+		(w1.in) node[left=30] {LO}
+		(c1.2) node[match,yscale=1] {}
+		(c1.3) to[short,-o] ++(1,0)
+		(c1.3) node[right=30] {RF}
+		(c2.3) to[detector,-o] ++(0,1.5)
+		(c2.2) to[detector,-o] ++(0,1.5)
+		(c3.1) to[detector,-o] ++(0,-1.5)
+		(c3.4) to[detector,-o] ++(0,-1.5)
+		;
+	\end{circuitikz}
+\end{LTXexample}
+
+
+\begin{tabular}{l}\label{ex:compatibility}
+	\fbox{\includegraphics{compatibility.pdf}}
 	\\
 	\begin{lstlisting}
+\documentclass{standalone}
+
 \usepackage{tikz}
 \usetikzlibrary{circuits.ee.IEC}
 \usetikzlibrary{positioning}
@@ -1680,66 +1856,75 @@ Just substitute every occurrence of the environment \verb!circuitikz! with \verb
 \section{Revision history}
 
 \begin{itemize}
-\item[\itshape version 0.3.1] (?)
+	\item[\itshape version 0.4] (in progress)
+	\begin{enumerate}
+		\item minor improvements to documentation
+		\item comply with TDS
+		\item merge high frequency symbols by Stefan Erhardt
+		\item added switch (not opening nor closing)
+		\item added added solder dot in some transistors
+		\item improved ConTeXt compatibility
+    \end{enumerate}
+\item[\itshape version 0.3.1]
 	\begin{enumerate}
     	\item typo in documentation
-	\item fixed an error in the angle computation in voltage and current routines
-	\item fixed problem with label size when scaling a tikz picture
-	\item added gas filled surge arrester
-	\item added compatibility option to work with Tikz's own circuit library
+		\item fixed an error in the angle computation in voltage and current routines
+		\item fixed problem with label size when scaling a tikz picture
+		\item added gas filled surge arrester
+		\item added compatibility option to work with Tikz's own circuit library
     \end{enumerate}
 \item[\itshape version 0.3.0] (20121229)
 	\begin{enumerate}
-	\item fixed gate node for a few transistors
-    \item added mixer
-    \item added fully differential op amp (by Kristofer M.~Monisit)
-    \item now general settings for the drawing of voltage can be overridden for specific components
-    \item made arrows more homogeneous (either the current/voltage one, or latex' by pgf)
-    \item added the single battery cell
-    \item added fuse and asymmetric fuse
-    \item added toggle switch
-    \item added varistor, photoresistor, thermocouple, push button
-    \item added thermistor, thermistor ptc, thermistor ptc
-    \item fixed misalignment of voltage label in vertical bipoles with names
-    \item added isfet
-    \item added noiseless, protective, chassis, signal and reference grounds (Luigi Luigi «Liverpool»)
+		\item fixed gate node for a few transistors
+		\item added mixer
+		\item added fully differential op amp (by Kristofer M.~Monisit)
+		\item now general settings for the drawing of voltage can be overridden for specific components
+		\item made arrows more homogeneous (either the current/voltage one, or latex' by pgf)
+		\item added the single battery cell
+		\item added fuse and asymmetric fuse
+		\item added toggle switch
+		\item added varistor, photoresistor, thermocouple, push button
+		\item added thermistor, thermistor ptc, thermistor ptc
+		\item fixed misalignment of voltage label in vertical bipoles with names
+		\item added isfet
+		\item added noiseless, protective, chassis, signal and reference grounds (Luigi Luigi «Liverpool»)
     \end{enumerate}
 \item[\itshape version 0.2.4]  (20110911).
 	\begin{enumerate}
-	\item added square voltage source (contributed by Alistair Kwan)
-	\item added buffer and plain amplifier (contributed by Danilo Piazzalunga)
-	\item added squid and barrier (contributed by  Cor Molenaar)
-	\item added antenna and transmission line symbols contributed by Leonardo Azzinnari
-	\item added the changeover switch spdt (suggestion of Fabio Maria Antoniali)
-	\item rename of context.tex and context.pdf (thanks to Karl Berry)
-	\item updated the email address
-    \item in documentation, fixed wrong (non-standard) labelling of the axis in an example (thanks to prof. Claudio Beccaria)
-    \item fixed scaling inconsistencies in quadrupoles    
-    \item fixed division by zero error on certain vertical paths
-    \item introduced options straighlabels, rotatelabels, smartlabels
+		\item added square voltage source (contributed by Alistair Kwan)
+		\item added buffer and plain amplifier (contributed by Danilo Piazzalunga)
+		\item added squid and barrier (contributed by  Cor Molenaar)
+		\item added antenna and transmission line symbols contributed by Leonardo Azzinnari
+		\item added the changeover switch spdt (suggestion of Fabio Maria Antoniali)
+		\item rename of context.tex and context.pdf (thanks to Karl Berry)
+		\item updated the email address
+		\item in documentation, fixed wrong (non-standard) labelling of the axis in an example (thanks to prof. Claudio Beccaria)
+		\item fixed scaling inconsistencies in quadrupoles    
+		\item fixed division by zero error on certain vertical paths
+		\item introduced options straighlabels, rotatelabels, smartlabels
     \end{enumerate}
 \item[\itshape version 0.2.3]  (20091118).
    \begin{enumerate}
-	\item fixed compatibility problem with label option from tikz
-	\item Fixed resizing problem for shape ground
-	\item Variable capacitor
-	\item polarized capacitor
-	\item ConTeXt support (read the manual!)
-	\item nfet, nigfete, nigfetd, pfet, pigfete, pigfetd (contribution of Clemens Helfmeier and Theodor 
-Borsche)
-	\item njfet, pjfet (contribution of Danilo Piazzalunga)
-	\item pigbt, nigbt
-	\item \emph{backward incompatibility} potentiometer is now the standard resistor-with-arrow-in-the-middle; the old potentiometer is now known as variable resistor (or vR), similarly to variable inductor and variable capacitor
-	\item triac, thyristor, memristor
-	\item new property "name" for bipoles
-	\item fixed voltage problem for batteries in american voltage mode
-	\item european logic gates
-	\item \emph{backward incompatibility} new american standard inductor. Old american inductor now called "cute inductor"
-	\item \emph{backward incompatibility} transformer now linked with the chosen type of inductor, and version with core, too. Similarly for variable inductor
-	\item \emph{backward incompatibility} styles for selecting shape variants now end are in the plural to avoid conflict with paths
-	\item new placing option for some tripoles (mostly transistors)
-	\item mirror path style
-\end{enumerate}
+		\item fixed compatibility problem with label option from tikz
+		\item Fixed resizing problem for shape ground
+		\item Variable capacitor
+		\item polarized capacitor
+		\item \ConTeXt\ support (read the manual!)
+		\item nfet, nigfete, nigfetd, pfet, pigfete, pigfetd (contribution of Clemens Helfmeier and Theodor 
+	Borsche)
+		\item njfet, pjfet (contribution of Danilo Piazzalunga)
+		\item pigbt, nigbt
+		\item \emph{backward incompatibility} potentiometer is now the standard resistor-with-arrow-in-the-middle; the old potentiometer is now known as variable resistor (or vR), similarly to variable inductor and variable capacitor
+		\item triac, thyristor, memristor
+		\item new property "name" for bipoles
+		\item fixed voltage problem for batteries in american voltage mode
+		\item european logic gates
+		\item \emph{backward incompatibility} new american standard inductor. Old american inductor now called "cute inductor"
+		\item \emph{backward incompatibility} transformer now linked with the chosen type of inductor, and version with core, too. Similarly for variable inductor
+		\item \emph{backward incompatibility} styles for selecting shape variants now end are in the plural to avoid conflict with paths
+		\item new placing option for some tripoles (mostly transistors)
+		\item mirror path style
+	\end{enumerate}
 	
 \item[\itshape version 0.2.2]  (20090520).
    \begin{enumerate}

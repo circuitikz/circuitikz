@@ -1,7 +1,7 @@
 circuitikz
 ==========
 
-This is CircuiTikz, version 0.3.1 beta.
+This is CircuiTikz, version 0.4.
 
 This package provides a set of macros for naturally typesetting electrical and (somewhat less naturally, perhaps) electronical networks.
 
@@ -35,7 +35,7 @@ in the preamble and compile away, both with PS and PDF target output.
 
 -------------
 
-Copyright 2007-12 by Massimo Redaelli
+Copyright 2007-14 by Massimo Redaelli
 
 This file may be distributed and/or modified
 
