@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-# Stefan Erhardt, 2013
+# Stefan Erhardt, 2013-2015
 # This script reads the main style file, includes all imports and writes them to one file. This makes it easier to give this single file to others.
 # Feel free to change, distribute, sell,...
 # 
@@ -12,7 +12,7 @@ import shutil
 date=datetime.datetime.now().strftime("%Y-%m-%d")
 
 filein = open("circuitikz.sty", "r")
-fileout = open("../../../../dev/out/circuitikz_%s.sty" %date, "w")
+fileout = open("../../../../../circuitikz_%s.sty" %date, "w")
 
 def readin(filename):
 	filein2 = open(filename, "r")
@@ -38,8 +38,8 @@ for line in filein:
 		fileout.write(line)
 	
 
-shutil.copy2('../../../../dev/hf-symbols-DE.pdf', '../../../../dev/out/hf-symbols-DE_%s.pdf' %date)
-shutil.copy2('../../../../dev/hf-symbols-DE.tex', '../../../../dev/out/hf-symbols-DE_%s.tex' %date)
+#shutil.copy2('../../../../dev/hf-symbols-DE.pdf', '../../../../dev/out/hf-symbols-DE_%s.pdf' %date)
+#shutil.copy2('../../../../dev/hf-symbols-DE.tex', '../../../../dev/out/hf-symbols-DE_%s.tex' %date)
 
 fileout.close()
 filein.close()

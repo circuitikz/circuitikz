@@ -153,7 +153,7 @@
 	#1
 	
 	\backgroundpath{	
-		\pgfsetcolor{\pgfkeysvalueof{/tikz/circuitikz/color}}	
+		\pgfsetcolor{\pgfkeysvalueof{/tikz/circuitikz/color}}
 		
 		\northeast
 		\pgf@circ@res@up = \pgf@y 
@@ -2246,6 +2246,61 @@
 		\ifpgf@circuit@box
 			\ctikzvalof{bipoles/twoport/width}
 		\else
+			\ctikzvalof{bipoles/amp/width}2
+		\fi
+	}{
+		\ifpgf@circuit@box
+			\ctikzvalof{bipoles/twoport/width}
+		\else
+			\ctikzvalof{bipoles/amp/width}
+		\fi
+	}{
+		\pgf@circ@res@step = \ctikzvalof{bipoles/amp/width}\pgf@circ@Rlen
+
+
+		% draw outer box
+		\ifpgf@circuit@box
+			\pgfnode{box}{center}{}{pgf@box}{\pgfusepath{draw}}
+		\fi
+
+		% draw input arrow
+		\ifpgf@circuit@inputarrow
+			{
+				\advance \pgf@circ@res@left by -.5\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}\pgfstartlinewidth
+				\pgftransformshift{\pgfpoint{\pgf@circ@res@left}{0pt}}
+				\pgfnode{inputarrow}{tip}{}{pgf@inputarrow}{\pgfusepath{fill}}
+			}
+		\fi
+
+		\ifpgf@circuit@box
+			\pgfsetlinewidth{\pgfstartlinewidth}
+			\pgfsetdash{}{0pt}	% draw solid line for inner symbol if no box is drawn
+		\else
+			\pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}\pgfstartlinewidth}	
+		\fi
+		
+		\pgfpathmoveto{\pgfpoint{-0.5\pgf@circ@res@step}{0.55\pgf@circ@res@step}}
+		\pgfpathlineto{\pgfpoint{0.5\pgf@circ@res@step}{0}}
+		\pgfpathlineto{\pgfpoint{-0.5\pgf@circ@res@step}{-0.55\pgf@circ@res@step}}
+		\pgfpathclose
+		\pgfusepath{draw}
+		
+		% draw inner text
+		\pgftext[center,x=-0.12\pgf@circ@res@step,y=0]{\ctikzvalof{bipoles/twoport/text}}
+}
+
+
+%% variable amplifier
+\pgfcircdeclarebipole{}{
+		\ifpgf@circuit@box
+			\ctikzvalof{bipoles/twoport/width}
+		\else
+			\ctikzvalof{bipoles/amp/width}
+		\fi
+	}{vamp}{
+		\ifpgf@circuit@box
+			\ctikzvalof{bipoles/twoport/width}
+		\else
 			\ctikzvalof{bipoles/amp/width}
 		\fi
 	}{
@@ -2271,50 +2326,28 @@
 				\pgfnode{inputarrow}{tip}{}{pgf@inputarrow}{\pgfusepath{fill}}
 			}
 		\fi
-		
-		\pgfsetdash{}{0pt}	% always draw solid line for inner symbol
-		\pgfsetlinewidth{\pgfstartlinewidth}
-		\pgfpathmoveto{\pgfpoint{-0.5\pgf@circ@res@step}{0.7\pgf@circ@res@step}}
-		\pgfpathlineto{\pgfpoint{0.5\pgf@circ@res@step}{0}}
-		\pgfpathlineto{\pgfpoint{-0.5\pgf@circ@res@step}{-0.7\pgf@circ@res@step}}
-		\pgfpathclose
-		\pgfusepath{draw}
-}
 
-
-%% variable amplifier
-\pgfcircdeclarebipole{}{\ctikzvalof{bipoles/vamp/width}}{vamp}{\ctikzvalof{bipoles/vamp/width}}{\ctikzvalof{bipoles/vamp/width}}{
-		\pgf@circ@res@step = \ctikzvalof{bipoles/vamp/width}\pgf@circ@Rlen
-		\divide \pgf@circ@res@step by 2
-
-		\pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@zero}}
-		\pgf@circ@res@other = \pgf@circ@res@left
-		\advance\pgf@circ@res@other by \pgf@circ@res@step 
-
-		% draw outer box
-		\pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}\pgfstartlinewidth}
-		\pgfpathrectanglecorners{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@up}}{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@down}}
-		\pgfusepath{draw}
-		
-		\ifpgf@circuit@inputarrow
-			{
-				\advance \pgf@circ@res@left by -.5\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}\pgfstartlinewidth
-				\pgftransformshift{\pgfpoint{\pgf@circ@res@left}{0pt}}
-				\pgfnode{inputarrow}{tip}{}{pgf@inputarrow}{\pgfusepath{fill}}
-			}
+		\ifpgf@circuit@box
+			\pgfsetlinewidth{\pgfstartlinewidth}
+			\pgfsetdash{}{0pt}	% draw solid line for inner symbol if no box is drawn
+		\else
+			\pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}\pgfstartlinewidth}	
 		\fi
 		
-		\pgfsetdash{}{0pt}	% always draw solid line for inner symbol
-		\pgfsetlinewidth{\pgfstartlinewidth}
-		\pgfpathmoveto{\pgfpoint{0.5\pgf@circ@res@left}{0.75\pgf@circ@res@up}}
-		\pgfpathlineto{\pgfpoint{0.63\pgf@circ@res@right}{0}}
-		\pgfpathlineto{\pgfpoint{0.5\pgf@circ@res@left}{0.75\pgf@circ@res@down}}
+		\pgfpathmoveto{\pgfpoint{-0.5\pgf@circ@res@step}{0.55\pgf@circ@res@step}}
+		\pgfpathlineto{\pgfpoint{0.5\pgf@circ@res@step}{0}}
+		\pgfpathlineto{\pgfpoint{-0.5\pgf@circ@res@step}{-0.55\pgf@circ@res@step}}
 		\pgfpathclose
 		\pgfusepath{draw}
 		
+		% draw inner text
+		\pgftext[center,x=-0.12\pgf@circ@res@step,y=0]{\ctikzvalof{bipoles/twoport/text}}
+		
+		% draw arrow
+		\pgfsetlinewidth{\pgfstartlinewidth}
 		\pgfsetarrowsend{latex}
-		\pgfpathmoveto{\pgfpoint{0.75\pgf@circ@res@left}{0.5\pgf@circ@res@down}}
-		\pgfpathlineto{\pgfpoint{0.7\pgf@circ@res@right}{0.7\pgf@circ@res@up}}
+		\pgfpathmoveto{\pgfpoint{-0.8\pgf@circ@res@step}{-0.5\pgf@circ@res@step}}
+		\pgfpathlineto{\pgfpoint{0.6\pgf@circ@res@step}{0.6\pgf@circ@res@step}}
 		\pgfusepath{draw}
 }
 
