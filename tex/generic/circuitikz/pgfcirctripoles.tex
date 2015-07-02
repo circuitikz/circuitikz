@@ -14,12 +14,21 @@
 \pgfdeclareshape{mixer}
 {
 	\savedanchor\northwest{
-		\pgf@y= \pgfkeysvalueof{/tikz/circuitikz/bipoles/length}
-		\pgf@y=\pgfkeysvalueof{/tikz/circuitikz/tripoles/mixer/width}\pgf@y
-		\pgf@y=.5\pgf@y
-		\pgf@x= \pgfkeysvalueof{/tikz/circuitikz/bipoles/length}
-		\pgf@x=-\pgfkeysvalueof{/tikz/circuitikz/tripoles/mixer/width}\pgf@x
-		\pgf@x=.5\pgf@x
+		\ifpgf@circuit@box
+			\pgf@y= \pgfkeysvalueof{/tikz/circuitikz/bipoles/length}
+			\pgf@y=\pgfkeysvalueof{/tikz/circuitikz/bipoles/twoport/width}\pgf@y
+			\pgf@y=.5\pgf@y
+			\pgf@x= \pgfkeysvalueof{/tikz/circuitikz/bipoles/length}
+			\pgf@x=-\pgfkeysvalueof{/tikz/circuitikz/bipoles/twoport/width}\pgf@x
+			\pgf@x=.5\pgf@x
+		\else	
+			\pgf@y= \pgfkeysvalueof{/tikz/circuitikz/bipoles/length}
+			\pgf@y=\pgfkeysvalueof{/tikz/circuitikz/tripoles/mixer/width}\pgf@y
+			\pgf@y=.5\pgf@y
+			\pgf@x= \pgfkeysvalueof{/tikz/circuitikz/bipoles/length}
+			\pgf@x=-\pgfkeysvalueof{/tikz/circuitikz/tripoles/mixer/width}\pgf@x
+			\pgf@x=.5\pgf@x
+		\fi
 	}
 	\anchor{center}{
 		\pgfpointorigin
@@ -102,11 +111,20 @@
 			\pgfstartlinewidth=\pgflinewidth
 			
 			% draw outer circle
-			\pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}\pgfstartlinewidth}
+			\ifpgf@circuit@box
+			\else
+				\pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}\pgfstartlinewidth}
+			\fi
 			\pgfpathcircle{\pgfpoint{0}{0}} {0.5\pgf@circ@res@step}
 			\pgfusepath{draw}
 			
+			% draw outer box
+			\ifpgf@circuit@box
+				\pgfnode{box}{center}{}{pgf@box}{\pgfusepath{draw}}
+			\fi
+			
 			% draw inner stuff
+			\pgfsetdash{}{0pt}	% always draw solid line for inner symbol
 			\pgfsetlinewidth{\pgfstartlinewidth}
 			\pgfpathmoveto{\pgfpointorigin}
 			\pgfpathmoveto{\pgfpointpolar{135}{0.5\pgf@circ@res@step}}
@@ -114,21 +132,30 @@
 			\pgfpathmoveto{\pgfpointorigin}
 			\pgfpathmoveto{\pgfpointpolar{45}{0.5\pgf@circ@res@step}}
 			\pgfpathlineto{\pgfpointpolar{-135}{0.5\pgf@circ@res@step}}
-			\pgfsetlinewidth{2\pgflinewidth}
 			\pgfusepath{draw}
-		\endpgfscope				  
+			
+		\endpgfscope
 	}
 }
 
 \pgfdeclareshape{adder}
 {
 	\savedanchor\northwest{
-		\pgf@y= \pgfkeysvalueof{/tikz/circuitikz/bipoles/length}
-		\pgf@y=\pgfkeysvalueof{/tikz/circuitikz/tripoles/adder/width}\pgf@y
-		\pgf@y=.5\pgf@y
-		\pgf@x= \pgfkeysvalueof{/tikz/circuitikz/bipoles/length}
-		\pgf@x=-\pgfkeysvalueof{/tikz/circuitikz/tripoles/adder/width}\pgf@x
-		\pgf@x=.5\pgf@x
+		\ifpgf@circuit@box
+			\pgf@y= \pgfkeysvalueof{/tikz/circuitikz/bipoles/length}
+			\pgf@y=\pgfkeysvalueof{/tikz/circuitikz/bipoles/twoport/width}\pgf@y
+			\pgf@y=.5\pgf@y
+			\pgf@x= \pgfkeysvalueof{/tikz/circuitikz/bipoles/length}
+			\pgf@x=-\pgfkeysvalueof{/tikz/circuitikz/bipoles/twoport/width}\pgf@x
+			\pgf@x=.5\pgf@x
+		\else	
+			\pgf@y= \pgfkeysvalueof{/tikz/circuitikz/bipoles/length}
+			\pgf@y=\pgfkeysvalueof{/tikz/circuitikz/tripoles/adder/width}\pgf@y
+			\pgf@y=.5\pgf@y
+			\pgf@x= \pgfkeysvalueof{/tikz/circuitikz/bipoles/length}
+			\pgf@x=-\pgfkeysvalueof{/tikz/circuitikz/tripoles/adder/width}\pgf@x
+			\pgf@x=.5\pgf@x
+		\fi
 	}
 	\anchor{center}{
 		\pgfpointorigin
@@ -211,7 +238,10 @@
 			\pgfstartlinewidth=\pgflinewidth
 			
 			% draw outer circle
-			\pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}\pgfstartlinewidth}
+			\ifpgf@circuit@box
+			\else
+				\pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}\pgfstartlinewidth}
+			\fi
 			\pgfpathcircle{\pgfpoint{0}{0}} {0.5\pgf@circ@res@step}
 			\pgfusepath{draw}
 			
@@ -225,13 +255,18 @@
 			\pgfpathlineto{\pgfpointpolar{270}{0.3\pgf@circ@res@step}}
 			\pgfsetlinewidth{2\pgflinewidth}
 			\pgfusepath{draw}
+			
+			% draw outer box
+			\ifpgf@circuit@box
+				\pgfnode{box}{center}{}{pgf@box}{\pgfusepath{draw}}
+			\fi
 		\endpgfscope				  
 	}
 }
 
 
 
-	\pgfdeclareshape{spdt}
+\pgfdeclareshape{spdt}
 	{
 	  \savedanchor\northwest{%
 		\pgf@y= \pgfkeysvalueof{/tikz/circuitikz/bipoles/length}
@@ -3423,12 +3458,21 @@
 \pgfdeclareshape{circulator}
 {
 	\savedanchor\northwest{
-		\pgf@y= \pgfkeysvalueof{/tikz/circuitikz/bipoles/length}
-		\pgf@y=\pgfkeysvalueof{/tikz/circuitikz/tripoles/circulator/width}\pgf@y
-		\pgf@y=.5\pgf@y
-		\pgf@x= \pgfkeysvalueof{/tikz/circuitikz/bipoles/length}
-		\pgf@x=-\pgfkeysvalueof{/tikz/circuitikz/tripoles/circulator/width}\pgf@x
-		\pgf@x=.5\pgf@x
+		\ifpgf@circuit@box
+			\pgf@y= \pgfkeysvalueof{/tikz/circuitikz/bipoles/length}
+			\pgf@y=\pgfkeysvalueof{/tikz/circuitikz/bipoles/twoport/width}\pgf@y
+			\pgf@y=.5\pgf@y
+			\pgf@x= \pgfkeysvalueof{/tikz/circuitikz/bipoles/length}
+			\pgf@x=-\pgfkeysvalueof{/tikz/circuitikz/bipoles/twoport/width}\pgf@x
+			\pgf@x=.5\pgf@x
+		\else	
+			\pgf@y= \pgfkeysvalueof{/tikz/circuitikz/bipoles/length}
+			\pgf@y=\pgfkeysvalueof{/tikz/circuitikz/tripoles/circulator/width}\pgf@y
+			\pgf@y=.5\pgf@y
+			\pgf@x= \pgfkeysvalueof{/tikz/circuitikz/bipoles/length}
+			\pgf@x=-\pgfkeysvalueof{/tikz/circuitikz/tripoles/circulator/width}\pgf@x
+			\pgf@x=.5\pgf@x
+		\fi
 	}
 	\anchor{center}{
 		\pgfpointorigin
@@ -3494,7 +3538,10 @@
 			\pgfstartlinewidth=\pgflinewidth
 			
 			% draw outer circle
-			\pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}\pgfstartlinewidth}
+			\ifpgf@circuit@box
+			\else
+				\pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}\pgfstartlinewidth}
+			\fi
 			\pgfpathcircle{\pgfpoint{0}{0}} {0.5\pgf@circ@res@step}
 			\pgfusepath{draw}
 			
@@ -3506,6 +3553,11 @@
 			\pgfpatharc{180}{-90} {0.25\pgf@circ@res@step}
 			\pgfpathlineto{\pgfpoint{-5pt}{-0.2\pgf@circ@res@step}}
 			\pgfusepath{draw}
+			
+			% draw outer box
+			\ifpgf@circuit@box
+				\pgfnode{box}{center}{}{pgf@box}{\pgfusepath{draw}}
+			\fi
 		\endpgfscope				  
 	}
 }
