@@ -424,14 +424,14 @@
 
 }{}
 
-%% coupler
-% defines a general outer box for couplers
+%% four-port
+% defines a general outer box for four-ports
 % TikZ usage: 
 %		\draw (0,0) node[coupler](coup){\SI{-3}{dB}}
 %		(coup.port1) to[short,-o] ++(-1,0)
 %
 
-\long\def\pgfcircdeclarecoupler#1#2{
+\long\def\pgfcircdeclarefourport#1#2{
 	\pgfdeclareshape{#1}{
 		\anchor{center}{
 			\northwest
@@ -440,11 +440,11 @@
 		}
 		\savedanchor\northwest{%
 			\pgf@y= \pgfkeysvalueof{/tikz/circuitikz/bipoles/length}
-			\pgf@y=\pgfkeysvalueof{/tikz/circuitikz/quadpoles/coupler/height}\pgf@y
+			\pgf@y=\pgfkeysvalueof{/tikz/circuitikz/quadpoles/#1/height}\pgf@y
 			\pgf@y=.5\pgf@y
 			\pgf@x= \pgfkeysvalueof{/tikz/circuitikz/bipoles/length}
 			\pgf@x=.5\pgf@x
-			\pgf@x=-\pgfkeysvalueof{/tikz/circuitikz/quadpoles/coupler/width}\pgf@x
+			\pgf@x=-\pgfkeysvalueof{/tikz/circuitikz/quadpoles/#1/width}\pgf@x
 			}
 		\anchor{north}{
 			\northwest
@@ -516,6 +516,7 @@
 			\northwest
 			\pgf@y=0.5\pgf@y
 		}
+		
 		\anchor{text}{
 			\northwest
 			\advance \pgf@y by 0.5\ht\pgfnodeparttextbox
@@ -539,13 +540,19 @@
 				
 				% draw inner stuff
 				#2
-
+				
+				% draw inner text
+				\pgftext[center,x=-0.15\pgf@circ@res@step,y=0]{\ctikzvalof{bipoles/twoport/text}}
 		}
 	}
 }
 
+% four-port
+\pgfcircdeclarefourport{fourport}{}
+
+
 % straight coupler
-\pgfcircdeclarecoupler{coupler}{
+\pgfcircdeclarefourport{coupler}{
 	\pgfsetlinewidth{\pgfstartlinewidth}
 	\pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{0.5\pgf@circ@res@up}}
 	\pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{0.5\pgf@circ@res@up}}
@@ -564,7 +571,7 @@
 }
 
 % "bended" coupler
-\pgfcircdeclarecoupler{coupler2}{
+\pgfcircdeclarefourport{coupler2}{
 	\pgfsetlinewidth{\pgfstartlinewidth}
 	\pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{0.5\pgf@circ@res@up}}
 	\pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{0.5\pgf@circ@res@up}}
@@ -592,4 +599,3 @@
 	
 	
 }
-
