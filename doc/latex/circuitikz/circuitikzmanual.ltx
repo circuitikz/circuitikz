@@ -169,7 +169,7 @@ There are a number of backward incompatibilities--I'm sorry, but I had to make a
 \begin{LTXexample}[varwidth=true]
 \begin{circuitikz}
    \draw (0,0) to[R=2<\ohm>, i=?, v=84<\volt>] (2,0) -- 
-         (2,2) to[V=84<\volt>] (0,2) 
+         (2,2) to[V<=84<\volt>] (0,2) 
          -- (0,0);
 \end{circuitikz}
 \end{LTXexample}
@@ -190,7 +190,7 @@ But if you really, \emph{really} want your circuit ugly, you can load the packag
 \begin{center}
 \begin{circuitikz}[circuitikz/voltage=american, circuitikz/resistor=american]
    \draw (0,0) to[R=2<\ohm>, i=?, v=84<\volt>] (2,0) -- 
-         (2,2) to[V=84<\volt>] (0,2) 
+         (2,2) to[V<=84<\volt>] (0,2) 
          -- (0,0);
 \end{circuitikz}
 \end{center}
@@ -224,6 +224,7 @@ But if you really, \emph{really} want your circuit ugly, you can load the packag
 	\item \texttt{rotatelabels}: labels on bipoles are always printed aligned along the bipole;
 	\item \texttt{smartlabels}: labels on bipoles are rotated along the bipoles, unless the rotation is very close to multiples of 90°;
 	\item \texttt{compatibility}: makes it possibile to load \Circuitikz\ and \TikZ\ circuit library together.
+	\item \texttt{oldvoltagedirection}: Use old(erronous) way of voltage direction having a difference between european and american direction
 \end{itemize}	
 
 The old options in the singular (like \texttt{american voltage}) are still available for compatibility, but are discouraged.
@@ -400,6 +401,7 @@ If otherwise \texttt{americangfsurgearrester} option is active (or the style \te
 	\circuititembip{capacitor}{Capacitor}{C}
 	\circuititembip{polar capacitor}{Polar capacitor}{pC}
 	\circuititembip{variable capacitor}{Variable capacitor}{vC}
+	\circuititembip{piezoelectric}{Piezoelectric Element}{PZ}
 \end{itemize}	
 
 If (default behaviour) \texttt{cuteinductors} option is active (or the style \texttt{[cute inductors]} is used), the inductors are displayed as follows:
@@ -439,6 +441,7 @@ There is also a transmission line:
 	\circuititembip{square voltage source}{Square voltage source}{vsourcesquare, sqV}
 	\circuititembip{vsourcetri}{Triangle voltage source}{tV}
 	\circuititembip{esource}{Empty voltage source}{}
+	\circuititembip{pvsource}{Photovoltaic-voltage source}{}
 \end{itemize}
 
 \subsubsection{DC sources}
@@ -747,7 +750,14 @@ Long names/styles for the bipoles can be used:
 \end{circuitikz}
 \end{LTXexample}	
 
-\subsection{Currents}
+\subsection{Currents}\label{currents}
+The counting direction of currents and voltages have changed with version 0.5, for compability reasons there is a option to use the olddirections(see options). For the new scheme, the following rules apply:
+\begin{itemize}
+\item \textbf{Normal bipoles:} currents and voltages are counted positiv in drawing direction.
+\item \textbf{Current Sources:} current is counted positiv in drawing direction, voltage in opposite direction
+\item \textbf{Voltage Sources:} voltage is counted positiv in drawing direction, current in opposite direction
+\end{itemize}
+With this convention, the power at loads is positive and negative at sources.
 
 \begin{LTXexample}[varwidth=true]
 \begin{circuitikz}
@@ -821,11 +831,35 @@ Also
 \begin{circuitikz}
    \draw (0,0) to[R, i_=$i_1$] (2,0);
 \end{circuitikz}
-\end{LTXexample}	
+\end{LTXexample}
 
+\begin{LTXexample}[varwidth=true]
+\begin{circuitikz}
+   \draw (0,0) to[V=10V, i_=$i_1$] (2,0);
+\end{circuitikz}
+\end{LTXexample}	
+	
+\begin{LTXexample}[varwidth=true]
+\begin{circuitikz}
+   \draw (0,0) to[V<=10V, i_=$i_1$] (2,0);
+\end{circuitikz}
+\end{LTXexample}		
+
+\begin{LTXexample}[varwidth=true]
+\begin{circuitikz}[american]
+   \draw (0,0) to[V=10V, i_=$i_1$] (2,0);
+\end{circuitikz}
+\end{LTXexample}	
+	
+\begin{LTXexample}[varwidth=true]
+\begin{circuitikz}[american]
+   \draw (0,0) to[V<=10V, i_=$i_1$] (2,0);
+\end{circuitikz}
+\end{LTXexample}		
 
 
 \subsection{Voltages}
+See introduction note at Currents (chapter \ref{currents}, page \pageref{currents})!
 
 \subsubsection{European style} The default, with arrows. Use option \texttt{europeanvoltage} or style \verb![european voltages]!.
 
@@ -853,6 +887,30 @@ Also
 \end{circuitikz}
 \end{LTXexample}
 
+\begin{LTXexample}[varwidth=true]
+\begin{circuitikz}
+   \draw (0,0) to[V=10V, i_=$i_1$] (2,0);
+\end{circuitikz}
+\end{LTXexample}	
+	
+\begin{LTXexample}[varwidth=true]
+\begin{circuitikz}
+   \draw (0,0) to[V<=10V, i_=$i_1$] (2,0);
+\end{circuitikz}
+\end{LTXexample}		
+
+\begin{LTXexample}[varwidth=true]
+\begin{circuitikz}
+   \draw (0,0) to[I=1A, v_=$u_1$] (2,0);
+\end{circuitikz}
+\end{LTXexample}	
+	
+\begin{LTXexample}[varwidth=true]
+\begin{circuitikz}
+   \draw (0,0) to[I<=1A, v_=$i_1$] (2,0);
+\end{circuitikz}
+\end{LTXexample}	
+
 \subsubsection{American style} For those who like it (not me). Use option \texttt{americanvoltage} or set \verb![american voltages]!.
 
 \begin{LTXexample}[varwidth=true]
@@ -879,6 +937,17 @@ Also
 \end{circuitikz}
 \end{LTXexample}
 
+\begin{LTXexample}[varwidth=true]
+\begin{circuitikz}[american]
+   \draw (0,0) to[I=1A, v_=$u_1$] (2,0);
+\end{circuitikz}
+\end{LTXexample}	
+	
+\begin{LTXexample}[varwidth=true]
+\begin{circuitikz}[american]
+   \draw (0,0) to[I<=1A, v_=$i_1$] (2,0);
+\end{circuitikz}
+\end{LTXexample}
 
 
 \subsection{Nodes}
@@ -1346,6 +1415,8 @@ And the mixer:
   (opamp.+) node[left] {$v_+$}
   (opamp.-) node[left] {$v_-$}
   (opamp.out) node[right] {$v_o$}
+  (opamp.up) --++(0,0.5) node[vcc]{5\,\textnormal{V}}
+  (opamp.down) --++(0,-0.5) node[vee]{-5\,\textnormal{V}}
 ;\end{circuitikz}
 \end{LTXexample}
 
@@ -1714,10 +1785,10 @@ Just substitute every occurrence of the environment \verb!circuitikz! with \verb
 \begin{circuitikz}[scale=1.4]\draw
   (0,0) to[C, l=10<\micro\farad>] (0,2) -- (0,3)
         to[R, l=2.2<\kilo\ohm>] (4,3) -- (4,2)
-        to[L, l=12<\milli\henry>, i=$i_1$] (4,0) -- (0,0)
+        to[L, l=12<\milli\henry>, i=$i_1$,v=b] (4,0) -- (0,0)
   (4,2) { to[D*, *-*, color=red] (2,0) }
   (0,2) to[R, l=1<\kilo\ohm>, *-] (2,2) 
-        to[cV, v=$\SI{.3}{\kilo\ohm} i_1$] (4,2)
+        to[cV, i=1,v=$\SI{.3}{\kilo\ohm} i_1$] (4,2)
   (2,0) to[I, i=1<\milli\ampere>, -*] (2,2) 
 ;\end{circuitikz}
 \end{LTXexample}

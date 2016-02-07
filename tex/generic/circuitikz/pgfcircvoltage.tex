@@ -47,9 +47,23 @@
 				\pgfkeys{\circuitikzbasekey/bipole/voltage/position=above,
 					\circuitikzbasekey/bipole/voltage/direction=forward}
 			\else
+				\ifpgf@circ@oldvoltagedirection
 				\pgfkeys{\circuitikzbasekey/bipole/voltage/position=below,
 					\circuitikzbasekey/bipole/voltage/direction=backward}
+				\else
+				\pgfkeys{\circuitikzbasekey/bipole/voltage/position=below,
+					\circuitikzbasekey/bipole/voltage/direction=forward}
+				\fi
 			\fi
+			\ifpgf@circ@oldvoltagedirection\else
+			\ifpgf@circuit@bipole@iscurrent
+			\ifpgf@circuit@bipole@current@backward
+					\pgfkeys{\circuitikzbasekey/bipole/voltage/position=below,
+					\circuitikzbasekey/bipole/voltage/direction=forward}
+			\else
+					\pgfkeys{\circuitikzbasekey/bipole/voltage/position=below,
+					\circuitikzbasekey/bipole/voltage/direction=backward}
+			\fi\fi\fi
 	\pgfkeys{/tikz/circuitikz/bipole/voltage/label/name=#1}
 	\ctikzsetvalof{bipole/voltage/label/unit}{}
 	\ifpgf@circ@siunitx 
@@ -122,11 +136,21 @@
 		\fi	
 	\else
 		\ifpgf@circuit@bipole@voltage@backward
-			(pgfcirc@Vfrom) node[inner sep=0, anchor=\pgf@circ@bipole@voltage@label@anchor]{\scriptsize$+$}   
-			(pgfcirc@Vto) node[inner sep=0, anchor=\pgf@circ@bipole@voltage@label@anchor]{$-$}
+			\ifpgf@circ@oldvoltagedirection
+				(pgfcirc@Vfrom) node[inner sep=0, anchor=\pgf@circ@bipole@voltage@label@anchor]{\scriptsize$+$}   
+				(pgfcirc@Vto) node[inner sep=0, anchor=\pgf@circ@bipole@voltage@label@anchor]{$-$}
+			\else
+				(pgfcirc@Vfrom) node[inner sep=0, anchor=\pgf@circ@bipole@voltage@label@anchor]{\scriptsize$-$}   
+				(pgfcirc@Vto) node[inner sep=0, anchor=\pgf@circ@bipole@voltage@label@anchor]{$+$}
+			\fi
 		\else
-			(pgfcirc@Vfrom) node[inner sep=0, anchor=\pgf@circ@bipole@voltage@label@anchor]{\scriptsize$-$}   
-			(pgfcirc@Vto) node[inner sep=0, anchor=\pgf@circ@bipole@voltage@label@anchor]{$+$}
+			\ifpgf@circ@oldvoltagedirection
+				(pgfcirc@Vfrom) node[inner sep=0, anchor=\pgf@circ@bipole@voltage@label@anchor]{\scriptsize$-$}   
+				(pgfcirc@Vto) node[inner sep=0, anchor=\pgf@circ@bipole@voltage@label@anchor]{$+$}
+			\else
+				(pgfcirc@Vfrom) node[inner sep=0, anchor=\pgf@circ@bipole@voltage@label@anchor]{\scriptsize$+$}   
+				(pgfcirc@Vto) node[inner sep=0, anchor=\pgf@circ@bipole@voltage@label@anchor]{$-$}
+			\fi
 		\fi	
 	\fi
 }

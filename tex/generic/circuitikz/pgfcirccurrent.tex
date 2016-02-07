@@ -99,10 +99,27 @@
 		\fi
 	\else
 	\fi
+%reverse current direction for voltage sources
+	\ifpgf@circ@oldvoltagedirection\else
+		\ifpgf@circuit@bipole@isvoltage
+		\ifpgf@circuit@bipole@voltage@backward
+			\pgfkeys{\circuitikzbasekey/bipole/current/direction = forward,
+					\circuitikzbasekey/bipole/current/x position = after,
+					\circuitikzbasekey/bipole/current/y position = below }
+		\else
+			\pgfkeys{\circuitikzbasekey/bipole/current/direction = backward,
+					\circuitikzbasekey/bipole/current/x position = before,
+					\circuitikzbasekey/bipole/current/y position = above }
+	\fi\fi\fi
 }
 }
 
-\ctikzset{i</.style = { i = #1, \circuitikzbasekey/bipole/current/direction = backward } }
+
+\ifpgf@circ@oldvoltagedirection
+	\ctikzset{i</.style = { i = #1, \circuitikzbasekey/bipole/current/direction = backward } }
+\else
+	\ctikzset{i</.style = { i = #1, \circuitikzbasekey/bipole/current/direction = backward, \circuitikzbasekey/bipole/current/x position = before } }
+\fi
 \ctikzset{i_/.style = { i = #1, \circuitikzbasekey/bipole/current/y position = below } }
 \ctikzset{i>/.style = {i = #1, \circuitikzbasekey/bipole/current/direction = forward } }
 \ctikzset{i^/.style = { i= #1, \circuitikzbasekey/bipole/current/y position = above } }

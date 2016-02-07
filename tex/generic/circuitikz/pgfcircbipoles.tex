@@ -394,10 +394,18 @@
 
 	\pgfpathellipse{\pgfpointorigin}{\pgfpoint{0}{\pgf@circ@res@up}}{\pgfpoint{\pgf@circ@res@left}{0}}
 
-	
-	\pgftext[bottom,rotate=90,y=\ctikzvalof{bipoles/vsourceam/margin}\pgf@circ@res@down]{$+$}
-	\pgftext[top,rotate=90,y=\ctikzvalof{bipoles/vsourceam/margin}\pgf@circ@res@up]{$-$}
-
+	\ifpgf@circ@oldvoltagedirection
+		\pgftext[bottom,rotate=90,y=\ctikzvalof{bipoles/vsourceam/margin}\pgf@circ@res@down]{$+$}
+		\pgftext[top,rotate=90,y=\ctikzvalof{bipoles/vsourceam/margin}\pgf@circ@res@up]{$-$}
+	\else
+		\ifpgf@circuit@bipole@voltage@backward
+				\pgftext[bottom,rotate=90,y=\ctikzvalof{bipoles/vsourceam/margin}\pgf@circ@res@down]{$+$}
+				\pgftext[top,rotate=90,y=\ctikzvalof{bipoles/vsourceam/margin}\pgf@circ@res@up]{$-$}
+		\else
+				\pgftext[bottom,rotate=90,y=\ctikzvalof{bipoles/vsourceam/margin}\pgf@circ@res@down]{$-$}
+				\pgftext[top,rotate=90,y=\ctikzvalof{bipoles/vsourceam/margin}\pgf@circ@res@up]{$+$}
+		\fi
+	\fi
 	\pgfusepath{draw}
 }
 
@@ -490,38 +498,41 @@
 	\pgfusepath{draw}
 }
 
-%% DC Current Source with open shape
-\pgfcircdeclarebipole{}{\ctikzvalof{bipoles/dcisource/height}}{dcisource}{\ctikzvalof{bipoles/dcisource/height}}{\ctikzvalof{bipoles/dcisource/width}}{
-	\pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}\pgfstartlinewidth}
-	\pgfpathmoveto{\pgfpointorigin}
-	\pgfpathmoveto{\pgfpoint{\pgf@circ@res@right}{0}}\pgfpatharc{0}{90}{0.85\pgf@circ@res@right and \pgf@circ@res@up}
-	\pgfpathmoveto{\pgfpoint{\pgf@circ@res@right}{0}}\pgfpatharc{0}{-90}{0.85\pgf@circ@res@right and \pgf@circ@res@up}
-	\pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{0}}\pgfpatharc{180}{270}{0.85\pgf@circ@res@right and \pgf@circ@res@up}
-	\pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{0}}\pgfpatharc{180}{90}{0.85\pgf@circ@res@right and \pgf@circ@res@up}	
-	\pgfusepath{draw}
-		\pgfpathmoveto{\pgfpoint{.7\pgf@circ@res@left}{\pgf@circ@res@zero}}
-		\pgfpathlineto{\pgfpoint{.6\pgf@circ@res@right}{\pgf@circ@res@zero}}
-		\pgfusepath{draw}
-		\pgfscope
-			\pgftransformshift{\pgfpoint{.5\pgf@circ@res@right}{\pgf@circ@res@zero}}
-			\pgfnode{currarrow}{center}{}{}{\pgfusepath{stroke}}
-		\endpgfscope
-}
-
-%% DC-Voltage source
-\pgfcircdeclarebipole{}{\ctikzvalof{bipoles/dcvsource/height}}{dcvsource}{\ctikzvalof{bipoles/dcvsource/height}}{\ctikzvalof{bipoles/dcvsource/width}}{
+%% PV Source
+\pgfcircdeclarebipole{}{\ctikzvalof{bipoles/pvsource/height}}{pvsource}{\ctikzvalof{bipoles/pvsource/height}}{\ctikzvalof{bipoles/pvsource/width}}{
 	\pgfpointorigin
 	\pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}\pgfstartlinewidth}
 	\pgfpathellipse{\pgfpointorigin}{\pgfpoint{0}{\pgf@circ@res@up}}{\pgfpoint{\pgf@circ@res@left}{0}}
 	\pgfpathmoveto{\pgfpoint{\pgf@circ@res@step}{\pgf@circ@res@up}}
 	\pgfusepath{draw}
-	\pgfpathmoveto{\pgfpoint{.2\pgf@circ@res@up}{.5\pgf@circ@res@left}}
-	\pgfpathlineto{\pgfpoint{.2\pgf@circ@res@up}{.5\pgf@circ@res@right}}
-	\pgfpathmoveto{\pgfpoint{.2\pgf@circ@res@down}{.5\pgf@circ@res@left}}
-	\pgfpathlineto{\pgfpoint{.2\pgf@circ@res@down}{.5\pgf@circ@res@right}}
-	\pgfusepath{draw}	
-}
 
+	%Adapted from battery1
+	\pgfpathmoveto{\pgfpoint{.15\pgf@circ@res@right}{0}}
+	\pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{0}}
+	\pgfpathmoveto{\pgfpoint{.15\pgf@circ@res@left}{0}}
+	\pgfpathlineto{\pgfpoint{\pgf@circ@res@left}{0}}
+	\pgfusepath{draw}
+
+	\pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}\pgfstartlinewidth}
+	\pgfpathmoveto{\pgfpoint{.15\pgf@circ@res@left}{.4\pgf@circ@res@up}}
+	\pgfpathlineto{\pgfpoint{.15\pgf@circ@res@left}{.4\pgf@circ@res@down}}
+
+	\pgfpathmoveto{\pgfpoint{.15\pgf@circ@res@right}{.6\pgf@circ@res@up}}
+	\pgfpathlineto{\pgfpoint{.15\pgf@circ@res@right}{.6\pgf@circ@res@down}}
+	\pgfusepath{draw}
+
+	%Arrow Part
+	\pgfscope
+	\pgfsetarrowsend{latex}
+	\pgfpathmoveto{\pgfpointadd{\pgfpoint{.3\pgf@circ@res@left}{0}}{\pgfpointpolar{-45}{2.2\pgf@circ@res@up}}}
+	\pgfpathlineto{\pgfpointadd{\pgfpoint{.3\pgf@circ@res@left}{0}}{\pgfpointpolar{-45}{1.3\pgf@circ@res@up}}}
+	\pgfusepath{draw}
+	\pgfpathmoveto{\pgfpointadd{\pgfpoint{0}{0.3\pgf@circ@res@up}}{\pgfpointpolar{-45}{2.2\pgf@circ@res@up}}}
+	\pgfpathlineto{\pgfpointadd{\pgfpoint{0}{0.3\pgf@circ@res@up}}{\pgfpointpolar{-45}{1.3\pgf@circ@res@up}}}
+	\pgfusepath{draw}
+	\endpgfscope
+
+}
 
 %% Empty Source
 \pgfcircdeclarebipole{}{\ctikzvalof{bipoles/esource/height}}{esource}{\ctikzvalof{bipoles/esource/height}}{\ctikzvalof{bipoles/esource/width}}{
@@ -545,8 +556,16 @@
 		\pgfpathlineto{\pgfpoint{.6\pgf@circ@res@right}{\pgf@circ@res@zero}}
 		\pgfusepath{draw}
 		\pgfscope
+		\ifpgf@circ@oldvoltagedirection
 			\pgftransformshift{\pgfpoint{.5\pgf@circ@res@right}{\pgf@circ@res@zero}}
-			\pgfnode{currarrow}{center}{}{}{\pgfusepath{stroke}}
+		\else
+			\ifpgf@circuit@bipole@current@backward
+				\pgftransformshift{\pgfpoint{-.5\pgf@circ@res@right}{\pgf@circ@res@zero}}
+				\pgftransformrotate{180}
+			\else
+				\pgftransformshift{\pgfpoint{.5\pgf@circ@res@right}{\pgf@circ@res@zero}}
+		\fi\fi
+				\pgfnode{currarrow}{center}{}{}{\pgfusepath{stroke}}
 		\endpgfscope
 }
 
@@ -591,7 +610,15 @@
 	\pgfpathlineto{\pgfpoint{.7\pgf@circ@res@right}{\pgf@circ@res@zero}}
 	\pgfusepath{draw}
 	\pgfscope
-		\pgftransformshift{\pgfpoint{.5\pgf@circ@res@right}{\pgf@circ@res@zero}}
+		\ifpgf@circ@oldvoltagedirection
+			\pgftransformshift{\pgfpoint{.5\pgf@circ@res@right}{\pgf@circ@res@zero}}
+		\else
+			\ifpgf@circuit@bipole@current@backward
+				\pgftransformshift{\pgfpoint{-.5\pgf@circ@res@right}{\pgf@circ@res@zero}}
+				\pgftransformrotate{180}
+			\else
+				\pgftransformshift{\pgfpoint{.5\pgf@circ@res@right}{\pgf@circ@res@zero}}
+		\fi\fi
 		\pgfnode{currarrow}{center}{}{}{\pgfusepath{stroke}}
 	\endpgfscope
 }
@@ -1646,6 +1673,33 @@
 		\pgfsetlinewidth{\pgfstartlinewidth}
 		\pgfusepath{draw}
 }
+
+
+%% Piezoelectric Element
+
+\pgfcircdeclarebipole{}{\ctikzvalof{bipoles/piezoelectric/height}}{piezoelectric}{\ctikzvalof{bipoles/piezoelectric/height}}{\ctikzvalof{bipoles/piezoelectric/width}}{
+		\pgf@circ@res@step = \ctikzvalof{bipoles/piezoelectric/width}\pgf@circ@Rlen
+		\divide \pgf@circ@res@step by 5
+
+		%% Outer markings
+		\pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}\pgfstartlinewidth}
+		\pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@up}}
+		\pgfpathlineto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@down}}
+
+		\pgfpathmoveto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@up}}
+		\pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@down}}
+		\pgfusepath{draw}
+
+		%% Inner Box
+		\pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}\pgfstartlinewidth}
+		\pgfpathrectanglecorners{\pgfpoint{\pgf@circ@res@left+4}{\pgf@circ@res@up-1}}{\pgfpoint{\pgf@circ@res@right-4}{\pgf@circ@res@down+1}}
+		\pgfusepath{draw}
+
+}
+
+
+
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Handling of terminals
