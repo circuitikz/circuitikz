@@ -274,6 +274,7 @@ Please notice that for user convenience transistors can also be inputted using t
 	\circuititem{ground}{Ground}{}
 	\circuititem{rground}{Reference ground}{}
 	\circuititem{sground}{Signal ground}{}
+	\circuititem{tground}{Thicker ground}{}
 	\circuititem{nground}{Noiseless ground}{}
 	\circuititem{pground}{Protective ground}{}
 	\circuititem{cground}{Chassis ground\footnote{These last three were contributed by Luigi «Liverpool»)}}{}
@@ -284,7 +285,7 @@ Please notice that for user convenience transistors can also be inputted using t
 	\circuititem{vcc}{VCC}{}
 	\circuititem{vee}{VCC}{}
 	\circuititem{match}{match}{}
-	\circuititem{oscillator}{LO\footnote{These last three come from Stefan Erhardt's contribution of HF components}}{}
+	%\circuititem{oscillator}{LO\footnote{These last three come from Stefan Erhardt's contribution of HF components}}{}
 \end{itemize}
 
 
@@ -579,12 +580,16 @@ Borsche. Use the package options \texttt{fetsolderdot}/\texttt{nofetsolderdot} t
 \subsubsection{HF}
 These come from Stefan Erhardt's contribution of HF components.
 \begin{itemize}
+	\circuititem{mixer}{\scshape mixer}{}
+	\circuititem{adder}{\scshape adder}{}
+	\circuititem{oscillator}{\scshape oscillator}{}
 	\circuititem{circulator}{\scshape circulator}{}
 	\circuititem{wilkinson}{\scshape wilkinson divider}{}
+	%\circuititem{coupler}{\scshape coupler}{}
+	%\circuititem{coupler2}{\scshape coupler2}{}
 \end{itemize}
 
 
-		
 		
 \subsubsection{Switch}
 \begin{itemize}
@@ -599,10 +604,11 @@ These come from Stefan Erhardt's contribution of HF components.
 	%\circuititembip{IGBT}{IGBT}{}
 \end{itemize}
 
-\subsubsection{Misc}
-\begin{itemize}
-	\circuititem{mixer}{Mixer}{}
-\end{itemize}
+% now part of HF parts above
+%\subsubsection{Misc}
+%\begin{itemize}
+%	\circuititem{mixer}{Mixer}{}
+%\end{itemize}
 
 \subsection{Double bipoles}
 
@@ -1421,15 +1427,31 @@ As for the switches:
 ;\end{circuitikz}
 \end{LTXexample}
 
-And the mixer:
+The ports of the mixer (same for adder, oscillator and circulator) can be addressed:
 \begin{LTXexample}[varwidth=true]
 \begin{circuitikz} \draw 
   (0,0) node[mixer] (mix) {}
-  (mix.in 1) node[left] {in 1}
-  (mix.in 2) node[below] {in 2}
-  (mix.out) node[right] {out}
+  (mix.1) node[left] {1}
+  (mix.2) node[below] {2}
+  (mix.3) node[right] {3}
+  (mix.4) node[above] {4}
 ;\end{circuitikz}
 \end{LTXexample}
+
+The Wilkinson divider has:
+\begin{LTXexample}[varwidth=true]
+\begin{circuitikz} \draw
+  (0,0) node[wilkinson] (w) {\SI{3}{dB}}
+  (w.in) to[short,-o] ++(-0.5,0)
+  (w.out1) to[short,-o] ++(0.5,0)
+  (w.out2) to[short,-o] ++(0.5,0)
+  (w.in) node[below left] {\texttt{in}}
+  (w.out1) node[below right] {\texttt{out1}}
+  (w.out2) node[above right] {\texttt{out2}}
+  ;
+\end{circuitikz}
+\end{LTXexample}
+
 \subsubsection{Operational amplifier} The op amp defines the inverting input (\texttt{-}), the non-inverting input (\texttt{+}) and the output (\texttt{out}) anchors:
 
 \begin{LTXexample}[varwidth=true]
@@ -1468,32 +1490,6 @@ The fully differential op amp defines two outputs:
 ;\end{circuitikz}
 \end{LTXexample}
 
-
-The circulator defined ports 1, 2 and 3:
-\begin{LTXexample}[varwidth=true]
-		\begin{circuitikz} \draw
-			(0,0) node[circulator] (c) {}
-			(c.1) node[left] {\texttt{1}}
-			(c.2) node[right] {\texttt{2}}
-			(c.3) node[below] {\texttt{3}}
-			;
-		\end{circuitikz}
-\end{LTXexample}			
-		
-The Wilkinson divider has:
-		\begin{LTXexample}[varwidth=true]
-		\begin{circuitikz} \draw
-			(0,0) node[wilkinson] (w) {\SI{3}{dB}}
-			(w.in) to[short,-o] ++(-0.5,0)
-			(w.out1) to[short,-o] ++(0.5,0)
-			(w.out2) to[short,-o] ++(0.5,0)
-			(w.in) node[below left] {\texttt{in}}
-			(w.out1) node[below right] {\texttt{out1}}
-			(w.out2) node[above right] {\texttt{out2}}
-			;
-		\end{circuitikz}
-\end{LTXexample}
-
 \subsubsection{Double bipoles} All the (few, actually) double bipoles/quadrupoles have
 the four anchors, two for each port. The first port, to the left, is port \texttt{A}, having the anchors \texttt{A1} (up) and \texttt{A2} (down); same for port \texttt{B}. They also expose the \texttt{base} anchor, for labelling:
 
@@ -1521,63 +1517,91 @@ the four anchors, two for each port. The first port, to the left, is port \textt
 
 However:
 \begin{LTXexample}[varwidth=true]
-		\begin{circuitikz} \draw
-			(0,0) node[coupler] (c) {\SI{10}{dB}}
-			(c.1) to[short,-o] ++(-0.5,0)
-			(c.2) to[short,-o] ++(0.5,0)
-			(c.3) to[short,-o] ++(0.5,0)
-			(c.4) to[short,-o] ++(-0.5,0)
-			(c.1) node[below left] {\texttt{1}}
-			(c.2) node[below right] {\texttt{2}}
-			(c.3) node[above right] {\texttt{3}}
-			(c.4) node[above left] {\texttt{4}}
-			;
-		\end{circuitikz}
-		\end{LTXexample}
+\begin{circuitikz} \draw
+  (0,0) node[coupler] (c) {\SI{10}{dB}}
+  (c.1) to[short,-o] ++(-0.5,0)
+  (c.2) to[short,-o] ++(0.5,0)
+  (c.3) to[short,-o] ++(0.5,0)
+  (c.4) to[short,-o] ++(-0.5,0)
+  (c.1) node[below left] {\texttt{1}}
+  (c.2) node[below right] {\texttt{2}}
+  (c.3) node[above right] {\texttt{3}}
+  (c.4) node[above left] {\texttt{4}}
+  ;
+\end{circuitikz}
+\end{LTXexample}
 		
-		\begin{LTXexample}[varwidth=true]
-		\begin{circuitikz} \draw
-			(0,0) node[coupler2] (c) {\SI{3}{dB}}
-			(c.1) to[short,-o] ++(-0.5,0)
-			(c.2) to[short,-o] ++(0.5,0)
-			(c.3) to[short,-o] ++(0.5,0)
-			(c.4) to[short,-o] ++(-0.5,0)
-			(c.1) node[below left] {\texttt{1}}
-			(c.2) node[below right] {\texttt{2}}
-			(c.3) node[above right] {\texttt{3}}
-			(c.4) node[above left] {\texttt{4}}
-			;
-		\end{circuitikz}
+\begin{LTXexample}[varwidth=true]
+\begin{circuitikz} \draw
+  (0,0) node[coupler2] (c) {\SI{3}{dB}}
+  (c.1) to[short,-o] ++(-0.5,0)
+  (c.2) to[short,-o] ++(0.5,0)
+  (c.3) to[short,-o] ++(0.5,0)
+  (c.4) to[short,-o] ++(-0.5,0)
+  (c.1) node[below left] {\texttt{1}}
+  (c.2) node[below right] {\texttt{2}}
+  (c.3) node[above right] {\texttt{3}}
+  (c.4) node[above left] {\texttt{4}}
+  ;
+\end{circuitikz}
 \end{LTXexample}
 
 
 \subsection{Input arrows}
-\subsubsection*{two ports}
+\subsubsection*{Two ports}
 The new two ports all have a defined direction. If one needs opposite direction, just place them from right to left.  With the option \texttt{>} a input arrow is drawn:
 \begin{LTXexample}[varwidth=true]
-	\begin{circuitikz} \draw
-		(0,0) to[short,o-] ++(0.3,0)
-		to[lowpass,>] ++(2,0)
-		to[adc,>] ++(2,0)
-		to[fft,>] ++(2,0)
-		to[short,-o] ++(0.3,0);
-	\end{circuitikz}
+\begin{circuitikz} \draw
+  (0,0) to[short,o-] ++(0.3,0)
+  to[lowpass,>] ++(2,0)
+  to[adc,>] ++(2,0)
+  to[short,-o] ++(0.3,0);
+\end{circuitikz}
 \end{LTXexample}
 
-\subsubsection*{multi ports}
-Since inputs and outputs can vary, input arrows can be placed as nodes:
+
+\subsubsection*{Multi ports}
+Since inputs and outputs can vary, input arrows can be placed as nodes. Note that you have to rotate the arrow on your own:
 \begin{LTXexample}[varwidth=true]
-	\begin{circuitikz} \draw
-		(0,0) node[mixer] (m) {}
-		(m.in1) to[short,-o] ++(-1,0)
-		(m.in2) to[short,-o] ++(0,-1)
-		(m.out) to[short,-o] ++(1,0)
-		(m.in1) node[inputarrow] {}
-		(m.in2) node[inputarrow,rotate=90] {};
-	\end{circuitikz}
+\begin{circuitikz} \draw
+  (0,0) node[mixer] (m) {}
+  (m.1) to[short,-o] ++(-1,0)
+  (m.2) to[short,-o] ++(0,-1)
+  (m.3) to[short,-o] ++(1,0)
+  (m.1) node[inputarrow] {}
+  (m.2) node[inputarrow,rotate=90] {};
+\end{circuitikz}
 \end{LTXexample}
 
 
+\subsection{Labels and custom twoport boxes}
+The options t and l give the possibility to add texts and labels to serveral kind of twoports.
+\begin{LTXexample}[varwidth=true]
+\begin{circuitikz} \draw
+  (0,0) to[short,o-] ++(0.3,0)
+  to[twoport,t=$1 \over N$,l=div] ++(2,0)
+  to[short,-o] ++(0.3,0);
+\end{circuitikz}
+\end{LTXexample}
+
+
+\subsection{Box option}
+Some devices have the possibility to add a box around them.\footnote{I a future version the inner symbols will scale down by a certain percentage in order to not touch the box.}
+\begin{LTXexample}[varwidth=true]
+\begin{circuitikz} \draw
+  (0,0) node[oscillator,box] {};
+\end{circuitikz}
+\end{LTXexample}
+
+
+\subsection{Dash optional parts}
+To show that a device is optional, you can dash it. The inner symbol will be kept with solid lines.
+\begin{LTXexample}[varwidth=true]
+\begin{circuitikz}
+  \draw (0,0) to[amp,l=\SI{10}{dB}] ++(2.5,0);
+  \draw[dashed] (2.5,0) to[lowpass,l=opt.] ++(2.5,0);
+\end{circuitikz}
+\end{LTXexample}
 
 \subsection{Transistor paths}\label{sec:transasbip}
 
