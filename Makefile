@@ -2,8 +2,10 @@ $PDFLATEX_OPTIONS="-include-directory=doc/latex/circuitikz"
 
 .PHONY: tds clean
 
-manual: clean
+manual:
 	#if [! -e doc/latex/circuitikz/circuitikzmanual.tex ]; then cd doc/latex/circuitikz;ln -s circuitikzmanual.ltx circuitikzmanual.tex; fi;
+	echo "%DO NOT EDIT THIS AUTOMATICALLY GENERATED FILE!!!">doc/latex/circuitikz/changelog.tex
+	pandoc -t latex CHANGELOG.md >> doc/latex/circuitikz/changelog.tex
 	cd doc/latex/circuitikz;pdflatex compatibility.tex; pdflatex circuitikzmanual.tex; pdflatex circuitikzmanual.tex
 	cd doc/context/third/circuitikz;context /circuitikz-context.tex
 
@@ -24,7 +26,7 @@ tds: clean manual
 	cp doc/context/third/circuitikz/circuitikz-context.tex tds/doc/context/third/circuitikz
 	#generic doc
 	mkdir -p tds/doc/generic/circuitikz
-	cp doc/generic/circuitikz/CHANGELOG.md tds/doc/generic/circuitikz
+	cp CHANGELOG.md tds/doc/generic/circuitikz
 	cp README.md tds/doc/generic/circuitikz
 	#copy Code
 	cp -r tex tds/tex
@@ -34,6 +36,3 @@ tds: clean manual
 	zip circuitikz.zip -r circuitikz/*
 	mv circuitikz tds
 	rm -rf tds
-
-
-

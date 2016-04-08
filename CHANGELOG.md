@@ -1,4 +1,5 @@
-CircuiTikz - Changelog
+<!--- CircuiTikz - Changelog --->
+The major changes among the different circuitikz versions are listed here. See <https://github.com/mredaelli/circuitikz/commits> for a full list of changes.
 
 * Version 0.5(unreleased)
 	- new option boxed and dashed for hf-symbols
