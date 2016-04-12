@@ -1,6 +1,11 @@
-$PDFLATEX_OPTIONS="-include-directory=doc/latex/circuitikz"
+#$PDFLATEX_OPTIONS="-include-directory=doc/latex/circuitikz"
 
-.PHONY: tds clean
+.PHONY: ctan_tmp clean
+
+help:
+	@echo ---HELP---
+	@echo make manual: compile manual
+	@echo make ctan: create zip for ctan-upload
 
 manual:
 	#if [! -e doc/latex/circuitikz/circuitikzmanual.tex ]; then cd doc/latex/circuitikz;ln -s circuitikzmanual.ltx circuitikzmanual.tex; fi;
@@ -13,26 +18,27 @@ clean:
 	find doc/latex -not -name "*.tex" -not -name "circuitikzmanual.pdf" -not -name ".gitignore" -type f -delete
 	find doc/context -not -name "*.tex" -not -name "circuitikz-context.pdf" -not -name ".gitignore" -type f -delete
 
-tds: clean manual
-	rm -rf tds
-	rm circuitikz.zip
+ctan:
+	rm -rf ctan_tmp
+	rm -f circuitikz.zip
 	#latex doc
-	mkdir -p tds/doc/latex/circuitikz
-	cp doc/latex/circuitikz/circuitikzmanual.tex tds/doc/latex/circuitikz
-	cp doc/latex/circuitikz/circuitikzmanual.pdf tds/doc/latex/circuitikz
-	cp doc/latex/circuitikz/compatibility.tex tds/doc/latex/circuitikz
+	mkdir -p ctan_tmp/circuitikz/doc/latex/circuitikz
+	cp doc/latex/circuitikz/circuitikzmanual.tex ctan_tmp/circuitikz/doc/latex/circuitikz
+	cp doc/latex/circuitikz/circuitikzmanual.pdf ctan_tmp/circuitikz/doc/latex/circuitikz
+	cp doc/latex/circuitikz/compatibility.tex ctan_tmp/circuitikz/doc/latex/circuitikz
 	#context doc
-	mkdir -p tds/doc/context/third/circuitikz
-	cp doc/context/third/circuitikz/circuitikz-context.tex tds/doc/context/third/circuitikz
+	mkdir -p ctan_tmp/circuitikz/doc/context/third/circuitikz
+	cp doc/context/third/circuitikz/circuitikz-context.tex ctan_tmp/circuitikz/doc/context/third/circuitikz
 	#generic doc
-	mkdir -p tds/doc/generic/circuitikz
-	cp CHANGELOG.md tds/doc/generic/circuitikz
-	cp README.md tds/doc/generic/circuitikz
+	mkdir -p ctan_tmp/circuitikz/doc/generic/circuitikz
+	cp CHANGELOG.md ctan_tmp/circuitikz/doc/generic/circuitikz
+	cp README.md ctan_tmp/circuitikz/doc/generic/circuitikz
+	cp README.md ctan_tmp/circuitikz/
 	#copy Code
-	cp -r tex tds/tex
-	cd tds; zip circuitikz.tds.zip -r *
+	cp -r tex ctan_tmp/circuitikz/tex
+	cd ctan_tmp/circuitikz; zip --from-crlf circuitikz.ctan_tmp.zip -r *
+	mv ctan_tmp/circuitikz/circuitikz.ctan_tmp.zip ctan_tmp
 	#change dirname!
-	mv tds circuitikz
-	zip circuitikz.zip -r circuitikz/*
-	mv circuitikz tds
-	rm -rf tds
+	cd ctan_tmp;zip --from-crlf circuitikz.zip -r *
+	mv ctan_tmp/circuitikz.zip ./
+	rm -rf ctan_tmp

@@ -13,7 +13,7 @@ The major changes among the different circuitikz versions are listed here. See <
     - comply with TDS
     - merge high frequency symbols by Stefan Erhardt
     - added switch (not opening nor closing)
-    - added added solder dot in some transistors
+    - added solder dot in some transistors
     - improved ConTeXt compatibility
 
 * Version 0.3.1
