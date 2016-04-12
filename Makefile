@@ -33,12 +33,13 @@ ctan:
 	mkdir -p ctan_tmp/circuitikz/doc/generic/circuitikz
 	cp CHANGELOG.md ctan_tmp/circuitikz/doc/generic/circuitikz
 	cp README.md ctan_tmp/circuitikz/doc/generic/circuitikz
-	cp README.md ctan_tmp/circuitikz/
 	#copy Code
 	cp -r tex ctan_tmp/circuitikz/tex
-	cd ctan_tmp/circuitikz; zip --from-crlf circuitikz.ctan_tmp.zip -r *
-	mv ctan_tmp/circuitikz/circuitikz.ctan_tmp.zip ctan_tmp
-	#change dirname!
+	#create tds-zip
+	cd ctan_tmp/circuitikz; zip --from-crlf circuitikz.tds.zip -r *
+	mv ctan_tmp/circuitikz/circuitikz.tds.zip ctan_tmp
+	#create final zip
+	cp README.md ctan_tmp/circuitikz/
 	cd ctan_tmp;zip --from-crlf circuitikz.zip -r *
 	mv ctan_tmp/circuitikz.zip ./
 	rm -rf ctan_tmp
