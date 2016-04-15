@@ -1,4 +1,5 @@
 \documentclass[a4paper]{article}
+\usepackage{a4wide}	%smaller borders
 
 
 \def\modern{
@@ -28,7 +29,7 @@
 
 \sisetup{load=derived} % loading \siemens
 \usepackage{showexpl}
-\lstset{pos=l,width=-99pt, overhang=0pt,hsep=\columnsep,vsep=\bigskipamount,rframe=single,numbers=left,numberstyle=\tiny,numbersep=.3em, xleftmargin=1em, columns=flexible, language=[LaTeX]TEX}
+\lstset{pos=l,width=-99pt, overhang=0pt,hsep=\columnsep,vsep=\bigskipamount,rframe=single,numbers=left,numberstyle=\tiny,numbersep=.3em, xleftmargin=1em, columns=flexible, language=[LaTeX]TEX,breaklines=true,basicstyle=\normalsize\ttfamily,tabsize=3}
 
 \usepackage{booktabs}
 \renewcommand{\arraystretch}{1.2}
@@ -62,7 +63,7 @@
 }%
 )\par \begin{center}\begin{circuitikz} \draw (0,0) to[#1] (2,0); \end{circuitikz} \end{center}\par}
 
-\usepackage{marvosym} 
+\usepackage{marvosym}
 \newcommand{\email}[2][]{\def\temp{#1}\ifx\temp\empty\Email~\fi\href{mailto:#2}{#2}}
 
 \long\def\comment#1{}
@@ -78,7 +79,7 @@
 \lstloadlanguages{TeX}
 
 \title{\Circuitikz \\{\large version \pgfcircversion}}
-\author{Massimo A. Redaelli}
+\author{Massimo A. Redaelli,\\Stefan Lindner,\\Stefan Erhardt}
 \date{\today}
 
 \maketitle
@@ -86,23 +87,17 @@
 \tableofcontents
 
 \section{Introduction}
-After two years of little exposure only on my personal website\footnote{Now the package is moved to its own git repository: \url{https://github.com/mredaelli/circuitikz}. Contributions are welcome.}, I did a major rehauling of the code of Circui\TikZ, fixing several problems and converting everything to \TikZ\ version $2.0$.
+\subsection{About}
+\Circuitikz\ was initiated by Massimo Redaelli in 2007, who was working as a research assistant at the Polytechnic University of Milan, Italy, and needed a tool for creating exercises and exams.
+After he left University in 2010 the development of \Circuitikz\ slowed down, since \LaTeX\ is mainly established in the academic world. In 2015 Stefan Lindner and Stefan Erhardt, both working as research assistants at the University of Erlangen-Nürnberg, Germany, joined the team and now maintain the project together with the initial author.
 
-I'm not too sure about the result, because my (La)\TeX\ skills are much to be improved, but it seems it's time for more user feedback. So, here it is\ldots
+The use of \Circuitikz\ is, of course, not limited to academic teaching. The package gets widely used by engineers for typesetting electronic circuits for articles and publications all over the world.
 
 \medskip
 
-I know the documentation is somewhat scant. Hope to have time to improve it a bit.
-
-\subsection{About}
-This package provides a set of macros for naturally typesetting electrical and (somewhat less naturally, perhaps) electronical networks.
-
-It was born mainly for writing my own exercise book and exams sheets for the Elettrotecnica courses at Politecnico di Milano, Italy. I wanted a tool that was easy to use, with a lean syntax, native to \LaTeX, and supporting directly PDF output format.
-
-So I based everything with the very impressive (if somewhat verbose at times) \TikZ\ package.
+This documentation is somewhat scant. Hopefully the authors will find the leisure to improve it some day.
 
 \subsection{Loading the package}
-
 
 \begin{table}[h]
 \centering
@@ -122,15 +117,6 @@ So I based everything with the very impressive (if somewhat verbose at times) \T
 \tikz \draw (0,0) to[R=$R_1$] (2,0);
 \end{LTXexample}
 
-\subsection{License}
-Copyright \copyright\ 2007--2011 Massimo Redaelli. This package is author-maintained.
-Permission is granted to copy, distribute and/or modify this software under the
-terms of the \LaTeX Project Public License, version 1.3.1, or the GNU Public License. This software is provided ‘as is’, without warranty of any kind, either expressed or implied, including, but not limited to, the implied warranties of merchantability and fitness for a
-particular purpose.
-
-\subsection{Feedback}
-Much appreciated: \email{mailto:m.redaelli@gmail.com}. Although I don't guarantee quick answers.
-
 \subsection{Requirements}
 \begin{itemize}
  \item \texttt{tikz}, version $\ge 2$;
@@ -139,43 +125,31 @@ Much appreciated: \email{mailto:m.redaelli@gmail.com}. Although I don't guarante
 \end{itemize}
 
 \subsection{Incompatible packages}
+\TikZ's own \texttt{circuit} library, which is based on \Circuitikz, (re?)defines several styles used by this library. In order to have them work together you can use the \texttt{compatibility} package option, which basically prefixes the names of all \Circuitikz\ \texttt{to[]} styles with an asterisk.
 
-\TikZ's own \texttt{circuit} library, which is based on \Circuitikz, (re?)defines several styles used by this library. In order to have them work together I added the \texttt{compatibility} package option, which basically prefixes the names of all \Circuitikz\ \texttt{to[]} styles with an asterisk.
+So, if loaded with said option, one must write \verb!(0,0) to[*R] (2,0)! and, for transistors on a path, \verb!(0,0) to[*Tnmos] (2,0)!, and so on (but \verb!(0,0) node[nmos] {}!). See example at page~\pageref{ex:compatibility}.
 
-So, if loaded with said option, one must write \verb!(0,0) to[*R] (2,0)! and, for transistors on a path, \verb!(0,0) to[*Tnmos] (2,0)!, and so on (but \verb!(0,0) node [nmos] {}!). See example at page~\pageref{ex:compatibility}.
+\subsection{License}
+Copyright \copyright\ 2007--2016 Massimo Redaelli. This package is author-maintained. Permission is granted to copy, distribute and/or modify this software under the terms of the \LaTeX\ Project Public License, version 1.3.1, or the GNU Public License. This software is provided ‘as is’, without warranty of any kind, either expressed or implied, including, but not limited to, the implied warranties of merchantability and fitness for a particular purpose.
 
-\subsection{Introduction to version 0.3.0}
+\subsection{Feedback}
+The easiest way to contact the authors is via the official Github repository: \url{https://github.com/mredaelli/circuitikz/issues}
 
-Probably nobody is hoping or caring for a new version of the package at this point, seeing how long it took me for this next release. But here it is, fixing a big problem (voltage labels in the wrong place, in some cases) and adding several components.
-
-Thanks for bug reporting and suggesting improvements.
-
-\subsection{Introduction to version 0.2.3}
-
-Having waited a long time before updating the package, many feature requests piled on my desk. They should all be implemented now.
-
-There are a number of backward incompatibilities--I'm sorry, but I had to make a choice in order not to have a schizophrenic interface. They are mostly, in my opinion, minor problems that can be dealt with with appropriate package options:
-\begin{itemize}
-	\item \texttt{potentiometer} is now the standard resistor-with-arrow-in-the-middle; the old potentiometer is now known as \texttt{variable resistor} (or \texttt{vR}), similarly to \texttt{variable inductor} and \texttt{variable capacitor};
-	\item \texttt{american inductor} was not really the standard american inductor. The old american inductor has been renamed \texttt{cute inductor};
-	\item \texttt{transformer}, \texttt{transformer core} and \texttt{variable inductor} are now linked with the chosen type of \texttt{inductor};
-	\item styles for selecting shape variants (like \texttt{[american resistors]}) are now in the plural to avoid conflict with paths (like \texttt{to[american resistor]}).
-\end{itemize}
+You can also contact Massimo Redaelli via \email{mailto:m.redaelli@gmail.com}. But please don't expect quick answers.
 
 
 \section{Package options}
 
-\noindent Circuit people are very opinionated about their symbols. The package, left to its own devices, loads with drawing conventions that \emph{I} like, so for instance you get this:
+\noindent Circuit people are very opinionated about their symbols. In order to meet the individual gusto you can set a bunch of package options. The standard options are what the authors like, for example you get this:
 \begin{LTXexample}[varwidth=true]
 \begin{circuitikz}
-   \draw (0,0) to[R=2<\ohm>, i=?, v=84<\volt>] (2,0) -- 
-         (2,2) to[V<=84<\volt>] (0,2) 
-         -- (0,0);
+	\draw (0,0) to[R=2<\ohm>, i=?, v=84<\volt>] (2,0) -- 
+		(2,2) to[V<=84<\volt>] (0,2) 
+		-- (0,0);
 \end{circuitikz}
 \end{LTXexample}
 
-But if you really, \emph{really} want your circuit ugly, you can load the package with:
-
+Feel free to load the package with your own cultural options:
 
 \begin{center}
 \begin{tabular}{ll}\toprule
@@ -185,15 +159,14 @@ But if you really, \emph{really} want your circuit ugly, you can load the packag
 \end{tabular}
 \end{center}
 
-\noindent and you get (don't blame me)
-
-\begin{center}
-\begin{circuitikz}[circuitikz/voltage=american, circuitikz/resistor=american]
-   \draw (0,0) to[R=2<\ohm>, i=?, v=84<\volt>] (2,0) -- 
-         (2,2) to[V<=84<\volt>] (0,2) 
-         -- (0,0);
+\begin{LTXexample}[varwidth=true,linerange={1-1,3-6}]
+\begin{circuitikz}
+	[circuitikz/voltage=american, circuitikz/resistor=american] % line not printed
+	\draw (0,0) to[R=2<\ohm>, i=?, v=84<\volt>] (2,0) -- 
+		(2,2) to[V<=84<\volt>] (0,2) 
+		-- (0,0);
 \end{circuitikz}
-\end{center}
+\end{LTXexample}
 
 \medskip{}
 
@@ -220,8 +193,11 @@ But if you really, \emph{really} want your circuit ugly, you can load the packag
 	\item \texttt{emptydiodes}: the various diodes are drawn \emph{but not} filled by default, i.e. when using styles such as \texttt{diode}, \texttt{D}, \texttt{sD}, \ldots Filled diode can always be forced with \texttt{D*}, \texttt{sD*}, \ldots
 	\item \texttt{arrowmos}: pmos and nmos have arrows analogous to those of pnp and npn transistors;
 	\item \texttt{noarrowmos}: pmos and nmos do not have arrows analogous to those of pnp and npn transistors;
+	\item \texttt{fetbodydiode}: draw the body diode of a FET;
+	\item \texttt{nofetbodydiode}: do not draw the body diode of a FET;
 	\item \texttt{fetsolderdot}: draw solderdot at bulk-source junction of some transistors;
 	\item \texttt{nofetsolderdot}: do not draw solderdot at bulk-source junction of some transistors;
+	\item \texttt{emptypmoscircle}: the circle at the gate of a pmos transistor gets not filled;
 	\item \texttt{lazymos}: draws lazy nmos and pmos transistors. Chip designers with huge circuits prefer this notation;
 	\item \texttt{straightlabels}: labels on bipoles are always printed straight up, i.e.~with horizontal baseline;
 	\item \texttt{rotatelabels}: labels on bipoles are always printed aligned along the bipole;
@@ -246,24 +222,38 @@ In \ConTeXt\ the options are similarly specified: \texttt{current=european|ameri
 
 Here follows the list of all the shapes defined by Circui\TikZ. These are all \texttt{pgf} nodes, so they are usable in both \texttt{pgf} and \TikZ.
 
-\medskip
+\subsubsection*{Drawing normal components}
+Normal components (monopoles, multipoles) can be drawn at a specified point with this syntax, where \verb!#1! is the name of the component:
+\begin{verbatim}
+\begin{center}\begin{circuitikz} \draw 
+   (0,0) node[#1,#2] (#3) {#4}
+; \end{circuitikz} \end{center}
+\end{verbatim}
+\noindent
+Explanation of the parameters:\\
+\texttt{\#1}: component name\footnote{For using bipoles as nodes, the name of the node is \texttt{\#1shape}.} (mandatory)\\
+\texttt{\#2}: list of comma separated options (optional)\\
+\texttt{\#3}: name of an anchor (optional)\\
+\texttt{\#4}: text written to the text anchor of the component (optional)\\
 
-Each bipole (plus triac and thyristors) are shown using the following command, where \verb!#1! is the name of the component\footnote{If \texttt{\#1} is the name of the bipole/the style, then the actual name of the shape is \texttt{\#1shape}.}:
+\begin{framed}
+	\noindent \textbf{Note for \TikZ\ newbies:}	Nodes must have curly brackets at the end, even when empty. An optional anchor (\texttt{\#3}) can be defined within round brackets to be addressed again later on. And please don't forget the semicolon to terminate the \texttt{\textbackslash draw} command.
+\end{framed}
+
+\subsubsection*{Drawing bipoles/two-ports}
+Bipoles/Two-ports (plus some special components) can be drawn between two points using the following command:
 
 \begin{verbatim}
 \begin{center}\begin{circuitikz} \draw 
-   (0,0) to[ #1 ] (2,0)
+   (0,0) to[#1,#2] (2,0)
 ; \end{circuitikz} \end{center}
 \end{verbatim}
-
-The other shapes are shown with:
-\begin{verbatim}
-\begin{center}\begin{circuitikz} \draw 
-   (0,0) node[ #1 ] {}
-; \end{circuitikz} \end{center}
-\end{verbatim}
-
-Please notice that for user convenience transistors can also be inputted using the syntax for bipoles. See section~\ref{sec:transasbip}.
+\noindent
+Explanation of the parameters:\\
+\texttt{\#1}: component name (mandatory)\\
+\texttt{\#2}: list of comma separated options (optional)\\
+\noindent
+Transistors and some other components can also be placed using the syntax for bipoles. See section~\ref{sec:transasbip}.
 
 \begin{framed}
 	If using the \verb!\tikzexternalize! feature, as of Ti\emph{k}z 2.1 all pictures must end with \verb!\end{tikzpicture}!. Thus you \emph{cannot} use the \verb!circuitikz! environment.
@@ -556,7 +546,6 @@ To draw the PMOS circle non-solid, use the option \texttt{emptycircle} or the co
 \begin{itemize}
 	\circuititem{pmos,emptycircle}{\scshape pmos}{}
 \end{itemize}
-
 
 \textsc{nfet}s and \textsc{pfet}s have been incorporated based on code provided by Clemens Helfmeier and Theodor 
 Borsche. Use the package options \texttt{fetsolderdot}/\texttt{nofetsolderdot} to enable/disable solderdot at some fet-transistors. Additionally, the solderdot option can be enabled/disabled for single transistors with the option "solderdot" and "nosolderdot", respectively.
