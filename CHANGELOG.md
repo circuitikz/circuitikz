@@ -4,7 +4,7 @@ The major changes among the different circuitikz versions are listed here. See <
 * Version 0.5(unreleased)
 	- new option boxed and dashed for hf-symbols
 	- new option solderdot to enable/disable solderdot at source port of some fets
-	- new parts: photovoltaic source, piezo crystal, electrolytic capacitor
+	- new parts: photovoltaic source, piezo crystal, electrolytic capacitor, electromechanical device(motor, generator)
 	- corrected voltage and current direction(option to use old behaviour)
 	- option to show body diode at fet transistors
 
