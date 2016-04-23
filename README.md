@@ -1,7 +1,7 @@
 circuitikz
 ==========
 
-This is CircuiTikz, version 0.5git.
+This is CircuiTikz, version 0.5.
 
 This package provides a set of macros for naturally typesetting electrical and (somewhat less naturally, perhaps) electronical networks.
 
@@ -29,10 +29,9 @@ or, for ConTeXt,
 ````
 in the preamble and compile away, both with PS and PDF target output.
 
-## Contact the author
-* m.redaelli@gmail.com
+## Contact the authors
 * git: https://github.com/mredaelli/circuitikz
-
+* stefan.lindner@fau.de, stefan.erhardt@fau.de, m.redaelli@gmail.com
 -------------
 
 Copyright 2007-16 by Massimo Redaelli
