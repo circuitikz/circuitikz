@@ -1,3 +1,4 @@
+XELATEXOPTIONS="-8bit"
 .PHONY: ctan clean
 
 help:
@@ -20,7 +21,7 @@ manual-latex: changelog
 	rm -f doc/tmp.pdf
 	#cd doc;pdflatex compatibility.tex; pdflatex circuitikzmanual.tex; pdflatex circuitikzmanual.tex
 	#compile with xelatex for smaller filesize!
-	cd doc;xelatex compatibility.tex; xelatex circuitikzmanual.tex; xelatex circuitikzmanual.tex
+	cd doc;xelatex $(XELATEXOPTIONS) compatibility.tex; xelatex $(XELATEXOPTIONS) circuitikzmanual.tex; xelatex $(XELATEXOPTIONS) circuitikzmanual.tex
 	#optimize for smaller filesize(faktor 2!)--> only useful if using pdflatex
 	#gs -sDEVICE=pdfwrite -dCompatibilityLevel=1.4 -dPDFSETTINGS=/screen -dNOPAUSE -dQUIET -dBATCH -sOutputFile=doc/tmp.pdf doc/circuitikzmanual.pdf
 	#mv doc/tmp.pdf doc/circuitikzmanual.pdf
