@@ -1,7 +1,7 @@
 <!--- CircuiTikz - Changelog --->
 The major changes among the different circuitikz versions are listed here. See <https://github.com/mredaelli/circuitikz/commits> for a full list of changes.
 
-* Version 0.5 (2016-04-23)
+* Version 0.5 (2016-04-24)
 	- new option boxed and dashed for hf-symbols
 	- new option solderdot to enable/disable solderdot at source port of some fets
 	- new parts: photovoltaic source, piezo crystal, electrolytic capacitor, electromechanical device(motor, generator)
