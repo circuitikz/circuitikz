@@ -58,7 +58,6 @@
 \ctikzset{monopoles/tground/thickness/.initial=3}
 \ctikzset{monopoles/vcc/width/.initial=.2}
 \ctikzset{monopoles/match/width/.initial=.4}
-\ctikzset{monopoles/oscillator/width/.initial=.7}
 \ctikzset{monopoles/chassis/width/.initial=.25}
 \ctikzset{monopoles/alternative chassis/width/.initial=.25}
 \ctikzset{monopoles/equipotentiality/width/.initial=.25}
@@ -259,15 +258,14 @@
 \ctikzset{bipoles/vphaseshifter/width/.initial=.7}
 \ctikzset{bipoles/detector/width/.initial=.7}
 
+
+\newif\ifpgf@circuit@trans@depletiontype
+\pgf@circuit@trans@depletiontypefalse
+
 \newif\ifpgf@circuit@mos@arrows
 \ctikzset{tripoles/mos style/.is choice}
 \ctikzset{tripoles/mos style/no arrows/.code={\pgf@circuit@mos@arrowsfalse}}
 \ctikzset{tripoles/mos style/arrows/.code={\pgf@circuit@mos@arrowstrue}}
-
-\newif\ifpgf@circuit@fet@bodydiode
-\ctikzset{tripoles/mos bodydiode/.is choice}
-\ctikzset{tripoles/mos bodydiode/false/.code={\pgf@circuit@mos@bodydiodefalse}}
-\ctikzset{tripoles/mos bodydiode/true/.code={\pgf@circuit@mos@arrowstrue}}
 
 % Option solderdot for fet 
 \newif\ifpgf@circuit@fet@solderdot
@@ -283,9 +281,42 @@
 \pgfkeys{/tikz/nobodydiode/.add code={}{\pgf@circuit@fet@bodydiodefalse}}
 \ctikzset{nobodydiode/.add code={}{\pgf@circuit@fet@bodydiodefalse}}
 
-\newif\ifpgf@circuit@fet@ntype
-%\newif\ifpgf@circuit@fet@ptype
-%\ctikzset{tripoles/nmos/.add code={\pgf@circuit@fet@ntypetrue}}
+% Option draw fet without gate connection
+\newif\ifpgf@circuit@bpt@drawgate
+\pgf@circuit@bpt@drawgatetrue
+\pgfkeys{/tikz/nogate/.add code={}{\pgf@circuit@bpt@drawgatefalse}}
+\ctikzset{nogate/.add code={}{\pgf@circuit@bpt@drawgatefalse}}
+\pgfkeys{/tikz/nobase/.add code={}{\pgf@circuit@bpt@drawgatefalse}}
+\ctikzset{nobase/.add code={}{\pgf@circuit@bpt@drawgatefalse}}
+
+% Option draw bpt without base connection
+\newif\ifpgf@circuit@bpt@drawbase
+\pgf@circuit@bpt@drawbasetrue
+\pgfkeys{/tikz/nobase/.add code={}{\pgf@circuit@bpt@drawbasefalse}}
+\ctikzset{nobase/.add code={}{\pgf@circuit@bpt@drawbasefalse}}
+\pgfkeys{/tikz/nogate/.add code={}{\pgf@circuit@bpt@drawbasefalse}}
+\ctikzset{nogate/.add code={}{\pgf@circuit@bpt@drawbasefalse}}
+
+% Option draw bpt with optical input
+\newif\ifpgf@circuit@bpt@drawphoto
+\pgf@circuit@bpt@drawphotofalse
+\pgfkeys{/tikz/photo/.add code={}{\pgf@circuit@bpt@drawphototrue}}
+\ctikzset{photo/.add code={}{\pgf@circuit@bpt@drawphototrue}}
+\pgfkeys{/tikz/photo/.add code={}{\pgf@circuit@bpt@drawphototrue}}
+\ctikzset{photo/.add code={}{\pgf@circuit@bpt@drawphototrue}}
+
+% Option draw pmos with empty circle
+\newif\ifpgf@circuit@pmos@emptycircle
+\newif\ifpgf@circuit@pmos@emptycircle
+\pgf@circuit@pmos@emptycirclefalse
+\pgfkeys{/tikz/emptycircle/.add code={}{\pgf@circuit@pmos@emptycircletrue}}
+\ctikzset{tripoles/pmos style/emptycircle/.add code={}{\pgf@circuit@pmos@emptycircletrue}}
+
+
+\newif\ifpgf@circuit@trans@ntype
+\pgf@circuit@trans@ntypetrue %default true
+%\newif\ifpgf@circuit@trans@ptype
+%\ctikzset{tripoles/nmos/.add code={\pgf@circuit@trans@ntypetrue}}
 \ctikzset{tripoles/nmos/width/.initial=.7}
 \ctikzset{tripoles/nmos/gate height/.initial=.35}
 \ctikzset{tripoles/nmos/base height/.initial=.5}
@@ -394,33 +425,54 @@
 \ctikzset{tripoles/pigfetebulk/bodydiode conn/.initial=.6}
 
 \ctikzset{tripoles/npn/width/.initial=.6}
-\ctikzset{tripoles/npn/gate height/.initial=.45}
-\ctikzset{tripoles/npn/gate height 2/.initial=.15}
+\ctikzset{tripoles/npn/base height/.initial=.45}
+\ctikzset{tripoles/npn/base height 2/.initial=.15}
 \ctikzset{tripoles/npn/base height/.initial=.4}
 \ctikzset{tripoles/npn/height/.initial=1.1}
-\ctikzset{tripoles/npn/gate width/.initial=.5}
+\ctikzset{tripoles/npn/base width/.initial=.5}
 
 \ctikzset{tripoles/pnp/width/.initial=.6}
-\ctikzset{tripoles/pnp/gate height/.initial=.45}
-\ctikzset{tripoles/pnp/gate height 2/.initial=.15}
+\ctikzset{tripoles/pnp/base height/.initial=.45}
+\ctikzset{tripoles/pnp/base height 2/.initial=.15}
 \ctikzset{tripoles/pnp/base height/.initial=.4}
 \ctikzset{tripoles/pnp/height/.initial=1.1}
-\ctikzset{tripoles/pnp/gate width/.initial=.5}
+\ctikzset{tripoles/pnp/base width/.initial=.5}
 
 \ctikzset{tripoles/pigbt/width/.initial=.6}
 \ctikzset{tripoles/pigbt/gate height/.initial=.45}
 \ctikzset{tripoles/pigbt/gate height 2/.initial=.15}
 \ctikzset{tripoles/pigbt/base height/.initial=.4}
+\ctikzset{tripoles/pigbt/conn height/.initial=0}
 \ctikzset{tripoles/pigbt/height/.initial=1.1}
 \ctikzset{tripoles/pigbt/gate width/.initial=.62}
 \ctikzset{tripoles/pigbt/base width/.initial=.5}
+
 \ctikzset{tripoles/nigbt/width/.initial=.6}
 \ctikzset{tripoles/nigbt/gate height/.initial=.45}
 \ctikzset{tripoles/nigbt/gate height 2/.initial=.15}
 \ctikzset{tripoles/nigbt/base height/.initial=.4}
+\ctikzset{tripoles/nigbt/conn height/.initial=0}
 \ctikzset{tripoles/nigbt/height/.initial=1.1}
 \ctikzset{tripoles/nigbt/gate width/.initial=.62}
 \ctikzset{tripoles/nigbt/base width/.initial=.5}
+
+\ctikzset{tripoles/Lpigbt/width/.initial=.6}
+\ctikzset{tripoles/Lpigbt/gate height/.initial=.45}
+\ctikzset{tripoles/Lpigbt/gate height 2/.initial=.15}
+\ctikzset{tripoles/Lpigbt/base height/.initial=.4}
+\ctikzset{tripoles/Lpigbt/conn height/.initial=.4}
+\ctikzset{tripoles/Lpigbt/height/.initial=1.1}
+\ctikzset{tripoles/Lpigbt/gate width/.initial=.62}
+\ctikzset{tripoles/Lpigbt/base width/.initial=.5}
+
+\ctikzset{tripoles/Lnigbt/width/.initial=.6}
+\ctikzset{tripoles/Lnigbt/gate height/.initial=.45}
+\ctikzset{tripoles/Lnigbt/gate height 2/.initial=.15}
+\ctikzset{tripoles/Lnigbt/base height/.initial=.4}
+\ctikzset{tripoles/Lnigbt/conn height/.initial=.4}
+\ctikzset{tripoles/Lnigbt/height/.initial=1.1}
+\ctikzset{tripoles/Lnigbt/gate width/.initial=.62}
+\ctikzset{tripoles/Lnigbt/base width/.initial=.5}
 
 \ctikzset{tripoles/njfet/width/.initial=.7}
 \ctikzset{tripoles/njfet/gate height/.initial=.5}
@@ -589,6 +641,8 @@
 \ctikzset{tripoles/mixer/width/.initial=0.7}
 \ctikzset{tripoles/adder/width/.initial=0.7}
 \ctikzset{tripoles/circulator/width/.initial=.7}
+\ctikzset{tripoles/oscillator/width/.initial=.7}
+
 
 \ctikzset{tripoles/wilkinson/height/.initial=1.3}
 \ctikzset{tripoles/wilkinson/width/.initial=1.3}
@@ -610,6 +664,9 @@
 \ctikzset{quadpoles/coupler2/width/.initial=1.3}
 \ctikzset{quadpoles/coupler2/height/.initial=1.3}
 
+
+\ctikzset{/tikz/circuitikz/tripoles/elmech/height/.initial=.8}
+\ctikzset{/tikz/circuitikz/tripoles/elmech/width/.initial=.6}
 
 
 \ctikzset{bipole/.is family}
@@ -776,15 +833,9 @@
 \ctikzset{label/align/straight/.code={\ctikzsetvalof{label/align}{straight}}}
 \ctikzset{label/align/rotate/.code={\ctikzsetvalof{label/align}{rotate}}}
 \ctikzset{label/align/smart/.code={\ctikzsetvalof{label/align}{smart}}}
-%% dependencies
-
-
-
 
 %%%%%%%%%% new
 \pgfkeys{\circuitikzbasekey/.search also={/tikz}}
-
-
 
 
 \input pgfcircutils.tex

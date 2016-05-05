@@ -1,11 +1,23 @@
-CircuiTikz - Changelog
+<!--- CircuiTikz - Changelog --->
+The major changes among the different circuitikz versions are listed here. See <https://github.com/mredaelli/circuitikz/commits> for a full list of changes.
+
+* Version 0.5.1 (unreleased)
+	- Reworked igbt: New anchors G,gate and new L-shaped form Lnigbt, Lpigbt
+	- Improved shape of all fet-transistors and mirrored p-chan fets as default, as pnp, pmos, pfet are already. This means a backward-incompatibility, but smaller code, because p-channels mosfet are by default in the correct direction(source at top). Just remove the 'yscale=-1' from your p-chan fets at old pictures.
+
+* Version 0.5 (2016-04-24)
+	- new option boxed and dashed for hf-symbols
+	- new option solderdot to enable/disable solderdot at source port of some fets
+	- new parts: photovoltaic source, piezo crystal, electrolytic capacitor, electromechanical device(motor, generator)
+	- corrected voltage and current direction(option to use old behaviour)
+	- option to show body diode at fet transistors
 
 * Version 0.4
     - minor improvements to documentation
     - comply with TDS
     - merge high frequency symbols by Stefan Erhardt
     - added switch (not opening nor closing)
-    - added added solder dot in some transistors
+    - added solder dot in some transistors
     - improved ConTeXt compatibility
 
 * Version 0.3.1

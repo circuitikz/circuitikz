@@ -73,8 +73,13 @@
 			(\ctikzvalof{bipole/name}) {}
 	\ifx\pgf@temp\pgf@circ@temp  % if it is an open
 	\else
-		(\ctikzvalof{bipole/name}start.center) -- (\ctikzvalof{bipole/name}.left) 
-		(\ctikzvalof{bipole/name}.right)  -- (\ctikzvalof{bipole/name}end.center) 
+		\ifdefined\pgf@anchor@#1@pathstart% if special path-anchors are defined, use them!
+			(\ctikzvalof{bipole/name}start.center) --(\ctikzvalof{bipole/name}.pathstart)
+			(\ctikzvalof{bipole/name}.pathend)  -- (\ctikzvalof{bipole/name}end.center)
+		\else
+			(\ctikzvalof{bipole/name}start.center) --(\ctikzvalof{bipole/name}.left)
+			(\ctikzvalof{bipole/name}.right)  -- (\ctikzvalof{bipole/name}end.center)
+		\fi
 	\fi
 	\pgf@circ@ifkeyempty{bipole/label/name}\else\pgf@circ@drawlabel\fi
 	\drawpoles
@@ -224,7 +229,6 @@
 \def\pgf@circ@phaseshifter@path#1{\pgf@circ@bipole@path{phaseshifter}{#1}}
 \def\pgf@circ@vphaseshifter@path#1{\pgf@circ@bipole@path{vphaseshifter}{#1}}
 \def\pgf@circ@detector@path#1{\pgf@circ@bipole@path{detector}{#1}}
-
 
 %% Styles
 
@@ -527,10 +531,15 @@
 		\edef\pgf@circ@direction{\pgfmathresult}
 	}
 	($(\tikztostart) ! .5 ! (\tikztotarget)$) 
-		node[#1, /tikz/rotate=\pgf@circ@direction, xscale=\ctikzvalof{mirror value}] 
+		node[#1, /tikz/rotate=\pgf@circ@direction, xscale=\ctikzvalof{mirror value}]
 			(\ctikzvalof{bipole/name}) {} node {\ctikzvalof{bipole/label/name}}
-	(\ctikzvalof{bipole/name}start.center) -- (\ctikzvalof{bipole/name}.left) 
-	(\ctikzvalof{bipole/name}.right)  -- (\ctikzvalof{bipole/name}end.center) 
+	\@ifundefined{pgf@anchor@#1@pathstart}{%if special path-anchors are defined, use them!
+			(\ctikzvalof{bipole/name}start.center) --(\ctikzvalof{bipole/name}.left)
+			(\ctikzvalof{bipole/name}.right)  -- (\ctikzvalof{bipole/name}end.center)
+			}{
+			(\ctikzvalof{bipole/name}start.center) --(\ctikzvalof{bipole/name}.pathstart)
+			(\ctikzvalof{bipole/name}.pathend)  -- (\ctikzvalof{bipole/name}end.center)
+			}
 	\pgfextra{
 		\pgfcircresetpath
 	}  
@@ -542,6 +551,7 @@
 	\compattikzset{T#1/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@trans@path{#1}{}, l=##1}}
 }
 
+\pgf@circ@definetranspath{elmech}
 \pgf@circ@definetranspath{nmos}
 \pgf@circ@definetranspath{pmos}
 \pgf@circ@definetranspath{npn}
@@ -558,3 +568,5 @@
 \pgf@circ@definetranspath{pjfet}
 \pgf@circ@definetranspath{pigbt}
 \pgf@circ@definetranspath{nigbt}
+\pgf@circ@definetranspath{Lpigbt}
+\pgf@circ@definetranspath{Lnigbt}
