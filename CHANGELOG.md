@@ -3,6 +3,7 @@ The major changes among the different circuitikz versions are listed here. See <
 
 * Version 0.5.1 (unreleased)
 	- Reworked igbt: New anchors G,gate and new L-shaped form Lnigbt, Lpigbt
+	- Improved shape of all fet-transistors and mirrored p-chan fets as default, as pnp, pmos, pfet are already. This means a backward-incompatibility, but smaller code, because p-channels mosfet are by default in the correct direction(source at top). Just remove the 'yscale=-1' from your p-chan fets at old pictures.
 
 * Version 0.5 (2016-04-24)
 	- new option boxed and dashed for hf-symbols
