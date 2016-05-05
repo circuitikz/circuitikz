@@ -1,6 +1,9 @@
 <!--- CircuiTikz - Changelog --->
 The major changes among the different circuitikz versions are listed here. See <https://github.com/mredaelli/circuitikz/commits> for a full list of changes.
 
+* Version 0.5.1 (unreleased)
+	- Reworked igbt: New anchors G,gate and new L-shaped form Lnigbt, Lpigbt
+
 * Version 0.5 (2016-04-24)
 	- new option boxed and dashed for hf-symbols
 	- new option solderdot to enable/disable solderdot at source port of some fets
