@@ -1,4 +1,7 @@
-XELATEXOPTIONS="-8bit"
+XELATEXOPTIONS:="-8bit"
+GIT_REV:=$(shell git rev-parse --short HEAD)
+GIT_DATE:=$(shell export LC_ALL=C;date +"%-d. %b %Y" --date=@`git show -s --format=%ct`)
+#GIT_DATE:=$(shell date)
 .PHONY: ctan clean
 
 help:
@@ -76,4 +79,12 @@ ctan: manual clean
 	cd ctan_tmp;zip --from-crlf circuitikz.zip -r *
 	mv ctan_tmp/circuitikz.zip ./
 	rm -rf ctan_tmp
+
+flat:
+	perl tools/flatten.pl tex/circuitikz.sty > circuitikz-git.sty
+	#insert git revision:
+	sed -i 's/\\def\\pgfcircversion{.*/\\def\\pgfcircversion\{git:$(GIT_REV)\}/g' circuitikz-git.sty
+	sed -i 's/\\def\\pgfcircversiondate{.*/\\def\\pgfcircversiondate\{$(GIT_DATE)\}/g' circuitikz-git.sty
+
+
 
