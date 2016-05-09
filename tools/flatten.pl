@@ -5,32 +5,33 @@
 #     
 sub p_inc {
   $DateiName = shift;
-    if ( open (my $datei, "$DateiName.tex") ) {
-      print "%%%---------- open: ", $DateiName, "\n";
-      while (<$datei>) {
-        if (/^\s*\\input \s+(\S+)/i) {
-          my $include = $1;
-          chomp($include);chop($include);
-          print "%%%%%%%%% Springe nach ", $include, "\n";
-          p_inc($include);
-        } else
-		{ 
-		print unless(/^\s*(#|$)/); 
+    if ( open (my $fh,"<:encoding(UTF-8)", "$DateiName.tex") )
+	{
+      print "%%%---------- open: ", $DateiName, ".tex\n";
+		while (my $zeile = <$fh>){
+			if ($zeile =~/^\s*\\input \s+(\S+).tex/i) {
+			  my ($path,$file) = $DateiName =~ m|^(.*[/\\])([^/\\]+?)$|;
+			  my $include = $path.$1;
+			  chomp($include);
+			  print "%%%%%%%%% Springe nach ", $include, "\n";
+			  p_inc($include);
+			} else
+			{
+			next if $zeile =~ /\endinput.*$/;
+			print $zeile; 
+			}
 		}
-      }
-      print "%%%---------- close: ", $DateiName, "\n";
-      close $datei;
-    } else { print "%%%<===== Datei existiert nicht\n"; }
+		print "%%%---------- close: ", $DateiName, "\n";
+		close $fh;
+	} else 
+	{ print "%%%<===== Datei existiert nicht\n"; }
 }
-
-
 
 my $filename = shift @ARGV;
 my ($path,$file) = $filename =~ m|^(.*[/\\])([^/\\]+?)$|;
-
-   open (DATEI, $filename) or die $!;
-@zeilen = <DATEI>;
-for $zeile (@zeilen) {
+open (my $fh, "<:encoding(UTF-8)",$filename) or die $!;
+while (my $zeile = <$fh>)
+{
  # next if $zeile =~ /^\s$/;
  # next if $zeile =~ /^\s*(%)/;
   if ($zeile =~ /^\s*\\input \s*(\S+).tex/i) {
@@ -38,7 +39,9 @@ for $zeile (@zeilen) {
     chomp($include);
     print "%%%%%%%%%%% Springe nach ", $include, "\n";
     p_inc($include);
-  } else 
-{ print $zeile; }
+	} else 
+	{
+	print $zeile; 
+	}
 }
-
+close $fh;
