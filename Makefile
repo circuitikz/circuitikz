@@ -81,10 +81,10 @@ ctan: manual clean
 	rm -rf ctan_tmp
 
 flat:
-	perl tools/flatten.pl tex/circuitikz.sty > circuitikz-git.sty
+	perl tools/flatten.pl tex/circuitikz.sty > circuitikzgit.sty
 	#insert git revision:
-	sed -i 's/\\def\\pgfcircversion{.*/\\def\\pgfcircversion\{git:$(GIT_REV)\}/g' circuitikz-git.sty
-	sed -i 's/\\def\\pgfcircversiondate{.*/\\def\\pgfcircversiondate\{$(GIT_DATE)\}/g' circuitikz-git.sty
-
+	sed -i 's/\\def\\pgfcircversion{.*/\\def\\pgfcircversion\{git:$(GIT_REV)\}/g' circuitikzgit.sty
+	sed -i 's/\\def\\pgfcircversiondate{.*/\\def\\pgfcircversiondate\{$(GIT_DATE)\}/g' circuitikzgit.sty
+	sed -i 's/\\ProvidesPackage{circuitikz}.*/\\ProvidesPackage{circuitikzgit}/g' circuitikzgit.sty
 
 
