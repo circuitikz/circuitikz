@@ -812,12 +812,6 @@
 \pgfcircdeclareeurologicport{nor}{$\ge 1$}{2}{not}
 \pgfcircdeclareeurologicport{xnor}{$=1$}{2}{not}
 
-
-
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-
 \long\def\pgfcircdeclaretransistor#1#2#3{
 	\pgfdeclareshape{#1}
 	{
@@ -898,12 +892,33 @@
 	 \anchor{nobase}{
 	 		 	\left
 	 		 	\pgf@x=\pgfkeysvalueof{/tikz/circuitikz/tripoles/#1/base width}\pgf@x
-	 }	
+	 }
+	 	\anchor{E}{
+	 		\northeast
+	 		\pgf@y=-\pgfkeysvalueof{/tikz/circuitikz/tripoles/#1/curr direction}\pgf@y
+	 	}
+	 	\anchor{emitter}{
+	 		\northeast
+	 		\pgf@y=-\pgfkeysvalueof{/tikz/circuitikz/tripoles/#1/curr direction}\pgf@y
+	 	}
+	 	\anchor{C}{
+	 		\northeast
+	 		\pgf@y=\pgfkeysvalueof{/tikz/circuitikz/tripoles/#1/curr direction}\pgf@y
+	 	}
+	 	\anchor{collector}{
+	 		\northeast
+	 		\pgf@y=\pgfkeysvalueof{/tikz/circuitikz/tripoles/#1/curr direction}\pgf@y
+	 	}	
 	  #2
-	  \backgroundpath{		
+	  \backgroundpath{
+	  	\pgftransformationadjustments		
 			\pgfsetcolor{\pgfkeysvalueof{/tikz/circuitikz/color}}	
 			%
-			%
+			\ifnum \pgfkeysvalueof{/tikz/circuitikz/tripoles/#1/curr direction} > 0
+				\pgf@circuit@trans@ntypetrue
+			\else
+				\pgf@circuit@trans@ntypefalse
+			\fi
 			\northeast
 			\pgf@circ@res@up = \pgf@y 
 			\pgf@circ@res@down = -\pgf@y
@@ -917,192 +932,112 @@
 	}
 }
 
+\long\def\declarebpt#1{
+	\pgfcircdeclaretransistor{#1}{}{
+		\pgfpathmoveto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@up}}
+		\pgfpathlineto{\pgfpoint{\pgf@circ@res@right}
+			{\pgfkeysvalueof{/tikz/circuitikz/tripoles/#1/base height}\pgf@circ@res@up}}
+		\pgfpathlineto{\pgfpoint
+			{\pgfkeysvalueof{/tikz/circuitikz/tripoles/#1/base width}\pgf@circ@res@left}
+			{\pgfkeysvalueof{/tikz/circuitikz/tripoles/#1/base height 2}\pgf@circ@res@up}}
+		\pgfusepath{draw}
+	
+		\pgfscope
+		\pgfpathmoveto{\pgfpoint
+			{\pgfkeysvalueof{/tikz/circuitikz/tripoles/#1/base width}\pgf@circ@res@left}
+			{\pgfkeysvalueof{/tikz/circuitikz/tripoles/#1/base height}\pgf@circ@res@up}}
+		\pgfpathlineto{\pgfpoint
+			{\pgfkeysvalueof{/tikz/circuitikz/tripoles/#1/base width}\pgf@circ@res@left}
+			{\pgfkeysvalueof{/tikz/circuitikz/tripoles/#1/base height}\pgf@circ@res@down}}
+		\pgfsetlinewidth{2\pgflinewidth}
+		\pgfusepath{draw}
+		\endpgfscope
+		
+		\pgfpathmoveto{\pgfpoint
+			{\pgfkeysvalueof{/tikz/circuitikz/tripoles/#1/base width}\pgf@circ@res@left}
+			{\pgfkeysvalueof{/tikz/circuitikz/tripoles/#1/base height 2}\pgf@circ@res@down}}
+		\pgfpathlineto{\pgfpoint{\pgf@circ@res@right}
+			{\pgfkeysvalueof{/tikz/circuitikz/tripoles/#1/base height}\pgf@circ@res@down}}
+		\pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@down}}		
+		\pgfusepath{draw}
+		%draw arrow depending on type of transiytor
+	 	\pgfscope
+	 	\pgfslopedattimetrue
+	 	\pgfallowupsidedownattimetrue
+	 	\pgfresetnontranslationattimefalse
+		\ifpgf@circuit@trans@ntype
+		 	\pgftransformlineattime{.5}{%
+		 		\pgfpoint%
+		 			{\pgfkeysvalueof{/tikz/circuitikz/tripoles/#1/base width}\pgf@circ@res@left}%
+		 			{\pgfkeysvalueof{/tikz/circuitikz/tripoles/#1/base height 2}\pgf@circ@res@down}%
+		 	}{%
+		 		\pgfpoint{\pgf@circ@res@right}%
+		 			{\pgfkeysvalueof{/tikz/circuitikz/tripoles/#1/base height}\pgf@circ@res@down}%
+		 	}
+		\else
+		 	\pgftransformlineattime{.5}{%
+		 		\pgfpoint{\pgf@circ@res@right}%
+		 				{\pgfkeysvalueof{/tikz/circuitikz/tripoles/#1/base height}\pgf@circ@res@up}%
+		 		}{%
+		 		\pgfpoint{\pgfkeysvalueof{/tikz/circuitikz/tripoles/#1/base width}\pgf@circ@res@left}%
+		 				{\pgfkeysvalueof{/tikz/circuitikz/tripoles/#1/base height 2}\pgf@circ@res@up}%
+		 		}
+		\fi
+		\pgfnode{currarrow}{center}{}{}{\pgfusepath{stroke}}
+		\endpgfscope
+	
+		\ifpgf@circuit@bpt@drawphoto
+					\pgfscope
+					\pgfsetarrowsstart{latex'}
+					\pgfpathmoveto{\pgfpointadd{\pgfpoint
+										{\pgfkeysvalueof{/tikz/circuitikz/tripoles/#1/base width}\pgf@circ@res@left}
+										{\pgf@circ@res@up+\pgf@circ@res@down}}
+										{\pgfpoint{0.05\pgf@circ@res@left}{0.1\pgf@circ@res@up}}}
+					\pgfpathlineto{\pgfpointadd{\pgfpoint
+										{\pgfkeysvalueof{/tikz/circuitikz/tripoles/#1/base width}\pgf@circ@res@left}
+										{\pgf@circ@res@up+\pgf@circ@res@down}}
+										{\pgfpoint{0.5\pgf@circ@res@left}{0.3\pgf@circ@res@up}}}
+					\pgfusepath{draw}
+					\pgfpathmoveto{\pgfpointadd{\pgfpoint
+										{\pgfkeysvalueof{/tikz/circuitikz/tripoles/#1/base width}\pgf@circ@res@left}
+										{\pgf@circ@res@up+\pgf@circ@res@down}}
+										{\pgfpoint{0.05\pgf@circ@res@left}{-0.1\pgf@circ@res@up}}}
+					\pgfpathlineto{\pgfpointadd{\pgfpoint
+										{\pgfkeysvalueof{/tikz/circuitikz/tripoles/#1/base width}\pgf@circ@res@left}
+										{\pgf@circ@res@up+\pgf@circ@res@down}}
+										{\pgfpoint{0.5\pgf@circ@res@left}{0.1\pgf@circ@res@up}}}
+					\pgfusepath{draw}
+					\endpgfscope
+		\else
+		\ifpgf@circuit@bpt@drawbase
+			\pgfpathmoveto{\pgfpoint
+				{\pgfkeysvalueof{/tikz/circuitikz/tripoles/#1/base width}\pgf@circ@res@left}
+				{\pgf@circ@res@up+\pgf@circ@res@down}}
+			\pgfpathlineto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@up+\pgf@circ@res@down}}
+			\pgfusepath{draw}
+		\fi
+		\fi
+	}
+}
 
-\pgfcircdeclaretransistor{pnp}{
-		  \anchor{E}{
-			\northeast
-		  }
-		  \anchor{emitter}{
-			\northeast
-		  }
-		  \anchor{C}{
-			\northeast
-			\pgf@y=-\pgf@y
-		  }
-		  \anchor{collector}{
-			\northeast
-			\pgf@y=-\pgf@y
-		  }
+\declarebpt{npn}
+\declarebpt{pnp}
+
+\long\def\declareigbt#1{
+\pgfcircdeclaretransistor{#1}{
+	\anchor{G}{
+         \northeast
+         \pgf@circ@res@step=\pgfkeysvalueof{/tikz/circuitikz/tripoles/#1/conn height}\pgf@y
+         \left
+         \pgf@y=\pgfkeysvalueof{/tikz/circuitikz/tripoles/#1/curr direction}\pgf@circ@res@step
+	}
+	\anchor{gate}{
+         \northeast
+         \pgf@circ@res@step=\pgfkeysvalueof{/tikz/circuitikz/tripoles/#1/conn height}\pgf@y
+         \left
+         \pgf@y=\pgfkeysvalueof{/tikz/circuitikz/tripoles/#1/curr direction}\pgf@circ@res@step
+	}		  
 }{
-			\pgfpathmoveto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@up}}
-			\pgfpathlineto{\pgfpoint{\pgf@circ@res@right}
-				{\pgfkeysvalueof{/tikz/circuitikz/tripoles/pnp/base height}\pgf@circ@res@up}}
-			\pgfpathlineto{\pgfpoint
-				{\pgfkeysvalueof{/tikz/circuitikz/tripoles/pnp/base width}\pgf@circ@res@left}
-				{\pgfkeysvalueof{/tikz/circuitikz/tripoles/pnp/base height 2}\pgf@circ@res@up}}
-			\pgfusepath{draw}
-
-			\pgfscope
-			\pgfpathmoveto{\pgfpoint
-				{\pgfkeysvalueof{/tikz/circuitikz/tripoles/pnp/base width}\pgf@circ@res@left}
-				{\pgfkeysvalueof{/tikz/circuitikz/tripoles/pnp/base height}\pgf@circ@res@up}}
-			\pgfpathlineto{\pgfpoint
-				{\pgfkeysvalueof{/tikz/circuitikz/tripoles/pnp/base width}\pgf@circ@res@left}
-				{\pgfkeysvalueof{/tikz/circuitikz/tripoles/pnp/base height}\pgf@circ@res@down}}
-			\pgfsetlinewidth{2\pgflinewidth}
-			\pgfusepath{draw}
-			\endpgfscope
-			
-			\pgfpathmoveto{\pgfpoint
-				{\pgfkeysvalueof{/tikz/circuitikz/tripoles/pnp/base width}\pgf@circ@res@left}
-				{\pgfkeysvalueof{/tikz/circuitikz/tripoles/pnp/base height 2}\pgf@circ@res@down}}
-			\pgfpathlineto{\pgfpoint{\pgf@circ@res@right}
-				{\pgfkeysvalueof{/tikz/circuitikz/tripoles/pnp/base height}\pgf@circ@res@down}}
-			\pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@down}}		
-			\pgfusepath{draw}
-	
-			\pgfscope             
-			\pgfslopedattimetrue 
-			\pgfallowupsidedownattimetrue
-			\pgfresetnontranslationattimefalse
-			\pgftransformlineattime{.5}{%
-				\pgfpoint%
-					{\pgf@circ@res@right}%
-					{\pgfkeysvalueof{/tikz/circuitikz/tripoles/pnp/base height}\pgf@circ@res@up}%
-			}{%
-				\pgfpoint
-					{\pgfkeysvalueof{/tikz/circuitikz/tripoles/pnp/base width}\pgf@circ@res@left}%
-					{\pgfkeysvalueof{/tikz/circuitikz/tripoles/pnp/base height 2}\pgf@circ@res@up}%
-			}
-			\pgfnode{currarrow}{center}{}{}{\pgfusepath{stroke}}
-			\endpgfscope
-			\ifpgf@circuit@bpt@drawphoto
-						\pgfscope
-						\pgfsetarrowsstart{latex'}
-						\pgfpathmoveto{\pgfpointadd{\pgfpoint
-											{\pgfkeysvalueof{/tikz/circuitikz/tripoles/npn/base width}\pgf@circ@res@left}
-											{\pgf@circ@res@up+\pgf@circ@res@down}}
-											{\pgfpoint{0.05\pgf@circ@res@left}{0.1\pgf@circ@res@up}}}
-						\pgfpathlineto{\pgfpointadd{\pgfpoint
-											{\pgfkeysvalueof{/tikz/circuitikz/tripoles/npn/base width}\pgf@circ@res@left}
-											{\pgf@circ@res@up+\pgf@circ@res@down}}
-											{\pgfpoint{0.5\pgf@circ@res@left}{0.3\pgf@circ@res@up}}}
-						\pgfusepath{draw}
-						\pgfpathmoveto{\pgfpointadd{\pgfpoint
-											{\pgfkeysvalueof{/tikz/circuitikz/tripoles/npn/base width}\pgf@circ@res@left}
-											{\pgf@circ@res@up+\pgf@circ@res@down}}
-											{\pgfpoint{0.05\pgf@circ@res@left}{-0.1\pgf@circ@res@up}}}
-						\pgfpathlineto{\pgfpointadd{\pgfpoint
-											{\pgfkeysvalueof{/tikz/circuitikz/tripoles/npn/base width}\pgf@circ@res@left}
-											{\pgf@circ@res@up+\pgf@circ@res@down}}
-											{\pgfpoint{0.5\pgf@circ@res@left}{0.1\pgf@circ@res@up}}}
-						\pgfusepath{draw}
-						\endpgfscope
-			\else
-			\ifpgf@circuit@bpt@drawbase
-				\pgfpathmoveto{\pgfpoint
-					{\pgfkeysvalueof{/tikz/circuitikz/tripoles/pnp/base width}\pgf@circ@res@left}
-					{\pgf@circ@res@up+\pgf@circ@res@down}}
-				\pgfpathlineto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@up+\pgf@circ@res@down}}
-				\pgfusepath{draw}
-			\fi
-			\fi
-}
-
-\pgfcircdeclaretransistor{npn}{
-		  \anchor{C}{
-			\northeast
-		  }
-		  \anchor{collector}{
-			\northeast
-		  }
-		  \anchor{E}{
-			\northeast
-			\pgf@y=-\pgf@y
-		  }
-		  \anchor{emitter}{
-			\northeast
-			\pgf@y=-\pgf@y
-		  }
-}{%
-			\pgfpathmoveto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@up}}
-			\pgfpathlineto{\pgfpoint{\pgf@circ@res@right}
-				{\pgfkeysvalueof{/tikz/circuitikz/tripoles/npn/base height}\pgf@circ@res@up}}
-			\pgfpathlineto{\pgfpoint
-				{\pgfkeysvalueof{/tikz/circuitikz/tripoles/npn/base width}\pgf@circ@res@left}
-				{\pgfkeysvalueof{/tikz/circuitikz/tripoles/npn/base height 2}\pgf@circ@res@up}}
-			\pgfusepath{draw}
-
-			\pgfscope
-			\pgfpathmoveto{\pgfpoint
-				{\pgfkeysvalueof{/tikz/circuitikz/tripoles/npn/base width}\pgf@circ@res@left}
-				{\pgfkeysvalueof{/tikz/circuitikz/tripoles/npn/base height}\pgf@circ@res@up}}
-			\pgfpathlineto{\pgfpoint
-				{\pgfkeysvalueof{/tikz/circuitikz/tripoles/npn/base width}\pgf@circ@res@left}
-				{\pgfkeysvalueof{/tikz/circuitikz/tripoles/npn/base height}\pgf@circ@res@down}}
-			\pgfsetlinewidth{2\pgflinewidth}
-			\pgfusepath{draw}
-			\endpgfscope
-			
-			\pgfpathmoveto{\pgfpoint
-				{\pgfkeysvalueof{/tikz/circuitikz/tripoles/npn/base width}\pgf@circ@res@left}
-				{\pgfkeysvalueof{/tikz/circuitikz/tripoles/npn/base height 2}\pgf@circ@res@down}}
-			\pgfpathlineto{\pgfpoint{\pgf@circ@res@right}
-				{\pgfkeysvalueof{/tikz/circuitikz/tripoles/npn/base height}\pgf@circ@res@down}}
-			\pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@down}}		
-			\pgfusepath{draw}
-	
-			\pgfscope
-			\pgfslopedattimetrue
-			\pgfallowupsidedownattimetrue
-			\pgfresetnontranslationattimefalse
-			\pgftransformlineattime{.5}{%
-				\pgfpoint%
-					{\pgfkeysvalueof{/tikz/circuitikz/tripoles/npn/base width}\pgf@circ@res@left}%
-					{\pgfkeysvalueof{/tikz/circuitikz/tripoles/npn/base height 2}\pgf@circ@res@down}%
-			}{%
-				\pgfpoint{\pgf@circ@res@right}%
-					{\pgfkeysvalueof{/tikz/circuitikz/tripoles/npn/base height}\pgf@circ@res@down}%
-			}
-			\pgfnode{currarrow}{center}{}{}{\pgfusepath{stroke}}
-			\endpgfscope
-			
-			\ifpgf@circuit@bpt@drawphoto
-				\pgfscope
-				\pgfsetarrowsstart{latex'}
-				\pgfpathmoveto{\pgfpointadd{\pgfpoint
-									{\pgfkeysvalueof{/tikz/circuitikz/tripoles/npn/base width}\pgf@circ@res@left}
-									{\pgf@circ@res@up+\pgf@circ@res@down}}
-									{\pgfpoint{0.05\pgf@circ@res@left}{0.1\pgf@circ@res@up}}}
-				\pgfpathlineto{\pgfpointadd{\pgfpoint
-									{\pgfkeysvalueof{/tikz/circuitikz/tripoles/npn/base width}\pgf@circ@res@left}
-									{\pgf@circ@res@up+\pgf@circ@res@down}}
-									{\pgfpoint{0.5\pgf@circ@res@left}{0.3\pgf@circ@res@up}}}
-				\pgfusepath{draw}
-				\pgfpathmoveto{\pgfpointadd{\pgfpoint
-									{\pgfkeysvalueof{/tikz/circuitikz/tripoles/npn/base width}\pgf@circ@res@left}
-									{\pgf@circ@res@up+\pgf@circ@res@down}}
-									{\pgfpoint{0.05\pgf@circ@res@left}{-0.1\pgf@circ@res@up}}}
-				\pgfpathlineto{\pgfpointadd{\pgfpoint
-									{\pgfkeysvalueof{/tikz/circuitikz/tripoles/npn/base width}\pgf@circ@res@left}
-									{\pgf@circ@res@up+\pgf@circ@res@down}}
-									{\pgfpoint{0.5\pgf@circ@res@left}{0.1\pgf@circ@res@up}}}
-				\pgfusepath{draw}
-				\endpgfscope
-			\else
-			\ifpgf@circuit@bpt@drawbase
-				\pgfpathmoveto{\pgfpoint
-					{\pgfkeysvalueof{/tikz/circuitikz/tripoles/npn/base width}\pgf@circ@res@left}
-					{\pgf@circ@res@up+\pgf@circ@res@down}}
-				\pgfpathlineto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@up+\pgf@circ@res@down}}
-				\pgfusepath{draw}
-			\fi
-			\fi
-}
-
-
-\long\def\drawigbtcore#1{
-		\pgftransformationadjustments
 	%draw upper connection
 	\pgfpathmoveto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@up}}
 	\pgfpathlineto{\pgfpoint{\pgf@circ@res@right}
@@ -1178,149 +1113,13 @@
 	\fi
 	\pgfusepath{draw}
 }
-
-
-\pgfcircdeclaretransistor{pigbt}{
-	\anchor{E}{
-		\northeast
-	}
-	\anchor{emitter}{
-		\northeast
-	}
-	\anchor{G}{
-         \northeast
-         \pgf@circ@res@step=\pgfkeysvalueof{/tikz/circuitikz/tripoles/pigbt/conn height}\pgf@y
-         \left
-         \pgf@y=+\pgf@circ@res@step
-	}
-	\anchor{gate}{
-         \northeast
-         \pgf@circ@res@step=\pgfkeysvalueof{/tikz/circuitikz/tripoles/pigbt/conn height}\pgf@y
-         \left
-         \pgf@y=+\pgf@circ@res@step
-	}		  
-	\anchor{C}{
-		\northeast
-		\pgf@y=-\pgf@y
-	}
-	\anchor{collector}{
-		\northeast
-		\pgf@y=-\pgf@y
-	}
-}{	
-	\pgf@circuit@trans@ntypefalse
-	\drawigbtcore{pigbt}
-
 }
 
+\declareigbt{pigbt}
+\declareigbt{nigbt}
+\declareigbt{Lnigbt}
+\declareigbt{Lpigbt}
 
-\pgfcircdeclaretransistor{nigbt}{
-	\anchor{C}{
-		\northeast
-	}
-	\anchor{collector}{
-		\northeast
-	}
-	\anchor{G}{
-         \northeast
-         \pgf@circ@res@step=\pgfkeysvalueof{/tikz/circuitikz/tripoles/nigbt/conn height}\pgf@y
-         \left
-         \pgf@y=-\pgf@circ@res@step
-	}
-	\anchor{gate}{
-         \northeast
-         \pgf@circ@res@step=\pgfkeysvalueof{/tikz/circuitikz/tripoles/nigbt/conn height}\pgf@y
-         \left
-         \pgf@y=-\pgf@circ@res@step
-	}		  
-	\anchor{E}{
-		\northeast
-		\pgf@y=-\pgf@y
-	}
-	\anchor{emitter}{
-		\northeast
-		\pgf@y=-\pgf@y
-	}
-}{
-	\pgf@circuit@trans@ntypetrue
-	\drawigbtcore{nigbt}
-
-}
-
-\pgfcircdeclaretransistor{Lpigbt}{
-	\anchor{E}{
-		\northeast
-	}
-	\anchor{emitter}{
-		\northeast
-	}
-	\anchor{G}{
-         \northeast
-         \pgf@circ@res@step=\pgfkeysvalueof{/tikz/circuitikz/tripoles/Lpigbt/conn height}\pgf@y
-         \left
-         \pgf@y=+\pgf@circ@res@step
-	}
-	\anchor{gate}{
-         \northeast
-         \pgf@circ@res@step=\pgfkeysvalueof{/tikz/circuitikz/tripoles/Lpigbt/conn height}\pgf@y
-         \left
-         \pgf@y=+\pgf@circ@res@step
-	}		  
-	\anchor{C}{
-		\northeast
-		\pgf@y=-\pgf@y
-	}
-	\anchor{collector}{
-		\northeast
-		\pgf@y=-\pgf@y
-	}
-}{	
-	\pgf@circuit@trans@ntypefalse
-	\drawigbtcore{Lpigbt}
-
-}
-
-\pgfcircdeclaretransistor{Lnigbt}{
-	\anchor{C}{
-		\northeast
-	}
-	\anchor{collector}{
-		\northeast
-	}
-	\anchor{G}{
-         \northeast
-         \pgf@circ@res@step=\pgfkeysvalueof{/tikz/circuitikz/tripoles/Lnigbt/conn height}\pgf@y
-         \left
-         \pgf@y=-\pgf@circ@res@step
-	}
-	\anchor{gate}{
-         \northeast
-         \pgf@circ@res@step=\pgfkeysvalueof{/tikz/circuitikz/tripoles/Lnigbt/conn height}\pgf@y
-         \left
-         \pgf@y=-\pgf@circ@res@step
-	}		  
-	\anchor{E}{
-		\northeast
-		\pgf@y=-\pgf@y
-	}
-	\anchor{emitter}{
-		\northeast
-		\pgf@y=-\pgf@y
-	}
-}{
-	\pgf@circuit@trans@ntypetrue
-	\drawigbtcore{Lnigbt}
-
-}
-
-
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%% Contrib
-
-
-%%
-% IGFET (e.g. MOSFET)
 \long\def\pgfcircdeclarefet#1#2#3{
 \pgfdeclareshape{#1}{
 	\anchor{center}
