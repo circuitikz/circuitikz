@@ -17,7 +17,7 @@ sub p_inc {
 			  p_inc($include);
 			} else
 			{
-			next if $zeile =~ /\endinput.*$/;
+			next if $zeile =~ /.*\\endinput.*/;
 			print $zeile; 
 			}
 		}
