@@ -1212,12 +1212,8 @@
 			\pgfnode{ocirc}{center}{}{}{\pgfusepath{draw}}
 }
 
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-%% Ammeter
-
-\pgfcircdeclarebipole{}{\ctikzvalof{bipoles/ammeter/height}}{ammeter}{\ctikzvalof{bipoles/ammeter/height}}{\ctikzvalof{bipoles/ammeter/width}}{
+%METERINGSHAPE
+\long\def\drawmeteringcircle{
 	\def\pgf@circ@temp{right}
 	\ifx\tikz@res@label@pos\pgf@circ@temp
 		\pgf@circ@res@step=-1.2\pgf@circ@res@up
@@ -1229,118 +1225,39 @@
 			\pgf@circ@res@step=1.2\pgf@circ@res@up
 		\fi
 	\fi
-
+	%draw connections to circle
 	\pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@zero}}		
-	\pgfpointorigin	\pgf@circ@res@other =  \pgf@x  \advance \pgf@circ@res@other by -\pgf@circ@res@up
-	\pgfpathlineto{\pgfpoint{\pgf@circ@res@other}{\pgf@circ@res@zero}}
-	\pgfusepath{draw}
-
-	\pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}\pgfstartlinewidth}
-
-		\pgfscope
-			\pgfpathcircle{\pgfpointorigin}{.9\pgf@circ@res@up}
-			\pgfusepath{draw}		
-		\endpgfscope	
-
-	\pgfsetlinewidth{\pgfstartlinewidth}
-
-	\pgfsetarrowsend{latex}
-	\pgfpathmoveto{\pgfpoint{\pgf@circ@res@other}{\pgf@circ@res@down}}
-	\pgfpathlineto{\pgfpoint{-\pgf@circ@res@other}{\pgf@circ@res@up}}
-	\pgfusepath{draw}
-	\pgfsetarrowsend{}
-
-	
-	\pgfpathmoveto{\pgfpoint{-\pgf@circ@res@other}{\pgf@circ@res@zero}}
+	\pgfpathlineto{\pgfpoint{.9\pgf@circ@res@left}{\pgf@circ@res@zero}}
+	\pgfpathmoveto{\pgfpoint{.9\pgf@circ@res@right}{\pgf@circ@res@zero}}
 	\pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@zero}}
 	\pgfusepath{draw}
-
+	%draw circle
+	\pgfscope
+		\pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}\pgfstartlinewidth}
+		\pgfpathcircle{\pgfpointorigin}{.9\pgf@circ@res@up}
+		\pgfusepath{draw}
+	\endpgfscope
+	%draw arrow
+	\pgfscope
+		\pgfsetarrowsend{latex}
+		\pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@down}}
+		\pgfpathlineto{\pgfpoint{-\pgf@circ@res@left}{\pgf@circ@res@up}}
+		\pgfusepath{draw}
+	\endpgfscope
+}
+%AMPEREMETER
+\pgfcircdeclarebipole{}{\ctikzvalof{bipoles/ammeter/height}}{ammeter}{\ctikzvalof{bipoles/ammeter/height}}{\ctikzvalof{bipoles/ammeter/width}}{
+	\drawmeteringcircle
 	\pgfnode{circle}{center}{\textbf{A}}{}{}
 }
-
-%% Ohmmeter - contributed by Ralf Farkas
-
+%OHMMETER
 \pgfcircdeclarebipole{}{\ctikzvalof{bipoles/ohmmeter/height}}{ohmmeter}{\ctikzvalof{bipoles/ohmmeter/height}}{\ctikzvalof{bipoles/ohmmeter/width}}{
-	\def\pgf@circ@temp{right}
-	\ifx\tikz@res@label@pos\pgf@circ@temp
-		\pgf@circ@res@step=-1.2\pgf@circ@res@up
-	\else
-		\def\pgf@circ@temp{below}
-		\ifx\tikz@res@label@pos\pgf@circ@temp
-			\pgf@circ@res@step=-1.2\pgf@circ@res@up
-		\else
-			\pgf@circ@res@step=1.2\pgf@circ@res@up
-		\fi
-	\fi
-
-	\pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@zero}}		
-	\pgfpointorigin	\pgf@circ@res@other =  \pgf@x  \advance \pgf@circ@res@other by -\pgf@circ@res@up
-	\pgfpathlineto{\pgfpoint{\pgf@circ@res@other}{\pgf@circ@res@zero}}
-	\pgfusepath{draw}
-
-	\pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}\pgfstartlinewidth}
-
-		\pgfscope
-			\pgfpathcircle{\pgfpointorigin}{.9\pgf@circ@res@up}
-			\pgfusepath{draw}		
-		\endpgfscope	
-
-	\pgfsetlinewidth{\pgfstartlinewidth}
-
-	\pgfsetarrowsend{latex}
-	\pgfpathmoveto{\pgfpoint{\pgf@circ@res@other}{\pgf@circ@res@down}}
-	\pgfpathlineto{\pgfpoint{-\pgf@circ@res@other}{\pgf@circ@res@up}}
-	\pgfusepath{draw}
-	\pgfsetarrowsend{}
-
-	
-	\pgfpathmoveto{\pgfpoint{-\pgf@circ@res@other}{\pgf@circ@res@zero}}
-	\pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@zero}}
-	\pgfusepath{draw}
-
+	\drawmeteringcircle
 	\pgfnode{circle}{center}{\boldmath$\Omega$}{}{}
 }
-
-%% Voltmeter
-
+%VOLTMETER
 \pgfcircdeclarebipole{}{\ctikzvalof{bipoles/voltmeter/height}}{voltmeter}{\ctikzvalof{bipoles/voltmeter/height}}{\ctikzvalof{bipoles/voltmeter/width}}{
-	\def\pgf@circ@temp{right}
-	\ifx\tikz@res@label@pos\pgf@circ@temp
-		\pgf@circ@res@step=-1.2\pgf@circ@res@up
-	\else
-		\def\pgf@circ@temp{below}
-		\ifx\tikz@res@label@pos\pgf@circ@temp
-			\pgf@circ@res@step=-1.2\pgf@circ@res@up
-		\else
-			\pgf@circ@res@step=1.2\pgf@circ@res@up
-		\fi
-	\fi
-
-	\pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@zero}}		
-	\pgfpointorigin	\pgf@circ@res@other =  \pgf@x  \advance \pgf@circ@res@other by -\pgf@circ@res@up
-	\pgfpathlineto{\pgfpoint{\pgf@circ@res@other}{\pgf@circ@res@zero}}
-	\pgfusepath{draw}
-
-	\pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}\pgfstartlinewidth}
-
-		\pgfscope
-			\pgfpathcircle{\pgfpointorigin}{.9\pgf@circ@res@up}
-			\pgfusepath{draw}		
-		\endpgfscope	
-
-	\pgfsetlinewidth{\pgfstartlinewidth}
-
-	\pgfsetarrowsend{latex}
-	\pgfpathmoveto{\pgfpoint{\pgf@circ@res@other}{\pgf@circ@res@down}}
-	\pgfpathlineto{\pgfpoint{-\pgf@circ@res@other}{\pgf@circ@res@up}}
-	\pgfusepath{draw}
-	\pgfsetarrowsend{}
-
-	
-	\pgfpathmoveto{\pgfpoint{-\pgf@circ@res@other}{\pgf@circ@res@zero}}
-	\pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@zero}}
-	\pgfusepath{draw}
-
+	\drawmeteringcircle
 	\pgfnode{circle}{center}{\textbf{V}}{}{}
 		
 }
