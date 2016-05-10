@@ -831,11 +831,10 @@
 	}
 	\anchor{text}{
 	 \northeast
-	 \pgfpoint
-	  {12\pgf@circ@res@right +0.2*(\pgf@circ@res@right-\pgfkeysvalueof{/tikz/circuitikz/tripoles/#1/base width}\pgf@circ@res@left)}
-	  {0.6\pgf@y}
-	  }
-	
+	 \pgf@y=.7\pgf@y
+	 \pgf@x= \pgfkeysvalueof{/tikz/circuitikz/bipoles/length}
+	 \pgf@x=0.1\pgf@x
+	}
 	\anchor{pathstart}{ % south
 		  	\northeast
 			\pgf@y=-\pgf@y
@@ -854,7 +853,7 @@
 			\left
 	 }
 	 \anchor{east}{
-		  	\pgf@x=0pt
+		  	\northeast
 			\pgf@y=0pt
 	 }  
 	\anchor{south}{
@@ -884,14 +883,16 @@
 		\pgf@y=-\pgf@y
 	}
 	\anchor{B}{
+			 \northeast
 	         \pgf@circ@res@step=\pgfkeysvalueof{/tikz/circuitikz/tripoles/#1/conn height}\pgf@y
 	         \left
-	         \pgf@y=\pgfkeysvalueof{/tikz/circuitikz/tripoles/#1/curr direction}\pgf@circ@res@step
+	         \pgf@y=-\pgfkeysvalueof{/tikz/circuitikz/tripoles/#1/curr direction}\pgf@circ@res@step
 	}
 	\anchor{base}{
+			 \northeast
 	         \pgf@circ@res@step=\pgfkeysvalueof{/tikz/circuitikz/tripoles/#1/conn height}\pgf@y
 	         \left
-	         \pgf@y=\pgfkeysvalueof{/tikz/circuitikz/tripoles/#1/curr direction}\pgf@circ@res@step
+	         \pgf@y=-\pgfkeysvalueof{/tikz/circuitikz/tripoles/#1/curr direction}\pgf@circ@res@step
 	}
 		\anchor{G}{
 	         \northeast
@@ -909,6 +910,10 @@
 	 		 	\left
 	 		 	\pgf@x=\pgfkeysvalueof{/tikz/circuitikz/tripoles/#1/base width}\pgf@x
 	 }
+	 	\anchor{nogate}{
+	 		\left
+	 		\pgf@x=\pgfkeysvalueof{/tikz/circuitikz/tripoles/#1/gate width}\pgf@x
+	 	}	
 	 	\anchor{E}{
 	 		\northeast
 	 		\pgf@y=-\pgfkeysvalueof{/tikz/circuitikz/tripoles/#1/curr direction}\pgf@y
@@ -924,7 +929,31 @@
 	 	\anchor{collector}{
 	 		\northeast
 	 		\pgf@y=\pgfkeysvalueof{/tikz/circuitikz/tripoles/#1/curr direction}\pgf@y
+	 	}
+	 	\anchor{S}{
+	 		\northeast
+	 		\pgf@y=-\pgfkeysvalueof{/tikz/circuitikz/tripoles/#1/curr direction}\pgf@y
+	 	}
+	 	\anchor{source}{
+	 		\northeast
+	 		\pgf@y=-\pgfkeysvalueof{/tikz/circuitikz/tripoles/#1/curr direction}\pgf@y
+	 	}
+	 	\anchor{D}{
+	 		\northeast
+	 		\pgf@y=\pgfkeysvalueof{/tikz/circuitikz/tripoles/#1/curr direction}\pgf@y
+	 	}
+	 	\anchor{drain}{
+	 		\northeast
+	 		\pgf@y=\pgfkeysvalueof{/tikz/circuitikz/tripoles/#1/curr direction}\pgf@y
 	 	}	
+	 	\anchor{Bulk}{
+	 		\left
+	 		\pgf@x=-\pgf@x
+	 	}
+	 	\anchor{bulk}{
+	 		\left
+	 		\pgf@x=-\pgf@x
+	 	}
 	  #2
 	  \backgroundpath{
 	  	\pgftransformationadjustments		
@@ -943,6 +972,10 @@
 			\pgf@circ@res@left = \pgf@x
 			%
 			#3
+			% BODY DIODE
+			\ifpgf@circuit@fet@bodydiode
+			\drawbodydiode{#1}
+			\fi
 	  %
 	  }
 	}
@@ -1124,150 +1157,6 @@
 \declareigbt{Lnigbt}
 \declareigbt{Lpigbt}
 
-\long\def\pgfcircdeclarefet#1#2#3{
-\pgfdeclareshape{#1}{
-	\anchor{center}
-		{\pgfpointorigin}
-	\savedanchor\northeast{% upper right
-		\pgf@y= \pgfkeysvalueof{/tikz/circuitikz/bipoles/length}
-		\pgf@y=\pgfkeysvalueof{/tikz/circuitikz/tripoles/#1/height}\pgf@y
-		\pgf@y=.5\pgf@y
-		\pgf@x=0pt
-	}
-	\savedanchor\left{%center left
-		\pgf@y=0pt
-		\pgf@x= \pgfkeysvalueof{/tikz/circuitikz/bipoles/length}
-		\pgf@x=-\pgfkeysvalueof{/tikz/circuitikz/tripoles/#1/width}\pgf@x
-	}
-	\anchor{text}{
-		\northeast
-		\pgfpoint
-		{12\pgf@circ@res@right +0.2*(\pgf@circ@res@right-\pgfkeysvalueof{/tikz/circuitikz/tripoles/#1/gate width}\pgf@circ@res@left)}
-		{0.6\pgf@y}
-	}
-	%
-	% pseudo-bipole
-	\anchor{pathstart}{ % south
-		\northeast
-		\pgf@y=-\pgf@y
-	}
-	\anchor{pathend}{
-		\northeast
-	}  
-	\anchor{north}{
-		\northeast
-		\pgf@circ@res@step=\pgf@y
-		\left
-		\pgf@y=\pgf@circ@res@step
-		\pgf@x=.5\pgf@x
-	}  
-	\anchor{west}{
-		\left
-	}
-	\anchor{east}{
-		\pgf@x=0pt
-		\pgf@y=0pt
-	}  
-	\anchor{south}{
-		\northeast
-		\pgf@circ@res@step=\pgf@y
-		\left
-		\pgf@y=-\pgf@circ@res@step
-		\pgf@x=.5\pgf@x
-	}
-	\anchor{south west}{
-		\northeast
-		\pgf@circ@res@step=\pgf@y
-		\left
-		\pgf@y=-\pgf@circ@res@step
-	}
-	\anchor{north east}{
-		\northeast
-	}
-	\anchor{north west}{
-		\northeast
-		\pgf@circ@res@step=\pgf@y
-		\left
-		\pgf@y=\pgf@circ@res@step
-	}
-	\anchor{south east}{
-		\northeast
-		\pgf@y=-\pgf@y
-	}
-	\anchor{B}{
-	         \pgf@circ@res@step=\pgfkeysvalueof{/tikz/circuitikz/tripoles/#1/conn height}\pgf@y
-	         \left
-	         \pgf@y=\pgfkeysvalueof{/tikz/circuitikz/tripoles/#1/curr direction}\pgf@circ@res@step
-	}
-	\anchor{base}{
-	         \pgf@circ@res@step=\pgfkeysvalueof{/tikz/circuitikz/tripoles/#1/conn height}\pgf@y
-	         \left
-	         \pgf@y=\pgfkeysvalueof{/tikz/circuitikz/tripoles/#1/curr direction}\pgf@circ@res@step
-	}
-		\anchor{G}{
-	         \northeast
-	         \pgf@circ@res@step=\pgfkeysvalueof{/tikz/circuitikz/tripoles/#1/conn height}\pgf@y
-	         \left
-	         \pgf@y=-\pgfkeysvalueof{/tikz/circuitikz/tripoles/#1/curr direction}\pgf@circ@res@step
-		}
-		\anchor{gate}{
-	         \northeast
-	         \pgf@circ@res@step=\pgfkeysvalueof{/tikz/circuitikz/tripoles/#1/conn height}\pgf@y
-	         \left
-	         \pgf@y=-\pgfkeysvalueof{/tikz/circuitikz/tripoles/#1/curr direction}\pgf@circ@res@step
-		}	
-	 \anchor{nobase}{
-	 		 	\left
-	 		 	\pgf@x=\pgfkeysvalueof{/tikz/circuitikz/tripoles/#1/base width}\pgf@x
-	 }
-	 	\anchor{S}{
-	 		\northeast
-	 		\pgf@y=-\pgfkeysvalueof{/tikz/circuitikz/tripoles/#1/curr direction}\pgf@y
-	 	}
-	 	\anchor{source}{
-	 		\northeast
-	 		\pgf@y=-\pgfkeysvalueof{/tikz/circuitikz/tripoles/#1/curr direction}\pgf@y
-	 	}
-	 	\anchor{D}{
-	 		\northeast
-	 		\pgf@y=\pgfkeysvalueof{/tikz/circuitikz/tripoles/#1/curr direction}\pgf@y
-	 	}
-	 	\anchor{drain}{
-	 		\northeast
-	 		\pgf@y=\pgfkeysvalueof{/tikz/circuitikz/tripoles/#1/curr direction}\pgf@y
-	 	}	
-	\anchor{Bulk}{
-		\left
-		\pgf@x=\pgf@circ@res@right
-	}
-	\anchor{nobase}{
-		\left
-		\pgf@x=\pgfkeysvalueof{/tikz/circuitikz/tripoles/#1/gate width}\pgf@x
-	}
-	\anchor{nogate}{
-		\left
-		\pgf@x=\pgfkeysvalueof{/tikz/circuitikz/tripoles/#1/gate width}\pgf@x
-	}	
-	#2
-	\backgroundpath{		
-		\pgfsetcolor{\pgfkeysvalueof{/tikz/circuitikz/color}}	
-		%
-		%
-		\northeast
-		\pgf@circ@res@up = \pgf@y 
-		\pgf@circ@res@down = -\pgf@y
-		\pgf@circ@res@right = \pgf@x
-		\left
-		\pgf@circ@res@left = \pgf@x
-		%
-		#3
-		% BODY DIODE
-		\ifpgf@circuit@fet@bodydiode
-			\drawbodydiode{#1}
-		\fi
-	}
-}
-}
 
 \long\def\drawbodydiode#1{
         \pgfscope
@@ -1306,7 +1195,7 @@
     \endpgfscope
 }
 
-\pgfcircdeclarefet{nmos}{}{%
+\pgfcircdeclaretransistor{nmos}{}{%
 		\pgf@circuit@trans@ntypetrue
 			\pgfpathmoveto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@up}}
 			\pgfpathlineto{\pgfpoint{\pgf@circ@res@right}
@@ -1367,7 +1256,7 @@
 }
 
 
-\pgfcircdeclarefet{pmos}{}{%
+\pgfcircdeclaretransistor{pmos}{}{%
 		\pgf@circuit@trans@ntypefalse
 			\pgfpathmoveto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@up}}
 			\pgfpathlineto{\pgfpoint{\pgf@circ@res@right}
@@ -1526,7 +1415,7 @@
 
 }
 
-\pgfcircdeclarefet{nfet}{}{%
+\pgfcircdeclaretransistor{nfet}{}{%
 	\pgf@circuit@trans@depletiontypefalse
 	\pgf@circuit@trans@ntypetrue
 	\drawfetcore{nfet}
@@ -1541,7 +1430,7 @@
 }
 
 
-\pgfcircdeclarefet{pfet}{}{%
+\pgfcircdeclaretransistor{pfet}{}{%
 	\pgf@circuit@trans@depletiontypefalse
 	\pgf@circuit@trans@ntypefalse
 	\drawfetcore{pfet}
@@ -1558,7 +1447,7 @@
 
 
 % N-CHANNEL IGFET ENHANCEMENT TYPE
-\pgfcircdeclarefet{nigfete}{}{%	
+\pgfcircdeclaretransistor{nigfete}{}{%	
 	\pgf@circuit@trans@depletiontypefalse
 	\pgf@circuit@trans@ntypetrue
 	\drawfetcore{nigfete}
@@ -1590,7 +1479,7 @@
 
 
 % N-CHANNEL IGFET ENHANCEMENT TYPE with Bulk connector
-\pgfcircdeclarefet{nigfetebulk}{}{%
+\pgfcircdeclaretransistor{nigfetebulk}{}{%
 	\pgf@circuit@trans@depletiontypefalse
 	\pgf@circuit@trans@ntypetrue
 	\drawfetcore{nigfetebulk}
@@ -1615,7 +1504,7 @@
 
 
 % N-CHANNEL IGFET DEPLETION TYPE
-\pgfcircdeclarefet{nigfetd}{}{%
+\pgfcircdeclaretransistor{nigfetd}{}{%
 	\pgf@circuit@trans@depletiontypetrue
 	\pgf@circuit@trans@ntypetrue
 	\drawfetcore{nigfetd}
@@ -1646,7 +1535,7 @@
 }
 
 % P-CHANNEL IGFET ENHANCEMENT TYPE
-\pgfcircdeclarefet{pigfete}{}{%
+\pgfcircdeclaretransistor{pigfete}{}{%
 	\pgf@circuit@trans@depletiontypefalse
 	\pgf@circuit@trans@ntypefalse
 	\drawfetcore{pigfete}
@@ -1678,7 +1567,7 @@
 }
 
 % P-CHANNEL IGFET ENHANCEMENT TYPE with bulk connector
-\pgfcircdeclarefet{pigfetebulk}{}{%
+\pgfcircdeclaretransistor{pigfetebulk}{}{%
 	\pgf@circuit@trans@depletiontypefalse
 	\pgf@circuit@trans@ntypefalse
 	\drawfetcore{pigfetebulk}
@@ -1696,7 +1585,7 @@
 
 
 % P-CHANNEL IGFET DEPLETION TYPE
-\pgfcircdeclarefet{pigfetd}{}{%
+\pgfcircdeclaretransistor{pigfetd}{}{%
 	\pgf@circuit@trans@depletiontypetrue
 	\pgf@circuit@trans@ntypefalse
 	\drawfetcore{pigfetd}
@@ -1726,7 +1615,7 @@
       \fi
 }
 
-\pgfcircdeclarefet{njfet}{}{%
+\pgfcircdeclaretransistor{njfet}{}{%
 		\pgf@circuit@trans@ntypetrue
 			\pgfpathmoveto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@up}}
 			\pgfpathlineto{\pgfpoint{\pgf@circ@res@right}
@@ -1778,7 +1667,7 @@
 }
 
 
-\pgfcircdeclarefet{pjfet}{}{%
+\pgfcircdeclaretransistor{pjfet}{}{%
 		\pgf@circuit@trans@ntypefalse
 			\pgfpathmoveto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@up}}
 			\pgfpathlineto{\pgfpoint{\pgf@circ@res@right}
@@ -1831,7 +1720,7 @@
 }
 
 
-\pgfcircdeclarefet{isfet}{}{%
+\pgfcircdeclaretransistor{isfet}{}{%
 	\pgf@circuit@trans@ntypetrue
       \pgfpathmoveto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@up}}
       % DRAIN CONNECTION 
