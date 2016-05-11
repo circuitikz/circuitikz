@@ -946,14 +946,6 @@
 	 		\northeast
 	 		\pgf@y=\pgfkeysvalueof{/tikz/circuitikz/tripoles/#1/curr direction}\pgf@y
 	 	}	
-	 	\anchor{Bulk}{
-	 		\left
-	 		\pgf@x=-\pgf@x
-	 	}
-	 	\anchor{bulk}{
-	 		\left
-	 		\pgf@x=-\pgf@x
-	 	}
 	  #2
 	  \backgroundpath{
 	  	\pgftransformationadjustments		
@@ -979,6 +971,43 @@
 	  %
 	  }
 	}
+}
+
+\long\def\drawbodydiode#1{
+        \pgfscope
+	         \pgftransformshift{\pgfpoint{-\pgfkeysvalueof{/tikz/circuitikz/tripoles/#1/bodydiode distance}\pgf@circ@res@left}{\pgf@circ@res@up+\pgf@circ@res@down}}
+	        \pgftransformrotate{90}
+			\pgftransformscale{\pgfkeysvalueof{/tikz/circuitikz/tripoles/#1/bodydiode scale}}
+			\ifpgf@circuit@fulldiode
+				\pgfnode{fulldiodeshape}{center}{}{pgf@bodydiode}{\pgfusepath{fill}}
+			\else
+				\pgfnode{emptydiodeshape}{center}{}{pgf@bodydiode}{\pgfusepath{fill}}
+			\fi
+		\endpgfscope
+		%Draw upper connection to body diode
+		\pgfpathmoveto{\pgfpoint{\pgf@circ@res@right}
+						{\pgfkeysvalueof{/tikz/circuitikz/tripoles/#1/bodydiode conn}\pgf@circ@res@up}}
+		\pgfpathlineto{\pgfpoint{-\pgfkeysvalueof{/tikz/circuitikz/tripoles/#1/bodydiode distance}\pgf@circ@res@left}
+						{\pgfkeysvalueof{/tikz/circuitikz/tripoles/#1/bodydiode conn}\pgf@circ@res@up}}
+			 	\pgfpathlineto{\pgfpointanchor{pgf@bodydiode}{east}}
+		\pgfusepath{draw}
+		\pgfscope
+	        \pgftransformshift{\pgfpoint{\pgf@circ@res@right}
+        	       {\pgfkeysvalueof{/tikz/circuitikz/tripoles/#1/bodydiode conn}\pgf@circ@res@up}}
+   	       	\pgftransformscale{0.5}
+        \pgfnode{circ}{center}{}{}{\pgfusepath{fill}}
+      \endpgfscope{}
+   		%Draw lower connection to body diode
+	   \pgfpathmoveto{\pgfpoint{\pgf@circ@res@right}
+	        {\pgfkeysvalueof{/tikz/circuitikz/tripoles/#1/bodydiode conn}\pgf@circ@res@down}}
+		\pgfpathlineto{\pgfpoint{-\pgfkeysvalueof{/tikz/circuitikz/tripoles/#1/bodydiode distance}\pgf@circ@res@left}{\pgfkeysvalueof{/tikz/circuitikz/tripoles/#1/bodydiode conn}\pgf@circ@res@down}}
+			 	\pgfpathlineto{\pgfpointanchor{pgf@bodydiode}{west}}
+		\pgfusepath{draw}
+		\pgfscope
+      \pgftransformshift{\pgfpoint{\pgf@circ@res@right}		        	       {\pgfkeysvalueof{/tikz/circuitikz/tripoles/#1/bodydiode conn}\pgf@circ@res@down}}
+  	       		\pgftransformscale{0.5}
+      \pgfnode{circ}{center}{}{}{\pgfusepath{fill}}
+    \endpgfscope
 }
 
 \long\def\declarebpt#1{
@@ -1157,43 +1186,6 @@
 \declareigbt{Lnigbt}
 \declareigbt{Lpigbt}
 
-
-\long\def\drawbodydiode#1{
-        \pgfscope
-	         \pgftransformshift{\pgfpoint{-\pgfkeysvalueof{/tikz/circuitikz/tripoles/#1/bodydiode distance}\pgf@circ@res@left}{\pgf@circ@res@up+\pgf@circ@res@down}}
-	        \pgftransformrotate{90}
-			\pgftransformscale{\pgfkeysvalueof{/tikz/circuitikz/tripoles/#1/bodydiode scale}}
-			\ifpgf@circuit@fulldiode
-				\pgfnode{fulldiodeshape}{center}{}{pgf@bodydiode}{\pgfusepath{fill}}
-			\else
-				\pgfnode{emptydiodeshape}{center}{}{pgf@bodydiode}{\pgfusepath{fill}}
-			\fi
-		\endpgfscope
-		%Draw upper connection to body diode
-		\pgfpathmoveto{\pgfpoint{\pgf@circ@res@right}
-						{\pgfkeysvalueof{/tikz/circuitikz/tripoles/#1/bodydiode conn}\pgf@circ@res@up}}
-		\pgfpathlineto{\pgfpoint{-\pgfkeysvalueof{/tikz/circuitikz/tripoles/#1/bodydiode distance}\pgf@circ@res@left}
-						{\pgfkeysvalueof{/tikz/circuitikz/tripoles/#1/bodydiode conn}\pgf@circ@res@up}}
-			 	\pgfpathlineto{\pgfpointanchor{pgf@bodydiode}{east}}
-		\pgfusepath{draw}
-		\pgfscope
-	        \pgftransformshift{\pgfpoint{\pgf@circ@res@right}
-        	       {\pgfkeysvalueof{/tikz/circuitikz/tripoles/#1/bodydiode conn}\pgf@circ@res@up}}
-   	       	\pgftransformscale{0.5}
-        \pgfnode{circ}{center}{}{}{\pgfusepath{fill}}
-      \endpgfscope{}
-   		%Draw lower connection to body diode
-	   \pgfpathmoveto{\pgfpoint{\pgf@circ@res@right}
-	        {\pgfkeysvalueof{/tikz/circuitikz/tripoles/#1/bodydiode conn}\pgf@circ@res@down}}
-		\pgfpathlineto{\pgfpoint{-\pgfkeysvalueof{/tikz/circuitikz/tripoles/#1/bodydiode distance}\pgf@circ@res@left}{\pgfkeysvalueof{/tikz/circuitikz/tripoles/#1/bodydiode conn}\pgf@circ@res@down}}
-			 	\pgfpathlineto{\pgfpointanchor{pgf@bodydiode}{west}}
-		\pgfusepath{draw}
-		\pgfscope
-      \pgftransformshift{\pgfpoint{\pgf@circ@res@right}		        	       {\pgfkeysvalueof{/tikz/circuitikz/tripoles/#1/bodydiode conn}\pgf@circ@res@down}}
-  	       		\pgftransformscale{0.5}
-      \pgfnode{circ}{center}{}{}{\pgfusepath{fill}}
-    \endpgfscope
-}
 
 \pgfcircdeclaretransistor{nmos}{}{%
 			\pgfpathmoveto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@up+\pgfverticaltransformationadjustment*.5*\pgflinewidth}}
@@ -1416,35 +1408,43 @@
       	\ifpgf@circuit@bpt@drawgate
 			\ifpgf@circuit@trans@ntype
 		      	\pgfpathmoveto{\pgfpoint
-		      		{\pgfkeysvalueof{/tikz/circuitikz/tripoles/nigfete/gate width}\pgf@circ@res@left}
-		      		{\pgfkeysvalueof{/tikz/circuitikz/tripoles/nigfete/gate height}\pgf@circ@res@down}}
-		      	\pgfpathlineto{\pgfpoint{\pgf@circ@res@left-\pgfhorizontaltransformationadjustment*.5*\pgflinewidth}{\pgfkeysvalueof{/tikz/circuitikz/tripoles/nigfete/gate height}\pgf@circ@res@down}}
+		      		{\pgfkeysvalueof{/tikz/circuitikz/tripoles/#1/gate width}\pgf@circ@res@left}
+		      		{\pgfkeysvalueof{/tikz/circuitikz/tripoles/#1/conn height}\pgf@circ@res@down}}
+		      	\pgfpathlineto{\pgfpoint{\pgf@circ@res@left-\pgfhorizontaltransformationadjustment*.5*\pgflinewidth}{\pgfkeysvalueof{/tikz/circuitikz/tripoles/#1/conn height}\pgf@circ@res@down}}
 	      	\else
 		      	\pgfpathmoveto{\pgfpoint
-		      		{\pgfkeysvalueof{/tikz/circuitikz/tripoles/nigfete/gate width}\pgf@circ@res@left}
-		      		{-\pgfkeysvalueof{/tikz/circuitikz/tripoles/nigfete/gate height}\pgf@circ@res@down}}
-		      	\pgfpathlineto{\pgfpoint{\pgf@circ@res@left-\pgfhorizontaltransformationadjustment*.5*\pgflinewidth}{-\pgfkeysvalueof{/tikz/circuitikz/tripoles/nigfete/gate height}\pgf@circ@res@down}}      	
+		      		{\pgfkeysvalueof{/tikz/circuitikz/tripoles/#1/gate width}\pgf@circ@res@left}
+		      		{-\pgfkeysvalueof{/tikz/circuitikz/tripoles/#1/conn height}\pgf@circ@res@down}}
+		      	\pgfpathlineto{\pgfpoint{\pgf@circ@res@left-\pgfhorizontaltransformationadjustment*.5*\pgflinewidth}{-\pgfkeysvalueof{/tikz/circuitikz/tripoles/#1/conn height}\pgf@circ@res@down}}      	
 	      	\fi
       	\pgfusepath{draw}
       	\fi
 
 }
 
-\pgfcircdeclaretransistor{nfet}{}{%
+\long\def\pgfdeclaretransistorwrapperaddbulk#1#2#3
+{\pgfcircdeclaretransistor{#1}{
+	\anchor{bulk}{\left\pgf@x=0pt}
+ 	\anchor{B}{\left\pgf@x=0pt}%override Base anchor from npn&igbt
+	 #2
+	 }
+	 {#3}
+}
+
+
+\pgfdeclaretransistorwrapperaddbulk{nfet}{}{%
 	\pgf@circuit@trans@depletiontypefalse
 	\drawfetcore{nfet}
 }
 
 
-\pgfcircdeclaretransistor{pfet}{}{%
+\pgfdeclaretransistorwrapperaddbulk{pfet}{}{%
 	\pgf@circuit@trans@depletiontypefalse
 	\drawfetcore{pfet}
 }
 
-
-
 % N-CHANNEL IGFET ENHANCEMENT TYPE
-\pgfcircdeclaretransistor{nigfete}{}{%	
+\pgfdeclaretransistorwrapperaddbulk{nigfete}{}{%	
 	\pgf@circuit@trans@depletiontypefalse
 	\drawfetcore{nigfete}
 	     
@@ -1467,7 +1467,7 @@
 
 
 % N-CHANNEL IGFET ENHANCEMENT TYPE with Bulk connector
-\pgfcircdeclaretransistor{nigfetebulk}{}{%
+\pgfdeclaretransistorwrapperaddbulk{nigfetebulk}{}{%
 	\pgf@circuit@trans@depletiontypefalse
 	\drawfetcore{nigfetebulk}
     % SOLDER DOT at source-bulk connection
@@ -1483,7 +1483,7 @@
 
 
 % N-CHANNEL IGFET DEPLETION TYPE
-\pgfcircdeclaretransistor{nigfetd}{}{%
+\pgfdeclaretransistorwrapperaddbulk{nigfetd}{}{%
 	\pgf@circuit@trans@depletiontypetrue
 	\drawfetcore{nigfetd}
 
@@ -1503,7 +1503,7 @@
 }
 
 % P-CHANNEL IGFET ENHANCEMENT TYPE
-\pgfcircdeclaretransistor{pigfete}{}{%
+\pgfdeclaretransistorwrapperaddbulk{pigfete}{}{%
 	\pgf@circuit@trans@depletiontypefalse
 	\drawfetcore{pigfete}
       \pgfpathmoveto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@up}}
@@ -1525,14 +1525,14 @@
 }
 
 % P-CHANNEL IGFET ENHANCEMENT TYPE with bulk connector
-\pgfcircdeclaretransistor{pigfetebulk}{}{%
+\pgfdeclaretransistorwrapperaddbulk{pigfetebulk}{}{%
 	\pgf@circuit@trans@depletiontypefalse
 	\drawfetcore{pigfetebulk}
 }
 
 
 % P-CHANNEL IGFET DEPLETION TYPE
-\pgfcircdeclaretransistor{pigfetd}{}{%
+\pgfdeclaretransistorwrapperaddbulk{pigfetd}{}{%
 	\pgf@circuit@trans@depletiontypetrue
 	\drawfetcore{pigfetd}
   
@@ -1655,7 +1655,7 @@
 }
 
 
-\pgfcircdeclaretransistor{isfet}{}{%
+\pgfdeclaretransistorwrapperaddbulk{isfet}{}{%
       \pgfpathmoveto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@up+\pgfverticaltransformationadjustment*.5*\pgflinewidth}}
       % DRAIN CONNECTION 
       \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}
