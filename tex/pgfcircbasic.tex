@@ -33,7 +33,7 @@
 	\ctikzset{bipole/name=, bipole/label/name=, bipole/label/position=90, 
 		bipole/reversed=false, bipole/kind=,
 	  	bipole/voltage/direction=backward, bipole/voltage/label/name=, bipole/voltage/position=below,
-	  	bipole/nodes/left=none, bipole/nodes/right=none, bipole/is voltage=false,bipole/is voltageoutsideofsymbol=false,
+	  	bipole/nodes/left=none, bipole/nodes/right=none, bipole/is voltage=false,bipole/is voltageoutsideofsymbol=false,bipole/is strokedsymbol=true,
 		bipole/is current=false, bipole/current/label/name=, bipole/current/x position=after,
 		bipole/current/y position=above, bipole/current/direction=forward, 
 		mirrored=false
@@ -73,12 +73,16 @@
 			(\ctikzvalof{bipole/name}) {}
 	\ifx\pgf@temp\pgf@circ@temp  % if it is an open
 	\else
-		\ifdefined\pgf@anchor@#1@pathstart% if special path-anchors are defined, use them!
-			(\ctikzvalof{bipole/name}start.center) --(\ctikzvalof{bipole/name}.pathstart)
-			(\ctikzvalof{bipole/name}.pathend)  -- (\ctikzvalof{bipole/name}end.center)
+		\ifpgf@circuit@bipole@strokedsymbol%draw line thrue symbol(e.g. diodes)
+				(\ctikzvalof{bipole/name}start.center)--(\ctikzvalof{bipole/name}end.center)
 		\else
-			(\ctikzvalof{bipole/name}start.center) --(\ctikzvalof{bipole/name}.left)
-			(\ctikzvalof{bipole/name}.right)  -- (\ctikzvalof{bipole/name}end.center)
+			\ifdefined\pgf@anchor@#1@pathstart% if special path-anchors are defined, use them!
+				(\ctikzvalof{bipole/name}start.center) --(\ctikzvalof{bipole/name}.pathstart)
+				(\ctikzvalof{bipole/name}.pathend)  -- (\ctikzvalof{bipole/name}end.center)
+			\else
+				(\ctikzvalof{bipole/name}start.center) --(\ctikzvalof{bipole/name}.left)
+				(\ctikzvalof{bipole/name}.right)  -- (\ctikzvalof{bipole/name}end.center)
+			\fi
 		\fi
 	\fi
 	\pgf@circ@ifkeyempty{bipole/label/name}\else\pgf@circ@drawlabel\fi
@@ -198,10 +202,12 @@
 \def\pgf@circ@voltmeter@path#1{\pgf@circ@bipole@path{voltmeter}{#1}}
 \def\pgf@circ@empty@path#1{}
 \def\pgf@circ@photoresistor@path#1{\pgf@circ@bipole@path{photoresistor}{#1}}
-\def\pgf@circ@thyristor@path#1{\pgf@circ@bipole@path{thyristor}{#1}}
+\def\pgf@circ@emptythyristor@path#1{\pgf@circ@bipole@path{emptythyristor}{#1}}
+\def\pgf@circ@fullthyristor@path#1{\pgf@circ@bipole@path{fullthyristor}{#1}}
 \def\pgf@circ@toggleswitch@path#1{\pgf@circ@bipole@path{toggleswitch}{#1}}
 \def\pgf@circ@memristor@path#1{\pgf@circ@bipole@path{memristor}{#1}}
-\def\pgf@circ@triac@path#1{\pgf@circ@bipole@path{triac}{#1}}
+\def\pgf@circ@emptytriac@path#1{\pgf@circ@bipole@path{emptytriac}{#1}}
+\def\pgf@circ@fulltriac@path#1{\pgf@circ@bipole@path{fulltriac}{#1}}
 \def\pgf@circ@tline@path#1{\pgf@circ@bipole@path{tline}{#1}}
 \def\pgf@circ@squid@path#1{\pgf@circ@bipole@path{squid}{#1}}
 \def\pgf@circ@barrier@path#1{\pgf@circ@bipole@path{barrier}{#1}}
@@ -233,8 +239,6 @@
 \def\pgf@circ@detector@path#1{\pgf@circ@bipole@path{detector}{#1}}
 
 %% Styles
-
-%% Aggiungere per thyristor e tripoli semplici
 
 \def\comnpatname{\ifpgf@circuit@compat *\else\fi}
 \def\compattikzset#1{\tikzset{\comnpatname#1}}
@@ -363,9 +367,14 @@
 \compattikzset{varcap/.style = {\comnpatname \ifpgf@circuit@fulldiode full \else empty \fi varcap}}
 \compattikzset{diode/.style = {\comnpatname \ifpgf@circuit@fulldiode full \else empty \fi diode}} %%%%%%%%%%%%@@@
 
-\compattikzset{thyristor/.style =  {\circuitikzbasekey, /tikz/to path=\pgf@circ@thyristor@path}}
+\compattikzset{thyristor/.style =  {\circuitikzbasekey, /tikz/to path=\pgf@circ@fullthyristor@path}}
+\compattikzset{empty thyristor/.style =  {\circuitikzbasekey, /tikz/to path=\pgf@circ@emptythyristor@path}}
+\compattikzset{full thyristor/.style =  {\circuitikzbasekey, /tikz/to path=\pgf@circ@fullthyristor@path}}
+\compattikzset{stroke thyristor/.style =  {\circuitikzbasekey,\circuitikzbasekey/bipole/is strokedsymbol=true, /tikz/to path=\pgf@circ@emptythyristor@path}}
 \compattikzset{memristor/.style =  {\circuitikzbasekey, /tikz/to path=\pgf@circ@memristor@path}}
-\compattikzset{triac/.style =  {\circuitikzbasekey, /tikz/to path=\pgf@circ@triac@path}}
+\compattikzset{triac/.style =  {\circuitikzbasekey, /tikz/to path=\pgf@circ@emptytriac@path}}
+\compattikzset{full triac/.style =  {\circuitikzbasekey, /tikz/to path=\pgf@circ@fulltriac@path}}
+\compattikzset{empty triac/.style =  {\circuitikzbasekey, /tikz/to path=\pgf@circ@emptytriac@path}}
 
 \compattikzset{closing switch/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@cspst@path, l=#1}}
 \compattikzset{opening switch/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@ospst@path, l=#1}}
@@ -467,9 +476,14 @@
 \compattikzset{leD/.style = {\comnpatname led}}
 \compattikzset{VC/.style = {\comnpatname varcap}}
 
-\compattikzset{Tr/.style = {\comnpatname triac}}
+\compattikzset{Tr/.style = {\comnpatname empty triac}}
+\compattikzset{Tro/.style = {\comnpatname empty triac}}
+\compattikzset{Tr*/.style = {\comnpatname full triac}}
 \compattikzset{Mr/.style = {\comnpatname memristor}}
 \compattikzset{Ty/.style = {\comnpatname thyristor}}
+\compattikzset{Tyo/.style = {\comnpatname empty thyristor}}
+\compattikzset{Ty*/.style = {\comnpatname full thyristor}}
+\compattikzset{Ty-/.style = {\comnpatname stroke thyristor}}
 
 \compattikzset{cspst/.style = {\comnpatname closing switch = #1}}
 \compattikzset{ospst/.style = {\comnpatname opening switch = #1}}
