@@ -33,9 +33,11 @@ cd ..
 rm -rf out/**/* || exit 0
 
 # Run our compile script
-cd out
 doCompile
 
+cp circuitikzgit.sty out/
+
+tree
 # Now let's go have some fun with the cloned repo
 cd out
 git config user.name "Travis CI"
