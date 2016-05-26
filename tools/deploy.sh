@@ -5,6 +5,7 @@ SOURCE_BRANCH="master"
 TARGET_BRANCH="gh-pages"
 
 function doCompile {
+perl -v
   make flat
 }
 
@@ -23,6 +24,7 @@ SHA=`git rev-parse --verify HEAD`
 # Clone the existing gh-pages for this repo into out/
 # Create a new empty branch if gh-pages doesn't exist yet (should only happen on first deply)
 git clone $REPO out
+tree
 cd out
 git checkout $TARGET_BRANCH || git checkout --orphan $TARGET_BRANCH
 cd ..
@@ -31,6 +33,7 @@ cd ..
 rm -rf out/**/* || exit 0
 
 # Run our compile script
+cd out
 doCompile
 
 # Now let's go have some fun with the cloned repo
@@ -48,7 +51,7 @@ fi
 # The delta will show diffs between new and old versions.
 ls
 cat circuitikzgit.sty
-git add ./circuitikzgit.sty
+git add circuitikzgit.sty
 git commit -m "Deploy to GitHub Pages: ${SHA}"
 
 # Get the deploy key by using Travis's stored variables to decrypt deploy_key.enc
