@@ -26,7 +26,7 @@ SHA=`git rev-parse --verify HEAD`
 git clone $REPO out
 tree -a
 cd out
-git checkout $TARGET_BRANCH || git checkout --orphan $TARGET_BRANCH
+git checkout $TARGET_BRANCH
 cd ..
 
 # Clean out existing contents
@@ -38,11 +38,12 @@ doCompile
 
 cp circuitikzgit.sty out/
 
-tree -a
 # Now let's go have some fun with the cloned repo
 cd out
 git config user.name "Travis CI"
 git config user.email "$COMMIT_AUTHOR_EMAIL"
+
+git add circuitikzgit.sty
 
 # If there are no changes to the compiled out (e.g. this is a README update) then just bail.
 if [ -z `git diff --exit-code` ]; then
@@ -52,7 +53,7 @@ fi
 
 # Commit the "changes", i.e. the new version.
 # The delta will show diffs between new and old versions.
-ls
+
 git add -f circuitikzgit.sty
 git commit -m "Deploy to GitHub Pages: ${SHA}"
 
@@ -68,4 +69,4 @@ eval `ssh-agent -s`
 ssh-add deploy_key
 
 # Now that we're all set up, we can push.
-#ägit push $SSH_REPO $TARGET_BRANCH
+git push $SSH_REPO $TARGET_BRANCH
