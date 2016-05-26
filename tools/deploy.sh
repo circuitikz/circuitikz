@@ -31,6 +31,7 @@ cd ..
 
 # Clean out existing contents
 rm -rf out/**/* || exit 0
+rm -rf out/*||exit 0
 
 # Run our compile script
 doCompile
@@ -52,8 +53,7 @@ fi
 # Commit the "changes", i.e. the new version.
 # The delta will show diffs between new and old versions.
 ls
-cat circuitikzgit.sty
-git add circuitikzgit.sty
+git add -f circuitikzgit.sty
 git commit -m "Deploy to GitHub Pages: ${SHA}"
 
 # Get the deploy key by using Travis's stored variables to decrypt deploy_key.enc
