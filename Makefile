@@ -1,8 +1,8 @@
-XELATEXOPTIONS:="-8bit -interaction=nonstopmode"
+XELATEXOPTIONS:=-8bit -interaction=nonstopmode
 GIT_REV:=$(shell git rev-parse --short HEAD)
 GIT_DATE:=$(shell export LC_ALL=C;date +"%Y\/%m\/%d" --date=@`git show -s --format=%ct`)
 #GIT_DATE:=$(shell date)
-CTIKZ_GIT_FILENAME:="circuitikzgit.sty"
+CTIKZ_GIT_FILENAME:=circuitikzgit.sty
 .PHONY: ctan clean
 
 help:
