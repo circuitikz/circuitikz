@@ -35,7 +35,7 @@ git config user.name "Travis CI"
 git config user.email "$COMMIT_AUTHOR_EMAIL"
 
 # Clone the existing gh-pages for this repo into out/
-git clone $REPO --single-branch --depth=1 --branch=$TARGET_BRANCH out
+git clone $REPO --single-branch --depth=1 --branch $TARGET_BRANCH out
 
 # Run our compile script
 doCompile
