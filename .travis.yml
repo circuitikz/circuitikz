@@ -3,29 +3,24 @@ language: r
 sudo: false
 cache: packages
 warnings_are_errors: false
-#addons:
-#  apt:
-#    packages:
-#    - texlive-xetex
-#    - texlive-latex-extra
-#    - pgf
-#    - pandoc
+
 
 before_install:
   - tlmgr install standalone
   - tlmgr install collection-pictures 
-#  - tlmgr install siunitx
   - tlmgr install showexpl
   - tlmgr install imakeidx
   - tlmgr install xpatch
 
-install: echo dummy install entry
-script: tools/deploy.sh
+install:
+  - openssl aes-256-cbc -K $encrypted_b316d6cc7b96_key -iv $encrypted_b316d6cc7b96_iv -in tools/deploy_key.enc -out .deploy_key -d
+  - chmod 600 .deploy_key
+  - eval `ssh-agent -s`
+  - ssh-add .deploy_key
 
-env:
-  global:
-  - ENCRYPTION_LABEL: "edff7f8e0b40"
-  - COMMIT_AUTHOR_EMAIL: "travis@circuit.tikz"
+script: make manual-git
+
+after_success: tools/deploy.sh
 
 notifications:
   email: false
