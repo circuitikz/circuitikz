@@ -60,3 +60,4 @@ git status
 # Commit the "changes", i.e. the new version.
 git commit -m "Deploy to GitHub Pages: ${SHA}"
 git push $SSH_REPO $TARGET_BRANCH
+exit 0
