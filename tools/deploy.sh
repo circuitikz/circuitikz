@@ -17,10 +17,14 @@ fi
 
 # Get the deploy key by using Travis's stored variables to decrypt deploy_key.enc
 # ENCRYPTION_LABEL is set at .travis.yml
-openssl aes-256-cbc -K encrypted_${ENCRYPTION_LABEL}_key -iv encrypted_${ENCRYPTION_LABEL}_iv -in tools/deploy_key.enc -out tools/deploy_key -d
-chmod 600 tools/deploy_key
+ENCRYPTED_KEY_VAR="encrypted_${ENCRYPTION_LABEL}_key"
+ENCRYPTED_IV_VAR="encrypted_${ENCRYPTION_LABEL}_iv"
+ENCRYPTED_KEY=${!ENCRYPTED_KEY_VAR}
+ENCRYPTED_IV=${!ENCRYPTED_IV_VAR}
+openssl aes-256-cbc -K ${ENCRYPTED_KEY} -iv ${ENCRYPTED_IV} -in tools/deploy_key.enc -out .deploy_key -d
+chmod 600 .deploy_key
 eval `ssh-agent -s`
-ssh-add tools/deploy_key
+ssh-add .deploy_key
 
 # Save some useful information
 REPO=`git config remote.origin.url`
