@@ -5,7 +5,7 @@ SOURCE_BRANCH="master"
 TARGET_BRANCH="gh-pages"
 
 function doCompile {
-  make flat
+  make manual-git 
 }
 
 # Pull requests and commits to other branches shouldn't try to deploy, just build to verify
@@ -47,13 +47,14 @@ cd ..
 doCompile
 
 cp circuitikzgit.sty out/
-
+cp circuitikzmanualgit.pdf out/
 # Now let's go have some fun with the cloned repo
 cd out
 git config user.name "Travis CI"
 git config user.email "$COMMIT_AUTHOR_EMAIL"
 ls
 git add circuitikzgit.sty
+git add circuitikzmanualgit.pdf
 git status
 
 # If there are no changes to the compiled out (e.g. this is a README update) then just bail.
@@ -67,7 +68,3 @@ fi
 
 git commit -m "Deploy to GitHub Pages: ${SHA}"
 git push $SSH_REPO $TARGET_BRANCH
-cd ~
-pwd
-cd /
-pwd

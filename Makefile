@@ -2,12 +2,24 @@ XELATEXOPTIONS:="-8bit"
 GIT_REV:=$(shell git rev-parse --short HEAD)
 GIT_DATE:=$(shell export LC_ALL=C;date +"%Y\/%m\/%d" --date=@`git show -s --format=%ct`)
 #GIT_DATE:=$(shell date)
+CTIKZ_GIT_FILENAME:="circuitikzgit.sty"
 .PHONY: ctan clean
 
 help:
 	@echo ---HELP---
 	@echo make manual: compile manual
 	@echo make ctan: create zip for ctan-upload
+
+manual-git: flat
+	cp $(CTIKZ_GIT_FILENAME) doc/
+	#sed only match first occurence in file, therefore the strnage pattern
+	sed -i '0,/^\(\\usepackage.*\){circuitikz}\(.*\)/s//\1{circuitikzgit}\2/' doc/circuitikzmanual.tex
+	sed -i '0,/^\(\\usepackage.*\){circuitikz}\(.*\)/s//\1{circuitikzgit}\2/' doc/compatibility.tex
+	$(MAKE) manual-latex
+	sed -i '0,/^\(\\usepackage.*\){circuitikzgit}\(.*\)/s//\1{circuitikz}\2/' doc/circuitikzmanual.tex
+	sed -i '0,/^\(\\usepackage.*\){circuitikzgit}\(.*\)/s//\1{circuitikz}\2/' doc/compatibility.tex
+	rm -f doc/$(CTIKZ_GIT_FILENAME)
+	mv doc/circuitikzmanual.pdf circuitikzmanualgit.pdf
 
 manual: manual-latex manual-context clean
 
@@ -81,11 +93,11 @@ ctan: manual clean
 	rm -rf ctan_tmp
 
 flat:
-	perl tools/flatten.pl tex/circuitikz.sty > circuitikzgit.sty
+	perl tools/flatten.pl tex/circuitikz.sty > $(CTIKZ_GIT_FILENAME)
 	#insert git revision:
-	sed -i 's/\\def\\pgfcircversion{.*/\\def\\pgfcircversion\{git:$(GIT_REV)\}/g' circuitikzgit.sty
-	sed -i 's/\\def\\pgfcircversiondate{.*/\\def\\pgfcircversiondate\{$(GIT_DATE)\}/g' circuitikzgit.sty
-	sed -i 's/\\ProvidesPackage{circuitikz}.*/\\ProvidesPackage{circuitikzgit}/g' circuitikzgit.sty
-	sed -i 's/\r//g' circuitikzgit.sty
+	sed -i 's/\\def\\pgfcircversion{.*/\\def\\pgfcircversion\{git:$(GIT_REV)\}/g' $(CTIKZ_GIT_FILENAME)
+	sed -i 's/\\def\\pgfcircversiondate{.*/\\def\\pgfcircversiondate\{$(GIT_DATE)\}/g' $(CTIKZ_GIT_FILENAME)
+	sed -i 's/\\ProvidesPackage{circuitikz}.*/\\ProvidesPackage{circuitikzgit}/g' $(CTIKZ_GIT_FILENAME)
+	sed -i 's/\r//g' $(CTIKZ_GIT_FILENAME)
 
 
