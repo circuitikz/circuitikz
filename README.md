@@ -30,7 +30,7 @@ or, for ConTeXt,
 in the preamble and compile away, both with PS and PDF target output.
 
 ## Contact the authors
-* git: https://github.com/mredaelli/circuitikz
+* git: https://github.com/circuitikz/circuitikz
 * Massimo Redaelli (m.redaelli@gmail.com)
 * Stefan Lindner (stefan.lindner@fau.de)
 * Stefan Erhardt (stefan.erhardt@fau.de)

@@ -1,5 +1,5 @@
 <!--- CircuiTikz - Changelog --->
-The major changes among the different circuitikz versions are listed here. See <https://github.com/mredaelli/circuitikz/commits> for a full list of changes.
+The major changes among the different circuitikz versions are listed here. See <https://github.com/circuitikz/circuitikz/commits> for a full list of changes.
 
 * Version 0.6 (unreleased)
 	- Add new sources voosource and ioosource (double zero-style)
