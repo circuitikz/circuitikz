@@ -3,6 +3,7 @@ GIT_REV:=$(shell git rev-parse --short HEAD)
 GIT_DATE:=$(shell export LC_ALL=C;date +"%Y\/%m\/%d" --date=@`git show -s --format=%ct`)
 #GIT_DATE:=$(shell date)
 CTIKZ_GIT_FILENAME:=circuitikzgit.sty
+CTIKZ_CONTEXT_GIT_FILENAME:=t-circuitikzgit.tex
 .PHONY: ctan clean
 
 help:
@@ -94,10 +95,15 @@ ctan: manual clean
 
 flat:
 	perl tools/flatten.pl tex/circuitikz.sty > $(CTIKZ_GIT_FILENAME)
-	#insert git revision:
-	sed -i 's/\\def\\pgfcircversion{.*/\\def\\pgfcircversion\{git:$(GIT_REV)\}/g' $(CTIKZ_GIT_FILENAME)
-	sed -i 's/\\def\\pgfcircversiondate{.*/\\def\\pgfcircversiondate\{$(GIT_DATE)\}/g' $(CTIKZ_GIT_FILENAME)
-	sed -i 's/\\ProvidesPackage{circuitikz}.*/\\ProvidesPackage{circuitikzgit}/g' $(CTIKZ_GIT_FILENAME)
-	sed -i 's/\r//g' $(CTIKZ_GIT_FILENAME)
-
+	perl tools/flatten.pl tex/t-circuitikz.tex > $(CTIKZ_CONTEXT_GIT_FILENAME)
+	#insert git revision latex version:
+	sed -i 's/\\def\\pgfcircversion{.*/\\def\\pgfcircversion\{git:$(GIT_REV)\}/' $(CTIKZ_GIT_FILENAME)
+	sed -i 's/\\def\\pgfcircversiondate{.*/\\def\\pgfcircversiondate\{$(GIT_DATE)\}/' $(CTIKZ_GIT_FILENAME)
+	sed -i 's/\\ProvidesPackage{circuitikz}.*/\\ProvidesPackage{circuitikzgit}/' $(CTIKZ_GIT_FILENAME)
+	sed -i 's/\r$$//g' $(CTIKZ_GIT_FILENAME)
+	#insert git revision context version:
+	sed -i 's/\\def\\pgfcircversion{.*/\\def\\pgfcircversion\{git:$(GIT_REV)\}/' $(CTIKZ_CONTEXT_GIT_FILENAME)
+	sed -i 's/\\def\\pgfcircversiondate{.*/\\def\\pgfcircversiondate\{$(GIT_DATE)\}/' $(CTIKZ_CONTEXT_GIT_FILENAME)
+	sed -i 's/\\startmodule\[circuitikz\].*/\\startmodule[circuitikzgit]/' $(CTIKZ_CONTEXT_GIT_FILENAME)
+	sed -i 's/\r$$//' $(CTIKZ_CONTEXT_GIT_FILENAME)
 

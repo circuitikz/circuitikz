@@ -19,6 +19,7 @@ fi
 git clone $REPO --single-branch --depth=1 --branch $TARGET_BRANCH out
 
 cp circuitikzgit.sty out/
+cp t-circuitikzgit.tex out/
 cp circuitikzmanualgit.pdf out/
 
 # Now change to gh-pages folder and check in compiled files

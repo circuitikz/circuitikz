@@ -5,7 +5,7 @@
 #     
 sub p_inc {
   $DateiName = shift;
-    if ( open (my $fh,"<:encoding(UTF-8)", "$DateiName.tex") )
+    if ( open (my $fh,"<:encoding(utf8)", "$DateiName.tex") )
 	{
       print "%%%---------- open: ", $DateiName, ".tex\n";
 		while (my $zeile = <$fh>){
@@ -26,10 +26,11 @@ sub p_inc {
 	} else 
 	{ print "%%%<===== Datei existiert nicht\n"; }
 }
-
+use utf8;
 my $filename = shift @ARGV;
 my ($path,$file) = $filename =~ m|^(.*[/\\])([^/\\]+?)$|;
-open (my $fh, "<:encoding(UTF-8)",$filename) or die $!;
+open (my $fh, "<:encoding(utf8)",$filename) or die $!;
+binmode(STDOUT, ":utf8");
 while (my $zeile = <$fh>)
 {
  # next if $zeile =~ /^\s$/;
