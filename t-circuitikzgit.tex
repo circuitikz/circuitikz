@@ -1,313 +1,22 @@
-% Copyright 2007-2016 by Massimo Redaelli
-%
-% This file may be distributed and/or modified
-%
-% 1. under the LaTeX Project Public License and/or
-% 2. under the GNU Public License.
-%
-% See the file doc/LICENSE for more details.
-
-
-%%%%%
-%%%%%
-%%%%%
-%%%%% Se c'è l'opzione symbol, fallback to siunitx with warning
-%%%%%
-%%%%%
-
-\NeedsTeXFormat{LaTeX2e}
-
 \def\pgfcircversion{git:dacc55f}
 \def\pgfcircversiondate{2016/05/30}
+\writestatus{loading}{\pgfcircversiondate{} The CircuiTikz circuit drawing package version \pgfcircversion}
 
-\ProvidesPackage{circuitikzgit}
-        [\pgfcircversiondate{} The CircuiTikz circuit drawing package version \pgfcircversion]
+\usemodule[tikz]
 
-%% Version 2.0 of pgf/TikZ is required
-\RequirePackage{tikz}
-\usetikzlibrary{calc}
-\usepgflibrary{arrows}
+\startmodule[circuitikzgit]
+\usetikzlibrary[calc]
+\usetikzlibrary[arrows]
 
+\unprotect
 
-% The options are listed in the manual in this order
+\edef\tikzatcode{\the\catcode`\@}
+\edef\tikzbarcode{\the\catcode`\|}
+\edef\tikzexclaimcode{\the\catcode`\!}
+\catcode`\@=11
+\catcode`\|=12
+\catcode`\!=12
 
-\DeclareOption{europeanvoltage}{
-	\ctikzset{voltage=european}
-}
-
-\DeclareOption{americanvoltage}{
-	\ctikzset{voltage=american}
-}
-
-\DeclareOption{europeancurrent}{
-	\ctikzset{current = european}
-}
-
-\DeclareOption{americancurrent}{
-	\ctikzset{current = american}
-}
-
-\DeclareOption{europeanvoltage}{
-	\ctikzset{voltage = european}
-}
-
-\DeclareOption{americanresistor}{
-	\ctikzset{resistor = american}
-}
-
-\DeclareOption{europeanresistor}{
-	\ctikzset{resistor = european}
-}
-
-\DeclareOption{americaninductor}{
-	\ctikzset{inductor = american}
-}
-
-\DeclareOption{europeaninductor}{
-	\ctikzset{inductor = european}
-}
-
-\DeclareOption{cuteinductor}{
-	\ctikzset{inductor = cute}
-}
-
-\DeclareOption{americanport}{
-	\ctikzset{logic ports = american}
-}
-
-\DeclareOption{europeanport}{
-	\ctikzset{logic ports = european}
-}
-
-\DeclareOption{europeanport}{
-	\ctikzset{logic ports = european}
-}
-
-\DeclareOption{european}{
-	\ctikzset{voltage=european} \ctikzset{current=european} \ctikzset{inductor=european}
-	 \ctikzset{resistor=european} \ctikzset{logic ports=european} \ctikzset{gas filled surge arrester = european} 
-}
-
-\DeclareOption{american}{
-	\ctikzset{voltage=american} \ctikzset{current=american} \ctikzset{resistor=american} \ctikzset{inductor=american} \ctikzset{gas filled surge arrester = american}
-	\ctikzset{logic ports = american}
-}
-
-\DeclareOption{fulldiodes}{
-	\ctikzset{diode = full}
-}
-
-\DeclareOption{emptydiodes}{
-	\ctikzset{diode = empty}
-}
-
-\DeclareOption{europeanvoltages}{
-	\ctikzset{voltage=european}
-}
-
-\DeclareOption{americanvoltages}{
-	\ctikzset{voltage=american}
-}
-
-\DeclareOption{europeancurrents}{
-	\ctikzset{current = european}
-}
-
-\DeclareOption{americancurrents}{
-	\ctikzset{current = american}
-}
-
-\DeclareOption{europeanvoltages}{
-	\ctikzset{voltage = european}
-}
-
-\DeclareOption{americanresistors}{
-	\ctikzset{resistor = american}
-}
-
-\DeclareOption{europeanresistors}{
-	\ctikzset{resistor = european}
-}
-
-\DeclareOption{americaninductors}{
-	\ctikzset{inductor = american}
-}
-
-\DeclareOption{europeaninductors}{
-	\ctikzset{inductor = european}
-}
-
-\DeclareOption{cuteinductors}{
-	\ctikzset{inductor = cute}
-}
-
-\DeclareOption{americanports}{
-	\ctikzset{logic ports = american}
-}
-
-\DeclareOption{europeanports}{
-	\ctikzset{logic ports = european}
-}
-
-\DeclareOption{americangfsurgearrester}{
-	\ctikzset{gas filled surge arrester = american}
-}
-
-\DeclareOption{europeangfsurgearrester}{
-	\ctikzset{gas filled surge arrester = european}
-}
-
-\DeclareOption{siunitx}{
-	\pgf@circ@siunitxtrue
-}
-
-\DeclareOption{nosiunitx}{
-	\pgf@circ@siunitxfalse
-}
-
-\DeclareOption{fulldiode}{
-	\ctikzset{diode = full}
-}
-
-\DeclareOption{emptydiode}{
-	\ctikzset{diode = empty}
-}
-
-\DeclareOption{strokediode}{
-	\ctikzset{diode = stroke}
-}
-
-\DeclareOption{arrowmos}{
-	\pgf@circuit@mos@arrowstrue
-}
-
-\DeclareOption{noarrowmos}{
-	\pgf@circuit@mos@arrowsfalse
-}
-
-\DeclareOption{fetbodydiode}{
-	\pgf@circuit@fet@bodydiodetrue
-}
-
-\DeclareOption{nofetbodydiode}{
-	\pgf@circuit@fet@bodydiodefalse
-}
-
-\DeclareOption{fetsolderdot}{
-	\pgf@circuit@fet@solderdottrue
-}
-
-\DeclareOption{nofetsolderdot}{
-	\pgf@circuit@fet@solderdotfalse
-}
-
-\DeclareOption{emptypmoscircle}{
-	\pgf@circuit@pmos@emptycircletrue
-}
-
-
-\DeclareOption{lazymos}{
-	\ctikzset{tripoles/nmos/width=.5}
-	\ctikzset{tripoles/nmos/gate height=.35}
-	\ctikzset{tripoles/nmos/base height=.35}
-	\ctikzset{tripoles/nmos/height/.initial=1.2}
-	\ctikzset{tripoles/nmos/base width=.5}
-	\ctikzset{tripoles/nmos/gate width=.65}
-	
-	\ctikzset{tripoles/pmos/width=.5}
-	\ctikzset{tripoles/pmos/gate height=.35}
-	\ctikzset{tripoles/pmos/base height=.35}
-	\ctikzset{tripoles/pmos/height/.initial=1.2}
-	\ctikzset{tripoles/pmos/base width=.5}
-	\ctikzset{tripoles/pmos/gate width=.65}
-	
-	\pgf@circuit@pmos@emptycircletrue
-}
-
-\DeclareOption{straightlabels}{
-	\ctikzset{label/align = straight}
-}
-
-\DeclareOption{rotatelabels}{
-	\ctikzset{label/align = rotate}
-}
-
-\DeclareOption{smartlabels}{
-	\ctikzset{label/align = smart}
-}
-
-\DeclareOption{compatibility}{
-	\pgf@circuit@compattrue
-}
-
-\DeclareOption{oldvoltagedirection}{
-	\pgf@circ@oldvoltagedirectiontrue
-}
-\DeclareOption{nooldvoltagedirection}{
-	\pgf@circ@oldvoltagedirectionfalse
-}
-
-\DeclareOption{betterproportions}{
-	\ctikzset{monopoles/ground/width/.initial=.15}
-
-	\ctikzset{bipoles/resistor/height/.initial=.23}
-	\ctikzset{bipoles/resistor/width/.initial=.6}
-	\ctikzset{bipoles/capacitor/height/.initial=.4}
-	\ctikzset{bipoles/capacitor/width/.initial=.1}
-	\ctikzset{bipoles/potentiometer/height/.initial=.6}
-	\ctikzset{bipoles/potentiometer/height 2/.initial=.23}
-	\ctikzset{bipoles/potentiometer/width/.initial=.6}
-	\ctikzset{bipoles/photoresistor/height/.initial=.6}
-	\ctikzset{bipoles/photoresistor/height 2/.initial=.23}
-	\ctikzset{bipoles/photoresistor/width/.initial=.6}
-	\ctikzset{bipoles/thermistor/main/.initial=.7}
-	\ctikzset{bipoles/thermistor/height/.initial=.328}%.23/.7
-	\ctikzset{bipoles/thermistor/width/.initial=.6}
-	\ctikzset{bipoles/thermistorntc/width/.initial=.6}
-	\ctikzset{bipoles/thermistorntc/main/.initial=.7}
-	\ctikzset{bipoles/thermistorntc/height/.initial=.328}%.23/.7
-	\ctikzset{bipoles/thermistorntc/height 2/.initial=.75}%.23/.7
-	\ctikzset{bipoles/thermistorptc/width/.initial=.6}
-	\ctikzset{bipoles/thermistorptc/main/.initial=.7}
-	\ctikzset{bipoles/thermistorptc/height/.initial=.328}%.23/.7
-	\ctikzset{bipoles/varistor/main/.initial=.7}
-	\ctikzset{bipoles/varistor/height/.initial=.328}%.23/.7
-	\ctikzset{bipoles/varistor/width/.initial=.6}
-	\ctikzset{bipoles/vresistor/height/.initial=.45}
-	\ctikzset{bipoles/vresistor/width/.initial=.6}
-	\ctikzset{bipoles/generic/height/.initial=.23}
-	\ctikzset{bipoles/generic/width/.initial=.6}
-	\ctikzset{bipoles/generic potentiometer/height/.initial=.6}
-	\ctikzset{bipoles/generic potentiometer/height 2/.initial=.23}
-	\ctikzset{bipoles/generic potentiometer/width/.initial=.6}
-	\ctikzset{bipoles/ageneric/height/.initial=.23}
-	\ctikzset{bipoles/ageneric/width/.initial=.6}
-	\ctikzset{bipoles/memristor/height/.initial=.23}
-	\ctikzset{bipoles/memristor/wave height/.initial=.375}
-	\ctikzset{bipoles/memristor/width/.initial=.60}
-	\ctikzset{bipoles/tgeneric/height/.initial=.525}
-	\ctikzset{bipoles/tgeneric/width/.initial=.6}
-	\ctikzset{bipoles/tfullgeneric/height/.initial=.525}
-	\ctikzset{bipoles/tfullgeneric/width/.initial=.60}
-	\ctikzset{bipoles/fullgeneric/height/.initial=.23}
-	\ctikzset{bipoles/fullgeneric/width/.initial=.6}
-	\ctikzset{bipoles/diode/height/.initial=.3}
-	\ctikzset{bipoles/diode/width/.initial=.25}
-	
-	\ctikzset{tripoles/thyristor/height/.initial=.66}
-	\ctikzset{tripoles/thyristor/height 2/.initial=.3}
-	\ctikzset{tripoles/thyristor/width/.initial=.6}
-	\ctikzset{tripoles/thyristor/diode height/.initial=.3}
-	\ctikzset{tripoles/thyristor/diode width left/.initial=.4}
-	\ctikzset{tripoles/thyristor/diode width right/.initial=.3}
-
-	\ctikzset{tripoles/triac/height/.initial=.66}
-	\ctikzset{tripoles/triac/width/.initial=.6}
-	\ctikzset{tripoles/triac/diode width left/.initial=.3}
-	\ctikzset{tripoles/triac/diode width right/.initial=.3}
-}
-
-%%%%%%%%%
 %%%%%%%%%%% Springe nach tex/pgfcirc.defines
 %%%---------- open: tex/pgfcirc.defines.tex
 
@@ -9497,9 +9206,93 @@
 
 %%%---------- close: tex/pgfcirccurrent
 
-\ExecuteOptions{nofetbodydiode,nofetsolderdot,nooldvoltagedirection,europeancurrents,europeanvoltages,americanports,americanresistors,cuteinductors,europeangfsurgearrester,nosiunitx,noarrowmos,smartlabels,nocompatibility}
+% defaults
 
-\ProcessOptions\relax
+\setupmodule
+   [current=european,
+    voltage=european,
+    resistor=american,
+    inductor=cute,
+    logic=american,
+    siunitx=true,
+    arrowmos=false]
+
+\processaction
+   [\currentmoduleparameter{voltage}]
+   [european=>\ctikzset{voltage=european},
+    american=>\ctikzset{voltage=american}]
+
+\processaction
+   [\currentmoduleparameter{current}]
+   [european=>\ctikzset{ current=european},
+    american=>\ctikzset{ current=american}]
+
+\processaction
+   [\currentmoduleparameter{label}]
+   [straight=>\ctikzset{label/align = straight},
+    align=>\ctikzset{label/align = rotate},
+    smart=>\ctikzset{label/align = smart}]
+
+\processaction
+   [\currentmoduleparameter{resistor}]
+   [european=>\ctikzset{ resistor=european},
+    american=>\ctikzset{ resistor=american}]
+
+\processaction
+   [\currentmoduleparameter{inductor}]
+   [european=>\ctikzset{ inductor=european},
+    american=>\ctikzset{ inductor=american},
+    cute=>\ctikzset{ inductor=cute}]
+
+\processaction
+   [\currentmoduleparameter{diode}]
+   [full=>\ctikzset{ diode=full},
+    empty=>\ctikzset{ diode=empty}]
+
+\processaction
+   [\currentmoduleparameter{logic}]
+   [european=>\ctikzset{ logic ports=european},
+    american=>\ctikzset{ logic ports=american}]
+
+\processaction
+   [\currentmoduleparameter{siunitx}]
+   [true=>\def\SI#1#2{#1\,#2}
+    \def\ampere{\rm{A}}
+    \def\volt{\rm{V}}
+    \def\ohm{\Omega}
+    \def\siemens{\rm{S}}
+    \def\farad{\rm{F}}
+    \def\henry{\rm{H}}
+    \def\second{\rm{s}}
+    \def\coulomb{\rm{C}}
+    \def\siemens{\rm{S}}
+    \def\radians{\rm{rad}}
+    \def\milli{\rm{m}}
+    \def\micro{\mu}
+    \def\nano{\rm{n}}
+    \def\pico{\rm{p}}
+    \def\kilo{\rm{k}}
+    \def\mega{\rm{M}}
+    \def\giga{\rm{G}}
+    \def\tera{\rm{T}},
+    false=>]
+%   \s!default=>\pgf@circ@siunitxtrue,
+
+\processaction
+   [\currentmoduleparameter{arrowmos}]
+   [true=>\pgf@circuit@mos@arrowstrue,
+    false=>\pgf@circuit@mos@arrowsfalse]
+%   \s!default=>\pgf@circuit@mos@arrowstrue,
+
+
+\ifpgf@circ@siunitx
+ % nothing! siunitx and xstrings don't work in context
+\fi
+
+
+% Context specific
+
+\ctikzset{tripoles/op amp/font/.initial=\switchtobodyfont[small]}
 
 %%%%%%%%%%% Springe nach tex/pgfcircpath
 %%%---------- open: tex/pgfcircpath.tex
@@ -10122,17 +9915,15 @@
 \pgf@circ@definetranspath{Lpigbt}
 \pgf@circ@definetranspath{Lnigbt}%%%---------- close: tex/pgfcircpath
 
-\ifpgf@circ@siunitx
-    \RequirePackage{xstring}[2009/03/13]
-	%\expandafter\let\csname angstrom\endcsname\relax
-	\RequirePackage{siunitx}
-\fi
+\catcode`\@=\tikzatcode
+\catcode`\|=\tikzbarcode
+\catcode`\!=\tikzexclaimcode
 
+% define the environment
+\long\def\startcircuitikz#1\stopcircuitikz{\starttikzpicture#1\stoptikzpicture}
 
+\protect
 
-\newenvironment{circuitikz}{\begin{tikzpicture}}{\end{tikzpicture}}
-%override (unused) circuitikz environment for compability to externalization)
-\let\circuitikz\tikzpicture
-\let\endcircuitikz\endtikzpicture
+\stopmodule
 
 \endinput
