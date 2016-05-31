@@ -357,31 +357,63 @@
 
 \pgfcircdeclarebipole{}{\ctikzvalof{bipoles/cuteinductor/height}}{cuteinductor}{\ctikzvalof{bipoles/cuteinductor/height}}{\ctikzvalof{bipoles/cuteinductor/width}}{
 	\pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}\pgfstartlinewidth}
-	\pgf@circ@res@step=\ctikzvalof{bipoles/cuteinductor/width}\pgf@circ@Rlen
-	\pgftransformationadjustments	
-	\advance \pgf@circ@res@step by \pgfhorizontaltransformationadjustment\pgflinewidth
-	\divide \pgf@circ@res@step by \ctikzvalof{bipoles/cuteinductor/coils} %divide by number of coils
-	\divide \pgf@circ@res@step by 2 %div by two for arcs
+	\pgftransformationadjustments
 
-	\def\pgf@circ@coilsmall@width{\ctikzvalof{bipoles/cuteinductor/coil aspect}\pgf@circ@res@step}
-	
-	\advance \pgf@circ@res@step by \pgf@circ@coilsmall@width %adjust for overlapping lower arc
-	\def\pgf@circ@coilwide@width{\pgf@circ@res@step}	
-		
-	\pgf@circ@res@other = \ctikzvalof{bipoles/cuteinductor/coil height}\pgf@circ@Rlen
-	\pgf@circ@res@temp =\ctikzvalof{bipoles/cuteinductor/lower coil height}\pgf@circ@Rlen
-	
+	\pgfmathsetlength{\pgf@circ@res@other}%width of small coil
+	{0.5*\ctikzvalof{bipoles/cuteinductor/coil aspect}*\ctikzvalof{bipoles/cuteinductor/width}*\pgf@circ@Rlen/(\ctikzvalof{bipoles/cuteinductor/coils}-1)}
+
+
+	\pgfmathsetlength{\pgf@circ@res@step}
+		{(\ctikzvalof{bipoles/cuteinductor/width}*\pgf@circ@Rlen+\pgfhorizontaltransformationadjustment\pgflinewidth+(\ctikzvalof{bipoles/cuteinductor/coils}-1)*2*\pgf@circ@res@other)/\ctikzvalof{bipoles/cuteinductor/coils}/2}
+
+	\pgf@circ@res@up = \ctikzvalof{bipoles/cuteinductor/coil height}\pgf@circ@Rlen
+	\pgf@circ@res@down =\ctikzvalof{bipoles/cuteinductor/lower coil height}\pgf@circ@Rlen
 
 	\pgfpathmoveto{\pgfpoint{\pgf@circ@res@left-\pgfhorizontaltransformationadjustment*0.5*\pgflinewidth}{-\pgfverticaltransformationadjustment*0.4*\pgfstartlinewidth}}%correct value would be 0.5 but arcs are not really flat, therefore 0.4 is better is (almost) all cases
 	\foreach \x in {2,...,\ctikzvalof{bipoles/cuteinductor/coils}}
 	{
-		\pgfpatharc{180}{0}{\pgf@circ@coilwide@width and \pgf@circ@res@other}
-		\pgfpatharc{0}{-180}{\pgf@circ@coilsmall@width and \pgf@circ@res@temp}
+		\pgfpatharc{180}{0}{\pgf@circ@res@step and \pgf@circ@res@up}
+		\pgfpatharc{0}{-180}{\pgf@circ@res@other and \pgf@circ@res@down}
 	}
-	\pgfpatharc{180}{0}{\pgf@circ@coilwide@width and  \pgf@circ@res@other}
+	\pgfpatharc{180}{0}{\pgf@circ@res@step and \pgf@circ@res@up}
 	\pgfsetbuttcap
 	\pgfsetbeveljoin
-	\pgfusepath{stroke}	
+	\pgfusepath{stroke}
+}
+
+%% variable cute inductor
+
+\pgfcircdeclarebipole{}{\ctikzvalof{bipoles/vcuteinductor/height}}{vcuteinductor}{\ctikzvalof{bipoles/vcuteinductor/height}}{\ctikzvalof{bipoles/vcuteinductor/width}}{
+	\pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}\pgfstartlinewidth}
+	\pgftransformationadjustments	
+	
+	\pgfmathsetlength{\pgf@circ@res@other}%width of small coil
+	{0.5*\ctikzvalof{bipoles/vcuteinductor/coil aspect}*\ctikzvalof{bipoles/vcuteinductor/width}*\pgf@circ@Rlen/(\ctikzvalof{bipoles/vcuteinductor/coils}-1)}
+
+
+	\pgfmathsetlength{\pgf@circ@res@step}
+		{(\ctikzvalof{bipoles/vcuteinductor/width}*\pgf@circ@Rlen+\pgfhorizontaltransformationadjustment\pgflinewidth+(\ctikzvalof{bipoles/vcuteinductor/coils}-1)*2*\pgf@circ@res@other)/\ctikzvalof{bipoles/vcuteinductor/coils}/2}
+
+	\pgfscope
+		\pgfsetarrowsend{latex'}
+		\pgfpathmoveto{\pgfpoint{.5\pgf@circ@res@left}{1.5\pgf@circ@res@down}}
+		\pgfpathlineto{\pgfpoint{-.5\pgf@circ@res@left}{2.5\pgf@circ@res@up}}
+		\pgfusepath{draw}
+	\endpgfscope
+
+	\pgf@circ@res@up = \ctikzvalof{bipoles/vcuteinductor/coil height}\pgf@circ@Rlen
+	\pgf@circ@res@down =\ctikzvalof{bipoles/vcuteinductor/lower coil height}\pgf@circ@Rlen
+
+	\pgfpathmoveto{\pgfpoint{\pgf@circ@res@left-\pgfhorizontaltransformationadjustment*0.5*\pgflinewidth}{-\pgfverticaltransformationadjustment*0.4*\pgfstartlinewidth}}%correct value would be 0.5 but arcs are not really flat, therefore 0.4 is better is (almost) all cases
+	\foreach \x in {2,...,\ctikzvalof{bipoles/vcuteinductor/coils}}
+	{
+		\pgfpatharc{180}{0}{\pgf@circ@res@step and \pgf@circ@res@up}
+		\pgfpatharc{0}{-180}{\pgf@circ@res@other and \pgf@circ@res@down}
+	}
+	\pgfpatharc{180}{0}{\pgf@circ@res@step and \pgf@circ@res@up}
+	\pgfsetbuttcap
+	\pgfsetbeveljoin
+	\pgfusepath{stroke}
 }
 
 %% american inductor
@@ -402,10 +434,36 @@
 	\pgfpatharc{180}{0}{\pgf@circ@res@step and  \pgf@circ@res@other}
 	\pgfsetbuttcap
 	\pgfsetbeveljoin
-	\pgfusepath{stroke}	
+	\pgfusepath{stroke}
 }
 
+%% variable american inductor
 
+\pgfcircdeclarebipole{}{\ctikzvalof{bipoles/vamericaninductor/height 2}}{vamericaninductor}{\ctikzvalof{bipoles/vamericaninductor/height}}{\ctikzvalof{bipoles/vamericaninductor/width}}{
+	\pgf@circ@res@step=\ctikzvalof{bipoles/vamericaninductor/width}\pgf@circ@Rlen
+	\pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}\pgfstartlinewidth}
+	\pgftransformationadjustments
+	\advance \pgf@circ@res@step by \pgfhorizontaltransformationadjustment\pgflinewidth
+	\divide \pgf@circ@res@step by \ctikzvalof{bipoles/vamericaninductor/coils}
+	\divide \pgf@circ@res@step by 2
+	\pgf@circ@res@other = \ctikzvalof{bipoles/vamericaninductor/coil height}\pgf@circ@Rlen
+
+	\pgfpathmoveto{\pgfpoint{\pgf@circ@res@left-\pgfhorizontaltransformationadjustment*0.5*\pgflinewidth}{-\pgfverticaltransformationadjustment*0.4*\pgfstartlinewidth}}%correct value would be 0.5 but arcs are not really flat, therefore 0.4 is better is (almost) all cases
+	\pgfpatharc{180}{0}{\pgf@circ@res@step and  \pgf@circ@res@other}
+	\pgfpatharc{180}{0}{\pgf@circ@res@step and  \pgf@circ@res@other}
+	\pgfpatharc{180}{0}{\pgf@circ@res@step and  \pgf@circ@res@other}
+	\pgfpatharc{180}{0}{\pgf@circ@res@step and  \pgf@circ@res@other}
+	\pgfsetbuttcap
+	\pgfsetbeveljoin
+	\pgfusepath{stroke}
+
+	\pgfscope
+		\pgfsetarrowsend{latex'}
+		\pgfpathmoveto{\pgfpoint{.4\pgf@circ@res@left}{\pgf@circ@res@down}}
+		\pgfpathlineto{\pgfpoint{-.4\pgf@circ@res@left}{\pgf@circ@res@up}}
+		\pgfusepath{draw}
+	\endpgfscope
+}
 
 
 %% Independent voltage source
@@ -1581,65 +1639,7 @@
 }
 
 
-%% variable cute inductor
 
-\pgfcircdeclarebipole{}{\ctikzvalof{bipoles/vcuteinductor/height}}{vcuteinductor}{\ctikzvalof{bipoles/vcuteinductor/height}}{\ctikzvalof{bipoles/vcuteinductor/width}}{
-	\pgf@circ@res@step=\ctikzvalof{bipoles/vcuteinductor/width}\pgf@circ@Rlen
-	\divide \pgf@circ@res@step by \ctikzvalof{bipoles/vcuteinductor/coils} %divide by number of coils
-	\divide \pgf@circ@res@step by 2 %div by two for arcs
-
-	\def\pgf@circ@coilsmall@width{\ctikzvalof{bipoles/vcuteinductor/coil aspect}\pgf@circ@res@step}
-	
-	\advance \pgf@circ@res@step by \pgf@circ@coilsmall@width %adjust for overlapping lower arc
-
-	\def\pgf@circ@coilwide@width{\pgf@circ@res@step}	
-		
-	\pgf@circ@res@other = \ctikzvalof{bipoles/vcuteinductor/coil height}\pgf@circ@Rlen
-	\pgf@circ@res@temp =\ctikzvalof{bipoles/vcuteinductor/lower coil height}\pgf@circ@Rlen
-
-	\pgfpathmoveto{\pgfpoint{\pgf@circ@res@left+0.5\pgfstartlinewidth}{-0.5\pgfstartlinewidth}}
-	\foreach \x in {2,...,\ctikzvalof{bipoles/vcuteinductor/coils}}
-	{
-		\pgfpatharc{180}{0}{\pgf@circ@coilwide@width and 	\pgf@circ@res@other}
-		\pgfpatharc{0}{-180}{\pgf@circ@coilsmall@width and  \pgf@circ@res@temp}
-	}
-	\pgfpatharc{180}{0}{\pgf@circ@coilwide@width and  \pgf@circ@res@other}
-	\pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}\pgfstartlinewidth}
-	\pgfusepath{stroke}	
-	
-\pgfscope
-		\pgfsetarrowsend{latex'}
-		\pgfpathmoveto{\pgfpoint{.5\pgf@circ@res@left}{1.5\pgf@circ@res@down}}
-		\pgfpathlineto{\pgfpoint{-.5\pgf@circ@res@left}{2.5\pgf@circ@res@up}}
-		\pgfusepath{draw}
-	\endpgfscope
-}
-
-
-%% variable american inductor
-
-\pgfcircdeclarebipole{}{\ctikzvalof{bipoles/vamericaninductor/height 2}}{vamericaninductor}{\ctikzvalof{bipoles/vamericaninductor/height}}{\ctikzvalof{bipoles/vamericaninductor/width}}{
-	\pgf@circ@res@step=\ctikzvalof{bipoles/vamericaninductor/width}\pgf@circ@Rlen
-	\divide \pgf@circ@res@step by \ctikzvalof{bipoles/vamericaninductor/coils}
-	\divide \pgf@circ@res@step by 2
-	\pgf@circ@res@other = \ctikzvalof{bipoles/vamericaninductor/coil height}\pgf@circ@Rlen
-
-	\pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{-0.5\pgfstartlinewidth}}
-	\pgfpatharc{180}{0}{\pgf@circ@res@step and  \pgf@circ@res@other}
-	\pgfpatharc{180}{0}{\pgf@circ@res@step and  \pgf@circ@res@other}
-	\pgfpatharc{180}{0}{\pgf@circ@res@step and  \pgf@circ@res@other}
-	\pgfpatharc{180}{0}{\pgf@circ@res@step and  \pgf@circ@res@other}
-	\pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@zero}}
-	\pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}\pgfstartlinewidth}
-	\pgfusepath{stroke}	
-	
-	\pgfscope
-		\pgfsetarrowsend{latex'}
-		\pgfpathmoveto{\pgfpoint{.4\pgf@circ@res@left}{\pgf@circ@res@down}}
-		\pgfpathlineto{\pgfpoint{-.4\pgf@circ@res@left}{\pgf@circ@res@up}}
-		\pgfusepath{draw}
-	\endpgfscope
-}
 
 
 
