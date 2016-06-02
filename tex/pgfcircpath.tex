@@ -61,15 +61,20 @@
 	\ifx\pgf@temp\pgf@circ@temp  % if it is an open
 	\else
 		\ifpgf@circuit@bipole@strokedsymbol%draw line thrue symbol(e.g. diodes)
+			\@ifundefined{pgf@anchor@#1shape@strokepathstart}{%if special path-anchors are defined, use them!
 				(\ctikzvalof{bipole/name}start.center)--(\ctikzvalof{bipole/name}end.center)
+			}{
+				(\ctikzvalof{bipole/name}start.center) --(\ctikzvalof{bipole/name}.strokepathstart)
+				(\ctikzvalof{bipole/name}.strokepathend)  -- (\ctikzvalof{bipole/name}end.center)
+			}
 		\else
-			\ifdefined\pgf@anchor@#1@pathstart% if special path-anchors are defined, use them!
-				(\ctikzvalof{bipole/name}start.center) --(\ctikzvalof{bipole/name}.pathstart)
-				(\ctikzvalof{bipole/name}.pathend)  -- (\ctikzvalof{bipole/name}end.center)
-			\else
+			\@ifundefined{pgf@anchor@#1shape@pathstart}{%if special path-anchors are defined, use them!
 				(\ctikzvalof{bipole/name}start.center) --(\ctikzvalof{bipole/name}.left)
 				(\ctikzvalof{bipole/name}.right)  -- (\ctikzvalof{bipole/name}end.center)
-			\fi
+			}{
+				(\ctikzvalof{bipole/name}start.center) --(\ctikzvalof{bipole/name}.pathstart)
+				(\ctikzvalof{bipole/name}.pathend)  -- (\ctikzvalof{bipole/name}end.center)
+		}
 		\fi
 	\fi
 	\pgf@circ@ifkeyempty{bipole/label/name}\else\pgf@circ@drawlabel\fi
