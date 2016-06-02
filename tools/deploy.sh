@@ -15,6 +15,11 @@ if [ "$TRAVIS_PULL_REQUEST" != "false" -o "$TRAVIS_BRANCH" != "$SOURCE_BRANCH" ]
 	exit 0
 fi
 
+openssl aes-256-cbc -K $encrypted_b316d6cc7b96_key -iv $encrypted_b316d6cc7b96_iv -in tools/deploy_key.enc -out .deploy_key -d
+chmod 600 .deploy_key
+eval `ssh-agent -s`
+ssh-add .deploy_key
+
 # Clone the existing gh-pages for this repo into out/
 git clone $REPO --single-branch --depth=1 --branch $TARGET_BRANCH out
 
