@@ -1,5 +1,5 @@
-\def\pgfcircversion{git:d93ab9a}
-\def\pgfcircversiondate{2016/06/02}
+\def\pgfcircversion{git:219d145}
+\def\pgfcircversiondate{2016/06/03}
 \writestatus{loading}{\pgfcircversiondate{} The CircuiTikz circuit drawing package version \pgfcircversion}
 
 \usemodule[tikz]
@@ -803,10 +803,12 @@
 \ctikzset{bipole/nodes/left/none/.code={\ctikzsetvalof{bipole/nodes/left}{none}}}
 \ctikzset{bipole/nodes/left/empty/.code={\ctikzsetvalof{bipole/nodes/left}{empty}}}
 \ctikzset{bipole/nodes/left/full/.code={\ctikzsetvalof{bipole/nodes/left}{full}}}
+\ctikzset{bipole/nodes/left/diamond/.code={\ctikzsetvalof{bipole/nodes/left}{diamond}}}
 \ctikzset{bipole/nodes/right/.is choice}
 \ctikzset{bipole/nodes/right/none/.code={\ctikzsetvalof{bipole/nodes/right}{none}}}
 \ctikzset{bipole/nodes/right/empty/.code={\ctikzsetvalof{bipole/nodes/right}{empty}}}
 \ctikzset{bipole/nodes/right/full/.code={\ctikzsetvalof{bipole/nodes/right}{full}}}
+\ctikzset{bipole/nodes/right/diamond/.code={\ctikzsetvalof{bipole/nodes/right}{diamond}}}
 
 
 
@@ -1143,6 +1145,29 @@
 			\pgfusepath{draw,fill}		
 		\endpgfscope
 
+		}
+}
+
+%% Diamond terminal
+
+\pgfdeclareshape{diamond}{
+	\anchor{center}{
+		\pgfpointorigin
+	}
+	\anchorborder{
+		\pgf@circ@res@left=\pgf@x
+		\pgf@circ@res@up=\pgf@y
+	}
+	\behindforegroundpath{		
+		\pgfscope
+			\pgfmathsetlength{\pgf@circ@res@temp}{\pgfkeysvalueof{/tikz/circuitikz/nodes width}*\pgfkeysvalueof{/tikz/circuitikz/bipoles/length}}
+			\pgftransformrotate{45}
+			\pgfpathrectanglecorners
+			{\pgfpoint{\pgf@circ@res@left-\pgf@circ@res@temp}{\pgf@circ@res@up+\pgf@circ@res@temp}}
+			{\pgfpoint{\pgf@circ@res@left+\pgf@circ@res@temp}{\pgf@circ@res@up-\pgf@circ@res@temp}}
+			\pgfsetcolor{\pgfkeysvalueof{/tikz/circuitikz/color}}
+			\pgfusepath{draw,fill}		
+		\endpgfscope
 		}
 }
 
@@ -3452,14 +3477,21 @@
 
 %% Easily usable styles
 
-\ctikzset{*-/.style =  {\circuitikzbasekey/bipole/nodes/left=full, \circuitikzbasekey/bipole/nodes/right=none}}
-\ctikzset{*-o/.style = {\circuitikzbasekey/bipole/nodes/left=full, \circuitikzbasekey/bipole/nodes/right=empty}}
-\ctikzset{*-*/.style = {\circuitikzbasekey/bipole/nodes/left=full, \circuitikzbasekey/bipole/nodes/right=full}}
-\ctikzset{o-/.style = {\circuitikzbasekey/bipole/nodes/left=empty, \circuitikzbasekey/bipole/nodes/right=none}}
 \ctikzset{o-o/.style = {\circuitikzbasekey/bipole/nodes/left=empty, \circuitikzbasekey/bipole/nodes/right=empty}}
-\ctikzset{o-*/.style = {\circuitikzbasekey/bipole/nodes/left=empty, \circuitikzbasekey/bipole/nodes/right=full}}
 \ctikzset{-o/.style = {\circuitikzbasekey/bipole/nodes/left=none, \circuitikzbasekey/bipole/nodes/right=empty}}
+\ctikzset{o-/.style = {\circuitikzbasekey/bipole/nodes/left=empty, \circuitikzbasekey/bipole/nodes/right=none}}
+\ctikzset{*-o/.style = {\circuitikzbasekey/bipole/nodes/left=full, \circuitikzbasekey/bipole/nodes/right=empty}}
+\ctikzset{o-*/.style = {\circuitikzbasekey/bipole/nodes/left=empty, \circuitikzbasekey/bipole/nodes/right=full}}
+\ctikzset{d-o/.style = {\circuitikzbasekey/bipole/nodes/left=diamond, \circuitikzbasekey/bipole/nodes/right=empty}}
+\ctikzset{o-d/.style = {\circuitikzbasekey/bipole/nodes/left=empty, \circuitikzbasekey/bipole/nodes/right=diamond}}
+\ctikzset{*-/.style = {\circuitikzbasekey/bipole/nodes/left=full, \circuitikzbasekey/bipole/nodes/right=none}}
 \ctikzset{-*/.style = {\circuitikzbasekey/bipole/nodes/left=none, \circuitikzbasekey/bipole/nodes/right=full}}
+\ctikzset{d-/.style = {\circuitikzbasekey/bipole/nodes/left=diamond, \circuitikzbasekey/bipole/nodes/right=none}}
+\ctikzset{-d/.style = {\circuitikzbasekey/bipole/nodes/left=none, \circuitikzbasekey/bipole/nodes/right=diamond}}
+\ctikzset{*-*/.style = {\circuitikzbasekey/bipole/nodes/left=full, \circuitikzbasekey/bipole/nodes/right=full}}
+\ctikzset{d-*/.style = {\circuitikzbasekey/bipole/nodes/left=diamond, \circuitikzbasekey/bipole/nodes/right=full}}
+\ctikzset{*-d/.style = {\circuitikzbasekey/bipole/nodes/left=full, \circuitikzbasekey/bipole/nodes/right=diamond}}
+\ctikzset{d-d/.style = {\circuitikzbasekey/bipole/nodes/left=diamond, \circuitikzbasekey/bipole/nodes/right=diamond}}
 
 \tikzset{reversed/.style = {\circuitikzbasekey/bipole/reversed=true}}
 
@@ -3467,24 +3499,34 @@
 %% The output routine
 
 \def\drawpoles{
-	\pgfextra{ \edef\pgf@circ@temp{\ctikzvalof{bipole/nodes/left}} \def\pgf@temp{empty}  }
+	\pgfextra{ \edef\pgf@circ@temp{\ctikzvalof{bipole/nodes/left}} \def\pgf@temp{diamond}  }
 	\ifx\pgf@temp\pgf@circ@temp 
-		{ (\tikztostart) node[ocirc] {} }
+		{ (\tikztostart) node[diamond] {} }
 	\else 
-		\pgfextra{ \def\pgf@temp{full}  }
-		\ifx\pgf@temp\pgf@circ@temp
-			{ (\tikztostart) node[circ] {} }
+		\pgfextra{ \edef\pgf@circ@temp{\ctikzvalof{bipole/nodes/left}} \def\pgf@temp{empty}  }
+		\ifx\pgf@temp\pgf@circ@temp 
+			{ (\tikztostart) node[ocirc] {} }
+		\else 
+			\pgfextra{ \def\pgf@temp{full}  }
+			\ifx\pgf@temp\pgf@circ@temp
+				{ (\tikztostart) node[circ] {} }
+			\fi
 		\fi
 	\fi
-	\pgfextra{ \edef\pgf@circ@temp{\ctikzvalof{bipole/nodes/right}} \def\pgf@temp{empty}  }
-	\ifx\pgf@temp\pgf@circ@temp
-		{ (\tikztotarget) node[ocirc] {} }
-	\else
-		\pgfextra{ \def\pgf@temp{full}  }
-		\ifx\pgf@temp\pgf@circ@temp
-			{ (\tikztotarget) node[circ] {} }
+	\pgfextra{ \edef\pgf@circ@temp{\ctikzvalof{bipole/nodes/right}} \def\pgf@temp{diamond}  }
+	\ifx\pgf@temp\pgf@circ@temp 
+		{ (\tikztotarget) node[diamond] {} }
+	\else 
+		\pgfextra{ \edef\pgf@circ@temp{\ctikzvalof{bipole/nodes/right}} \def\pgf@temp{empty}  }
+		\ifx\pgf@temp\pgf@circ@temp 
+			{ (\tikztotarget) node[ocirc] {} }
+		\else 
+			\pgfextra{ \def\pgf@temp{full}  }
+			\ifx\pgf@temp\pgf@circ@temp
+				{ (\tikztotarget) node[circ] {} }
+			\fi
 		\fi
-	\fi 
+	\fi
 }
 
 
