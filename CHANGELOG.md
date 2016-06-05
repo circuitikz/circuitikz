@@ -1,8 +1,10 @@
 <!--- CircuiTikz - Changelog --->
 The major changes among the different circuitikz versions are listed here. See <https://github.com/circuitikz/circuitikz/commits> for a full list of changes.
 
-* Version 0.6 (unreleased)
-	- Add new sources voosource and ioosource (double zero-style)
+* Version 0.6 (2016-06-05)
+	- Added Mechanical Symbols (damper,mass,spring)
+	- Added new connection style diamond, use (d-d)
+	- Added new sources voosource and ioosource (double zero-style)
 	- All diode can now drawn in a stroked way, just use globel option "strokediode" or stroke instead of full/empty, or D-
 	- Improved Shape of Diodes:tunnel diode, Zener diode, schottky diode (bit longer lines at cathode)
 	- Reworked igbt: New anchors G,gate and new L-shaped form Lnigbt, Lpigbt

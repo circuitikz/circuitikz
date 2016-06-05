@@ -183,7 +183,6 @@
 	\divide \pgf@circ@res@step by 12
 	
 	\pgfpathmoveto{\pgfpoint{\pgf@circ@res@left-\pgfhorizontaltransformationadjustment*0.5*\pgflinewidth}{\pgf@circ@res@zero}}
-	
 	\pgf@circ@res@other = \pgf@circ@res@left
 	\advance\pgf@circ@res@other by \pgf@circ@res@step 
 	\pgfpathlineto{\pgfpoint{\pgf@circ@res@other}{\pgf@circ@res@up}}
@@ -357,7 +356,7 @@
 
 %% cute inductor
 
-\pgfcircdeclarebipole{}{\ctikzvalof{bipoles/cuteinductor/height}}{cuteinductor}{\ctikzvalof{bipoles/cuteinductor/height}}{\ctikzvalof{bipoles/cuteinductor/width}}{
+\pgfcircdeclarebipole{}{\ctikzvalof{bipoles/cuteinductor/lower coil height}}{cuteinductor}{\ctikzvalof{bipoles/cuteinductor/height}}{\ctikzvalof{bipoles/cuteinductor/width}}{
 	\pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}\pgfstartlinewidth}
 	\pgftransformationadjustments
 
@@ -368,14 +367,11 @@
 	\pgfmathsetlength{\pgf@circ@res@step}
 		{(\ctikzvalof{bipoles/cuteinductor/width}*\pgf@circ@Rlen+\pgfhorizontaltransformationadjustment\pgflinewidth+(\ctikzvalof{bipoles/cuteinductor/coils}-1)*2*\pgf@circ@res@other)/\ctikzvalof{bipoles/cuteinductor/coils}/2}
 
-	\pgf@circ@res@up = \ctikzvalof{bipoles/cuteinductor/coil height}\pgf@circ@Rlen
-	\pgf@circ@res@down =\ctikzvalof{bipoles/cuteinductor/lower coil height}\pgf@circ@Rlen
-
 	\pgfpathmoveto{\pgfpoint{\pgf@circ@res@left-\pgfhorizontaltransformationadjustment*0.5*\pgflinewidth}{-\pgfverticaltransformationadjustment*0.4*\pgfstartlinewidth}}%correct value would be 0.5 but arcs are not really flat, therefore 0.4 is better is (almost) all cases
 	\foreach \x in {2,...,\ctikzvalof{bipoles/cuteinductor/coils}}
 	{
 		\pgfpatharc{180}{0}{\pgf@circ@res@step and \pgf@circ@res@up}
-		\pgfpatharc{0}{-180}{\pgf@circ@res@other and \pgf@circ@res@down}
+		\pgfpatharc{0}{-180}{\pgf@circ@res@other and -\pgf@circ@res@down}
 	}
 	\pgfpatharc{180}{0}{\pgf@circ@res@step and \pgf@circ@res@up}
 	\pgfsetbuttcap
@@ -385,7 +381,7 @@
 
 %% variable cute inductor
 
-\pgfcircdeclarebipole{}{\ctikzvalof{bipoles/vcuteinductor/height}}{vcuteinductor}{\ctikzvalof{bipoles/vcuteinductor/height}}{\ctikzvalof{bipoles/vcuteinductor/width}}{
+\pgfcircdeclarebipole{}{\ctikzvalof{bipoles/vcuteinductor/lower coil height}}{vcuteinductor}{\ctikzvalof{bipoles/vcuteinductor/height}}{\ctikzvalof{bipoles/vcuteinductor/width}}{
 	\pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}\pgfstartlinewidth}
 	\pgftransformationadjustments	
 	
@@ -398,21 +394,18 @@
 
 	\pgfscope
 		\pgfsetarrowsend{latex'}
-		\pgfpathmoveto{\pgfpoint{.4\pgf@circ@res@left}{.7\pgf@circ@res@down}}
+		\pgfpathmoveto{\pgfpoint{.4\pgf@circ@res@left}{\pgf@circ@res@down}}
 		\pgfpathlineto{\pgfpoint{.4\pgf@circ@res@right}{\pgf@circ@res@up}}
 		\pgfusepath{draw}
 	\endpgfscope
 
-	\pgf@circ@res@up = \ctikzvalof{bipoles/vcuteinductor/coil height}\pgf@circ@Rlen
-	\pgf@circ@res@down =\ctikzvalof{bipoles/vcuteinductor/lower coil height}\pgf@circ@Rlen
-
 	\pgfpathmoveto{\pgfpoint{\pgf@circ@res@left-\pgfhorizontaltransformationadjustment*0.5*\pgflinewidth}{-\pgfverticaltransformationadjustment*0.4*\pgfstartlinewidth}}%correct value would be 0.5 but arcs are not really flat, therefore 0.4 is better is (almost) all cases
 	\foreach \x in {2,...,\ctikzvalof{bipoles/vcuteinductor/coils}}
 	{
-		\pgfpatharc{180}{0}{\pgf@circ@res@step and \pgf@circ@res@up}
-		\pgfpatharc{0}{-180}{\pgf@circ@res@other and \pgf@circ@res@down}
+		\pgfpatharc{180}{0}{\pgf@circ@res@step and .5\pgf@circ@res@up}
+		\pgfpatharc{0}{-180}{\pgf@circ@res@other and -.5\pgf@circ@res@down}
 	}
-	\pgfpatharc{180}{0}{\pgf@circ@res@step and \pgf@circ@res@up}
+	\pgfpatharc{180}{0}{\pgf@circ@res@step and .5\pgf@circ@res@up}
 	\pgfsetbuttcap
 	\pgfsetbeveljoin
 	\pgfusepath{stroke}
@@ -3105,9 +3098,82 @@
 	\pgfusepath{fill}
 }
 
+% % MECHANICAL SYMBOLS
+
+%% mechanical capacitance - stiffness/spring
+
+\pgfcircdeclarebipole{}{\ctikzvalof{bipoles/spring/height}}{spring}{\ctikzvalof{bipoles/spring/height}}{\ctikzvalof{bipoles/spring/width}}{
+	\pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}\pgfstartlinewidth}
+	\pgftransformationadjustments
+
+	\pgfmathsetlength{\pgf@circ@res@step}
+	{(\ctikzvalof{bipoles/spring/width}*\pgf@circ@Rlen+\pgfhorizontaltransformationadjustment*.5*\pgflinewidth)/16}
+	
+	\pgfpathmoveto{\pgfpoint{\pgf@circ@res@left-\pgfhorizontaltransformationadjustment*0.5*\pgflinewidth}{\pgf@circ@res@zero}}
+	\pgfsetcornersarced{\pgfpoint{.5\pgf@circ@res@up}{.5\pgf@circ@res@up}}
+	\pgf@circ@res@other = \pgf@circ@res@left
+	\advance\pgf@circ@res@other by \pgf@circ@res@step
+	\pgfpathlineto{\pgfpoint{\pgf@circ@res@other}{\pgf@circ@res@up}}
+	\advance\pgf@circ@res@other by 2\pgf@circ@res@step 
+	\pgfpathlineto{\pgfpoint{\pgf@circ@res@other}{\pgf@circ@res@down}}
+	\advance\pgf@circ@res@other by 2\pgf@circ@res@step
+	\pgfpathlineto{\pgfpoint{\pgf@circ@res@other}{\pgf@circ@res@up}}
+	\advance\pgf@circ@res@other by 2\pgf@circ@res@step
+	\pgfpathlineto{\pgfpoint{\pgf@circ@res@other}{\pgf@circ@res@down}}
+	\advance\pgf@circ@res@other by 2\pgf@circ@res@step
+	\pgfpathlineto{\pgfpoint{\pgf@circ@res@other}{\pgf@circ@res@up}}
+	\advance\pgf@circ@res@other by 2\pgf@circ@res@step
+	\pgfpathlineto{\pgfpoint{\pgf@circ@res@other}{\pgf@circ@res@down}}
+	\advance\pgf@circ@res@other by 2\pgf@circ@res@step
+	\pgfpathlineto{\pgfpoint{\pgf@circ@res@other}{\pgf@circ@res@up}}
+	\advance\pgf@circ@res@other by 2\pgf@circ@res@step
+	\pgfpathlineto{\pgfpoint{\pgf@circ@res@other}{\pgf@circ@res@down}}
+	\advance\pgf@circ@res@other by \pgf@circ@res@step
+	\pgfpathlineto{\pgfpoint{\pgf@circ@res@other}{\pgf@circ@res@zero}}
+	\pgfsetbuttcap
+	\pgfsetbeveljoin
+	\pgfusepath{stroke}
+}
+
+%% mechanical inductance - mass
+\pgfcircdeclarebipole{}{\ctikzvalof{bipoles/mass/box height}}{mass}{\ctikzvalof{bipoles/mass/height}}{\ctikzvalof{bipoles/mass/width}}{
+	\pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}\pgfstartlinewidth}
+	\pgftransformationadjustments
+	\pgfpathrectangle{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@down}}
+		{\pgfpoint{-2\pgf@circ@res@down}{-2\pgf@circ@res@down}}
+
+\pgfpathmoveto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@down}}
+\pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@up}}
+\pgfpathlineto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@up}}
+	\pgfsetrectcap
+	\pgfsetmiterjoin
+	\pgfusepath{stroke}
+}
+
+%% mechanical resistor - damper
+\pgfcircdeclarebipole{}{\ctikzvalof{bipoles/damper/height}}{damper}{\ctikzvalof{bipoles/damper/height}}{\ctikzvalof{bipoles/damper/width}}{
+	\pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@zero}}
+	\pgfpathlineto{\pgfpoint{\ctikzvalof{bipoles/damper/length}\pgf@circ@res@right}
+					{\pgf@circ@res@zero}}
+	\pgfusepath{stroke}
+
+	\pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}\pgfstartlinewidth}
+	\pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@down}}
+	\pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@down}}
+	\pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@up}}
+	\pgfpathlineto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@up}}
+
+	\pgfsetrectcap
+	\pgfsetmiterjoin
+	\pgfusepath{stroke}
+	
+	\pgfpathmoveto{\pgfpoint{\ctikzvalof{bipoles/damper/length}\pgf@circ@res@right}
+						{.8\pgf@circ@res@down}}
+	\pgfpathlineto{\pgfpoint{\ctikzvalof{bipoles/damper/length}\pgf@circ@res@right}
+						{.8\pgf@circ@res@up}}
+	\pgfsetbuttcap
+	\pgfusepath{stroke}
+	
+}
 
 
-
-
-
-\endinput
