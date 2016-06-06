@@ -1,7 +1,7 @@
 circuitikz
 ==========
 
-This is CircuiTikz, version 0.5 (2016-04-24).
+This is CircuiTikz, version 0.6 (2016-06-05).
 
 This package provides a set of macros for naturally typesetting electrical and (somewhat less naturally, perhaps) electronical networks.
 
