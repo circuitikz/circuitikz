@@ -45,10 +45,10 @@
 	}
 	\ifpgf@circuit@bipole@reversed
 		(\tikztostart) node[coordinate] (\ctikzvalof{bipole/name}end) {}
-		(\tikztotarget) node[coordinate] (\ctikzvalof{bipole/name}start) {} 	
+		(\tikztotarget) node[coordinate] (\ctikzvalof{bipole/name}start) {}
 	\else
 		(\tikztostart) node[coordinate] (\ctikzvalof{bipole/name}start) {}
-		(\tikztotarget) node[coordinate] (\ctikzvalof{bipole/name}end) {} 
+		(\tikztotarget) node[coordinate] (\ctikzvalof{bipole/name}end) {}
 	\fi
 	\pgfextra{
 		\pgf@circ@slope{\pgfpointanchor{\ctikzvalof{bipole/name}start}{center}}
@@ -61,20 +61,20 @@
 	\ifx\pgf@temp\pgf@circ@temp  % if it is an open
 	\else
 		\ifpgf@circuit@bipole@strokedsymbol%draw line thrue symbol(e.g. diodes)
-			\@ifundefined{pgf@anchor@#1shape@strokepathstart}{%if special path-anchors are defined, use them!
-				(\ctikzvalof{bipole/name}start.center)--(\ctikzvalof{bipole/name}end.center)
-			}{
+			\ifcsname  pgf@anchor@#1shape@strokepathstart\endcsname%if special path-anchors are defined, use them!
 				(\ctikzvalof{bipole/name}start.center) --(\ctikzvalof{bipole/name}.strokepathstart)
 				(\ctikzvalof{bipole/name}.strokepathend)  -- (\ctikzvalof{bipole/name}end.center)
-			}
+			\else
+				(\ctikzvalof{bipole/name}start.center)--(\ctikzvalof{bipole/name}end.center)
+			\fi
 		\else
-			\@ifundefined{pgf@anchor@#1shape@pathstart}{%if special path-anchors are defined, use them!
-				(\ctikzvalof{bipole/name}start.center) --(\ctikzvalof{bipole/name}.left)
-				(\ctikzvalof{bipole/name}.right)  -- (\ctikzvalof{bipole/name}end.center)
-			}{
+			\ifcsname  pgf@anchor@#1shape@pathstart\endcsname%if special path-anchors are defined, use them!
 				(\ctikzvalof{bipole/name}start.center) --(\ctikzvalof{bipole/name}.pathstart)
 				(\ctikzvalof{bipole/name}.pathend)  -- (\ctikzvalof{bipole/name}end.center)
-		}
+			\else
+				(\ctikzvalof{bipole/name}start.center) --(\ctikzvalof{bipole/name}.left)
+				(\ctikzvalof{bipole/name}.right)  -- (\ctikzvalof{bipole/name}end.center)
+			\fi
 		\fi
 	\fi
 	\pgf@circ@ifkeyempty{bipole/label/name}\else\pgf@circ@drawlabel\fi
@@ -584,13 +584,13 @@
 	($(\tikztostart) ! .5 ! (\tikztotarget)$) 
 		node[#1, /tikz/rotate=\pgf@circ@direction, xscale=\ctikzvalof{mirror value}]
 			(\ctikzvalof{bipole/name}) {} node {\ctikzvalof{bipole/label/name}}
-	\@ifundefined{pgf@anchor@#1@pathstart}{%if special path-anchors are defined, use them!
-			(\ctikzvalof{bipole/name}start.center) --(\ctikzvalof{bipole/name}.left)
-			(\ctikzvalof{bipole/name}.right)  -- (\ctikzvalof{bipole/name}end.center)
-			}{
+		\ifcsname pgf@anchor@#1@pathstart\endcsname%if special path-anchors are defined, use them!
 			(\ctikzvalof{bipole/name}start.center) --(\ctikzvalof{bipole/name}.pathstart)
 			(\ctikzvalof{bipole/name}.pathend)  -- (\ctikzvalof{bipole/name}end.center)
-			}
+		\else
+			(\ctikzvalof{bipole/name}start.center) --(\ctikzvalof{bipole/name}.left)
+			(\ctikzvalof{bipole/name}.right)  -- (\ctikzvalof{bipole/name}end.center)
+		\fi
 	\pgfextra{
 		\pgfcircresetpath
 	}  
