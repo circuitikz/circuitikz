@@ -1,11 +1,11 @@
 <!--- CircuiTikz - Changelog --->
 The major changes among the different circuitikz versions are listed here. See <https://github.com/circuitikz/circuitikz/commits> for a full list of changes.
 
-* Version 0.6 (2016-06-05)
+* Version 0.6 (2016-06-06)
 	- Added Mechanical Symbols (damper,mass,spring)
 	- Added new connection style diamond, use (d-d)
 	- Added new sources voosource and ioosource (double zero-style)
-	- All diode can now drawn in a stroked way, just use globel option "strokediode" or stroke instead of full/empty, or D-
+	- All diode can now drawn in a stroked way, just use globel option "strokediode" or stroke instead of full/empty, or D-. Use this option for compliance with DIN standard EN-60617
 	- Improved Shape of Diodes:tunnel diode, Zener diode, schottky diode (bit longer lines at cathode)
 	- Reworked igbt: New anchors G,gate and new L-shaped form Lnigbt, Lpigbt
 	- Improved shape of all fet-transistors and mirrored p-chan fets as default, as pnp, pmos, pfet are already. This means a backward-incompatibility, but smaller code, because p-channels mosfet are by default in the correct direction(source at top). Just remove the 'yscale=-1' from your p-chan fets at old pictures.

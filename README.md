@@ -16,7 +16,7 @@ So I based everything with the very impressive (if somewhat verbose at times) Ti
 * xstrings not older than 2009/03/13
 
 ## Installation
-Unpack everything in a directory in the TeX search path and refresh the TeX db.
+The stable version is available on ctan and is included within the major latex distributions(Texlive, Miktex). If you want to test the latest version, have a look at http://circuitikz.github.io/circuitikz/. There you can find the latest git-version as a single file, just copy it to your project or to your local tex tree. 
 
 ## Usage
 Just place
@@ -29,12 +29,22 @@ or, for ConTeXt,
 ````
 in the preamble and compile away, both with PS and PDF target output.
 
+If you want to use or to try the git version, just append a git the package name:
+````latex
+  \usepackage{circuitikzgit}
+````
+or, for ConTeXt,
+````latex
+  \usemodule[circuitikzgit]
+````
+## More Information
+More Information can be found in the manual and at the wiki of the project located at https://github.com/circuitikz/circuitikz/wiki.
+
 ## Contact the authors
 * git: https://github.com/circuitikz/circuitikz
 * Massimo Redaelli (m.redaelli@gmail.com)
 * Stefan Lindner (stefan.lindner@fau.de)
 * Stefan Erhardt (stefan.erhardt@fau.de)
-
 
 -------------
 Copyright 2007-16 by Massimo Redaelli
