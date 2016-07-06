@@ -15,10 +15,19 @@
 \ctikzset{mirrored/false/.code = {\ctikzsetvalof{mirror value}{1}} }
 \ctikzset{mirror/.style = {/tikz/circuitikz/mirrored=true}}
 
+% Invert node along path
+\ctikzset{inverted/.is choice}
+\ctikzset{invert value/.initial=1}
+\ctikzset{inverted/true/.code = {\ctikzsetvalof{invert value}{-1}}\pgf@circuit@bipole@invertedtrue}
+\ctikzset{inverted/false/.code = {\ctikzsetvalof{invert value}{1}}}
+\ctikzset{invert/.style = {/tikz/circuitikz/inverted=true}}
+\newif\ifpgf@circuit@bipole@inverted
+\ctikzset{bipole/inverted/.is if=pgf@circuit@bipole@inverted}
+
 % Initialize paths
 \def\pgfcircresetpath{
 	\ctikzset{bipole/name=, bipole/label/name=, bipole/label/position=90, 
-		bipole/reversed=false, bipole/kind=,
+		bipole/inverted=false, bipole/kind=,
 	  	bipole/voltage/direction=backward, bipole/voltage/label/name=, bipole/voltage/position=below,
 	  	bipole/nodes/left=none, bipole/nodes/right=none, bipole/is voltage=false,bipole/is voltageoutsideofsymbol=false,bipole/is strokedsymbol=false,
 		bipole/is current=false, bipole/current/label/name=, bipole/current/x position=after,
@@ -43,7 +52,7 @@
 		\def\pgf@temp{open}
 		\def\pgf@circ@temp{#1}
 	}
-	\ifpgf@circuit@bipole@reversed
+	\ifpgf@circuit@bipole@inverted
 		(\tikztostart) node[coordinate] (\ctikzvalof{bipole/name}end) {}
 		(\tikztotarget) node[coordinate] (\ctikzvalof{bipole/name}start) {}
 	\else
@@ -56,7 +65,7 @@
 		\edef\pgf@circ@direction{\pgfmathresult}		
 	}
 	($(\tikztostart) ! .5 ! (\tikztotarget)$) 
-		node[#1shape, rotate=\pgf@circ@direction, yscale=\ctikzvalof{mirror value}] 
+		node[#1shape, rotate=\pgf@circ@direction, yscale=\ctikzvalof{mirror value}, xscale=\ctikzvalof{invert value}] 
 			(\ctikzvalof{bipole/name}) {}
 	\ifx\pgf@temp\pgf@circ@temp  % if it is an open
 	\else
@@ -90,7 +99,6 @@
 
 
 %% Path definitions
-
 \def\pgf@circ@resistor@path#1{\ifpgf@circuit@europeanresistor\pgf@circ@bipole@path{generic}{#1}\else\pgf@circ@bipole@path{resistor}{#1}\fi}
 \def\pgf@circ@vresistor@path#1{\ifpgf@circuit@europeanresistor\pgf@circ@bipole@path{tgeneric}{#1}\else\pgf@circ@bipole@path{vresistor}{#1}\fi}
 \def\pgf@circ@potentiometer@path#1{\ifpgf@circuit@europeanresistor\pgf@circ@bipole@path{genericpotentiometer}{#1}\else\pgf@circ@bipole@path{potentiometer}{#1}\fi}
@@ -579,7 +587,7 @@
 			\ctikzset{bipole/name = trans\pgf@circ@rand} % create it
 		\fi
 	}
-	\ifpgf@circuit@bipole@reversed
+	\ifpgf@circuit@bipole@inverted
 		(\tikztostart) node[coordinate] (\ctikzvalof{bipole/name}end) {}
 		(\tikztotarget) node[coordinate] (\ctikzvalof{bipole/name}start) {} 	
 	\else

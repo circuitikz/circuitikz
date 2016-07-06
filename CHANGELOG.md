@@ -1,6 +1,12 @@
 <!--- CircuiTikz - Changelog --->
 The major changes among the different circuitikz versions are listed here. See <https://github.com/circuitikz/circuitikz/commits> for a full list of changes.
 
+* Version Next (unreleased)
+	- New option "invert" to revert the node direction at paths
+	- Fixed american voltage label at special sources and battery
+	- Fixed/rotated battery symbol(longer lines by default positive voltage)
+	- New symbol Schmitttrigger
+
 * Version 0.6 (2016-06-06)
 	- Added Mechanical Symbols (damper,mass,spring)
 	- Added new connection style diamond, use (d-d)

@@ -193,6 +193,14 @@
 	\pgfextra{
 		\edef\pgfcircmathresult{\expandafter\pgf@circ@stripdecimals\pgf@circ@direction\pgf@nil}
 
+\ifpgf@circuit@bipole@inverted
+%Invert position for correct anchor calculation
+	\ifpgf@circuit@bipole@voltage@below
+		\pgf@circuit@bipole@voltage@belowfalse
+	\else
+		\pgf@circuit@bipole@voltage@belowtrue
+	\fi
+\fi
 		\ifnum\pgfcircmathresult >4 \ifnum\pgfcircmathresult <86
 			\ifpgf@circuit@bipole@voltage@below
 				\def\pgf@circ@bipole@voltage@label@anchor{north west} 
@@ -247,6 +255,15 @@
 			\else\def\pgf@circ@bipole@voltage@label@anchor{south}
 			\fi
 		\fi\fi
+		
+		\ifpgf@circuit@bipole@inverted
+		%revert to original position for correct placement
+			\ifpgf@circuit@bipole@voltage@below
+				\pgf@circuit@bipole@voltage@belowfalse
+			\else
+				\pgf@circuit@bipole@voltage@belowtrue
+			\fi
+		\fi
 
 		\ifpgf@circuit@bipole@voltage@below
 			\def\pgf@circ@bipole@voltage@label@where{-90}
@@ -258,7 +275,7 @@
 		\pgfkeysifdefined{\pgf@temp}
 			{ \edef\eudist{\ctikzvalof{bipoles/\pgfkeysvalueof{/tikz/circuitikz/bipole/kind}/voltage/european label distance}} }
 			{ \edef\eudist{\ctikzvalof{voltage/european label distance}} }
-	}
+	} %end pgfextra
 
 		\ifpgf@circuit@bipole@isvoltage
 			\pgf@circ@drawvoltagegenerator 
