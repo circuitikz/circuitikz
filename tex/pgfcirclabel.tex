@@ -98,13 +98,17 @@
 			\edef\pgf@circ@temp{\expandafter\pgf@circ@stripdecimals\pgfmathresult\pgf@nil} %%%
 		\fi\fi
 		
-		\ifnum \ctikzvalof{mirror value} = -1
-			\pgfmathadd{\pgf@circ@temp}{180}
-			\edef\pgf@circ@temp{\expandafter\pgf@circ@stripdecimals\pgfmathresult\pgf@nil}
-		\fi
 	}
-	coordinate (labelcoor) at ($(\ctikzvalof{bipole/name})!2!(\ctikzvalof{bipole/name}.north)$)
-	(labelcoor) node [rotate=\pgfcirclabrot] {\pgf@circ@finallabel{}} % c'era un transform shape
+		\ifnum \ctikzvalof{mirror value} = -1
+		%	\pgfmathadd{\pgf@circ@temp}{180}
+		%	\edef\pgf@circ@temp{\expandafter\pgf@circ@stripdecimals\pgfmathresult\pgf@nil}
+			coordinate (labelcoor) at ($(\ctikzvalof{bipole/name})!2!(\ctikzvalof{bipole/name}.south)$)
+			(labelcoor) node [rotate=\pgfcirclabrot] {\pgf@circ@finallabel{}} % c'era un transform shape
+		\else
+			coordinate (labelcoor) at ($(\ctikzvalof{bipole/name})!2!(\ctikzvalof{bipole/name}.north)$)
+			(labelcoor) node [rotate=\pgfcirclabrot] {\pgf@circ@finallabel{}} % c'era un transform shape
+		\fi
+
 }
 
 \def\pgf@circ@drawreglabel{
@@ -117,15 +121,15 @@
 			\pgfmathadd{\pgf@circ@labanc}{180}
 			\edef\pgf@circ@labanc{\expandafter\pgf@circ@stripdecimals\pgfmathresult\pgf@nil}
 		\fi
+		\ifpgf@circuit@bipole@inverted
+				\pgfmathadd{\pgf@circ@temp}{180}
+				\edef\pgf@circ@temp{\expandafter\pgf@circ@stripdecimals\pgfmathresult\pgf@nil}
+		\fi
 		
 		\ifnum \ctikzvalof{mirror value} = -1
-			\pgfmathadd{\pgf@circ@labanc}{180}
-			\edef\pgf@circ@labanc{\expandafter\pgf@circ@stripdecimals\pgfmathresult\pgf@nil}
+				\pgfmathadd{\pgf@circ@temp}{180}
+				\edef\pgf@circ@temp{\expandafter\pgf@circ@stripdecimals\pgfmathresult\pgf@nil}
 		\fi
-			\ifpgf@circuit@bipole@inverted
-					\pgfmathadd{\pgf@circ@labanc}{180}
-					\edef\pgf@circ@labanc{\expandafter\pgf@circ@stripdecimals\pgfmathresult\pgf@nil}
-				\fi
 	}
 	node [ anchor = \pgf@circ@labanc] 
 	  at (\ctikzvalof{bipole/name}.\pgf@circ@temp) {\pgf@circ@finallabel{}}
