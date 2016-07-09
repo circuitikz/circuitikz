@@ -1,5 +1,5 @@
-\def\pgfcircversion{git:6095c81}
-\def\pgfcircversiondate{2016/07/06}
+\def\pgfcircversion{git:4b80b5c}
+\def\pgfcircversiondate{2016/07/09}
 \writestatus{loading}{\pgfcircversiondate{} The CircuiTikz circuit drawing package version \pgfcircversion}
 
 \usemodule[tikz]
@@ -590,10 +590,6 @@
 \ctikzset{logic ports/european/.code= {\pgf@circuit@europeanlogicporttrue } }
 \ctikzset{logic ports/american/.code= {\pgf@circuit@europeanlogicportfalse } } 
 
-\newif\ifpgf@circuit@bipole@voltage@backward
-\ctikzset{bipole/voltage/direction/.is choice}
-\ctikzset{bipole/voltage/direction/forward/.code={\pgf@circuit@bipole@voltage@backwardfalse}}
-\ctikzset{bipole/voltage/direction/backward/.code={\pgf@circuit@bipole@voltage@backwardtrue}}
 
 \ctikzset{tripoles/american and port/width/.initial=1.1}
 \ctikzset{tripoles/american and port/height/.initial=.8}
@@ -849,6 +845,15 @@
 
 \newif\ifpgf@circ@siunitx
 \newif\ifpgf@circ@siunitx@res
+
+\ctikzset{straight/.is choice}
+\ctikzset{straightvoltage value/.initial=true}
+\ctikzset{straight/true/.code = {\pgf@circuit@bipole@voltage@straighttrue}}
+\ctikzset{straight/false/.code = {\pgf@circuit@bipole@voltage@straightfalse}}
+\ctikzset{straightvoltage/.style = {/tikz/circuitikz/straight=true}}
+\newif\ifpgf@circuit@bipole@voltage@straight
+\ctikzset{bipole/straight/.is if=pgf@circuit@bipole@voltage@straight}
+
 
 \ctikzset{voltage/.is family}
 \ctikzset{voltage/distance from node/.initial=.5} %\pgf@circ@Rlen units
@@ -8861,13 +8866,17 @@
 			\edef\pgf@circ@temp{\expandafter\pgf@circ@stripdecimals\pgfmathresult\pgf@nil} %%%
 		\fi\fi
 		
-		\ifnum \ctikzvalof{mirror value} = -1
-			\pgfmathadd{\pgf@circ@temp}{180}
-			\edef\pgf@circ@temp{\expandafter\pgf@circ@stripdecimals\pgfmathresult\pgf@nil}
-		\fi
 	}
-	coordinate (labelcoor) at ($(\ctikzvalof{bipole/name})!2!(\ctikzvalof{bipole/name}.north)$)
-	(labelcoor) node [rotate=\pgfcirclabrot] {\pgf@circ@finallabel{}} % c'era un transform shape
+		\ifnum \ctikzvalof{mirror value} = -1
+		%	\pgfmathadd{\pgf@circ@temp}{180}
+		%	\edef\pgf@circ@temp{\expandafter\pgf@circ@stripdecimals\pgfmathresult\pgf@nil}
+			coordinate (labelcoor) at ($(\ctikzvalof{bipole/name})!2!(\ctikzvalof{bipole/name}.south)$)
+			(labelcoor) node [rotate=\pgfcirclabrot] {\pgf@circ@finallabel{}} % c'era un transform shape
+		\else
+			coordinate (labelcoor) at ($(\ctikzvalof{bipole/name})!2!(\ctikzvalof{bipole/name}.north)$)
+			(labelcoor) node [rotate=\pgfcirclabrot] {\pgf@circ@finallabel{}} % c'era un transform shape
+		\fi
+
 }
 
 \def\pgf@circ@drawreglabel{
@@ -8880,15 +8889,15 @@
 			\pgfmathadd{\pgf@circ@labanc}{180}
 			\edef\pgf@circ@labanc{\expandafter\pgf@circ@stripdecimals\pgfmathresult\pgf@nil}
 		\fi
+		\ifpgf@circuit@bipole@inverted
+				\pgfmathadd{\pgf@circ@temp}{180}
+				\edef\pgf@circ@temp{\expandafter\pgf@circ@stripdecimals\pgfmathresult\pgf@nil}
+		\fi
 		
 		\ifnum \ctikzvalof{mirror value} = -1
-			\pgfmathadd{\pgf@circ@labanc}{180}
-			\edef\pgf@circ@labanc{\expandafter\pgf@circ@stripdecimals\pgfmathresult\pgf@nil}
+				\pgfmathadd{\pgf@circ@temp}{180}
+				\edef\pgf@circ@temp{\expandafter\pgf@circ@stripdecimals\pgfmathresult\pgf@nil}
 		\fi
-			\ifpgf@circuit@bipole@inverted
-					\pgfmathadd{\pgf@circ@labanc}{180}
-					\edef\pgf@circ@labanc{\expandafter\pgf@circ@stripdecimals\pgfmathresult\pgf@nil}
-				\fi
 	}
 	node [ anchor = \pgf@circ@labanc] 
 	  at (\ctikzvalof{bipole/name}.\pgf@circ@temp) {\pgf@circ@finallabel{}}
@@ -8996,7 +9005,33 @@
 \def\pgf@circ@drawvoltagegeneric{
 	\pgfextra{
 		\ifnum \ctikzvalof{mirror value}=-1
-						\ifpgf@circuit@bipole@voltage@below\pgf@circuit@bipole@voltage@belowfalse\else\pgf@circuit@bipole@voltage@belowtrue\fi
+			\ifpgf@circuit@bipole@inverted
+				\ifpgf@circuit@bipole@voltage@straight
+					\def\distfromline{\eudist}
+				\else
+					\def\distfromline{\ctikzvalof{voltage/distance from line}\pgf@circ@Rlen}
+				\fi
+			\else
+				\ifpgf@circuit@bipole@voltage@straight
+					\def\distfromline{-\eudist}
+				\else
+					\def\distfromline{-\ctikzvalof{voltage/distance from line}\pgf@circ@Rlen}
+				\fi
+			\fi
+		\else
+			\ifpgf@circuit@bipole@inverted
+				\ifpgf@circuit@bipole@voltage@straight
+					\def\distfromline{-\eudist}
+				\else
+					\def\distfromline{-\ctikzvalof{voltage/distance from line}\pgf@circ@Rlen}
+				\fi
+			\else
+				\ifpgf@circuit@bipole@voltage@straight
+					\def\distfromline{\eudist}
+				\else
+					\def\distfromline{\ctikzvalof{voltage/distance from line}\pgf@circ@Rlen}
+				\fi
+			\fi
 		\fi
 		
 		\ifpgf@circuit@bipole@voltage@below
@@ -9014,12 +9049,12 @@
 			{ \edef\bumpb{\ctikzvalof{bipoles/\pgfkeysvalueof{/tikz/circuitikz/bipole/kind}/voltage/bump b}} }
 			{ \edef\bumpb{\ctikzvalof{voltage/bump b}} }
 	}
+	
 
-	coordinate (pgfcirc@mid) at ($(\tikztostart) ! \distacefromnode ! (\ctikzvalof{bipole/name}.left)$)
-	coordinate (pgfcirc@Vfrom) at ($(pgfcirc@mid) ! -\ctikzvalof{voltage/distance from line}\pgf@circ@Rlen ! \pgf@circ@voltage@angle:(\ctikzvalof{bipole/name}.left)$) 
-   
-	coordinate (pgfcirc@mid) at ($(\tikztotarget) ! \distacefromnode ! (\ctikzvalof{bipole/name}.right)$)
-	coordinate (pgfcirc@Vto) at ($(pgfcirc@mid) ! \ctikzvalof{voltage/distance from line}\pgf@circ@Rlen ! \pgf@circ@voltage@angle : (\ctikzvalof{bipole/name}.right)$)
+	coordinate (pgfcirc@midtmp) at ($(\tikztostart) ! \distacefromnode ! (anchorstartnode)$)
+	coordinate (pgfcirc@Vfrom) at ($(pgfcirc@midtmp) ! -\distfromline ! \pgf@circ@voltage@angle:(anchorstartnode)$) 
+	coordinate (pgfcirc@mid) at ($(\tikztotarget) ! \distacefromnode ! (anchorendnode)$)
+	coordinate (pgfcirc@Vto) at ($(pgfcirc@mid) ! \distfromline ! \pgf@circ@voltage@angle : (anchorendnode)$)
 
 	\ifpgf@circuit@bipole@voltage@below
 		coordinate (pgfcirc@Vcont1) at ($(\ctikzvalof{bipole/name}.center) ! \bumpb ! (\ctikzvalof{bipole/name}.-110)$)
@@ -9030,15 +9065,24 @@
 	\fi
 
 	\ifpgf@circuit@europeanvoltage
-		\ifpgf@circuit@bipole@voltage@backward
-			(pgfcirc@Vto) .. controls (pgfcirc@Vcont2)  and (pgfcirc@Vcont1) .. 
-				node[currarrow, sloped,  allow upside down, pos=1] {} 
-			(pgfcirc@Vfrom) 
+		\ifpgf@circuit@bipole@voltage@straight
+			\ifpgf@circuit@bipole@voltage@backward
+				(pgfcirc@Vto) --(pgfcirc@Vfrom) node[currarrow, sloped,  allow upside down, pos=1] {} 
+			\else
+				(pgfcirc@Vfrom) --(pgfcirc@Vto) node[currarrow, sloped,  allow upside down, pos=1] {}
+				 	
+			\fi	
 		\else
-			(pgfcirc@Vfrom) .. controls (pgfcirc@Vcont1)  and (pgfcirc@Vcont2) ..
-				node[currarrow, sloped,  allow upside down, pos=1] {}
-			(pgfcirc@Vto) 	
-		\fi	
+			\ifpgf@circuit@bipole@voltage@backward
+				(pgfcirc@Vto) .. controls (pgfcirc@Vcont2)  and (pgfcirc@Vcont1) .. 
+					node[currarrow, sloped,  allow upside down, pos=1] {} 
+				(pgfcirc@Vfrom) 
+			\else
+				(pgfcirc@Vfrom) .. controls (pgfcirc@Vcont1)  and (pgfcirc@Vcont2) ..
+					node[currarrow, sloped,  allow upside down, pos=1] {}
+				(pgfcirc@Vto) 	
+			\fi	
+		\fi
 	\else
 		\ifpgf@circuit@bipole@voltage@backward
 			\ifpgf@circ@oldvoltagedirection
@@ -9098,14 +9142,6 @@
 	\pgfextra{
 		\edef\pgfcircmathresult{\expandafter\pgf@circ@stripdecimals\pgf@circ@direction\pgf@nil}
 
-\ifpgf@circuit@bipole@inverted
-%Invert position for correct anchor calculation
-	\ifpgf@circuit@bipole@voltage@below
-		\pgf@circuit@bipole@voltage@belowfalse
-	\else
-		\pgf@circuit@bipole@voltage@belowtrue
-	\fi
-\fi
 		\ifnum\pgfcircmathresult >4 \ifnum\pgfcircmathresult <86
 			\ifpgf@circuit@bipole@voltage@below
 				\def\pgf@circ@bipole@voltage@label@anchor{north west} 
@@ -9161,22 +9197,31 @@
 			\fi
 		\fi\fi
 		
-		\ifpgf@circuit@bipole@inverted
-		%revert to original position for correct placement
+		\ifnum \ctikzvalof{mirror value}=-1
 			\ifpgf@circuit@bipole@voltage@below
 				\pgf@circuit@bipole@voltage@belowfalse
 			\else
 				\pgf@circuit@bipole@voltage@belowtrue
 			\fi
 		\fi
-
+		
+		\ifpgf@circuit@bipole@inverted
+			\ifpgf@circuit@bipole@voltage@below
+				\pgf@circuit@bipole@voltage@belowfalse
+			\else
+				\pgf@circuit@bipole@voltage@belowtrue
+			\fi
+		\fi
+		
 		\ifpgf@circuit@bipole@voltage@below
 			\def\pgf@circ@bipole@voltage@label@where{-90}
 		\else
 			\def\pgf@circ@bipole@voltage@label@where{90}
 		\fi
+						
 		
-		\edef\pgf@temp{/tikz/circuitikz/bipoles/\pgfkeysvalueof{/tikz/circuitikz/bipole/kind}/voltage/european label distance}
+		\edef\pgf@temp{/tikz/circuitikz/bipoles/\pgfkeysvalueof{/tikz/circuitikz/bipole/kind}/voltage/european label 
+		distance}
 		\pgfkeysifdefined{\pgf@temp}
 			{ \edef\eudist{\ctikzvalof{bipoles/\pgfkeysvalueof{/tikz/circuitikz/bipole/kind}/voltage/european label distance}} }
 			{ \edef\eudist{\ctikzvalof{voltage/european label distance}} }
@@ -9187,6 +9232,9 @@
 		\else
 			\pgf@circ@drawvoltagegeneric 
 		\fi
+		
+
+		
 		(\ctikzvalof{bipole/name}.\pgf@circ@bipole@voltage@label@where)
 		coordinate (Vlab) at ($(\ctikzvalof{bipole/name}.center) !
 			\ifpgf@circuit@europeanvoltage\eudist\else\ctikzvalof{voltage/american label distance}\fi !
@@ -9195,24 +9243,6 @@
 			  at (Vlab) { \pgf@circ@finallabel{voltage/} }
 }
 
-
-
-
-
-%		coordinate (pgfcirc@Vcont1) at ($ (\ctikzvalof{bipole/name}.center) ! 
-%			\ctikzvalof{voltage/bump b} !
-%			(\ctikzvalof{bipole/name}.-110) $)
-%		coordinate (pgfcirc@Vcont2) at ($ (\ctikzvalof{bipole/name}.center) ! 
-%			\ctikzvalof{voltage/bump b} ! 
-%			(\ctikzvalof{bipole/name}.-70) $)
-%	\else
-%		coordinate (pgfcirc@Vcont1) at ($ (\ctikzvalof{bipole/name}.center) ! 
-%			\ctikzvalof{voltage/bump b} !
-%			(\ctikzvalof{bipole/name}.110) $)
-%		coordinate (pgfcirc@Vcont2) at ($ (\ctikzvalof{bipole/name}.center) ! 
-%			\ctikzvalof{voltage/bump b} ! 
-%			(\ctikzvalof{bipole/name}.70) $)
-%	\fi
 %%%---------- close: tex/pgfcircvoltage
 %%%%%%%%%%% Springe nach tex/pgfcirccurrent
 %%%---------- open: tex/pgfcirccurrent.tex
@@ -9346,24 +9376,24 @@
 \def\pgf@circ@drawnormalcurrent{
 			\ifpgf@circuit@bipole@current@before
 				\ifpgf@circuit@bipole@current@backward
-					{  (\ctikzvalof{bipole/name}.left) -- 
+					{  (anchorstartnode) -- 
 							node [currarrow, pos=\ctikzvalof{current/distance}, sloped,  allow upside down] (Iarrow) {} 
 						(\tikztostart)  
 					}
 				\else
 					{  (\tikztostart) -- 
 							node [currarrow, pos=\ctikzvalof{current/distance}, sloped,  allow upside down] (Iarrow) {} 
-						(\ctikzvalof{bipole/name}.left)  
+						(anchorstartnode)  
 					}
 				\fi
 			\else
 				\ifpgf@circuit@bipole@current@backward
 					{ 	(\tikztotarget) -- 
 							node [currarrow, pos=\ctikzvalof{current/distance}, sloped,  allow upside down] (Iarrow) {} 
-						(\ctikzvalof{bipole/name}.right)  
+						(anchorendnode)  
 					}
 				\else
-					{ 	(\ctikzvalof{bipole/name}.right) -- 
+					{ 	(anchorendnode) -- 
 							node [currarrow, pos=\ctikzvalof{current/distance}, sloped,  allow upside down] (Iarrow) {}
 						(\tikztotarget)  
 					}
@@ -9583,11 +9613,19 @@
 % Invert node along path
 \ctikzset{inverted/.is choice}
 \ctikzset{invert value/.initial=1}
-\ctikzset{inverted/true/.code = {\ctikzsetvalof{invert value}{-1}}\pgf@circuit@bipole@invertedtrue}
-\ctikzset{inverted/false/.code = {\ctikzsetvalof{invert value}{1}}}
+\ctikzset{inverted/true/.code = {\ctikzsetvalof{invert value}{-1}\pgf@circuit@bipole@invertedtrue}}
+\ctikzset{inverted/false/.code = {\ctikzsetvalof{invert value}{1}\pgf@circuit@bipole@invertedfalse}}
 \ctikzset{invert/.style = {/tikz/circuitikz/inverted=true}}
 \newif\ifpgf@circuit@bipole@inverted
 \ctikzset{bipole/inverted/.is if=pgf@circuit@bipole@inverted}
+
+
+\newif\ifpgf@circuit@bipole@voltage@backward
+\ctikzset{bipole/voltage/direction/.is choice}
+\ctikzset{bipole/voltage/direction/forward/.code={\pgf@circuit@bipole@voltage@backwardfalse}}
+\ctikzset{bipole/voltage/direction/backward/.code={\pgf@circuit@bipole@voltage@backwardtrue}}
+
+
 
 % Initialize paths
 \def\pgfcircresetpath{
@@ -9617,40 +9655,53 @@
 		\def\pgf@temp{open}
 		\def\pgf@circ@temp{#1}
 	}
-	\ifpgf@circuit@bipole@inverted
-		(\tikztostart) node[coordinate] (\ctikzvalof{bipole/name}end) {}
-		(\tikztotarget) node[coordinate] (\ctikzvalof{bipole/name}start) {}
-	\else
-		(\tikztostart) node[coordinate] (\ctikzvalof{bipole/name}start) {}
-		(\tikztotarget) node[coordinate] (\ctikzvalof{bipole/name}end) {}
-	\fi
-	\pgfextra{
-		\pgf@circ@slope{\pgfpointanchor{\ctikzvalof{bipole/name}start}{center}}
-					   {\pgfpointanchor{\ctikzvalof{bipole/name}end}{center}}
-		\edef\pgf@circ@direction{\pgfmathresult}		
-	}
-	($(\tikztostart) ! .5 ! (\tikztotarget)$) 
+
+		(\tikztostart) coordinate (\ctikzvalof{bipole/name}start)
+		(\tikztotarget) coordinate (\ctikzvalof{bipole/name}end)
+		\pgfextra{
+			\pgf@circ@slope{\pgfpointanchor{\ctikzvalof{bipole/name}start}{center}}
+							{\pgfpointanchor{\ctikzvalof{bipole/name}end}{center}}
+			\edef\pgf@circ@direction{\pgfmathresult}		
+		}
+	
+		($(\tikztostart) ! .5 ! (\tikztotarget)$) 
 		node[#1shape, rotate=\pgf@circ@direction, yscale=\ctikzvalof{mirror value}, xscale=\ctikzvalof{invert value}] 
 			(\ctikzvalof{bipole/name}) {}
+			\ifpgf@circuit@bipole@inverted
+				\ifcsname pgf@anchor@#1shape@pathstart\endcsname%if special path-anchors are defined, use them!
+					coordinate	(anchorstartnode) at (\ctikzvalof{bipole/name}.pathend)
+					coordinate	(anchorendnode) at (\ctikzvalof{bipole/name}.pathstart)
+				\else
+					coordinate	(anchorstartnode) at (\ctikzvalof{bipole/name}.right)
+					coordinate	(anchorendnode) at (\ctikzvalof{bipole/name}.left)
+				\fi
+			\else
+				\ifcsname pgf@anchor@#1shape@pathstart\endcsname%if special path-anchors are defined, use them!
+					coordinate	(anchorstartnode) at (\ctikzvalof{bipole/name}.pathstart)
+					coordinate	(anchorendnode) at (\ctikzvalof{bipole/name}.pathend)
+				\else
+					coordinate	(anchorstartnode) at (\ctikzvalof{bipole/name}.left)
+					coordinate	(anchorendnode) at (\ctikzvalof{bipole/name}.right)
+				\fi
+			\fi
 	\ifx\pgf@temp\pgf@circ@temp  % if it is an open
 	\else
 		\ifpgf@circuit@bipole@strokedsymbol%draw line thrue symbol(e.g. diodes)
-			\ifcsname  pgf@anchor@#1shape@strokepathstart\endcsname%if special path-anchors are defined, use them!
+			\ifcsname pgf@anchor@#1shape@strokepathstart\endcsname%if special path-anchors are defined, use them!
 				(\ctikzvalof{bipole/name}start.center) --(\ctikzvalof{bipole/name}.strokepathstart)
 				(\ctikzvalof{bipole/name}.strokepathend)  -- (\ctikzvalof{bipole/name}end.center)
 			\else
 				(\ctikzvalof{bipole/name}start.center)--(\ctikzvalof{bipole/name}end.center)
 			\fi
-		\else
-			\ifcsname  pgf@anchor@#1shape@pathstart\endcsname%if special path-anchors are defined, use them!
-				(\ctikzvalof{bipole/name}start.center) --(\ctikzvalof{bipole/name}.pathstart)
-				(\ctikzvalof{bipole/name}.pathend)  -- (\ctikzvalof{bipole/name}end.center)
-			\else
-				(\ctikzvalof{bipole/name}start.center) --(\ctikzvalof{bipole/name}.left)
-				(\ctikzvalof{bipole/name}.right)  -- (\ctikzvalof{bipole/name}end.center)
-			\fi
+		\else		
+			(\ctikzvalof{bipole/name}start.center) --(anchorstartnode)
+			(anchorendnode)  -- (\ctikzvalof{bipole/name}end.center)
+		
 		\fi
 	\fi
+	
+
+	
 	\pgf@circ@ifkeyempty{bipole/label/name}\else\pgf@circ@drawlabel\fi
 	\drawpoles
 	\pgf@circ@ifkeyempty{bipole/voltage/label/name}\else\pgf@circ@drawvoltage\fi
