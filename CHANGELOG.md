@@ -3,6 +3,7 @@ The major changes among the different circuitikz versions are listed here. See <
 
 * Version Next (unreleased)
 	- Added new symbol: magnetron
+	- Fixed name conflict of diamond shape with tikz.shapes package
 	- Fixed varcap symbol at small scalings
 	- New packet-option "straightvoltages, to draw straight(no curved) voltage arrows
 	- New option "invert" to revert the node direction at paths
