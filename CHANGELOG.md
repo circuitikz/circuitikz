@@ -2,6 +2,7 @@
 The major changes among the different circuitikz versions are listed here. See <https://github.com/circuitikz/circuitikz/commits> for a full list of changes.
 
 * Version Next (unreleased)
+	- Added new symbol: magnetron
 	- Fixed varcap symbol at small scalings
 	- New packet-option "straightvoltages, to draw straight(no curved) voltage arrows
 	- New option "invert" to revert the node direction at paths
