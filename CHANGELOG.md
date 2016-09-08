@@ -1,7 +1,8 @@
 <!--- CircuiTikz - Changelog --->
 The major changes among the different circuitikz versions are listed here. See <https://github.com/circuitikz/circuitikz/commits> for a full list of changes.
 
-* Version Next (unreleased)
+* Version 0.7 (2016-09-08)
+	- Added second annotation label, showing, e.g., the value of an component
 	- Added new symbol: magnetron
 	- Fixed name conflict of diamond shape with tikz.shapes package
 	- Fixed varcap symbol at small scalings
