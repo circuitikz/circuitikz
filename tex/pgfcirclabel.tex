@@ -29,43 +29,81 @@
 }}
 
 \ctikzset{label above/.code = { 
-	l=#1, 
-	\circuitikzbasekey/bipole/label/position=90 }
+		l=#1, 
+		\circuitikzbasekey/bipole/label/position=90 }
 }
 \ctikzset{l^/.style = { 
-	l=#1,
-	\circuitikzbasekey/bipole/label/position=90 } 
+		l=#1,
+		\circuitikzbasekey/bipole/label/position=90 } 
 }
 
 \ctikzset{label below/.code = { 
-	l=#1,
-	\circuitikzbasekey/bipole/label/position=-90 } 
+		l=#1,
+		\circuitikzbasekey/bipole/label/position=-90 } 
 }
 \ctikzset{l_/.style = { 
-	l=#1,
-	\circuitikzbasekey/bipole/label/position=-90 } 
+		l=#1,
+		\circuitikzbasekey/bipole/label/position=-90 } 
+}
+%value options
+\ctikzset{annotation/.style = { a=#1 } }
+\ctikzset{a/.code = { 
+		\pgfkeys{/tikz/circuitikz/bipole/annotation/name=#1}
+		\ctikzsetvalof{bipole/annotation/unit}{}
+		\ifpgf@circ@siunitx 
+		\pgf@circ@handleSI{#1}
+		\ifpgf@circ@siunitx@res 
+		\edef\pgf@temp{\pgf@circ@handleSI@val}
+		\pgfkeyslet{/tikz/circuitikz/bipole/annotation/name}{\pgf@temp}
+		\edef\pgf@temp{\pgf@circ@handleSI@unit}
+		\pgfkeyslet{/tikz/circuitikz/bipole/annotation/unit}{\pgf@temp}
+		\else
+		\fi
+		\else
+		\fi
+	}}
+
+
+
+\ctikzset{annotation above/.code = { 
+	a=#1, 
+	\circuitikzbasekey/bipole/annotation/position=90 }
+}
+\ctikzset{a^/.style = { 
+	a=#1,
+	\circuitikzbasekey/bipole/annotation/position=90 } 
+}
+
+\ctikzset{annotation below/.code = { 
+	a=#1,
+	\circuitikzbasekey/bipole/annotation/position=-90 } 
+}
+\ctikzset{a_/.style = { 
+	a=#1,
+	\circuitikzbasekey/bipole/annotation/position=-90 } 
 }
 
 
 
-\def\pgf@circ@drawlabel{
+\def\pgf@circ@drawlabels#1{
 		\pgfextra{
 			\edef\pgf@temp{\ctikzvalof{label/align}}
 			\def\pgf@circ@temp{straight}
 		}
 		\ifx\pgf@temp\pgf@circ@temp %straight
-			\pgf@circ@drawreglabel
+			\pgf@circ@drawreglabels{#1}
 		\else
 			\pgfextra{\def\pgf@circ@temp{rotate}}
 			\ifx\pgf@temp\pgf@circ@temp %rotate
-				\pgf@circ@drawrotlabel
+				\pgf@circ@drawrotlabels{#1}
 			\else % smart
-				\pgf@circ@drawsmartlabel				
+				\pgf@circ@drawsmartlabels{#1}				
 			\fi
 		\fi
 }
 
-\def\pgf@circ@drawsmartlabel{
+
+\def\pgf@circ@drawsmartlabels#1{
 	\pgfextra{
 		%\pgfmathadd{\pgf@circ@direction}{360}
 		\pgfmathmod{\pgf@circ@direction}{90}
@@ -73,22 +111,22 @@
 	}
 	\ifnum \pgfcircmathresult > 20 
 		\ifnum \pgfcircmathresult < 70 % NON quasi retto
-			\pgf@circ@drawrotlabel
+			\pgf@circ@drawrotlabels{#1}
 		\else
-			\pgf@circ@drawreglabel
+			\pgf@circ@drawreglabels{#1}
 		\fi
 	\else 
-		\pgf@circ@drawreglabel
+		\pgf@circ@drawreglabels{#1}
 	\fi
 }
 
 %% Output routing
 %% #1 - node name
 
-\def\pgf@circ@drawrotlabel{
+\def\pgf@circ@drawrotlabels#1{
 	\pgfextra{
 		% calcolo rotazione label
-		\def\pgf@circ@temp{\ctikzvalof{bipole/label/position}} %%% àncora label
+		\def\pgf@circ@temp{\ctikzvalof{bipole/#1/position}} %%% àncora label
 		\edef\pgfcirclabrot{\pgf@circ@direction} % primo e quarto quadrante
 		\edef\pgfcircmathresult{\expandafter\pgf@circ@stripdecimals\pgf@circ@direction\pgf@nil}
 		\ifnum \pgfcircmathresult > 90 \ifnum \pgfcircmathresult < 270 % terzo e secondo
@@ -103,20 +141,20 @@
 		%	\pgfmathadd{\pgf@circ@temp}{180}
 		%	\edef\pgf@circ@temp{\expandafter\pgf@circ@stripdecimals\pgfmathresult\pgf@nil}
 			coordinate (labelcoor) at ($(\ctikzvalof{bipole/name})!2!(\ctikzvalof{bipole/name}.south)$)
-			(labelcoor) node [rotate=\pgfcirclabrot] {\pgf@circ@finallabel{}} % c'era un transform shape
+			(labelcoor) node [rotate=\pgfcirclabrot] {\pgf@circ@finallabels{#1}} % c'era un transform shape
 		\else
 			coordinate (labelcoor) at ($(\ctikzvalof{bipole/name})!2!(\ctikzvalof{bipole/name}.north)$)
-			(labelcoor) node [rotate=\pgfcirclabrot] {\pgf@circ@finallabel{}} % c'era un transform shape
+			(labelcoor) node [rotate=\pgfcirclabrot] {\pgf@circ@finallabels{#1}} % c'era un transform shape
 		\fi
 
 }
 
-\def\pgf@circ@drawreglabel{
+\def\pgf@circ@drawreglabels#1{
 	\pgfextra{
 		\pgfmathsubtract{\pgf@circ@direction}{90}
 		\edef\pgf@circ@labanc{\expandafter\pgf@circ@stripdecimals\pgfmathresult\pgf@nil}
 		
-		\edef\pgf@circ@temp{\ctikzvalof{bipole/label/position}} %%% àncora label
+		\edef\pgf@circ@temp{\ctikzvalof{bipole/#1/position}} %%% àncora label
 		\ifnum \pgf@circ@temp < 0
 			\pgfmathadd{\pgf@circ@labanc}{180}
 			\edef\pgf@circ@labanc{\expandafter\pgf@circ@stripdecimals\pgfmathresult\pgf@nil}
@@ -132,7 +170,17 @@
 		\fi
 	}
 	node [ anchor = \pgf@circ@labanc] 
-	  at (\ctikzvalof{bipole/name}.\pgf@circ@temp) {\pgf@circ@finallabel{}}
+	  at (\ctikzvalof{bipole/name}.\pgf@circ@temp) {\pgf@circ@finallabels{#1}}
+}
+
+\def\pgf@circ@finallabels#1{%
+	\edef\pgf@temp{}%
+	\edef\pgf@circ@temp{\ctikzvalof{bipole/#1/unit}}%
+	\ifx\pgf@temp\pgf@circ@temp%
+	\ctikzvalof{bipole/#1/name}%
+	\else%
+	$\SI{\ctikzvalof{bipole/#1/name}}{\ctikzvalof{bipole/#1/unit}}$%
+	\fi%
 }
 
 
