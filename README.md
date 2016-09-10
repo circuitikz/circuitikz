@@ -1,8 +1,6 @@
 circuitikz
 ==========
 
-This is CircuiTikz, version 0.7 (2016-09-08).
-
 This package provides a set of macros for naturally typesetting electrical and (somewhat less naturally, perhaps) electronical networks.
 
 It was born mainly for writing my own exercise book and exams sheets for the Elettrotecnica courses at Politecnico di Milano, Italy. I wanted a tool that was easy to use, with a lean syntax, native to LaTeX, and supporting directly PDF output format.
