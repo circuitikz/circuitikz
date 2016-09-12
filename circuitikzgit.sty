@@ -17,8 +17,8 @@
 
 \NeedsTeXFormat{LaTeX2e}
 
-\def\pgfcircversion{git:9af1c68}
-\def\pgfcircversiondate{2016/09/10}
+\def\pgfcircversion{git:5c471a5}
+\def\pgfcircversiondate{2016/09/12}
 
 \ProvidesPackage{circuitikzgit}
         [\pgfcircversiondate{} The CircuiTikz circuit drawing package version \pgfcircversion]
@@ -496,6 +496,8 @@
 \ctikzset{bipoles/battery/width/.initial=.3}
 \ctikzset{bipoles/battery1/height/.initial=.6}
 \ctikzset{bipoles/battery1/width/.initial=.3}
+\ctikzset{bipoles/battery2/height/.initial=.6}
+\ctikzset{bipoles/battery2/width/.initial=.3}
 \ctikzset{bipoles/diode/height/.initial=.50}
 \ctikzset{bipoles/diode/width/.initial=.40}
 \ctikzset{bipoles/varcap/height/.initial=.50}
@@ -2384,7 +2386,7 @@
 }
 
 
-%% Battery 1
+%% Battery 1 % poles with equl thickness
 
 \pgfcircdeclarebipole{}{\ctikzvalof{bipoles/battery1/height}}{battery1}{\ctikzvalof{bipoles/battery1/height}}{\ctikzvalof{bipoles/battery1/width}}{
 		\pgfpathmoveto{\pgfpoint{.33\pgf@circ@res@right}{0}}
@@ -2399,13 +2401,27 @@
 
 		\pgfpathmoveto{\pgfpoint{.33\pgf@circ@res@left}{\pgf@circ@res@up}}
 		\pgfpathlineto{\pgfpoint{.33\pgf@circ@res@left}{\pgf@circ@res@down}}
-		
-
-
-
 		\pgfusepath{draw}
 }
 
+%% Battery 2 % negative pole thicker
+
+\pgfcircdeclarebipole{}{\ctikzvalof{bipoles/battery2/height}}{battery2}{\ctikzvalof{bipoles/battery2/height}}{\ctikzvalof{bipoles/battery2/width}}{
+		\pgfpathmoveto{\pgfpoint{.33\pgf@circ@res@right}{0}}
+		\pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{0}}
+		\pgfpathmoveto{\pgfpoint{.33\pgf@circ@res@left}{0}}
+		\pgfpathlineto{\pgfpoint{\pgf@circ@res@left}{0}}
+		\pgfusepath{draw}
+
+		\pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}\pgfstartlinewidth}
+		\pgfpathmoveto{\pgfpoint{.33\pgf@circ@res@left}{\pgf@circ@res@up}}
+		\pgfpathlineto{\pgfpoint{.33\pgf@circ@res@left}{\pgf@circ@res@down}}
+		\pgfusepath{draw}
+		\pgfsetlinewidth{3\pgflinewidth}
+		\pgfpathmoveto{\pgfpoint{.33\pgf@circ@res@right}{.5\pgf@circ@res@up}}
+		\pgfpathlineto{\pgfpoint{.33\pgf@circ@res@right}{.5\pgf@circ@res@down}}
+		\pgfusepath{draw}
+}
 
 
 %% cute inductor
@@ -10240,7 +10256,8 @@
 \def\pgf@circ@vcapacitor@path#1{\pgf@circ@bipole@path{vcapacitor}{#1}}
 \def\pgf@circ@piezoelectric@path#1{\pgf@circ@bipole@path{piezoelectric}{#1}}
 \def\pgf@circ@battery@path#1{\pgf@circ@bipole@path{battery}{#1}}
-\def\pgf@circ@battery1@path#1{\pgf@circ@bipole@path{battery1}{#1}}
+\def\pgf@circ@batteryone@path#1{\pgf@circ@bipole@path{battery1}{#1}}
+\def\pgf@circ@batterytwo@path#1{\pgf@circ@bipole@path{battery2}{#1}}
 \def\pgf@circ@europeaninductor@path#1{\pgf@circ@bipole@path{fullgeneric}{#1}}
 \def\pgf@circ@americaninductor@path#1{\pgf@circ@bipole@path{americaninductor}{#1}}
 \def\pgf@circ@cuteinductor@path#1{\pgf@circ@bipole@path{cuteinductor}{#1}}
@@ -10392,7 +10409,8 @@
 \compattikzset{variable capacitor/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@vcapacitor@path, l=#1}}
 \compattikzset{piezoelectric/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@piezoelectric@path, l=#1}}
 \compattikzset{battery/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@battery@path, \circuitikzbasekey/bipole/is voltage=true,  \circuitikzbasekey/bipole/is voltageoutsideofsymbol=true, v=#1}}
-\compattikzset{battery1/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@battery1@path, \circuitikzbasekey/bipole/is voltage=true,  \circuitikzbasekey/bipole/is voltageoutsideofsymbol=true, v=#1}}
+\compattikzset{battery1/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@batteryone@path, \circuitikzbasekey/bipole/is voltage=true,  \circuitikzbasekey/bipole/is voltageoutsideofsymbol=true, v=#1}}
+\compattikzset{battery2/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@batterytwo@path, \circuitikzbasekey/bipole/is voltage=true,  \circuitikzbasekey/bipole/is voltageoutsideofsymbol=true, v=#1}}
 \compattikzset{inductor/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@inductor@path, l=#1}}
 \compattikzset{gf surge arrester/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@gfsurgearrester@path, l=#1}}
 \compattikzset{american gas filled surge arrester/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@americangfsurgearrester@path, l=#1}}
