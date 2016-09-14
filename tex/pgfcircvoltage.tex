@@ -90,16 +90,26 @@
 
 \def\pgf@circ@drawvoltagegeneric{
 	\pgfextra{
+	
+	
+	\edef\pgf@temp{/tikz/circuitikz/bipoles/\pgfkeysvalueof{/tikz/circuitikz/bipole/kind}/voltage/straight label distance}
+			\pgfkeysifdefined{\pgf@temp}
+				{ \edef\partwidth{\ctikzvalof{bipoles/\pgfkeysvalueof{/tikz/circuitikz/bipole/kind}/voltage/straight label distance}} 
+					\def\tmpdistfromline{\partwidth\pgf@circ@Rlen}}
+				{ 
+		\edef\partwidth{0.5*\ctikzvalof{bipoles/\pgfkeysvalueof{/tikz/circuitikz/bipole/kind}/height}}
+			\def\tmpdistfromline{(\partwidth\pgf@circ@Rlen+0.2\pgf@circ@Rlen)}
+	}
 		\ifnum \ctikzvalof{mirror value}=-1
 			\ifpgf@circuit@bipole@inverted
 				\ifpgf@circuit@bipole@voltage@straight
-					\def\distfromline{\eudist}
+					\def\distfromline{\tmpdistfromline}
 				\else
 					\def\distfromline{\ctikzvalof{voltage/distance from line}\pgf@circ@Rlen}
 				\fi
 			\else
 				\ifpgf@circuit@bipole@voltage@straight
-					\def\distfromline{-\eudist}
+					\def\distfromline{-\tmpdistfromline}
 				\else
 					\def\distfromline{-\ctikzvalof{voltage/distance from line}\pgf@circ@Rlen}
 				\fi
@@ -107,13 +117,13 @@
 		\else
 			\ifpgf@circuit@bipole@inverted
 				\ifpgf@circuit@bipole@voltage@straight
-					\def\distfromline{-\eudist}
+					\def\distfromline{-\tmpdistfromline}
 				\else
 					\def\distfromline{-\ctikzvalof{voltage/distance from line}\pgf@circ@Rlen}
 				\fi
 			\else
 				\ifpgf@circuit@bipole@voltage@straight
-					\def\distfromline{\eudist}
+					\def\distfromline{\tmpdistfromline}
 				\else
 					\def\distfromline{\ctikzvalof{voltage/distance from line}\pgf@circ@Rlen}
 				\fi
@@ -138,9 +148,12 @@
 	
 
 	coordinate (pgfcirc@midtmp) at ($(\tikztostart) ! \distacefromnode ! (anchorstartnode)$)
+	
 	coordinate (pgfcirc@Vfrom) at ($(pgfcirc@midtmp) ! -\distfromline ! \pgf@circ@voltage@angle:(anchorstartnode)$) 
 	coordinate (pgfcirc@mid) at ($(\tikztotarget) ! \distacefromnode ! (anchorendnode)$)
+
 	coordinate (pgfcirc@Vto) at ($(pgfcirc@mid) ! \distfromline ! \pgf@circ@voltage@angle : (anchorendnode)$)
+
 
 	\ifpgf@circuit@bipole@voltage@below
 		coordinate (pgfcirc@Vcont1) at ($(\ctikzvalof{bipole/name}.center) ! \bumpb ! (\ctikzvalof{bipole/name}.-110)$)
@@ -321,14 +334,23 @@
 			\pgf@circ@drawvoltagegeneric 
 		\fi
 		
-
-		
-		(\ctikzvalof{bipole/name}.\pgf@circ@bipole@voltage@label@where)
+	%	(\ctikzvalof{bipole/name}.\pgf@circ@bipole@voltage@label@where) %Zeile sinnlos!?
+		\ifpgf@circuit@bipole@voltage@straight
+			coordinate (Vlab) at ($(pgfcirc@Vto)!0.5!(pgfcirc@Vfrom) $)
+			node [anchor=\pgf@circ@bipole@voltage@label@anchor, inner sep=2pt] 
+					  at (Vlab) { \pgf@circ@finallabels{voltage/label} }
+		\else
 		coordinate (Vlab) at ($(\ctikzvalof{bipole/name}.center) !
-			\ifpgf@circuit@europeanvoltage\eudist\else\ctikzvalof{voltage/american label distance}\fi !
+			\ifpgf@circuit@europeanvoltage
+				\eudist
+			\else
+				\ctikzvalof{voltage/american label distance}
+			\fi !
 			(\ctikzvalof{bipole/name}.\pgf@circ@bipole@voltage@label@where)$)
-		node [anchor=\pgf@circ@bipole@voltage@label@anchor, inner sep=0] 
-			  at (Vlab) { \pgf@circ@finallabels{voltage/label} }
-}
+		node [anchor=\pgf@circ@bipole@voltage@label@anchor, inner sep=2pt] 
+					  at (Vlab) { \pgf@circ@finallabels{voltage/label} }
+		
+		\fi
+		}%end drawvoltages
 
 \endinput
