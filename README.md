@@ -10,7 +10,7 @@ So I based everything with the very impressive (if somewhat verbose at times) Ti
 --------------
 
 ## Requirements
-* Tikz graphics library, version 2
+* Tikz/PGF graphics library, version 3
 * xstrings not older than 2009/03/13
 
 ## Installation
