@@ -47,6 +47,7 @@
 
 %% Generic bipole path
 \def\pgf@circ@bipole@path#1#2{
+
 	\pgfextra{
 		\ctikzset{bipole/kind = #1}
 		
@@ -60,6 +61,10 @@
 		\def\pgf@temp{open}
 		\def\pgf@circ@temp{#1}
 	}
+\ifx\pgf@temp\pgf@circ@temp  % if it is an open
+\else
+	--($(\tikztostart) ! .0001 ! (\tikztotarget)$) %ugly workaround to get correct linejoins
+\fi
 
 		(\tikztostart) coordinate (\ctikzvalof{bipole/name}start)
 		(\tikztotarget) coordinate (\ctikzvalof{bipole/name}end)
@@ -103,6 +108,7 @@
 			(anchorendnode)  -- (\ctikzvalof{bipole/name}end.center)
 		
 		\fi
+		($(\tikztostart) ! .9999 ! (\tikztotarget)$)--(\tikztotarget)% -- needed to get correct linejoins
 	\fi
 	
 
@@ -115,7 +121,7 @@
 	\pgfextra{
 		\pgfcircresetpath
 	}  
-	(\tikztotarget) 	\tikztonodes  % e si continua
+	\tikztonodes%draw pending nodes an path
 }
 
 
