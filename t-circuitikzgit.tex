@@ -1,5 +1,5 @@
-\def\pgfcircversion{git:f0f9a95}
-\def\pgfcircversiondate{2016/09/21}
+\def\pgfcircversion{git:3a1205d}
+\def\pgfcircversiondate{2017/02/05}
 \writestatus{loading}{\pgfcircversiondate{} The CircuiTikz circuit drawing package version \pgfcircversion}
 
 \usemodule[tikz]
@@ -9989,6 +9989,7 @@
 
 %% Generic bipole path
 \def\pgf@circ@bipole@path#1#2{
+
 	\pgfextra{
 		\ctikzset{bipole/kind = #1}
 		
@@ -10002,6 +10003,10 @@
 		\def\pgf@temp{open}
 		\def\pgf@circ@temp{#1}
 	}
+\ifx\pgf@temp\pgf@circ@temp  % if it is an open
+\else
+	--($(\tikztostart) ! .0001 ! (\tikztotarget)$) %ugly workaround to get correct linejoins
+\fi
 
 		(\tikztostart) coordinate (\ctikzvalof{bipole/name}start)
 		(\tikztotarget) coordinate (\ctikzvalof{bipole/name}end)
@@ -10045,6 +10050,7 @@
 			(anchorendnode)  -- (\ctikzvalof{bipole/name}end.center)
 		
 		\fi
+		($(\tikztostart) ! .9999 ! (\tikztotarget)$)--(\tikztotarget)% -- needed to get correct linejoins
 	\fi
 	
 
@@ -10057,7 +10063,7 @@
 	\pgfextra{
 		\pgfcircresetpath
 	}  
-	(\tikztotarget) 	\tikztonodes  % e si continua
+	\tikztonodes%draw pending nodes an path
 }
 
 
@@ -10606,7 +10612,8 @@
 \pgf@circ@definetranspath{pigbt}
 \pgf@circ@definetranspath{nigbt}
 \pgf@circ@definetranspath{Lpigbt}
-\pgf@circ@definetranspath{Lnigbt}%%%---------- close: tex/pgfcircpath
+\pgf@circ@definetranspath{Lnigbt}
+%%%---------- close: tex/pgfcircpath
 
 \catcode`\@=\tikzatcode
 \catcode`\|=\tikzbarcode
