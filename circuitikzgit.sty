@@ -17,8 +17,8 @@
 
 \NeedsTeXFormat{LaTeX2e}
 
-\def\pgfcircversion{git:3a1205d}
-\def\pgfcircversiondate{2017/02/05}
+\def\pgfcircversion{git:dadde81}
+\def\pgfcircversiondate{2017/02/12}
 
 \ProvidesPackage{circuitikzgit}
         [\pgfcircversiondate{} The CircuiTikz circuit drawing package version \pgfcircversion]
@@ -10195,10 +10195,10 @@
 %% Generic bipole path
 \def\pgf@circ@bipole@path#1#2{
 
-	\pgfextra{
+\pgfextra{
 		\ctikzset{bipole/kind = #1}
 		
-		\edef\pgf@temp{\pgfkeysvalueof{/tikz/circuitikz/bipole/name}}
+		\edef\pgf@temp{\ctikzvalof{bipole/name}}
 		\def\pgf@circ@temp{}
 		\ifx\pgf@temp\pgf@circ@temp % if it has not a name
 			\pgfmathrandominteger{\pgf@circ@rand}{1000}{9999}
@@ -10208,18 +10208,38 @@
 		\def\pgf@temp{open}
 		\def\pgf@circ@temp{#1}
 	}
-\ifx\pgf@temp\pgf@circ@temp  % if it is an open
-\else
-	--($(\tikztostart) ! .0001 ! (\tikztotarget)$) %ugly workaround to get correct linejoins
-\fi
+%coordinate (bla) at (\tikztotarget)
+%coordinate (start) at (\tikztostart)
+%(\tikztotarget)
+%(\tikztostart)
+
+		\pgfextra{
+		   	 % Retrieve and assign the source co-ordinate
+			\tikz@scan@one@point\pgf@process(\tikztostart)%
+			\pgf@xa=\pgf@x\pgf@ya=\pgf@y%
+			% Retrieve and assign the target co-ordinate
+			\tikz@scan@one@point\pgf@process(\tikztotarget)%
+			\pgf@xb=\pgf@x\pgf@yb=\pgf@y
+
+			\pgf@circ@slope{\pgfpoint{\pgf@xa}{\pgf@ya}}{\pgfpoint{\pgf@xb}{\pgf@yb}}
+			\edef\pgf@circ@direction{\pgfmathresult}
+%\pgfpathmoveto{\pgfpoint{\pgf@xa}{\pgf@ya}}	
+%\pgfpathlineto{\pgfpointlineatdistance{1mm}{\pgfpoint{\pgf@xa}{\pgf@ya}}{\pgfpoint{\pgf@xb}{\pgf@yb}}}
+%\pgfusepath{draw}
+		}
+
+
+%--($(\tikztostart) ! .5\pgflinewidth ! (\tikztotarget)$) %ugly workaround to get correct linejoins(node breaks path?)
+	
 
 		(\tikztostart) coordinate (\ctikzvalof{bipole/name}start)
 		(\tikztotarget) coordinate (\ctikzvalof{bipole/name}end)
-		\pgfextra{
-			\pgf@circ@slope{\pgfpointanchor{\ctikzvalof{bipole/name}start}{center}}
-							{\pgfpointanchor{\ctikzvalof{bipole/name}end}{center}}
-			\edef\pgf@circ@direction{\pgfmathresult}		
-		}
+	
+		%\pgfextra{
+		%	\pgf@circ@slope{\pgfpointanchor{\ctikzvalof{bipole/name}start}{center}}
+		%					{\pgfpointanchor{\ctikzvalof{bipole/name}end}{center}}
+		%	\edef\pgf@circ@direction{\pgfmathresult}		
+		%}
 	
 		($(\tikztostart) ! .5 ! (\tikztotarget)$) 
 		node[#1shape, rotate=\pgf@circ@direction, yscale=\ctikzvalof{mirror value}, xscale=\ctikzvalof{invert value}] 
@@ -10245,17 +10265,15 @@
 	\else
 		\ifpgf@circuit@bipole@strokedsymbol%draw line thrue symbol(e.g. diodes)
 			\ifcsname pgf@anchor@#1shape@strokepathstart\endcsname%if special path-anchors are defined, use them!
-				(\ctikzvalof{bipole/name}start.center) --(\ctikzvalof{bipole/name}.strokepathstart)
+				(\ctikzvalof{bipole/name}start.center) -- (\ctikzvalof{bipole/name}.strokepathstart)
 				(\ctikzvalof{bipole/name}.strokepathend)  -- (\ctikzvalof{bipole/name}end.center)
 			\else
-				(\ctikzvalof{bipole/name}start.center)--(\ctikzvalof{bipole/name}end.center)
+				(\ctikzvalof{bipole/name}start.center) -- (\ctikzvalof{bipole/name}end.center)
 			\fi
 		\else		
-			(\ctikzvalof{bipole/name}start.center) --(anchorstartnode)
+			(\ctikzvalof{bipole/name}start.center) -- (anchorstartnode)
 			(anchorendnode)  -- (\ctikzvalof{bipole/name}end.center)
-		
 		\fi
-		($(\tikztostart) ! .9999 ! (\tikztotarget)$)--(\tikztotarget)% -- needed to get correct linejoins
 	\fi
 	
 
@@ -10264,10 +10282,14 @@
 	\drawpoles
 	\pgf@circ@ifkeyempty{bipole/voltage/label/name}\else\pgf@circ@drawvoltage\fi
 	\pgf@circ@ifkeyempty{bipole/current/label/name}\else\pgf@circ@drawcurrent\fi
+	%($(\ctikzvalof{bipole/name}end) ! .5\pgflinewidth ! (\ctikzvalof{bipole/name}start)$) -- %ugly workaround to get correct linejoins(node breaks path?)
+	%tikztostart and tikztotarget could not be used, because it would break if target coordinate is something like (node1-|node2)
+(\ctikzvalof{bipole/name}end)
 	% reset
 	\pgfextra{
 		\pgfcircresetpath
 	}  
+
 	\tikztonodes%draw pending nodes an path
 }
 
