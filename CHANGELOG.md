@@ -2,8 +2,12 @@
 The major changes among the different circuitikz versions are listed here. See <https://github.com/circuitikz/circuitikz/commits> for a full list of changes.
 
 * Version git (unreleased)
+	- Fixed direction of controlled american current source
+	- Fixed incorrect scaling of magnetron
+	- Fixed: Number of american inductor coils not adjustable
 	- Fixed Battery Symbols and added new battery2 symbol
 	- Added non-inverting Schmitttrigger
+
 * Version 0.7 (2016-09-08)
 	- Added second annotation label, showing, e.g., the value of an component
 	- Added new symbol: magnetron
