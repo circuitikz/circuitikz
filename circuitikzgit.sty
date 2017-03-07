@@ -17,7 +17,7 @@
 
 \NeedsTeXFormat{LaTeX2e}
 
-\def\pgfcircversion{git:f649de6}
+\def\pgfcircversion{git:16f3b1c}
 \def\pgfcircversiondate{2017/03/07}
 
 \ProvidesPackage{circuitikzgit}
@@ -1105,11 +1105,13 @@
 \ctikzset{bipole/nodes/left/empty/.code={\ctikzsetvalof{bipole/nodes/left}{empty}}}
 \ctikzset{bipole/nodes/left/full/.code={\ctikzsetvalof{bipole/nodes/left}{full}}}
 \ctikzset{bipole/nodes/left/diamond/.code={\ctikzsetvalof{bipole/nodes/left}{diamond}}}
+\ctikzset{bipole/nodes/left/rectjoinfill/.code={\ctikzsetvalof{bipole/nodes/left}{rectjoinfill}}}
 \ctikzset{bipole/nodes/right/.is choice}
 \ctikzset{bipole/nodes/right/none/.code={\ctikzsetvalof{bipole/nodes/right}{none}}}
 \ctikzset{bipole/nodes/right/empty/.code={\ctikzsetvalof{bipole/nodes/right}{empty}}}
 \ctikzset{bipole/nodes/right/full/.code={\ctikzsetvalof{bipole/nodes/right}{full}}}
 \ctikzset{bipole/nodes/right/diamond/.code={\ctikzsetvalof{bipole/nodes/right}{diamond}}}
+\ctikzset{bipole/nodes/right/rectjoinfill/.code={\ctikzsetvalof{bipole/nodes/right}{rectjoinfill}}}
 
 
 
@@ -1470,6 +1472,28 @@
 		\endpgfscope
 		}
 }
+
+%% Fill for correct rectangular joins
+
+\pgfdeclareshape{rectjoinfill}{
+	\anchor{center}{
+		\pgfpointorigin
+	}
+	\anchorborder{
+		\pgf@circ@res@left=\pgf@x
+		\pgf@circ@res@up=\pgf@y
+	}
+	\behindforegroundpath{		
+		\pgfscope
+			\pgfpathrectanglecorners
+			{\pgfpoint{0}{.5\pgflinewidth}}
+			{\pgfpoint{0}{-.5\pgflinewidth}}
+			\pgfsetcolor{\pgfkeysvalueof{/tikz/circuitikz/color}}
+			\pgfusepath{draw,fill}		
+		\endpgfscope
+		}
+}
+
 
 %% Current arrow
 
@@ -3800,6 +3824,16 @@
 \ctikzset{*-d/.style = {\circuitikzbasekey/bipole/nodes/left=full, \circuitikzbasekey/bipole/nodes/right=diamond}}
 \ctikzset{d-d/.style = {\circuitikzbasekey/bipole/nodes/left=diamond, \circuitikzbasekey/bipole/nodes/right=diamond}}
 
+\ctikzset{.-/.style = {\circuitikzbasekey/bipole/nodes/left=rectjoinfill, \circuitikzbasekey/bipole/nodes/right=none}}
+\ctikzset{.-*/.style = {\circuitikzbasekey/bipole/nodes/left=rectjoinfill, \circuitikzbasekey/bipole/nodes/right=full}}
+\ctikzset{.-o/.style = {\circuitikzbasekey/bipole/nodes/left=rectjoinfill, \circuitikzbasekey/bipole/nodes/right=empty}}
+\ctikzset{.-d/.style = {\circuitikzbasekey/bipole/nodes/left=rectjoinfill, \circuitikzbasekey/bipole/nodes/right=diamond}}
+\ctikzset{-./.style = {\circuitikzbasekey/bipole/nodes/left=none, \circuitikzbasekey/bipole/nodes/right=rectjoinfill}}
+\ctikzset{o-./.style = {\circuitikzbasekey/bipole/nodes/left=empty, \circuitikzbasekey/bipole/nodes/right=rectjoinfill}}
+\ctikzset{*-./.style = {\circuitikzbasekey/bipole/nodes/left=full, \circuitikzbasekey/bipole/nodes/right=rectjoinfill}}
+\ctikzset{d-./.style = {\circuitikzbasekey/bipole/nodes/left=diamond, \circuitikzbasekey/bipole/nodes/right=rectjoinfill}}
+\ctikzset{.-./.style = {\circuitikzbasekey/bipole/nodes/left=rectjoinfill, \circuitikzbasekey/bipole/nodes/right=rectjoinfill}}
+
 \tikzset{reversed/.style = {\circuitikzbasekey/bipole/inverted=true}}
 
 
@@ -3808,50 +3842,45 @@
 \def\drawpoles{
 	\pgfextra{ \edef\pgf@circ@temp{\ctikzvalof{bipole/nodes/left}} \def\pgf@temp{diamond}  }
 	\ifx\pgf@temp\pgf@circ@temp 
-		{ (\tikztostart) node[diamondpole] {} }
+		 (\tikztostart) node[diamondpole] {} 
 	\else 
-		\pgfextra{ \edef\pgf@circ@temp{\ctikzvalof{bipole/nodes/left}} \def\pgf@temp{empty}  }
+		\pgfextra{ \def\pgf@temp{empty}  }
 		\ifx\pgf@temp\pgf@circ@temp 
-			{ (\tikztostart) node[ocirc] {} }
+			 (\tikztostart) node[ocirc] {} 
 		\else 
-			\pgfextra{ \def\pgf@temp{full}  }
-			\ifx\pgf@temp\pgf@circ@temp
-				{ (\tikztostart) node[circ] {} }
+			\pgfextra{  \def\pgf@temp{full}  }
+			\ifx\pgf@temp\pgf@circ@temp 
+				(\tikztostart) node[circ] {} 
+			\else 
+				\pgfextra{ \def\pgf@temp{rectjoinfill} }
+				\ifx\pgf@temp\pgf@circ@temp 
+				 (\tikztostart) node[rectjoinfill] {} 
+				\else 
+				\fi
 			\fi
 		\fi
 	\fi
 	\pgfextra{ \edef\pgf@circ@temp{\ctikzvalof{bipole/nodes/right}} \def\pgf@temp{diamond}  }
 	\ifx\pgf@temp\pgf@circ@temp 
-		{ (\tikztotarget) node[diamondpole] {} }
+		 (\tikztotarget) node[diamondpole] {} 
 	\else 
-		\pgfextra{ \edef\pgf@circ@temp{\ctikzvalof{bipole/nodes/right}} \def\pgf@temp{empty}  }
+		\pgfextra{ \def\pgf@temp{empty}  }
 		\ifx\pgf@temp\pgf@circ@temp 
-			{ (\tikztotarget) node[ocirc] {} }
+			 (\tikztotarget) node[ocirc] {} 
 		\else 
-			\pgfextra{ \def\pgf@temp{full}  }
-			\ifx\pgf@temp\pgf@circ@temp
-				{ (\tikztotarget) node[circ] {} }
+			\pgfextra{  \def\pgf@temp{full}  }
+			\ifx\pgf@temp\pgf@circ@temp 
+				(\tikztotarget) node[circ] {} 
+			\else 
+				\pgfextra{ \def\pgf@temp{rectjoinfill} }
+				\ifx\pgf@temp\pgf@circ@temp 
+				 (\tikztotarget) node[rectjoinfill] {} 
+				\else 
+				\fi
 			\fi
 		\fi
 	\fi
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -10291,10 +10320,9 @@
 		\fi
 	\fi
 	
-
+	\drawpoles
 	\pgf@circ@ifkeyempty{bipole/label/name}\else\pgf@circ@drawlabels{label}\fi
 	\pgf@circ@ifkeyempty{bipole/annotation/name}\else\pgf@circ@drawlabels{annotation}\fi
-	\drawpoles
 	\pgf@circ@ifkeyempty{bipole/voltage/label/name}\else\pgf@circ@drawvoltage\fi
 	\pgf@circ@ifkeyempty{bipole/current/label/name}\else\pgf@circ@drawcurrent\fi
 	%($(\ctikzvalof{bipole/name}end) ! .5\pgflinewidth ! (\ctikzvalof{bipole/name}start)$) -- %ugly workaround to get correct linejoins(node breaks path?)
