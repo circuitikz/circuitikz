@@ -2,6 +2,7 @@
 The major changes among the different circuitikz versions are listed here. See <https://github.com/circuitikz/circuitikz/commits> for a full list of changes.
 
 * Version git (unreleased)
+	- New Pole-shape .-. to fill rectangular joins
 	- Fixed direction of controlled american current source
 	- Fixed incorrect scaling of magnetron
 	- Fixed: Number of american inductor coils not adjustable
