@@ -1,5 +1,5 @@
-\def\pgfcircversion{git:16f3b1c}
-\def\pgfcircversiondate{2017/03/07}
+\def\pgfcircversion{git:352d2bf}
+\def\pgfcircversiondate{2017/03/08}
 \writestatus{loading}{\pgfcircversiondate{} The CircuiTikz circuit drawing package version \pgfcircversion}
 
 \usemodule[tikz]
@@ -10043,44 +10043,23 @@
 			\pgfmathrandominteger{\pgf@circ@rand}{1000}{9999}
 			\ctikzset{bipole/name = #2\pgf@circ@rand} % create it
 		\fi
-
-		\def\pgf@temp{open}
-		\def\pgf@circ@temp{#1}
+		\pgfsyssoftpath@getcurrentpath{\myp@th}%% save current path to extend after calculation of correct start/end coordinates
 	}
-%coordinate (bla) at (\tikztotarget)
-%coordinate (start) at (\tikztostart)
-%(\tikztotarget)
-%(\tikztostart)
 
-		\pgfextra{
-		   	 % Retrieve and assign the source co-ordinate
-			\tikz@scan@one@point\pgf@process(\tikztostart)%
-			\pgf@xa=\pgf@x\pgf@ya=\pgf@y%
-			% Retrieve and assign the target co-ordinate
-			\tikz@scan@one@point\pgf@process(\tikztotarget)%
-			\pgf@xb=\pgf@x\pgf@yb=\pgf@y
-
-			\pgf@circ@slope{\pgfpoint{\pgf@xa}{\pgf@ya}}{\pgfpoint{\pgf@xb}{\pgf@yb}}
-			\edef\pgf@circ@direction{\pgfmathresult}
-%\pgfpathmoveto{\pgfpoint{\pgf@xa}{\pgf@ya}}	
-%\pgfpathlineto{\pgfpointlineatdistance{1mm}{\pgfpoint{\pgf@xa}{\pgf@ya}}{\pgfpoint{\pgf@xb}{\pgf@yb}}}
-%\pgfusepath{draw}
-		}
-
-
-%--($(\tikztostart) ! .5\pgflinewidth ! (\tikztotarget)$) %ugly workaround to get correct linejoins(node breaks path?)
-	
-
-		(\tikztostart) coordinate (\ctikzvalof{bipole/name}start)
+		(\tikztostart) coordinate (\ctikzvalof{bipole/name}start)%necessary to get correct coordinates in the case of relativ start/end or constructions like ((node1)-|(node2))
 		(\tikztotarget) coordinate (\ctikzvalof{bipole/name}end)
-	
-		%\pgfextra{
-		%	\pgf@circ@slope{\pgfpointanchor{\ctikzvalof{bipole/name}start}{center}}
-		%					{\pgfpointanchor{\ctikzvalof{bipole/name}end}{center}}
-		%	\edef\pgf@circ@direction{\pgfmathresult}		
-		%}
-	
-		($(\tikztostart) ! .5 ! (\tikztotarget)$) 
+		\pgfextra{
+			\pgf@circ@slope{\pgfpointanchor{\ctikzvalof{bipole/name}start}{center}}
+							{\pgfpointanchor{\ctikzvalof{bipole/name}end}{center}}
+			\edef\pgf@circ@direction{\pgfmathresult}%Calculate direction(angle) of path
+			\pgfsyssoftpath@setcurrentpath{\myp@th}		
+		}
+	\pgfextra{\def\pgf@temp{open}\def\pgf@circ@temp{#1}}
+	\ifx\pgf@temp\pgf@circ@temp  % if it is an open
+	\else
+		--($(\ctikzvalof{bipole/name}start) ! .5\pgflinewidth ! (\ctikzvalof{bipole/name}end)$) %ugly workaround to get correct linejoins(node breaks path?)
+	\fi
+		($(\tikztostart) ! .5 ! (\tikztotarget)$)%%positio of middle node 
 		node[#1shape, rotate=\pgf@circ@direction, yscale=\ctikzvalof{mirror value}, xscale=\ctikzvalof{invert value}] 
 			(\ctikzvalof{bipole/name}) {}
 			\ifpgf@circuit@bipole@inverted
@@ -10100,6 +10079,7 @@
 					coordinate	(anchorendnode) at (\ctikzvalof{bipole/name}.right)
 				\fi
 			\fi
+	\pgfextra{\def\pgf@temp{open}\def\pgf@circ@temp{#1}}
 	\ifx\pgf@temp\pgf@circ@temp  % if it is an open
 	\else
 		\ifpgf@circuit@bipole@strokedsymbol%draw line thrue symbol(e.g. diodes)
@@ -10120,14 +10100,18 @@
 	\pgf@circ@ifkeyempty{bipole/annotation/name}\else\pgf@circ@drawlabels{annotation}\fi
 	\pgf@circ@ifkeyempty{bipole/voltage/label/name}\else\pgf@circ@drawvoltage\fi
 	\pgf@circ@ifkeyempty{bipole/current/label/name}\else\pgf@circ@drawcurrent\fi
-	%($(\ctikzvalof{bipole/name}end) ! .5\pgflinewidth ! (\ctikzvalof{bipole/name}start)$) -- %ugly workaround to get correct linejoins(node breaks path?)
-	%tikztostart and tikztotarget could not be used, because it would break if target coordinate is something like (node1-|node2)
-(\ctikzvalof{bipole/name}end)
+	\pgfextra{\def\pgf@temp{open}\def\pgf@circ@temp{#1}}
+	\ifx\pgf@temp\pgf@circ@temp  % if it is an open
+		(\ctikzvalof{bipole/name}end)%Move to end of path
+	\else
+		($(\ctikzvalof{bipole/name}end) ! .5\pgflinewidth ! (\ctikzvalof{bipole/name}start)$) -- (\ctikzvalof{bipole/name}end)%ugly workaround to get correct linejoins(node breaks path?)
+		%tikztostart and tikztotarget could not be used, because it would break if target coordinate is something like (node1-|node2)
+		
+	\fi
 	% reset
 	\pgfextra{
 		\pgfcircresetpath
 	}  
-
 	\tikztonodes%draw pending nodes an path
 }
 
