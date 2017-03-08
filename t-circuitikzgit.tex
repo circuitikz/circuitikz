@@ -1,4 +1,4 @@
-\def\pgfcircversion{git:a32da3d}
+\def\pgfcircversion{git:248e372}
 \def\pgfcircversiondate{2017/03/08}
 \writestatus{loading}{\pgfcircversiondate{} The CircuiTikz circuit drawing package version \pgfcircversion}
 
@@ -245,10 +245,14 @@
 \ctikzset{bipoles/tfullgeneric/width/.initial=.80}
 \ctikzset{bipoles/fullgeneric/height/.initial=.30}
 \ctikzset{bipoles/fullgeneric/width/.initial=.80}
-\ctikzset{bipoles/open/height/.initial=.25}
-\ctikzset{bipoles/open/width/.initial=.8}
+\ctikzset{bipoles/open/height/.initial=0}
+\ctikzset{bipoles/open/width/.initial=0}
 \ctikzset{bipoles/open/voltage/straight label distance/.initial=0}
-\ctikzset{bipoles/open/voltage/distance from node/.initial=.5}
+\ctikzset{bipoles/open/voltage/distance from node/.initial=.2}
+\ctikzset{bipoles/short/height/.initial=0} %dummy height for voltage positioning
+\ctikzset{bipoles/short/width/.initial=0} %dummy width for voltage positioning
+%\ctikzset{bipoles/short/voltage/straight label distance/.initial=.2}
+%\ctikzset{bipoles/short/voltage/distance from node/.initial=.5}
 \ctikzset{bipoles/ammeter/height/.initial=.60}
 \ctikzset{bipoles/ammeter/width/.initial=.60}
 \ctikzset{bipoles/ohmmeter/height/.initial=.60}
@@ -1212,6 +1216,12 @@
 	\anchor{center}{
 		\pgfpointorigin
 	}
+		\anchor{tip}{
+		\pgfpointorigin
+			\pgf@circ@res@step = \pgfkeysvalueof{/tikz/circuitikz/bipoles/length}
+				\divide \pgf@circ@res@step by 16
+		\pgf@x	=\pgf@circ@res@step
+		}
 	\behindforegroundpath{		
 		
 		\pgfscope
@@ -9427,13 +9437,16 @@
 			{ \edef\bumpb{\ctikzvalof{voltage/bump b}} }
 	}
 	
+	% %\pgfkeysvalueof{/tikz/circuitikz/bipoles/length}/16 is equal to the length of the currarrow
+	coordinate (pgfcirc@midtmp) at ($(\tikztostart) ! \pgfkeysvalueof{/tikz/circuitikz/bipoles/length}/16 ! (anchorstartnode)$) %absolute move, minimum space is length of arrowhead
+	coordinate (pgfcirc@midtmp) at ($(pgfcirc@midtmp) ! \distacefromnode ! (anchorstartnode)$)
 
-	coordinate (pgfcirc@midtmp) at ($(\tikztostart) ! \distacefromnode ! (anchorstartnode)$)
 	
 	coordinate (pgfcirc@Vfrom) at ($(pgfcirc@midtmp) ! -\distfromline ! \pgf@circ@voltage@angle:(anchorstartnode)$) 
-	coordinate (pgfcirc@mid) at ($(\tikztotarget) ! \distacefromnode ! (anchorendnode)$)
+	coordinate (pgfcirc@midtmp) at ($(\tikztotarget) ! \pgfkeysvalueof{/tikz/circuitikz/bipoles/length}/16 ! (anchorendnode)$)%absolute move, minimum space is length of arrowhead
+	coordinate (pgfcirc@midtmp) at ($(pgfcirc@midtmp) ! \distacefromnode ! (anchorendnode)$)
 
-	coordinate (pgfcirc@Vto) at ($(pgfcirc@mid) ! \distfromline ! \pgf@circ@voltage@angle : (anchorendnode)$)
+	coordinate (pgfcirc@Vto) at ($(pgfcirc@midtmp) ! \distfromline ! \pgf@circ@voltage@angle : (anchorendnode)$)
 
 
 	\ifpgf@circuit@bipole@voltage@below
@@ -9447,9 +9460,9 @@
 	\ifpgf@circuit@europeanvoltage
 		\ifpgf@circuit@bipole@voltage@straight
 			\ifpgf@circuit@bipole@voltage@backward
-				(pgfcirc@Vto) --(pgfcirc@Vfrom) node[currarrow, sloped,  allow upside down, pos=1] {} 
+				(pgfcirc@Vto) --(pgfcirc@Vfrom) node[currarrow, sloped,  allow upside down, pos=1,anchor=tip] {} 
 			\else
-				(pgfcirc@Vfrom) --(pgfcirc@Vto) node[currarrow, sloped,  allow upside down, pos=1] {}
+				(pgfcirc@Vfrom) --(pgfcirc@Vto) node[currarrow, sloped,  allow upside down, pos=1,anchor=tip] {} 
 				 	
 			\fi	
 		\else
