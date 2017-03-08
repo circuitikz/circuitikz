@@ -2,8 +2,9 @@
 The major changes among the different circuitikz versions are listed here. See <https://github.com/circuitikz/circuitikz/commits> for a full list of changes.
 
 * Version git (unreleased)
+	- Allow use of voltage label at a [short]
 	- Correct line joins between path components (to[...])
-	- New Pole-shape .-. to fill rectangular joins
+	- New Pole-shape .-. to fill perpendicular joins
 	- Fixed direction of controlled american current source
 	- Fixed incorrect scaling of magnetron
 	- Fixed: Number of american inductor coils not adjustable
@@ -78,7 +79,7 @@ The major changes among the different circuitikz versions are listed here. See <
 	- rename of context.tex and context.pdf (thanks to Karl Berry)
 	- updated the email address
     - in documentation, fixed wrong (non-standard) labelling of the axis in an example (thanks to prof. Claudio Beccaria)
-    - fixed scaling inconsistencies in quadrupoles    
+    - fixed scaling inconsistencies in quadrupoles
     - fixed division by zero error on certain vertical paths
     - introduced options straighlabels, rotatelabels, smartlabels
 
