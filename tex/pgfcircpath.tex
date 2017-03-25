@@ -59,11 +59,11 @@
 		\fi
 		\pgfsyssoftpath@getcurrentpath{\myp@th}%% save current path to extend after calculation of correct start/end coordinates
 	}
-
+	
 		(\tikztostart) coordinate (\ctikzvalof{bipole/name}start)%necessary to get correct coordinates in the case of relativ start/end or constructions like ((node1)-|(node2))
 		(\tikztotarget)++(0,0) coordinate (\ctikzvalof{bipole/name}end) %++(0,0) needed, if tikztotarget is a node
 		\pgfextra{
-			\pgf@circ@slope{\pgfpointanchor{\ctikzvalof{bipole/name}start}{center}}
+			\pgfmathanglebetweenpoints{\pgfpointanchor{\ctikzvalof{bipole/name}start}{center}}
 							{\pgfpointanchor{\ctikzvalof{bipole/name}end}{center}}
 			\edef\pgf@circ@direction{\pgfmathresult}%Calculate direction(angle) of path
 			\pgfsyssoftpath@setcurrentpath{\myp@th}		
@@ -629,7 +629,7 @@
 		(\tikztotarget) node[coordinate] (\ctikzvalof{bipole/name}end) {} 
 	\fi
 	\pgfextra{
-		\pgf@circ@slope{\pgfpointanchor{\ctikzvalof{bipole/name}start}{center}}
+		\pgfmathanglebetweenpoints{\pgfpointanchor{\ctikzvalof{bipole/name}start}{center}}
 					   {\pgfpointanchor{\ctikzvalof{bipole/name}end}{center}}
 		\pgfmathadd{\pgfmathresult}{-90}
 		\edef\pgf@circ@direction{\pgfmathresult}
@@ -637,8 +637,6 @@
 	($(\tikztostart) ! .5 ! (\tikztotarget)$) 
 		node[#1, /tikz/rotate=\pgf@circ@direction, xscale=\ctikzvalof{mirror value}]
 			(\ctikzvalof{bipole/name}) {} node {\ctikzvalof{bipole/label/name}}
-		node[#1, /tikz/rotate=\pgf@circ@direction, xscale=\ctikzvalof{mirror value}]
-			(\ctikzvalof{bipole/name}) {} node {\ctikzvalof{bipole/value/name}}
 		\ifcsname pgf@anchor@#1@pathstart\endcsname%if special path-anchors are defined, use them!
 			(\ctikzvalof{bipole/name}start.center) --(\ctikzvalof{bipole/name}.pathstart)
 			(\ctikzvalof{bipole/name}.pathend)  -- (\ctikzvalof{bipole/name}end.center)
