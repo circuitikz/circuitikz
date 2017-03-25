@@ -3,6 +3,8 @@ The major changes among the different circuitikz versions are listed here. See <
 
 * Version git (unreleased)
 	- Fixed unwanted line through components if target coordinate is a name of a node
+	- Fixed position of labels with subscript letters.
+	- Absolute distance calculation in terms of ex at rotated labels
 	
 * Version 0.8 (2017-03-08)
 	- Allow use of voltage label at a [short]
