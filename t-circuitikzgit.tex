@@ -1,4 +1,4 @@
-\def\pgfcircversion{git:6c1ca8c}
+\def\pgfcircversion{git:91f2fd4}
 \def\pgfcircversiondate{2017/03/25}
 \writestatus{loading}{\pgfcircversiondate{} The CircuiTikz circuit drawing package version \pgfcircversion}
 
@@ -1014,60 +1014,13 @@
 	\ifx\pgf@circ@temp\pgf@temp
 }
 
-%%%---------- close: tex/pgfcircutils
-%%%%%%%%%%% Springe nach tex/pgfcircmath
-%%%---------- open: tex/pgfcircmath.tex
-% Copyright 2007-2009 by Massimo Redaelli
-%
-% This file may be distributed and/or modified
-%
-% 1. under the LaTeX Project Public License and/or
-% 2. under the GNU Public License.
-%
-% See the file doc/LICENSE for more details.
-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%    Math routines
 
 \def\pgf@circ@stripdecimals#1.#2\pgf@nil{#1}
 
-% angle between 0 and 360
-\def\pgf@circ@slope#1#2{%
- \pgf@process{#1}%
- \pgf@xa=\pgf@x%
- \pgf@ya=\pgf@y%
- \pgf@process{#2}%
- \advance\pgf@x by-\pgf@xa%
- \advance\pgf@y by-\pgf@ya%
- \ifdim\pgf@x<0.1pt 
- 	\ifdim\pgf@x>-0.1pt % vertical
-		\ifdim\pgf@y<0pt
-			\def\pgfmathresult{-90.0}
-		\else
-			\def\pgfmathresult{+90.0}
-		\fi 	
- 	\else % oblique with dx < 0
-		\pgfmathdivide{\pgf@y}{\pgf@x}
-		\pgfmathatan{\pgfmathresult}
-		\ifdim\pgf@x<0pt
-			\pgfmathsubtract{\pgfmathresult}{+180}
-		\fi
- 	\fi
- \else % oblique with dx > 0
-	\pgfmathdivide{\pgf@y}{\pgf@x}
-	\pgfmathatan{\pgfmathresult}
-	\ifdim\pgf@x<0pt
-		\pgfmathsubtract{\pgfmathresult}{+180}
-	\fi
- \fi
- \pgf@x=\pgfmathresult pt
- \ifdim\pgf@x<0pt
-	\pgfmathadd{\pgfmathresult}{+360} 
- \fi
- }
 
-  	
-%%%---------- close: tex/pgfcircmath
+%%%---------- close: tex/pgfcircutils
 
 %%%%%%%%%%% Springe nach tex/pgfcircshapes
 %%%---------- open: tex/pgfcircshapes.tex
@@ -10058,11 +10011,11 @@
 		\fi
 		\pgfsyssoftpath@getcurrentpath{\myp@th}%% save current path to extend after calculation of correct start/end coordinates
 	}
-
+	
 		(\tikztostart) coordinate (\ctikzvalof{bipole/name}start)%necessary to get correct coordinates in the case of relativ start/end or constructions like ((node1)-|(node2))
 		(\tikztotarget)++(0,0) coordinate (\ctikzvalof{bipole/name}end) %++(0,0) needed, if tikztotarget is a node
 		\pgfextra{
-			\pgf@circ@slope{\pgfpointanchor{\ctikzvalof{bipole/name}start}{center}}
+			\pgfmathanglebetweenpoints{\pgfpointanchor{\ctikzvalof{bipole/name}start}{center}}
 							{\pgfpointanchor{\ctikzvalof{bipole/name}end}{center}}
 			\edef\pgf@circ@direction{\pgfmathresult}%Calculate direction(angle) of path
 			\pgfsyssoftpath@setcurrentpath{\myp@th}		
@@ -10628,7 +10581,7 @@
 		(\tikztotarget) node[coordinate] (\ctikzvalof{bipole/name}end) {} 
 	\fi
 	\pgfextra{
-		\pgf@circ@slope{\pgfpointanchor{\ctikzvalof{bipole/name}start}{center}}
+		\pgfmathanglebetweenpoints{\pgfpointanchor{\ctikzvalof{bipole/name}start}{center}}
 					   {\pgfpointanchor{\ctikzvalof{bipole/name}end}{center}}
 		\pgfmathadd{\pgfmathresult}{-90}
 		\edef\pgf@circ@direction{\pgfmathresult}
@@ -10636,8 +10589,6 @@
 	($(\tikztostart) ! .5 ! (\tikztotarget)$) 
 		node[#1, /tikz/rotate=\pgf@circ@direction, xscale=\ctikzvalof{mirror value}]
 			(\ctikzvalof{bipole/name}) {} node {\ctikzvalof{bipole/label/name}}
-		node[#1, /tikz/rotate=\pgf@circ@direction, xscale=\ctikzvalof{mirror value}]
-			(\ctikzvalof{bipole/name}) {} node {\ctikzvalof{bipole/value/name}}
 		\ifcsname pgf@anchor@#1@pathstart\endcsname%if special path-anchors are defined, use them!
 			(\ctikzvalof{bipole/name}start.center) --(\ctikzvalof{bipole/name}.pathstart)
 			(\ctikzvalof{bipole/name}.pathend)  -- (\ctikzvalof{bipole/name}end.center)
