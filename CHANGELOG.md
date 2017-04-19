@@ -1,6 +1,9 @@
 <!--- CircuiTikz - Changelog --->
 The major changes among the different circuitikz versions are listed here. See <https://github.com/circuitikz/circuitikz/commits> for a full list of changes.
 
+* Version git (unreleased)
+	- Fixes pgfkeys error using alternatively specified mixed colors(see pgfplots manual section "4.7.5 Colors")
+
 * Version 0.8.1 (2017-03-25)
 	- Fixed unwanted line through components if target coordinate is a name of a node
 	- Fixed position of labels with subscript letters.
