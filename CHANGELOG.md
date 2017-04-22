@@ -5,6 +5,8 @@ The major changes among the different circuitikz versions are listed here. See <
 	- Fixes pgfkeys error using alternatively specified mixed colors(see pgfplots manual section "4.7.5 Colors")
 	- Added new switches "ncs" and "nos"
 	- Reworked arrows at spst-switches
+	- Fixed direction of controlled american voltage source
+	- "v<=" and "i<=" do not rotate the sources anymore(see them as "counting direction indication", this can be different then the shape orientation); Use the option "invert" to change the direction of the source/apperance of the shape.
 	
 * Version 0.8.1 (2017-03-25)
 	- Fixed unwanted line through components if target coordinate is a name of a node
