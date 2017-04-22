@@ -3,7 +3,9 @@ The major changes among the different circuitikz versions are listed here. See <
 
 * Version git (unreleased)
 	- Fixes pgfkeys error using alternatively specified mixed colors(see pgfplots manual section "4.7.5 Colors")
-
+	- Added new switches "ncs" and "nos"
+	- Reworked arrows at spst-switches
+	
 * Version 0.8.1 (2017-03-25)
 	- Fixed unwanted line through components if target coordinate is a name of a node
 	- Fixed position of labels with subscript letters.
