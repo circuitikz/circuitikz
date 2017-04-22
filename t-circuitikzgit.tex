@@ -1,4 +1,4 @@
-\def\pgfcircversion{git:ad8c384}
+\def\pgfcircversion{git:6524f22}
 \def\pgfcircversiondate{2017/04/22}
 \writestatus{loading}{\pgfcircversiondate{} The CircuiTikz circuit drawing package version \pgfcircversion}
 
@@ -9585,8 +9585,6 @@
 %% Current handling
 
 %% Options
-
-
 \ctikzset{i^>/.style = {
 		i = #1,
 		\circuitikzbasekey/bipole/current/direction = forward,
@@ -9652,12 +9650,7 @@
 }
 
 \ctikzset{i/.code = {
-%			\ifpgf@circuit@bipole@iscurrent
-%				\pgfkeys{\circuitikzbasekey/bipole/current/position=above}
-%			\else
-%				\pgfkeys{\circuitikzbasekey/bipole/current/position=below}
-%			\fi
-			\pgfkeys{\circuitikzbasekey/bipole/current/direction = forward,
+	\pgfkeys{\circuitikzbasekey/bipole/current/direction = forward,
 					\circuitikzbasekey/bipole/current/x position = after,
 					\circuitikzbasekey/bipole/current/y position = above }
 	\pgfkeys{/tikz/circuitikz/bipole/current/label/name=#1}
@@ -9698,38 +9691,7 @@
 \ctikzset{i>/.style = {i = #1, \circuitikzbasekey/bipole/current/direction = forward } }
 \ctikzset{i^/.style = { i= #1, \circuitikzbasekey/bipole/current/y position = above } }
 
-
-\def\pgf@circ@drawnormalcurrent{
-			\ifpgf@circuit@bipole@current@before
-				\ifpgf@circuit@bipole@current@backward
-					{  (anchorstartnode) -- 
-							node [currarrow, pos=\ctikzvalof{current/distance}, sloped,  allow upside down] (Iarrow) {} 
-						(\tikztostart)  
-					}
-				\else
-					{  (\tikztostart) -- 
-							node [currarrow, pos=\ctikzvalof{current/distance}, sloped,  allow upside down] (Iarrow) {} 
-						(anchorstartnode)  
-					}
-				\fi
-			\else
-				\ifpgf@circuit@bipole@current@backward
-					{ 	(\tikztotarget) -- 
-							node [currarrow, pos=\ctikzvalof{current/distance}, sloped,  allow upside down] (Iarrow) {} 
-						(anchorendnode)  
-					}
-				\else
-					{ 	(anchorendnode) -- 
-							node [currarrow, pos=\ctikzvalof{current/distance}, sloped,  allow upside down] (Iarrow) {}
-						(\tikztotarget)  
-					}
-				\fi
-			\fi
-}
-
 %% Output routine 
-%% #1 - node name
-
 \def\pgf@circ@drawcurrent{
 	\pgfextra{
 		\edef\pgf@circ@ffffff{\pgf@circ@direction}
@@ -9787,45 +9749,32 @@
 			\def\pgf@circ@bipole@current@label@where{+90}
 		\fi
 	}
-
 	
-		\pgfextra{	\def\pgf@temp{short} \edef\pgf@circ@temp{\ctikzvalof{bipole/kind}} }
-		
-		\ifx\pgf@circ@temp\pgf@temp % caso di corrente (centrata) su un corto
+	\pgfextra{\def\pgf@temp{short}\edef\pgf@circ@temp{\ctikzvalof{bipole/kind}}}
+		\ifx\pgf@circ@temp\pgf@temp%draw current at a short at middle of the line
 			\ifpgf@circuit@bipole@current@backward
-				{ (\tikztotarget) -- 
-					node [currarrow, pos=\ctikzvalof{current/distance}, sloped,  allow upside down] (Iarrow) {} 
-				  (\tikztostart)  }
+				(\tikztotarget)--(\tikztostart)
 			\else
-				{ (\tikztostart) -- 
-					node [currarrow, pos=\ctikzvalof{current/distance}, sloped,  allow upside down] (Iarrow) {} 
-				  (\tikztotarget)  }
+				(\tikztostart)--(\tikztotarget)
 			\fi
-			
-		\else % altri bipoli - e quindi tra nodo e target
-
-			\ifpgf@circuit@bipole@iscurrent
-				\ifpgf@circuit@europeancurrent
-					\pgf@circ@drawnormalcurrent
-				\else 
+		\else% normal bipole or source
+			\ifpgf@circuit@bipole@current@before
+				\ifpgf@circuit@bipole@current@backward
+					 (anchorstartnode)--(\tikztostart)
+				\else
+					(\tikztostart)--(anchorstartnode)
 				\fi
 			\else
-				\pgf@circ@drawnormalcurrent
+				\ifpgf@circuit@bipole@current@backward
+					(\tikztotarget)--(anchorendnode)
+				\else
+					(anchorendnode)--(\tikztotarget)
+				\fi
 			\fi
 		\fi
-
-	\ifpgf@circuit@bipole@iscurrent
-		 node [anchor=\pgf@circ@dir] at (\ctikzvalof{bipole/name}.\pgf@circ@bipole@current@label@where) 
-		 	{ \pgf@circ@finallabels{current/label} }
-	\else
-		(Iarrow.\pgf@circ@bipole@current@label@where) node [anchor=\pgf@circ@dir] 	
-			{ \pgf@circ@finallabels{current/label} } 
-	\fi
-
+	coordinate[currarrow,pos=\ctikzvalof{current/distance},sloped,allow upside down](Iarrow)
+	(Iarrow.\pgf@circ@bipole@current@label@where) node[anchor=\pgf@circ@dir]{\pgf@circ@finallabels{current/label}}
 }
-
-
-
 
 %%%---------- close: tex/pgfcirccurrent
 
