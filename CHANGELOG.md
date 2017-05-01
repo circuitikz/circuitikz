@@ -8,6 +8,7 @@ The major changes among the different circuitikz versions are listed here. See <
 	- Fixed direction of controlled american voltage source
 	- "v<=" and "i<=" do not rotate the sources anymore(see them as "counting direction indication", this can be different then the shape orientation); Use the option "invert" to change the direction of the source/apperance of the shape.
 	- current label "i=" can now be used independent of the regular label "l=" at current sources
+	- rewrite of current arrow placement. Current arrows can now also be rotated on zero-length paths
 	- New DIN/EN compliant operational amplifier symbol "en amp"
 	
 * Version 0.8.1 (2017-03-25)
