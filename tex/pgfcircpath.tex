@@ -44,26 +44,43 @@
    }
 }
 
+%% Helper function for path-function to ensure using anchors between nodes
+\def\set@explicit@center@anchor#1{
+	\pgfutil@ifundefined{pgf@sh@ns@#1}
+	{
+	%This coordinate is no node(but a relative position or a coordinate), no further handling needed
+	}{
+	\pgfutil@in@.{#1}
+	\ifpgfutil@in@
+	% Anchor is used, do nothing!
+	\else%
+		\let\tikz@moveto@waiting=\relax
+		\pgfpathmoveto{\tikz@last@position}%force movement, because tikz@moveto@waiting
+		\edef#1{#1.center}%ensure using center anchor
+	\fi
+	}
+}
+
 
 %% Generic bipole path
 \def\pgf@circ@bipole@path#1#2{
 
 \pgfextra{
+		\set@explicit@center@anchor{\tikztostart}
+		\set@explicit@center@anchor{\tikztotarget}
+		\pgfsyssoftpath@getcurrentpath{\myp@th}%% save current path to extend after calculation of correct start/end coordinates
 		\ctikzset{bipole/kind = #1}
-		
 		\edef\pgf@temp{\ctikzvalof{bipole/name}}
 		\def\pgf@circ@temp{}
 		\ifx\pgf@temp\pgf@circ@temp % if it has not a name
 			\pgfmathrandominteger{\pgf@circ@rand}{1000}{9999}
 			\ctikzset{bipole/name = #2\pgf@circ@rand} % create it
 		\fi
-		\pgfsyssoftpath@getcurrentpath{\myp@th}%% save current path to extend after calculation of correct start/end coordinates
 	}
 	
 		(\tikztostart) coordinate (\ctikzvalof{bipole/name}start)%necessary to get correct coordinates in the case of relativ start/end or constructions like ((node1)-|(node2))
 		(\tikztotarget) coordinate (\ctikzvalof{bipole/name}end)
 		\pgfextra{
-			\let\tikz@moveto@waiting=\relax%necessary, if \tikztatarget is a node
 			\pgfmathanglebetweenpoints{\pgfpointanchor{\ctikzvalof{bipole/name}start}{center}}
 							{\pgfpointanchor{\ctikzvalof{bipole/name}end}{center}}
 			\edef\pgf@circ@direction{\pgfmathresult}%Calculate direction(angle) of path
