@@ -3,6 +3,8 @@ The major changes among the different circuitikz versions are listed here. See <
 
 * Version git(unreleased)
 	- Removed unwanted lines at to-paths if the starting point is a node without a explicit anchor.
+	- Fixed scaling option, now all parts are scaled by bipoles/length
+	- Surge arrester appears no more if a to path is used without []-options
 	
 * Version 0.8.2 (2017-05-01)
 	- Fixes pgfkeys error using alternatively specified mixed colors(see pgfplots manual section "4.7.5 Colors")
