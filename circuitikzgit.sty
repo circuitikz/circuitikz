@@ -10,7 +10,7 @@
 
 \NeedsTeXFormat{LaTeX2e}
 
-\def\pgfcircversion{git:3ad97e4}
+\def\pgfcircversion{git:f759879}
 \def\pgfcircversiondate{2017/05/21}
 
 \ProvidesPackage{circuitikzgit}
@@ -9412,6 +9412,28 @@
 
 
 \def\pgf@circ@drawlabels#1{
+	\pgfextra{
+		\pgfmathsubtract{\pgf@circ@direction}{90}
+		\edef\pgf@circ@labanc{\expandafter\pgf@circ@stripdecimals\pgfmathresult\pgf@nil}
+		
+		\edef\pgf@circ@temp{\ctikzvalof{bipole/#1/position}} 
+		\ifnum \pgf@circ@temp < 0
+			\pgfmathadd{\pgf@circ@labanc}{180}
+			\edef\pgf@circ@labanc{\expandafter\pgf@circ@stripdecimals\pgfmathresult\pgf@nil}
+		\fi
+		\ifpgf@circuit@bipole@inverted
+			\pgfmathadd{\pgf@circ@temp}{180} %If shape is inverted, use opposite anchor
+			\edef\pgf@circ@temp{\expandafter\pgf@circ@stripdecimals\pgfmathresult\pgf@nil}
+		\fi
+		
+		\ifnum \ctikzvalof{mirror value} = -1
+			\pgfmathadd{\pgf@circ@temp}{180} %If shape is mirrored, use opposite anchor
+			\edef\pgf@circ@temp{\expandafter\pgf@circ@stripdecimals\pgfmathresult\pgf@nil}
+		\fi
+	}
+		%Firstly, place a coodinate directly at the edge of the shape
+		(\ctikzvalof{bipole/name}.\pgf@circ@temp) coordinate (labelcoor)
+		%now decide, which labels should be drawn
 		\pgfextra{
 			\edef\pgf@temp{\ctikzvalof{label/align}}
 			\def\pgf@circ@temp{straight}
@@ -9422,7 +9444,7 @@
 			\pgfextra{\def\pgf@circ@temp{rotate}}
 			\ifx\pgf@temp\pgf@circ@temp %rotate
 				\pgf@circ@drawrotlabels{#1}
-			\else % smart
+			\else% smart
 				\pgf@circ@drawsmartlabels{#1}
 			\fi
 		\fi
@@ -9448,61 +9470,70 @@
 
 \def\pgf@circ@drawrotlabels#1{
 	\pgfextra{
-		\def\pgf@circ@temp{\ctikzvalof{bipole/#1/position}} 
-		\edef\pgfcirclabrot{\pgf@circ@direction} % first or fourth quadrant
-		\edef\pgfcircmathresult{\expandafter\pgf@circ@stripdecimals\pgf@circ@direction\pgf@nil}
-		\ifnum \pgfcircmathresult > 90 \ifnum \pgfcircmathresult < 270 % second or third quadrant
+		\ifnum \ctikzvalof{bipole/#1/position}>0
+		%we need some more space for placement below, due to mid-anchor
+			\def\pgf@circ@labposdistance{1.5ex}
+			\else
+			\def\pgf@circ@labposdistance{2ex}
+		\fi
+		%Calculate rotation of the label from direction and strip decimals
+		\edef\pgfcirclabrot{\expandafter\pgf@circ@stripdecimals\pgf@circ@direction\pgf@nil}
+		% rotate the label at second or third quadrant:
+		\ifnum \pgfcirclabrot > 90 \ifnum \pgfcirclabrot < 270
 			\pgfmathsubtract{\pgf@circ@direction}{180}
 			\edef\pgfcirclabrot{\expandafter\pgf@circ@stripdecimals\pgfmathresult\pgf@nil}
-			\pgfmathadd{\pgf@circ@temp}{180} %%%
-			\edef\pgf@circ@temp{\expandafter\pgf@circ@stripdecimals\pgfmathresult\pgf@nil} %%%
+			%invert the space relationships due to rotatet strings
+			\ifnum \ctikzvalof{bipole/#1/position}>0
+				\def\pgf@circ@labposdistance{2ex}
+			\else
+				\def\pgf@circ@labposdistance{1.5ex}
+			\fi
 		\fi\fi
-	
-		\pgfmathadd{\pgf@circ@direction}{90}
-		\edef\pgf@circ@labpos{\expandafter\pgf@circ@stripdecimals\pgfmathresult\pgf@nil}
-		}
-		\ifnum \ctikzvalof{mirror value} = -1
-			(\ctikzvalof{bipole/name}.south)++(\pgf@circ@labpos:1.5ex) coordinate (labelcoor)
-		\else
-			(\ctikzvalof{bipole/name}.north)++(\pgf@circ@labpos:1.5ex) coordinate (labelcoor)
-		\fi
-		(labelcoor) node [rotate=\pgfcirclabrot,anchor=mid] {\pgf@circ@finallabels{#1}} 
+		\pgfmathparse{\ctikzvalof{bipole/#1/position}>0?\pgf@circ@direction+90:\pgf@circ@direction-90}
+		\edef\pgf@circ@labposangle{\expandafter\pgf@circ@stripdecimals\pgfmathresult\pgf@nil}
+	}				
+	(labelcoor)++(\pgf@circ@labposangle:\pgf@circ@labposdistance) coordinate(labelcoor)
+	node[anchor=mid,rotate=\pgfcirclabrot](\ctikzvalof{bipole/name}#1){\pgf@circ@finallabels{#1}}
 }
 
 \def\pgf@circ@drawreglabels#1{
+
+	%Now calculate all shape positions
+	%Use mid-anchor at x-axis and base-anchor at y-axis, respectively.
+	%All points between will be addressed by angled-anchors:
 	\pgfextra{
-		\pgfmathsubtract{\pgf@circ@direction}{90}
-		\edef\pgf@circ@labanc{\expandafter\pgf@circ@stripdecimals\pgfmathresult\pgf@nil}
-		
-		\edef\pgf@circ@temp{\ctikzvalof{bipole/#1/position}} 
-		\ifnum \pgf@circ@temp < 0
-			\pgfmathadd{\pgf@circ@labanc}{180}
-			\edef\pgf@circ@labanc{\expandafter\pgf@circ@stripdecimals\pgfmathresult\pgf@nil}
-		\fi
-		\ifpgf@circuit@bipole@inverted
-				\pgfmathadd{\pgf@circ@temp}{180}
-				\edef\pgf@circ@temp{\expandafter\pgf@circ@stripdecimals\pgfmathresult\pgf@nil}
-		\fi
-		
-		\ifnum \ctikzvalof{mirror value} = -1
-				\pgfmathadd{\pgf@circ@temp}{180}
-				\edef\pgf@circ@temp{\expandafter\pgf@circ@stripdecimals\pgfmathresult\pgf@nil}
-		\fi
-		\pgfmathadd{\pgf@circ@direction}{90}
-		\edef\pgf@circ@labpos{\expandafter\pgf@circ@stripdecimals\pgfmathresult\pgf@nil}		
+		\pgfmathadd{\pgf@circ@labanc}{90}
+		\edef\pgf@circ@temp{\expandafter\pgf@circ@stripdecimals\pgfmathresult\pgf@nil}
+		\pgfmathparse{mod(\pgf@circ@temp,180)>135?mod(\pgf@circ@temp,180)-180:mod(\pgf@circ@temp,180)}
+		\edef\pgfcircmathresult{\expandafter\pgf@circ@stripdecimals\pgfmathresult\pgf@nil}
 	}
-
-	\ifnum \pgf@circ@labanc = -90
-		\ifnum \ctikzvalof{mirror value} = -1
-			(\ctikzvalof{bipole/name}.south)++(\pgf@circ@labpos:1.5ex) coordinate (labelcoor)
+	%Values between -5 and 5 are at pos /neg x-axis, values around 90 are at both y-axis
+	\ifnum \pgfcircmathresult > 84 \ifnum \pgfcircmathresult< 96
+		\pgfextra{\edef\pgf@circ@labpos{\expandafter\pgf@circ@stripdecimals\pgf@circ@direction\pgf@nil}}
+		\ifnum \pgf@circ@labpos > 180
+			\ifnum \ctikzvalof{bipole/#1/position} > 0
+				\pgfextra{\def\pgf@circ@labanc{mid west}}
+			\else
+				\pgfextra{\def\pgf@circ@labanc{mid east}}
+			\fi
 		\else
-			(\ctikzvalof{bipole/name}.north)++(\pgf@circ@labpos:1.5ex) coordinate (labelcoor)
+			\ifnum \ctikzvalof{bipole/#1/position} > 0
+				\pgfextra{\def\pgf@circ@labanc{mid east}}
+			\else
+				\pgfextra{\def\pgf@circ@labanc{mid west}}
+			\fi
 		\fi
-		(labelcoor) node [anchor=mid] {\pgf@circ@finallabels{#1}} 
-
-	\else
-		(\ctikzvalof{bipole/name}.\pgf@circ@temp) node [anchor=\pgf@circ@labanc]{\pgf@circ@finallabels{#1}}
- 	 \fi
+	\fi\fi
+	\ifnum \pgfcircmathresult <6
+		\ifnum \ctikzvalof{bipole/#1/position} < 0
+			%we need some more space for placement below, due to mid-anchor
+			(labelcoor)++(-\pgf@circ@labanc:2ex) coordinate(labelcoor)
+		\else
+			(labelcoor)++(-\pgf@circ@labanc:1.5ex) coordinate(labelcoor)
+		\fi
+		\pgfextra{\def\pgf@circ@labanc{mid}}
+	\fi
+	 (labelcoor) node[anchor=\pgf@circ@labanc](\ctikzvalof{bipole/name}#1){\pgf@circ@finallabels{#1}}
 }
 
 \def\pgf@circ@finallabels#1{%
