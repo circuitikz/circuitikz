@@ -10,7 +10,7 @@
 
 \NeedsTeXFormat{LaTeX2e}
 
-\def\pgfcircversion{git:421a5d1}
+\def\pgfcircversion{git:df5eb80}
 \def\pgfcircversiondate{2017/05/28}
 
 \ProvidesPackage{circuitikzgit}
@@ -570,6 +570,7 @@
 \ctikzset{bipoles/twoport/text/.initial=}
 \ctikzset{bipoles/vco/width/.initial=.7}
 \ctikzset{bipoles/bandpass/width/.initial=.7}
+\ctikzset{bipoles/bandstop/width/.initial=.7}
 \ctikzset{bipoles/highpass/width/.initial=.7}
 \ctikzset{bipoles/lowpass/width/.initial=.7}
 \ctikzset{bipoles/adc/width/.initial=.7}
@@ -4221,6 +4222,73 @@
 		\pgfpathmoveto{\pgfpoint{-0.15\pgf@circ@res@step}{-0.65\pgf@circ@res@step}}
 		\pgfpathlineto{\pgfpoint{0.15\pgf@circ@res@step}{-0.35\pgf@circ@res@step}}
 		\pgfusepath{draw}
+}
+
+%% bandstop filter
+\pgfcircdeclarebipole{}{\ctikzvalof{bipoles/bandstop/width}}{bandstop}{\ctikzvalof{bipoles/bandstop/width}}{\ctikzvalof{bipoles/bandstop/width}}{
+	\pgf@circ@res@step = \ctikzvalof{bipoles/bandstop/width}\pgf@circ@Rlen
+	\divide \pgf@circ@res@step by 2
+
+	\pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@zero}}
+	\pgf@circ@res@other = \pgf@circ@res@left
+	\advance\pgf@circ@res@other by \pgf@circ@res@step
+
+	\ifpgf@circuit@dashed
+	\pgfsetdash{{0.1cm}{0.1cm}}{0cm}
+	\fi
+
+	% draw outer box
+	\pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}\pgfstartlinewidth}
+	\pgfpathrectanglecorners{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@up}}{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@down}}
+	\pgfusepath{draw}
+
+	\ifpgf@circuit@inputarrow
+	{
+		\advance \pgf@circ@res@left by -.5\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}\pgfstartlinewidth
+		\pgftransformshift{\pgfpoint{\pgf@circ@res@left}{0pt}}
+		\pgfnode{inputarrow}{tip}{}{pgf@inputarrow}{\pgfusepath{fill}}
+	}
+	\fi
+
+	% rotate inner symbol
+	\def\pgfcircmathresult{\expandafter\pgf@circ@stripdecimals\pgf@circ@direction\pgf@nil}
+	\ifnum \pgfcircmathresult > 45 \ifnum \pgfcircmathresult < 135
+	\pgftransformrotate{270}
+	\fi\fi
+	\ifnum \pgfcircmathresult > 134 \ifnum \pgfcircmathresult < 225% 134 degree, because >= 135 is not possible
+	\pgftransformrotate{180}
+	\fi\fi
+	\ifnum \pgfcircmathresult > 224 \ifnum \pgfcircmathresult < 315
+	\pgftransformrotate{90}
+	\fi\fi
+
+	% draw inner symbol
+	\pgfsetdash{}{0pt}% always draw solid line for inner symbol
+	\pgfsetarrows{-}%never draw arrows
+	\pgfsetlinewidth{\pgfstartlinewidth}
+	\pgfpathmoveto{\pgfpoint{-0.5\pgf@circ@res@step}{0.5\pgf@circ@res@step}}
+	\pgfpathsine{\pgfpoint{.25\pgf@circ@res@step}{.25\pgf@circ@res@step}}
+	\pgfpathcosine{\pgfpoint{.25\pgf@circ@res@step}{-.25\pgf@circ@res@step}}
+	\pgfpathsine{\pgfpoint{.25\pgf@circ@res@step}{-.25\pgf@circ@res@step}}
+	\pgfpathcosine{\pgfpoint{.25\pgf@circ@res@step}{.25\pgf@circ@res@step}}
+	\pgfusepath{draw}
+
+	\pgfpathmoveto{\pgfpoint{-0.5\pgf@circ@res@step}{0}}
+	\pgfpathsine{\pgfpoint{.25\pgf@circ@res@step}{.25\pgf@circ@res@step}}
+	\pgfpathcosine{\pgfpoint{.25\pgf@circ@res@step}{-.25\pgf@circ@res@step}}
+	\pgfpathsine{\pgfpoint{.25\pgf@circ@res@step}{-.25\pgf@circ@res@step}}
+	\pgfpathcosine{\pgfpoint{.25\pgf@circ@res@step}{.25\pgf@circ@res@step}}
+	\pgfusepath{draw}
+	\pgfpathmoveto{\pgfpoint{-0.15\pgf@circ@res@step}{-0.15\pgf@circ@res@step}}
+	\pgfpathlineto{\pgfpoint{0.15\pgf@circ@res@step}{0.15\pgf@circ@res@step}}
+	\pgfusepath{draw}
+
+	\pgfpathmoveto{\pgfpoint{-0.5\pgf@circ@res@step}{-0.5\pgf@circ@res@step}}
+	\pgfpathsine{\pgfpoint{.25\pgf@circ@res@step}{.25\pgf@circ@res@step}}
+	\pgfpathcosine{\pgfpoint{.25\pgf@circ@res@step}{-.25\pgf@circ@res@step}}
+	\pgfpathsine{\pgfpoint{.25\pgf@circ@res@step}{-.25\pgf@circ@res@step}}
+	\pgfpathcosine{\pgfpoint{.25\pgf@circ@res@step}{.25\pgf@circ@res@step}}
+	\pgfusepath{draw}
 }
 
 %% highpass filter
@@ -10372,6 +10440,7 @@
 \def\pgf@circ@twoport@path#1{\pgf@circ@bipole@path{twoport}{#1}}
 \def\pgf@circ@vco@path#1{\pgf@circ@bipole@path{vco}{#1}}
 \def\pgf@circ@bandpass@path#1{\pgf@circ@bipole@path{bandpass}{#1}}
+\def\pgf@circ@bandstop@path#1{\pgf@circ@bipole@path{bandstop}{#1}}
 \def\pgf@circ@highpass@path#1{\pgf@circ@bipole@path{highpass}{#1}}
 \def\pgf@circ@lowpass@path#1{\pgf@circ@bipole@path{lowpass}{#1}}
 \def\pgf@circ@adc@path#1{\pgf@circ@bipole@path{adc}{#1}}
@@ -10486,6 +10555,7 @@
 \compattikzset{twoport/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@twoport@path}}
 \compattikzset{vco/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@vco@path}}
 \compattikzset{bandpass/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@bandpass@path}}
+\compattikzset{bandstop/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@bandstop@path}}
 \compattikzset{highpass/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@highpass@path}}
 \compattikzset{lowpass/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@lowpass@path}}
 \compattikzset{adc/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@adc@path}}
