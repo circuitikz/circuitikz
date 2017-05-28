@@ -1,7 +1,7 @@
 <!--- CircuiTikz - Changelog --->
 The major changes among the different circuitikz versions are listed here. See <https://github.com/circuitikz/circuitikz/commits> for a full list of changes.
 
-* Version git(unreleased)
+* Version 0.8.3 (2017-05-28) 
 	- Removed unwanted lines at to-paths if the starting point is a node without a explicit anchor.
 	- Fixed scaling option, now all parts are scaled by bipoles/length
 	- Surge arrester appears no more if a to path is used without []-options
