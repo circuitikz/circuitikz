@@ -6,7 +6,9 @@ The major changes among the different circuitikz versions are listed here. See <
 	- Fixed scaling option, now all parts are scaled by bipoles/length
 	- Surge arrester appears no more if a to path is used without []-options
 	- Fixed current placement now possible with paths at an angle of around 280°
+	- Fixed voltage placement now possible with paths at an angle of around 280°
 	- Fixed label and annotation placement (at some angles position not changable)
+	- Adjustable default distance for straight-voltages: 'bipoles/voltage/straight label distance'
 	
 * Version 0.8.2 (2017-05-01)
 	- Fixes pgfkeys error using alternatively specified mixed colors(see pgfplots manual section "4.7.5 Colors")
