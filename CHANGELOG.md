@@ -10,6 +10,7 @@ The major changes among the different circuitikz versions are listed here. See <
 	- Fixed label and annotation placement (at some angles position not changable)
 	- Adjustable default distance for straight-voltages: 'bipoles/voltage/straight label distance'
 	- Added Symbol for bandstop filter
+	- New annotation type to show flows using f=... like currents, can be used for thermal, power or current flows
 	
 * Version 0.8.2 (2017-05-01)
 	- Fixes pgfkeys error using alternatively specified mixed colors(see pgfplots manual section "4.7.5 Colors")

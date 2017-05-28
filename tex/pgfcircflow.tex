@@ -1,0 +1,193 @@
+% Copyright 2007-2009 by Massimo Redaelli
+%
+% This file may be distributed and/or modified
+%
+% 1. under the LaTeX Project Public License and/or
+% 2. under the GNU Public License.
+%
+% See the file doc/LICENSE for more details.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% flow handling
+
+%% Options
+\ctikzset{f^>/.style = {
+		f = #1,
+		\circuitikzbasekey/bipole/flow/direction = forward,
+		\circuitikzbasekey/bipole/flow/x position = after,
+		\circuitikzbasekey/bipole/curflowrent/y position = above
+	}
+}
+
+\ctikzset{f_>/.style = {
+		f = #1,
+		\circuitikzbasekey/bipole/flow/direction = forward,
+		\circuitikzbasekey/bipole/flow/x position = after,
+		\circuitikzbasekey/bipole/flow/y position = below
+	}
+}
+
+\ctikzset{f>^/.style = {
+		f = #1,
+		\circuitikzbasekey/bipole/flow/direction = forward,
+		\circuitikzbasekey/bipole/flow/x position = before,
+		\circuitikzbasekey/bipole/flow/y position = above
+	}
+}
+
+\ctikzset{f>_/.style = {
+		f = #1,
+		\circuitikzbasekey/bipole/flow/direction = forward,
+		\circuitikzbasekey/bipole/flow/x position = before,
+		\circuitikzbasekey/bipole/flow/y position = below
+	}
+}
+
+\ctikzset{f^</.style = {
+		f = #1,
+		\circuitikzbasekey/bipole/flow/direction = backward,
+		\circuitikzbasekey/bipole/flow/x position = after,
+		\circuitikzbasekey/bipole/flow/y position = above
+	}
+}
+
+\ctikzset{f_</.style = {
+		f = #1,
+		\circuitikzbasekey/bipole/flow/direction = backward,
+		\circuitikzbasekey/bipole/flow/x position = after,
+		\circuitikzbasekey/bipole/flow/y position = below
+	}
+}
+
+\ctikzset{f<^/.style = {
+		f = #1,
+		\circuitikzbasekey/bipole/flow/direction = backward,
+		\circuitikzbasekey/bipole/flow/x position = before,
+		\circuitikzbasekey/bipole/flow/y position = above
+	}
+}
+
+\ctikzset{f<_/.style = {
+		f = #1,
+		\circuitikzbasekey/bipole/flow/direction = backward,
+		\circuitikzbasekey/bipole/flow/x position = before,
+		\circuitikzbasekey/bipole/flow/y position = below
+	}
+}
+
+\ctikzset{f</.style = { f = #1, \circuitikzbasekey/bipole/flow/direction = backward} }
+\ctikzset{f_/.style = { f = #1, \circuitikzbasekey/bipole/flow/y position = below } }
+\ctikzset{f>/.style = { f = #1, \circuitikzbasekey/bipole/flow/direction = forward } }
+\ctikzset{f^/.style = { f = #1, \circuitikzbasekey/bipole/flow/y position = above } }
+
+\ctikzset{f/.code = {
+	\pgfkeys{\circuitikzbasekey/bipole/flow/direction = forward,
+					\circuitikzbasekey/bipole/flow/x position = after,
+					\circuitikzbasekey/bipole/flow/y position = above }
+	\pgfkeys{/tikz/circuitikz/bipole/flow/label/name=#1}
+	\ctikzsetvalof{bipole/flow/label/unit}{}
+	\ifpgf@circ@siunitx 
+		\pgf@circ@handleSI{#1}
+		\ifpgf@circ@siunitx@res 
+			\edef\pgf@temp{\pgf@circ@handleSI@val}
+			\pgfkeyslet{/tikz/circuitikz/bipole/flow/label/name}{\pgf@temp}
+			\edef\pgf@temp{\pgf@circ@handleSI@unit}
+			\pgfkeyslet{/tikz/circuitikz/bipole/flow/label/unit}{\pgf@temp}
+		\else
+		\fi
+	\else
+	\fi
+}
+}
+
+%% Output routine 
+\def\pgf@circ@drawflow{
+	\pgfextra{
+		\edef\pgf@circ@ffffff{\pgf@circ@direction}
+		\def\pgfcircmathresult{\expandafter\pgf@circ@stripdecimals\pgf@circ@ffffff\pgf@nil}
+
+		\ifnum\pgfcircmathresult >4 \ifnum\pgfcircmathresult <86
+			\ifpgf@circuit@bipole@flow@below
+				\def\pgf@circ@dir{north west} \else \def\pgf@circ@dir{south east}
+			\fi
+		\fi\fi
+		\ifnum\pgfcircmathresult >85 \ifnum\pgfcircmathresult <95
+			\ifpgf@circuit@bipole@flow@below
+				\def\pgf@circ@dir{west} \else \def\pgf@circ@dir{east} 
+			\fi
+		\fi\fi
+		\ifnum\pgfcircmathresult >94 \ifnum\pgfcircmathresult <176
+			\ifpgf@circuit@bipole@flow@below
+				 \def\pgf@circ@dir{south west}\else \def\pgf@circ@dir{north east}
+			\fi
+		\fi\fi
+		\ifnum\pgfcircmathresult >175 \ifnum\pgfcircmathresult <185
+			\ifpgf@circuit@bipole@flow@below
+				  \def\pgf@circ@dir{south}\else\def\pgf@circ@dir{north}
+			\fi
+		\fi\fi
+		\ifnum\pgfcircmathresult >184 \ifnum\pgfcircmathresult <266
+			\ifpgf@circuit@bipole@flow@below
+				 \def\pgf@circ@dir{south east}\else\def\pgf@circ@dir{north west}
+			\fi
+		\fi\fi
+		\ifnum\pgfcircmathresult >265 \ifnum\pgfcircmathresult <275
+			\ifpgf@circuit@bipole@flow@below
+				 \def\pgf@circ@dir{east}\else \def\pgf@circ@dir{west}
+			\fi
+		\fi\fi
+		\ifnum\pgfcircmathresult >274 \ifnum\pgfcircmathresult <356
+			\ifpgf@circuit@bipole@flow@below
+				  \def\pgf@circ@dir{north east}\else\def\pgf@circ@dir{south west}
+			\fi
+		\fi\fi
+		\ifnum\pgfcircmathresult <5
+			\ifpgf@circuit@bipole@flow@below
+				 \def\pgf@circ@dir{north}\else\def\pgf@circ@dir{south} 
+			\fi
+		\fi
+		\ifnum\pgfcircmathresult >355
+			\ifpgf@circuit@bipole@flow@below
+				 \def\pgf@circ@dir{north}\else\def\pgf@circ@dir{south} 
+			\fi
+		\fi
+		
+		\ifpgf@circuit@bipole@flow@below
+			\def\pgf@circ@bipole@flow@label@where{-90}
+		\else
+			\def\pgf@circ@bipole@flow@label@where{+90}
+		\fi
+	}
+	
+	\pgfextra{\def\pgf@temp{short}\edef\pgf@circ@temp{\ctikzvalof{bipole/kind}}}
+		\ifx\pgf@circ@temp\pgf@temp%draw flow at a short at middle of the line
+				(\tikztostart)--(\tikztotarget)
+		\else% normal bipole or source
+			\ifpgf@circuit@bipole@flow@before
+				 (\tikztostart)--(anchorstartnode)
+			\else
+				(anchorendnode)--(\tikztotarget)
+			\fi
+		\fi
+	\pgfextra{
+		\ifpgf@circuit@bipole@flow@backward
+			\ifpgf@circuit@bipole@flow@below
+				\def\flow@offset{\ctikzvalof{flow/offset}\pgf@circ@Rlen}
+			\else
+				\def\flow@offset{-\ctikzvalof{flow/offset}\pgf@circ@Rlen}
+			\fi
+			\pgfmathsubtract{\pgf@circ@ffffff}{180}
+			\edef\pgf@circ@ffffff{\expandafter\pgf@circ@stripdecimals\pgfmathresult\pgf@nil}	
+		\else
+			\ifpgf@circuit@bipole@flow@below
+				\def\flow@offset{-\ctikzvalof{flow/offset}\pgf@circ@Rlen}
+			\else
+				\def\flow@offset{\ctikzvalof{flow/offset}\pgf@circ@Rlen}
+			\fi
+		\fi
+	}
+	coordinate[flowarrow,pos=\ctikzvalof{flow/distance},rotate=\pgf@circ@ffffff,yshift=\flow@offset](Farrowpos)
+	(Farrowpos.\pgf@circ@bipole@flow@label@where) node[anchor=\pgf@circ@dir]{ \pgf@circ@finallabels{flow/label}}
+}
+
+\endinput
