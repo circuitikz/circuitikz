@@ -392,6 +392,43 @@
 	\pgfusepath{stroke}
 }
 
+%% cute choke
+
+\pgfcircdeclarebipole{}{\ctikzvalof{bipoles/cutechoke/lower coil height}}{cutechoke}{\ctikzvalof{bipoles/cutechoke/height}}{\ctikzvalof{bipoles/cutechoke/width}}{
+	\pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}\pgfstartlinewidth}
+	\pgftransformationadjustments
+
+	\pgfmathsetlength{\pgf@circ@res@other}%width of small coil
+	{0.5*\ctikzvalof{bipoles/cutechoke/coil aspect}*\ctikzvalof{bipoles/cutechoke/width}*\pgf@circ@Rlen/(\ctikzvalof{bipoles/cutechoke/coils}-1)}
+
+
+	\pgfmathsetlength{\pgf@circ@res@step}
+		{(\ctikzvalof{bipoles/cutechoke/width}*\pgf@circ@Rlen+\pgfhorizontaltransformationadjustment\pgflinewidth+(\ctikzvalof{bipoles/cutechoke/coils}-1)*2*\pgf@circ@res@other)/\ctikzvalof{bipoles/cutechoke/coils}/2}
+
+	\pgfpathmoveto{\pgfpoint{\pgf@circ@res@left-\pgfhorizontaltransformationadjustment*0.5*\pgflinewidth}{-\pgfverticaltransformationadjustment*0.4*\pgfstartlinewidth}}%correct value would be 0.5 but arcs are not really flat, therefore 0.4 is better is (almost) all cases
+	\foreach \x in {2,...,\ctikzvalof{bipoles/cutechoke/coils}}
+	{
+		\pgfpatharc{180}{0}{\pgf@circ@res@step and \pgf@circ@res@up}
+		\pgfpatharc{0}{-180}{\pgf@circ@res@other and -\pgf@circ@res@down}
+	}
+	\pgfpatharc{180}{0}{\pgf@circ@res@step and \pgf@circ@res@up}
+	\pgfsetbuttcap
+	\pgfsetbeveljoin
+	\pgfusepath{stroke}
+    
+    \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{-\pgfverticaltransformationadjustment*0.4*\pgfstartlinewidth+\ctikzvalof{bipoles/cutechoke/cdist}}}
+    \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{-\pgfverticaltransformationadjustment*0.4*\pgfstartlinewidth+\ctikzvalof{bipoles/cutechoke/cdist}}}
+    \pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}\pgfstartlinewidth}
+    \pgfusepath{stroke}
+    
+    \ifpgf@circuit@bipole@twolines
+    \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{-\pgfverticaltransformationadjustment*0.4*\pgfstartlinewidth+\ctikzvalof{bipoles/cutechoke/cdist}+\ctikzvalof{bipoles/cutechoke/cstep}}}
+    \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{-\pgfverticaltransformationadjustment*0.4*\pgfstartlinewidth+\ctikzvalof{bipoles/cutechoke/cdist}+\ctikzvalof{bipoles/cutechoke/cstep}}}
+    \pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}\pgfstartlinewidth}
+    \pgfusepath{stroke}
+    \fi
+}
+
 %% variable cute inductor
 
 \pgfcircdeclarebipole{}{\ctikzvalof{bipoles/vcuteinductor/lower coil height}}{vcuteinductor}{\ctikzvalof{bipoles/vcuteinductor/height}}{\ctikzvalof{bipoles/vcuteinductor/width}}{
