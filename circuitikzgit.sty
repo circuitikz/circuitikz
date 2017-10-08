@@ -10,8 +10,8 @@
 
 \NeedsTeXFormat{LaTeX2e}
 
-\def\pgfcircversion{git:629abe5}
-\def\pgfcircversiondate{2017/07/29}
+\def\pgfcircversion{git:fe51ef6}
+\def\pgfcircversiondate{2017/10/08}
 
 \ProvidesPackage{circuitikzgit}
         [\pgfcircversiondate{} The CircuiTikz circuit drawing package version \pgfcircversion]
@@ -415,6 +415,18 @@
 \ctikzset{bipoles/cuteinductor/width/.initial=.6}
 \ctikzset{bipoles/cuteinductor/coils/.initial=5}
 \ctikzset{bipoles/cuteinductor/coil aspect/.initial=.5}%percentage of inductor width, which is covered by lower coil
+%% Cute choke settings
+\ctikzset{bipoles/cutechoke/height/.initial=.3}
+\ctikzset{bipoles/cutechoke/lower coil height/.initial=.15}	
+\ctikzset{bipoles/cutechoke/width/.initial=.6}
+\ctikzset{bipoles/cutechoke/coils/.initial=5}
+\ctikzset{bipoles/cutechoke/coil aspect/.initial=.5}%percentage of choke width, which is covered by lower coil
+\ctikzset{bipoles/cutechoke/cstep/.initial=.3}
+\ctikzset{bipoles/cutechoke/cdist/.initial=1.3}
+\ctikzset{bipoles/cutechoke/cthick/.initial=1}
+\newif\ifpgf@circuit@bipole@twolines
+\pgf@circuit@bipole@twolinesfalse
+%
 \ctikzset{bipoles/americaninductor/height/.initial=.3}
 \ctikzset{bipoles/americaninductor/height 2/.initial=.1}
 \ctikzset{bipoles/americaninductor/width/.initial=.8}
@@ -669,6 +681,18 @@
 \ctikzset{tripoles/pmos/bodydiode distance/.initial=.3}
 \ctikzset{tripoles/pmos/bodydiode conn/.initial=.6}
 \ctikzset{tripoles/pmos/curr direction/.initial=-1}
+
+\ctikzset{tripoles/hemt/width/.initial=.7}
+\ctikzset{tripoles/hemt/gate height/.initial=.35}
+\ctikzset{tripoles/hemt/base height/.initial=.5}
+\ctikzset{tripoles/hemt/conn height/.initial=0}
+\ctikzset{tripoles/hemt/height/.initial=1.1}
+\ctikzset{tripoles/hemt/base width/.initial=.5}
+\ctikzset{tripoles/hemt/gate width/.initial=.62}
+\ctikzset{tripoles/hemt/bodydiode scale/.initial=.3}
+\ctikzset{tripoles/hemt/bodydiode distance/.initial=.3}
+\ctikzset{tripoles/hemt/bodydiode conn/.initial=.6}
+\ctikzset{tripoles/hemt/curr direction/.initial=1}
 
 \ctikzset{tripoles/nfet/width/.initial=.7}
 \ctikzset{tripoles/nfet/gate height/.initial=.35}
@@ -2486,6 +2510,43 @@
 	\pgfsetbuttcap
 	\pgfsetbeveljoin
 	\pgfusepath{stroke}
+}
+
+%% cute choke
+
+\pgfcircdeclarebipole{}{\ctikzvalof{bipoles/cutechoke/lower coil height}}{cutechoke}{\ctikzvalof{bipoles/cutechoke/height}}{\ctikzvalof{bipoles/cutechoke/width}}{
+	\pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}\pgfstartlinewidth}
+	\pgftransformationadjustments
+
+	\pgfmathsetlength{\pgf@circ@res@other}%width of small coil
+	{0.5*\ctikzvalof{bipoles/cutechoke/coil aspect}*\ctikzvalof{bipoles/cutechoke/width}*\pgf@circ@Rlen/(\ctikzvalof{bipoles/cutechoke/coils}-1)}
+
+
+	\pgfmathsetlength{\pgf@circ@res@step}
+		{(\ctikzvalof{bipoles/cutechoke/width}*\pgf@circ@Rlen+\pgfhorizontaltransformationadjustment\pgflinewidth+(\ctikzvalof{bipoles/cutechoke/coils}-1)*2*\pgf@circ@res@other)/\ctikzvalof{bipoles/cutechoke/coils}/2}
+
+	\pgfpathmoveto{\pgfpoint{\pgf@circ@res@left-\pgfhorizontaltransformationadjustment*0.5*\pgflinewidth}{-\pgfverticaltransformationadjustment*0.4*\pgfstartlinewidth}}%correct value would be 0.5 but arcs are not really flat, therefore 0.4 is better is (almost) all cases
+	\foreach \x in {2,...,\ctikzvalof{bipoles/cutechoke/coils}}
+	{
+		\pgfpatharc{180}{0}{\pgf@circ@res@step and \pgf@circ@res@up}
+		\pgfpatharc{0}{-180}{\pgf@circ@res@other and -\pgf@circ@res@down}
+	}
+	\pgfpatharc{180}{0}{\pgf@circ@res@step and \pgf@circ@res@up}
+	\pgfsetbuttcap
+	\pgfsetbeveljoin
+	\pgfusepath{stroke}
+    
+    \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{-\pgfverticaltransformationadjustment*0.4*\pgfstartlinewidth+\ctikzvalof{bipoles/cutechoke/cdist}\pgf@circ@res@up}}
+    \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{-\pgfverticaltransformationadjustment*0.4*\pgfstartlinewidth+\ctikzvalof{bipoles/cutechoke/cdist}\pgf@circ@res@up}}
+    \pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}*\ctikzvalof{bipoles/cutechoke/cthick}\pgfstartlinewidth}
+    \pgfusepath{stroke}
+    
+    \ifpgf@circuit@bipole@twolines
+    \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{-\pgfverticaltransformationadjustment*0.4*\pgfstartlinewidth+\ctikzvalof{bipoles/cutechoke/cdist}\pgf@circ@res@up+\ctikzvalof{bipoles/cutechoke/cstep}\pgf@circ@res@up}}
+    \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{-\pgfverticaltransformationadjustment*0.4*\pgfstartlinewidth+\ctikzvalof{bipoles/cutechoke/cdist}\pgf@circ@res@up+\ctikzvalof{bipoles/cutechoke/cstep}\pgf@circ@res@up}}
+    \pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}*\ctikzvalof{bipoles/cutechoke/cthick}\pgfstartlinewidth}
+    \pgfusepath{stroke}
+    \fi
 }
 
 %% variable cute inductor
@@ -6832,6 +6893,41 @@
 			\pgfusepath{draw,fill}		
 }
 
+%% HEMT FET Transistor
+\pgfcircdeclaretransistor{hemt}{}{%
+			\pgfpathmoveto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@up+\pgfverticaltransformationadjustment*.5*\pgflinewidth}}
+			\pgfpathlineto{\pgfpoint{\pgf@circ@res@right}
+				{\pgfkeysvalueof{/tikz/circuitikz/tripoles/hemt/gate height}\pgf@circ@res@up}}
+			\pgfpathlineto{\pgfpoint
+				{\pgfkeysvalueof{/tikz/circuitikz/tripoles/hemt/base width}\pgf@circ@res@left}
+				{\pgfkeysvalueof{/tikz/circuitikz/tripoles/hemt/gate height}\pgf@circ@res@up}}
+
+			\pgfpathmoveto{\pgfpoint
+				{\pgfkeysvalueof{/tikz/circuitikz/tripoles/hemt/base width}\pgf@circ@res@left}
+				{\pgfkeysvalueof{/tikz/circuitikz/tripoles/hemt/gate height}\pgf@circ@res@down}}
+			\pgfpathlineto{\pgfpoint{\pgf@circ@res@right}
+				{\pgfkeysvalueof{/tikz/circuitikz/tripoles/hemt/gate height}\pgf@circ@res@down}}
+			\pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@down-\pgfverticaltransformationadjustment*.5*\pgflinewidth}}
+			\pgfusepath{draw}
+			
+			\pgfscope
+			\pgfpathmoveto{\pgfpoint
+				{\pgfkeysvalueof{/tikz/circuitikz/tripoles/hemt/base width}\pgf@circ@res@left}
+				{\pgfkeysvalueof{/tikz/circuitikz/tripoles/hemt/base height}\pgf@circ@res@up}}
+			\pgfpathlineto{\pgfpoint
+				{\pgfkeysvalueof{/tikz/circuitikz/tripoles/hemt/base width}\pgf@circ@res@left}
+				{\pgfkeysvalueof{/tikz/circuitikz/tripoles/hemt/base height}\pgf@circ@res@down}}
+			\pgfsetlinewidth{2\pgflinewidth}
+			\pgfusepath{draw}
+			\endpgfscope
+		
+			\pgfpathmoveto{\pgfpoint
+				{\pgfkeysvalueof{/tikz/circuitikz/tripoles/hemt/base width}\pgf@circ@res@left}
+				{\pgf@circ@res@up+\pgf@circ@res@down}}
+			\pgfpathlineto{\pgfpoint{\pgf@circ@res@left-\pgfhorizontaltransformationadjustment*.5*\pgflinewidth}{\pgf@circ@res@up+\pgf@circ@res@down}}
+			\pgfusepath{draw}
+}
+
 \long\def\drawfetcore#1{
 	\pgftransformationadjustments
 		%top connection
@@ -10597,6 +10693,7 @@
 \def\pgf@circ@europeaninductor@path#1{\pgf@circ@bipole@path{fullgeneric}{#1}}
 \def\pgf@circ@americaninductor@path#1{\pgf@circ@bipole@path{americaninductor}{#1}}
 \def\pgf@circ@cuteinductor@path#1{\pgf@circ@bipole@path{cuteinductor}{#1}}
+\def\pgf@circ@cutechoke@path#1{\pgf@circ@bipole@path{cutechoke}{#1}}
 \def\pgf@circ@inductor@path#1{%
 	\pgfextra{
 		\edef\pgf@circ@temp{\ctikzvalof{inductor}}%
@@ -10756,6 +10853,7 @@
 \compattikzset{gas filled surge arrester/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@gfsurgearrester@path, l=#1}}
 \compattikzset{american inductor/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@americaninductor@path, l=#1}}
 \compattikzset{cute inductor/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@cuteinductor@path, l=#1}}
+\compattikzset{cute choke/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@cutechoke@path, l=#1}}
 \compattikzset{european inductor/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@europeaninductor@path, l=#1}}
 \compattikzset{variable inductor/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@vinductor@path, l=#1}}
 \compattikzset{variable european inductor/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@veuropeaninductor@path, l=#1}}
@@ -11115,6 +11213,7 @@
 \pgf@circ@definetranspath{elmech}
 \pgf@circ@definetranspath{nmos}
 \pgf@circ@definetranspath{pmos}
+\pgf@circ@definetranspath{hemt}
 \pgf@circ@definetranspath{npn}
 \pgf@circ@definetranspath{pnp}
 \pgf@circ@definetranspath{nfet}
