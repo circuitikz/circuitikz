@@ -187,15 +187,15 @@
 		\pgfextra{\edef\pgf@circ@labpos{\expandafter\pgf@circ@stripdecimals\pgf@circ@direction\pgf@nil}}
 		\ifnum \pgf@circ@labpos > 180
 			\ifnum \ctikzvalof{bipole/#1/position} > 0
-				\pgfextra{\def\pgf@circ@labanc{mid west}}
+				\pgfextra{\def\pgf@circ@labanctext{mid west}}
 			\else
-				\pgfextra{\def\pgf@circ@labanc{mid east}}
+				\pgfextra{\def\pgf@circ@labanctext{mid east}}
 			\fi
 		\else
 			\ifnum \ctikzvalof{bipole/#1/position} > 0
-				\pgfextra{\def\pgf@circ@labanc{mid east}}
+				\pgfextra{\def\pgf@circ@labanctext{mid east}}
 			\else
-				\pgfextra{\def\pgf@circ@labanc{mid west}}
+				\pgfextra{\def\pgf@circ@labanctext{mid west}}
 			\fi
 		\fi
 	\fi\fi
@@ -203,13 +203,22 @@
 	\ifnum \pgfcircmathresult <6 \ifnum \pgfcircmathresult > -6
 		\ifnum \ctikzvalof{bipole/#1/position} < 0
 			%we need some more space for placement below, due to mid-anchor
-			(labelcoor)++(-\pgf@circ@labanc:2ex) coordinate(labelcoor)
+			(labelcoor)++(-\pgf@circ@labanc:1ex) coordinate(labelcoor)
+            \ifnum \pgf@circ@labanc > 90
+        		\pgfextra{\def\pgf@circ@labanctext{base}}%base
+            \else
+        		\pgfextra{\def\pgf@circ@labanctext{north}}%north
+            \fi
 		\else
-			(labelcoor)++(-\pgf@circ@labanc:1.5ex) coordinate(labelcoor)
+			(labelcoor)++(-\pgf@circ@labanc:1ex) coordinate(labelcoor)
+            \ifnum \pgf@circ@labanc < 90
+        		\pgfextra{\def\pgf@circ@labanctext{base}}%base
+            \else
+        		\pgfextra{\def\pgf@circ@labanctext{north}}%north
+            \fi
 		\fi
-		\pgfextra{\def\pgf@circ@labanc{mid}}
 	\fi\fi
-	 (labelcoor) node[anchor=\pgf@circ@labanc](\ctikzvalof{bipole/name}#1){\pgf@circ@finallabels{#1}}
+	 (labelcoor) node[anchor=\pgf@circ@labanctext,inner sep=0,outer sep=0](\ctikzvalof{bipole/name}#1){\pgf@circ@finallabels{#1}}
 }
 
 \def\pgf@circ@finallabels#1{%
