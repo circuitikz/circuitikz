@@ -145,28 +145,108 @@
 	}
 		\anchor{tip}{
 		\pgfpointorigin
-			\pgf@circ@res@step = \pgf@circ@Rlen
-				\divide \pgf@circ@res@step by 16
+		\pgfmathsetlength{\pgf@circ@res@step}{\ctikzvalof{bipoles/arrow size}/16*1.4cm}
 		\pgf@x	=\pgf@circ@res@step
 		}
 	\behindforegroundpath{		
 		
 		\pgfscope
-			\pgf@circ@res@step = \pgf@circ@Rlen
-			\divide \pgf@circ@res@step by 16
-
+			\pgfmathsetlength{\pgf@circ@res@step}{\ctikzvalof{bipoles/arrow size}/16*1.4cm}
 			\pgfpathmoveto{\pgfpoint{-.7\pgf@circ@res@step}{0pt}}
 			\pgfpathlineto{\pgfpoint{-.7\pgf@circ@res@step}{-.8\pgf@circ@res@step}}
 			\pgfpathlineto{\pgfpoint{1\pgf@circ@res@step}{0pt}}
 			\pgfpathlineto{\pgfpoint{-.7\pgf@circ@res@step}{.8\pgf@circ@res@step}}
 			\pgfpathlineto{\pgfpoint{-.7\pgf@circ@res@step}{0pt}}			
-			\pgfsetcolor{\pgfkeysvalueof{/tikz/circuitikz/color}}
+			\pgf@circ@ifpgfkeyempty{arrow color} \else \pgfsetcolor{\ctikzvalof{arrow color}} \fi		% Sets the arrow color if this one has been defined.
 			\pgfusepath{draw,fill}
 
 		\endpgfscope
 	}
 
 }
+
+%% Voltage arrow, straight style
+
+\pgfdeclareshape{vstraight}{
+	\anchor{center}{
+		\pgfpointorigin
+	}
+	\behindforegroundpath{		
+		\pgfscope
+			\pgfmathsetlength{\pgf@circ@res@step}{\ctikzvalof{bipoles/arrow size}/16*1.4cm}
+			\pgfpathmoveto{\pgfpointorigin}
+			\ifpgf@circuit@bipole@voltage@backward
+				\pgfpathlineto{\pgfpointdiff{\pgfpointanchor{pgfcirc@Vfrom}{center}}{\pgfpointanchor{pgfcirc@Vto}{center}}}
+			\else
+				\pgfpathlineto{\pgfpointdiff{\pgfpointanchor{pgfcirc@Vto}{center}}{\pgfpointanchor{pgfcirc@Vfrom}{center}}}
+			\fi
+			\pgf@circ@ifpgfkeyempty{arrow color} \else \pgfsetcolor{\ctikzvalof{arrow color}} \fi		% Sets the arrow color if this one has been defined.
+			\pgfsetarrowsstart{voltarr[length=\ctikzvalof{bipoles/arrow size}/16*1.4cm]}	
+			\ifpgf@circuit@bipole@isvoltage
+				\ifpgf@circuit@bipole@isvoltage@usualarrow
+				\else
+					\pgfsetshortenstart{-\pgf@circ@res@step}	
+				\fi
+			\fi
+			\pgfusepath{draw}
+		\endpgfscope
+	}
+}
+
+%% Voltage arrow, curved style
+
+\pgfdeclareshape{vcurved}{
+	\anchor{center}{
+		\pgfpointorigin
+	}
+	\behindforegroundpath{		
+		\pgfscope
+			\pgfmathsetlength{\pgf@circ@res@step}{\ctikzvalof{bipoles/arrow size}/16*1.4cm}
+			\pgfpathmoveto{\pgfpointorigin}
+			\ifpgf@circuit@bipole@voltage@backward
+				\pgfpathcurveto{\pgfpointdiff{\pgfpointanchor{pgfcirc@Vfrom}{center}}{\pgfpointanchor{pgfcirc@Vcont1}{center}}}{\pgfpointdiff{\pgfpointanchor{pgfcirc@Vfrom}{center}}{\pgfpointanchor{pgfcirc@Vcont2}{center}}}{\pgfpointdiff{\pgfpointanchor{pgfcirc@Vfrom}{center}}{\pgfpointanchor{pgfcirc@Vto}{center}}}
+			\else
+				\pgfpathcurveto{\pgfpointdiff{\pgfpointanchor{pgfcirc@Vto}{center}}{\pgfpointanchor{pgfcirc@Vcont2}{center}}}{\pgfpointdiff{\pgfpointanchor{pgfcirc@Vto}{center}}{\pgfpointanchor{pgfcirc@Vcont1}{center}}}{\pgfpointdiff{\pgfpointanchor{pgfcirc@Vto}{center}}{\pgfpointanchor{pgfcirc@Vfrom}{center}}}
+			\fi
+			\pgf@circ@ifpgfkeyempty{arrow color} \else \pgfsetcolor{\ctikzvalof{arrow color}} \fi		% Sets the arrow color if this one has been defined.
+			\pgfsetarrowsstart{voltarr[length=\ctikzvalof{bipoles/arrow size}/16*1.4cm]}	
+			\pgfsetshortenstart{-\pgf@circ@res@step}	
+			\pgfusepath{draw}
+		\endpgfscope
+	}
+}
+
+
+%% Voltage arrow tip
+
+\pgfdeclarearrow{
+name = voltarr,
+parameters = { \the\pgfarrowlength },
+setup code = {
+			% The different end values:
+			\pgfarrowssettipend{1\pgfarrowlength}
+			\pgfarrowssetlineend{0\pgfarrowlength}
+			\pgfarrowssetvisualbackend{-.7\pgfarrowlength}
+			\pgfarrowssetbackend{-.7\pgfarrowlength}
+			% The hull
+			\pgfarrowshullpoint{1\pgfarrowlength}{0pt}
+			\pgfarrowshullpoint{-.7\pgfarrowlength}{.8\pgfarrowlength}
+			\pgfarrowshullpoint{-.7\pgfarrowlength}{-.8\pgfarrowlength}
+			% Saves: Only the length:
+			\pgfarrowssavethe\pgfarrowlength
+},
+drawing code = {
+			\pgfpathmoveto{\pgfqpoint{-.7\pgfarrowlength}{0pt}}
+			\pgfpathlineto{\pgfqpoint{-.7\pgfarrowlength}{-.8\pgfarrowlength}}
+			\pgfpathlineto{\pgfqpoint{1\pgfarrowlength}{0pt}}
+			\pgfpathlineto{\pgfqpoint{-.7\pgfarrowlength}{.8\pgfarrowlength}}
+			\pgfpathclose
+			\pgfusepathqfillstroke
+},
+defaults = { length = 2pt }
+}
+
+
 
 %% Flow arrow
 
