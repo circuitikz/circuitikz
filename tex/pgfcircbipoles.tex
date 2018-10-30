@@ -1327,6 +1327,36 @@
 	\pgfusepath{draw}
 }
 
+%% Cute open Switch
+\pgfcircdeclarebipole{}{0}{oswitch}{\ctikzvalof{bipoles/oswitch/height}}{\ctikzvalof{bipoles/oswitch/width}}{
+
+	\pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}\pgfstartlinewidth}
+	\pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{0pt}}
+	\pgfpathlineto{\pgfpoint{.9\pgf@circ@res@right}{\pgf@circ@res@up}}
+		\pgfsetroundcap
+	\pgfusepath{draw}
+
+	\pgftransformshift{\pgfpoint{\pgf@circ@res@left}{0pt}}
+	\pgfnode{circ}{center}{}{}{\pgfusepath{draw}}
+	\pgftransformshift{\pgfpoint{2\pgf@circ@res@right}{0pt}}
+	\pgfnode{circ}{center}{}{}{\pgfusepath{draw}}
+}
+
+%% Cute closed Switch
+\pgfcircdeclarebipole{}{0}{cswitch}{\ctikzvalof{bipoles/cswitch/height}}{\ctikzvalof{bipoles/cswitch/width}}{
+
+	\pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}\pgfstartlinewidth}
+	\pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{0pt}}
+	\pgfpathlineto{\pgfpoint{1.1\pgf@circ@res@right}{\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}\pgfstartlinewidth+\pgfkeysvalueof{/tikz/circuitikz/nodes width}*\pgf@circ@Rlen}}
+		\pgfsetroundcap
+	\pgfusepath{draw}
+
+	\pgftransformshift{\pgfpoint{\pgf@circ@res@left}{0pt}}
+	\pgfnode{circ}{center}{}{}{\pgfusepath{draw}}
+	\pgftransformshift{\pgfpoint{2\pgf@circ@res@right}{0pt}}
+	\pgfnode{circ}{center}{}{}{\pgfusepath{draw}}
+}
+
 %% Push Button
 \pgfcircdeclarebipole{}{\ctikzvalof{bipoles/pushbutton/height 2}}{pushbutton}{\ctikzvalof{bipoles/pushbutton/height}}{\ctikzvalof{bipoles/pushbutton/width}}{
 	\pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}\pgfstartlinewidth}
@@ -1342,7 +1372,7 @@
 	\pgfnode{ocirc}{center}{}{}{\pgfusepath{draw}}
 }
 
-% % METERINGSHAPE
+% % METERINGSHAPE WITHOUT ARROW
 \long\def\drawmeteringcircle{
 	\def\pgf@circ@temp{right}
 	\ifx\tikz@res@label@pos\pgf@circ@temp
@@ -1367,7 +1397,10 @@
 		\pgfpathcircle{\pgfpointorigin}{.9\pgf@circ@res@up}
 		\pgfusepath{draw}
 	\endpgfscope
-	%draw arrow
+}
+
+% % ARROW FOR METERINGSHAPE
+\long\def\drawmeteringarrow{
 	\pgfscope
 		\pgfsetarrowsend{latex}
 		\pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@down}}
@@ -1375,21 +1408,21 @@
 		\pgfusepath{draw}
 	\endpgfscope
 }
-%AMPEREMETER
-\pgfcircdeclarebipole{}{\ctikzvalof{bipoles/ammeter/height}}{ammeter}{\ctikzvalof{bipoles/ammeter/height}}{\ctikzvalof{bipoles/ammeter/width}}{
+
+% METER (with arrow, default)
+\pgfcircdeclarebipole{}{\ctikzvalof{bipoles/meter/height}}{rotamericanmeter}{\ctikzvalof{bipoles/meter/height}}{\ctikzvalof{bipoles/meter/width}}{
 	\drawmeteringcircle
-	\pgfnode{circle}{center}{\textbf{A}}{}{}
+	\drawmeteringarrow
 }
-%OHMMETER
-\pgfcircdeclarebipole{}{\ctikzvalof{bipoles/ohmmeter/height}}{ohmmeter}{\ctikzvalof{bipoles/ohmmeter/height}}{\ctikzvalof{bipoles/ohmmeter/width}}{
+% METER (without arrow)
+\pgfcircdeclarebipole{}{\ctikzvalof{bipoles/meter/height}}{europeanmeter}{\ctikzvalof{bipoles/meter/height}}{\ctikzvalof{bipoles/meter/width}}{
 	\drawmeteringcircle
-	\pgfnode{circle}{center}{\boldmath$\Omega$}{}{}
 }
-%VOLTMETER
-\pgfcircdeclarebipole{}{\ctikzvalof{bipoles/voltmeter/height}}{voltmeter}{\ctikzvalof{bipoles/voltmeter/height}}{\ctikzvalof{bipoles/voltmeter/width}}{
+% METER (with arrow, and "vertically" oriented bipole)
+\pgfcircdeclarebipole{}{\ctikzvalof{bipoles/meter/height}}{americanmeter}{\ctikzvalof{bipoles/meter/height}}{\ctikzvalof{bipoles/meter/width}}{
 	\drawmeteringcircle
-	\pgfnode{circle}{center}{\textbf{V}}{}{}
-		
+	\pgftransformrotate{-\pgf@circ@direction}
+	\drawmeteringarrow
 }
 
 %% Short circuit
@@ -1410,6 +1443,17 @@
 		%\divide \pgf@circ@res@step by 14
 
 		\pgfpathrectanglecorners{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@up}}{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@down}}
+		\pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}\pgfstartlinewidth}
+					
+		\pgfusepath{draw} 
+}
+
+
+%% Generic bipole - oval
+
+\pgfcircdeclarebipole{}{\ctikzvalof{bipoles/bgeneric/height}}{bgeneric}{\ctikzvalof{bipoles/bgeneric/height}}{\ctikzvalof{bipoles/bgeneric/width}}{
+
+		\pgfpathellipse{\pgfpointorigin}{\pgfpoint{\pgf@circ@res@right}{0cm}}{\pgfpoint{0cm}{\pgf@circ@res@up}}
 		\pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}\pgfstartlinewidth}
 					
 		\pgfusepath{draw} 
@@ -3253,5 +3297,3 @@
 	\pgfusepath{stroke}
 	
 }
-
-
