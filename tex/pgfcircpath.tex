@@ -91,6 +91,8 @@
 		--($(\ctikzvalof{bipole/name}start) ! .5\pgflinewidth ! (\ctikzvalof{bipole/name}end)$) %ugly workaround to get correct linejoins(node breaks path?)
 	\fi
 		($(\tikztostart) ! .5 ! (\tikztotarget)$)%%positio of middle node 
+		\pgf@circ@ifkeyempty{inl}\else node[inner sep=0pt,rotate=\ctikzvalof{rotinladd}]{\ctikzvalof{inlsize}\ctikzvalof{inl}} \fi
+		\pgf@circ@ifkeyempty{rotinl}\else node[inner sep=0pt,rotate=\pgf@circ@direction+\ctikzvalof{rotinladd}]{\ctikzvalof{inlsize}\ctikzvalof{rotinl}} \fi
 		node[#1shape, rotate=\pgf@circ@direction, yscale=\ctikzvalof{mirror value}, xscale=\ctikzvalof{invert value}] 
 			(\ctikzvalof{bipole/name}) {}
 			\ifpgf@circuit@bipole@inverted
@@ -228,16 +230,18 @@
 \def\pgf@circ@ospst@path#1{\pgf@circ@bipole@path{ospst}{#1}}
 \def\pgf@circ@nos@path#1{\pgf@circ@bipole@path{nos}{#1}}
 \def\pgf@circ@ncs@path#1{\pgf@circ@bipole@path{ncs}{#1}}
+\def\pgf@circ@oswitch@path#1{\pgf@circ@bipole@path{oswitch}{#1}}
+\def\pgf@circ@cswitch@path#1{\pgf@circ@bipole@path{cswitch}{#1}}
 \def\pgf@circ@pushbutton@path#1{\pgf@circ@bipole@path{pushbutton}{#1}}
 \def\pgf@circ@open@path#1{\pgf@circ@bipole@path{open}{#1}}
 \def\pgf@circ@generic@path#1{\pgf@circ@bipole@path{generic}{#1}}
 \def\pgf@circ@ageneric@path#1{\pgf@circ@bipole@path{ageneric}{#1}}
+\def\pgf@circ@bgeneric@path#1{\pgf@circ@bipole@path{bgeneric}{#1}}
 \def\pgf@circ@tgeneric@path#1{\pgf@circ@bipole@path{tgeneric}{#1}}
 \def\pgf@circ@fullgeneric@path#1{\pgf@circ@bipole@path{fullgeneric}{#1}}
 \def\pgf@circ@tfullgeneric@path#1{\pgf@circ@bipole@path{tfullgeneric}{#1}}
-\def\pgf@circ@ammeter@path#1{\pgf@circ@bipole@path{ammeter}{#1}}
-\def\pgf@circ@ohmmeter@path#1{\pgf@circ@bipole@path{ohmmeter}{#1}}
-\def\pgf@circ@voltmeter@path#1{\pgf@circ@bipole@path{voltmeter}{#1}}
+\def\pgf@circ@meter@letter{\ifpgf@circuit@inl inl\else rotinl\fi}
+\def\pgf@circ@meter@path#1{\ifpgf@circuit@europeanmeter\pgf@circ@bipole@path{europeanmeter}{#1}\else\ifpgf@circuit@inl\pgf@circ@bipole@path{americanmeter}{#1}\else\pgf@circ@bipole@path{rotamericanmeter}{#1}\fi\fi}
 \def\pgf@circ@empty@path#1{}
 \def\pgf@circ@photoresistor@path#1{\pgf@circ@bipole@path{photoresistor}{#1}}
 \def\pgf@circ@emptythyristor@path#1{\pgf@circ@bipole@path{emptythyristor}{#1}}
@@ -359,6 +363,7 @@
 
 \compattikzset{generic/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@generic@path, l=#1}}
 \compattikzset{ageneric/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@ageneric@path, l=#1}}
+\compattikzset{bgeneric/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@bgeneric@path, l=#1}}
 \compattikzset{tgeneric/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@tgeneric@path, l=#1}}
 \compattikzset{fullgeneric/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@fullgeneric@path, l=#1}}
 \compattikzset{tfullgeneric/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@tfullgeneric@path, l=#1}}
@@ -515,15 +520,36 @@
 \compattikzset{opening switch/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@ospst@path, l=#1}}
 \compattikzset{ncs/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@ncs@path, l=#1}}
 \compattikzset{nos/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@nos@path, l=#1}}
+\compattikzset{cswitch/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@cswitch@path, l=#1}}
+\compattikzset{oswitch/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@oswitch@path, l=#1}}
 \compattikzset{normal closed switch/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@ncs@path, l=#1}}
 \compattikzset{normal open switch/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@nos@path, l=#1}}
 \compattikzset{switch/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@cspst@path, l=#1}}
 \compattikzset{push button/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@pushbutton@path, l=#1}}
 \compattikzset{toggle switch/.style =  {\circuitikzbasekey, /tikz/to path=\pgf@circ@toggleswitch@path}}
 
-\compattikzset{ammeter/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@ammeter@path}}
-\compattikzset{voltmeter/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@voltmeter@path}}
-\compattikzset{ohmmeter/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@ohmmeter@path}}
+\compattikzset{american ammeter/.style = {\circuitikzbasekey, bipoles/meter/height=\ctikzvalof{bipoles/ammeter/height},bipoles/meter/width=\ctikzvalof{bipoles/ammeter/width}, /tikz/to path=\pgf@circ@bipole@path{americanmeter},inl={\ctikzvalof{textbold}A},inlsize=\ctikzvalof{bipoles/meter/inlsize}}}
+\compattikzset{rotated american ammeter/.style = {\circuitikzbasekey, bipoles/meter/height=\ctikzvalof{bipoles/ammeter/height},bipoles/meter/width=\ctikzvalof{bipoles/ammeter/width}, /tikz/to path=\pgf@circ@bipole@path{rotamericanmeter},rotinl={\ctikzvalof{textbold}A},inlsize=\ctikzvalof{bipoles/meter/inlsize}}}
+\compattikzset{european ammeter/.style = {\circuitikzbasekey, bipoles/meter/height=\ctikzvalof{bipoles/ammeter/height},bipoles/meter/width=\ctikzvalof{bipoles/ammeter/width}, /tikz/to path=\pgf@circ@bipole@path{europeanmeter},inl={\ctikzvalof{textbold}A},inlsize=\ctikzvalof{bipoles/meter/inlsize}}}
+\compattikzset{rotated european ammeter/.style = {\circuitikzbasekey, bipoles/meter/height=\ctikzvalof{bipoles/ammeter/height},bipoles/meter/width=\ctikzvalof{bipoles/ammeter/width}, /tikz/to path=\pgf@circ@bipole@path{europeanmeter},rotinl={\ctikzvalof{textbold}A},inlsize=\ctikzvalof{bipoles/meter/inlsize}}}
+\compattikzset{ammeter/.style = {\circuitikzbasekey, bipoles/meter/height=\ctikzvalof{bipoles/ammeter/height},bipoles/meter/width=\ctikzvalof{bipoles/ammeter/width}, /tikz/to path=\pgf@circ@meter@path,\pgf@circ@meter@letter={\ctikzvalof{textbold}A},inlsize=\ctikzvalof{bipoles/meter/inlsize}}}
+
+\compattikzset{american voltmeter/.style = {\circuitikzbasekey, bipoles/meter/height=\ctikzvalof{bipoles/voltmeter/height},bipoles/meter/width=\ctikzvalof{bipoles/voltmeter/width}, /tikz/to path=\pgf@circ@bipole@path{americanmeter},inl={\ctikzvalof{textbold}V},inlsize=\ctikzvalof{bipoles/meter/inlsize}}}
+\compattikzset{rotated american voltmeter/.style = {\circuitikzbasekey, bipoles/meter/height=\ctikzvalof{bipoles/voltmeter/height},bipoles/meter/width=\ctikzvalof{bipoles/voltmeter/width}, /tikz/to path=\pgf@circ@bipole@path{rotamericanmeter},rotinl={\ctikzvalof{textbold}V},inlsize=\ctikzvalof{bipoles/meter/inlsize}}}
+\compattikzset{european voltmeter/.style = {\circuitikzbasekey, bipoles/meter/height=\ctikzvalof{bipoles/voltmeter/height},bipoles/meter/width=\ctikzvalof{bipoles/voltmeter/width}, /tikz/to path=\pgf@circ@bipole@path{europeanmeter},inl={\ctikzvalof{textbold}V},inlsize=\ctikzvalof{bipoles/meter/inlsize}}}
+\compattikzset{rotated european voltmeter/.style = {\circuitikzbasekey, bipoles/meter/height=\ctikzvalof{bipoles/voltmeter/height},bipoles/meter/width=\ctikzvalof{bipoles/voltmeter/width}, /tikz/to path=\pgf@circ@bipole@path{europeanmeter},rotinl={\ctikzvalof{textbold}V},inlsize=\ctikzvalof{bipoles/meter/inlsize}}}
+\compattikzset{voltmeter/.style = {\circuitikzbasekey, bipoles/meter/height=\ctikzvalof{bipoles/voltmeter/height},bipoles/meter/width=\ctikzvalof{bipoles/voltmeter/width}, /tikz/to path=\pgf@circ@meter@path,\pgf@circ@meter@letter={\ctikzvalof{textbold}V},inlsize=\ctikzvalof{bipoles/meter/inlsize}}}
+
+\compattikzset{american ohmmeter/.style = {\circuitikzbasekey, bipoles/meter/height=\ctikzvalof{bipoles/ohmmeter/height},bipoles/meter/width=\ctikzvalof{bipoles/ohmmeter/width}, /tikz/to path=\pgf@circ@bipole@path{americanmeter},inl=$\ctikzvalof{mathbold}\Omega$,inlsize=\ctikzvalof{bipoles/meter/inlsize}}}
+\compattikzset{rotated american ohmmeter/.style = {\circuitikzbasekey, bipoles/meter/height=\ctikzvalof{bipoles/ohmmeter/height},bipoles/meter/width=\ctikzvalof{bipoles/ohmmeter/width}, /tikz/to path=\pgf@circ@bipole@path{rotamericanmeter},rotinl=$\ctikzvalof{mathbold}\Omega$,inlsize=\ctikzvalof{bipoles/meter/inlsize}}}
+\compattikzset{european ohmmeter/.style = {\circuitikzbasekey, bipoles/meter/height=\ctikzvalof{bipoles/ohmmeter/height},bipoles/meter/width=\ctikzvalof{bipoles/ohmmeter/width}, /tikz/to path=\pgf@circ@bipole@path{europeanmeter},inl=$\ctikzvalof{mathbold}\Omega$,inlsize=\ctikzvalof{bipoles/meter/inlsize}}}
+\compattikzset{rotated european ohmmeter/.style = {\circuitikzbasekey, bipoles/meter/height=\ctikzvalof{bipoles/ohmmeter/height},bipoles/meter/width=\ctikzvalof{bipoles/ohmmeter/width}, /tikz/to path=\pgf@circ@bipole@path{europeanmeter},rotinl=$\ctikzvalof{mathbold}\Omega$,inlsize=\ctikzvalof{bipoles/meter/inlsize}}}
+\compattikzset{ohmmeter/.style = {\circuitikzbasekey, bipoles/meter/height=\ctikzvalof{bipoles/ohmmeter/height},bipoles/meter/width=\ctikzvalof{bipoles/ohmmeter/width}, /tikz/to path=\pgf@circ@meter@path,\pgf@circ@meter@letter=$\ctikzvalof{mathbold}\Omega$,inlsize=\ctikzvalof{bipoles/meter/inlsize}}}
+
+\compattikzset{american meter/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@bipole@path{americanmeter},inlsize=\ctikzvalof{bipoles/meter/inlsize}}}
+\compattikzset{rotated american meter/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@bipole@path{rotamericanmeter},inlsize=\ctikzvalof{bipoles/meter/inlsize}}}
+\compattikzset{european meter/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@bipole@path{europeanmeter},inlsize=\ctikzvalof{bipoles/meter/inlsize}}}
+\compattikzset{meter/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@meter@path,inlsize=\ctikzvalof{bipoles/meter/inlsize}}}
 
 % short forms
 \compattikzset{esource/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@esource@path, \circuitikzbasekey/bipole/is voltage=true,\circuitikzbasekey/bipole/is voltageoutsideofsymbol=true,  v=#1}}

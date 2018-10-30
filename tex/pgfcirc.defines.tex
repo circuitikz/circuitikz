@@ -65,6 +65,7 @@
 \newdimen\pgf@circ@Rlen 
 \ctikzset{bipoles/length/.code={\pgf@circ@Rlen = #1}}
 \pgf@circ@Rlen = 1.4cm
+\ctikzset{bipoles/arrow size/.initial=1}
 
 \ctikzset{monopoles/.is family}
 \ctikzset{monopoles/ground/width/.initial=.25}
@@ -215,6 +216,10 @@
 \ctikzset{bipoles/nos/width/.initial=.35}
 \ctikzset{bipoles/ncs/height/.initial=.35}
 \ctikzset{bipoles/ncs/width/.initial=.35}
+\ctikzset{bipoles/oswitch/height/.initial=.35}
+\ctikzset{bipoles/oswitch/width/.initial=.35}
+\ctikzset{bipoles/cswitch/height/.initial=.2}
+\ctikzset{bipoles/cswitch/width/.initial=.35}
 \ctikzset{bipoles/generic/height/.initial=.30}
 \ctikzset{bipoles/generic/width/.initial=.80}
 \ctikzset{bipoles/european gas filled surge arrester/height/.initial=.30}
@@ -235,6 +240,8 @@
 \ctikzset{bipoles/generic potentiometer/width/.initial=.80}
 \ctikzset{bipoles/ageneric/height/.initial=.30}
 \ctikzset{bipoles/ageneric/width/.initial=.80}
+\ctikzset{bipoles/bgeneric/height/.initial=.30}
+\ctikzset{bipoles/bgeneric/width/.initial=.80}
 \ctikzset{bipoles/memristor/height/.initial=.30}
 \ctikzset{bipoles/memristor/wave height/.initial=.5}
 \ctikzset{bipoles/memristor/width/.initial=.80}
@@ -258,6 +265,13 @@
 \ctikzset{bipoles/ohmmeter/width/.initial=.60}
 \ctikzset{bipoles/voltmeter/height/.initial=.60}
 \ctikzset{bipoles/voltmeter/width/.initial=.60}
+\ctikzset{bipoles/meter/height/.initial=.60}
+\ctikzset{bipoles/meter/width/.initial=.60}
+\ctikzset{bipoles/meter/inlsize/.initial=}		% Can be \small, \large, etc. in Latex or \smaller [better than \tfx whose behavior seems strange in math mode], \bigger, \tfa, \tfb, etc. in Context.
+\ctikzset{inl/.initial=}
+\ctikzset{rotinl/.initial=}
+\ctikzset{rotinladd/.initial=0}
+\ctikzset{inlsize/.initial=}
 \ctikzset{bipoles/buffer/height/.initial=1}
 \ctikzset{bipoles/buffer/width/.initial=1}
 \ctikzset{bipoles/not port/width/.initial=1}
@@ -788,6 +802,9 @@
 \ctikzset{bipole/name/.initial = }
 \newif\ifpgf@circuit@bipole@isvoltage
 \ctikzset{bipole/is voltage/.is if=pgf@circuit@bipole@isvoltage}
+\newif\ifpgf@circuit@bipole@isvoltage@usualarrow
+\pgf@circuit@bipole@isvoltage@usualarrowfalse
+\ctikzset{bipole/is voltage/usual arrow/.is if=pgf@circuit@bipole@isvoltage@usualarrow}
 \newif\ifpgf@circuit@bipole@voltageoutsideofsymbol
 \ctikzset{bipole/is voltageoutsideofsymbol/.is if=pgf@circuit@bipole@voltageoutsideofsymbol}
 \newif\ifpgf@circuit@bipole@strokedsymbol
@@ -868,6 +885,17 @@
 
 
 
+% ammeter, voltmeter, etc. settings.
+\newif\ifpgf@circuit@europeanmeter
+\newif\ifpgf@circuit@inl
+\pgf@circuit@europeanmeterfalse	% default is then americanmeter.
+\pgf@circuit@inlfalse			% default is then rotinl.
+\ctikzset{meter/.is choice}
+\ctikzset{meter/european/.code = \pgf@circuit@europeanmetertrue\pgf@circuit@inltrue}
+\ctikzset{meter/roteuropean/.code = \pgf@circuit@europeanmetertrue\pgf@circuit@inlfalse}
+\ctikzset{meter/american/.code = \pgf@circuit@europeanmeterfalse\pgf@circuit@inltrue}
+\ctikzset{meter/rotamerican/.code = \pgf@circuit@europeanmeterfalse\pgf@circuit@inlfalse}
+
 \newif\ifpgf@circuit@europeanresistor
 \ctikzset{resistor/.is choice}
 \ctikzset{resistor/american/.code = \pgf@circuit@europeanresistorfalse }
@@ -894,6 +922,7 @@
 
 \ctikzset{thickness/.initial=2}
 \ctikzset{color/.initial=black}
+\ctikzset{arrow color/.initial=}
 \pgfkeys{/tikz/color/.add code={}{\ctikzset{color={#1}}}}
 
 
@@ -905,14 +934,20 @@
 \ctikzset{straight/true/.code = {\pgf@circuit@bipole@voltage@straighttrue}}
 \ctikzset{straight/false/.code = {\pgf@circuit@bipole@voltage@straightfalse}}
 \ctikzset{straightvoltage/.style = {/tikz/circuitikz/straight=true}}
+\tikzset{straight voltages/.style = { \circuitikzbasekey/straight = true } }
+\tikzset{curved voltages/.style = { \circuitikzbasekey/straight = false } }
 \newif\ifpgf@circuit@bipole@voltage@straight
 \ctikzset{bipole/straight/.is if=pgf@circuit@bipole@voltage@straight}
+\ctikzset{voltage/straight label distance/.initial=.25}		% Distance from the arrow, in \pgf@circ@Rlen /4 units (1 roughly correponds to 10pt if \pgf@circ@Rlen=1.4cm).
 
 
 \ctikzset{voltage/.is family}
 \ctikzset{voltage/distance from node/.initial=.5} %\pgf@circ@Rlen units
 \ctikzset{voltage/distance from line/.initial=.08} % pos, tra 0 e 1
 \ctikzset{voltage/bump a/.initial=1.2}
+\ctikzset{voltage/bump angle a/.initial=60}
+\ctikzset{voltage/bump angle b/.initial=120}
+\ctikzset{voltage/bump angle/.code={\pgfmathsubtract{180}{#1} \pgfkeysalso{\circuitikzbasekey/voltage/bump angle a=#1,\circuitikzbasekey/voltage/bump angle b/.expanded=\pgfmathresult}}}			% Sets the "angle" for the voltage arrow of a voltage source (decrease this angle and increase "bump a" in order to have a longer arrow).
 \ctikzset{voltage/bump b/.initial=1.5}
 \ctikzset{voltage/european label distance/.initial=1.4}
 \ctikzset{voltage/american label distance/.initial=1.1}
@@ -926,6 +961,9 @@
 \ctikzset{bipoles/ageneric/voltage/distance from node/.initial=.4}
 \ctikzset{bipoles/ageneric/voltage/bump b/.initial=2}
 \ctikzset{bipoles/ageneric/voltage/european label distance/.initial=1.8}
+\ctikzset{bipoles/bgeneric/voltage/distance from node/.initial=.4}
+\ctikzset{bipoles/bgeneric/voltage/bump b/.initial=2}
+\ctikzset{bipoles/bgeneric/voltage/european label distance/.initial=1.8}
 \ctikzset{bipoles/fullgeneric/voltage/distance from node/.initial=.4}
 \ctikzset{bipoles/fullgeneric/voltage/bump b/.initial=2}
 \ctikzset{bipoles/fullgeneric/voltage/european label distance/.initial=1.8}
@@ -951,7 +989,15 @@
 
 \ctikzset{current/.is family}
 \ctikzset{current/distance/.initial = .5}
+\ctikzset{current/labelshift/.initial=0}
 
+\tikzset{american meters/.style = { \circuitikzbasekey/meter = american } }
+\tikzset{rotated american meters/.style = { \circuitikzbasekey/meter = rotamerican } }
+\tikzset{european meters/.style = { \circuitikzbasekey/meter = european } }
+\tikzset{rotated european meters/.style = { \circuitikzbasekey/meter = roteuropean } }
+
+\tikzset{is voltage usual arrow/.style = { \circuitikzbasekey/bipole/is voltage/usual arrow = true } }		% Usual voltage arrow for voltage sources.
+\tikzset{is voltage source arrow/.style = { \circuitikzbasekey/bipole/is voltage/usual arrow = false } }	% Default voltage arrow for voltage sources (a small one).
 
 \tikzset{american currents/.style = { \circuitikzbasekey/current = american } }
 \tikzset{european currents/.style = { \circuitikzbasekey/current = european } }
