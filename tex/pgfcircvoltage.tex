@@ -157,6 +157,8 @@
 		\pgfkeysifdefined{\pgf@temp}
 			{ \edef\bumpb{\ctikzvalof{bipoles/\pgfkeysvalueof{/tikz/circuitikz/bipole/kind}/voltage/bump b}} }
 			{ \edef\bumpb{\ctikzvalof{voltage/bump b}} }
+                \edef\shiftv{\ctikzvalof{voltage/shift}}
+                \pgfmathsetmacro{\bumpb}{\bumpb + \shiftv} %% adjust the bump is shift
 	}
 	% %\pgf@circ@Rlen/16 is equal to the length of the currarrow
 	coordinate (pgfcirc@midtmp) at ($(\tikztostart) ! \pgf@circ@Rlen/16 ! (anchorstartnode)$) %absolute move, minimum space is length of arrowhead
@@ -169,9 +171,13 @@
 	coordinate (pgfcirc@Vto) at ($(pgfcirc@midtmp) ! \distfromline ! \pgf@circ@voltage@angle : (anchorendnode)$)
 
 	\ifpgf@circuit@bipole@voltage@below
+                coordinate (pgfcirc@Vto) at ($(pgfcirc@Vto) ! \shiftv!90 :  (anchorendnode)$)
+                coordinate (pgfcirc@Vfrom) at ($(pgfcirc@Vfrom) ! \shiftv!-90 :  (anchorstartnode)$)
 		coordinate (pgfcirc@Vcont1) at ($(\ctikzvalof{bipole/name}.center) ! \bumpb ! (\ctikzvalof{bipole/name}.-110)$)
 		coordinate (pgfcirc@Vcont2) at ($(\ctikzvalof{bipole/name}.center) ! \bumpb ! (\ctikzvalof{bipole/name}.-70)$)
 	\else
+                coordinate (pgfcirc@Vto) at ($(pgfcirc@Vto) ! -\shiftv!90 :  (anchorendnode)$)
+                coordinate (pgfcirc@Vfrom) at ($(pgfcirc@Vfrom) ! -\shiftv!-90 :  (anchorstartnode)$)
 		coordinate (pgfcirc@Vcont1) at ($(\ctikzvalof{bipole/name}.center) ! \bumpb ! (\ctikzvalof{bipole/name}.110)$)
 		coordinate (pgfcirc@Vcont2) at ($(\ctikzvalof{bipole/name}.center) ! \bumpb ! (\ctikzvalof{bipole/name}.70)$)
 	\fi
@@ -217,12 +223,19 @@
 
 %% Output routine for voltage sources
 \def\pgf@circ@drawvoltagegenerator{
+        % the following is affected indirectly by voltage/shift, you can move the arrow with voltage/bump a. 
+        % it's not perfect, but I can't find the way to do it correctly...
+        \pgfextra{
+            \edef\shiftv{\ctikzvalof{voltage/shift}}
+            \edef\bumpa{\ctikzvalof{voltage/bump a}}
+            \pgfmathsetmacro{\bumpaplus}{\bumpa + \shiftv}
+        }
 	\ifpgf@circuit@bipole@voltage@below
-		coordinate (pgfcirc@Vfrom) at ($(\ctikzvalof{bipole/name}.center) ! \ctikzvalof{voltage/bump a} ! (\ctikzvalof{bipole/name}.-120)$)
-		coordinate (pgfcirc@Vto) at ($(\ctikzvalof{bipole/name}.center) ! \ctikzvalof{voltage/bump a} ! (\ctikzvalof{bipole/name}.-60)$)
+		coordinate (pgfcirc@Vfrom) at ($(\ctikzvalof{bipole/name}.center) ! \bumpaplus ! (\ctikzvalof{bipole/name}.-120)$)
+		coordinate (pgfcirc@Vto) at ($(\ctikzvalof{bipole/name}.center) ! \bumpaplus ! (\ctikzvalof{bipole/name}.-60)$)
 	\else
-		coordinate (pgfcirc@Vfrom) at ($ (\ctikzvalof{bipole/name}.center) ! \ctikzvalof{voltage/bump a} ! (\ctikzvalof{bipole/name}.120)$)
-		coordinate (pgfcirc@Vto) at ($ (\ctikzvalof{bipole/name}.center) ! \ctikzvalof{voltage/bump a} ! (\ctikzvalof{bipole/name}.60)$)
+		coordinate (pgfcirc@Vfrom) at ($ (\ctikzvalof{bipole/name}.center) ! \bumpaplus ! (\ctikzvalof{bipole/name}.120)$)
+		coordinate (pgfcirc@Vto) at ($ (\ctikzvalof{bipole/name}.center) ! \bumpaplus ! (\ctikzvalof{bipole/name}.60)$)
 	\fi
 	\ifpgf@circuit@europeanvoltage
 		\ifpgf@circuit@bipole@voltage@backward
@@ -314,6 +327,7 @@
 			\ifpgf@circuit@bipole@voltage@below
 				\pgf@circuit@bipole@voltage@belowfalse
 			\else
+
 				\pgf@circuit@bipole@voltage@belowtrue
 			\fi
 		\fi
@@ -329,6 +343,9 @@
 		\pgfkeysifdefined{\pgf@temp}
 			{ \edef\eudist{\ctikzvalof{bipoles/\pgfkeysvalueof{/tikz/circuitikz/bipole/kind}/voltage/european label distance}} }
 			{ \edef\eudist{\ctikzvalof{voltage/european label distance}} }
+                \edef\shiftv{\ctikzvalof{voltage/shift}}
+                % adjust the label distance to the shift. 
+                \pgfmathsetmacro{\eudistplus}{\eudist+\shiftv}
 
 	\pgfsetcornersarced{\pgfpointorigin}% do not use rounded corners!
 	}%end pgfextra
@@ -347,7 +364,7 @@
 		\else
 		coordinate (Vlab) at ($(\ctikzvalof{bipole/name}.center) !
 			\ifpgf@circuit@europeanvoltage
-				\eudist
+				\eudistplus
 			\else
 				\ctikzvalof{voltage/american label distance}
 			\fi !
