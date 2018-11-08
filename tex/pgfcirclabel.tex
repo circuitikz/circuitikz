@@ -236,4 +236,35 @@
 \ctikzset{t/.code = { 
 	\ctikzsetvalof{bipoles/twoport/text}{#1}
 }}
+
+%%%% Stacked labels
+%%%% Original version by Claudio Fiandrino https://tex.stackexchange.com/a/65792/38080
+
+
+\ctikzset{lx/.code args={#1 and #2}{
+  \pgfkeys{/tikz/circuitikz/bipole/label/name=\parbox{1cm}{\centering #1  \\ #2}}
+    \ctikzsetvalof{bipole/label/unit}{}
+    \ifpgf@circ@siunitx
+        \pgf@circ@handleSI{#2}
+        \ifpgf@circ@siunitx@res
+            \edef\pgf@temp{\pgf@circ@handleSI@val}
+            \pgfkeyslet{/tikz/circuitikz/bipole/label/name}{\pgf@temp}
+            \edef\pgf@temp{\pgf@circ@handleSI@unit}
+            \pgfkeyslet{/tikz/circuitikz/bipole/label/unit}{\pgf@temp}
+        \else
+        \fi
+    \else
+    \fi
+}}
+
+\ctikzset{lx^/.style args={#1 and #2}{
+    lx=#2 and #1,
+    \circuitikzbasekey/bipole/label/position=90 }
+}
+
+\ctikzset{lx_/.style args={#1 and #2}{
+    lx=#1 and #2,
+    \circuitikzbasekey/bipole/label/position=-90 }
+}
+
 \endinput
