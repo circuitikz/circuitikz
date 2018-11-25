@@ -233,10 +233,26 @@
 
 \DeclareOption{oldvoltagedirection}{
 	\pgf@circ@oldvoltagedirectiontrue
+        \pgf@circ@explicitvdirtrue
+        \pgf@circ@fixbatteriesfalse
 }
 \DeclareOption{nooldvoltagedirection}{
 	\pgf@circ@oldvoltagedirectionfalse
+        \pgf@circ@explicitvdirtrue
+        \pgf@circ@fixbatteriesfalse
 }
+
+\DeclareOption{RPvoltages}{
+	\pgf@circ@oldvoltagedirectiontrue
+        \pgf@circ@explicitvdirtrue
+        \pgf@circ@fixbatteriestrue
+}
+\DeclareOption{EFvoltages}{
+	\pgf@circ@oldvoltagedirectionfalse
+        \pgf@circ@explicitvdirtrue
+        \pgf@circ@fixbatteriestrue
+}
+
 
 \DeclareOption{betterproportions}{
 	\ctikzset{monopoles/ground/width/.initial=.15}
@@ -313,7 +329,8 @@
 \input pgfcirccurrent.tex
 \input pgfcircflow.tex
 
-\ExecuteOptions{nofetbodydiode,nofetsolderdot,nooldvoltagedirection,europeancurrents,europeanvoltages,americanports,americanresistors,cuteinductors,europeangfsurgearrester,nosiunitx,noarrowmos,smartlabels,nocompatibility}
+% notice that the default is nooldvoltagedirections; it's not explicitly set to allow for the warning
+\ExecuteOptions{nofetbodydiode,nofetsolderdot,europeancurrents,europeanvoltages,americanports,americanresistors,cuteinductors,europeangfsurgearrester,nosiunitx,noarrowmos,smartlabels,nocompatibility}
 
 \ProcessOptions\relax
 
@@ -323,6 +340,16 @@
     \RequirePackage{xstring}[2009/03/13]
 	%\expandafter\let\csname angstrom\endcsname\relax
 	\RequirePackage{siunitx}
+\fi
+
+\ifpgf@circ@explicitvdir\else
+    \PackageWarningNoLine{circuitikz}{%
+        You did not specify one of the voltage directions:\MessageBreak
+        \space\space    oldvoltagedirections, nooldvoltagedirections, \MessageBreak 
+        \space\space    RPvoltages or EFvoltages \MessageBreak
+        Default directions may have changed, \MessageBreak 
+        please check the manual%
+    }
 \fi
 
 
