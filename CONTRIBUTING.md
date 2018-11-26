@@ -14,7 +14,7 @@ The pull request should:
 
 * be based on the `master` branch of the `circuitikz` repository;
 * have a text explaining the content of the request clearly;
-* being specific: please avoid a big pull request touching a lot of different places and with a lot of different objectives; that would make the history unclear; 
+* be specific: please avoid a big pull request touching a lot of different places and with a lot of different objectives; that would make the history unclear; 
 * if the pull request is an enhancement, it should add the correspondent info to the manual (`circuitikzmanual.tex` in the `doc` directory); please check that it compiles correctly against your changes (see appendix 1).
 
 # Other way of contributing
