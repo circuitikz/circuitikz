@@ -4,7 +4,7 @@ When contributing to this repository, please first discuss the change you wish t
 email, or any other method with the owners of this repository before making a change. 
 
 Although this project has no official Code of Conduct, we ask you to be kind, and respectful in your comments and request. 
-Remember that this is an effort from a group of people volunteering this work, so that be patient... 
+Remember that this is an effort from a group of volunteers, so be patient... 
 
 # Preferred way of contributing
 
