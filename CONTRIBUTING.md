@@ -8,7 +8,7 @@ Remember that this is an effort from a group of volunteers, so be patient...
 
 # Preferred way of contributing
 
-If you like to contribute changes, enhancement, an bug fixed, you are welcome! The preferred way is a pull request (see https://help.github.com/articles/about-pull-requests/), which is the best way to preserve authorship (see appendix 2) . 
+If you'd like to contribute changes, enhancement an bug-fixes, you are welcome to do so! The preferred way is a pull request (see https://help.github.com/articles/about-pull-requests/), which is the best way to preserve authorship (see appendix 2) . 
 
 The pull request should:
 
