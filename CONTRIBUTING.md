@@ -27,7 +27,7 @@ Again, just open an issue. But another way of finding answer is to ask a [good q
 
 ## Appendix 1: compile the manual
 
-To compile your manual against your version/fork of `circuitikz` you can use `make manual` in the root directory; this need `pandoc` installed and will run twice to have a complete cross-reference in the document. 
+To compile your manual against your version/fork of `circuitikz` you can use `make manual` in the root directory; this needs `pandoc` to be installed, and will run twice in order to completely generate the document cross-references. 
 
 To rapidly compile just once, at least in Linux computers, you can use
 
