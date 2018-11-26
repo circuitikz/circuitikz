@@ -38,7 +38,7 @@ To rapidly compile just once, at least in Linux computers, you can use
 
 ## Appendix 2: minimal git workflow 
 
-The best way to start learning git is reading [Pro GIT](https://git-scm.com/book/en/v2), a really nice book about it. 
+The best way to start learning GIT is reading [Pro GIT](https://git-scm.com/book/en/v2), a really nice book about it. 
 But basically, a possible workflow is: 
 
 
