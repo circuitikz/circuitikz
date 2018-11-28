@@ -43,9 +43,10 @@ More Information can be found in the manual and at the wiki of the project locat
 * Massimo Redaelli (m.redaelli@gmail.com)
 * Stefan Lindner (stefan.lindner@fau.de)
 * Stefan Erhardt (stefan.erhardt@fau.de)
+* Romano Giannetti (romano@rgtti.com)
 
 -------------
-Copyright 2007-16 by Massimo Redaelli
+Copyright 2007-18 by Massimo Redaelli
 
 This file may be distributed and/or modified
 
