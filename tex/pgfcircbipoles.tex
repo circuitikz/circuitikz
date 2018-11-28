@@ -252,8 +252,35 @@
 		\pgfpathmoveto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@up}}
 		\pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@down}}
 		\pgfusepath{draw}
+
 }
 
+%% Capacitive sensor 
+
+
+\pgfcircdeclarebipole{\anchor{label}{%
+        \southwest
+        \pgf@x=2.6\pgf@x
+        \pgf@y=1.4\pgf@y
+    }%
+    }{\ctikzvalof{bipoles/capacitor/height}}{capacitivesens}{\ctikzvalof{bipoles/capacitor/height}}{\ctikzvalof{bipoles/capacitor/width}}{
+		\pgf@circ@res@step = \ctikzvalof{bipoles/capacitor/width}\pgf@circ@Rlen
+		\divide \pgf@circ@res@step by 5
+
+		\pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}\pgfstartlinewidth}
+		\pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@up}}
+		\pgfpathlineto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@down}}
+
+		\pgfpathmoveto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@up}}
+		\pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@down}}
+		\pgfusepath{draw}
+    \pgfscope
+        \pgfpathmoveto{\pgfpoint{2.6\pgf@circ@res@right}{\pgf@circ@res@up}}
+        \pgfpathlineto{\pgfpoint{-2.6\pgf@circ@res@right}{1.4\pgf@circ@res@down}}
+        \pgfpathlineto{\pgfpoint{-4.4\pgf@circ@res@right}{1.4\pgf@circ@res@down}}
+        \pgfusepath{draw}
+    \endpgfscope
+}
 
 %% Polar Capacitor
 
@@ -392,6 +419,44 @@
 	\pgfusepath{stroke}
 }
 
+%% cute inductive sensor
+
+\pgfcircdeclarebipole{%
+{% anchor for labelling the type of dependency
+    \anchor{label}{%
+        \southwest
+        \pgf@x=0.8\pgf@x
+        \pgf@y=2.6\pgf@y
+    }%
+}}{\ctikzvalof{bipoles/cuteinductor/lower coil height}}{scuteinductor}{\ctikzvalof{bipoles/cuteinductor/height}}{\ctikzvalof{bipoles/cuteinductor/width}}{
+	\pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}\pgfstartlinewidth}
+	\pgftransformationadjustments
+
+	\pgfmathsetlength{\pgf@circ@res@other}%width of small coil
+	{0.5*\ctikzvalof{bipoles/cuteinductor/coil aspect}*\ctikzvalof{bipoles/cuteinductor/width}*\pgf@circ@Rlen/(\ctikzvalof{bipoles/cuteinductor/coils}-1)}
+
+
+	\pgfmathsetlength{\pgf@circ@res@step}
+		{(\ctikzvalof{bipoles/cuteinductor/width}*\pgf@circ@Rlen+\pgfhorizontaltransformationadjustment\pgflinewidth+(\ctikzvalof{bipoles/cuteinductor/coils}-1)*2*\pgf@circ@res@other)/\ctikzvalof{bipoles/cuteinductor/coils}/2}
+
+	\pgfpathmoveto{\pgfpoint{\pgf@circ@res@left-\pgfhorizontaltransformationadjustment*0.5*\pgflinewidth}{-\pgfverticaltransformationadjustment*0.4*\pgfstartlinewidth}}%correct value would be 0.5 but arcs are not really flat, therefore 0.4 is better is (almost) all cases
+	\foreach \x in {2,...,\ctikzvalof{bipoles/cuteinductor/coils}}
+	{
+		\pgfpatharc{180}{0}{\pgf@circ@res@step and \pgf@circ@res@up}
+		\pgfpatharc{0}{-180}{\pgf@circ@res@other and -\pgf@circ@res@down}
+	}
+	\pgfpatharc{180}{0}{\pgf@circ@res@step and \pgf@circ@res@up}
+	\pgfsetbuttcap
+	\pgfsetbeveljoin
+	\pgfusepath{stroke}
+        \pgfscope
+            \pgfpathmoveto{\pgfpoint{.8\pgf@circ@res@right}{2\pgf@circ@res@up}}
+            \pgfpathlineto{\pgfpoint{-.8\pgf@circ@res@right}{2.6\pgf@circ@res@down}}
+            \pgfpathlineto{\pgfpoint{-1.6\pgf@circ@res@right}{2.6\pgf@circ@res@down}}
+            \pgfusepath{draw}
+        \endpgfscope
+}
+
 %% cute choke
 
 \pgfcircdeclarebipole{}{\ctikzvalof{bipoles/cutechoke/lower coil height}}{cutechoke}{\ctikzvalof{bipoles/cutechoke/height}}{\ctikzvalof{bipoles/cutechoke/width}}{
@@ -460,7 +525,6 @@
 	\pgfsetbeveljoin
 	\pgfusepath{stroke}
 }
-
 %% american inductor
 
 \pgfcircdeclarebipole{}{\ctikzvalof{bipoles/americaninductor/height 2}}{americaninductor}{\ctikzvalof{bipoles/americaninductor/height}}{\ctikzvalof{bipoles/americaninductor/width}}{
@@ -480,6 +544,41 @@
 	\pgfsetbuttcap
 	\pgfsetbeveljoin
 	\pgfusepath{stroke}
+}
+
+
+%% american inductive sensor
+
+\pgfcircdeclarebipole{%
+{% anchor for labelling the type of dependency
+    \anchor{label}{%
+        \southwest
+        \pgf@x=0.8\pgf@x
+        \pgf@y=2.6\pgf@y
+    }%
+}}{\ctikzvalof{bipoles/americaninductor/height 2}}{samericaninductor}{\ctikzvalof{bipoles/americaninductor/height}}{\ctikzvalof{bipoles/americaninductor/width}}{
+	\pgf@circ@res@step=\ctikzvalof{bipoles/americaninductor/width}\pgf@circ@Rlen
+	\pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}\pgfstartlinewidth}	
+	\pgftransformationadjustments
+	\advance \pgf@circ@res@step by \pgfhorizontaltransformationadjustment\pgflinewidth
+	\divide \pgf@circ@res@step by \ctikzvalof{bipoles/americaninductor/coils}
+	\divide \pgf@circ@res@step by 2
+	\pgf@circ@res@other = \ctikzvalof{bipoles/americaninductor/coil height}\pgf@circ@Rlen
+
+	\pgfpathmoveto{\pgfpoint{\pgf@circ@res@left-\pgfhorizontaltransformationadjustment*0.5*\pgflinewidth}{-\pgfverticaltransformationadjustment*0.4*\pgfstartlinewidth}}%correct value would be 0.5 but arcs are not really flat, therefore 0.4 is better is (almost) all cases
+	\foreach \x in {1,...,\ctikzvalof{bipoles/americaninductor/coils}}
+	{
+	\pgfpatharc{180}{0}{\pgf@circ@res@step and  \pgf@circ@res@other}
+	}
+	\pgfsetbuttcap
+	\pgfsetbeveljoin
+	\pgfusepath{stroke}
+        \pgfscope
+            \pgfpathmoveto{\pgfpoint{.8\pgf@circ@res@right}{2\pgf@circ@res@up}}
+            \pgfpathlineto{\pgfpoint{-.8\pgf@circ@res@right}{2.6\pgf@circ@res@down}}
+            \pgfpathlineto{\pgfpoint{-1.6\pgf@circ@res@right}{2.6\pgf@circ@res@down}}
+            \pgfusepath{draw}
+        \endpgfscope
 }
 
 %% variable american inductor
@@ -1445,6 +1544,27 @@
 		\pgfusepath{draw,fill} 
 }
 
+%% Generic sensor, filled - used as inductive sensor by some (double bleah)
+
+\pgfcircdeclarebipole{{% anchor for labelling the type of dependency
+    \anchor{label}{%
+        \southwest
+        \pgf@x=0.4\pgf@x
+        \pgf@y=2\pgf@y
+    }%
+}}{\ctikzvalof{bipoles/fullgeneric/height}}{sfullgeneric}{\ctikzvalof{bipoles/fullgeneric/height}}{\ctikzvalof{bipoles/fullgeneric/width}}{
+
+		\pgfpathrectanglecorners{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@up}}{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@down}}
+		\pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}\pgfstartlinewidth}
+		\pgfusepath{draw,fill} 
+		%\pgfscope
+		\pgfpathmoveto{\pgfpoint{-\pgf@circ@res@left}{-2\pgf@circ@res@down}}
+		\pgfpathlineto{\pgfpoint{.4\pgf@circ@res@left}{2\pgf@circ@res@down}}
+		\pgfpathlineto{\pgfpoint{\pgf@circ@res@left}{2\pgf@circ@res@down}}
+		\pgfusepath{draw}
+		%\endpgfscope
+}
+
 
 %% Generic asymmetric bipole 
 
@@ -1548,15 +1668,21 @@
 
 
 %% Thermistor
-\pgfcircdeclarebipole{}{\ctikzvalof{bipoles/thermistor/height}}{thermistor}{\ctikzvalof{bipoles/thermistor/height}}{\ctikzvalof{bipoles/thermistor/width}}{
+\pgfcircdeclarebipole{{% anchor for labelling the type of dependency
+    \anchor{label}{%
+        \southwest
+        \pgf@x=0.4\pgf@x
+        \pgf@y=1.2\pgf@y
+    }%
+}}{\ctikzvalof{bipoles/thermistor/height}}{thermistor}{\ctikzvalof{bipoles/thermistor/height}}{\ctikzvalof{bipoles/thermistor/width}}{
 		\pgfpathrectanglecorners{\pgfpoint{\pgf@circ@res@left}{\pgfkeysvalueof{/tikz/circuitikz/bipoles/thermistor/main}\pgf@circ@res@up}}{\pgfpoint{\pgf@circ@res@right}{-\pgfkeysvalueof{/tikz/circuitikz/bipoles/thermistor/main}\pgf@circ@res@up}}
 		\pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}\pgfstartlinewidth}
 		\pgfusepath{draw}
 		
 		%\pgfscope
 		\pgfpathmoveto{\pgfpoint{-\pgf@circ@res@left}{-\pgf@circ@res@down}}
-		\pgfpathlineto{\pgfpoint{.4\pgf@circ@res@left}{\pgf@circ@res@down}}
-		\pgfpathlineto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@down}}
+		\pgfpathlineto{\pgfpoint{.4\pgf@circ@res@left}{1.2\pgf@circ@res@down}}
+		\pgfpathlineto{\pgfpoint{\pgf@circ@res@left}{1.2\pgf@circ@res@down}}
 		\pgfusepath{draw}
 		%\endpgfscope
 }
@@ -3255,7 +3381,12 @@
 }
 
 \pgfcircdeclarebipole
-{}
+{% anchor for labelling the type of dependency
+    \anchor{label}{%
+        \southwest
+        \pgf@x=0.4\pgf@x
+    }%
+}
 {\ctikzvalof{bipoles/resistivesens/height}}
 {resistivesens}
 {\ctikzvalof{bipoles/resistivesens/height}}

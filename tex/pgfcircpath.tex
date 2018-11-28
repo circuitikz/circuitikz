@@ -151,12 +151,14 @@
 %% Path definitions
 \def\pgf@circ@resistor@path#1{\ifpgf@circuit@europeanresistor\pgf@circ@bipole@path{generic}{#1}\else\pgf@circ@bipole@path{resistor}{#1}\fi}
 \def\pgf@circ@vresistor@path#1{\ifpgf@circuit@europeanresistor\pgf@circ@bipole@path{tgeneric}{#1}\else\pgf@circ@bipole@path{vresistor}{#1}\fi}
+\def\pgf@circ@sresistor@path#1{\ifpgf@circuit@europeanresistor\pgf@circ@bipole@path{thermistor}{#1}\else\pgf@circ@bipole@path{resistivesens}{#1}\fi}
 \def\pgf@circ@potentiometer@path#1{\ifpgf@circuit@europeanresistor\pgf@circ@bipole@path{genericpotentiometer}{#1}\else\pgf@circ@bipole@path{potentiometer}{#1}\fi}
 \def\pgf@circ@thermistor@path#1{\pgf@circ@bipole@path{thermistor}{#1}}
 \def\pgf@circ@thermistorptc@path#1{\pgf@circ@bipole@path{thermistorptc}{#1}}
 \def\pgf@circ@thermistorntc@path#1{\pgf@circ@bipole@path{thermistorntc}{#1}}
 \def\pgf@circ@varistor@path#1{\pgf@circ@bipole@path{varistor}{#1}}
 \def\pgf@circ@capacitor@path#1{\pgf@circ@bipole@path{capacitor}{#1}}
+\def\pgf@circ@capacitivesens@path#1{\pgf@circ@bipole@path{capacitivesens}{#1}}
 \def\pgf@circ@ecapacitor@path#1{\pgf@circ@bipole@path{ecapacitor}{#1}}
 \def\pgf@circ@polarcapacitor@path#1{\pgf@circ@bipole@path{polarcapacitor}{#1}}
 \def\pgf@circ@vcapacitor@path#1{\pgf@circ@bipole@path{vcapacitor}{#1}}
@@ -200,9 +202,28 @@
 		\fi%
 	\fi%
 }
+\def\pgf@circ@inductivesens@path#1{%
+	\pgfextra{
+		\edef\pgf@circ@temp{\ctikzvalof{inductor}}%
+		\def\pgf@temp{european}%
+	}
+	\ifx\pgf@temp\pgf@circ@temp%
+		\pgf@circ@europeaninductivesens@path{#1}%
+	\else%
+		\pgfextra{	\def\pgf@temp{cute} }%
+		\ifx\pgf@temp\pgf@circ@temp%
+			\pgf@circ@cuteinductivesens@path{#1}%
+		\else%
+			\pgf@circ@americaninductivesens@path{#1}%
+		\fi%
+	\fi%
+}
 \def\pgf@circ@veuropeaninductor@path#1{\pgf@circ@bipole@path{tfullgeneric}{#1}}
 \def\pgf@circ@vamericaninductor@path#1{\pgf@circ@bipole@path{vamericaninductor}{#1}}
 \def\pgf@circ@vcuteinductor@path#1{\pgf@circ@bipole@path{vcuteinductor}{#1}}
+\def\pgf@circ@europeaninductivesens@path#1{\pgf@circ@bipole@path{sfullgeneric}{#1}}
+\def\pgf@circ@americaninductivesens@path#1{\pgf@circ@bipole@path{samericaninductor}{#1}}
+\def\pgf@circ@cuteinductivesens@path#1{\pgf@circ@bipole@path{scuteinductor}{#1}}
 \def\pgf@circ@lamp@path#1{\pgf@circ@bipole@path{lamp}{#1}}
 \def\pgf@circ@esource@path#1{\pgf@circ@bipole@path{esource}{#1}}
 \def\pgf@circ@pvsource@path#1{\pgf@circ@bipole@path{pvsource}{#1}}
@@ -597,10 +618,19 @@
 
 % resistive sensor american style
 \def\pgf@circ@resistivesens@path#1{\pgf@circ@bipole@path{resistivesens}{#1}}
-\compattikzset{resistive sensor/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@resistivesens@path, l=#1}}
+\compattikzset{american resistive sensor/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@resistivesens@path, l=#1}}
+\compattikzset{european resisitive sensor/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@thermistorntc@path, l=#1}}
+\compattikzset{resistive sensor/.style= {\circuitikzbasekey, /tikz/to path=\pgf@circ@sresistor@path, l=#1}}
 \compattikzset{sR/.style= {\comnpatname resistive sensor= #1}}
 
+\compattikzset{capacitive sensor/.style= {\circuitikzbasekey, /tikz/to path=\pgf@circ@capacitivesens@path, l=#1}}
+\compattikzset{sC/.style= {\comnpatname capacitive sensor= #1}}
 
+\compattikzset{cute inductive sensor/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@cuteinductivesens@path, l=#1}}
+\compattikzset{european inductive sensor/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@europeaninductivesens@path, l=#1}}
+\compattikzset{american inductive sensor/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@americaninductivesens@path, l=#1}}
+\compattikzset{inductive sensor/.style= {\circuitikzbasekey, /tikz/to path=\pgf@circ@inductivesens@path, l=#1}}
+\compattikzset{sL/.style= {\comnpatname inductive sensor= #1}}
 
 \compattikzset{Mr/.style = {\comnpatname memristor}}
 
