@@ -3,8 +3,11 @@ The major changes among the different circuitikz versions are listed here. See <
 
 * Version git (unreleased)
 	- Fixed placement of straightlabels within 4th quadrant
-	- Fixed straighvoltages at Diodes,varcap and some other components
+	- Fixed straightvoltages at Diodes, varcap and some other components
 	- Adjusted ground symbols to better match ISO standard
+    - Fixed a bug about straightlabels (thanks to @fotesan)
+    - Added Romano as contributor
+    - Added a CONTRIBUTING file
 
 * Version 0.8.3 (2017-05-28) 
 	- Removed unwanted lines at to-paths if the starting point is a node without a explicit anchor.
