@@ -807,6 +807,9 @@ If otherwise \texttt{europeanports} option is active (or the style \texttt{[euro
 	\circuititem{en amp}{Operational amplifier compliant to DIN/EN 60617 standard}{}
 	\circuititem{fd op amp}{Fully differential operational amplifier\footnote{Contributed by Kristofer M. Monisit.}}{}
 	\circuititem{gm amp}{transconductance amplifier}{}
+	\circuititem{inst amp}{plain instrumentation amplifier}{}
+	\circuititem{fd inst amp}{Fully differential instrumentation amplifier}{}
+	\circuititem{inst amp ra}{instrumentation amplifier with amplification resistance terminals}{}
 	\circuititem{plain amp}{Plain amplifier}{}
 	\circuititem{buffer}{Buffer}{}
 \end{itemize}
@@ -1760,6 +1763,72 @@ The fully differential op amp defines two outputs:
   (opamp.down) node[ground] {}
 ;\end{circuitikz}
 \end{LTXexample}
+
+The instrumentation amplifier inst amp defines also references (normally you use the "down", unless you are flipping the component):
+\begin{LTXexample}[varwidth=true]
+\begin{circuitikz} \draw 
+  (0,0) node[inst amp] (opamp) {}
+  (opamp.+) node[left] {$v_+$}
+  (opamp.-) node[left] {$v_-$}
+  (opamp.out) node[right] {out}
+  (opamp.up) node[vcc]{}
+  (opamp.down) node[vee] {}
+  (opamp.refv down) node[ground]{}
+  (opamp.refv up) to[short, -o] ++(0,0.3)
+;\end{circuitikz}
+\end{LTXexample}
+
+The fully diffential instrumentation amplifier inst amp defines two outputs:
+\begin{LTXexample}[varwidth=true]
+\begin{circuitikz} \draw 
+  (0,0) node[fd inst amp] (opamp) {}
+  (opamp.+) node[left] {$v_+$}
+  (opamp.-) node[left] {$v_-$}
+  (opamp.out +) node[right] {out +}
+  (opamp.out -) node[right] {out -}
+  (opamp.up) node[vcc]{}
+  (opamp.down) node[vee] {}
+  (opamp.refv down) node[ground]{}
+  (opamp.refv up) to[short, -o] ++(0,0.3)
+;\end{circuitikz}
+\end{LTXexample}
+
+The instrumentation amplifier with resistance terminals (\texttt{inst amp ra}) defines also terminals to add an amplification resistor:
+\begin{LTXexample}[varwidth=true]
+\begin{circuitikz} \draw 
+  (0,0) node[inst amp ra] (opamp) {}
+  (opamp.+) node[left] {$v_+$}
+  (opamp.-) node[left] {$v_-$}
+  (opamp.out) node[right] {out}
+  (opamp.up) node[vcc]{}
+  (opamp.down) node[vee] {}
+  (opamp.refv down) node[ground]{}
+  (opamp.refv up) to[short, -o] ++(0,0.3)
+  (opamp.ra-) to[R] (opamp.ra+)
+;\end{circuitikz}
+\end{LTXexample}
+
+All these amplifier have the possibility to flip input and output (if needed) polarity. You can change polarity of the input with the 
+\texttt{noinv input down} (default) or \texttt{noinv input up} key; and the output with \texttt{noinv output up} (default) or \texttt{noinv output down} key: 
+\begin{LTXexample}[varwidth=true]
+\begin{circuitikz} \draw 
+  (0,0) node[fd inst amp,
+     noinv input up, 
+     noinv output down] (opamp) {}
+  (opamp.+) node[left] {$v_+$}
+  (opamp.-) node[left] {$v_-$}
+  (opamp.out +) node[right] {out +}
+  (opamp.out -) node[right] {out -}
+  (opamp.up) node[vcc]{}
+  (opamp.down) node[vee] {}
+  (opamp.refv down) node[ground]{}
+  (opamp.refv up) to[short, -o] ++(0,0.3)
+;\end{circuitikz}
+\end{LTXexample}
+
+When you use the \texttt{noinv input/output ...} keys the anchors (\texttt{+}, \texttt{-}, \texttt{out +}, \texttt{out -}) will change with the effective position of the terminals. You have also the anchors \texttt{in up}, \texttt{in down}, \texttt{out up}, \texttt{out down} that will not change with the positive or negatie sign.
+
+
 
 \subsubsection{Double bipoles} All the (few, actually) double bipoles/quadrupoles have
 the four anchors, two for each port. The first port, to the left, is port \texttt{A}, having the anchors \texttt{A1} (up) and \texttt{A2} (down); same for port \texttt{B}. They also expose the \texttt{base} anchor, for labelling:
