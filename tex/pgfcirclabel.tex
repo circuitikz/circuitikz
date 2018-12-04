@@ -236,4 +236,55 @@
 \ctikzset{t/.code = { 
 	\ctikzsetvalof{bipoles/twoport/text}{#1}
 }}
+
+%%%% Stacked labels
+%
+% stacked labels by Romano Giannetti romano@rgtti.com
+% heavil2 based on Claudo Fiandrinos's https://tex.stackexchange.com/a/65792/38080
+% \expandafter trick inspired by Matthew Leingang's https://tex.stackexchange.com/a/12272/38080
+%
+% labels are in a tabular, globally aligned:
+%        vertically with key l2 valign (default c)
+%        c: center t: top b: bottom
+%        horizontally with key l2 align (default l)
+%        l: left c: centered r: right
+% you can switch sides using l2_=... and l2^=...
+% syntax is l2_ = line1 and line2 (same for l2^)
+%
+\ctikzset{%
+    l2 valign/.store in=\ltwo@valign, l2 valign=c,
+    l2 halign/.store in=\ltwo@halign, l2 halign=l,
+}
+\ctikzset{l2/.code n args={2}{
+  \pgfkeys{/tikz/circuitikz/bipole/label/name=%
+        \bgroup
+        \setlength{\tabcolsep}{2pt}%
+        \def\ltwo@tabu{\tabular[\ltwo@valign]}%
+        \expandafter\ltwo@tabu\expandafter{\ltwo@halign}%
+        #1\\ #2%
+        \endtabular
+        \egroup
+    }%
+    \ctikzsetvalof{bipole/label/unit}{}
+    \ifpgf@circ@siunitx
+        \pgf@circ@handleSI{#2}
+        \ifpgf@circ@siunitx@res
+            \edef\pgf@temp{\pgf@circ@handleSI@val}
+            \pgfkeyslet{/tikz/circuitikz/bipole/label/name}{\pgf@temp}
+            \edef\pgf@temp{\pgf@circ@handleSI@unit}
+            \pgfkeyslet{/tikz/circuitikz/bipole/label/unit}{\pgf@temp}
+        \else
+        \fi
+    \else
+    \fi
+}}
+\ctikzset{l2^/.style args={#1 and #2}{
+        l2={#1}{#2},
+    \circuitikzbasekey/bipole/label/position=90 }
+}
+\ctikzset{l2_/.style args={#1 and #2}{
+        l2={#1}{#2},
+    \circuitikzbasekey/bipole/label/position=-90 }
+}
+
 \endinput

@@ -12,6 +12,7 @@ The major changes among the different circuitikz versions are listed here. See <
     - Added new types of amplifiers, and option to flip inputs and outputs
     - Added bidirectional diodes (diac) thanks to Andre Lucas Chinazzo 
     - Added L,R,C sensors (with european, american and cute variants)
+    - Added stacked labels (thanks to the original work by Claudio Fiandrino)
 
 * Version 0.8.3 (2017-05-28) 
 	- Removed unwanted lines at to-paths if the starting point is a node without a explicit anchor.
