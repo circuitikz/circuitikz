@@ -1,4 +1,4 @@
-\def\pgfcircversion{git:5556a52}
+\def\pgfcircversion{git:d07403f}
 \def\pgfcircversiondate{2018/12/05}
 \writestatus{loading}{\pgfcircversiondate{} The CircuiTikz circuit drawing package version \pgfcircversion}
 
@@ -75,7 +75,7 @@
 % Option "t=*" for nodes
 \pgfkeys{/tikz/t/.add code={}{\ctikzset{text=#1}}}
 
-
+\ctikzset{current arrow scale/.initial=16}
 
 \ctikzset{bipoles/.is family}
 \ctikzset{bipoles/border margin/.initial=1.1}
@@ -394,6 +394,7 @@
 \ctikzset{tripoles/nmos/height/.initial=1.1}
 \ctikzset{tripoles/nmos/base width/.initial=.5}
 \ctikzset{tripoles/nmos/gate width/.initial=.62}
+\ctikzset{tripoles/nmos/arrow pos/.initial=.6}
 \ctikzset{tripoles/nmos/bodydiode scale/.initial=.3}
 \ctikzset{tripoles/nmos/bodydiode distance/.initial=.3}
 \ctikzset{tripoles/nmos/bodydiode conn/.initial=.6}
@@ -406,6 +407,7 @@
 \ctikzset{tripoles/pmos/height/.initial=1.1}
 \ctikzset{tripoles/pmos/base width/.initial=.5}
 \ctikzset{tripoles/pmos/gate width/.initial=.62}
+\ctikzset{tripoles/pmos/arrow pos/.initial=.4}
 \ctikzset{tripoles/pmos/bodydiode scale/.initial=.3}
 \ctikzset{tripoles/pmos/bodydiode distance/.initial=.3}
 \ctikzset{tripoles/pmos/bodydiode conn/.initial=.6}
@@ -526,6 +528,7 @@
 \ctikzset{tripoles/npn/conn height/.initial=0}
 \ctikzset{tripoles/npn/height/.initial=1.1}
 \ctikzset{tripoles/npn/base width/.initial=.5}
+\ctikzset{tripoles/npn/arrow pos/.initial=.5}
 \ctikzset{tripoles/npn/bodydiode scale/.initial=.3}
 \ctikzset{tripoles/npn/bodydiode distance/.initial=.3}
 \ctikzset{tripoles/npn/bodydiode conn/.initial=.6}
@@ -538,6 +541,7 @@
 \ctikzset{tripoles/pnp/conn height/.initial=0}
 \ctikzset{tripoles/pnp/height/.initial=1.1}
 \ctikzset{tripoles/pnp/base width/.initial=.5}
+\ctikzset{tripoles/pnp/arrow pos/.initial=.5}
 \ctikzset{tripoles/pnp/bodydiode scale/.initial=.3}
 \ctikzset{tripoles/pnp/bodydiode distance/.initial=.3}
 \ctikzset{tripoles/pnp/bodydiode conn/.initial=.6}
@@ -1284,14 +1288,14 @@
 		\anchor{tip}{
 		\pgfpointorigin
 			\pgf@circ@res@step = \pgf@circ@Rlen
-				\divide \pgf@circ@res@step by 16
+				\divide \pgf@circ@res@step by \pgfkeysvalueof{/tikz/circuitikz/current arrow scale}
 		\pgf@x	=\pgf@circ@res@step
 		}
 	\behindforegroundpath{		
 		
 		\pgfscope
 			\pgf@circ@res@step = \pgf@circ@Rlen
-			\divide \pgf@circ@res@step by 16
+			\divide \pgf@circ@res@step by \pgfkeysvalueof{/tikz/circuitikz/current arrow scale}
 
 			\pgfpathmoveto{\pgfpoint{-.7\pgf@circ@res@step}{0pt}}
 			\pgfpathlineto{\pgfpoint{-.7\pgf@circ@res@step}{-.8\pgf@circ@res@step}}
@@ -1315,7 +1319,7 @@
 		\anchor{tip}{
 		\pgfpointorigin
 			\pgf@circ@res@step = \pgf@circ@Rlen
-				\divide \pgf@circ@res@step by 16
+				\divide \pgf@circ@res@step by \pgfkeysvalueof{/tikz/circuitikz/current arrow scale}
 		\pgf@x	=\pgf@circ@res@step
 		}
 	\behindforegroundpath{
@@ -6756,13 +6760,13 @@
 			{\pgfkeysvalueof{/tikz/circuitikz/tripoles/#1/base height}\pgf@circ@res@down}}
 		\pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@down-\pgfverticaltransformationadjustment*.5*\pgflinewidth}}		
 		\pgfusepath{draw}
-		%draw arrow depending on type of transiytor
+		%draw arrow depending on type of transistor
 	 	\pgfscope
 	 	\pgfslopedattimetrue
 	 	\pgfallowupsidedownattimetrue
 	 	\pgfresetnontranslationattimefalse
 		\ifpgf@circuit@trans@ntype
-		 	\pgftransformlineattime{.5}{%
+		 	\pgftransformlineattime{\pgfkeysvalueof{/tikz/circuitikz/tripoles/#1/arrow pos}}{%
 		 		\pgfpoint%
 		 			{\pgfkeysvalueof{/tikz/circuitikz/tripoles/#1/base width}\pgf@circ@res@left}%
 		 			{\pgfkeysvalueof{/tikz/circuitikz/tripoles/#1/base height 2}\pgf@circ@res@down}%
@@ -6771,7 +6775,7 @@
 		 			{\pgfkeysvalueof{/tikz/circuitikz/tripoles/#1/base height}\pgf@circ@res@down}%
 		 	}
 		\else
-		 	\pgftransformlineattime{.5}{%
+		 	\pgftransformlineattime{\pgfkeysvalueof{/tikz/circuitikz/tripoles/#1/arrow pos}}{%
 		 		\pgfpoint{\pgf@circ@res@right}%
 		 				{\pgfkeysvalueof{/tikz/circuitikz/tripoles/#1/base height}\pgf@circ@res@up}%
 		 		}{%
@@ -6942,7 +6946,7 @@
 			\pgfslopedattimetrue 
 			\pgfallowupsidedownattimetrue
 			\pgfresetnontranslationattimefalse
-			\pgftransformlineattime{.6}{%
+			\pgftransformlineattime{\pgfkeysvalueof{/tikz/circuitikz/tripoles/nmos/arrow pos}}{%
 				\pgfpoint%
 					{\pgfkeysvalueof{/tikz/circuitikz/tripoles/nmos/gate width}\pgf@circ@res@left}%
 					{\pgfkeysvalueof{/tikz/circuitikz/tripoles/nmos/gate height}\pgf@circ@res@down}%
@@ -6979,7 +6983,7 @@
 			\pgfslopedattimetrue 
 			\pgfallowupsidedownattimetrue
 			\pgfresetnontranslationattimefalse
-			\pgftransformlineattime{.4}{%
+			\pgftransformlineattime{\pgfkeysvalueof{/tikz/circuitikz/tripoles/pmos/arrow pos}}{%
 				\pgfpoint%
 					{\pgf@circ@res@right}%
 					{\pgfkeysvalueof{/tikz/circuitikz/tripoles/pmos/gate height}\pgf@circ@res@up}%
@@ -10815,12 +10819,12 @@
                 \edef\shiftv{\ctikzvalof{voltage/shift}}
                 \pgfmathsetmacro{\bumpb}{\bumpb + \shiftv} %% adjust the bump is shift
 	}
-	% %\pgf@circ@Rlen/16 is equal to the length of the currarrow
-	coordinate (pgfcirc@midtmp) at ($(\tikztostart) ! \pgf@circ@Rlen/16 ! (anchorstartnode)$) %absolute move, minimum space is length of arrowhead
+	% %\pgf@circ@Rlen/\pgfkeysvalueof{/tikz/circuitikz/current arrow scale} is equal to the length of the currarrow
+	coordinate (pgfcirc@midtmp) at ($(\tikztostart) ! \pgf@circ@Rlen/\pgfkeysvalueof{/tikz/circuitikz/current arrow scale} ! (anchorstartnode)$) %absolute move, minimum space is length of arrowhead
 	coordinate (pgfcirc@midtmp) at ($(pgfcirc@midtmp) ! \distacefromnode ! (anchorstartnode)$)
 
 	coordinate (pgfcirc@Vfrom) at ($(pgfcirc@midtmp) ! -\distfromline ! \pgf@circ@voltage@angle:(anchorstartnode)$)
-	coordinate (pgfcirc@midtmp) at ($(\tikztotarget) ! \pgf@circ@Rlen/16 ! (anchorendnode)$)%absolute move, minimum space is length of arrowhead
+	coordinate (pgfcirc@midtmp) at ($(\tikztotarget) ! \pgf@circ@Rlen/\pgfkeysvalueof{/tikz/circuitikz/current arrow scale} ! (anchorendnode)$)%absolute move, minimum space is length of arrowhead
 	coordinate (pgfcirc@midtmp) at ($(pgfcirc@midtmp) ! \distacefromnode ! (anchorendnode)$)
 
 	coordinate (pgfcirc@Vto) at ($(pgfcirc@midtmp) ! \distfromline ! \pgf@circ@voltage@angle : (anchorendnode)$)
