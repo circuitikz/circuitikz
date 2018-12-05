@@ -15,6 +15,7 @@ The major changes among the different circuitikz versions are listed here. See <
     - Added stacked labels (thanks to the original work by Claudio Fiandrino)
     - Make the position of voltage symbols adjustable
     - Make the position of arrows in FETs and  BJTs adjustable
+    - Added the bulb symbol
 
 * Version 0.8.3 (2017-05-28) 
 	- Removed unwanted lines at to-paths if the starting point is a node without a explicit anchor.
