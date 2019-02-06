@@ -1,5 +1,5 @@
-\def\pgfcircversion{git:1db4bef}
-\def\pgfcircversiondate{2018/12/15}
+\def\pgfcircversion{git:c4adc6f}
+\def\pgfcircversiondate{2019/02/06}
 \writestatus{loading}{\pgfcircversiondate{} The CircuiTikz circuit drawing package version \pgfcircversion}
 
 \usemodule[tikz]
@@ -51,7 +51,17 @@
 
 \newif\ifpgf@circ@siunitx
 \newif\ifpgf@circuit@compat
-\newif\ifpgf@circ@oldvoltagedirection
+\newif\ifpgf@circ@oldvoltagedirection % default false
+\newif\ifpgf@circ@explicitvdir
+\newif\ifpgf@circ@fixbatteries
+
+\ctikzset{voltage dir/.is choice}
+\ctikzset{voltage dir/old/.code={\pgf@circ@oldvoltagedirectiontrue\pgf@circ@fixbatteriesfalse}}
+\ctikzset{voltage dir/noold/.code={\pgf@circ@oldvoltagedirectionfalse\pgf@circ@fixbatteriesfalse}}
+\ctikzset{voltage dir/RP/.code={\pgf@circ@oldvoltagedirectiontrue\pgf@circ@fixbatteriestrue}}
+\ctikzset{voltage dir/EF/.code={\pgf@circ@oldvoltagedirectionfalse\pgf@circ@fixbatteriestrue}}
+\tikzset{voltage dir/.style={circuitikz/voltage dir=#1}}
+
 
 % Option ">" for twoports
 \newif\ifpgf@circuit@inputarrow
@@ -238,8 +248,10 @@
 \ctikzset{bipoles/spst/depth/.initial=.2}
 \ctikzset{bipoles/nos/height/.initial=.3}
 \ctikzset{bipoles/nos/width/.initial=.35}
+\ctikzset{bipoles/nos/depth/.initial=.2}
 \ctikzset{bipoles/ncs/height/.initial=.35}
 \ctikzset{bipoles/ncs/width/.initial=.35}
+\ctikzset{bipoles/ncs/depth/.initial=.2}
 \ctikzset{bipoles/generic/height/.initial=.30}
 \ctikzset{bipoles/generic/width/.initial=.80}
 \ctikzset{bipoles/european gas filled surge arrester/height/.initial=.30}
@@ -273,8 +285,8 @@
 \ctikzset{bipoles/open/width/.initial=.3} %necessary for curly voltages
 \ctikzset{bipoles/open/voltage/straight label distance/.initial=0}
 \ctikzset{bipoles/open/voltage/distance from node/.initial=.2}
-\ctikzset{bipoles/short/height/.initial=0} %dummy height for voltage positioning
-\ctikzset{bipoles/short/width/.initial=0} %dummy width for voltage positioning
+\ctikzset{bipoles/short/height/.initial=0.3} %dummy height for voltage positioning
+\ctikzset{bipoles/short/width/.initial=0.3} %dummy width for voltage positioning
 %\ctikzset{bipoles/short/voltage/straight label distance/.initial=.2}
 %\ctikzset{bipoles/short/voltage/distance from node/.initial=.5}
 \ctikzset{bipoles/ammeter/height/.initial=.60}
@@ -302,7 +314,7 @@
 \ctikzset{bipoles/thermocouple/height 2/.initial=.60}
 \ctikzset{bipoles/thermocouple/width/.initial=.140}
 \ctikzset{bipoles/pushbutton/height/.initial=.5}
-\ctikzset{bipoles/pushbutton/height 2/.initial=.0}
+\ctikzset{bipoles/pushbutton/height 2/.initial=.2}
 \ctikzset{bipoles/pushbutton/width/.initial=.50}
 
 \ctikzset{bipoles/twoport/width/.initial=.7}
@@ -2215,18 +2227,32 @@
 		\divide \pgf@circ@res@step by 6
 
 		\pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}\pgfstartlinewidth}
-		\pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@up}}
-		\pgfpathlineto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@down}}
 
-		\pgfpathmoveto{\pgfpoint{-\pgf@circ@res@step}{.5\pgf@circ@res@up}}
-		\pgfpathlineto{\pgfpoint{-\pgf@circ@res@step}{.5\pgf@circ@res@down}}
+                \ifpgf@circ@fixbatteries
+                    \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{.5\pgf@circ@res@up}}
+                    \pgfpathlineto{\pgfpoint{\pgf@circ@res@left}{.5\pgf@circ@res@down}}
 
-		\pgfpathmoveto{\pgfpoint{\pgf@circ@res@step}{\pgf@circ@res@up}}
-		\pgfpathlineto{\pgfpoint{\pgf@circ@res@step}{\pgf@circ@res@down}}
+                    \pgfpathmoveto{\pgfpoint{-\pgf@circ@res@step}{\pgf@circ@res@up}}
+                    \pgfpathlineto{\pgfpoint{-\pgf@circ@res@step}{\pgf@circ@res@down}}
 
-		\pgfpathmoveto{\pgfpoint{\pgf@circ@res@right}{.5\pgf@circ@res@up}}
-		\pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{.5\pgf@circ@res@down}}
+                    \pgfpathmoveto{\pgfpoint{\pgf@circ@res@step}{.5\pgf@circ@res@up}}
+                    \pgfpathlineto{\pgfpoint{\pgf@circ@res@step}{.5\pgf@circ@res@down}}
 
+                    \pgfpathmoveto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@up}}
+                    \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@down}}
+                \else
+                    \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@up}}
+                    \pgfpathlineto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@down}}
+
+                    \pgfpathmoveto{\pgfpoint{-\pgf@circ@res@step}{.5\pgf@circ@res@up}}
+                    \pgfpathlineto{\pgfpoint{-\pgf@circ@res@step}{.5\pgf@circ@res@down}}
+
+                    \pgfpathmoveto{\pgfpoint{\pgf@circ@res@step}{\pgf@circ@res@up}}
+                    \pgfpathlineto{\pgfpoint{\pgf@circ@res@step}{\pgf@circ@res@down}}
+
+                    \pgfpathmoveto{\pgfpoint{\pgf@circ@res@right}{.5\pgf@circ@res@up}}
+                    \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{.5\pgf@circ@res@down}}
+                \fi
 		\pgfusepath{draw}
 }
 
@@ -2241,11 +2267,19 @@
 		\pgfusepath{draw}
 
 		\pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}\pgfstartlinewidth}
-		\pgfpathmoveto{\pgfpoint{.33\pgf@circ@res@right}{.5\pgf@circ@res@up}}
-		\pgfpathlineto{\pgfpoint{.33\pgf@circ@res@right}{.5\pgf@circ@res@down}}
+                \ifpgf@circ@fixbatteries
+                    \pgfpathmoveto{\pgfpoint{.33\pgf@circ@res@right}{\pgf@circ@res@up}}
+                    \pgfpathlineto{\pgfpoint{.33\pgf@circ@res@right}{\pgf@circ@res@down}}
 
-		\pgfpathmoveto{\pgfpoint{.33\pgf@circ@res@left}{\pgf@circ@res@up}}
-		\pgfpathlineto{\pgfpoint{.33\pgf@circ@res@left}{\pgf@circ@res@down}}
+                    \pgfpathmoveto{\pgfpoint{.33\pgf@circ@res@left}{.5\pgf@circ@res@up}}
+                    \pgfpathlineto{\pgfpoint{.33\pgf@circ@res@left}{.5\pgf@circ@res@down}}
+                \else
+                    \pgfpathmoveto{\pgfpoint{.33\pgf@circ@res@right}{.5\pgf@circ@res@up}}
+                    \pgfpathlineto{\pgfpoint{.33\pgf@circ@res@right}{.5\pgf@circ@res@down}}
+
+                    \pgfpathmoveto{\pgfpoint{.33\pgf@circ@res@left}{\pgf@circ@res@up}}
+                    \pgfpathlineto{\pgfpoint{.33\pgf@circ@res@left}{\pgf@circ@res@down}}
+                \fi
 		\pgfusepath{draw}
 }
 
@@ -2259,12 +2293,21 @@
 		\pgfusepath{draw}
 
 		\pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}\pgfstartlinewidth}
-		\pgfpathmoveto{\pgfpoint{.33\pgf@circ@res@left}{\pgf@circ@res@up}}
-		\pgfpathlineto{\pgfpoint{.33\pgf@circ@res@left}{\pgf@circ@res@down}}
-		\pgfusepath{draw}
-		\pgfsetlinewidth{3\pgflinewidth}
-		\pgfpathmoveto{\pgfpoint{.33\pgf@circ@res@right}{.5\pgf@circ@res@up}}
-		\pgfpathlineto{\pgfpoint{.33\pgf@circ@res@right}{.5\pgf@circ@res@down}}
+                \ifpgf@circ@fixbatteries
+                    \pgfpathmoveto{\pgfpoint{.33\pgf@circ@res@right}{\pgf@circ@res@up}}
+                    \pgfpathlineto{\pgfpoint{.33\pgf@circ@res@right}{\pgf@circ@res@down}}
+                    \pgfusepath{draw}
+                    \pgfsetlinewidth{3\pgflinewidth}
+                    \pgfpathmoveto{\pgfpoint{.33\pgf@circ@res@left}{.5\pgf@circ@res@up}}
+                    \pgfpathlineto{\pgfpoint{.33\pgf@circ@res@left}{.5\pgf@circ@res@down}}
+                \else
+                    \pgfpathmoveto{\pgfpoint{.33\pgf@circ@res@left}{\pgf@circ@res@up}}
+                    \pgfpathlineto{\pgfpoint{.33\pgf@circ@res@left}{\pgf@circ@res@down}}
+                    \pgfusepath{draw}
+                    \pgfsetlinewidth{3\pgflinewidth}
+                    \pgfpathmoveto{\pgfpoint{.33\pgf@circ@res@right}{.5\pgf@circ@res@up}}
+                    \pgfpathlineto{\pgfpoint{.33\pgf@circ@res@right}{.5\pgf@circ@res@down}}
+                \fi
 		\pgfusepath{draw}
 }
 
@@ -3502,7 +3545,7 @@
 }
 
 %% Normal open Switch
-\pgfcircdeclarebipole{}{0}{nos}{\ctikzvalof{bipoles/nos/height}}{\ctikzvalof{bipoles/nos/width}}{
+\pgfcircdeclarebipole{}{\ctikzvalof{bipoles/nos/depth}}{nos}{\ctikzvalof{bipoles/nos/height}}{\ctikzvalof{bipoles/nos/width}}{
 
 	\pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}\pgfstartlinewidth}
 	\pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{0pt}}
@@ -3512,7 +3555,7 @@
 }
 
 %% Normal closed Switch
-\pgfcircdeclarebipole{}{0}{ncs}{\ctikzvalof{bipoles/ncs/height}}{\ctikzvalof{bipoles/ncs/width}}{
+\pgfcircdeclarebipole{}{\ctikzvalof{bipoles/ncs/depth}}{ncs}{\ctikzvalof{bipoles/ncs/height}}{\ctikzvalof{bipoles/ncs/width}}{
 	\pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}\pgfstartlinewidth}
 	\pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{0pt}}
 	\pgfpathlineto{\pgfpoint{.9\pgf@circ@res@right}{\pgf@circ@res@up}}
@@ -3591,7 +3634,7 @@
 
 %% Short circuit
 
-\pgfcircdeclarebipole{}{0}{short}{0}{0}{ }
+\pgfcircdeclarebipole{}{\ctikzvalof{bipoles/short/height}}{short}{\ctikzvalof{bipoles/short/height}}{\ctikzvalof{bipoles/short/width}}{ }
 
 %% Open circuit
 
@@ -10743,7 +10786,12 @@
 					\circuitikzbasekey/bipole/voltage/direction=forward}
 				\fi
 			\fi
-			\ifpgf@circ@oldvoltagedirection\else
+			\ifpgf@circ@oldvoltagedirection
+                            \ifpgf@circuit@bipole@iscurrent\ifpgf@circ@fixbatteries
+                                \pgfkeys{\circuitikzbasekey/bipole/voltage/position=below,
+					\circuitikzbasekey/bipole/voltage/direction=forward}
+                        \fi\fi
+                        \else
 			\ifpgf@circuit@bipole@iscurrent
 			\ifpgf@circuit@bipole@current@backward
 					\pgfkeys{\circuitikzbasekey/bipole/voltage/position=below,
@@ -10930,11 +10978,20 @@
 	\else% american voltage
 		\ifpgf@circuit@bipole@voltageoutsideofsymbol
 		% if it is a battery, must put + and -
+
+                    \ifpgf@circ@fixbatteries
+			\ifpgf@circuit@bipole@voltage@backward
+				(pgfcirc@Vfrom)  node {$+$}  (pgfcirc@Vto) node {$-$}
+			\else
+				(pgfcirc@Vfrom)  node {$-$}  (pgfcirc@Vto) node {$+$}
+			\fi
+                    \else
 			\ifpgf@circuit@bipole@voltage@backward
 				(pgfcirc@Vfrom)  node {$-$}  (pgfcirc@Vto) node {$+$}
 			\else
 				(pgfcirc@Vfrom)  node {$+$}  (pgfcirc@Vto) node {$-$}
 			\fi
+                    \fi
 		\fi
 	\fi
 }
