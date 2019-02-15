@@ -872,7 +872,148 @@ You can use the parameter  \texttt{current arrow scale} to change the size of th
 \end{circuitikz}
 \end{LTXexample}
 
+\section{Chips}
+%%% This chapter is in the new format --- description and components.
+%%% The idea is to try to reorganize the manual before the next release.
+%%% See issue #24
 
+\texttt{CircuiTikZ} supports two types of variable-pin chips: DIP (Dual-in-Line Package) and QFP (Quad-Flat Package).
+\begin{itemize}
+    \circuititem{dipchip}{Dual-in-Line Package chip}{}
+    \circuititem{qfpchip}{Quad-Flat Package chip}{}
+\end{itemize}
+
+\subsection{DIP and QFP chips customization}
+
+You can customize the DIP chip with the keys \texttt{multipoles/dipchip/width} (default 1.2) and  \texttt{multipoles/dipchip/pin spacing} (default 0.4) that are expressed in fraction of basic lengths (see section~\ref{sec:components-size}).
+The height of the chip will be equal to half the numbers of pins multiplied by the spacing, plus one spacing for the borders.
+For the QFP chips, you can only chose the pin spacing with \texttt{multipoles/qfpchip/pin spacing} key.
+
+The pins of the chip can be ``hidden'' (that is, just a spot in the border, optionally marked with a number) or ``stick out'' with a thin lead by setting \texttt{multipoles/external pins width} greater than 0 (default value is 0.2, so you'll have leads as shown above).
+Moreover, you can transform the thin lead into a pad by setting the key \texttt{multipoles/external pad fraction} to something different form 0 (default is 0); the value expresses the fraction of the pin spacing space that the pad will use on both sides of the pin.
+
+The number of pins is settable with the key \texttt{num pins}.
+\textbf{Please notice} that the number of pins \textbf{must} be \emph{even} for \texttt{dipchip}s and \emph{multiple of 4} for \texttt{qfpchip}s, otherwise havoc will ensue.
+
+You can, if you want, avoid printing the numbers of the pin with \texttt{hide numbers} (default \texttt{show numbers}) if you prefer positioning them yourself (see the next section for the anchors you can use).
+The font used for the pins is adjustable with the key \texttt{multipoles/font} (default \verb|\tiny|)
+For special use you can suppress the orientation mark with the key \texttt{no topmark} (default \texttt{topmark}).
+
+The line thickness of the main shape is controlled by \texttt{multipoles/thickness} (default 2) and the one of the external pins/pads with \texttt{multipoles/external pins thickness} (default 1).
+
+\begin{LTXexample}[varwidth=true]
+    \begin{circuitikz}
+        \ctikzset{multipoles/thickness=4}
+        \ctikzset{multipoles/external pins thickness=2}
+        \draw (0,0) node[dipchip,
+          num pins=12,
+          hide numbers,
+          external pins width=0.3,
+          external pad fraction=4 ](C){IC1};
+        \draw (C.pin 1) -- ++(-0.5,0) to[R]
+          ++(0,-3) node[ground]{};
+          \node [right, font=\tiny]
+          at (C.bpin 1) {RST};
+    \end{circuitikz}
+\end{LTXexample}
+
+\begin{LTXexample}[varwidth=true]
+    \begin{circuitikz}
+        \draw (0,0) node[dipchip,
+          num pins=8,
+          external pins width=0.0](C){IC1};
+        \draw (C.pin 1) -- ++(-0.5,0) to[R]
+          ++(0,-1.5) node[ground]{};
+    \end{circuitikz}
+\end{LTXexample}
+
+\begin{LTXexample}[varwidth=true]
+    \begin{circuitikz}
+        \ctikzset{multipoles/font={\color{red}\tiny}}
+        \draw (0,0) node[qfpchip,
+          num pins=16,
+          external pad fraction=6](C){IC1};
+        \draw (C.pin 1) -- ++(-0.5,0) to[R]
+          ++(0,-2) node[ground]{};
+    \end{circuitikz}
+\end{LTXexample}
+
+\subsection{Chip's anchors}
+
+Chips have anchors on pins and global anchors for the main shape.
+The pin anchors to be used to connect wires to the chip are called \texttt{pin 1}, \texttt{pin 2} , \dots, with just one space between \texttt{pin} and the number.
+Border pin anchors (\texttt{bpin 1}\dots) are always on the box border, and can be used to add numbers or whatever markings are needed.
+Obviously, in case of \texttt{multipoles/external pins width} equal to cero, border and normal pin anchors will coincide.
+
+Additionally, you have geometrical anchors on the chip ``box'', see the following figure. The nodes are available with the full name (like \texttt{north}) and with the short abbreviations \texttt{n}, \texttt{nw}, \texttt{w}\dots. The \texttt{dot} anchor is useful to add a personalized marker if you use the \texttt{no topmark} key.
+
+\begin{quote}
+    \bigskip
+    \def\coord(#1){node[circle, red, draw,  inner sep=1pt,pin={[red, overlay, inner sep=0.5pt, font=\scriptsize, pin distance=0.2cm, fill=white, fill opacity=0.5, text opacity=1, pin edge={red, overlay,}]75:#1}](#1){}}
+    \def\coordd(#1){node[circle, red, draw,  inner sep=1pt,pin={[red, overlay, inner sep=0.5pt, font=\scriptsize, pin distance=0.2cm, fill=white, fill opacity=0.5,  text opacity=1,pin edge={red, overlay,}]-45:#1}](#1){}}
+    \begin{circuitikz}[american, ]
+        \ctikzset{multipoles/dipchip/pin spacing=0.7}
+        \draw (0,0) node[dipchip,
+            external pins width=0.4,
+            external pad fraction=4](C){IC1};
+        \foreach \p in {1,...,8}
+            \path (C.pin \p) \coord(pin \p)
+            (C.bpin \p) \coordd(bpin \p);
+        % second chip
+        \draw (C.pin 7) to[R] ++(3,0)
+              node[dipchip,anchor=pin 2](D){IC2};
+        \foreach \p in {center, nw, ne, se, sw, north, south, west, east}
+            \path (D.\p) \coord(\p);
+        \path (D.text) \coordd(text);
+        % third chip 
+        \draw (D.pin 7)  ++(2,0)
+              node[dipchip,anchor=pin 2, no topmark](E){};
+        \foreach \p in {center, n, w, e, s, dot}
+            \path (E.\p) \coord(\p);
+    \end{circuitikz}
+\end{quote}
+
+\subsection{Chips rotation}
+
+You can rotate chips, and normally the pin numbers are kept straight (option \texttt{straight numbers}, which is the default), but you can rotate them if you like with \texttt{rotated numbers}.
+Notice that the main label has to be (counter-)rotated manually in this case.
+
+\begin{LTXexample}[varwidth=true]
+\begin{circuitikz}
+    \draw (0,0) node[dipchip,
+        rotate=90]{%
+        \rotatebox{-90}{IC2}};
+    \draw (3,0) node[qfpchip,
+        rotated numbers,
+        rotate=45]{IC3};
+\end{circuitikz}
+\end{LTXexample}
+
+\subsection{Chip special usage}
+
+You can use the chips to have special, personalized blocks.
+Look at the following example, which is easily put into a macro.
+
+\begin{LTXexample}[varwidth=true]
+\begin{circuitikz}
+    \ctikzset{multipoles/thickness=3}
+    \ctikzset{multipoles/dipchip/width=2}
+    \draw (0,0) node[dipchip,
+        num pins=10, hide numbers, no topmark,
+        external pins width=0](C){Block};
+    \node [right, font=\tiny] at (C.bpin 1) {RST};
+    \node [right, font=\tiny] at (C.bpin 2) {IN1};
+    \node [right, font=\tiny] at (C.bpin 4) {/IN2};
+    \node [left, font=\tiny]  at (C.bpin 8) {OUT};
+    \draw (C.bpin 2) -- ++(-0.5,0) coordinate(extpin);
+    \node [ocirc, anchor=0](notin2) at (C.bpin 4) {};
+    \draw (notin2.180) -- (C.bpin 4 -| extpin);
+    \draw (C.bpin 8) to[short,-o] ++(0.5,0);
+    \draw (C.bpin 5) ++(0,0.1) -- ++(0.1,-0.1)
+        node[right, font=\tiny]{CLK} -- ++(-0.1,-0.1);
+    \draw (C.n) -- ++(0,1) node[vcc]{};
+    \draw (C.s) -- ++(0,-1) node[ground]{};
+\end{circuitikz}\end{LTXexample}
 
 \section{Usage}
 
@@ -2238,6 +2379,7 @@ All can be varied using the \verb!\ctikzset! command, anywhere in the code.
 \end{LTXexample}
 
 \subsection{Components size}
+\label{sec:components-size}
 Perhaps the most important parameter is \verb!\circuitikzbasekey/bipoles/length!, which 
 can be interpreted as the length of a resistor (including reasonable connections): all other lenghts are relative to this value. For instance:
 
