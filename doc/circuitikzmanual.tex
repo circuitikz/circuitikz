@@ -2173,8 +2173,40 @@ When you use the \texttt{noinv input/output ...} keys the anchors (\texttt{+}, \
 
 
 
-\subsubsection{Double bipoles} All the (few, actually) double bipoles/quadrupoles have
-the four anchors, two for each port. The first port, to the left, is port \texttt{A}, having the anchors \texttt{A1} (up) and \texttt{A2} (down); same for port \texttt{B}. They also expose the \texttt{base} anchor, for labelling:
+\subsubsection{Double bipoles: transformers and gyrator}
+
+All the (few, actually) double bipoles/quadrupoles have the four anchors, two for each port.
+The first port, to the left, is port \texttt{A}, having the anchors \texttt{A1} (up) and \texttt{A2} (down); same for port \texttt{B}. 
+
+They also expose the \texttt{base} anchor, for labelling, and anchors for setting dots or signs to specify polarity. 
+The set of anchors, to which the standard ``geographical'' \texttt{north}, \texttt{north east}, etc. is here: 
+
+\begin{quote}
+\begin{circuitikz}[cute inductors,
+    ]
+    \def\coordx(#1)[#2:#3]#4{node[circle, #4, draw, inner sep=1pt,pin={[#4, overlay, inner sep=0.5pt, font=\scriptsize, pin distance=#2cm, pin edge={#4, overlay,}]#3:#1}](#1){}}
+    \foreach \comp/\pos/\case in {%
+                            transformer/0/0%
+                            ,transformer core/4/1%
+                            ,gyrator/8/2%
+                            }{
+        \draw (\pos, 0) node[\comp](T){};
+        \ifcase\case
+            \foreach \a/\d/\t in {inner dot A1/0.2/75, inner dot A2/0.2/-75, inner dot B1/0.1/-45, inner dot B2/0.1/45}
+            \path (T.\a) \coordx(\a)[\d:\t]{red};
+        \or
+            \foreach \a/\d/\t in {outer dot A1/0.2/75, outer dot A2/0.2/-75, outer dot B1/0.2/-45, outer dot B2/0.2/45}
+            \path (T.\a) \coordx(\a)[\d:\t]{blue};
+        \or
+            \foreach \a/\t in {A1/120, A2/-120, B1/120, B2/-120, base/-90}
+            \path (T.\a) \coordx(\a)[0.2:\t]{green!50!black};
+        \fi
+    }
+\end{circuitikz}
+\end{quote}
+
+Alse the standard ``geographical'' \texttt{north}, \texttt{north east}, etc. are defined. 
+A couple of examples follow:
 
 \begin{LTXexample}[varwidth=true]
 \begin{circuitikz} \draw 
@@ -2184,6 +2216,8 @@ the four anchors, two for each port. The first port, to the left, is port \textt
   (T.B1) node[anchor=west] {B1}
   (T.B2) node[anchor=west] {B2}
   (T.base) node{K}
+  (T.inner dot A1) node[circ]{}
+  (T.inner dot B2) node[circ]{}
 ;\end{circuitikz}
 \end{LTXexample}
 
@@ -2198,7 +2232,11 @@ the four anchors, two for each port. The first port, to the left, is port \textt
 ;\end{circuitikz}
 \end{LTXexample}
 
-However:
+
+
+
+\subsubsection{Couplers}
+
 \begin{LTXexample}[varwidth=true]
 \begin{circuitikz} \draw
   (0,0) node[coupler] (c) {\SI{10}{dB}}
