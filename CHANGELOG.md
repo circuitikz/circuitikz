@@ -18,6 +18,7 @@ The major changes among the different circuitikz versions are listed here. See <
     - Added the bulb symbol
     - Added options for solving the voltage direction problems. 
     - Added chips (DIP, QFP) with a generic number of pins. 
+    - Added special anchors for transformers (and fixed the wrong center anchor)
 
 * Version 0.8.3 (2017-05-28) 
 	- Removed unwanted lines at to-paths if the starting point is a node without a explicit anchor.
