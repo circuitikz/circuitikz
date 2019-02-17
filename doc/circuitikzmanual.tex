@@ -1079,6 +1079,21 @@ The position of (a) and (l) labels can be adjusted with \_ and \^, respectively.
 \end{circuitikz}
 \end{LTXexample}	
 
+\textbf{Caveat:} notice that the way in which \texttt{circuitikz} processes the options, there will be problems if the label (or annotation, or voltage, or current) contains one of the characters $=$ (equal) or $,$ (comma), giving unexpected errors and wrong output.
+These two characters must be protected to the option parser using an \verb|\mbox| command, or redefining the characters with a \TeX\ \verb|\def|:
+
+\begin{LTXexample}[varwidth=true]
+    \def\eq{=}
+    \begin{circuitikz}
+        % the following will fail:
+        % \draw (0,0) to[R, l={$R=3}] (3,0);
+        \draw (0,0) to[R, l=\mbox{$R=3$}] (3,0);
+        \draw (0,0) to[R, l=$R\eq3$] (0,3);
+        \draw (3,3) to[R, l=\mbox{$R,3$}] (3,0);
+        \draw (0,3) to[R, l=$R:3$] (3,3);
+    \end{circuitikz}
+\end{LTXexample}
+
 \noindent The default orientation of labels is controlled by the options \texttt{smartlabels}, \texttt{rotatelabels} and \texttt{straightlabels} (or the corresponding \texttt{label/align} keys). Here are examples to see the differences:
 \begin{LTXexample}[varwidth=true]
 \begin{circuitikz}
@@ -1112,23 +1127,24 @@ You also can use stacked (two lines) labels.  The example should be self-explana
 
 
 \begin{LTXexample}[varwidth=true]
-\begin{circuitikz}[ american, ]
-    %
-    % default is l2 halign=l, l2 valign=c
-    %
-    \begin{scope}[color=blue]
+    \begin{circuitikz}[ american, ]
+        %
+        % default is l2 halign=l, l2 valign=c
+        %
         \draw (0,0) to[R, l2_=$R_{CC}$ and \SI{4.7}{k\ohm},            , l2 valign=t] (2,0);
         \draw (0,0) to[R, l2_=$R_{CC}$ and \SI{4.7}{k\ohm},            ,            ] (0,2);
         \draw (0,0) to[R, l2_=$R_{CC}$ and \SI{4.7}{k\ohm}, l2 halign=c, l2 valign=b] (-2,0);
         \draw (0,0) to[R, l2_=$R_{CC}$ and \SI{4.7}{k\ohm}, l2 halign=r, l2 valign=c] (0, -2);
-    \end{scope}
-    \begin{scope}[yshift=-6cm, color=red]
+    \end{circuitikz}
+\end{LTXexample}
+
+\begin{LTXexample}[varwidth=true]
+    \begin{circuitikz}[ american, ]
         \draw (0,0) to[R, l2^=$R_{CC}$ and \SI{4.7}{k\ohm}, l2 halign=c, l2 valign=b] (2,0);
         \draw (0,0) to[R, l2^=$R_{CC}$ and \SI{4.7}{k\ohm}, l2 halign=c,            ] (0,2);
         \draw (0,0) to[R, l2^=$R_{CC}$ and \SI{4.7}{k\ohm},            , l2 valign=t] (-2,0);
         \draw (0,0) to[R, l2^=$R_{CC}$ and \SI{4.7}{k\ohm}, l2 halign=c, l2 valign=t](0, -3);
-    \end{scope}
-\end{circuitikz}
+    \end{circuitikz}
 \end{LTXexample}
 
 \subsection{Currents and voltages}\label{curr-and-volt}
