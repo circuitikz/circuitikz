@@ -1,5 +1,5 @@
-\def\pgfcircversion{git:32bc726}
-\def\pgfcircversiondate{2019/02/17}
+\def\pgfcircversion{git:6e208c5}
+\def\pgfcircversiondate{2019/02/20}
 \writestatus{loading}{\pgfcircversiondate{} The CircuiTikz circuit drawing package version \pgfcircversion}
 
 \usemodule[tikz]
@@ -10613,7 +10613,12 @@
 
 \def\pgf@circ@drawlabels#1{
 	\pgfextra{
+            % This function will be called with argument #1 equal
+            % to "label" or "annotation" form pgfcircpath.tex.
+            % pgf@circ@direction is the direction of the path,
+            % its value is set in pgfcircpath.tex
 		\pgfmathsubtract{\pgf@circ@direction}{90}
+                \pgfmathround{\pgfmathresult} % avoid precision loss errors
 		\edef\pgf@circ@labanc{\expandafter\pgf@circ@stripdecimals\pgfmathresult\pgf@nil}
 		
 		\edef\pgf@circ@temp{\ctikzvalof{bipole/#1/position}} 
@@ -10631,7 +10636,7 @@
 			\edef\pgf@circ@temp{\expandafter\pgf@circ@stripdecimals\pgfmathresult\pgf@nil}
 		\fi
 	}
-		%Firstly, place a coodinate directly at the edge of the shape
+		%Firstly, place a coordinate directly at the edge of the shape
 		(\ctikzvalof{bipole/name}.\pgf@circ@temp) coordinate (labelcoor)
 		%now decide, which labels should be drawn
 		\pgfextra{
@@ -10703,6 +10708,7 @@
 	%All points between will be addressed by angled-anchors:
 	\pgfextra{
 		\pgfmathadd{\pgf@circ@labanc}{90}
+                \pgfmathround{\pgfmathresult}
                 \def\pgf@circ@labanctext{\pgf@circ@labanc}
 		\edef\pgf@circ@temp{\expandafter\pgf@circ@stripdecimals\pgfmathresult\pgf@nil}
 		\pgfmathparse{mod(\pgf@circ@temp,180)>135?mod(\pgf@circ@temp,180)-180:mod(\pgf@circ@temp,180)}
@@ -10726,25 +10732,27 @@
 		\fi
 	\fi\fi
 	%Values between -5 and 5 are at pos /neg x-axis
-	\ifnum \pgfcircmathresult <6 \ifnum \pgfcircmathresult > -6
-		\ifnum \ctikzvalof{bipole/#1/position} < 0
-			%we need some more space for placement below, due to mid-anchor
-			(labelcoor)++(-\pgf@circ@labanc:1ex) coordinate(labelcoor)
-            \ifnum \pgf@circ@labanc > 90
-        		\pgfextra{\def\pgf@circ@labanctext{base}}%base
-            \else
-        		\pgfextra{\def\pgf@circ@labanctext{north}}%north
-            \fi
-		\else
-			(labelcoor)++(-\pgf@circ@labanc:1ex) coordinate(labelcoor)
-            \ifnum \pgf@circ@labanc < 90
-        		\pgfextra{\def\pgf@circ@labanctext{base}}%base
-            \else
-        		\pgfextra{\def\pgf@circ@labanctext{north}}%north
-            \fi
-		\fi
-	\fi\fi
-	 (labelcoor) node[anchor=\pgf@circ@labanctext,inner sep=0,outer sep=0](\ctikzvalof{bipole/name}#1){\pgf@circ@finallabels{#1}}
+                \ifnum \pgfcircmathresult <6 \ifnum \pgfcircmathresult > -6
+                    \ifnum \ctikzvalof{bipole/#1/position} < 0
+                        \ifnum \pgf@circ@labanc > 90
+                            \pgfextra{\def\pgf@circ@labanctext{south}}%south
+                        \else
+                            \pgfextra{\def\pgf@circ@labanctext{north}}%north
+                        \fi
+                     \else
+                        \ifnum \pgf@circ@labanc < 90
+                            \pgfextra{\def\pgf@circ@labanctext{south}}%south
+                        \else
+                        \ifnum \pgf@circ@labanc > 180
+                                 \pgfextra{\def\pgf@circ@labanctext{south}}%south
+                            \else
+                              \pgfextra{\def\pgf@circ@labanctext{north}}%north
+                           \fi
+                        \fi
+                    \fi
+                \fi\fi
+        (labelcoor) node[anchor=\pgf@circ@labanctext,inner sep=0.5ex, outer sep=0pt](\ctikzvalof{bipole/name}#1){\pgf@circ@finallabels{#1}%
+        }
 }
 
 \def\pgf@circ@finallabels#1{%
@@ -10765,7 +10773,7 @@
 %%%% Stacked labels
 %
 % stacked labels by Romano Giannetti romano@rgtti.com
-% heavil2 based on Claudo Fiandrinos's https://tex.stackexchange.com/a/65792/38080
+% heavily based on Claudo Fiandrinos's https://tex.stackexchange.com/a/65792/38080
 % \expandafter trick inspired by Matthew Leingang's https://tex.stackexchange.com/a/12272/38080
 %
 % labels are in a tabular, globally aligned:
@@ -10780,7 +10788,7 @@
     l2 valign/.store in=\ltwo@valign, l2 valign=c,
     l2 halign/.store in=\ltwo@halign, l2 halign=l,
 }
-\ctikzset{l2/.code n args={2}{
+\ctikzset{l2base/.code n args={2}{
   \pgfkeys{/tikz/circuitikz/bipole/label/name=%
         \bgroup
         \setlength{\tabcolsep}{2pt}%
@@ -10803,12 +10811,24 @@
     \else
     \fi
 }}
-\ctikzset{l2^/.style args={#1 and #2}{
-        l2={#1}{#2},
+\ctikzset{l2/.style args={#1 and #2}{
+        l2base={#1}{#2},
     \circuitikzbasekey/bipole/label/position=90 }
 }
+\ctikzset{l2 above/.style args={#1 and #2}{
+        l2base={#1}{#2},
+    \circuitikzbasekey/bipole/label/position=90 }
+}
+\ctikzset{l2^/.style args={#1 and #2}{
+        l2base={#1}{#2},
+    \circuitikzbasekey/bipole/label/position=90 }
+}
+\ctikzset{l2 below/.style args={#1 and #2}{
+        l2base={#1}{#2},
+    \circuitikzbasekey/bipole/label/position=-90 }
+}
 \ctikzset{l2_/.style args={#1 and #2}{
-        l2={#1}{#2},
+        l2base={#1}{#2},
     \circuitikzbasekey/bipole/label/position=-90 }
 }
 
@@ -11775,6 +11795,7 @@
 		\pgfextra{
 			\pgfmathanglebetweenpoints{\pgfpointanchor{\ctikzvalof{bipole/name}start}{center}}
 							{\pgfpointanchor{\ctikzvalof{bipole/name}end}{center}}
+                \pgfmathround{\pgfmathresult}
 			\edef\pgf@circ@direction{\pgfmathresult}%Calculate direction(angle) of path
 			\pgfsyssoftpath@setcurrentpath{\myp@th}		
 		}
@@ -12432,6 +12453,7 @@
 		\pgfmathanglebetweenpoints{\pgfpointanchor{\ctikzvalof{bipole/name}start}{center}}
 					   {\pgfpointanchor{\ctikzvalof{bipole/name}end}{center}}
 		\pgfmathadd{\pgfmathresult}{-90}
+                \pgfmathround{\pgfmathresult}
 		\edef\pgf@circ@direction{\pgfmathresult}
 	}
 	($(\tikztostart) ! .5 ! (\tikztotarget)$) 
