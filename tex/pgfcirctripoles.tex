@@ -130,14 +130,10 @@
 %%
 %%       Logic ports
 %%
-
-
-
-
-
-
-
-%%% added 
+%% Code from John Kormylo at tex.stackexchange.com
+%% See https://tex.stackexchange.com/questions/372993/is-it-possible-to-implement-multiple-input-logic-ports-with-circuitikz
+%% Integration and fixes from Romano Giannetti and TheTeXnician <38565529+TheTeXnician@users.noreply.github.com>
+%%
 
 \newcount\pgf@circ@res@count% reserve global register
 
@@ -153,27 +149,27 @@
 \long\def\pgfcircdeclarelogicport#1#2{%
     \pgfdeclareshape{american #1 port}%
     {%
-    \savedmacro\resize{% automatic
-      \pgf@circ@res@up = \pgfkeysvalueof{/tikz/circuitikz/tripoles/american #1 port/height}\pgf@circ@Rlen
-      \pgf@circ@res@up = .5\pgf@circ@res@up
-      \pgf@circ@res@down = -\pgf@circ@res@up
-      \pgf@circ@res@right = \pgfkeysvalueof{/tikz/circuitikz/tripoles/american #1 port/width}\pgf@circ@Rlen
-      \pgf@circ@res@right = .5\pgf@circ@res@right
-      \pgf@circ@res@left = -\pgf@circ@res@right
-    }%
-    \savedmacro\inputs{% get number of inputs
-      \pgf@circ@res@count=\pgfkeysvalueof{/tikz/number inputs}\relax%
-      \ifnum\pgf@circ@res@count=0
-        \pgf@circ@res@count=\pgfkeysvalueof{/tikz/circuitikz/tripoles/american #1 port/inputs}\relax%
-      \fi
-      \ifnum\pgf@circ@res@count<2 \pgf@circ@res@count=2\fi
-      \ifnum\pgf@circ@res@count>16 \pgf@circ@res@count=16\fi
-      \def\inputs{\the\pgf@circ@res@count}%
+        \savedmacro\resize{% automatic
+            \pgf@circ@res@up = \pgfkeysvalueof{/tikz/circuitikz/tripoles/american #1 port/height}\pgf@circ@Rlen
+            \pgf@circ@res@up = .5\pgf@circ@res@up
+            \pgf@circ@res@down = -\pgf@circ@res@up
+            \pgf@circ@res@right = \pgfkeysvalueof{/tikz/circuitikz/tripoles/american #1 port/width}\pgf@circ@Rlen
+            \pgf@circ@res@right = .5\pgf@circ@res@right
+            \pgf@circ@res@left = -\pgf@circ@res@right
+        }%
+        \savedmacro\inputs{% get number of inputs
+            \pgf@circ@res@count=\pgfkeysvalueof{/tikz/number inputs}\relax%
+            \ifnum\pgf@circ@res@count=0
+                \pgf@circ@res@count=\pgfkeysvalueof{/tikz/circuitikz/tripoles/american #1 port/inputs}\relax%
+            \fi
+        \ifnum\pgf@circ@res@count<2 \pgf@circ@res@count=2\fi
+    \ifnum\pgf@circ@res@count>16 \pgf@circ@res@count=16\fi
+        \def\inputs{\the\pgf@circ@res@count}%
     }%
     \savedanchor\step{% 1/2 gap at edges
-      \pgf@circ@res@step = \pgfkeysvalueof{/tikz/circuitikz/tripoles/american #1 port/height}\pgf@circ@Rlen
-      \divide\pgf@circ@res@step by \pgf@circ@res@count
-      \pgfpoint{\pgf@circ@res@left}{\dimexpr\pgf@circ@res@up+0.5\pgf@circ@res@step}%
+        \pgf@circ@res@step = \pgfkeysvalueof{/tikz/circuitikz/tripoles/american #1 port/height}\pgf@circ@Rlen
+        \divide\pgf@circ@res@step by \pgf@circ@res@count
+        \pgfpoint{\pgf@circ@res@left}{\dimexpr\pgf@circ@res@up+0.5\pgf@circ@res@step}%
     }%
     \savedanchor\northeast{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@up}}
     \savedanchor\southwest{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@down}}
@@ -184,20 +180,20 @@
     \anchor{center}{\origin}% for backwards compatibility
     \anchor{text}{\pgfpoint{-.5\wd\pgfnodeparttextbox}{\dimexpr.5\dp\pgfnodeparttextbox-.5\ht\pgfnodeparttextbox}}
 
-% create input anchors
+    % create input anchors
     \expandafter\pgfutil@g@addto@macro\csname pgf@sh@s@american #1 port\endcsname{%
-      \pgfmathloop%
-      \ifnum\pgfmathcounter>\pgf@circ@res@count%
-      \else%
+        \pgfmathloop%
+        \ifnum\pgfmathcounter>\pgf@circ@res@count%
+    \else%
         %\pgfutil@ifundefined{pgf@anchor@american #1 port@in \pgfmathcounter}{%
-          \expandafter\xdef\csname pgf@anchor@american #1 port@in \pgfmathcounter\endcsname{%
+        \expandafter\xdef\csname pgf@anchor@american #1 port@in \pgfmathcounter\endcsname{%
             \noexpand\pgf@circ@logicport@input{\pgfmathcounter}% defined above
-          }%
+        }%
         %}{}%
-      \repeatpgfmathloop%
+        \repeatpgfmathloop%
     }
 
-      \anchor{out}{\northeast\pgf@y=0pt}
+    \anchor{out}{\northeast\pgf@y=0pt}
 
     \anchor{left}{\left}% edges of component mius leads
     \anchor{right}{\right}
@@ -205,25 +201,25 @@
     \anchor{north east}{\northeast}% see \Compass macro
     \anchor{south west}{\southwest}
     \anchor{north}{\pgfextracty{\pgf@circ@res@up}{\northeast}%
-      \pgfpoint{0cm}{\pgf@circ@res@up}}
+    \pgfpoint{0cm}{\pgf@circ@res@up}}
     \anchor{north west}{\pgfextracty{\pgf@circ@res@up}{\northeast}%
-      \pgfextractx{\pgf@circ@res@left}{\southwest}%
-      \pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@up}}
+        \pgfextractx{\pgf@circ@res@left}{\southwest}%
+    \pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@up}}
     \anchor{west}{\pgfextractx{\pgf@circ@res@left}{\sosuthwest}%
-      \pgfpoint{\pgf@circ@res@left}{0cm}}
+    \pgfpoint{\pgf@circ@res@left}{0cm}}
     \anchor{south}{\pgfextracty{\pgf@circ@res@down}{\southwest}%
-      \pgfpoint{0cm}{\pgf@circ@res@down}}
+    \pgfpoint{0cm}{\pgf@circ@res@down}}
     \anchor{south east}{\pgfextracty{\pgf@circ@res@down}{\southwest}%
-      \pgfextractx{\pgf@circ@res@right}{\northeast}%
-      \pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@down}}
+        \pgfextractx{\pgf@circ@res@right}{\northeast}%
+    \pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@down}}
     \anchor{east}{\pgfextractx{\pgf@circ@res@right}{\northeast}%
-      \pgfpoint{\pgf@circ@res@right}{0cm}}
+    \pgfpoint{\pgf@circ@res@right}{0cm}}
 
-      \backgroundpath{          
-            \pgfsetcolor{\pgfkeysvalueof{/tikz/circuitikz/color}}   
-            #2
-      }
+    \backgroundpath{          
+        \pgfsetcolor{\pgfkeysvalueof{/tikz/circuitikz/color}}   
+        #2
     }
+}
 }
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% and %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \pgfcircdeclarelogicport{and}{
@@ -258,153 +254,152 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% nand %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \pgfcircdeclarelogicport{nand}{
     \pgfextracty{\pgf@circ@res@temp}{\step}%
-  \pgf@circ@res@step = \dimexpr 2\pgf@circ@res@temp -2\pgf@circ@res@up\relax
-  \pgf@circ@res@count = \inputs\relax
-  \loop\ifnum\pgf@circ@res@count>0
-    \advance\pgf@circ@res@temp by -\pgf@circ@res@step
-      \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@temp}}%
-    \pgfpathlineto{\pgfpoint
-        {\pgfkeysvalueof{/tikz/circuitikz/tripoles/american nand port/port width}\pgf@circ@res@left}
+    \pgf@circ@res@step = \dimexpr 2\pgf@circ@res@temp -2\pgf@circ@res@up\relax
+    \pgf@circ@res@count = \inputs\relax
+    \loop\ifnum\pgf@circ@res@count>0
+        \advance\pgf@circ@res@temp by -\pgf@circ@res@step
+        \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@temp}}%
+        \pgfpathlineto{\pgfpoint
+            {\pgfkeysvalueof{/tikz/circuitikz/tripoles/american nand port/port width}\pgf@circ@res@left}
         {\pgf@circ@res@temp}}
-    \advance\pgf@circ@res@count by -1
-  \repeat
+        \advance\pgf@circ@res@count by -1
+    \repeat
 
     \pgfpathmoveto{\pgfpoint{\pgf@circ@res@right}{0pt}}
     \pgfpathlineto{\pgfpoint
-        {\pgfkeysvalueof{/tikz/circuitikz/tripoles/american nand port/port width}\pgf@circ@res@right}
-        {0pt}}
+        {\pgfkeysvalueof{/tikz/circuitikz/tripoles/american nand port/port width}\pgf@circ@res@right} {0pt}}
 
     \pgfusepath{draw}
 
     \pgfsetlinewidth{2\pgflinewidth}
     \pgf@circ@res@step = \pgfkeysvalueof{/tikz/circuitikz/tripoles/american nand port/circle width}\pgf@circ@res@right
     \pgf@circ@res@other = \pgfkeysvalueof{/tikz/circuitikz/tripoles/american nand port/port width}\pgf@circ@res@right
-  \pgf@circ@res@temp = \dimexpr 2\pgf@circ@res@other - \pgf@circ@res@step\relax
+    \pgf@circ@res@temp = \dimexpr 2\pgf@circ@res@other - \pgf@circ@res@step\relax
 
     \pgfpathmoveto{\pgfpoint{-\pgf@circ@res@other}{\pgf@circ@res@up}}
     \pgfpathlineto{\pgfpoint{-\pgf@circ@res@other}{\pgf@circ@res@down}}
-  \pgfpatharc{-90}{90}{\pgf@circ@res@temp and \pgf@circ@res@up}
-  \pgfpathclose
+    \pgfpatharc{-90}{90}{\pgf@circ@res@temp and \pgf@circ@res@up}
+    \pgfpathclose
 
     \pgfpathellipse
-        {\pgfpoint{\pgf@circ@res@other-.5\pgf@circ@res@step}{0pt}}
-        {\pgfpoint{.5\pgf@circ@res@step}{0pt}}
-        {\pgfpoint{0pt}{.5\pgf@circ@res@step}}
+    {\pgfpoint{\pgf@circ@res@other-.5\pgf@circ@res@step}{0pt}}
+    {\pgfpoint{.5\pgf@circ@res@step}{0pt}}
+    {\pgfpoint{0pt}{.5\pgf@circ@res@step}}
 
     \pgfusepath{draw}
 }
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% nor %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \pgfcircdeclarelogicport{nor}{
-  \edef\pgf@circ@math@angle{\pgfkeysvalueof{/tikz/circuitikz/tripoles/american nor port/angle}}%
-  \pgf@circ@res@other=\pgfkeysvalueof{/tikz/circuitikz/tripoles/american nor port/inner}\pgf@circ@res@right
-  \pgfmathsetlengthmacro{\pgf@circ@math@xradius}{\pgf@circ@res@other /(1 - cos(\pgf@circ@math@angle)}%
-  \pgfmathsetlengthmacro{\pgf@circ@math@yradius}{\pgf@circ@res@up /sin(\pgf@circ@math@angle)}%
-  \pgf@circ@res@other=\pgfkeysvalueof{/tikz/circuitikz/tripoles/american nor port/port width}\pgf@circ@res@right
-  \pgfmathsetlengthmacro{\pgf@circ@math@xorigin}{\pgf@circ@res@other + \pgf@circ@math@xradius*cos(\pgf@circ@math@angle)}%
+    \edef\pgf@circ@math@angle{\pgfkeysvalueof{/tikz/circuitikz/tripoles/american nor port/angle}}%
+    \pgf@circ@res@other=\pgfkeysvalueof{/tikz/circuitikz/tripoles/american nor port/inner}\pgf@circ@res@right
+    \pgfmathsetlengthmacro{\pgf@circ@math@xradius}{\pgf@circ@res@other /(1 - cos(\pgf@circ@math@angle)}%
+    \pgfmathsetlengthmacro{\pgf@circ@math@yradius}{\pgf@circ@res@up /sin(\pgf@circ@math@angle)}%
+    \pgf@circ@res@other=\pgfkeysvalueof{/tikz/circuitikz/tripoles/american nor port/port width}\pgf@circ@res@right
+    \pgfmathsetlengthmacro{\pgf@circ@math@xorigin}{\pgf@circ@res@other + \pgf@circ@math@xradius*cos(\pgf@circ@math@angle)}%
 
     \pgfextracty{\pgf@circ@res@temp}{\step}%
-  \pgf@circ@res@step = \dimexpr 2\pgf@circ@res@temp -2\pgf@circ@res@up\relax
-  \pgf@circ@res@count = \inputs\relax
-  \loop\ifnum\pgf@circ@res@count>0
-    \advance\pgf@circ@res@temp by -\pgf@circ@res@step
-      \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@temp}}%
-    \pgfmathsetmacro{\pgf@circ@math@angle}{asin(\pgf@circ@res@temp/\pgf@circ@math@yradius)}%
-    \pgfmathsetlength{\pgf@circ@res@other}{\pgf@circ@math@xradius*cos(\pgf@circ@math@angle)-\pgf@circ@math@xorigin}%
-    \pgfpathlineto{\pgfpoint{\pgf@circ@res@other}{\pgf@circ@res@temp}}%
-    \advance\pgf@circ@res@count by -1
-  \repeat
+    \pgf@circ@res@step = \dimexpr 2\pgf@circ@res@temp -2\pgf@circ@res@up\relax
+    \pgf@circ@res@count = \inputs\relax
+    \loop\ifnum\pgf@circ@res@count>0
+        \advance\pgf@circ@res@temp by -\pgf@circ@res@step
+        \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@temp}}%
+        \pgfmathsetmacro{\pgf@circ@math@angle}{asin(\pgf@circ@res@temp/\pgf@circ@math@yradius)}%
+        \pgfmathsetlength{\pgf@circ@res@other}{\pgf@circ@math@xradius*cos(\pgf@circ@math@angle)-\pgf@circ@math@xorigin}%
+        \pgfpathlineto{\pgfpoint{\pgf@circ@res@other}{\pgf@circ@res@temp}}%
+        \advance\pgf@circ@res@count by -1
+    \repeat
 
-  \pgf@circ@res@other=\pgfkeysvalueof{/tikz/circuitikz/tripoles/american nor port/port width}\pgf@circ@res@right
+    \pgf@circ@res@other=\pgfkeysvalueof{/tikz/circuitikz/tripoles/american nor port/port width}\pgf@circ@res@right
     \pgfpathmoveto{\pgfpoint{\pgf@circ@res@right}{0pt}}
     \pgfpathlineto{\pgfpoint{\pgf@circ@res@other}{0pt}}
 
-  \pgfusepath{draw}
+    \pgfusepath{draw}
 
-  \pgfsetlinewidth{2\pgflinewidth}
+    \pgfsetlinewidth{2\pgflinewidth}
 
-  \edef\pgf@circ@math@angle{\pgfkeysvalueof{/tikz/circuitikz/tripoles/american nor port/angle}}%
+    \edef\pgf@circ@math@angle{\pgfkeysvalueof{/tikz/circuitikz/tripoles/american nor port/angle}}%
     \pgf@circ@res@step = \pgfkeysvalueof{/tikz/circuitikz/tripoles/american nor port/circle width}\pgf@circ@res@right
-  \pgf@circ@res@temp = \dimexpr 2\pgf@circ@res@other - \pgf@circ@res@step\relax
-  \advance\pgf@circ@res@other by -\pgf@circ@res@step
+    \pgf@circ@res@temp = \dimexpr 2\pgf@circ@res@other - \pgf@circ@res@step\relax
+    \advance\pgf@circ@res@other by -\pgf@circ@res@step
 
-  \pgfpathmoveto{\pgfpoint{\pgf@circ@res@other}{0pt}}% for symmetry
-  \pgfpatharc{0}{90}{\pgf@circ@res@temp and \pgf@circ@res@up}%
-  \pgfpatharc{\pgf@circ@math@angle}{-\pgf@circ@math@angle}{\pgf@circ@math@xradius and \pgf@circ@math@yradius}%
-  \pgfpatharc{-90}{0}{\pgf@circ@res@temp and \pgf@circ@res@up}%
-  \pgfpathclose
+    \pgfpathmoveto{\pgfpoint{\pgf@circ@res@other}{0pt}}% for symmetry
+    \pgfpatharc{0}{90}{\pgf@circ@res@temp and \pgf@circ@res@up}%
+    \pgfpatharc{\pgf@circ@math@angle}{-\pgf@circ@math@angle}{\pgf@circ@math@xradius and \pgf@circ@math@yradius}%
+    \pgfpatharc{-90}{0}{\pgf@circ@res@temp and \pgf@circ@res@up}%
+    \pgfpathclose
 
     \pgfpathellipse
-        {\pgfpoint{\pgf@circ@res@other+.5\pgf@circ@res@step}{0pt}}
-        {\pgfpoint{.5\pgf@circ@res@step}{0pt}}
-        {\pgfpoint{0pt}{.5\pgf@circ@res@step}}
+    {\pgfpoint{\pgf@circ@res@other+.5\pgf@circ@res@step}{0pt}}
+    {\pgfpoint{.5\pgf@circ@res@step}{0pt}}
+    {\pgfpoint{0pt}{.5\pgf@circ@res@step}}
 
     \pgfusepath{draw}
 }
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% or %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \pgfcircdeclarelogicport{or}{
     \edef\pgf@circ@math@angle{\pgfkeysvalueof{/tikz/circuitikz/tripoles/american or port/angle}}%
-  \pgf@circ@res@other=\pgfkeysvalueof{/tikz/circuitikz/tripoles/american or port/inner}\pgf@circ@res@right
-  \pgfmathsetlengthmacro{\pgf@circ@math@xradius}{\pgf@circ@res@other /(1 - cos(\pgf@circ@math@angle)}%
-  \pgfmathsetlengthmacro{\pgf@circ@math@yradius}{\pgf@circ@res@up /sin(\pgf@circ@math@angle)}%
-  \pgf@circ@res@other=\pgfkeysvalueof{/tikz/circuitikz/tripoles/american or port/port width}\pgf@circ@res@right
-  \pgfmathsetlengthmacro{\pgf@circ@math@xorigin}{\pgf@circ@res@other + \pgf@circ@math@xradius*cos(\pgf@circ@math@angle)}%
+    \pgf@circ@res@other=\pgfkeysvalueof{/tikz/circuitikz/tripoles/american or port/inner}\pgf@circ@res@right
+    \pgfmathsetlengthmacro{\pgf@circ@math@xradius}{\pgf@circ@res@other /(1 - cos(\pgf@circ@math@angle)}%
+    \pgfmathsetlengthmacro{\pgf@circ@math@yradius}{\pgf@circ@res@up /sin(\pgf@circ@math@angle)}%
+    \pgf@circ@res@other=\pgfkeysvalueof{/tikz/circuitikz/tripoles/american or port/port width}\pgf@circ@res@right
+    \pgfmathsetlengthmacro{\pgf@circ@math@xorigin}{\pgf@circ@res@other + \pgf@circ@math@xradius*cos(\pgf@circ@math@angle)}%
 
     \pgfextracty{\pgf@circ@res@temp}{\step}%
-  \pgf@circ@res@step = \dimexpr 2\pgf@circ@res@temp -2\pgf@circ@res@up\relax
-  \pgf@circ@res@count = \inputs\relax
-  \loop\ifnum\pgf@circ@res@count>0
-    \advance\pgf@circ@res@temp by -\pgf@circ@res@step
-      \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@temp}}%
-    \pgfmathsetmacro{\pgf@circ@math@angle}{asin(\pgf@circ@res@temp/\pgf@circ@math@yradius)}%
-    \pgfmathsetlength{\pgf@circ@res@other}{\pgf@circ@math@xradius*cos(\pgf@circ@math@angle)-\pgf@circ@math@xorigin}%
-    \pgfpathlineto{\pgfpoint{\pgf@circ@res@other}{\pgf@circ@res@temp}}%
-    \advance\pgf@circ@res@count by -1
-  \repeat
+    \pgf@circ@res@step = \dimexpr 2\pgf@circ@res@temp -2\pgf@circ@res@up\relax
+    \pgf@circ@res@count = \inputs\relax
+    \loop\ifnum\pgf@circ@res@count>0
+        \advance\pgf@circ@res@temp by -\pgf@circ@res@step
+        \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@temp}}%
+        \pgfmathsetmacro{\pgf@circ@math@angle}{asin(\pgf@circ@res@temp/\pgf@circ@math@yradius)}%
+        \pgfmathsetlength{\pgf@circ@res@other}{\pgf@circ@math@xradius*cos(\pgf@circ@math@angle)-\pgf@circ@math@xorigin}%
+        \pgfpathlineto{\pgfpoint{\pgf@circ@res@other}{\pgf@circ@res@temp}}%
+        \advance\pgf@circ@res@count by -1
+    \repeat
 
-  \pgf@circ@res@other=\pgfkeysvalueof{/tikz/circuitikz/tripoles/american or port/port width}\pgf@circ@res@right
+    \pgf@circ@res@other=\pgfkeysvalueof{/tikz/circuitikz/tripoles/american or port/port width}\pgf@circ@res@right
     \pgfpathmoveto{\pgfpoint{\pgf@circ@res@right}{0pt}}
     \pgfpathlineto{\pgfpoint{\pgf@circ@res@other}{0pt}}
 
-  \pgfusepath{draw}
+    \pgfusepath{draw}
 
-  \pgfsetlinewidth{2\pgflinewidth}
+    \pgfsetlinewidth{2\pgflinewidth}
 
-  \edef\pgf@circ@math@angle{\pgfkeysvalueof{/tikz/circuitikz/tripoles/american or port/angle}}%
+    \edef\pgf@circ@math@angle{\pgfkeysvalueof{/tikz/circuitikz/tripoles/american or port/angle}}%
 
-  \pgfpathmoveto{\pgfpoint{\pgf@circ@res@other}{0pt}}% for symmetry
-  \pgfpatharc{0}{90}{2\pgf@circ@res@other and \pgf@circ@res@up}%
-  \pgfpatharc{\pgf@circ@math@angle}{-\pgf@circ@math@angle}{\pgf@circ@math@xradius and \pgf@circ@math@yradius}%
-  \pgfpatharc{-90}{0}{2\pgf@circ@res@other and \pgf@circ@res@up}%
-  \pgfpathclose
+    \pgfpathmoveto{\pgfpoint{\pgf@circ@res@other}{0pt}}% for symmetry
+    \pgfpatharc{0}{90}{2\pgf@circ@res@other and \pgf@circ@res@up}%
+    \pgfpatharc{\pgf@circ@math@angle}{-\pgf@circ@math@angle}{\pgf@circ@math@xradius and \pgf@circ@math@yradius}%
+    \pgfpatharc{-90}{0}{2\pgf@circ@res@other and \pgf@circ@res@up}%
+    \pgfpathclose
 
     \pgfusepath{draw}
 }
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% xor %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \pgfcircdeclarelogicport{xor}{
-  \pgfkeysgetvalue{/tikz/circuitikz/tripoles/american xor port/angle}{\pgf@circ@math@angle}%
-  \pgf@circ@res@other=\pgfkeysvalueof{/tikz/circuitikz/tripoles/american xor port/inner}\pgf@circ@res@right
-  \pgfmathsetlengthmacro{\pgf@circ@math@xradius}{\pgf@circ@res@other /(1 - cos(\pgf@circ@math@angle)}%
-  \pgfmathsetlengthmacro{\pgf@circ@math@yradius}{\pgf@circ@res@up / sin(\pgf@circ@math@angle))}%
-  \pgf@circ@res@other=\pgfkeysvalueof{/tikz/circuitikz/tripoles/american xor port/port width}\pgf@circ@res@right
-  \pgfmathsetlengthmacro{\pgf@circ@math@xorigin}{\pgf@circ@res@other + \pgf@circ@math@xradius*cos(\pgf@circ@math@angle)}%
-  \pgf@circ@res@temp=\pgfkeysvalueof{/tikz/circuitikz/tripoles/american xor port/distance}\pgf@circ@res@right
-  \pgfmathsetlengthmacro{\pgf@circ@math@distance}{\pgf@circ@res@temp}
-% this compensates for the effect of the line width on the gap between the arcs
-  \pgfmathsetlengthmacro{\pgf@circ@math@yradiusA}{\pgf@circ@math@yradius -2\pgflinewidth}%
-  \pgfmathsetlengthmacro{\pgf@circ@math@xradiusA}{\pgf@circ@math@xradius -2\pgflinewidth}%
+    \pgfkeysgetvalue{/tikz/circuitikz/tripoles/american xor port/angle}{\pgf@circ@math@angle}%
+    \pgf@circ@res@other=\pgfkeysvalueof{/tikz/circuitikz/tripoles/american xor port/inner}\pgf@circ@res@right
+    \pgfmathsetlengthmacro{\pgf@circ@math@xradius}{\pgf@circ@res@other /(1 - cos(\pgf@circ@math@angle)}%
+    \pgfmathsetlengthmacro{\pgf@circ@math@yradius}{\pgf@circ@res@up / sin(\pgf@circ@math@angle))}%
+    \pgf@circ@res@other=\pgfkeysvalueof{/tikz/circuitikz/tripoles/american xor port/port width}\pgf@circ@res@right
+    \pgfmathsetlengthmacro{\pgf@circ@math@xorigin}{\pgf@circ@res@other + \pgf@circ@math@xradius*cos(\pgf@circ@math@angle)}%
+    \pgf@circ@res@temp=\pgfkeysvalueof{/tikz/circuitikz/tripoles/american xor port/distance}\pgf@circ@res@right
+    \pgfmathsetlengthmacro{\pgf@circ@math@distance}{\pgf@circ@res@temp}
+    % this compensates for the effect of the line width on the gap between the arcs
+    \pgfmathsetlengthmacro{\pgf@circ@math@yradiusA}{\pgf@circ@math@yradius -2\pgflinewidth}%
+    \pgfmathsetlengthmacro{\pgf@circ@math@xradiusA}{\pgf@circ@math@xradius -2\pgflinewidth}%
 
     \pgfextracty{\pgf@circ@res@temp}{\step}%
-  \pgf@circ@res@step = \dimexpr 2\pgf@circ@res@temp -2\pgf@circ@res@up\relax
-  \pgf@circ@res@count = \inputs\relax
-  \loop\ifnum\pgf@circ@res@count>0
-    \advance\pgf@circ@res@temp by -\pgf@circ@res@step
-      \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@temp}}%
-    \pgfmathsetmacro{\pgf@circ@math@angle}{asin(\pgf@circ@res@temp  / \pgf@circ@math@yradiusA)}%
-    \pgfmathsetlength{\pgf@circ@res@other}{\pgf@circ@math@xradiusA*cos(\pgf@circ@math@angle)-\pgf@circ@math@xorigin}%
-    \advance\pgf@circ@res@other by -\pgf@circ@math@distance
-    \pgfpathlineto{\pgfpoint{\pgf@circ@res@other}{\pgf@circ@res@temp}}%
-    \advance\pgf@circ@res@count by -1
-  \repeat
+    \pgf@circ@res@step = \dimexpr 2\pgf@circ@res@temp -2\pgf@circ@res@up\relax
+    \pgf@circ@res@count = \inputs\relax
+    \loop\ifnum\pgf@circ@res@count>0
+        \advance\pgf@circ@res@temp by -\pgf@circ@res@step
+        \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@temp}}%
+        \pgfmathsetmacro{\pgf@circ@math@angle}{asin(\pgf@circ@res@temp  / \pgf@circ@math@yradiusA)}%
+        \pgfmathsetlength{\pgf@circ@res@other}{\pgf@circ@math@xradiusA*cos(\pgf@circ@math@angle)-\pgf@circ@math@xorigin}%
+        \advance\pgf@circ@res@other by -\pgf@circ@math@distance
+        \pgfpathlineto{\pgfpoint{\pgf@circ@res@other}{\pgf@circ@res@temp}}%
+        \advance\pgf@circ@res@count by -1
+    \repeat
 
     \pgf@circ@res@other=\pgfkeysvalueof{/tikz/circuitikz/tripoles/american xor port/port width}\pgf@circ@res@right
     \pgfpathmoveto{\pgfpoint{\pgf@circ@res@right}{0pt}}
@@ -412,49 +407,49 @@
 
     \pgfusepath{draw}
 
-  \pgfsetlinewidth{2\pgflinewidth}
+    \pgfsetlinewidth{2\pgflinewidth}
 
-  \edef\pgf@circ@math@angle{\pgfkeysvalueof{/tikz/circuitikz/tripoles/american xor port/angle}}%
+    \edef\pgf@circ@math@angle{\pgfkeysvalueof{/tikz/circuitikz/tripoles/american xor port/angle}}%
 
-  \pgfpathmoveto{\pgfpoint{\pgf@circ@res@other}{0pt}}% for symmetry
-  \pgfpatharc{0}{90}{2\pgf@circ@res@other and \pgf@circ@res@up}%
-  \pgfpatharc{\pgf@circ@math@angle}{-\pgf@circ@math@angle}{\pgf@circ@math@xradius and \pgf@circ@math@yradius}%
-  \pgfpatharc{-90}{0}{2\pgf@circ@res@other and \pgf@circ@res@up}%
-  \pgfpathclose
+    \pgfpathmoveto{\pgfpoint{\pgf@circ@res@other}{0pt}}% for symmetry
+    \pgfpatharc{0}{90}{2\pgf@circ@res@other and \pgf@circ@res@up}%
+    \pgfpatharc{\pgf@circ@math@angle}{-\pgf@circ@math@angle}{\pgf@circ@math@xradius and \pgf@circ@math@yradius}%
+    \pgfpatharc{-90}{0}{2\pgf@circ@res@other and \pgf@circ@res@up}%
+    \pgfpathclose
 
-  \pgfmathsetlength{\pgf@circ@res@temp}{(\pgf@circ@math@yradiusA)*sin(\pgf@circ@math@angle)}%
+    \pgfmathsetlength{\pgf@circ@res@temp}{(\pgf@circ@math@yradiusA)*sin(\pgf@circ@math@angle)}%
 
-  \pgfpathmoveto{\pgfpoint{-\pgf@circ@res@other-\pgf@circ@math@distance}{\pgf@circ@res@temp}}% first arc
-  \pgfpatharc{\pgf@circ@math@angle}{-\pgf@circ@math@angle}{\pgf@circ@math@xradiusA and \pgf@circ@math@yradiusA}%
+    \pgfpathmoveto{\pgfpoint{-\pgf@circ@res@other-\pgf@circ@math@distance}{\pgf@circ@res@temp}}% first arc
+    \pgfpatharc{\pgf@circ@math@angle}{-\pgf@circ@math@angle}{\pgf@circ@math@xradiusA and \pgf@circ@math@yradiusA}%
 
     \pgfusepath{draw}
 }
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% xnor %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \pgfcircdeclarelogicport{xnor}{
-  \pgfkeysgetvalue{/tikz/circuitikz/tripoles/american xnor port/angle}{\pgf@circ@math@angle}%
-  \pgf@circ@res@other=\pgfkeysvalueof{/tikz/circuitikz/tripoles/american xnor port/inner}\pgf@circ@res@right
-  \pgfmathsetlengthmacro{\pgf@circ@math@xradius}{\pgf@circ@res@other /(1 - cos(\pgf@circ@math@angle)}%
-  \pgfmathsetlengthmacro{\pgf@circ@math@yradius}{\pgf@circ@res@up / sin(\pgf@circ@math@angle))}%
-  \pgf@circ@res@other=\pgfkeysvalueof{/tikz/circuitikz/tripoles/american xnor port/port width}\pgf@circ@res@right
-  \pgfmathsetlengthmacro{\pgf@circ@math@xorigin}{\pgf@circ@res@other + \pgf@circ@math@xradius*cos(\pgf@circ@math@angle)}%
-  \pgf@circ@res@temp=\pgfkeysvalueof{/tikz/circuitikz/tripoles/american xor port/distance}\pgf@circ@res@right
-  \pgfmathsetlengthmacro{\pgf@circ@math@distance}{\pgf@circ@res@temp}
-% this compensates for the effect of the line width on the gap between the arcs
-  \pgfmathsetlengthmacro{\pgf@circ@math@yradiusA}{\pgf@circ@math@yradius -2\pgflinewidth}%
-  \pgfmathsetlengthmacro{\pgf@circ@math@xradiusA}{\pgf@circ@math@xradius -2\pgflinewidth}%
+    \pgfkeysgetvalue{/tikz/circuitikz/tripoles/american xnor port/angle}{\pgf@circ@math@angle}%
+    \pgf@circ@res@other=\pgfkeysvalueof{/tikz/circuitikz/tripoles/american xnor port/inner}\pgf@circ@res@right
+    \pgfmathsetlengthmacro{\pgf@circ@math@xradius}{\pgf@circ@res@other /(1 - cos(\pgf@circ@math@angle)}%
+    \pgfmathsetlengthmacro{\pgf@circ@math@yradius}{\pgf@circ@res@up / sin(\pgf@circ@math@angle))}%
+    \pgf@circ@res@other=\pgfkeysvalueof{/tikz/circuitikz/tripoles/american xnor port/port width}\pgf@circ@res@right
+    \pgfmathsetlengthmacro{\pgf@circ@math@xorigin}{\pgf@circ@res@other + \pgf@circ@math@xradius*cos(\pgf@circ@math@angle)}%
+    \pgf@circ@res@temp=\pgfkeysvalueof{/tikz/circuitikz/tripoles/american xor port/distance}\pgf@circ@res@right
+    \pgfmathsetlengthmacro{\pgf@circ@math@distance}{\pgf@circ@res@temp}
+    % this compensates for the effect of the line width on the gap between the arcs
+    \pgfmathsetlengthmacro{\pgf@circ@math@yradiusA}{\pgf@circ@math@yradius -2\pgflinewidth}%
+    \pgfmathsetlengthmacro{\pgf@circ@math@xradiusA}{\pgf@circ@math@xradius -2\pgflinewidth}%
 
     \pgfextracty{\pgf@circ@res@temp}{\step}%
-  \pgf@circ@res@step = \dimexpr 2\pgf@circ@res@temp -2\pgf@circ@res@up\relax
-  \pgf@circ@res@count = \inputs\relax
-  \loop\ifnum\pgf@circ@res@count>0
-    \advance\pgf@circ@res@temp by -\pgf@circ@res@step
-      \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@temp}}%
-    \pgfmathsetmacro{\pgf@circ@math@angle}{asin(\pgf@circ@res@temp  / \pgf@circ@math@yradiusA)}%
-    \pgfmathsetlength{\pgf@circ@res@other}{\pgf@circ@math@xradiusA*cos(\pgf@circ@math@angle)-\pgf@circ@math@xorigin}%
-    \advance\pgf@circ@res@other by -\pgf@circ@math@distance
-    \pgfpathlineto{\pgfpoint{\pgf@circ@res@other}{\pgf@circ@res@temp}}%
-    \advance\pgf@circ@res@count by -1
-  \repeat
+    \pgf@circ@res@step = \dimexpr 2\pgf@circ@res@temp -2\pgf@circ@res@up\relax
+    \pgf@circ@res@count = \inputs\relax
+    \loop\ifnum\pgf@circ@res@count>0
+        \advance\pgf@circ@res@temp by -\pgf@circ@res@step
+        \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@temp}}%
+        \pgfmathsetmacro{\pgf@circ@math@angle}{asin(\pgf@circ@res@temp  / \pgf@circ@math@yradiusA)}%
+        \pgfmathsetlength{\pgf@circ@res@other}{\pgf@circ@math@xradiusA*cos(\pgf@circ@math@angle)-\pgf@circ@math@xorigin}%
+        \advance\pgf@circ@res@other by -\pgf@circ@math@distance
+        \pgfpathlineto{\pgfpoint{\pgf@circ@res@other}{\pgf@circ@res@temp}}%
+        \advance\pgf@circ@res@count by -1
+    \repeat
 
     \pgf@circ@res@other=\pgfkeysvalueof{/tikz/circuitikz/tripoles/american xnor port/port width}\pgf@circ@res@right
     \pgfpathmoveto{\pgfpoint{\pgf@circ@res@right}{0pt}}
@@ -462,34 +457,34 @@
 
     \pgfusepath{draw}
 
-  \pgfsetlinewidth{2\pgflinewidth}
+    \pgfsetlinewidth{2\pgflinewidth}
 
-  \edef\pgf@circ@math@angle{\pgfkeysvalueof{/tikz/circuitikz/tripoles/american xnor port/angle}}%
-  \pgf@circ@res@step = \pgfkeysvalueof{/tikz/circuitikz/tripoles/american xnor port/circle width}\pgf@circ@res@right
-  \pgf@circ@res@temp = \dimexpr 2\pgf@circ@res@other - \pgf@circ@res@step\relax
-  \advance\pgf@circ@res@other by -\pgf@circ@res@step
+    \edef\pgf@circ@math@angle{\pgfkeysvalueof{/tikz/circuitikz/tripoles/american xnor port/angle}}%
+    \pgf@circ@res@step = \pgfkeysvalueof{/tikz/circuitikz/tripoles/american xnor port/circle width}\pgf@circ@res@right
+    \pgf@circ@res@temp = \dimexpr 2\pgf@circ@res@other - \pgf@circ@res@step\relax
+    \advance\pgf@circ@res@other by -\pgf@circ@res@step
 
-  \pgfpathmoveto{\pgfpoint{\pgf@circ@res@other}{0pt}}% for symmetry
-  \pgfpatharc{0}{90}{\pgf@circ@res@temp and \pgf@circ@res@up}%
-  \pgfpatharc{\pgf@circ@math@angle}{-\pgf@circ@math@angle}{\pgf@circ@math@xradius and \pgf@circ@math@yradius}%
-  \pgfpatharc{-90}{0}{\pgf@circ@res@temp and \pgf@circ@res@up}%
-  \pgfpathclose
+    \pgfpathmoveto{\pgfpoint{\pgf@circ@res@other}{0pt}}% for symmetry
+    \pgfpatharc{0}{90}{\pgf@circ@res@temp and \pgf@circ@res@up}%
+    \pgfpatharc{\pgf@circ@math@angle}{-\pgf@circ@math@angle}{\pgf@circ@math@xradius and \pgf@circ@math@yradius}%
+    \pgfpatharc{-90}{0}{\pgf@circ@res@temp and \pgf@circ@res@up}%
+    \pgfpathclose
 
     \pgfpathellipse
-        {\pgfpoint{\pgf@circ@res@other+.5\pgf@circ@res@step}{0pt}}
-        {\pgfpoint{.5\pgf@circ@res@step}{0pt}}
-        {\pgfpoint{0pt}{.5\pgf@circ@res@step}}
+    {\pgfpoint{\pgf@circ@res@other+.5\pgf@circ@res@step}{0pt}}
+    {\pgfpoint{.5\pgf@circ@res@step}{0pt}}
+    {\pgfpoint{0pt}{.5\pgf@circ@res@step}}
 
-  \pgf@circ@res@other=\pgfkeysvalueof{/tikz/circuitikz/tripoles/american xnor port/port width}\pgf@circ@res@left
-  \pgfmathsetlength{\pgf@circ@res@temp}{(\pgf@circ@math@yradiusA)*sin(\pgf@circ@math@angle)}%
+    \pgf@circ@res@other=\pgfkeysvalueof{/tikz/circuitikz/tripoles/american xnor port/port width}\pgf@circ@res@left
+    \pgfmathsetlength{\pgf@circ@res@temp}{(\pgf@circ@math@yradiusA)*sin(\pgf@circ@math@angle)}%
 
-  \pgfpathmoveto{\pgfpoint{\pgf@circ@res@other-\pgf@circ@math@distance}{\pgf@circ@res@temp}}% first arc
-  \pgfpatharc{\pgf@circ@math@angle}{-\pgf@circ@math@angle}{\pgf@circ@math@xradiusA and \pgf@circ@math@yradiusA}%
+    \pgfpathmoveto{\pgfpoint{\pgf@circ@res@other-\pgf@circ@math@distance}{\pgf@circ@res@temp}}% first arc
+    \pgfpatharc{\pgf@circ@math@angle}{-\pgf@circ@math@angle}{\pgf@circ@math@xradiusA and \pgf@circ@math@yradiusA}%
 
     \pgfusepath{draw}
 }
 
-%%% end of new code
+%%% Original one-input ports
 
 \pgfdeclareshape{american not port}
 	{
@@ -804,7 +799,7 @@
 	}
 
 
-%%% start european logic ports (do really someone use them?) 
+%%% start european logic ports, from John Kormylo 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% 
 
@@ -816,27 +811,27 @@
 \long\def\pgfcircdeclareeurologicport#1#2#3#4{
     \pgfdeclareshape{european #1 port}
     {
-    \savedmacro\resize{% automatic
-      \pgf@circ@res@up = \pgfkeysvalueof{/tikz/circuitikz/tripoles/european #1 port/height}\pgf@circ@Rlen
-      \pgf@circ@res@up = .5\pgf@circ@res@up
-      \pgf@circ@res@down = -\pgf@circ@res@up
-      \pgf@circ@res@right = \pgfkeysvalueof{/tikz/circuitikz/tripoles/european #1 port/width}\pgf@circ@Rlen
-      \pgf@circ@res@right = .5\pgf@circ@res@right
-      \pgf@circ@res@left = -\pgf@circ@res@right
-    }%
-    \savedmacro\inputs{% get number of inputs
-      \pgf@circ@res@count=\pgfkeysvalueof{/tikz/number inputs}\relax%
-      \ifnum\pgf@circ@res@count=0
-        \pgf@circ@res@count=\pgfkeysvalueof{/tikz/circuitikz/tripoles/european #1 port/inputs}\relax%
-      \fi
-      \ifnum\pgf@circ@res@count<2 \pgf@circ@res@count=2\fi
-      \ifnum\pgf@circ@res@count>16 \pgf@circ@res@count=16\fi
-      \def\inputs{\the\pgf@circ@res@count}%
+        \savedmacro\resize{% automatic
+            \pgf@circ@res@up = \pgfkeysvalueof{/tikz/circuitikz/tripoles/european #1 port/height}\pgf@circ@Rlen
+            \pgf@circ@res@up = .5\pgf@circ@res@up
+            \pgf@circ@res@down = -\pgf@circ@res@up
+            \pgf@circ@res@right = \pgfkeysvalueof{/tikz/circuitikz/tripoles/european #1 port/width}\pgf@circ@Rlen
+            \pgf@circ@res@right = .5\pgf@circ@res@right
+            \pgf@circ@res@left = -\pgf@circ@res@right
+        }%
+        \savedmacro\inputs{% get number of inputs
+            \pgf@circ@res@count=\pgfkeysvalueof{/tikz/number inputs}\relax%
+            \ifnum\pgf@circ@res@count=0
+                \pgf@circ@res@count=\pgfkeysvalueof{/tikz/circuitikz/tripoles/european #1 port/inputs}\relax%
+            \fi
+        \ifnum\pgf@circ@res@count<2 \pgf@circ@res@count=2\fi
+    \ifnum\pgf@circ@res@count>16 \pgf@circ@res@count=16\fi
+        \def\inputs{\the\pgf@circ@res@count}%
     }%
     \savedanchor\step{% 1/2 gap at edges
-      \pgf@circ@res@step = \pgfkeysvalueof{/tikz/circuitikz/tripoles/european #1 port/height}\pgf@circ@Rlen
-      \divide\pgf@circ@res@step by #3
-      \pgfpoint{\pgf@circ@res@left}{\dimexpr\pgf@circ@res@up+0.5\pgf@circ@res@step}%
+        \pgf@circ@res@step = \pgfkeysvalueof{/tikz/circuitikz/tripoles/european #1 port/height}\pgf@circ@Rlen
+        \divide\pgf@circ@res@step by #3
+        \pgfpoint{\pgf@circ@res@left}{\dimexpr\pgf@circ@res@up+0.5\pgf@circ@res@step}%
     }%
     \savedanchor\northeast{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@up}}%
     \savedanchor\southwest{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@down}}%
@@ -849,21 +844,21 @@
     \anchor{text}{\pgfpoint{-.5\wd\pgfnodeparttextbox}{\dimexpr.5\dp\pgfnodeparttextbox-.5\ht\pgfnodeparttextbox}}%
     % create input anchors
     \ifnum#3=1\relax
-      \anchor{in}{\pgfpoint{\pgf@circ@res@left}{0pt}}% or \step
+        \anchor{in}{\pgfpoint{\pgf@circ@res@left}{0pt}}% or \step
     \else 
-      \expandafter\pgfutil@g@addto@macro\csname pgf@sh@s@european #1 port\endcsname{%
-      \pgfmathloop%
-        \ifnum\pgfmathcounter>#3%
+        \expandafter\pgfutil@g@addto@macro\csname pgf@sh@s@european #1 port\endcsname{%
+            \pgfmathloop%
+            \ifnum\pgfmathcounter>#3%
         \else%
-          %\pgfutil@ifundefined{pgf@anchor@european #1 port@in \pgfmathcounter}{% redundant
+            %\pgfutil@ifundefined{pgf@anchor@european #1 port@in \pgfmathcounter}{% redundant
             \expandafter\xdef\csname pgf@anchor@european #1 port@in \pgfmathcounter\endcsname{%
-              \noexpand\pgf@circ@logicport@input{\pgfmathcounter}% defined above
+                \noexpand\pgf@circ@logicport@input{\pgfmathcounter}% defined above
             }%
-          %}{}%
-        \repeatpgfmathloop%
-      }
+            %}{}%
+            \repeatpgfmathloop%
+        }
     \fi
-      \anchor{out}{\northeast\pgf@y=0pt}
+    \anchor{out}{\northeast\pgf@y=0pt}
 
     \anchor{left}{\left}% edges of component minus leads
     \anchor{right}{\right}
@@ -871,49 +866,49 @@
     \anchor{north east}{\northeast}% see \Compass macro
     \anchor{south west}{\southwest}
     \anchor{north}{\pgfextracty{\pgf@circ@res@up}{\northeast}%
-      \pgfpoint{0cm}{\pgf@circ@res@up}}
+    \pgfpoint{0cm}{\pgf@circ@res@up}}
     \anchor{north west}{\pgfextracty{\pgf@circ@res@up}{\northeast}%
-      \pgfextractx{\pgf@circ@res@left}{\southwest}%
-      \pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@up}}
+        \pgfextractx{\pgf@circ@res@left}{\southwest}%
+    \pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@up}}
     \anchor{west}{\pgfextractx{\pgf@circ@res@left}{\sosuthwest}%
-      \pgfpoint{\pgf@circ@res@left}{0cm}}
+    \pgfpoint{\pgf@circ@res@left}{0cm}}
     \anchor{south}{\pgfextracty{\pgf@circ@res@down}{\southwest}%
-      \pgfpoint{0cm}{\pgf@circ@res@down}}
+    \pgfpoint{0cm}{\pgf@circ@res@down}}
     \anchor{south east}{\pgfextracty{\pgf@circ@res@down}{\southwest}%
-      \pgfextractx{\pgf@circ@res@right}{\northeast}%
-      \pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@down}}
+        \pgfextractx{\pgf@circ@res@right}{\northeast}%
+    \pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@down}}
     \anchor{east}{\pgfextractx{\pgf@circ@res@right}{\northeast}%
-      \pgfpoint{\pgf@circ@res@right}{0cm}}
+    \pgfpoint{\pgf@circ@res@right}{0cm}}
 
-      \backgroundpath{          
-            \pgfsetcolor{\pgfkeysvalueof{/tikz/circuitikz/color}}   
-            \ifnum#3=1\relax
-        \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{0pt}}%
-        \pgfpathlineto{\pgfpoint{\pgfkeysvalueof{/tikz/circuitikz/tripoles/european #1 port/reserved}\pgf@circ@res@left}{0pt}}%
-      \else
-        \pgfextracty{\pgf@circ@res@temp}{\step}%
-        \pgf@circ@res@step = \dimexpr 2\pgf@circ@res@temp -2\pgf@circ@res@up\relax
-        %\pgf@circ@res@count = #3\relax% redundant
-        \loop\ifnum\pgf@circ@res@count>0
-          \advance\pgf@circ@res@temp by -\pgf@circ@res@step
-            \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@temp}}%
-          \pgfpathlineto{\pgfpoint
-              {\pgfkeysvalueof{/tikz/circuitikz/tripoles/european #1 port/reserved}\pgf@circ@res@left}
-              {\pgf@circ@res@temp}}
-          \advance\pgf@circ@res@count by -1
-        \repeat
+    \backgroundpath{          
+        \pgfsetcolor{\pgfkeysvalueof{/tikz/circuitikz/color}}   
+        \ifnum#3=1\relax
+            \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{0pt}}%
+            \pgfpathlineto{\pgfpoint{\pgfkeysvalueof{/tikz/circuitikz/tripoles/european #1 port/reserved}\pgf@circ@res@left}{0pt}}%
+        \else
+            \pgfextracty{\pgf@circ@res@temp}{\step}%
+            \pgf@circ@res@step = \dimexpr 2\pgf@circ@res@temp -2\pgf@circ@res@up\relax
+            %\pgf@circ@res@count = #3\relax% redundant
+            \loop\ifnum\pgf@circ@res@count>0
+                \advance\pgf@circ@res@temp by -\pgf@circ@res@step
+                \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@temp}}%
+                \pgfpathlineto{\pgfpoint
+                    {\pgfkeysvalueof{/tikz/circuitikz/tripoles/european #1 port/reserved}\pgf@circ@res@left}
+                {\pgf@circ@res@temp}}
+                \advance\pgf@circ@res@count by -1
+                \repeat
             \fi
             %
             \pgfpathmoveto{\pgfpoint{\pgf@circ@res@right}{0pt}}
             \pgfpathlineto{%
-                \pgfpoint{\pgfkeysvalueof{/tikz/circuitikz/tripoles/european #1 port/reserved}\pgf@circ@res@right}{0pt}}
+            \pgfpoint{\pgfkeysvalueof{/tikz/circuitikz/tripoles/european #1 port/reserved}\pgf@circ@res@right}{0pt}}
             %
             \edef\pgf@temp{not}
             \edef\pgf@circ@temp{#4}
             \ifx\pgf@temp\pgf@circ@temp % is a not
                 \pgfpathmoveto{\pgfpoint{\pgfkeysvalueof{/tikz/circuitikz/tripoles/european #1 port/not width}\pgf@circ@res@right}{0pt}}
                 \pgfpathlineto{\pgfpoint{\pgfkeysvalueof{/tikz/circuitikz/tripoles/european #1 port/reserved}\pgf@circ@res@right}%
-          {\pgfkeysvalueof{/tikz/circuitikz/tripoles/european #1 port/not height}\pgf@circ@res@up}}
+                {\pgfkeysvalueof{/tikz/circuitikz/tripoles/european #1 port/not height}\pgf@circ@res@up}}
             \fi
             %
             \pgfusepath{draw}
@@ -923,12 +918,12 @@
             %
             \pgfsetlinewidth{2\pgflinewidth}
             \pgfpathrectanglecorners
-                {\pgfpoint{\pgfkeysvalueof{/tikz/circuitikz/tripoles/european #1 port/reserved}\pgf@circ@res@left}{\pgf@circ@res@up}}
-                {\pgfpoint{\pgfkeysvalueof{/tikz/circuitikz/tripoles/european #1 port/reserved}\pgf@circ@res@right}{\pgf@circ@res@down}}
+            {\pgfpoint{\pgfkeysvalueof{/tikz/circuitikz/tripoles/european #1 port/reserved}\pgf@circ@res@left}{\pgf@circ@res@up}}
+            {\pgfpoint{\pgfkeysvalueof{/tikz/circuitikz/tripoles/european #1 port/reserved}\pgf@circ@res@right}{\pgf@circ@res@down}}
             \pgfusepath{draw}
-%
-%
-      }
+            %
+            %
+        }
     }
 }
 \pgfcircdeclareeurologicport{and}{\&}{\pgf@circ@res@count}{}
