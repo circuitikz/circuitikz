@@ -84,6 +84,8 @@
 	\circuitikzbasekey/bipole/annotation/position=-90 } 
 }
 
+% This is to adjust spacing for the labels so that they are not cramped on components
+\def\pgf@circ@ls{.75ex} % labelspace to have just one point to change
 
 
 \def\pgf@circ@drawlabels#1{
@@ -150,11 +152,18 @@
 
 \def\pgf@circ@drawrotlabels#1{
 	\pgfextra{
+                % scale the distances in function of zoom, so that they are not
+                % dependent on it but on font size. Thanks to @marmot
+                % https://tex.stackexchange.com/a/476018/38080
+                % the 1.2 is adjusted so that the distance is more or less
+                % the same for rotated labels and straight ones (although it will
+                % depend on the font, so it's not exact).
+                \pgfgettransformentries{\tmp}{\tmp}{\tmp}{\myscale}{\tmp}{\tmp}
+                \pgfmathsetlength\pgf@circ@res@temp{1.2*\pgf@circ@ls/\myscale}
 		\ifnum \ctikzvalof{bipole/#1/position}>0
 		%we need some more space for placement below, due to mid-anchor
-			\def\pgf@circ@labposdistance{1.5ex}
-			\else
-			\def\pgf@circ@labposdistance{2ex}
+		    \else % we do not have <= in \ifnum...
+			\pgf@circ@res@temp=2\pgf@circ@res@temp
 		\fi
 		%Calculate rotation of the label from direction and strip decimals
 		\edef\pgfcirclabrot{\expandafter\pgf@circ@stripdecimals\pgf@circ@direction\pgf@nil}
@@ -162,20 +171,17 @@
 		\ifnum \pgfcirclabrot > 90 \ifnum \pgfcirclabrot < 270
 			\pgfmathsubtract{\pgf@circ@direction}{180}
 			\edef\pgfcirclabrot{\expandafter\pgf@circ@stripdecimals\pgfmathresult\pgf@nil}
-			%invert the space relationships due to rotatet strings
+			%invert the space relationships due to rotated strings
 			\ifnum \ctikzvalof{bipole/#1/position}>0
-				\def\pgf@circ@labposdistance{2ex}
-			\else
-				\def\pgf@circ@labposdistance{1.5ex}
-			\fi
+                                \pgf@circ@res@temp=2\pgf@circ@res@temp
+                        \fi
 		\fi\fi
 		\pgfmathparse{\ctikzvalof{bipole/#1/position}>0?\pgf@circ@direction+90:\pgf@circ@direction-90}
 		\edef\pgf@circ@labposangle{\expandafter\pgf@circ@stripdecimals\pgfmathresult\pgf@nil}
-	}				
-        % reset cm is needed to avoid the scaling of ex (thanks Eric Marsden)
-        % see https://tex.stackexchange.com/a/476004/38080
-        {[reset cm] (labelcoor)++(\pgf@circ@labposangle:\pgf@circ@labposdistance) coordinate(labelcoor)}
-	node[anchor=mid,rotate=\pgfcirclabrot](\ctikzvalof{bipole/name}#1){\pgf@circ@finallabels{#1}}
+	}
+        % reset cm is not working correctly here
+        (labelcoor)++(\pgf@circ@labposangle:\the\pgf@circ@res@temp) coordinate(labelcoor)
+	node[anchor=mid, rotate=\pgfcirclabrot](\ctikzvalof{bipole/name}#1){\pgf@circ@finallabels{#1}}
 }
 
 \def\pgf@circ@drawreglabels#1{
@@ -190,8 +196,6 @@
 		\edef\pgf@circ@temp{\expandafter\pgf@circ@stripdecimals\pgfmathresult\pgf@nil}
 		\pgfmathparse{mod(\pgf@circ@temp,180)>135?mod(\pgf@circ@temp,180)-180:mod(\pgf@circ@temp,180)}
 		\edef\pgfcircmathresult{\expandafter\pgf@circ@stripdecimals\pgfmathresult\pgf@nil}
-                % This is to adjust spacing for the labels so that they are not cramped on components
-                \def\pgf@circ@ls{.75ex} % labelspace to have just one point to change
 	}
 	%Values around 90 are at both y-axis
 	\ifnum \pgfcircmathresult > 84 \ifnum \pgfcircmathresult< 96
