@@ -155,15 +155,15 @@
                 % scale the distances in function of zoom, so that they are not
                 % dependent on it but on font size. Thanks to @marmot
                 % https://tex.stackexchange.com/a/476018/38080
-                % the 1.2 is adjusted so that the distance is more or less
+                % the coeffcient is adjusted so that the distance is more or less
                 % the same for rotated labels and straight ones (although it will
                 % depend on the font, so it's not exact).
                 \pgfgettransformentries{\tmp}{\tmp}{\tmp}{\myscale}{\tmp}{\tmp}
-                \pgfmathsetlength\pgf@circ@res@temp{1.2*\pgf@circ@ls/\myscale}
+                \pgfmathsetlength\pgf@circ@res@temp{1.5*\pgf@circ@ls/\myscale}
 		\ifnum \ctikzvalof{bipole/#1/position}>0
 		%we need some more space for placement below, due to mid-anchor
 		    \else % we do not have <= in \ifnum...
-			\pgf@circ@res@temp=2\pgf@circ@res@temp
+			\pgf@circ@res@temp=1.5\pgf@circ@res@temp
 		\fi
 		%Calculate rotation of the label from direction and strip decimals
 		\edef\pgfcirclabrot{\expandafter\pgf@circ@stripdecimals\pgf@circ@direction\pgf@nil}
@@ -173,7 +173,7 @@
 			\edef\pgfcirclabrot{\expandafter\pgf@circ@stripdecimals\pgfmathresult\pgf@nil}
 			%invert the space relationships due to rotated strings
 			\ifnum \ctikzvalof{bipole/#1/position}>0
-                                \pgf@circ@res@temp=2\pgf@circ@res@temp
+                                \pgf@circ@res@temp=1.5\pgf@circ@res@temp
                         \fi
 		\fi\fi
 		\pgfmathparse{\ctikzvalof{bipole/#1/position}>0?\pgf@circ@direction+90:\pgf@circ@direction-90}
@@ -190,6 +190,10 @@
 	%Use mid-anchor at x-axis and base-anchor at y-axis, respectively.
 	%All points between will be addressed by angled-anchors:
 	\pgfextra{
+                % scale ex-distance to make it independent on scale
+                % thanks @marmot see https://tex.stackexchange.com/a/476018/38080
+                \pgfgettransformentries{\tmp}{\tmp}{\tmp}{\myscale}{\tmp}{\tmp}
+                \pgfmathsetlength\pgf@circ@res@temp{\pgf@circ@ls/\myscale}
 		\pgfmathadd{\pgf@circ@labanc}{90}
                 \pgfmathround{\pgfmathresult}
                 \def\pgf@circ@labanctext{\pgf@circ@labanc}
@@ -222,9 +226,9 @@
                             % using base coordinate instead of south to naturally align
                             % symbols with descendants; but this invalidate the effect of
                             % the inner sep, so recover it by shifting the anchor
-                            % reset cm is needed to avoid the scaling of ex (thanks Eric Marsden)
-                            % see https://tex.stackexchange.com/a/476004/38080
-                            {[reset cm](labelcoor) ++(-\pgf@circ@labanc:\pgf@circ@ls)} coordinate(labelcoor)
+                            % reset cm is not working sometime, use @marmot solution
+                            % see https://tex.stackexchange.com/a/476018/38080
+                            (labelcoor) ++(-\pgf@circ@labanc:\pgf@circ@res@temp) coordinate(labelcoor)
                             \pgfextra{\def\pgf@circ@labanctext{base}}%base
                         \else
                             \pgfextra{\def\pgf@circ@labanctext{north}}%north
@@ -232,13 +236,13 @@
                      \else
                         \ifnum \pgf@circ@labanc < 90
                             % shift, as above
-                            { [reset cm] (labelcoor) ++(-\pgf@circ@labanc:\pgf@circ@ls) coordinate(labelcoor) }
+                            (labelcoor) ++(-\pgf@circ@labanc:\pgf@circ@res@temp) coordinate(labelcoor)
                             \pgfextra{\def\pgf@circ@labanctext{base}}%base
                         \else
                             \ifnum \pgf@circ@labanc > 180
                                 % this shouldn't  happen, but somehow it does (270 degree anchors)
                                 % shift, as above
-                                {[reset cm](labelcoor) ++(-\pgf@circ@labanc:\pgf@circ@ls) coordinate(labelcoor)}
+                                (labelcoor) ++(-\pgf@circ@labanc:\pgf@circ@res@temp) coordinate(labelcoor)
                                  \pgfextra{\def\pgf@circ@labanctext{base}}%base
                             \else
                               \pgfextra{\def\pgf@circ@labanctext{north}}%north
@@ -247,8 +251,8 @@
                     \fi
                 \fi\fi
         (labelcoor) node[anchor=\pgf@circ@labanctext,
-            inner sep=\pgf@circ@ls, outer sep=0pt,
-            ](\ctikzvalof{bipole/name}#1){\pgf@circ@finallabels{#1}%
+            inner sep=0.5\pgf@circ@res@temp, outer sep=0pt,
+            ](\ctikzvalof{bipole/name}#1){\strut\pgf@circ@finallabels{#1}%
         }
 }
 
