@@ -21,6 +21,7 @@ The major changes among the different circuitikz versions are listed here. See <
     - Added special anchors for transformers (and fixed the wrong center anchor)
     - Changed the logical port implementation to multiple inputs (thanks to John Kormylo)
     - Changed labels spacing so that they are independent on scale factor
+    - Fixed the position of text labels in amplifiers
   
 * Version 0.8.3 (2017-05-28) 
 	- Removed unwanted lines at to-paths if the starting point is a node without a explicit anchor.
