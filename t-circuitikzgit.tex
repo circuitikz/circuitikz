@@ -1,4 +1,4 @@
-\def\pgfcircversion{git:d4dc2f5}
+\def\pgfcircversion{git:7697a8a}
 \def\pgfcircversiondate{2019/03/09}
 \writestatus{loading}{\pgfcircversiondate{} The CircuiTikz circuit drawing package version \pgfcircversion}
 
@@ -947,6 +947,11 @@
 \ctikzset{tripoles/triac/width/.initial=1}
 \ctikzset{tripoles/triac/diode width left/.initial=.3}
 \ctikzset{tripoles/triac/diode width right/.initial=.3}
+
+%% Cute switches
+\ctikzset{bipoles/cuteswitch/height/.initial=.6}
+\ctikzset{bipoles/cuteswitch/height 2/.initial=.2}
+\ctikzset{bipoles/cuteswitch/width/.initial=.50}
 
 \ctikzset{tripoles/spdt/width/.initial=.85}
 \ctikzset{tripoles/spdt/height/.initial=.45}
@@ -3771,6 +3776,70 @@
 	\pgftransformshift{\pgfpoint{2\pgf@circ@res@right}{0pt}}
 	\pgfnode{ocirc}{center}{}{}{\pgfusepath{draw}}
 }
+% cute switch "to" shapes help function
+% #1 -> name
+% #2 -> barposition
+% #3 -> arrowcode
+\long\def\pgfcircdeclarecutesw#1#2#3{
+    \pgfcircdeclarebipole
+    {}
+    {\ctikzvalof{bipoles/cuteswitch/height 2}}
+    {#1}
+    {\ctikzvalof{bipoles/cuteswitch/height}}
+    {\ctikzvalof{bipoles/cuteswitch/width}}{
+        \pgfscope
+        % This is the radius of the "ocirc" shape (see pgfcircshapes.tex)
+        \pgf@circ@res@temp=\pgfkeysvalueof{/tikz/circuitikz/nodes width}\pgf@circ@Rlen
+        \pgfsetlinewidth{2\pgf@circ@res@temp}
+        \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{0pt}}
+        \pgfpathlineto{#2}
+        \pgfsetroundcap\pgfusepath{draw}
+        \endpgfscope
+        \pgfscope % arrow
+        #3
+        \endpgfscope
+        \pgftransformshift{\pgfpoint{\pgf@circ@res@left}{0pt}}
+        \pgfnode{ocirc}{center}{}{}{\pgfusepath{draw}}
+        \pgftransformshift{\pgfpoint{2\pgf@circ@res@right}{0pt}}
+        \pgfnode{ocirc}{center}{}{}{\pgfusepath{draw}}
+    }
+}
+
+%% closed cute switch
+\pgfcircdeclarecutesw{cuteclosedswitch}
+    {\pgfpoint{\pgf@circ@res@right}{1.5\pgf@circ@res@temp}}
+    {}
+
+%% open cute switch
+\pgfcircdeclarecutesw{cuteopenswitch}
+    {\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@up}}
+    {}
+
+%% closing cute switch
+\pgfcircdeclarecutesw{cuteclosingswitch}
+    {\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@up}}
+    {
+    \pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}\pgfstartlinewidth}
+    \pgftransformshift{\pgfpoint{\pgf@circ@res@left}{0pt}} % in node
+    \pgfpathmoveto{\pgfpointpolar{70}{1.2\pgf@circ@res@right}}
+    \pgfpatharc{70}{-10}{1.2\pgf@circ@res@right}
+    \pgfsetarrowsend{latexslim}
+    \pgfusepath{draw}
+    }
+
+%% opening cute switch
+\pgfcircdeclarecutesw{cuteopeningswitch}
+    {\pgfpoint{\pgf@circ@res@right}{1.5\pgf@circ@res@temp}}
+    {
+    \pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}\pgfstartlinewidth}
+    \pgftransformshift{\pgfpoint{\pgf@circ@res@left}{0pt}} % in node
+    \pgfpathmoveto{\pgfpointpolar{-10}{1.2\pgf@circ@res@right}}
+    \pgfpatharc{-10}{60}{1.2\pgf@circ@res@right}
+    \pgfsetarrowsend{latexslim}
+    \pgfusepath{draw}
+    }
+
+
 % % METERINGSHAPE
 \long\def\drawmeteringcircle{
 	\def\pgf@circ@temp{right}
@@ -5906,6 +5975,116 @@
 	}
 	
 	
+% cute switch "node" shapes, matching with cute "to" shapes
+% #1 -> name
+% #2 -> barposition
+% #3 -> arrowcode
+\long\def\pgfcircdeclarecutespdt#1#2#3{
+    \pgfdeclareshape{#1}
+    {
+        \savedanchor\northwest{%
+            \pgf@y=\pgfkeysvalueof{/tikz/circuitikz/bipoles/cuteswitch/height}\pgf@circ@Rlen
+            \pgf@y=.5\pgf@y
+            \pgf@x=-\pgfkeysvalueof{/tikz/circuitikz/tripoles/spdt/width}\pgf@circ@Rlen
+            \pgf@x=.25\pgf@x
+        }
+        \anchor{left}{\northwest \pgf@y=0pt }
+        \anchor{in}{ \northwest \pgf@y=0pt}
+        \anchor{out 1}{ \northwest \pgf@x=-\pgf@x }
+        \anchor{out 2}{ \northwest \pgf@x=-\pgf@x \pgf@y=-\pgf@y }
+
+        \anchor{center}{ \pgf@y=0pt \pgf@x=0pt }
+        \anchor{east}{ \northwest \pgf@y=0pt \pgf@x=-\pgf@x  }
+        \anchor{west}{ \northwest \pgf@y=0pt }
+        \anchor{south}{ \northwest \pgf@x=0pt \pgf@y=-\pgf@y }
+        \anchor{north}{ \northwest \pgf@x=0pt }
+        \anchor{south west}{ \northwest \pgf@y=-\pgf@y }
+        \anchor{north east}{ \northwest \pgf@x=-\pgf@x }
+        \anchor{north west}{ \northwest }
+        \anchor{south east}{ \northwest \pgf@x=-\pgf@x \pgf@y=-\pgf@y }
+
+        \backgroundpath{
+            \pgfsetcolor{\pgfkeysvalueof{/tikz/circuitikz/color}}
+            \northwest
+            \pgf@circ@res@up = \pgf@y
+            \pgf@circ@res@down = -\pgf@y
+            \pgf@circ@res@right = -\pgf@x
+            \pgf@circ@res@left = \pgf@x
+
+            \pgfscope
+            % This is the radius of the "ocirc" shape (see pgfcircshapes.tex)
+            \pgf@circ@res@temp=\pgfkeysvalueof{/tikz/circuitikz/nodes width}\pgf@circ@Rlen
+            \pgfsetlinewidth{2\pgf@circ@res@temp}
+            \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{0pt}}
+            \pgfpathlineto{#2}
+            \pgfsetroundcap\pgfusepath{draw}
+            \endpgfscope
+            \pgfscope % arrow
+            #3
+            \endpgfscope
+            % terminals
+            \pgfscope
+            \pgftransformshift{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@up}}
+            \pgfnode{ocirc}{center}{}{spdt1}{\pgfusepath{stroke}}
+            \endpgfscope
+            \pgfscope
+            \pgftransformshift{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@down}}
+            \pgfnode{ocirc}{center}{}{}{\pgfusepath{stroke}}
+            \endpgfscope
+            \pgfscope
+            \pgftransformshift{\pgfpoint{\pgf@circ@res@left}{0pt}}
+            \pgfnode{ocirc}{center}{}{spdt2}{\pgfusepath{stroke}}
+            \endpgfscope
+
+        }
+    }
+}
+
+\pgfcircdeclarecutespdt{cute spdt up}
+{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@up-1.5\pgf@circ@res@temp}}
+{}
+
+\pgfcircdeclarecutespdt{cute spdt mid}
+{\pgfpoint{\pgf@circ@res@right}{0pt}}
+{}
+
+\pgfcircdeclarecutespdt{cute spdt down}
+{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@down+1.5\pgf@circ@res@temp}}
+{}
+
+\pgfcircdeclarecutespdt{cute spdt up arrow}
+{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@up-1.5\pgf@circ@res@temp}}
+{
+    \pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}\pgflinewidth}
+    \pgftransformshift{\pgfpoint{\pgf@circ@res@left}{0pt}} % in node
+    \pgfpathmoveto{\pgfpointpolar{70}{1.5\pgf@circ@res@right}}
+    \pgfpatharc{70}{-50}{1.5\pgf@circ@res@right}
+    \pgfsetarrowsend{latexslim}
+    \pgfusepath{draw}
+}
+
+\pgfcircdeclarecutespdt{cute spdt mid arrow}
+{\pgfpoint{\pgf@circ@res@right}{0pt}}
+{
+    \pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}\pgflinewidth}
+    \pgftransformshift{\pgfpoint{\pgf@circ@res@left}{0pt}} % in node
+    \pgfsetarrowsstart{latexslim}
+    \pgfpathmoveto{\pgfpointpolar{-60}{1.5\pgf@circ@res@right}}
+    \pgfpatharc{-60}{60}{1.5\pgf@circ@res@right}
+    \pgfsetarrowsend{latexslim}
+    \pgfusepath{draw}
+}
+
+\pgfcircdeclarecutespdt{cute spdt down arrow}
+{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@down+1.5\pgf@circ@res@temp}}
+{
+    \pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}\pgflinewidth}
+    \pgftransformshift{\pgfpoint{\pgf@circ@res@left}{0pt}} % in node
+    \pgfpathmoveto{\pgfpointpolar{-50}{1.5\pgf@circ@res@right}}
+    \pgfpatharc{-50}{70}{1.5\pgf@circ@res@right}
+    \pgfsetarrowsend{latexslim}
+    \pgfusepath{draw}
+}
 	
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -12396,6 +12575,29 @@
 \compattikzset{ammeter/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@ammeter@path}}
 \compattikzset{voltmeter/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@voltmeter@path}}
 \compattikzset{ohmmeter/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@ohmmeter@path}}
+
+% cute switches
+%% closed cute switch
+\def\pgf@circ@cuteclosedswitch@path#1{\pgf@circ@bipole@path{cuteclosedswitch}{#1}}
+\compattikzset{cute closed switch/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@cuteclosedswitch@path, l=#1}}
+\compattikzset{ccsw/.style= {\comnpatname cute closed switch= #1}}
+
+%% open cute switch
+\def\pgf@circ@cuteopenswitch@path#1{\pgf@circ@bipole@path{cuteopenswitch}{#1}}
+\compattikzset{cute open switch/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@cuteopenswitch@path, l=#1}}
+\compattikzset{cosw/.style= {\comnpatname cute open switch= #1}}
+
+%% closing cute switch
+\def\pgf@circ@cuteclosingswitch@path#1{\pgf@circ@bipole@path{cuteclosingswitch}{#1}}
+\compattikzset{cute closing switch/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@cuteclosingswitch@path, l=#1}}
+\compattikzset{ccgsw/.style= {\comnpatname cute closing switch= #1}}
+
+%% opening cute switch
+\def\pgf@circ@cuteopeningswitch@path#1{\pgf@circ@bipole@path{cuteopeningswitch}{#1}}
+\compattikzset{cute opening switch/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@cuteopeningswitch@path, l=#1}}
+\compattikzset{cogsw/.style= {\comnpatname cute opening switch= #1}}
+
+
 
 % short forms
 \compattikzset{esource/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@esource@path, \circuitikzbasekey/bipole/is voltage=true,\circuitikzbasekey/bipole/is voltageoutsideofsymbol=true,  v=#1}}
