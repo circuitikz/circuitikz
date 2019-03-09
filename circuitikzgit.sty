@@ -10,8 +10,8 @@
 
 \NeedsTeXFormat{LaTeX2e}
 
-\def\pgfcircversion{git:7cd8515}
-\def\pgfcircversiondate{2019/03/03}
+\def\pgfcircversion{git:d4dc2f5}
+\def\pgfcircversiondate{2019/03/09}
 
 \ProvidesPackage{circuitikzgit}
         [\pgfcircversiondate{} The CircuiTikz circuit drawing package version \pgfcircversion]
@@ -19,7 +19,13 @@
 %% Version 3.0 of pgf/TikZ is required
 \RequirePackage{tikz}
 \usetikzlibrary{calc}
-\usepgflibrary{arrows}
+%
+% "arrows" library is deprecated, and behave badly with
+% arrows on short paths. Change to the new arrows.meta
+% In pfgcirc.define, we will add the old definition of
+% latex' which we have lost in the transition
+%
+\usetikzlibrary{arrows.meta, bending}
 
 
 % The options are listed in the manual in this order
@@ -338,6 +344,45 @@
 \newdimen\pgf@circ@res@temp
 % inital thickness
 \newdimen \pgfstartlinewidth
+
+% arrow tips, ported over old arrows library (deprecated)
+% see https://tex.stackexchange.com/questions/234084/latex-arrow-tip-with-arrows-meta-library
+% this was the original definition of latex' tips, renamed to avoid clashes
+%
+\pgfarrowsdeclare{latexslim}{latexslim}
+{
+  \pgfutil@tempdima=0.28pt%
+  \advance\pgfutil@tempdima by.3\pgflinewidth%
+  \pgfarrowsleftextend{+-4\pgfutil@tempdima}
+  \pgfarrowsrightextend{+6\pgfutil@tempdima}
+}
+{
+  \pgfutil@tempdima=0.28pt%
+  \advance\pgfutil@tempdima by.3\pgflinewidth%
+  \pgfpathmoveto{\pgfqpoint{6\pgfutil@tempdima}{0\pgfutil@tempdima}}
+  \pgfpathcurveto
+  {\pgfqpoint{3.5\pgfutil@tempdima}{.5\pgfutil@tempdima}}
+  {\pgfqpoint{-1\pgfutil@tempdima}{1.5\pgfutil@tempdima}}
+  {\pgfqpoint{-4\pgfutil@tempdima}{3.75\pgfutil@tempdima}}
+  \pgfpathcurveto
+  {\pgfqpoint{-1.5\pgfutil@tempdima}{1\pgfutil@tempdima}}
+  {\pgfqpoint{-1.5\pgfutil@tempdima}{-1\pgfutil@tempdima}}
+  {\pgfqpoint{-4\pgfutil@tempdima}{-3.75\pgfutil@tempdima}}
+  \pgfpathcurveto
+  {\pgfqpoint{-1\pgfutil@tempdima}{-1.5\pgfutil@tempdima}}
+  {\pgfqpoint{3.5\pgfutil@tempdima}{-.5\pgfutil@tempdima}}
+  {\pgfqpoint{6\pgfutil@tempdima}{0\pgfutil@tempdima}}
+  \pgfpathclose
+  \pgfusepathqfill
+}
+
+\pgfarrowsdeclarereversed{latexslim reversed}{latexslim reversed}{latexslim}{latexslim}
+
+
+
+
+
+
 %% Keys
 
 \long\def\pgf@circ@comment#1{}
@@ -2549,7 +2594,7 @@
 	\pgfusepath{draw}
 	
 	\pgfscope
-		\pgfsetarrowsend{latex'}
+		\pgfsetarrowsend{latexslim}
 		\pgfpathmoveto{\pgfpoint{.4\pgf@circ@res@other}{\pgf@circ@res@up}}
 		\pgfpathlineto{\pgfpoint{-.4\pgf@circ@res@other}{\pgf@circ@res@down}}
 		\pgfusepath{draw}
@@ -2858,7 +2903,7 @@
 		{(\ctikzvalof{bipoles/vcuteinductor/width}*\pgf@circ@Rlen+\pgfhorizontaltransformationadjustment\pgflinewidth+(\ctikzvalof{bipoles/vcuteinductor/coils}-1)*2*\pgf@circ@res@other)/\ctikzvalof{bipoles/vcuteinductor/coils}/2}
 
 	\pgfscope
-		\pgfsetarrowsend{latex'}
+		\pgfsetarrowsend{latexslim}
 		\pgfpathmoveto{\pgfpoint{.4\pgf@circ@res@left}{\pgf@circ@res@down}}
 		\pgfpathlineto{\pgfpoint{.4\pgf@circ@res@right}{\pgf@circ@res@up}}
 		\pgfusepath{draw}
@@ -2952,7 +2997,7 @@
 	\pgfusepath{stroke}
 
 	\pgfscope
-		\pgfsetarrowsend{latex'}
+		\pgfsetarrowsend{latexslim}
 		\pgfpathmoveto{\pgfpoint{.4\pgf@circ@res@left}{\pgf@circ@res@down}}
 		\pgfpathlineto{\pgfpoint{-.4\pgf@circ@res@left}{\pgf@circ@res@up}}
 		\pgfusepath{draw}
@@ -3633,7 +3678,7 @@
 		\pgfusepath{draw}
 
 			\pgfsetlinewidth{\pgfstartlinewidth}
-			\pgfsetarrowsend{latex'}
+			\pgfsetarrowsend{latexslim}
 			\pgfpathmoveto{\pgfpoint{-0.4\pgf@circ@res@right}{\pgf@circ@res@up}}
 			\pgfpathlineto{\pgfpoint{0.6\pgf@circ@res@right}{2\pgf@circ@res@up}}
 			\pgfusepath{draw}
@@ -3661,7 +3706,7 @@
 		\pgfusepath{draw}
 
 			\pgfsetlinewidth{\pgfstartlinewidth}
-			\pgfsetarrowsstart{latex'}
+			\pgfsetarrowsstart{latexslim}
 			\pgfpathmoveto{\pgfpoint{-0.4\pgf@circ@res@right}{\pgf@circ@res@up}}
 			\pgfpathlineto{\pgfpoint{0.6\pgf@circ@res@right}{2\pgf@circ@res@up}}
 			\pgfusepath{draw}
@@ -3811,7 +3856,7 @@
 		\pgfusepath{draw}
 
 			\pgfsetlinewidth{\pgfstartlinewidth}
-			\pgfsetarrowsend{latex'}
+			\pgfsetarrowsend{latexslim}
 			\pgfpathmoveto{\pgfpoint{-0.4\pgf@circ@res@right}{\pgf@circ@res@up}}
 			\pgfpathlineto{\pgfpoint{0.6\pgf@circ@res@right}{2\pgf@circ@res@up}}
 			\pgfusepath{draw}
@@ -3838,7 +3883,7 @@
 		\pgfusepath{draw}
 
 			\pgfsetlinewidth{\pgfstartlinewidth}
-			\pgfsetarrowsstart{latex'}
+			\pgfsetarrowsstart{latexslim}
 			\pgfpathmoveto{\pgfpoint{-0.4\pgf@circ@res@right}{\pgf@circ@res@up}}
 			\pgfpathlineto{\pgfpoint{0.6\pgf@circ@res@right}{2\pgf@circ@res@up}}
 			\pgfusepath{draw}
@@ -3952,12 +3997,14 @@
 	\pgfpathlineto{\pgfpoint{.6\pgf@circ@res@right}{\pgf@circ@res@up}}
 	\pgfusepath{draw}
 	
-	\pgfsetarrowsstart{latex'}
-	\pgfpathmoveto{\pgfpoint{.2\pgf@circ@res@right}{\pgf@circ@res@down}}
-	\pgfpathlineto{\pgfpoint{.2\pgf@circ@res@right}{0\pgf@circ@res@down}}
-	\pgfpatharcto{1.2\pgf@circ@res@right}{1.2\pgf@circ@res@right}{0}{0}{1}{\pgfpoint{.9\pgf@circ@res@left}{.9\pgf@circ@res@up}}
+        \pgfscope
+        \pgftransformshift{\pgfpoint{\pgf@circ@res@left}{0pt}}
+        \pgfpathmoveto{\pgfpointpolar{90}{1.2\pgf@circ@res@right}}
+	\pgfpatharc{90}{-20}{1.2\pgf@circ@res@right}
+	\pgfsetarrowsend{latexslim}
 	\pgfsetbeveljoin
 	\pgfusepath{draw}
+        \endpgfscope
 }
 
 %% Opening SPST
@@ -3968,12 +4015,14 @@
 	\pgfpathlineto{\pgfpoint{.6\pgf@circ@res@right}{\pgf@circ@res@up}}
 	\pgfusepath{draw}
 	
-	\pgfpathmoveto{\pgfpoint{.2\pgf@circ@res@right}{0.5\pgf@circ@res@down}}
-	\pgfpatharcto{1.1\pgf@circ@res@right}{1.1\pgf@circ@res@right}{0}{0}{1}{\pgfpoint{.7\pgf@circ@res@left}{.9\pgf@circ@res@up}}
-	\pgfpathlineto{\pgfpoint{1.2\pgf@circ@res@left}{1\pgf@circ@res@up}}
-	\pgfsetarrowsend{latex'}
+        \pgfscope
+        \pgftransformshift{\pgfpoint{\pgf@circ@res@left}{0pt}}
+        \pgfpathmoveto{\pgfpointpolar{-10}{1.2\pgf@circ@res@right}}
+	\pgfpatharc{-10}{90}{1.2\pgf@circ@res@right}
+	\pgfsetarrowsend{latexslim}
 	\pgfsetbeveljoin
 	\pgfusepath{draw}
+        \endpgfscope
 }
 
 %% Normal open Switch
@@ -4230,7 +4279,7 @@
 		\pgfusepath{draw}
 		
 		\pgfscope
-		\pgfsetarrowsend{latex'}
+		\pgfsetarrowsend{latexslim}
 		\pgfpathmoveto{\pgfpoint{.5\pgf@circ@res@left}{\pgf@circ@res@up}}
 		\pgfpathlineto{\pgfpoint{-.5\pgf@circ@res@left}{\pgf@circ@res@down}}
 		\pgfusepath{draw}
@@ -4245,7 +4294,7 @@
 		\pgfusepath{draw}
 		
 		\pgfscope
-		\pgfsetarrowsend{latex'}
+		\pgfsetarrowsend{latexslim}
 		\pgfpathmoveto{\pgfpoint{.7\pgf@circ@res@right}{\pgf@circ@res@up}}
 		\pgfpathlineto{\pgfpoint{.3\pgf@circ@res@right}{-1.2\pgf@circ@res@down}}
 		\pgfusepath{draw}
@@ -4292,7 +4341,7 @@
 		
 		\pgfsetlinewidth{\pgfstartlinewidth}
 		\pgftext[top,x=.85\pgf@circ@res@left,y=.75\pgf@circ@res@down]{\tiny$\vartheta$}
-		\pgfsetarrowsend{latex'}
+		\pgfsetarrowsend{latexslim}
 		\pgfpathmoveto{\pgfpoint{.62\pgf@circ@res@left}{\pgf@circ@res@down}}
 		\pgfpathlineto{\pgfpoint{.62\pgf@circ@res@left}{.7\pgf@circ@res@down}}
 		\pgfusepath{draw}
@@ -4314,7 +4363,7 @@
 		
 		\pgfsetlinewidth{\pgfstartlinewidth}
 		\pgftext[top,x=.85\pgf@circ@res@left,y=.75\pgf@circ@res@down]{\tiny$\vartheta$}
-		\pgfsetarrowsend{latex'}
+		\pgfsetarrowsend{latexslim}
 		\pgfpathmoveto{\pgfpoint{.62\pgf@circ@res@left}{\pgf@circ@res@down}}
 		\pgfpathlineto{\pgfpoint{.62\pgf@circ@res@left}{.7\pgf@circ@res@down}}
 		\pgfusepath{draw}
@@ -4367,7 +4416,7 @@
 		\pgfusepath{draw,fill}
 		
 		\pgfscope
-		\pgfsetarrowsend{latex'}
+		\pgfsetarrowsend{latexslim}
 		\pgfpathmoveto{\pgfpoint{.5\pgf@circ@res@left}{\pgf@circ@res@up}}
 		\pgfpathlineto{\pgfpoint{-.5\pgf@circ@res@left}{\pgf@circ@res@down}}
 		\pgfusepath{draw}
@@ -4395,7 +4444,7 @@
 		\pgfusepath{draw}
 		
 		\pgfscope
-		\pgfsetarrowsend{latex'}
+		\pgfsetarrowsend{latexslim}
 		\pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@up}}
 		\pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@down}}
 		\pgfusepath{draw}
@@ -5847,7 +5896,7 @@
 		\pgfusepath{draw} 
 		
 		\pgfscope
-		\pgfsetarrowsend{latex'}
+		\pgfsetarrowsend{latexslim}
 		\pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{0pt}}
 		\pgfpathlineto{\pgfpoint{\pgfkeysvalueof{/tikz/circuitikz/bipoles/european gas filled surge arrester/inside}\pgf@circ@res@left}{0pt}}
 		\pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}\pgfstartlinewidth}	
@@ -7237,7 +7286,7 @@
 	
 		\ifpgf@circuit@bpt@drawphoto
 					\pgfscope
-					\pgfsetarrowsstart{latex'}
+					\pgfsetarrowsstart{latexslim}
 					\pgfpathmoveto{\pgfpointadd{\pgfpoint
 										{\pgfkeysvalueof{/tikz/circuitikz/tripoles/#1/base width}\pgf@circ@res@left}
 										{\pgf@circ@res@up+\pgf@circ@res@down}}
@@ -9099,7 +9148,7 @@
 
 \pgfscope
 	%\pgfsetlinewidth{\pgfstartlinewidth}
-	\pgfsetarrowsend{latex'}
+	\pgfsetarrowsend{latexslim}
 	\pgfpathmoveto{\pgfpoint{0pt}{\pgf@circ@res@up}}
 	\pgfpathlineto{\pgfpoint{0pt}{-\pgf@circ@res@down}}
 	\pgfusepath{draw}
@@ -9129,7 +9178,7 @@
 		
 		\pgfscope
 		%\pgfsetlinewidth{\pgfstartlinewidth}
-		\pgfsetarrowsend{latex'}
+		\pgfsetarrowsend{latexslim}
 		\pgfpathmoveto{\pgfpoint{0pt}{\pgf@circ@res@up}}
 		\pgfpathlineto{\pgfpoint{0pt}{-\pgf@circ@res@down}}
 		\pgfusepath{draw}
