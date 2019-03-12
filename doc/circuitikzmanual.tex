@@ -8,16 +8,14 @@
 \documentclass[a4paper]{article}
 \usepackage{a4wide}	%smaller borders
 
-
 \def\modern{
 	\usepackage{fontspec}
 	\defaultfontfeatures{Ligatures=TeX, Numbers=OldStyle,Mapping=tex-text ,SmallCapsFeatures={LetterSpace=8, Numbers=OldStyle}}
-	%\setmainfont{Gentium Book Basic} 
+	%\setmainfont{Gentium Book Basic}
 }
 
 %do not split this line in more lines, otherwise "make git-manual" will show the wrong version
 \usepackage[siunitx, RPvoltages]{circuitikz}
-
 % Let this being the same as the chosen voltage direction for coherence
 \def\chosenvoltoption{RPvoltages}
 
@@ -39,7 +37,18 @@
 
 \sisetup{load=derived} % loading \siemens
 \usepackage{showexpl}
-\lstset{pos=l,width=-99pt, overhang=0pt,hsep=\columnsep,vsep=\bigskipamount,rframe=single,numbers=left,numberstyle=\tiny,numbersep=.3em, xleftmargin=1em, columns=flexible, language=[LaTeX]TEX,breaklines=true,basicstyle=\normalsize\ttfamily,tabsize=3}
+%
+% The following trick is used to silence showexpl a bit, so that the
+% logs are readable...
+%
+\makeatletter
+\let\SX@Info=\relax % silence showexpl a bit...
+\makeatother
+%
+\lstset{pos=l,width=-99pt, overhang=0pt,hsep=\columnsep,vsep=\bigskipamount,
+    rframe=single,numbers=left,numberstyle=\tiny,numbersep=.3em, xleftmargin=1em,
+    columns=flexible, language=[LaTeX]TEX,breaklines=true,
+    basicstyle=\normalsize\ttfamily,tabsize=3}
 
 \usepackage{booktabs}
 \renewcommand{\arraystretch}{1.2}
@@ -62,26 +71,78 @@
 \usepackage{textcomp}
 \makeindex[title=Index of the components, intoc=true]
 
-\def\circuititem#1#2#3{\item {#2} (node[\texttt{#1}]\{#3\}) \index{#1} \par \begin{center}\begin{circuitikz} \draw (0,0) node[#1] {#3}; \end{circuitikz} \end{center}
-\par}
+%
+% draw the shape without affecting anything
+\newcommand{\drawphantomshape}[1] {%
+    {\tikz [overlay, color=blue] \path (0,0) node[#1]{};}
+}
+%% New circuit description macros
+\newcommand{\twopartbox}[2]{%
+    \leavevmode\null\par\noindent\fbox{\parbox[c]{0.3\linewidth}{#1} \parbox[c]{0.6\linewidth}{\raggedright #2}\par\noindent}%
+}
+\usepackage{xparse}
+% description of a node component:
+% optional star for fillable
+% optional: scale of the component in the entry
+% mandatory  shape name, description, node text:
+% optional between (): anchor specification list
+\NewDocumentCommand{\circuitdesc}{s O{1} m m m d()}
+{
+    \twopartbox{%
+        \begin{circuitikz}[]\draw (0,0) node[#3,scale=#2](N){#5};
+            \IfValueT{#6}{%
+                \foreach \n/\a/\d in {#6} \path(N.\n) \showcoord(\n)<\a:\d>;
+            }
+        \end{circuitikz}%
+        }{%
+        {#3, type: node\IfBooleanT{#1}{, fillable}%
+    } (\texttt{node[#3]\{#5\}}) \index{#3} }
+}
+% description of a path-style component:
+% optional: main name, if different from above
+% mandatory component name, description, comma separated alias
+% optional between (): anchor specification list
+\NewDocumentCommand{\circuitdescbip}{s o m m m d()}
+{
+\index{#3} \tikz\foreach \i in {#5} {\index{\i|see{#3}} };
+    \twopartbox{%
+        \begin{circuitikz} \draw (0,0) to[#3, name=B] (2,0);
+        \IfValueT{#6}{%
+                \foreach \n/\a/\d in {#6} \path(B.\n) \showcoord(\n)<\a:\d>;
+            }
+        \end{circuitikz}%
+        }{%
+        \texttt{\textbf{#3}, type: path-style\IfBooleanT{#1}{, fillable}%
+            \IfValueTF{#2}{%
+                , nodename: #2shape.%\drawphantomshape{#2shape}%
+            }{
+                , nodename: #3shape.%\drawphantomshape{#3shape}%
+            }
+        }%
+        \ifthenelse{\equal{#5}{}}{}{%
+        Aliases: \texttt{#5}.}%
+    }
+}
 
-\newcommand{\circuititembip}[3]{\item {#2} \index{#1}
-\tikz\foreach \i in {#3} {\index{\i|see{#1}} }; (\texttt{#1}%
-\ifthenelse{\equal{#3}{}}{%
-}{%
-, or \texttt{#3}%
-}%
-)\par \begin{center}\begin{circuitikz} \draw (0,0) to[#1] (2,0); \end{circuitikz} \end{center}\par}
 
-%\usepackage{marvosym}
-%\newcommand{\email}[2][]{\def\temp{#1}\ifx\temp\empty\Letter~\fi\href{mailto:#2}{#2}}
+%new environment for grouping descriptions
+\newenvironment{groupdesc}{\medskip\begingroup}{\endgroup\par\medskip\par\noindent}
+
+% command to show anchors: (name)<angle>
+% usage in path: \path (anchor) \coord(anchor)<60>
+\makeatletter % we use the internal circuitikz base length
+\def\showcoord(#1)<#2:#3>{%
+    node[circle, red, draw, inner sep=1pt,pin={%
+        [red, inner sep=0.5pt, font=\small,
+        pin distance=#3\pgf@circ@Rlen, pin edge={red, }%
+    ]#2:#1}](#1){}}
+\makeatother
 \newcommand{\email}[1]{\href{mailto:#1}{#1}}
-
 \long\def\comment#1{}
 
 \begin{document}
-\setcounter{secnumdepth}{3}
-\setcounter{tocdepth}{3} 
+\setcounter{secnumdepth}{4}
+\setcounter{tocdepth}{4}
 
 \def\TikZ{Ti\emph{k}Z}
 \def\Circuitikz{Circui\TikZ}
@@ -90,7 +151,10 @@
 \lstloadlanguages{TeX}
 
 \title{\Circuitikz \\{\large version \pgfcircversion{} (\pgfcircversiondate)}}
-\author{Massimo A. Redaelli (\email{m.redaelli@gmail.com})\\Stefan Lindner (\email{stefan.lindner@fau.de})\\Stefan Erhardt (\email{stefan.erhardt@fau.de})\\Romano Giannetti (\email{romano@rgtti.com})}
+\author{Massimo A. Redaelli (\email{m.redaelli@gmail.com})\\
+    Stefan Lindner (\email{stefan.lindner@fau.de})\\
+    Stefan Erhardt (\email{stefan.erhardt@fau.de})\\
+    Romano Giannetti (\email{romano.giannetti@gmail.com})}
 \date{\today}
 
 \maketitle
@@ -100,20 +164,16 @@
 \section{Introduction}
 \subsection{About}
 \Circuitikz\ was initiated by Massimo Redaelli in 2007, who was working as a research assistant at the Polytechnic University of Milan, Italy, and needed a tool for creating exercises and exams.
-After he left University in 2010 the development of \Circuitikz\ slowed down, since \LaTeX\ is mainly established in the academic world. In 2015 Stefan Lindner and Stefan Erhardt, both working as research assistants at the University of Erlangen-Nürnberg, Germany, joined the team and now maintain the project together with the initial author.
+After he left University in 2010 the development of \Circuitikz\ slowed down, since \LaTeX\ is mainly established in the academic world. In 2015 Stefan Lindner and Stefan Erhardt, both working as research assistants at the University of Erlangen-Nürnberg, Germany, joined the team and now maintain the project together with the initial author. In 2018 Romano Giannetti, full professor of Electronics at Comillas Pontifical University of Madrid, joined the team.
 
 The use of \Circuitikz\ is, of course, not limited to academic teaching. The package gets widely used by engineers for typesetting electronic circuits for articles and publications all over the world.
-
-\medskip
-
-This documentation is somewhat scant. Hopefully the authors will find the leisure to improve it some day.
 
 \subsection{Loading the package}
 
 \begin{table}[h]
 \centering
 \begin{tabular}{ll}\toprule
-	\LaTeX       					& \ConTeXt\footnotemark \\ \midrule
+	\LaTeX       	& \ConTeXt\footnotemark \\ \midrule
 	\verb!\usepackage{circuitikz}!	& \verb!\usemodule[circuitikz]!\\
 	\bottomrule
 \end{tabular}
@@ -128,11 +188,25 @@ This documentation is somewhat scant. Hopefully the authors will find the leisur
 \tikz \draw (0,0) to[R=$R_1$] (2,0);
 \end{LTXexample}
 
+\subsection{Installing a new version of the package.}
+
+The stable version of the package should come with your \LaTeX\ distribution. Downloading the files from CTAN and installing them locally is, unfortunately, a distribution-dependent task and sometime not so trivial. If you search for \texttt{local texmf tree} and the name of your distribution on \url{https://tex.stackexchange.com/} you will find a lot of hints.
+
+Anyway, the easiest way of using whichever version of \Circuitikz\ is to point to the github page \url{https://circuitikz.github.io/circuitikz/} of the project, and download the version you want. You will download a simple (biggish) file, called \texttt{circuitikz.sty}.
+
+Now you can just put this file in your local \texttt{texmf} tree, if you have one, or simply adding it into the same directory where your main file resides, and then use
+
+\begin{verbatim}
+    \usepackage[...options...]{circuitikzgit}
+\end{verbatim}
+
+instead of \texttt{circuitikz}. This is also advantageous for ``future resilience''; the authors try hard not to break backward compatibility with new versions, but sometime things happen.
+
 \subsection{Requirements}
 \begin{itemize}
- \item \texttt{tikz}, version $\ge 3$;
- \item \texttt{xstring}, not older than 2009/03/13;
- \item \texttt{siunitx}, if using \texttt{siunitx} option.
+    \item \texttt{tikz}, version $\ge 3$;
+    \item \texttt{xstring}, not older than 2009/03/13;
+    \item \texttt{siunitx}, if using \texttt{siunitx} option.
 \end{itemize}
 
 \subsection{Incompatible packages}
@@ -141,92 +215,94 @@ This documentation is somewhat scant. Hopefully the authors will find the leisur
 So, if loaded with said option, one must write \verb!(0,0) to[*R] (2,0)! and, for transistors on a path, \verb!(0,0) to[*Tnmos] (2,0)!, and so on (but \verb!(0,0) node[nmos] {}!). See example at page~\pageref{ex:compatibility}.
 
 \subsection{License}
-Copyright \copyright\ 2007--2017 Massimo Redaelli. This package is author-maintained. Permission is granted to copy, distribute and/or modify this software under the terms of the \LaTeX\ Project Public License, version 1.3.1, or the GNU Public License. This software is provided ‘as is’, without warranty of any kind, either expressed or implied, including, but not limited to, the implied warranties of merchantability and fitness for a particular purpose.
+Copyright \copyright\ 2007--2019 Massimo Redaelli. This package is author-maintained. Permission is granted to copy, distribute and/or modify this software under the terms of the \LaTeX\ Project Public License, version 1.3.1, or the GNU Public License. This software is provided ‘as is’, without warranty of any kind, either expressed or implied, including, but not limited to, the implied warranties of merchantability and fitness for a particular purpose.
 
 \subsection{Feedback}
 The easiest way to contact the authors is via the official Github repository: \url{https://github.com/circuitikz/circuitikz/issues}
 
 
-\section{Incompabilities between version}
+\subsection{Incompabilities between version}
 Here, we will provide a list of incompabilitys between different version of circuitikz. We will try to hold this list short, but sometimes it is easier to break with old syntax than including a lot of switches and compatibility layers.
 You can check the used version at your local installation using the macro \verb!\pgfcircversion{}!.
 \begin{itemize}
-\item After v0.8.4: the parameters \texttt{tripoles/american or port/aaa}, \texttt{...bbb}, \texttt{...ccc} and \texttt{...ddd} are no longer used and are silently ignored; the same stands for \texttt{nor}, \texttt{xor}, and \texttt{xnor} ports.
-\item After v0.8.4: voltage and current directions/sign (plus and minus signs in case of \texttt{american voltages} and arrows in case of \texttt{european voltages} have been rationalized with a couple of new options (see details in section~\ref{curr-and-volt}. The default case is still the same as v0.8.4.
-\item Since v0.8.2: voltage and current label directions(v<= / i<=) do NOT change the orientation of the drawn source shape anymore. Use the "invert" option to rotate the shape of the source. Furthermore, from this version on, the current label(i=) at current sources can be used independent of the regular label(l=).
-\item Since v0.7?: The label behaviour at mirrored bipoles has changes, this fixes the voltage drawing, but perhaps you have to adjust your label positions.
-\item Since v0.5.1: The parts pfet,pigfete,pigfetebulk and pigfetd are now mirrored by default. Please adjust your yscale-option to correct this.
-\item Since v0.5: New voltage counting direction, here exists an option to use the old behaviour
+    \item After v0.8.4: the parameters \texttt{tripoles/american or port/aaa}, \texttt{...bbb}, \texttt{...ccc} and \texttt{...ddd} are no longer used and are silently ignored; the same stands for \texttt{nor}, \texttt{xor}, and \texttt{xnor} ports.
+    \item After v0.8.4: voltage and current directions/sign (plus and minus signs in case of \texttt{american voltages} and arrows in case of \texttt{european voltages} have been rationalized with a couple of new options (see details in section~\ref{curr-and-volt}. The default case is still the same as v0.8.4.
+    \item Since v0.8.2: voltage and current label directions(v<= / i<=) do NOT change the orientation of the drawn source shape anymore. Use the "invert" option to rotate the shape of the source. Furthermore, from this version on, the current label(i=) at current sources can be used independent of the regular label(l=).
+    \item Since v0.7?: The label behaviour at mirrored bipoles has changes, this fixes the voltage drawing, but perhaps you have to adjust your label positions.
+    \item Since v0.5.1: The parts pfet,pigfete,pigfetebulk and pigfetd are now mirrored by default. Please adjust your yscale-option to correct this.
+    \item Since v0.5: New voltage counting direction, here exists an option to use the old behaviour
 \end{itemize}
 For older projects, you can use an older version locally using the git-version and picking the correct commit from the repository (branch gh-pages).
 
-\section{Package options}
+\subsection{Package options}
+\label{sec:package-options}
 
 \noindent Circuit people are very opinionated about their symbols. In order to meet the individual gusto you can set a bunch of package options. The standard options are what the authors like, for example you get this:
 \begin{LTXexample}[varwidth=true]
-\begin{circuitikz}
-	\draw (0,0) to[R=2<\ohm>, i=?, v=84<\volt>] (2,0) -- 
-		(2,2) to[V<=84<\volt>] (0,2) 
-		-- (0,0);
-\end{circuitikz}
+    \begin{circuitikz}
+        \draw (0,0) to[R=2<\ohm>, i=?, v=84<\volt>] (2,0) --
+        (2,2) to[V<=84<\volt>] (0,2)
+        -- (0,0);
+    \end{circuitikz}
 \end{LTXexample}
 
 Feel free to load the package with your own cultural options:
 
 \begin{center}
-\begin{tabular}{ll}\toprule
-	\LaTeX       					& \ConTeXt \\ \midrule
-	\verb!\usepackage[american]{circuitikz}!	& \verb!\usemodule[circuitikz][american]!\\
-	\bottomrule
-\end{tabular}
+    \begin{tabular}{ll}\toprule
+        \LaTeX       					& \ConTeXt \\ \midrule
+        \verb!\usepackage[american]{circuitikz}!	& \verb!\usemodule[circuitikz][american]!\\
+        \bottomrule
+    \end{tabular}
 \end{center}
 
 \begin{LTXexample}[varwidth=true,linerange={1-1,3-6}]
-\begin{circuitikz}
-	[circuitikz/voltage=american, circuitikz/resistor=american] % line not printed
-	\draw (0,0) to[R=2<\ohm>, i=?, v=84<\volt>] (2,0) -- 
-		(2,2) to[V<=84<\volt>] (0,2) 
-		-- (0,0);
-\end{circuitikz}
+    \begin{circuitikz}
+        [circuitikz/voltage=american, circuitikz/resistor=american] % line not printed
+        \draw (0,0) to[R=2<\ohm>, i=?, v=84<\volt>] (2,0) --
+        (2,2) to[V<=84<\volt>] (0,2)
+        -- (0,0);
+    \end{circuitikz}
 \end{LTXexample}
 
 \medskip{}
 
 \noindent Here is the list of all the options:
-\begin{itemize}
-	\item \texttt{europeanvoltages}: uses arrows to define voltages, and uses european-style voltage sources;
-	\item \texttt{straightvoltages}: uses arrows to define voltages, and and uses straight voltage arrows;
-	\item \texttt{americanvoltages}: uses $-$ and $+$ to define voltages, and uses american-style voltage sources;
-	\item \texttt{europeancurrents}: uses european-style current sources;
-	\item \texttt{americancurrents}: uses american-style current sources;
-	\item \texttt{europeanresistors}: uses rectangular empty shape for resistors, as per european standards;
-	\item \texttt{americanresistors}: uses zig-zag shape for resistors, as per american standards;
-	\item \texttt{europeaninductors}: uses rectangular filled shape for inductors, as per european standards;
-	\item \texttt{americaninductors}: uses "4-bumps" shape for inductors, as per american standards;
-	\item \texttt{cuteinductors}: uses my personal favorite, "pig-tailed" shape for inductors;
-	\item \texttt{americanports}: uses triangular logic ports, as per american standards;
-	\item \texttt{europeanports}: uses rectangular logic ports, as per european standards;
-	\item \texttt{americangfsurgearrester}: uses round gas filled surge arresters, as per american standards;
-	\item \texttt{europeangfsurgearrester}: uses rectangular gas filled surge arresters, as per european standards;
-	\item \texttt{european}: equivalent to \texttt{europeancurrents}, \texttt{europeanvoltages}, \texttt{europeanresistors}, \texttt{europeaninductors}, \texttt{europeanports}, \texttt{europeangfsurgearrester};
-	\item \texttt{american}: equivalent to \texttt{americancurrents}, \texttt{americanvoltages}, \texttt{americanresistors}, \texttt{americaninductors}, \texttt{americanports}, \texttt{americangfsurgearrester};
-	\item \texttt{siunitx}: integrates with \texttt{SIunitx} package. If labels, currents or voltages are of the form \verb!#1<#2>! then what is shown is actually \verb!\SI{#1}{#2}!; 
-	\item \texttt{nosiunitx}: labels are not interpreted as above;
-	\item \texttt{fulldiode}: the various diodes are drawn \emph{and} filled by default, i.e. when using styles such as \texttt{diode}, \texttt{D}, \texttt{sD}, \ldots Other diode styles can always be forced with e.g. \texttt{Do}, \texttt{D-},  \ldots
-	\item \texttt{strokediode}: the various diodes are drawn \emph{and} stroke by default, i.e. when using styles such as \texttt{diode}, \texttt{D}, \texttt{sD}, \ldots Other diode styles can always be forced with e.g. \texttt{Do}, \texttt{D*},  \ldots
-	\item \texttt{emptydiode}: the various diodes are drawn \emph{but not} filled by default, i.e. when using styles such as \texttt{D}, \texttt{sD}, \ldots Other diode styles can always be forced with e.g. \texttt{Do}, \texttt{D-},  \ldots
-	\item \texttt{arrowmos}: pmos and nmos have arrows analogous to those of pnp and npn transistors;
-	\item \texttt{noarrowmos}: pmos and nmos do not have arrows analogous to those of pnp and npn transistors;
-	\item \texttt{fetbodydiode}: draw the body diode of a FET;
-	\item \texttt{nofetbodydiode}: do not draw the body diode of a FET;
-	\item \texttt{fetsolderdot}: draw solderdot at bulk-source junction of some transistors;
-	\item \texttt{nofetsolderdot}: do not draw solderdot at bulk-source junction of some transistors;
-	\item \texttt{emptypmoscircle}: the circle at the gate of a pmos transistor gets not filled;
-	\item \texttt{lazymos}: draws lazy nmos and pmos transistors. Chip designers with huge circuits prefer this notation;
-	\item \texttt{straightlabels}: labels on bipoles are always printed straight up, i.e.~with horizontal baseline;
-	\item \texttt{rotatelabels}: labels on bipoles are always printed aligned along the bipole;
-	\item \texttt{smartlabels}: labels on bipoles are rotated along the bipoles, unless the rotation is very close to multiples of 90°;
-	\item \texttt{compatibility}: makes it possibile to load \Circuitikz\ and \TikZ\ circuit library together.
+{\sloppy % for the big lists of \texttt here
+    \begin{itemize}
+        \item \texttt{europeanvoltages}: uses arrows to define voltages, and uses european-style voltage sources;
+        \item \texttt{straightvoltages}: uses arrows to define voltages, and and uses straight voltage arrows;
+        \item \texttt{americanvoltages}: uses $-$ and $+$ to define voltages, and uses american-style voltage sources;
+        \item \texttt{europeancurrents}: uses european-style current sources;
+        \item \texttt{americancurrents}: uses american-style current sources;
+        \item \texttt{europeanresistors}: uses rectangular empty shape for resistors, as per european standards;
+        \item \texttt{americanresistors}: uses zig-zag shape for resistors, as per american standards;
+        \item \texttt{europeaninductors}: uses rectangular filled shape for inductors, as per european standards;
+        \item \texttt{americaninductors}: uses "4-bumps" shape for inductors, as per american standards;
+        \item \texttt{cuteinductors}: uses my personal favorite, "pig-tailed" shape for inductors;
+        \item \texttt{americanports}: uses triangular logic ports, as per american standards;
+        \item \texttt{europeanports}: uses rectangular logic ports, as per european standards;
+        \item \texttt{americangfsurgearrester}: uses round gas filled surge arresters, as per american standards;
+        \item \texttt{europeangfsurgearrester}: uses rectangular gas filled surge arresters, as per european standards;
+        \item \texttt{european}: equivalent to \texttt{europeancurrents}, \texttt{europeanvoltages}, \texttt{europeanresistors}, \texttt{europeaninductors}, \texttt{europeanports}, \texttt{europeangfsurgearrester};
+        \item \texttt{american}: equivalent to \texttt{americancurrents}, \texttt{americanvoltages}, \texttt{americanresistors}, \texttt{americaninductors}, \texttt{americanports}, \texttt{americangfsurgearrester};
+        \item \texttt{siunitx}: integrates with \texttt{SIunitx} package. If labels, currents or voltages are of the form \verb!#1<#2>! then what is shown is actually \verb!\SI{#1}{#2}!;
+        \item \texttt{nosiunitx}: labels are not interpreted as above;
+        \item \texttt{fulldiode}: the various diodes are drawn \emph{and} filled by default, i.e. when using styles such as \texttt{diode}, \texttt{D}, \texttt{sD}, \ldots Other diode styles can always be forced with e.g. \texttt{Do}, \texttt{D-},  \ldots
+        \item \texttt{strokediode}: the various diodes are drawn \emph{and} stroke by default, i.e. when using styles such as \texttt{diode}, \texttt{D}, \texttt{sD}, \ldots Other diode styles can always be forced with e.g. \texttt{Do}, \texttt{D*},  \ldots
+        \item \texttt{emptydiode}: the various diodes are drawn \emph{but not} filled by default, i.e. when using styles such as \texttt{D}, \texttt{sD}, \ldots Other diode styles can always be forced with e.g. \texttt{Do}, \texttt{D-},  \ldots
+        \item \texttt{arrowmos}: pmos and nmos have arrows analogous to those of pnp and npn transistors;
+        \item \texttt{noarrowmos}: pmos and nmos do not have arrows analogous to those of pnp and npn transistors;
+        \item \texttt{fetbodydiode}: draw the body diode of a FET;
+        \item \texttt{nofetbodydiode}: do not draw the body diode of a FET;
+        \item \texttt{fetsolderdot}: draw solderdot at bulk-source junction of some transistors;
+        \item \texttt{nofetsolderdot}: do not draw solderdot at bulk-source junction of some transistors;
+        \item \texttt{emptypmoscircle}: the circle at the gate of a pmos transistor gets not filled;
+        \item \texttt{lazymos}: draws lazy nmos and pmos transistors. Chip designers with huge circuits prefer this notation;
+        \item \texttt{straightlabels}: labels on bipoles are always printed straight up, i.e.~with horizontal baseline;
+        \item \texttt{rotatelabels}: labels on bipoles are always printed aligned along the bipole;
+        \item \texttt{smartlabels}: labels on bipoles are rotated along the bipoles, unless the rotation is very close to multiples of 90°;
+        \item \texttt{compatibility}: makes it possibile to load \Circuitikz\ and \TikZ\ circuit library together.
         \item Voltage directions: until v0.8.3, there was an error in the coherence between american and european voltages styles (see section~\ref{curr-and-volt} for the batteries. This has been fixed, but to guarantee backward compatibility and nasty surprises, the fix is available with new options:
             \begin{itemize}
                 \item \texttt{oldvoltagedirection}: Use old way of voltage direction having a difference between european and american direction, with wrong default labelling for batteries;
@@ -234,32 +310,460 @@ Feel free to load the package with your own cultural options:
                 \item \texttt{RPvoltages} (meaning Rising Potential voltages): the arrow is in direction of rising potential, like in \texttt{oldvoltagedirections}, but batteries and current sources are fixed to follow the passive/active standard;
                 \item \texttt{EFvoltages} (meaning Electric Field voltages): the arrow is in direction of the electric field, like in \texttt{nooldvoltagedirections}, but batteries are fixed;
             \end{itemize}
-            If none of these option are given, the package will default to \texttt{nooldvoltagedirections}, but will give a warning. The behavior is also selectable circuit by circuit with the \texttt{voltage dir} style. 
-	\item \texttt{betterproportions}\footnote{May change in the future!}: nicer proportions of transistors in comparision to resistors;
-\end{itemize}	
+            If none of these option are given, the package will default to \texttt{nooldvoltagedirections}, but will give a warning. The behavior is also selectable circuit by circuit with the \texttt{voltage dir} style.
+        \item \texttt{betterproportions}\footnote{May change in the future!}: nicer proportions of transistors in comparision to resistors;
+    \end{itemize}
 
-The old options in the singular (like \texttt{american voltage}) are still available for compatibility, but are discouraged.
 
-\medskip
+    The old options in the singular (like \texttt{american voltage}) are still available for compatibility, but are discouraged.
 
-Loading the package with no options is equivalent to my own personal liking, that is to the following options:\\
- \texttt{[nofetsolderdot,nooldvoltagedirection,europeancurrents,europeanvoltages,americanports,americanresistors,cuteinductors,europeangfsurgearrester,nosiunitx,noarrowmos,smartlabels,nocompatibility]}.
- 
-\medskip
+    \medskip
 
-In \ConTeXt\ the options are similarly specified: \texttt{current=european|american}, \texttt{voltage=european|american},  \texttt{resistor=american|european},  \texttt{inductor=cute|american|european}, \texttt{logic=american|european}, \texttt{siunitx=true|false}, \texttt{arrowmos=false|true}.
- 
+    Loading the package with no options is equivalent to the following options:
+    \texttt{[nofetsolderdot, europeancurrents, europeanvoltages, americanports,
+        americanresistors, cuteinductors, europeangfsurgearrester, nosiunitx, noarrowmos,
+    smartlabels, nocompatibility]}.
+
+    \medskip
+
+    In \ConTeXt\ the options are similarly specified: \texttt{current=european|american}, \texttt{voltage=european|american},  \texttt{resistor=american|european},  \texttt{inductor=cute|american|european}, \texttt{logic=american|european}, \texttt{siunitx=true|false}, \texttt{arrowmos=false|true}.
+
+} %\stop the \sloppy processing
+
+\section{Tutorials}
+
+To draw a circuit, you have to load the \texttt{circuitikz} package; this can be done with
+\begin{lstlisting}
+    \usepackage[siunitx, RPvoltages]{circuitikz}
+\end{lstlisting}
+somewhere in your document preamble. It will load automatically the needed packages if not already done before.
+
+\subsection{Getting started with \Circuitikz: a current shunt}
+
+Let's say we want to prepare a circuit to teach how a current shunt works; the idea is just draw a current generator, a couple of resistors in parallel, and the indication of currents and voltages for the discussion.
+
+A circuit in \Circuitikz is drawn into a \texttt{circuitikz} environment (which is really an alias for a \texttt{tikzpicture} one). In this first example we will use absolute coordinates.
+The electrical components can be divided in two big categories: the one that are bipoles and are placed along a path (also known as \texttt{to}-style component, for they're usage) and components that are nodes and can have any number of poles, or connections.
+
+Let's start with the first type of components and build a basic mesh:
+
+\begin{LTXexample}[varwidth=true]
+\begin{circuitikz}[]
+    \draw (0,0) to[isource] (0,3) -- (2,3)
+    to[R] (2,0) -- (0,0);
+\end{circuitikz}
+\end{LTXexample}
+
+The symbol for the current source can surprise somebody; this is actually the european-style symbol, and the symbols chosen reflects the default options of loaded in the package (see section~\ref{sec:package-options}). Let's change the style for now (the author of the tutorial, Romano, is European but I have used since ever American style circuit, so\dots); and while at it, let add the other branch and some label.
+
+\begin{LTXexample}[varwidth=true]
+\begin{circuitikz}[american]
+    \draw (0,0) to[isource, l=$I_0$] (0,3) -- (2,3)
+    to[R=$R_1$] (2,0) -- (0,0);
+    \draw (2,3) -- (4,3) to[R=$R_2$]
+          (4,0) -- (2,0);
+\end{circuitikz}
+\end{LTXexample}
+
+You can use a single path or multiple path when drawing your circuit, it's just a question of style (but be aware that closing path could be non-trivial, see section~\ref{sec:line-joins}), and you can use standard \TikZ\ lines (\verb|--|, \verb+|-+ or similar) for the wires. Nonetheless, sometime using the \Circuitikz\ specific \texttt{short} component for the wires can be useful, because then we can add labels and nodes at it, like for example in the following circuit.
+
+\begin{LTXexample}[varwidth=true]
+\begin{circuitikz}[american]
+    \draw (0,0) to[isource, l=$I_0$] (0,3)
+    to[short, -*, i=$I_0$] (2,3)
+    to[R=$R_1$, i=$i_1$] (2,0) -- (0,0);
+    \draw (2,3) -- (4,3)
+    to[R=$R_2$, i=$i_2$]
+    (4,0) to[short, -*] (2,0);
+\end{circuitikz}
+\end{LTXexample}
+
+One of the problems with this circuit is that we would like to have the current in a different position, such as for example on the upper side of the resistors, so that the Kirchoff's Current Law at the node is better shown to students. No problem; as you can see in section~\ref{curr-and-volt} you can use the position specifier \verb|<>^_}| after the key \texttt{i}:
+
+\begin{LTXexample}[varwidth=true]
+\begin{circuitikz}[american]
+    \draw (0,0) to[isource, l=$I_0$] (0,3)
+    to[short, -*, i=$I_0$] (2,3)
+    to[R=$R_1$, i>_=$i_1$] (2,0) -- (0,0);
+    \draw (2,3) -- (4,3)
+    to[R=$R_2$, i>_=$i_2$]
+    (4,0) to[short, -*] (2,0);
+\end{circuitikz}
+\end{LTXexample}
+
+Finally, we would like to add voltages indication for carrying out the current formulas; as the default position of the voltage signs seems a bit cramped to me, I am adding the \texttt{voltage shift} parameter to make a bit more space for it\dots
+
+\begin{LTXexample}[varwidth=true]
+\begin{circuitikz}[american, voltage shift=0.5]
+    \draw (0,0) to[isource, l=$I_0$, v=$V_0$] (0,3)
+    to[short, -*, i=$I_0$] (2,3)
+    to[R=$R_1$, i>_=$i_1$] (2,0) -- (0,0);
+    \draw (2,3) -- (4,3)
+    to[R=$R_2$, i>_=$i_2$]
+    (4,0) to[short, -*] (2,0);
+\end{circuitikz}
+\end{LTXexample}
+
+\emph{Et voilá!}. Remember that this is still \LaTeX, which means that you have done a description of your circuit, which is, in a lot of way, independent of the visualization of it. If you ever have to adapt the circuit to, say, a journal that force European style and flows instead of currents, you just change a couple of things and you have what seems a completely different diagram:
+
+\begin{LTXexample}[varwidth=true]
+\begin{circuitikz}[european, voltage shift=0.5]
+    \draw (0,0) to[isourceC, l=$I_0$, v=$V_0$] (0,3)
+    to[short, -*, f=$I_0$] (2,3)
+    to[R=$R_1$, f>_=$i_1$] (2,0) -- (0,0);
+    \draw (2,3) -- (4,3)
+    to[R=$R_2$, f>_=$i_2$]
+    (4,0) to[short, -*] (2,0);
+\end{circuitikz}
+\end{LTXexample}
+
+And finally, this is still \TikZ, so that you can freely mix other graphics element to the circuit.
+
+\begin{LTXexample}[varwidth=true]
+\begin{circuitikz}[american, voltage shift=0.5]
+    \draw (0,0) to[isource, l=$I_0$, v=$V_0$] (0,3)
+    to[short, -*, f=$I_0$] (2,3)
+    to[R=$R_1$, f>_=$i_1$] (2,0) -- (0,0);
+    \draw (2,3) -- (4,3)
+    to[R=$R_2$, f>_=$i_2$]
+    (4,0) to[short, -*] (2,0);
+    \draw[red, thick] (1.5,2.5) rectangle (4.5,3.5)
+    node[pos=0.5, above]{KCL};
+\end{circuitikz}
+\end{LTXexample}
+
+\subsection{A more complex tutorial: circuits Romano's style.}
+\begingroup % do not propagate to the rest of the manual
+
+The idea is to draw a two-stage amplifier for a lesson, or exercise, on the different qualities of BJT an MOSFET transistors.
+Notice that this is a more ``personal'' tutorial, showing a way to draw circuits that is, in the author's opinion, highly reusable and easy to do.
+The idea is using relative coordinates and named nodes as much as possible, so that changes in the circuit are easily done by changing keys numbers of position, and crucially, each block is reusable in other diagrams.
+
+First of all, let's define a handy function to show the position of nodes:
+
+\def\coord(#1){node[circle, red, draw, inner sep=1pt,pin={[red, overlay, inner sep=0.5pt, font=\tiny, pin distance=0.1cm, pin edge={red, overlay,}]45:#1}](#1){}}
+\begin{lstlisting}
+\def\coord(#1){coordinate(#1)}
+\def\coord(#1){node[circle, red, draw, inner sep=1pt,pin={[red, overlay, inner sep=0.5pt, font=\tiny, pin distance=0.1cm, pin edge={red, overlay,}]45:#1}](#1){}}
+\end{lstlisting}
+
+
+
+The idea is that you can use \verb|\coord()| instead of \verb|coordinate()| in paths, and that will draw sort of \emph{markers} showing them. For example:
+
+\begin{LTXexample}[varwidth=true]
+\begin{circuitikz}[american,]
+    \draw (0,0) node[npn](Q){};
+    \path (Q.center) \coord(center)
+    (Q.B) \coord(B) (Q.C) \coord(C)
+    (Q.E) \coord(E);
+\end{circuitikz}
+\end{LTXexample}
+
+After the circuit is drawn, simply commenting out the second definition of \verb|\coord| will hide all the markers.
+
+So let's start with the first stage transistor; given that my preferred way of drawing a MOSFET is with arrows, I'll start issuing the command \verb|\ctikzset{tripoles/mos style/arrows}|:
+
+\ctikzset{tripoles/mos style/arrows}
+\def\killdepth#1{{\raisebox{0pt}[\height][0pt]{#1}}}
+\begin{LTXexample}[varwidth=true]
+\begin{circuitikz}[american,]
+\ctikzset{tripoles/mos style/arrows}
+\def\killdepth#1{{\raisebox{0pt}[\height][0pt]{#1}}}
+    \draw (0,0) node[nmos](Q1){};
+    \draw (Q1.center) node[right]{\killdepth{Q1}};
+\end{circuitikz}
+\end{LTXexample}
+
+Another thing I like to modify with respect to the standard is the position of the arrows in transistors, which are normally midway the symbol. Issuing the following settings will moe the arrows to the end or start  of the corresponding pin.
+
+\ctikzset{tripoles/mos style/arrows,
+tripoles/npn/arrow pos=0.8,
+tripoles/pnp/arrow pos=0.8,
+tripoles/nmos/arrow pos=0.8,
+tripoles/pmos/arrow pos=0.6, }
+\begin{lstlisting}
+\ctikzset{tripoles/mos style/arrows,
+tripoles/npn/arrow pos=0.8,
+tripoles/pnp/arrow pos=0.8,
+tripoles/nmos/arrow pos=0.8,
+tripoles/pmos/arrow pos=0.6, }
+\end{lstlisting}
+
+The tricky thing about \verb|\killdepth{}| macro is a finicky details; I do not like the standard position of labels on transistors (which is near the collector/drain) so I plot the label at the right of the \texttt{center} anchor. Without the \verb|\killdepth| macro, the labels of different transistor will be adjusted so that the center of the box is at the \texttt{center} anchor, and as an effect, labels with descenders (like Q) will have a different baseline than labels without. You can see this here (it's really subtle):
+
+
+\begin{LTXexample}[varwidth=true]
+\begin{circuitikz}[american,]
+\draw (0,0) node[nmos](Q1){} ++(2,0) node[nmos](M1){};
+\draw (Q1.center) node[right]{q1};
+\draw (M1.center) node[right]{m1};
+\draw [red] (Q1.center) ++(0,-0.7ex) -- ++(3,0);
+\draw (0,-2)node[nmos](Q1){} ++(2,0) node[nmos](M1){};
+\draw (Q1.center) node[right]{\killdepth{q1}};
+\draw (M1.center) node[right]{\killdepth{m1}};
+\draw [red] (Q1.center) ++(0,-0.7ex) -- ++(3,0);
+\end{circuitikz}
+\end{LTXexample}
+
+We will start connecting the first transistor with the power supply with a couple of resistors. Notice that I am naming the nodes \texttt{GND}, \texttt{VCC} and \texttt{VEE}, so that I can use the coordinates to have all the supply rails at the same vertical position (more on this later).
+
+\begin{LTXexample}[varwidth=true]
+\begin{circuitikz}[american,]
+    \draw (0,0) node[nmos,](Q1){};
+    \draw (Q1.center) node[right]{\killdepth{Q1}};
+    \draw (Q1.S) to[R, l2^=$R_S$ and \SI{5}{k\ohm}] ++(0,-3)
+        node[vee](VEE){$V_{EE}=\SI{-10}{V}$};
+    \draw (Q1.D) to[R, l2_=$R_D$ and \SI{10}{k\ohm}] ++(0,3)
+        node[vcc](VCC){$V_{CC}=\SI{10}{V}$};
+    \draw (Q1.S) to[short] ++(2,0) to[C=$C_1$] ++(0,-1.5) node[ground](GND){};
+    \path (GND) \coord(GND) (VCC) \coord(VCC)
+        (VEE) \coord(VEE);
+\end{circuitikz}
+\end{LTXexample}
+
+After that, let's add the input part. I will use a named node here, to refer to it to add the input source. Notice how the ground node is positioned: the coordinate \texttt{(in |- GND)} is the point with the horizontal coordinate of \texttt{(in)}  and the horizontal one of \texttt{(GND)}, lining it up with the ground of the capacitor $C_1$.
+
+\begin{LTXexample}[varwidth=true]
+\begin{circuitikz}[american, scale=0.7]
+    \draw (0,0) node[nmos,](Q1){};
+    \draw (Q1.center) node[right]
+        {\killdepth{Q1}};
+    \draw (Q1.S) to[R, l2^=$R_S$ and \SI{5}{k\ohm}] ++(0,-3)
+        node[vee](VEE){$V_{EE}=\SI{-10}{V}$};
+    \draw (Q1.D) to[R, l2_=$R_D$ and \SI{10}{k\ohm}] ++(0,3)
+        node[vcc](VCC){$V_{CC}=\SI{10}{V}$};
+    \draw (Q1.S) to[short] ++(2,0) to[C=$C_1$] ++(0,-1.5) node[ground](GND){};
+    \draw (Q1.G) to[short] ++(-1,0)
+        \coord (in) to[R, l2^=$R_G$ and \SI{1}{M\ohm}]
+        (in |- GND) node[ground]{};
+    \draw (in) to[C, l_=$C_2$,*-o] ++(-1.5,0) node[left](vi1){$v_i=v_{i1}$};
+\end{circuitikz}
+\end{LTXexample}
+
+Notice that the only absolute coordinate here is the first one, \texttt{(0,0)}; so the elements are connected with relative movements and can be moved by just changing one number (for example, changing the \verb| to[C=$C_1$] ++(0,-1.5) | will move \emph{all} the grounds down).
+
+This is the final circuit, with the nodes still marked:
+\begin{lstlisting}
+\tikzset{blockdef/.style={%
+    {Straight Barb[harpoon, reversed, right, length=0.2cm]}-{Straight Barb[harpoon, reversed, left, length=0.2cm]},
+    blue, %densely dotted,
+}}
+\def\killdepth#1{{\raisebox{0pt}[\height][0pt]{#1}}}
+\def\coord(#1){coordinate(#1)}
+\def\coord(#1){node[circle, red, draw, inner sep=1pt,pin={[red, overlay, inner sep=0.5pt, font=\tiny, pin distance=0.1cm, pin edge={red, overlay,}]45:#1}](#1){}}
+\begin{circuitikz}[american, ]
+    \draw (0,0) node[nmos,](Q1){};
+    \draw (Q1.center) node[right]{\killdepth{Q1}};
+    \draw (Q1.S) to[R, l2^=$R_S$ and \SI{5}{k\ohm}] ++(0,-3) node[vee](VEE){$V_{EE}=\SI{-10}{V}$}; %define VEE level
+    \draw (Q1.S) to[short] ++(2,0) to[C=$C_1$] ++(0,-1.5) node[ground](GND){};
+    \draw (Q1.G) to[short] ++(-1,0) \coord (in) to[R, l2^=$R_G$ and \SI{1}{M\ohm}] (in |- GND) node[ground]{};
+    \draw (in) to[C, l_=$C_2$,*-o] ++(-1.5,0) node[left](vi1){$v_i=v_{i1}$};
+    \draw (Q1.D) to[R, l2_=$R_D$ and \SI{10}{k\ohm}] ++(0,3) node[vcc](VCC){$V_{CC}=\SI{10}{V}$};
+    \draw (Q1.D) to[short, -o] ++(1,0) node[right](vo1){$v_{o1}$};
+    %
+    \path (vo1) -- ++(3,0) \coord(bjt);
+    %
+    \draw (bjt) node[npn, ](Q2){};
+    \draw (Q2.center) node[right]{\killdepth{Q2}};
+    \draw (Q2.B) to[short, -o] ++(-0.5,0) node[left](vi2){$v_{12}$};
+    \draw (Q2.E) to[R,l2^=$R_E$ and \SI{9.3}{k\ohm}] (Q2.E |- VEE) node[vee]{};
+    \draw (Q2.E) to[short, -o] ++(1,0) node[right](vo2){$v_{o2}$};
+    \draw (Q2.C) to[short] (Q2.C |- VCC) node[vcc]{};
+    %
+    \path (vo2) ++(1.5,0) \coord(load);
+    \draw (load) to[C=$C_3$] ++(1,0) \coord(tmp) to[R=$R_L$] (tmp |- GND) node[ground]{};
+    \draw [densely dashed] (vo2) -- (load);
+    %
+    \draw [densely dashed] (vo1) -- (vi2);
+    %
+    \draw [blockdef](vi1|-VEE) ++(0,-2) \coord(tmp)
+          -- node[midway, fill=white]{bloque 1} (vo1|- tmp);
+          \draw [blockdef] (vi2|-VEE) ++(0,-2) \coord(tmp)
+          -- node[midway, fill=white]{bloque 2} (vo2|- tmp);
+
+\end{circuitikz}
+\end{lstlisting}
+
+\tikzset{blockdef/.style={%
+    {Straight Barb[harpoon, reversed, right, length=0.2cm]}-{Straight Barb[harpoon, reversed, left, length=0.2cm]},
+    blue, %densely dotted,
+}}
+\def\killdepth#1{{\raisebox{0pt}[\height][0pt]{#1}}}
+\def\coord(#1){coordinate(#1)}
+\def\coord(#1){node[circle, red, draw, inner sep=1pt,pin={[red, overlay, inner sep=0.5pt, font=\tiny, pin distance=0.1cm, pin edge={red, overlay,}]45:#1}](#1){}}
+\begin{circuitikz}[american, ]
+    \draw (0,0) node[nmos,](Q1){};
+    \draw (Q1.center) node[right]{\killdepth{Q1}};
+    \draw (Q1.S) to[R, l2^=$R_S$ and \SI{5}{k\ohm}] ++(0,-3) node[vee](VEE){$V_{EE}=\SI{-10}{V}$}; %define VEE level
+    \draw (Q1.S) to[short] ++(2,0) to[C=$C_1$] ++(0,-1.5) node[ground](GND){};
+    \draw (Q1.G) to[short] ++(-1,0) \coord (in) to[R, l2^=$R_G$ and \SI{1}{M\ohm}] (in |- GND) node[ground]{};
+    \draw (in) to[C, l_=$C_2$,*-o] ++(-1.5,0) node[left](vi1){$v_i=v_{i1}$};
+    \draw (Q1.D) to[R, l2_=$R_D$ and \SI{10}{k\ohm}] ++(0,3) node[vcc](VCC){$V_{CC}=\SI{10}{V}$};
+    \draw (Q1.D) to[short, -o] ++(1,0) node[right](vo1){$v_{o1}$};
+    %
+    \path (vo1) -- ++(3,0) \coord(bjt);
+    %
+    \draw (bjt) node[npn, ](Q2){};
+    \draw (Q2.center) node[right]{\killdepth{Q2}};
+    \draw (Q2.B) to[short, -o] ++(-0.5,0) node[left](vi2){$v_{12}$};
+    \draw (Q2.E) to[R,l2^=$R_E$ and \SI{9.3}{k\ohm}] (Q2.E |- VEE) node[vee]{};
+    \draw (Q2.E) to[short, -o] ++(1,0) node[right](vo2){$v_{o2}$};
+    \draw (Q2.C) to[short] (Q2.C |- VCC) node[vcc]{};
+    %
+    \path (vo2) ++(1.5,0) \coord(load);
+    \draw (load) to[C=$C_3$] ++(1,0) \coord(tmp) to[R=$R_L$] (tmp |- GND) node[ground]{};
+    \draw [densely dashed] (vo2) -- (load);
+    %
+    \draw [densely dashed] (vo1) -- (vi2);
+    %
+    \draw [blockdef](vi1|-VEE) ++(0,-2) \coord(tmp)
+          -- node[midway, fill=white]{bloque 1} (vo1|- tmp);
+          \draw [blockdef] (vi2|-VEE) ++(0,-2) \coord(tmp)
+          -- node[midway, fill=white]{bloque 2} (vo2|- tmp);
+
+\end{circuitikz}
+
+
+\endgroup
+
+
+
 \section{The components}
 
-Here follows the list of all the shapes defined by Circui\TikZ. These are all \texttt{pgf} nodes, so they are usable in both \texttt{pgf} and \TikZ.
 
-\subsubsection*{Drawing normal components}
-Normal components (monopoles, multipoles) can be drawn at a specified point with this syntax, where \verb!#1! is the name of the component:
-\begin{verbatim}
-\begin{center}\begin{circuitikz} \draw 
-   (0,0) node[#1,#2] (#3) {#4}
-; \end{circuitikz} \end{center}
-\end{verbatim}
+Components in \Circuitikz{} come in two forms: a path-style form, to be used in \texttt{to} path specifications, and node-style, which will be instantiated by a \texttt{node} specification.
+
+\subsection{Path-style components}
+
+The path-style components are used as in the following way:
+\begin{lstlisting}
+    \begin{circuitikz}
+    \draw (0,0) to[#1=#2, #options] (2,0);
+    \end{circuitikz}
+\end{lstlisting}
+where \verb|#1| is the name of the component, \verb|#2| is an (optional) label, and \verb|options| are optional labels, annotations, style specifier that will be explained in the rest of the manual.
+
+Transistors and some other node-style components can also be placed using the syntax for bipoles. See section~\ref{sec:transasbip}.
+
+Most path-style components can be used as a node-style components; to access them, you add a \texttt{shape} to the main name of component (for example, \texttt{diodeshape}). Such a ``node name'' is specified in the description of each component.
+
+\subsubsection{Anchors}
+
+Normally, path-style component do not need anchors, although the have them for your to use. You have the basic ``geographical'' anchors (defined for an horizontal element):
+\begin{center}
+    \begin{circuitikz}[
+        ]
+        \draw (0,0) to[resistor, name=R] ++(2,0);
+        \path (R.center) \showcoord(center)<-90:0.3>;
+        \path (R.left) \showcoord(left)<135:0.3>;
+        \path (R.right) \showcoord(right)<45:0.3>;
+        \draw (5,0) to[resistor, name=R] ++(2,0);
+        \foreach \n/\a/\d in {north/90/0.3, north east/45/0.3, east/0/0.5,
+            south east/-45/0.3, south/-90/0.3, south west/-135/0.3,
+        west/180/0.5, north west/135/0.3}
+        \path (R.\n) \showcoord(\n)<\a:\d>;
+        \draw (10,-1) to[resistor, name=R] ++(0,2);
+        \foreach \n/\a/\d in {n/135/0.3, e/45/0.3,
+        s/-45/0.3, w/-135/0.3}
+        \path (R.\n) \showcoord(\n)<\a:\d>;
+    \end{circuitikz}
+\end{center}
+In the case of bipoles, also shortened geographical anchors exists. In the description, it will be shown when a bipole has additional anchors. To use the anchors, just give a name to the bipole element.
+
+\begin{LTXexample}[varwidth=true]
+\begin{circuitikz}
+    \draw (0,0) to[potentiometer, name=P, mirror] ++(0,2);
+    \draw (P.wiper) to[L] ++(2,0);
+\end{circuitikz}
+\end{LTXexample}
+
+Alternatively, that you can use the shape form, and then use the \texttt{left} and \texttt{right} anchors to do your connections.
+
+\begin{LTXexample}[varwidth=true]
+\begin{circuitikz}
+    \draw (0,0) node[potentiometershape, rotate=-90](P){};
+    \draw (P.wiper) to[L] ++(2,0);
+\end{circuitikz}
+\end{LTXexample}
+
+\subsubsection{Customization}
+\label{sec:components-size}
+
+
+Pretty much all Circui\TikZ\ relies heavily on \texttt{pgfkeys} for value handling and configuration. Indeed, at the beginning of \texttt{circuitikz.sty} and in the file \texttt{pfgcirc.define.tex}  a series of key definitions can be found that modify all the graphical characteristics of the package.
+
+All can be varied using the \verb!\ctikzset! command, anywhere in the code.
+
+\paragraph{Components size}
+Perhaps the most important parameter is \verb!\circuitikzbasekey/bipoles/length! (default \SI{1.4}{cm}), which
+can be interpreted as the length of a resistor (including reasonable connections): all other lenghts are relative to this value. For instance:
+
+\begin{LTXexample}[pos=t,varwidth=true]
+\ctikzset{bipoles/length=1.4cm}
+\begin{circuitikz}[scale=1.2]\draw
+  (0,0) node[anchor=east] {B}
+        to[short, o-*] (1,0)
+        to[R=20<\ohm>, *-*] (1,2)
+        to[R=10<\ohm>, v=$v_x$] (3,2) -- (4,2)
+        to[cI=$\frac{\si{\siemens}}{5} v_x$, *-*] (4,0) -- (3,0)
+        to[R=5<\ohm>, *-*] (3,2)
+  (3,0) -- (1,0)
+  (1,2) to[short, -o] (0,2) node[anchor=east]{A}
+;\end{circuitikz}
+\end{LTXexample}
+
+\begin{LTXexample}[pos=t,varwidth=true]
+\ctikzset{bipoles/length=.8cm}
+\begin{circuitikz}[scale=1.2]\draw
+  (0,0) node[anchor=east] {B}
+        to[short, o-*] (1,0)
+        to[R=20<\ohm>, *-*] (1,2)
+        to[R=10<\ohm>, v=$v_x$] (3,2) -- (4,2)
+        to[cI=$\frac{\siemens}{5} v_x$, *-*] (4,0) -- (3,0)
+        to[R=5<\ohm>, *-*] (3,2)
+  (3,0) -- (1,0)
+  (1,2) to[short, -o] (0,2) node[anchor=east]{A}
+;\end{circuitikz}
+\end{LTXexample}
+
+\paragraph{Thickness of the lines} (globally)
+
+You can change the thickness of the components lines with the parameter \texttt{bipoles/thickness} (default 2). The number is relative to the thickness of the normal lines leading to the component.
+
+\begin{LTXexample}[varwidth=true]
+    \ctikzset{bipoles/thickness=1}
+    \tikz \draw (0,0) to[C=1<\farad>] (2,0); \par
+    \ctikzset{bipoles/thickness=4}
+    \tikz \draw (0,0) to[C=1<\farad>] (2,0);
+\end{LTXexample}
+
+\paragraph{Shape of the components} (on a per-component-class basis)
+
+The shape of the components are adjustable with a lot of parameters; in this manual we will comment the main ones, but you can look into the source files specified above to find more.
+\begin{LTXexample}[varwidth=true]
+    \tikz \draw (0,0) to[R=1<\ohm>] (2,0); \par
+    \ctikzset{bipoles/resistor/height=.6}
+    \tikz \draw (0,0) to[R=1<\ohm>] (2,0);
+\end{LTXexample}
+
+
+\subsubsection{Descriptions}
+
+The typical entry in the component list will be like this:
+
+\circuitdescbip{resistor}{resistor, american style}{R, american resistor}
+\circuitdescbip[potentiometer]{pR}{potentiometer, american style}{pR, american potentiometer}( wiper/0/0.3 )
+
+where you have all the needed information about the bipole, with also no-standard anchors.
+
+\subsection{Node-style components}
+Node-style components (monopoles, multipoles) can be drawn at a specified point with this syntax, where \verb!#1! is the name of the component:
+\begin{lstlisting}
+\begin{circuitikz}
+    \draw (0,0) node[#1,#2] (#3) {#4};
+\end{circuitikz}
+\end{lstlisting}
 \noindent
 Explanation of the parameters:\\
 \texttt{\#1}: component name\footnote{For using bipoles as nodes, the name of the node is \texttt{\#1shape}.} (mandatory)\\
@@ -267,164 +771,213 @@ Explanation of the parameters:\\
 \texttt{\#3}: name of an anchor (optional)\\
 \texttt{\#4}: text written to the text anchor of the component (optional)\\
 
-\begin{framed}
-	\noindent \textbf{Note for \TikZ\ newbies:}	Nodes must have curly brackets at the end, even when empty. An optional anchor (\texttt{\#3}) can be defined within round brackets to be addressed again later on. And please don't forget the semicolon to terminate the \texttt{\textbackslash draw} command.
-\end{framed}
-
-\subsubsection*{Drawing bipoles/two-ports}
-Bipoles/Two-ports (plus some special components) can be drawn between two points using the following command:
-
-\begin{verbatim}
-\begin{center}\begin{circuitikz} \draw 
-   (0,0) to[#1,#2] (2,0)
-; \end{circuitikz} \end{center}
-\end{verbatim}
-\noindent
-Explanation of the parameters:\\
-\texttt{\#1}: component name (mandatory)\\
-\texttt{\#2}: list of comma separated options (optional)\\
-\noindent
-Transistors and some other components can also be placed using the syntax for bipoles. See section~\ref{sec:transasbip}.
+Most path-style components can be used as a node-style components; to access them, you add a \texttt{shape} to the main name of component (for example, \texttt{diodeshape}). Such a ``node name'' is specified in the description of each component.
 
 \begin{framed}
-	If using the \verb!\tikzexternalize! feature, as of Ti\emph{k}z 2.1 all pictures must end with \verb!\end{tikzpicture}!. Thus you \emph{cannot} use the \verb!circuitikz! environment.
-	
-	Which is ok: just use the environment \verb!tikzpicture!: everything will work there just fine.
+	\noindent \textbf{Notice:}	Nodes must have curly brackets at the end, even when empty. An optional anchor (\texttt{\#3}) can be defined within round brackets to be addressed again later on. And please don't forget the semicolon to terminate the \texttt{\textbackslash draw} command.
 \end{framed}
+
+\begin{framed}
+	\noindent\textbf{Also notice:} If using the \verb!\tikzexternalize! feature, as of Ti\emph{k}z 2.1 all pictures must end with \verb!\end{tikzpicture}!. Thus you \emph{cannot} use the \verb!circuitikz! environment.
+
+	\noindent Which is ok: just use the environment \verb!tikzpicture!: everything will work there just fine.
+\end{framed}
+
+\subsubsection{Mirroring and flipping}
+
+Mirroring and flipping of node components is obtained by using the \TikZ\ keys \texttt{xscale} and \texttt{yscale}. Notice that this parameters affect also text labels, so they need to be un-scaled by hand.
+
+\begin{LTXexample}[varwidth=true]
+\begin{circuitikz}
+    \draw (0,2)
+        node[rground, yscale=-1] {%
+        \scalebox{1}[-1]{ GND}}
+        to[R=$R_1$] (0,0)
+        node[sground] {};
+\end{circuitikz}
+\end{LTXexample}
+
+\subsubsection{Anchors}
+
+Node components anchors are variable across the various kind of components, so they will described better after each category is presented in the manual.
+
+\subsubsection{Descriptions}
+
+The typical entry in the component list will be like this:
+\begin{groupdesc}
+    \circuitdesc{cute spdt down arrow}{Cute spdt down with arrow}{}
+    \circuitdesc{plain amp}{Plain amplifier}{}( out/45/0.3 )
+\end{groupdesc}
+
+All the shapes defined by Circui\TikZ. These are all \texttt{pgf} nodes, so they are usable in both \texttt{pgf} and \TikZ.
 
 \subsection{Monopoles}
-\begin{itemize}
-	\circuititem{ground}{Ground}{}
-	\circuititem{rground}{Reference ground}{}
-	\circuititem{sground}{Signal ground}{}
-	\circuititem{tground}{Thicker ground}{}
-	\circuititem{nground}{Noiseless ground}{}
-	\circuititem{pground}{Protective ground}{}
-	\circuititem{cground}{Chassis ground\footnote{These last three were contributed by Luigi «Liverpool»)}}{}
-	\circuititem{antenna}{Antenna}{}
-	\circuititem{rxantenna}{Receiving antenna}{}
-	\circuititem{txantenna}{Transmitting antenna}{}
-	\circuititem{tlinestub}{Transmission line stub}{}
-	\circuititem{vcc}{VCC/VDD}{}
-	\circuititem{vee}{VEE/VSS}{}
-	\circuititem{match}{match}{}
-	%\circuititem{oscillator}{LO\footnote{These last three come from Stefan Erhardt's contribution of block diagram components}}{}
-\end{itemize}
+
+For the monopoles, the \texttt{center} anchor is put on the connecting point of the symbol, so that you can use them directly in a \texttt{path} specification.
+
+\begin{groupdesc}
+    \circuitdesc{ground}{Ground}{}( center/0/0.3 )
+    \circuitdesc{rground}{Reference ground}{}
+    \circuitdesc{sground}{Signal ground}{}
+    \circuitdesc{tground}{Thicker ground}{}
+    \circuitdesc{nground}{Noiseless ground}{}
+    \circuitdesc{pground}{Protective ground}{}
+    \circuitdesc{cground}{Chassis ground\footnotemark}{}
+    \footnotetext{These last three were contributed by Luigi «Liverpool»)}
+    \circuitdesc{antenna}{Antenna}{}( center/0/0.3 )
+    \circuitdesc{rxantenna}{Receiving antenna}{}
+    \circuitdesc{txantenna}{Transmitting antenna}{}
+    \circuitdesc{tlinestub}{Transmission line stub}{}
+    \circuitdesc{vcc}{VCC/VDD}{}
+    \circuitdesc{vee}{VEE/VSS}{}
+    \circuitdesc{match}{match}{}
+    %\circuitdesc{oscillator}{LO\footnote{These last three come from Stefan Erhardt's contribution of block diagram components}}{}
+\end{groupdesc}
 
 
 \subsection{Bipoles}
 
 \subsubsection{Instruments}
-\begin{itemize}
-	\circuititembip{ammeter}{Ammeter}{}
-	\circuititembip{voltmeter}{Voltmeter}{}
-	\circuititembip{ohmmeter}{Ohmmeter}{}
-\end{itemize}	
+\begin{groupdesc}
+    \circuitdescbip{ammeter}{Ammeter}{}
+    \circuitdescbip{voltmeter}{Voltmeter}{}
+    \circuitdescbip{ohmmeter}{Ohmmeter}{}
+\end{groupdesc}
 
-\subsubsection{Basic resistive bipoles}
-\begin{itemize}
-	\circuititembip{short}{Short circuit}{}
-	\circuititembip{open}{Open circuit}{}
-	
-	\circuititembip{lamp}{Lamp}{}
-	\circuititembip{bulb}{Bulb}{}
-	\circuititembip{generic}{Generic (symmetric) bipole}{}
-	\circuititembip{tgeneric}{Tunable generic bipole}{}
-	\circuititembip{ageneric}{Generic asymmetric bipole}{}
-	\circuititembip{fullgeneric}{Generic asymmetric bipole (full)}{}
-	\circuititembip{tfullgeneric}{Tunable generic  bipole (full)}{}
-	\circuititembip{memristor}{Memristor}{Mr}
-\end{itemize}	
+\subsubsection{Resistive bipoles}
 
-\subsubsection{Resistors and the like}
+\begin{groupdesc}
+    \circuitdescbip{short}{Short circuit}{}
+    \circuitdescbip{open}{Open circuit}{}
+    \circuitdescbip{lamp}{Lamp}{}
+    \circuitdescbip{bulb}{Bulb}{}
+    \circuitdescbip{generic}{Generic (symmetric) bipole}{}
+    \circuitdescbip{tgeneric}{Tunable generic bipole}{}
+    \circuitdescbip{ageneric}{Generic asymmetric bipole}{}
+    \circuitdescbip{fullgeneric}{Generic asymmetric bipole (full)}{}
+    \circuitdescbip{tfullgeneric}{Tunable generic  bipole (full)}{}
+    \circuitdescbip{memristor}{Memristor}{Mr}
+\end{groupdesc}
 
 If (default behaviour) \texttt{americanresistors} option is active (or the style \texttt{[american resistors]} is used), the resistor is displayed as follows:
-\begin{itemize}
-  	\ctikzset{resistor=american}
-  	\circuititembip{R}{Resistor}{american resistor}
-	\circuititembip{vR}{Variable resistor}{variable american resistor}
-	\circuititembip{pR}{Potentiometer}{american potentiometer}
-	\circuititembip{sR}{Resisitive sensor}{american resisitive sensor}
-\end{itemize}
+\begin{groupdesc}
+    \ctikzset{resistor=american}
+    \circuitdescbip[resistor]{R}{Resistor}{american resistor}
+    \circuitdescbip[vresistor]{vR}{Variable resistor}{variable american resistor}
+    \circuitdescbip[potentiometer]{pR}{Potentiometer}{american potentiometer}( wiper/0/0.3 )
+    \circuitdescbip[resistivesens]{sR}{Resisitive sensor}{american resisitive sensor}( label/0/0.3 )
+\end{groupdesc}
 
 If  instead \texttt{europeanresistors} option is active (or the style \texttt{[european resistors]} is used), the resistors, variable resistors and potentiometers are displayed as follows:
-\begin{itemize}
-  	\ctikzset{resistor=european}
-  	\circuititembip{R}{Resistor}{european resistor}
-	\circuititembip{vR}{Variable resistor}{variable european resistor}
-	\circuititembip{pR}{Potentiometer}{european potentiometer}
-	\circuititembip{sR}{Resistive sensor}{european resistive sensor}
-	\ctikzset{resistor=american} % reset default
-\end{itemize}
+\begin{groupdesc}
+    \ctikzset{resistor=european}
+    \circuitdescbip[generic]{R}{Resistor}{european resistor}
+    \circuitdescbip[tgeneric]{vR}{Variable resistor}{variable european resistor}
+    \circuitdescbip[genericpotentiometer]{pR}{Potentiometer}{european potentiometer}( wiper/0/0.3 )
+    \circuitdescbip[thermistor]{sR}{Resistive sensor}{european resistive sensor}( label/0/0.3 )
+    \ctikzset{resistor=american} % reset default
+\end{groupdesc}
 
 Other miscellaneous resistor-like devices:
-\begin{itemize}
-  	\circuititembip{varistor}{Varistor}{}
-	\circuititembip{phR}{Photoresistor}{photoresistor}
-	\circuititembip{thermocouple}{Thermocouple}{}
-	\circuititembip{thR}{Thermistor}{thermistor}
-	\circuititembip{thRp}{PTC thermistor}{thermistor ptc}
-	\circuititembip{thRn}{NTC thermistor}{thermistor ntc}
-	\circuititembip{fuse}{Fuse}{}
-	\circuititembip{afuse}{Asymmetric fuse}{asymmetric fuse}
-\end{itemize}
+\begin{groupdesc}
+    \circuitdescbip{varistor}{Varistor}{}
+    \circuitdescbip[photoresistor]{phR}{Photoresistor}{photoresistor}
+    \circuitdescbip{thermocouple}{Thermocouple}{}
+    \circuitdescbip[thermistor]{thR}{Thermistor}{thermistor}
+    \circuitdescbip[thermistorptc]{thRp}{PTC thermistor}{thermistor ptc}
+    \circuitdescbip[thermistorntc]{thRn}{NTC thermistor}{thermistor ntc}
+    \circuitdescbip{fuse}{Fuse}{}
+    \circuitdescbip{afuse}{Asymmetric fuse}{asymmetric fuse}
+\end{groupdesc}
+
+\paragraph{Generic sensors anchors}
+Generic sensors have an extra label to help positioning the type of dependence, if needed:
+
+\begin{LTXexample}[varwidth=true]
+\begin{circuitikz}
+   \draw (0,2) to[sR, l=$R$, name=mySR] ++(3,0);
+   \node [font=\tiny, right] at(mySR.label) {-t\si{\degree}};
+   \draw (0,0) to[sL, l=$L$, name=mySL] ++(3,0);
+   \node [draw, circle, inner sep=2pt] at(mySL.label) {};
+\end{circuitikz}
+\end{LTXexample}
+
+The anchor is positioned just on the corner of the segmented line crossing the component.
+
 
 \subsubsection{Diodes and such}
-\begin{itemize}
-	\circuititembip{empty diode}{Empty diode}{Do}
-	\circuititembip{empty Schottky diode}{Empty Schottky diode}{sDo}
-	\circuititembip{empty Zener diode}{Empty Zener diode}{zDo}
-	\circuititembip{empty ZZener diode}{Empty ZZener diode}{zzDo}
-	\circuititembip{empty tunnel diode}{Empty tunnel diode}{tDo}
-	\circuititembip{empty photodiode}{Empty photodiode}{pDo}
-	\circuititembip{empty led}{Empty led}{leDo}
-	\circuititembip{empty varcap}{Empty varcap}{VCo}
-        \circuititembip{empty bidirectionaldiode}{Empty bidirectionaldiode}{biDo}
-        \circuititembip{full diode}{Full diode}{D*}
-	\circuititembip{full Schottky diode}{Full Schottky diode}{sD*}
-	\circuititembip{full Zener diode}{Full Zener diode}{zD*}
-	\circuititembip{full ZZener diode}{Full ZZener diode}{zzD*}
-	\circuititembip{full tunnel diode}{Full tunnel diode}{tD*}
-	\circuititembip{full photodiode}{Full photodiode}{pD*}
-	\circuititembip{full led}{Full led}{leD*}
-	\circuititembip{full varcap}{Full varcap}{VC*}
-        \circuititembip{full bidirectionaldiode}{Full bidirectionaldiode}{biD*}
-        \circuititembip{stroke diode}{Stroke diode}{D-}
-	\circuititembip{stroke Schottky diode}{Stroke Schottky diode}{sD-}
-	\circuititembip{stroke Zener diode}{Stroke Zener diode}{zD-}
-	\circuititembip{stroke ZZener diode}{Stroke ZZener diode}{zzD-}
-	\circuititembip{stroke tunnel diode}{Stroke tunnel diode}{tD-}
-	\circuititembip{stroke photodiode}{Stroke photodiode}{pD-}
-	\circuititembip{stroke led}{Stroke led}{leD-}
-	\circuititembip{stroke varcap}{Stroke varcap}{VC-}
-	\end{itemize}
+\begin{groupdesc}
+    \circuitdescbip[emptydiode] {empty diode}{Empty diode}{Do}
+    \circuitdescbip[emptysdiode]{empty Schottky diode}{Empty Schottky diode}{sDo}
+    \circuitdescbip[emptyzdiode]{empty Zener diode}{Empty Zener diode}{zDo}
+    \circuitdescbip[emptyzzdiode]{empty ZZener diode}{Empty ZZener diode}{zzDo}
+    \circuitdescbip[emptytdiode]{empty tunnel diode}{Empty tunnel diode}{tDo}
+    \circuitdescbip[emptypdiode]{empty photodiode}{Empty photodiode}{pDo}
+    \circuitdescbip[emptylediode]{empty led}{Empty led}{leDo}
+    \circuitdescbip[emptyvarcap]{empty varcap}{Empty varcap}{VCo}
+    \circuitdescbip[emptybidirectionaldiode]{empty bidirectionaldiode}{Empty bidirectionaldiode}{biDo}
+    \circuitdescbip[fulldiode] {full diode}{Full diode}{D*}
+    \circuitdescbip[fullsdiode]{full Schottky diode}{Full Schottky diode}{sD*}
+    \circuitdescbip[fullzdiode]{full Zener diode}{Full Zener diode}{zD*}
+    \circuitdescbip[fullzzdiode]{full ZZener diode}{Full ZZener diode}{zzD*}
+    \circuitdescbip[fulltdiode]{full tunnel diode}{Full tunnel diode}{tD*}
+    \circuitdescbip[fullpdiode]{full photodiode}{Full photodiode}{pD*}
+    \circuitdescbip[fulllediode]{full led}{Full led}{leD*}
+    \circuitdescbip[fullvarcap]{full varcap}{Full varcap}{VC*}
+    \circuitdescbip[fullbidirectionaldiode]{full bidirectionaldiode}{Full bidirectionaldiode}{biD*}
+\end{groupdesc}
 
-\subsubsection{Other tripole-like diodes}\label{sec:othertrip} The following tripoles are entered with the usual command of the form 
-\begin{itemize}
-	\circuititembip{triac}{Standard triac (shape depends on package option)}{Tr}
-	\circuititembip{empty triac}{Empty triac}{Tro}
-	\circuititembip{full triac}{Full triac}{Tr*}
-	\circuititembip{thyristor}{Standard thyristor (shape depends on package option)}{Ty}
-	\circuititembip{empty thyristor}{Empty thyristor}{Tyo}
-	\circuititembip{full thyristor}{Full thyristor}{Ty*}
-	\circuititembip{stroke thyristor}{Stroke thyristor}{Ty-}
-\end{itemize}
-See chapter \ref{bipole-naming} for information how access the third connector
+These shapes has no exact node-style counterpart, because the stroke line is build upon the empty variants:
+
+\begin{groupdesc}
+    \circuitdescbip[emptydiode] {stroke diode}{Stroke diode}{D-}
+    \circuitdescbip[emptysdiode]{stroke Schottky diode}{Stroke Schottky diode}{sD-}
+    \circuitdescbip[emptyzdiode]{stroke Zener diode}{Stroke Zener diode}{zD-}
+    \circuitdescbip[emptyzzdiode]{stroke ZZener diode}{Stroke ZZener diode}{zzD-}
+    \circuitdescbip[emptytdiode]{stroke tunnel diode}{Stroke tunnel diode}{tD-}
+    \circuitdescbip[emptypdiode]{stroke photodiode}{Stroke photodiode}{pD-}
+    \circuitdescbip[emptylediode]{stroke led}{Stroke led}{leD-}
+    \circuitdescbip[emptyvarcap]{stroke varcap}{Stroke varcap}{VC-}
+\end{groupdesc}
+
+\subsubsection{Other tripole-like diodes}\label{sec:othertrip} The following tripoles are entered with the usual command of the form
+\begin{groupdesc}
+    \circuitdescbip[emptytriac]{triac}{Standard triac (shape depends on package option)}{Tr}( G/0/0.3 )
+    \circuitdescbip[emptytriac]{empty triac}{Empty triac}{Tro}( gate/0/0.3 )
+    \circuitdescbip[fulltriac]{full triac}{Full triac}{Tr*}
+    \circuitdescbip[emptythyristor]{thyristor}{Standard thyristor (shape depends on package option)}{Ty}
+    \circuitdescbip[emptythyristor]{empty thyristor}{Empty thyristor}{Tyo}
+    \circuitdescbip[fullthyristor]{full thyristor}{Full thyristor}{Ty*}
+    \circuitdescbip[emptythyristor]{stroke thyristor}{Stroke thyristor}{Ty-}
+\end{groupdesc}
+
+\paragraph{Triacs anchors}
+
+When inserting a thrystor, a triac or a potentiometer, one needs to refer to the third node--gate (\texttt{gate} or \texttt{G}) for the former two; wiper (\texttt{wiper} or \texttt{W}) for the latter one. This is done by giving a name to the bipole:
+\label{bipole-naming}
+\begin{LTXexample}[varwidth=true]
+\begin{circuitikz} \draw
+  (0,0) to[Tr, n=TRI] (2,0)
+        to[pR, n=POT] (4,0);
+  \draw[dashed] (TRI.G) -| (POT.wiper)
+;\end{circuitikz}
+\end{LTXexample}
+
 
 \begin{framed}
 The package options \texttt{fulldiode}, \texttt{strokediode}, and \texttt{emptydiode} (and the styles \texttt{[full diodes]}, \texttt{[stroke diodes]}, and \texttt{[empty diodes]}) define which shape will be used by abbreviated commands such that \texttt{D}, \texttt{sD}, \texttt{zD}, \texttt{zzD}, \texttt{tD}, \texttt{pD}, \texttt{leD}, \texttt{VC}, \texttt{Ty},\texttt{Tr}(no stroke symbol available!).
 \end{framed}
 
 
-\begin{itemize}
-	\circuititembip{squid}{Squid}{}
-	\circuititembip{barrier}{Barrier}{}
-\end{itemize}
+\begin{groupdesc}
+    \circuitdescbip{squid}{Squid}{}
+    \circuitdescbip{barrier}{Barrier}{}
+\end{groupdesc}
 
-\begin{itemize}
-	\circuititembip{european gas filled surge arrester}{European gas filled surge arrester}{}
-	\circuititembip{american gas filled surge arrester}{American gas filled surge arrester}{}
-\end{itemize}
+\begin{groupdesc}
+    \circuitdescbip{european gas filled surge arrester}{European gas filled surge arrester}{}
+    \circuitdescbip{american gas filled surge arrester}{American gas filled surge arrester}{}
+\end{groupdesc}
 
 \begin{framed}
 If (default behaviour) \texttt{europeangfsurgearrester} option is active (or the style \texttt{[european gas filled surge arrester]} is used), the shorthands \texttt{gas filled surge arrester} and \texttt{gf surge arrester} are equivalent to the european version of the component.
@@ -433,58 +986,58 @@ If otherwise \texttt{americangfsurgearrester} option is active (or the style \te
 \end{framed}
 
 \subsubsection{Basic dynamical bipoles}
-\begin{itemize}
-	\circuititembip{capacitor}{Capacitor}{C}
-	\circuititembip{polar capacitor}{Polar capacitor}{pC}
-	\circuititembip{ecapacitor}{Electrolytic capacitor}{eC,elko}
-	\circuititembip{variable capacitor}{Variable capacitor}{vC}
-	\circuititembip{capacitive sensor}{Capacitive sensor}{sC}
-	\circuititembip{piezoelectric}{Piezoelectric Element}{PZ}
-\end{itemize}	
+\begin{groupdesc}
+    \circuitdescbip{capacitor}{Capacitor}{C}
+    \circuitdescbip[polarcapacitor]{polar capacitor}{Polar capacitor}{pC}
+    \circuitdescbip{ecapacitor}{Electrolytic capacitor}{eC,elko}
+    \circuitdescbip[vcapacitor]{variable capacitor}{Variable capacitor}{vC}
+    \circuitdescbip[capacitivesens]{capacitive sensor}{Capacitive sensor}{sC}( label/0/0.3 )
+    \circuitdescbip{piezoelectric}{Piezoelectric Element}{PZ}
+\end{groupdesc}
 
 If (default behaviour) \texttt{cuteinductors} option is active (or the style \texttt{[cute inductors]} is used), the inductors are displayed as follows:
-\begin{itemize}
-  	\ctikzset{inductor=cute}
-  	\circuititembip{L}{Inductor}{cute inductor}
-        \circuititembip{cute choke}{Choke}{}
-	\circuititembip{vL}{Variable inductor}{variable cute inductor}
-	\circuititembip{sL}{Inductive sensor}{cute inductive sensor}
-\end{itemize}
+\begin{groupdesc}
+    \ctikzset{inductor=cute}
+    \circuitdescbip[cuteinductor]{L}{Inductor}{cute inductor}
+    \circuitdescbip[cutechoke]{cute choke}{Choke}{}
+    \circuitdescbip[vcuteinductor]{vL}{Variable inductor}{variable cute inductor}
+    \circuitdescbip[scuteinductor]{sL}{Inductive sensor}{cute inductive sensor}( label/0/0.3 )
+\end{groupdesc}
 
 If \texttt{americaninductors} option is active (or the style \texttt{[american inductors]} is used), the inductors are displayed as follows:
-\begin{itemize}
-  	\ctikzset{inductor=american}
-  	\circuititembip{L}{Inductor}{american inductor}
-	\circuititembip{vL}{Variable inductor}{variable american inductor}
-	\circuititembip{sL}{Inductive sensor}{american inductive sensor}
-\end{itemize}
+\begin{groupdesc}
+    \ctikzset{inductor=american}
+    \circuitdescbip[americaninductor]{L}{Inductor}{american inductor}
+    \circuitdescbip[vamericaninductor]{vL}{Variable inductor}{variable american inductor}
+    \circuitdescbip[samericaninductor]{sL}{Inductive sensor}{american inductive sensor}( label/0/0.3 )
+\end{groupdesc}
 
 Finally, if \texttt{europeaninductors} option is active (or the style \texttt{[european inductors]} is used), the inductors are displayed as follows:
-\begin{itemize}
-  	\ctikzset{inductor=european}
-  	\circuititembip{L}{Inductor}{european inductor}
-	\circuititembip{vL}{Variable inductor}{variable european inductor}
-	\circuititembip{sL}{Inductive sensor}{european inductive sensor}
-        \ctikzset{inductor=cute} % back to default
-\end{itemize}
+\begin{groupdesc}
+    \ctikzset{inductor=european}
+    \circuitdescbip[fullgeneric]{L}{Inductor}{european inductor}
+    \circuitdescbip[tfullgeneric]{vL}{Variable inductor}{variable european inductor}
+    \circuitdescbip[sfullgeneric]{sL}{Inductive sensor}{european inductive sensor}( label/0/0.3 )
+    \ctikzset{inductor=cute} % back to default
+\end{groupdesc}
 
-There is also a transmission line: 
-\begin{itemize}
-\circuititembip{TL}{Transmission line}{transmission line, tline}
-\end{itemize}
+There is also a transmission line:
+\begin{groupdesc}
+    \circuitdescbip[tline]{TL}{Transmission line}{transmission line, tline}
+\end{groupdesc}
 
 \subsubsection{Stationary sources}
-\begin{itemize}
-	\circuititembip{battery}{Battery}{}
-	\circuititembip{battery1}{Single battery cell}{}
-	\circuititembip{battery2}{Single battery cell}{}
-	\circuititembip{european voltage source}{Voltage source (european style)}{}
-	\circuititembip{cute european voltage source}{Voltage source (cute european style)}{vsourceC, ceV}
-	\circuititembip{american voltage source}{Voltage source (american style)}{}
-	\circuititembip{european current source}{Current source (european style)}{}
-	\circuititembip{cute european current source}{Current source (cute european style)}{isourceC, ceI}
-	\circuititembip{american current source}{Current source (american style)}{}
-\end{itemize}
+\begin{groupdesc}
+    \circuitdescbip{battery}{Battery}{}
+    \circuitdescbip{battery1}{Single battery cell}{}
+    \circuitdescbip{battery2}{Single battery cell}{}
+    \circuitdescbip[vsource]{european voltage source}{Voltage source (european style)}{}
+    \circuitdescbip[vsourceC]{cute european voltage source}{Voltage source (cute european style)}{vsourceC, ceV}
+    \circuitdescbip[vsourceAM]{american voltage source}{Voltage source (american style)}{}
+    \circuitdescbip[isource]{european current source}{Current source (european style)}{}
+    \circuitdescbip[isourceC]{cute european current source}{Current source (cute european style)}{isourceC, ceI}
+    \circuitdescbip[isourceAM]{american current source}{Current source (american style)}{}
+\end{groupdesc}
 
 \begin{framed}
 If (default behaviour) \texttt{europeancurrents} option is active (or the style \texttt{[european currents]} is used), the shorthands \texttt{current source}, \texttt{isource}, and \texttt{I} are equivalent to \texttt{european current source}. Otherwise, if \texttt{americancurrents} option is active (or the style \texttt{[american currents]} is used) they are equivalent to \texttt{american current source}.
@@ -494,16 +1047,39 @@ Similarly, if (default behaviour) \texttt{europeanvoltages} option is active (or
 
 
 \subsubsection{Sinusoidal sources} Here because I was asked for them. But how do you distinguish one from the other?!
-\begin{itemize}
-	\circuititembip{sinusoidal voltage source}{Sinusoidal voltage source}{vsourcesin, sV}
-	\circuititembip{sinusoidal current source}{Sinusoidal current source}{isourcesin, sI}
-\end{itemize}
+\begin{groupdesc}
+    \circuitdescbip[vsourcesin]{sinusoidal voltage source}{Sinusoidal voltage source}{vsourcesin, sV}
+    \circuitdescbip[isourcesin]{sinusoidal current source}{Sinusoidal current source}{isourcesin, sI}
+\end{groupdesc}
+
+\subsubsection{Controlled sources}
+\begin{groupdesc}
+    \circuitdescbip[cvsource]{european controlled voltage source}{Controlled voltage source (european style)}{}
+    \circuitdescbip[cvsourceC]{cute european controlled voltage source}{Voltage source (cute european style)}{cvsourceC, cceV}
+    \circuitdescbip[cvsourceAM]{american controlled voltage source}{Controlled voltage source (american style)}{}
+    \circuitdescbip[cisource]{european controlled current source}{Controlled current source (european style)}{}
+    \circuitdescbip[cisourceC]{cute european controlled current source}{Current source (cute european style)}{cisourceC, cceI}
+    \circuitdescbip[cisourceAM]{american controlled current source}{Controlled current source (american style)}{}
+\end{groupdesc}
+
+\begin{framed}
+If (default behaviour) \texttt{europeancurrents} option is active (or the style \texttt{[european currents]} is used), the shorthands \texttt{controlled current source}, \texttt{cisource}, and \texttt{cI} are equivalent to \texttt{european controlled current source}. Otherwise, if \texttt{americancurrents} option is active (or the style \texttt{[american currents]} is used) they are equivalent to \texttt{american controlled current source}.
+
+Similarly, if (default behaviour) \texttt{europeanvoltages} option is active (or the style \texttt{[european voltages]} is used), the shorthands \texttt{controlled voltage source}, \texttt{cvsource}, and \texttt{cV} are equivalent to \texttt{european controlled voltage source}. Otherwise, if \texttt{americanvoltages} option is active (or the style \texttt{[american voltages]} is used) they are equivalent to \texttt{american controlled voltage source}.
+\end{framed}
+
+\begin{groupdesc}
+    \circuitdescbip[cvsourcesin]{controlled sinusoidal voltage source}{Controlled sinusoidal voltage source}{controlled vsourcesin, cvsourcesin, csV}
+    \circuitdescbip[cisourcesin]{controlled sinusoidal current source}{Controlled sinusoidal current source}{controlled isourcesin, cisourcesin, csI}
+\end{groupdesc}
+
+
 
 \subsubsection{Noise sources} In this case, the ``direction''  of the source has no sense.
-\begin{itemize}
-	\circuititembip{noise voltage source}{Sinusoidal voltage source}{vsourceN, nV}
-	\circuititembip{noise current source}{Sinusoidal current source}{isourceN, nI}
-\end{itemize}
+\begin{groupdesc}
+    \circuitdescbip[vsourceN]{noise voltage source}{Sinusoidal voltage source}{vsourceN, nV}
+    \circuitdescbip[isourceN]{noise current source}{Sinusoidal current source}{isourceN, nI}
+\end{groupdesc}
 
 You can change the fill color with the key \texttt{circuitikz/bipoles/noise sources/fillcolor}:
 \begin{LTXexample}[varwidth=true]
@@ -530,107 +1106,220 @@ If you prefer a patterned noise generator (similar to the one you draw by hand) 
 \end{LTXexample}
 
 \subsubsection{Special sources}
-\begin{itemize}
-	\circuititembip{square voltage source}{Square voltage source}{vsourcesquare, sqV}
-	\circuititembip{vsourcetri}{Triangle voltage source}{tV}
-	\circuititembip{esource}{Empty voltage source}{}
-	\circuititembip{pvsource}{Photovoltaic-voltage source}{}
-	\circuititembip{ioosource}{Double Zero style current source}{}
-	\circuititembip{voosource}{Double Zero style voltage source}{}
-\end{itemize}
+\begin{groupdesc}
+    \circuitdescbip[vsourcesquare]{square voltage source}{Square voltage source}{vsourcesquare, sqV}
+    \circuitdescbip{vsourcetri}{Triangle voltage source}{tV}
+    \circuitdescbip{esource}{Empty voltage source}{}
+    \circuitdescbip{pvsource}{Photovoltaic-voltage source}{}
+    \circuitdescbip[oosource]{ioosource}{Double Zero style current source}{}
+    \circuitdescbip[oosource]{voosource}{Double Zero style voltage source}{}
+\end{groupdesc}
 
 \subsubsection{DC sources}
-\begin{itemize}
-	\circuititembip{dcvsource}{DC voltage source}{}
-	\circuititembip{dcisource}{DC current source}{}
-\end{itemize}
+\begin{groupdesc}
+    \circuitdescbip{dcvsource}{DC voltage source}{}
+    \circuitdescbip{dcisource}{DC current source}{}
+\end{groupdesc}
 
 \subsubsection{Mechanical Analogy}
-\begin{itemize}
-	\circuititembip{damper}{Mechanical Damping}{}
-	\circuititembip{spring}{Mechanical Stiffness}{}
-	\circuititembip{mass}{Mechanical Mass}{}	
-\end{itemize}
+\begin{groupdesc}
+    \circuitdescbip{damper}{Mechanical Damping}{}
+    \circuitdescbip{spring}{Mechanical Stiffness}{}
+    \circuitdescbip{mass}{Mechanical Mass}{}
+\end{groupdesc}
 
 
-\subsubsection{Block diagram components}
+\subsection{Block diagram components}
 \noindent Contributed by Stefan Erhardt.
-\begin{itemize}
-	\circuititembip{twoport}{generic two port\footnote{To specify text to be put in the component: \texttt{twoport[t=text]}): \tikz \draw[scale=.5, transform shape] (0,0) to[twoport,>,t=text] (2,0); }}{}
-	\circuititembip{vco}{vco}{}
-	\circuititembip{bandpass}{bandpass}{}
-	\circuititembip{bandstop}{bandstop}{}
-	\circuititembip{highpass}{highpass}{}
-	\circuititembip{lowpass}{lowpass}{}
-	\circuititembip{adc}{A/D converter}{}
-	\circuititembip{dac}{D/A converter}{}
-	\circuititembip{dsp}{DSP}{}
-	\circuititembip{fft}{FFT}{}
-	\circuititembip{amp}{amplifier}{}
-	\circuititembip{vamp}{VGA}{}
-	\circuititembip{piattenuator}{$\pi$ attenuator}{}
-	\circuititembip{vpiattenuator}{var. $\pi$ attenuator}{}
-	\circuititembip{tattenuator}{T attenuator}{}
-	\circuititembip{vtattenuator}{var.\ T attenuator}{}
-	\circuititembip{phaseshifter}{phase shifter}{}
-	\circuititembip{vphaseshifter}{var.\ phase shifter}{}
-	\circuititembip{detector}{detector}{}
-\end{itemize}	
 
+\begin{groupdesc}
+    \circuitdesc{mixer}{\scshape mixer}{}( 1/180/0.1,2/-90/0.1,3/0/0.1,4/90/0.1 )
+    \circuitdesc{adder}{\scshape adder}{}( west/180/0.1,south/-90/0.1,east/0/0.1,north/90/0.1 )
+    \circuitdesc{oscillator}{\scshape oscillator}{}
+    \circuitdesc{circulator}{\scshape circulator}{}
+    \circuitdesc{wilkinson}{\scshape wilkinson divider}{}( in/180/0.1, out2/45/0.1, out1/-45/0.1 )
+\end{groupdesc}
+
+\begin{groupdesc}
+    \circuitdescbip{twoport}{generic two port\footnotemark}{}
+    \footnotetext{To specify text to be put in the component: \texttt{twoport[t=text]}): \tikz \draw[scale=.5, transform shape] (0,0) to[twoport,>,t=text] (2,0); }
+    \circuitdescbip{vco}{vco}{}
+    \circuitdescbip{bandpass}{bandpass}{}
+    \circuitdescbip{bandstop}{bandstop}{}
+    \circuitdescbip{highpass}{highpass}{}
+    \circuitdescbip{lowpass}{lowpass}{}
+    \circuitdescbip{adc}{A/D converter}{}
+    \circuitdescbip{dac}{D/A converter}{}
+    \circuitdescbip{dsp}{DSP}{}
+    \circuitdescbip{fft}{FFT}{}
+    \circuitdescbip{amp}{amplifier}{}
+    \circuitdescbip{vamp}{VGA}{}
+    \circuitdescbip{piattenuator}{$\pi$ attenuator}{}
+    \circuitdescbip{vpiattenuator}{var. $\pi$ attenuator}{}
+    \circuitdescbip{tattenuator}{T attenuator}{}
+    \circuitdescbip{vtattenuator}{var.\ T attenuator}{}
+    \circuitdescbip{phaseshifter}{phase shifter}{}
+    \circuitdescbip{vphaseshifter}{var.\ phase shifter}{}
+    \circuitdescbip{detector}{detector}{}
+\end{groupdesc}
+
+\begin{groupdesc}
+    \circuitdesc{gyrator}{Gyrator}{}
+    \circuitdesc{coupler}{Coupler}{}
+    \circuitdesc{coupler2}{Coupler, 2}{}
+\end{groupdesc}
+
+\subsubsection{Blocks anchors}
+
+The ports of the mixer and adder can be addressed with numbers or \texttt{west}/\texttt{south}/\texttt{east}/\texttt{north}:
+
+\begin{LTXexample}[varwidth=true]
+\begin{circuitikz} \draw
+  (0,0) node[mixer] (mix) {}
+  (mix.1) node[left] {1}
+  (mix.2) node[below] {2}
+  (mix.3) node[right] {3}
+  (mix.4) node[above] {4}
+;\end{circuitikz}
+\end{LTXexample}
+
+
+The Wilkinson divider has:
+
+\begin{LTXexample}[varwidth=true]
+\begin{circuitikz} \draw
+  (0,0) node[wilkinson] (w) {\SI{3}{dB}}
+  (w.in) to[short,-o] ++(-0.5,0)
+  (w.out1) to[short,-o] ++(0.5,0)
+  (w.out2) to[short,-o] ++(0.5,0)
+  (w.in) node[below left] {\texttt{in}}
+  (w.out1) node[below right] {\texttt{out1}}
+  (w.out2) node[above right] {\texttt{out2}}
+  ;
+\end{circuitikz}
+\end{LTXexample}
+
+The couplers have:
+
+\begin{LTXexample}[varwidth=true]
+\begin{circuitikz} \draw
+  (0,0) node[coupler] (c) {\SI{10}{dB}}
+  (c.1) to[short,-o] ++(-0.5,0)
+  (c.2) to[short,-o] ++(0.5,0)
+  (c.3) to[short,-o] ++(0.5,0)
+  (c.4) to[short,-o] ++(-0.5,0)
+  (c.1) node[below left] {\texttt{1}}
+  (c.2) node[below right] {\texttt{2}}
+  (c.3) node[above right] {\texttt{3}}
+  (c.4) node[above left] {\texttt{4}}
+  ;
+\end{circuitikz}
+\end{LTXexample}
+
+\begin{LTXexample}[varwidth=true]
+\begin{circuitikz} \draw
+  (0,0) node[coupler2] (c) {\SI{3}{dB}}
+  (c.1) to[short,-o] ++(-0.5,0)
+  (c.2) to[short,-o] ++(0.5,0)
+  (c.3) to[short,-o] ++(0.5,0)
+  (c.4) to[short,-o] ++(-0.5,0)
+  (c.1) node[below left] {\texttt{1}}
+  (c.2) node[below right] {\texttt{2}}
+  (c.3) node[above right] {\texttt{3}}
+  (c.4) node[above left] {\texttt{4}}
+  ;
+\end{circuitikz}
+\end{LTXexample}
+
+
+\subsubsection{Blocks customization}
+
+With the option \texttt{>} you can draw an arrow to the input of the block diagram symbols.
+\begin{LTXexample}[varwidth=true]
+\begin{circuitikz} \draw
+  (0,0) to[short,o-] ++(0.3,0)
+  to[lowpass,>] ++(2,0)
+  to[adc,>] ++(2,0)
+  to[short,-o] ++(0.3,0);
+\end{circuitikz}
+\end{LTXexample}
+
+
+\paragraph{Multi ports}
+Since inputs and outputs can vary, input arrows can be placed as nodes. Note that you have to rotate the arrow on your own:
+
+\begin{LTXexample}[varwidth=true]
+\begin{circuitikz} \draw
+  (0,0) node[mixer] (m) {}
+  (m.1) to[short,-o] ++(-1,0)
+  (m.2) to[short,-o] ++(0,-1)
+  (m.3) to[short,-o] ++(1,0)
+  (m.1) node[inputarrow] {}
+  (m.2) node[inputarrow,rotate=90] {};
+\end{circuitikz}
+\end{LTXexample}
+
+
+\paragraph{Labels and custom twoport boxes}
+Some twoports have the option to place a normal label (\texttt{l=}) and a inner label (\texttt{t=}).
+\begin{LTXexample}[varwidth=true]
+\begin{circuitikz}
+  \ctikzset{bipoles/amp/width=0.9}
+  \draw (0,0) to[amp,t=LNA,l_=$F{=}0.9\,$dB,o-o] ++(3,0);
+\end{circuitikz}
+\end{LTXexample}
+
+
+\paragraph{Box option}
+Some devices have the possibility to add a box around them. The inner symbol scales down to fit inside the box.
+\begin{LTXexample}[varwidth=true]
+\begin{circuitikz} \draw
+  (0,0) node[mixer,box,anchor=east] (m) {}
+    to[amp,box,>,-o] ++(2.5,0)
+  (m.west) node[inputarrow] {} to[short,-o] ++(-0.8,0)
+  (m.south) node[inputarrow,rotate=90] {} --
+    ++(0,-0.7) node[oscillator,box,anchor=north] {};
+\end{circuitikz}
+\end{LTXexample}
+
+
+\paragraph{Dash optional parts}
+To show that a device is optional, you can dash it. The inner symbol will be kept with solid lines.
+\begin{LTXexample}[varwidth=true]
+\begin{circuitikz}
+  \draw (0,0) to[amp,l=\SI{10}{dB}] ++(2.5,0);
+  \draw[dashed] (2.5,0) to[lowpass,l=opt.] ++(2.5,0);
+\end{circuitikz}
+\end{LTXexample}
 
 
 
 \subsection{Tripoles}
-\subsubsection{Controlled sources} Admittedly, graphically they are bipoles. But I couldn't\ldots
-\begin{itemize}
-	\circuititembip{european controlled voltage source}{Controlled voltage source (european style)}{}
-	\circuititembip{cute european controlled voltage source}{Voltage source (cute european style)}{cvsourceC, cceV}
-	\circuititembip{american controlled voltage source}{Controlled voltage source (american style)}{}
-	\circuititembip{european controlled current source}{Controlled current source (european style)}{}
-	\circuititembip{cute european controlled current source}{Current source (cute european style)}{cisourceC, cceI}
-	\circuititembip{american controlled current source}{Controlled current source (american style)}{}
-\end{itemize}
+\subsubsection{Transistors}
 
-\begin{framed}
-If (default behaviour) \texttt{europeancurrents} option is active (or the style \texttt{[european currents]} is used), the shorthands \texttt{controlled current source}, \texttt{cisource}, and \texttt{cI} are equivalent to \texttt{european controlled current source}. Otherwise, if \texttt{americancurrents} option is active (or the style \texttt{[american currents]} is used) they are equivalent to \texttt{american controlled current source}.
+\begin{groupdesc}
+    \circuitdesc{nmos}{\scshape nmos}{}( G/180/0.2,D/0/0.2,S/0/0.2 )
+    \circuitdesc{pmos}{\scshape pmos}{}
+    \circuitdesc{hemt}{\scshape hemt}{}
+    \circuitdesc{npn}{\scshape npn}{}( B/180/0.2,C/0/0.2,E/0/0.2 )
+    \circuitdesc{pnp}{\scshape pnp}{}
+    \circuitdesc{npn,photo}{\scshape npn}{}( nobase/0/0.4 )
+    \circuitdesc{pnp,photo}{\scshape pnp}{}
+    \circuitdesc{nigbt}{\scshape nigbt}{}
+    \circuitdesc{pigbt}{\scshape pigbt}{}
+    \circuitdesc{Lnigbt}{\scshape Lnigbt}{}
+    \circuitdesc{Lpigbt}{\scshape Lpigbt}{}
+\end{groupdesc}
 
-Similarly, if (default behaviour) \texttt{europeanvoltages} option is active (or the style \texttt{[european voltages]} is used), the shorthands \texttt{controlled voltage source}, \texttt{cvsource}, and \texttt{cV} are equivalent to \texttt{european controlled voltage source}. Otherwise, if \texttt{americanvoltages} option is active (or the style \texttt{[american voltages]} is used) they are equivalent to \texttt{american controlled voltage source}.
-\end{framed}
+For all transistors a bodydiode (or freewheeling diode) can automatically be drawn. Just use the global option bodydiode, or for single transistors, the tikz-option bodydiode:
 
-\begin{itemize}
-	\circuititembip{controlled sinusoidal voltage source}{Controlled sinusoidal voltage source}{controlled vsourcesin, cvsourcesin, csV}
-	\circuititembip{controlled sinusoidal current source}{Controlled sinusoidal current source}{controlled isourcesin, cisourcesin, csI}
-	\end{itemize}
-
-
-\subsubsection{Transistors} 
-
-\begin{itemize}
-	\circuititem{nmos}{\scshape nmos}{}
-	\circuititem{pmos}{\scshape pmos}{}
-    \circuititem{hemt}{\scshape hemt}{}
-	\circuititem{npn}{\scshape npn}{}
-	\circuititem{pnp}{\scshape pnp}{}
-	\circuititem{npn,photo}{\scshape npn}{}
-	\circuititem{pnp,photo}{\scshape pnp}{}
-	\circuititem{nigbt}{\scshape nigbt}{}
-	\circuititem{pigbt}{\scshape pigbt}{}
-	\circuititem{Lnigbt}{\scshape Lnigbt}{}
-	\circuititem{Lpigbt}{\scshape Lpigbt}{}
-\end{itemize}
-
-For all transistors a bodydiode(or freewheeling diode) can automatically be drawn. Just use the global option bodydiode, or for single transistors, the tikz-option bodydiode:
 \begin{LTXexample}[varwidth=true]
 \begin{circuitikz}
    \draw (0,0) node[npn,bodydiode](npn){}++(2,0)node[pnp,bodydiode](npn){};
    \draw (0,-2) node[nigbt,bodydiode](npn){}++(2,0)node[pigbt,bodydiode](npn){};
    \draw (0,-4) node[nfet,bodydiode](npn){}++(2,0)node[pfet,bodydiode](npn){};
 \end{circuitikz}
-\end{LTXexample}	
-
-
-
-
+\end{LTXexample}
 
 The Base/Gate connection of all transistors can be disable by using the options \textit{nogate} or \textit{nobase}, respectively. The Base/Gate anchors are floating, but there an additional anchor "nogate"/"nobase", which can be used to point to the unconnected base:
 \begin{LTXexample}[varwidth=true]
@@ -641,22 +1330,21 @@ The Base/Gate connection of all transistors can be disable by using the options 
    \draw (npn.B) node[circ]{} node[left]{B};
    \draw[dashed,red,-latex] (1,0.5)--(npn.nobase);
 \end{circuitikz}
-\end{LTXexample}	
-
-
+\end{LTXexample}
 
 If the option \texttt{arrowmos} is used (or after the command \verb!\ctikzset{tripoles/mos style/arrows}! is given), this is the output:
 \ctikzset{tripoles/mos style/arrows}
-\begin{itemize}
-	\circuititem{nmos}{\scshape nmos}{}
-	\circuititem{pmos}{\scshape pmos}{}
-\end{itemize}
+\begin{groupdesc}
+	\circuitdesc{nmos}{\scshape nmos}{}
+	\circuitdesc{pmos}{\scshape pmos}{}
+\end{groupdesc}
 \ctikzset{tripoles/mos style/no arrows}
+To draw the PMOS circle non-solid, use the option \texttt{emptycircle} or the command
+\\\verb!\ctikzset{tripoles/pmos style/emptycircle}!.
 
-To draw the PMOS circle non-solid, use the option \texttt{emptycircle} or the command \verb!\ctikzset{tripoles/pmos style/emptycircle}!.
-\begin{itemize}
-	\circuititem{pmos,emptycircle}{\scshape pmos}{}
-\end{itemize}
+\begin{groupdesc}
+    \circuitdesc{pmos,emptycircle}{\scshape pmos}{}
+\end{groupdesc}
 
 If you prefer different position of the arrows in transistors and FETs, you can adjust them like this (it works for the other BJT-based transistors, too):
 \begin{LTXexample}[varwidth=true]
@@ -673,37 +1361,147 @@ If you prefer different position of the arrows in transistors and FETs, you can 
 \end{circuitikz}
 \end{LTXexample}
 
-\textsc{nfet}s and \textsc{pfet}s have been incorporated based on code provided by Clemens Helfmeier and Theodor 
+\textsc{nfet}s and \textsc{pfet}s have been incorporated based on code provided by Clemens Helfmeier and Theodor
 Borsche. Use the package options \texttt{fetsolderdot}/\texttt{nofetsolderdot} to enable/disable solderdot at some fet-transistors. Additionally, the solderdot option can be enabled/disabled for single transistors with the option "solderdot" and "nosolderdot", respectively.
 
 
-\begin{itemize}
-	\circuititem{nfet}{\scshape nfet}{}
-	\circuititem{nigfete}{\scshape nigfete}{}
-	\circuititem{nigfete,solderdot}{\scshape nigfete}{}
-	\circuititem{nigfetebulk}{\scshape nigfetebulk}{}
-	\circuititem{nigfetd}{\scshape nigfetd}{}
-	\circuititem{pfet}{\scshape pfet}{}
-	\circuititem{pigfete}{\scshape pigfete}{}
-	\circuititem{pigfetebulk}{\scshape pigfetebulk}{}
-	\circuititem{pigfetd}{\scshape pigfetd}{}
-\end{itemize}
+\begin{groupdesc}
+    \circuitdesc{nfet}{\scshape nfet}{}
+    \circuitdesc{nigfete}{\scshape nigfete}{}
+    \circuitdesc{nigfete,solderdot}{\scshape nigfete}{}
+    \circuitdesc{nigfetebulk}{\scshape nigfetebulk}{}
+    \circuitdesc{nigfetd}{\scshape nigfetd}{}
+    \circuitdesc{pfet}{\scshape pfet}{}
+    \circuitdesc{pigfete}{\scshape pigfete}{}
+    \circuitdesc{pigfetebulk}{\scshape pigfetebulk}{}
+    \circuitdesc{pigfetd}{\scshape pigfetd}{}
+\end{groupdesc}
 
-\textsc{njfet} and \textsc{pjfet} have been incorporated based on code provided by Danilo Piazzalunga: 
-\begin{itemize}
-	\circuititem{njfet}{\scshape njfet}{}
-	\circuititem{pjfet}{\scshape pjfet}{}
-\end{itemize}
+\textsc{njfet} and \textsc{pjfet} have been incorporated based on code provided by Danilo Piazzalunga:
+\begin{groupdesc}
+    \circuitdesc{njfet}{\scshape njfet}{}
+    \circuitdesc{pjfet}{\scshape pjfet}{}
+\end{groupdesc}
 
 \textsc{isfet}
-\begin{itemize}
-	\circuititem{isfet}{\scshape isfet}{}
-\end{itemize}
+\begin{groupdesc}
+    \circuitdesc{isfet}{\scshape isfet}{}
+\end{groupdesc}
+
+\paragraph{Transistors anchors}
+
+For \textsc{nmos}, \textsc{pmos}, \textsc{nfet}, \textsc{nigfete}, \textsc{nigfetd}, \textsc{pfet}, \textsc{pigfete}, and \textsc{pigfetd}  transistors  one has \texttt{base}, \texttt{gate}, \texttt{source} and \texttt{drain} anchors (which can be abbreviated with \texttt{B}, \texttt{G}, \texttt{S} and \texttt{D}):
+
+\begin{LTXexample}[varwidth=true]
+\begin{circuitikz} \draw
+  (0,0) node[nmos] (mos)  {}
+  (mos.gate) node[anchor=east] {G}
+  (mos.drain) node[anchor=south] {D}
+  (mos.source) node[anchor=north] {S}
+;\end{circuitikz}
+\end{LTXexample}
+
+\begin{LTXexample}[varwidth=true]
+\begin{circuitikz} \draw
+  (0,0) node[pigfete] (pigfete)  {}
+  (pigfete.G) node[anchor=east] {G}
+  (pigfete.D) node[anchor=north] {D}
+  (pigfete.S) node[anchor=south] {S}
+  (pigfete.bulk) node[anchor=west] {Bulk}
+;\end{circuitikz}
+\end{LTXexample}
+
+Similarly \textsc{njfet} and \textsc{pjfet} have  \texttt{gate}, \texttt{source} and \texttt{drain} anchors (which can be abbreviated with  \texttt{G}, \texttt{S} and \texttt{D}):
+
+\begin{LTXexample}[varwidth=true]
+\begin{circuitikz} \draw
+  (0,0) node[pjfet] (pjfet)  {}
+  (pjfet.G) node[anchor=east] {G}
+  (pjfet.D) node[anchor=north] {D}
+  (pjfet.S) node[anchor=south] {S}
+;\end{circuitikz}
+\end{LTXexample}
+
+For \textsc{npn}, \textsc{pnp}, \textsc{nigbt}, and \textsc{pigbt} transistors the anchors are  \texttt{base}, \texttt{emitter} and \texttt{collector} anchors (which can be abbreviated with \texttt{B}, \texttt{E} and \texttt{C}):
+
+\begin{LTXexample}[varwidth=true]
+\begin{circuitikz} \draw
+  (0,0) node[npn] (npn)  {}
+  (npn.base) node[anchor=east] {B}
+  (npn.collector) node[anchor=south] {C}
+  (npn.emitter) node[anchor=north] {E}
+;\end{circuitikz}
+\end{LTXexample}
+
+\begin{LTXexample}[varwidth=true]
+\begin{circuitikz} \draw
+  (0,0) node[pigbt] (pigbt)  {}
+  (pigbt.B) node[anchor=east] {B}
+  (pigbt.C) node[anchor=north] {C}
+  (pigbt.E) node[anchor=south] {E}
+;\end{circuitikz}
+\end{LTXexample}
+
+Here is one composite example (please notice that the \texttt{xscale=-1} style would also reflect the label of the transistors, so here a new node is added and its text is used, instead of that of \texttt{pnp1}):
+
+\begin{LTXexample}[varwidth=true]
+\begin{circuitikz} \draw
+  (0,0) node[pnp] (pnp2) {2}
+  (pnp2.B) node[pnp, xscale=-1, anchor=B] (pnp1) {}
+    (pnp1) node {1}
+  (pnp1.C) node[npn, anchor=C] (npn1) {}
+  (pnp2.C) node[npn, xscale=-1, anchor=C] (npn2) {}
+  (pnp1.E) -- (pnp2.E)  (npn1.E) -- (npn2.E)
+  (pnp1.B) node[circ] {} |- (pnp2.C) node[circ] {}
+;\end{circuitikz}
+\end{LTXexample}
+
+Notice that the text labels of transistors are somewhat buggy. It is better to se explicit anchors to set transistor's names.
+
+Similarly, transistors like other components can be reflected vertically:
+\begin{LTXexample}[varwidth=true]
+\begin{circuitikz} \draw
+  (0,0) node[pigfete, yscale=-1] (pigfete)  {}
+  (pigfete.bulk) node[anchor=west] {Bulk}
+  (pigfete.G) node[anchor=east] {G}
+  (pigfete.D) node[anchor=south] {D}
+  (pigfete.S) node[anchor=north] {S}
+;\end{circuitikz}
+\end{LTXexample}
+
+\paragraph{Transistor paths}\label{sec:transasbip}
+
+For syntactical convenience transistors can be placed using the normal path notation used for bipoles. The transitor type can be specified by  simply adding a ``T'' (for transistor) in front of the node name of the transistor. It will be placed with the base/gate orthogonal to the direction of the path:
+\begin{LTXexample}[varwidth=true]
+\begin{circuitikz} \draw
+  (0,0) node[njfet] {1}
+  (-1,2) to[Tnjfet=2] (1,2)
+    to[Tnjfet=3, mirror] (3,2);
+;\end{circuitikz}
+\end{LTXexample}
+
+Access to the gate and/or base nodes can be gained by naming the transistors with the \texttt{n} or \texttt{name} path style:
+\begin{LTXexample}[varwidth=true]
+\begin{circuitikz} \draw[yscale=1.1, xscale=.8]
+  (2,4.5) -- (0,4.5) to[Tpmos, n=p1] (0,3)
+     to[Tnmos, n=n1] (0,1.5)
+     to[Tnmos, n=n2] (0,0) node[ground] {}
+  (2,4.5) to[Tpmos,n=p2] (2,3) to[short, -*] (0,3)
+  (p1.G) -- (n1.G) to[short, *-o] ($(n1.G)+(3,0)$)
+  (n2.G) ++(2,0) node[circ] {} -| (p2.G)
+  (n2.G) to[short, -o] ($(n2.G)+(3,0)$)
+  (0,3) to[short, -o] (-1,3)
+;\end{circuitikz}
+\end{LTXexample}
+
+The \texttt{name} property is available also for bipoles, although this is useful mostly for triac, potentiometer and thyristor (see~\ref{sec:othertrip}).
+
 
 \subsubsection{Electronic Tubes}
-\begin{itemize}
-	\circuititem{magnetron}{Magnetron}{}
-\end{itemize}
+\begin{groupdesc}
+    \circuitdesc{magnetron}{Magnetron}{}( anode/-90/0.2, cathode1/135/0.2,
+    cathode2/45/0.2, left/180/0.2, right/0/0.2, top/90/0.4 )
+\end{groupdesc}
 \begin{LTXexample}[varwidth=true]
 	\begin{circuitikz}
 	\draw (0,-2)node[rground](gnd){} to[voltage source,v<={HV}]++(0,3)--++(1,0)to[V,n=DC]++(2,0);
@@ -711,32 +1509,18 @@ Borsche. Use the package options \texttt{fetsolderdot}/\texttt{nofetsolderdot} t
 	\draw (DC.left)++(-0.2,0)to [short,*-] ++(0,-1) to [short] (magn.cathode1);
 	\draw (DC.right)++(0.2,0)to [short,*-] ++(0,-1) to [short] (magn.cathode2);
 	\draw (magn.anode) to [short] (magn.anode|-gnd) node[rground]{};
-	\draw (magn.cathode1)node[above]{$1$}; 
+	\draw (magn.cathode1)node[above]{$1$};
 	\draw (magn.cathode2)node[above]{$2$};
 	\draw[->](magn.east) --++(1,0)node[right]{$RF_{out}$};
 	\end{circuitikz}
-\end{LTXexample}	
-
-\subsubsection{Block diagram}
-These come from Stefan Erhardt's contribution of block diagram components. Add a box around them with the option \texttt{box}.
-\begin{itemize}
-	\circuititem{mixer}{\scshape mixer}{}
-	\circuititem{adder}{\scshape adder}{}
-	\circuititem{oscillator}{\scshape oscillator}{}
-	\circuititem{circulator}{\scshape circulator}{}
-	\circuititem{wilkinson}{\scshape wilkinson divider}{}
-	%\circuititem{coupler}{\scshape coupler}{}
-	%\circuititem{coupler2}{\scshape coupler2}{}
-\end{itemize}
-
-
-		
+\end{LTXexample}
 
 \subsubsection{Electro-Mechanical Devices}
-\begin{itemize}
-	\circuititem{elmech}{\scshape Motor}{M}
-	\circuititem{elmech}{\scshape Generator}{G}
-\end{itemize}
+\begin{groupdesc}
+    \circuitdesc{elmech}{Motor}{M}( bottom/-90/0.2,
+    left/180/0.2, right/0/0.2, top/90/0.4 )
+	\circuitdesc{elmech}{Generator}{G}
+\end{groupdesc}
 \begin{LTXexample}[varwidth=true]
 \begin{circuitikz}
 \draw (2,0) node[elmech](motor){M};
@@ -764,66 +1548,237 @@ The symbols can also be used along a path, using the transistor-path-syntax(T in
 \subsection{Double bipoles}
 
 Transformers automatically use the inductor shape currently selected. These are the three possibilities:
-\begin{itemize}
-	\ctikzset{inductor=cute}
-	\circuititem{transformer}{Transformer (cute inductor)}{}
-	\ctikzset{inductor=american}
-	\circuititem{transformer}{Transformer (american inductor)}{}
-	\ctikzset{inductor=european}
-	\circuititem{transformer}{Transformer (european inductor)}{}
-\end{itemize}
+\begin{groupdesc}
+    \ctikzset{inductor=cute}
+    \circuitdesc{transformer}{Transformer (cute inductor)}{}( A1/180/0.1,
+    A2/180/0.1, B1/0/0.1, B2/0/0.1,
+    inner dot A1/-135/0.2, inner dot A2/135/0.2, inner dot B1/-45/0.1,
+    inner dot B2/45/0.1 )
+    \ctikzset{inductor=american}
+    \circuitdesc{transformer}{Transformer (american inductor)}{}( %
+    outer dot A1/180/0.2, outer dot A2/180/0.2,
+    outer dot B1/0/0.2, outer dot B2/0/0.2 )
+    \ctikzset{inductor=european}
+    \circuitdesc{transformer}{Transformer (european inductor)}{}
+\end{groupdesc}
 
 
 Transformers with core are also available:
-\begin{itemize}
-	\ctikzset{inductor=cute}
-	\circuititem{transformer core}{Transformer  core (cute inductor)}{}
-	\ctikzset{inductor=american}
-	\circuititem{transformer core}{Transformer core (american inductor)}{}
-	\ctikzset{inductor=european}
-	\circuititem{transformer core}{Transformer core (european inductor)}{}
-	\ctikzset{inductor=cute} % reset default
-\end{itemize}
+\begin{groupdesc}
+    \ctikzset{inductor=cute}
+    \circuitdesc{transformer core}{Transformer  core (cute inductor)}{}
+    \ctikzset{inductor=american}
+    \circuitdesc{transformer core}{Transformer core (american inductor)}{}
+    \ctikzset{inductor=european}
+    \circuitdesc{transformer core}{Transformer core (european inductor)}{}
+    \ctikzset{inductor=cute} % reset default
+\end{groupdesc}
 
-\begin{itemize}
-	\circuititem{gyrator}{Gyrator}{}
-	\circuititem{coupler}{Coupler}{}
-	\circuititem{coupler2}{Coupler, 2}{}
-\end{itemize}
+
+
+\subsubsection{Double dipoles anchors}
+
+All the double bipoles/quadrupoles have the four anchors, two for each port.
+The first port, to the left, is port \texttt{A}, having the anchors \texttt{A1} (up) and \texttt{A2} (down); same for port \texttt{B}.
+
+They also expose the \texttt{base} anchor, for labelling, and anchors for setting dots or signs to specify polarity.
+The set of anchors, to which the standard ``geographical'' \texttt{north}, \texttt{north east}, etc. is here:
+
+\begin{quote}
+\begin{circuitikz}[cute inductors,
+    ]
+    \def\coordx(#1)[#2:#3]#4{node[circle, #4, draw, inner sep=1pt,pin={[#4, overlay, inner sep=0.5pt, font=\scriptsize, pin distance=#2cm, pin edge={#4, overlay,}]#3:#1}](#1){}}
+    \foreach \comp/\pos/\case in {%
+                            transformer/0/0%
+                            ,transformer core/4/1%
+                            ,gyrator/8/2%
+                            }{
+        \draw (\pos, 0) node[\comp](T){};
+        \ifcase\case
+            \foreach \a/\d/\t in {inner dot A1/0.2/75, inner dot A2/0.2/-75, inner dot B1/0.1/-45, inner dot B2/0.1/45}
+            \path (T.\a) \coordx(\a)[\d:\t]{red};
+        \or
+            \foreach \a/\d/\t in {outer dot A1/0.2/75, outer dot A2/0.2/-75, outer dot B1/0.2/-45, outer dot B2/0.2/45}
+            \path (T.\a) \coordx(\a)[\d:\t]{blue};
+        \or
+            \foreach \a/\t in {A1/120, A2/-120, B1/120, B2/-120, base/-90}
+            \path (T.\a) \coordx(\a)[0.2:\t]{green!50!black};
+        \fi
+    }
+\end{circuitikz}
+\end{quote}
+
+Alse the standard ``geographical'' \texttt{north}, \texttt{north east}, etc. are defined.
+A couple of examples follow:
+
+\begin{LTXexample}[varwidth=true]
+\begin{circuitikz} \draw
+  (0,0) node[transformer] (T) {}
+  (T.A1) node[anchor=east] {A1}
+  (T.A2) node[anchor=east] {A2}
+  (T.B1) node[anchor=west] {B1}
+  (T.B2) node[anchor=west] {B2}
+  (T.base) node{K}
+  (T.inner dot A1) node[circ]{}
+  (T.inner dot B2) node[circ]{}
+;\end{circuitikz}
+\end{LTXexample}
+
+\begin{LTXexample}[varwidth=true]
+\begin{circuitikz} \draw
+  (0,0) node[gyrator] (G) {}
+  (G.A1) node[anchor=east] {A1}
+  (G.A2) node[anchor=east] {A2}
+  (G.B1) node[anchor=west] {B1}
+  (G.B2) node[anchor=west] {B2}
+  (G.base) node{K}
+;\end{circuitikz}
+\end{LTXexample}
+
+
 
 
 \subsection{Amplifiers}
 
-\begin{itemize}
-	\circuititem{op amp}{Operational amplifier}{}
-	\circuititem{en amp}{Operational amplifier compliant to DIN/EN 60617 standard}{}
-	\circuititem{fd op amp}{Fully differential operational amplifier\footnote{Contributed by Kristofer M. Monisit.}}{}
-	\circuititem{gm amp}{transconductance amplifier}{}
-	\circuititem{inst amp}{plain instrumentation amplifier}{}
-	\circuititem{fd inst amp}{Fully differential instrumentation amplifier}{}
-	\circuititem{inst amp ra}{instrumentation amplifier with amplification resistance terminals}{}
-	\circuititem{plain amp}{Plain amplifier}{}
-	\circuititem{buffer}{Buffer}{}
-\end{itemize}
+\begin{groupdesc}
+    \circuitdesc{op amp}{Operational amplifier}{}( +/180/0.2, -/180/0.2, out/0/0.2, up/90/0.2, down/-90/0.2 )
+    \circuitdesc{en amp}{Operational amplifier compliant to DIN/EN 60617 standard}{}
+    \circuitdesc{fd op amp}{Fully differential operational amplifier\footnotemark}{}( out +/0/0.2, out -/0/0.2 )
+    \footnotetext{Contributed by Kristofer M. Monisit.}
+    \circuitdesc{gm amp}{transconductance amplifier}{}
+    \circuitdesc{inst amp}{plain instrumentation amplifier}{}( up/90/0.2, down/-90/0.2, refv up/45/0.2, refv down/-45/0.2 )
+    \circuitdesc{fd inst amp}{Fully differential instrumentation amplifier}{}
+    \circuitdesc{inst amp ra}{instrumentation amplifier with amplification resistance terminals}{}( ra+/180/0.1, ra-/180/0.1 )
+    \circuitdesc{plain amp}{Plain amplifier}{}
+    \circuitdesc{buffer}{Buffer}{}
+\end{groupdesc}
+
+\subsubsection{Amplifiers anchors}
+
+The op amp defines the inverting input (\texttt{-}), the non-inverting input (\texttt{+}) and the output (\texttt{out}) anchors:
+
+\begin{LTXexample}[varwidth=true]
+\begin{circuitikz} \draw
+  (0,0) node[op amp] (opamp) {}
+  (opamp.+) node[left] {$v_+$}
+  (opamp.-) node[left] {$v_-$}
+  (opamp.out) node[right] {$v_o$}
+  (opamp.up) --++(0,0.5) node[vcc]{5\,\textnormal{V}}
+  (opamp.down) --++(0,-0.5) node[vee]{-5\,\textnormal{V}}
+;\end{circuitikz}
+\end{LTXexample}
+
+There are also two more anchors defined, \texttt{up} and \texttt{down}, for the power supplies:
+\begin{LTXexample}[varwidth=true]
+\begin{circuitikz} \draw
+  (0,0) node[op amp] (opamp) {}
+  (opamp.+) node[left] {$v_+$}
+  (opamp.-) node[left] {$v_-$}
+  (opamp.out) node[right] {$v_o$}
+  (opamp.down) node[ground] {}
+  (opamp.up) ++ (0,.5) node[above] {\SI{12}{\volt}}
+     -- (opamp.up)
+;\end{circuitikz}
+\end{LTXexample}
+
+The fully differential op amp defines two outputs:
+\begin{LTXexample}[varwidth=true]
+\begin{circuitikz} \draw
+  (0,0) node[fd op amp] (opamp) {}
+  (opamp.+) node[left] {$v_+$}
+  (opamp.-) node[left] {$v_-$}
+  (opamp.out +) node[right] {out +}
+  (opamp.out -) node[right] {out -}
+  (opamp.down) node[ground] {}
+;\end{circuitikz}
+\end{LTXexample}
+
+The instrumentation amplifier inst amp defines also references (normally you use the "down", unless you are flipping the component):
+\begin{LTXexample}[varwidth=true]
+\begin{circuitikz} \draw
+  (0,0) node[inst amp] (opamp) {}
+  (opamp.+) node[left] {$v_+$}
+  (opamp.-) node[left] {$v_-$}
+  (opamp.out) node[right] {out}
+  (opamp.up) node[vcc]{}
+  (opamp.down) node[vee] {}
+  (opamp.refv down) node[ground]{}
+  (opamp.refv up) to[short, -o] ++(0,0.3)
+;\end{circuitikz}
+\end{LTXexample}
+
+The fully diffential instrumentation amplifier inst amp defines two outputs:
+\begin{LTXexample}[varwidth=true]
+\begin{circuitikz} \draw
+  (0,0) node[fd inst amp] (opamp) {}
+  (opamp.+) node[left] {$v_+$}
+  (opamp.-) node[left] {$v_-$}
+  (opamp.out +) node[right] {out +}
+  (opamp.out -) node[right] {out -}
+  (opamp.up) node[vcc]{}
+  (opamp.down) node[vee] {}
+  (opamp.refv down) node[ground]{}
+  (opamp.refv up) to[short, -o] ++(0,0.3)
+;\end{circuitikz}
+\end{LTXexample}
+
+The instrumentation amplifier with resistance terminals (\texttt{inst amp ra}) defines also terminals to add an amplification resistor:
+\begin{LTXexample}[varwidth=true]
+\begin{circuitikz} \draw
+  (0,0) node[inst amp ra] (opamp) {}
+  (opamp.+) node[left] {$v_+$}
+  (opamp.-) node[left] {$v_-$}
+  (opamp.out) node[right] {out}
+  (opamp.up) node[vcc]{}
+  (opamp.down) node[vee] {}
+  (opamp.refv down) node[ground]{}
+  (opamp.refv up) to[short, -o] ++(0,0.3)
+  (opamp.ra-) to[R] (opamp.ra+)
+;\end{circuitikz}
+\end{LTXexample}
+
+\subsubsection{Amplifiers cutomization}
+
+All these amplifier have the possibility to flip input and output (if needed) polarity. You can change polarity of the input with the
+\texttt{noinv input down} (default) or \texttt{noinv input up} key; and the output with \texttt{noinv output up} (default) or \texttt{noinv output down} key:
+\begin{LTXexample}[varwidth=true]
+\begin{circuitikz} \draw
+  (0,0) node[fd inst amp,
+     noinv input up,
+     noinv output down] (opamp) {}
+  (opamp.+) node[left] {$v_+$}
+  (opamp.-) node[left] {$v_-$}
+  (opamp.out +) node[right] {out +}
+  (opamp.out -) node[right] {out -}
+  (opamp.up) node[vcc]{}
+  (opamp.down) node[vee] {}
+  (opamp.refv down) node[ground]{}
+  (opamp.refv up) to[short, -o] ++(0,0.3)
+;\end{circuitikz}
+\end{LTXexample}
+
+When you use the \texttt{noinv input/output ...} keys the anchors (\texttt{+}, \texttt{-}, \texttt{out +}, \texttt{out -}) will change with the effective position of the terminals. You have also the anchors \texttt{in up}, \texttt{in down}, \texttt{out up}, \texttt{out down} that will not change with the positive or negatie sign.
+
+
 
 \subsection{Support shapes and bipoles}
 
 Path style:
-\begin{itemize}
-\circuititembip{crossing}{Jumper style non-contact crossing}{xing}
-\end{itemize}
+\begin{groupdesc}
+\circuitdescbip{crossing}{Jumper style non-contact crossing}{xing}
+\end{groupdesc}
 
 \noindent Node style:
 
-\begin{itemize}
-	\circuititem{currarrow}{Arrows (current and voltage)}{}
-	\circuititem{inputarrow}{Arrow to draw at its tip, useful for block diagrams.}{}
-	\circuititem{circ}{Connected terminal}{}
-	\circuititem{ocirc}{Unconnected terminal}{}
-	\circuititem{diamondpole}{Diamond-style terminal}{}
-	\circuititem{jump crossing}{Jumper-style crossing node}{}
-	\circuititem{plain crossing}{Plain style crossing node}{}
-\end{itemize}
+\begin{groupdesc}
+    \circuitdesc{currarrow}{Arrows (current and voltage)}{}
+    \circuitdesc{inputarrow}{Arrow to draw at its tip, useful for block diagrams.}{}
+    \circuitdesc{circ}{Connected terminal}{}
+    \circuitdesc{ocirc}{Unconnected terminal}{}
+    \circuitdesc{diamondpole}{Diamond-style terminal}{}
+    \circuitdesc{jump crossing}{Jumper-style crossing node}{}
+    \circuitdesc{plain crossing}{Plain style crossing node}{}
+\end{groupdesc}
 
 \subsubsection{Terminal shapes}
 Since version 0.8.4, \texttt{circ}, \texttt{ocirc} , and \texttt{diamondpole} have all the standard geographical anchors, so you can do things like these:
@@ -900,42 +1855,42 @@ Switches and button come in to-style (the simple ones and the pushbuttons), and 
 \subsubsection{Traditional switches}
 These are all of the to-style type:
 
-\begin{itemize}
-	\circuititembip{switch}{Switch}{spst}
-	\circuititembip{closing switch}{Closing switch}{cspst}
-	\circuititembip{opening switch}{Opening switch}{ospst}
-	\circuititembip{normal open switch}{Normally open switch}{nos}
-	\circuititembip{normal closed switch}{Normally closed switch}{ncs}
-	\circuititembip{push button}{Normally open push button}{normally open push button, nopb}
-        \circuititembip{normally closed push button}{Normally closed push button}{ncpb}
-	\circuititembip{toggle switch}{Toggle switch}{}
-\end{itemize}
+\begin{groupdesc}
+    \circuitdescbip[cspst]{switch}{Switch}{spst}
+    \circuitdescbip[cspst]{closing switch}{Closing switch}{cspst}
+    \circuitdescbip[ospst]{opening switch}{Opening switch}{ospst}
+    \circuitdescbip[nos]{normal open switch}{Normally open switch}{nos}
+    \circuitdescbip[ncs]{normal closed switch}{Normally closed switch}{ncs}
+    \circuitdescbip[pushbutton]{push button}{Normally open push button}{normally open push button, nopb}
+    \circuitdescbip[ncpushbutton]{normally closed push button}{Normally closed push button}{ncpb}
+    \circuitdescbip[toggleswitch]{toggle switch}{Toggle switch}{}
+\end{groupdesc}
 
 While this is a node-style component
 
-\begin{itemize}
-	\circuititem{spdt}{spdt}{}
-\end{itemize}
+\begin{groupdesc}
+	\circuitdesc{spdt}{spdt}{}( in/180/0.2, out 1/0/0.2, out 2/0/0.2 )
+\end{groupdesc}
 
 \subsubsection{Cute switches}
 These switches have been introduced after version 0.8.4, and they come in also in to-style and in node-style, but they are size-matched so that they can be used together in a seamless way.
 
 The path element (to-style) are:
-\begin{itemize}
-    \circuititembip{cute closed switch}{Cute closed switch}{ccsw}
-    \circuititembip{cute open switch}{Cute open switch}{cosw}
-    \circuititembip{cute closing switch}{Cute closing switch}{ccgsw}
-    \circuititembip{cute opening switch}{Cute opening switch}{cogsw}
-\end{itemize}
+\begin{groupdesc}
+    \circuitdescbip[cuteclosedswitch]{cute closed switch}{Cute closed switch}{ccsw}
+    \circuitdescbip[cuteopenswitch]{cute open switch}{Cute open switch}{cosw}
+    \circuitdescbip[cuteclosingswitch]{cute closing switch}{Cute closing switch}{ccgsw}
+    \circuitdescbip[cuteopeningswitch]{cute opening switch}{Cute opening switch}{cogsw}
+\end{groupdesc}
 while the node-style components are the single-pole, double-throw (\texttt{spdt}) ones:
-\begin{itemize}
-    \circuititem{cute spdt up}{Cute spdt up}{}
-    \circuititem{cute spdt mid}{Cute spdt mid}{}
-    \circuititem{cute spdt down}{Cute spdt down}{}
-    \circuititem{cute spdt up arrow}{Cute spdt up with arrow}{}
-    \circuititem{cute spdt mid arrow}{Cute spdt mid with arrow}{}
-    \circuititem{cute spdt down arrow}{Cute spdt down with arrow}{}
-\end{itemize}
+\begin{groupdesc}
+    \circuitdesc{cute spdt up}{Cute spdt up}{}( in/180/0.2, out 1/0/0.2, out 2/0/0.2 )
+    \circuitdesc{cute spdt mid}{Cute spdt mid}{}
+    \circuitdesc{cute spdt down}{Cute spdt down}{}
+    \circuitdesc{cute spdt up arrow}{Cute spdt up with arrow}{}
+    \circuitdesc{cute spdt mid arrow}{Cute spdt mid with arrow}{}
+    \circuitdesc{cute spdt down arrow}{Cute spdt down with arrow}{}
+\end{groupdesc}
 
 \subsubsection{Switches anchors}
 
@@ -952,6 +1907,22 @@ The nodes-style switches have the following anchors:
 \end{circuitikz}
 
 
+\begin{LTXexample}[varwidth=true]
+\begin{circuitikz} \draw
+  (0,0) node[spdt] (Sw) {}
+  (Sw.in) node[left] {in}
+  (Sw.out 1) node[right] {out 1}
+  (Sw.out 2) node[right] {out 2}
+;\end{circuitikz}
+\end{LTXexample}
+
+\begin{LTXexample}[varwidth=true]
+\begin{circuitikz} \draw
+ (0,0) to[C] (1,0) to[toggle switch , n=Sw] (2.5,0)
+   -- (2.5,-1) to[battery1] (1.5,-1) to[R] (0,-1) -| (0,0)
+  (Sw.out 2) -| (2.5, 1) to[R] (0,1) -- (0,0)
+;\end{circuitikz}
+\end{LTXexample}
 
 
 
@@ -960,25 +1931,25 @@ The nodes-style switches have the following anchors:
 Logic gates, with two or more input, are supported. Albeit in principle these components are multipoles, the are considered tripoles here, for historical reasons (when they just had two inputs).
 
 \subsubsection{American Logic gates}
-\begin{itemize}
-	\circuititem{american and port}{American \textsc{and} port}{}
-	\circuititem{american or port}{American \textsc{or} port}{}
-	\circuititem{american not port}{American \textsc{not} port}{}
-	\circuititem{american nand port}{American \textsc{nand} port}{}
-	\circuititem{american nor port}{American \textsc{nor} port}{}
-	\circuititem{american xor port}{American \textsc{xor} port}{}
-	\circuititem{american xnor port}{American \textsc{xnor} port}{}
-\end{itemize}
+\begin{groupdesc}
+    \circuitdesc{american and port}{American \textsc{and} port}{}( in 1/180/0.2, in 2/180/0.2, out/0/0.2 )
+    \circuitdesc{american or port}{American \textsc{or} port}{}( bin 1/135/0.2, bin 2/-135/0.2, bout/-45/0.2 )
+    \circuitdesc{american not port}{American \textsc{not} port}{}
+    \circuitdesc{american nand port}{American \textsc{nand} port}{}
+    \circuitdesc{american nor port}{American \textsc{nor} port}{}
+    \circuitdesc{american xor port}{American \textsc{xor} port}{}
+    \circuitdesc{american xnor port}{American \textsc{xnor} port}{}
+\end{groupdesc}
 \subsubsection{European Logic gates}
-\begin{itemize}
-	\circuititem{european and port}{European \textsc{and} port}{}
-	\circuititem{european or port}{European \textsc{or} port}{}
-	\circuititem{european not port}{European \textsc{not} port}{}
-	\circuititem{european nand port}{European \textsc{nand} port}{}
-	\circuititem{european nor port}{European \textsc{nor} port}{}
-	\circuititem{european xor port}{European \textsc{xor} port}{}
-	\circuititem{european xnor port}{European \textsc{xnor} port}{}
-\end{itemize}
+\begin{groupdesc}
+    \circuitdesc{european and port}{European \textsc{and} port}{}( in 1/180/0.2, in 2/180/0.2, out/0/0.2 )
+    \circuitdesc{european or port}{European \textsc{or} port}{}
+    \circuitdesc{european not port}{European \textsc{not} port}{}
+    \circuitdesc{european nand port}{European \textsc{nand} port}{}
+    \circuitdesc{european nor port}{European \textsc{nor} port}{}
+    \circuitdesc{european xor port}{European \textsc{xor} port}{}
+    \circuitdesc{european xnor port}{European \textsc{xnor} port}{}
+\end{groupdesc}
 
 \begin{framed}
 If (default behaviour) \texttt{americanports} option is active (or the style \texttt{[american ports]} is used), the shorthands \texttt{and port}, \texttt{or port}, \texttt{not port}, \texttt{nand port}, \texttt{not port}, \texttt{xor port}, and \texttt{xnor port} are equivalent to the american version of the respective logic port.
@@ -990,10 +1961,10 @@ If otherwise \texttt{europeanports} option is active (or the style \texttt{[euro
 
 There is no ``european''  version of these symbols.
 
-\begin{itemize}
-	\circuititem{schmitt}{Non-Inverting \textsc{Schmitttrigger}}{}
-	\circuititem{invschmitt}{Inverting \textsc{Schmitttrigger}}{}
-\end{itemize}
+\begin{groupdesc}
+    \circuitdesc{schmitt}{Non-Inverting \textsc{Schmitttrigger}}{}
+    \circuitdesc{invschmitt}{Inverting \textsc{Schmitttrigger}}{}
+\end{groupdesc}
 
 \subsubsection{Logic port customization}
 
@@ -1111,7 +2082,7 @@ As you can see, the \texttt{center} anchor is (for historic reasons) not in the 
 \end{LTXexample}
 
 \begin{LTXexample}[varwidth=true]
-\begin{circuitikz} \draw 
+\begin{circuitikz} \draw
   (0,2) node[and port] (myand1)  {}
   (0,0) node[and port] (myand2)  {}
   (2,1) node[xnor port] (myxnor)  {}
@@ -1123,12 +2094,12 @@ As you can see, the \texttt{center} anchor is (for historic reasons) not in the 
 In the case of \textsc{not}, there are only \texttt{in} and \texttt{out} (although for compatibility reasons \texttt{in 1} is still defined and equal to \texttt{in}):
 
 \begin{LTXexample}[varwidth=true]
-\begin{circuitikz} \draw 
+\begin{circuitikz} \draw
   (1,0) node[not port] (not1)  {}
   (3,0) node[not port] (not2)  {}
-  (0,0) -- (not1.in) 
-  (not2.in) -- (not1.out) 
-  ++(0,-1) node[ground] {} to[C] (not1.out) 
+  (0,0) -- (not1.in)
+  (not2.in) -- (not1.out)
+  ++(0,-1) node[ground] {} to[C] (not1.out)
   (not2.out) -| (4,1) -| (0,0)
 ;\end{circuitikz}
 \end{LTXexample}
@@ -1141,10 +2112,10 @@ In the case of \textsc{not}, there are only \texttt{in} and \texttt{out} (althou
 %%% See issue #24
 
 \texttt{CircuiTikZ} supports two types of variable-pin chips: DIP (Dual-in-Line Package) and QFP (Quad-Flat Package).
-\begin{itemize}
-    \circuititem{dipchip}{Dual-in-Line Package chip}{}
-    \circuititem{qfpchip}{Quad-Flat Package chip}{}
-\end{itemize}
+\begin{groupdesc}
+    \circuitdesc{dipchip}{Dual-in-Line Package chip}{}
+    \circuitdesc{qfpchip}{Quad-Flat Package chip}{}
+\end{groupdesc}
 
 \subsubsection{DIP and QFP chips customization}
 
@@ -1201,7 +2172,7 @@ The line thickness of the main shape is controlled by \texttt{multipoles/thickne
     \end{circuitikz}
 \end{LTXexample}
 
-\subsubsection{Chip's anchors}
+\subsubsection{Chips anchors}
 
 Chips have anchors on pins and global anchors for the main shape.
 The pin anchors to be used to connect wires to the chip are called \texttt{pin 1}, \texttt{pin 2} , \dots, with just one space between \texttt{pin} and the number.
@@ -1228,7 +2199,7 @@ Additionally, you have geometrical anchors on the chip ``box'', see the followin
         \foreach \p in {center, nw, ne, se, sw, north, south, west, east}
             \path (D.\p) \coord(\p);
         \path (D.text) \coordd(text);
-        % third chip 
+        % third chip
         \draw (D.pin 7)  ++(2,0)
               node[dipchip,anchor=pin 2, no topmark](E){};
         \foreach \p in {center, n, w, e, s, dot}
@@ -1278,38 +2249,38 @@ Look at the following example, which is easily put into a macro.
     \draw (C.s) -- ++(0,-1) node[ground]{};
 \end{circuitikz}\end{LTXexample}
 
-\section{Usage}
+\section{Labels and similar annotations}
 
 \begin{LTXexample}[varwidth=true]
 \begin{circuitikz}
    \draw (0,0) to[R, l=$R_1$] (2,0);
 \end{circuitikz}
-\end{LTXexample}	
+\end{LTXexample}
 
 \begin{LTXexample}[varwidth=true]
 \begin{circuitikz}
    \draw (0,0) to[R=$R_1$] (2,0);
 \end{circuitikz}
-\end{LTXexample}	
+\end{LTXexample}
 
 
 \begin{LTXexample}[varwidth=true]
 \begin{circuitikz}
    \draw (0,0) to[R, i=$i_1$] (2,0);
 \end{circuitikz}
-\end{LTXexample}	
+\end{LTXexample}
 
 \begin{LTXexample}[varwidth=true]
 \begin{circuitikz}
    \draw (0,0) to[R, v=$v_1$] (2,0);
 \end{circuitikz}
-\end{LTXexample}	
+\end{LTXexample}
 
 \begin{LTXexample}[varwidth=true]
 \begin{circuitikz}
    \draw (0,0) to[R=$R_1$, i=$i_1$, v=$v_1$] (2,0);
 \end{circuitikz}
-\end{LTXexample}	
+\end{LTXexample}
 
 \begin{LTXexample}[varwidth=true]
 \begin{circuitikz}
@@ -1321,7 +2292,7 @@ Look at the following example, which is easily put into a macro.
 Long names/styles for the bipoles can be used:
 \begin{LTXexample}[varwidth=true]
 \begin{circuitikz}\draw
-  (0,0) to[resistor=1<\kilo\ohm>] (2,0) 
+  (0,0) to[resistor=1<\kilo\ohm>] (2,0)
 ;\end{circuitikz}
 \end{LTXexample}
 
@@ -1335,13 +2306,13 @@ The position of (a) and (l) labels can be adjusted with \_ and \^, respectively.
 \begin{circuitikz}
    \draw (0,0) to[R, l=$R_1$,a=1<\kilo\ohm>] (2,0);
 \end{circuitikz}
-\end{LTXexample}	
+\end{LTXexample}
 
 \begin{LTXexample}[varwidth=true]
 \begin{circuitikz}
    \draw (0,0) to[R, l_=$R_1$,a^=1<\kilo\ohm>] (2,0);
 \end{circuitikz}
-\end{LTXexample}	
+\end{LTXexample}
 
 \textbf{Caveat:} notice that the way in which \texttt{circuitikz} processes the options, there will be problems if the label (or annotation, or voltage, or current) contains one of the characters $=$ (equal) or $,$ (comma), giving unexpected errors and wrong output.
 These two characters must be protected to the option parser using an \verb|\mbox| command, or redefining the characters with a \TeX\ \verb|\def|:
@@ -1368,7 +2339,7 @@ These two characters must be protected to the option parser using an \verb|\mbox
   \draw (0,0) to[R=\i, *-o] (\i:2.5);
 }
 \end{circuitikz}
-\end{LTXexample}	
+\end{LTXexample}
 \begin{LTXexample}[varwidth=true]
 \begin{circuitikz}
 \ctikzset{label/align = rotate}
@@ -1377,7 +2348,7 @@ These two characters must be protected to the option parser using an \verb|\mbox
   \draw (0,0) to[R=\i, *-o] (\i:2.5);
 }
 \end{circuitikz}
-\end{LTXexample}	
+\end{LTXexample}
 \begin{LTXexample}[varwidth=true]
 \begin{circuitikz}
 \ctikzset{label/align = smart}
@@ -1490,8 +2461,7 @@ change direction of the voltages,
 currents and flows using the complete keys \verb|i_>|, \verb|i^<|, \verb|i>_|, \verb|i>^|,
 as shown in the following examples.
 
-This manual has been typeset with the option \texttt{\chosenvoltoption}. 
-
+This manual has been typeset with the option \texttt{\chosenvoltoption}.
 
 \subsection{Currents}
 
@@ -1502,49 +2472,49 @@ Inline (along the wire) currents are selected with \verb|i_>|, \verb|i^<|, \verb
 \begin{circuitikz}
    \draw (0,0) to[R, i^>=$i_1$] (2,0);
 \end{circuitikz}
-\end{LTXexample}	
+\end{LTXexample}
 
 \begin{LTXexample}[varwidth=true]
 \begin{circuitikz}
    \draw (0,0) to[R, i_>=$i_1$] (2,0);
 \end{circuitikz}
-\end{LTXexample}	
+\end{LTXexample}
 
 \begin{LTXexample}[varwidth=true]
 \begin{circuitikz}
    \draw (0,0) to[R, i^<=$i_1$] (2,0);
 \end{circuitikz}
-\end{LTXexample}	
+\end{LTXexample}
 
 \begin{LTXexample}[varwidth=true]
 \begin{circuitikz}
    \draw (0,0) to[R, i_<=$i_1$] (2,0);
 \end{circuitikz}
-\end{LTXexample}	
+\end{LTXexample}
 
 \begin{LTXexample}[varwidth=true]
 \begin{circuitikz}
    \draw (0,0) to[R, i>^=$i_1$] (2,0);
 \end{circuitikz}
-\end{LTXexample}	
+\end{LTXexample}
 
 \begin{LTXexample}[varwidth=true]
 \begin{circuitikz}
    \draw (0,0) to[R, i>_=$i_1$] (2,0);
 \end{circuitikz}
-\end{LTXexample}	
+\end{LTXexample}
 
 \begin{LTXexample}[varwidth=true]
 \begin{circuitikz}
    \draw (0,0) to[R, i<^=$i_1$] (2,0);
 \end{circuitikz}
-\end{LTXexample}	
+\end{LTXexample}
 
 \begin{LTXexample}[varwidth=true]
 \begin{circuitikz}
    \draw (0,0) to[R, i<_=$i_1$] (2,0);
 \end{circuitikz}
-\end{LTXexample}	
+\end{LTXexample}
 
 Also
 
@@ -1552,19 +2522,19 @@ Also
 \begin{circuitikz}
    \draw (0,0) to[R, i<=$i_1$] (2,0);
 \end{circuitikz}
-\end{LTXexample}	
+\end{LTXexample}
 
 \begin{LTXexample}[varwidth=true]
 \begin{circuitikz}
    \draw (0,0) to[R, i>=$i_1$] (2,0);
 \end{circuitikz}
-\end{LTXexample}	
+\end{LTXexample}
 
 \begin{LTXexample}[varwidth=true]
 \begin{circuitikz}
    \draw (0,0) to[R, i^=$i_1$] (2,0);
 \end{circuitikz}
-\end{LTXexample}	
+\end{LTXexample}
 
 \begin{LTXexample}[varwidth=true]
 \begin{circuitikz}
@@ -1576,26 +2546,26 @@ Also
 \begin{circuitikz}
    \draw (0,0) to[V=10V, i_=$i_1$] (2,0);
 \end{circuitikz}
-\end{LTXexample}	
-	
+\end{LTXexample}
+
 \begin{LTXexample}[varwidth=true]
 \begin{circuitikz}
    \draw (0,0) to[V<=10V, i_=$i_1$] (2,0);
 \end{circuitikz}
-\end{LTXexample}		
+\end{LTXexample}
 
 \begin{LTXexample}[varwidth=true]
 \begin{circuitikz}[american]
    \draw (0,0) to[V=10V, i_=$i_1$] (2,0);
 \end{circuitikz}
-\end{LTXexample}	
-	
+\end{LTXexample}
+
 \begin{LTXexample}[varwidth=true]
 \begin{circuitikz}[american]
    \draw (0,0) to[V=10V,invert, i_=$i_1$] (2,0);
 \end{circuitikz}
 \end{LTXexample}
-	
+
 \begin{LTXexample}[varwidth=true]
 \begin{circuitikz}[american]
    \draw (0,0) to[dcisource=1A, i_=$i_1$] (2,0);
@@ -1606,7 +2576,7 @@ Also
 \begin{circuitikz}[american]
    \draw (0,0) to[dcisource=1A,invert, i_=$i_1$] (2,0);
 \end{circuitikz}
-\end{LTXexample}			
+\end{LTXexample}
 
 \subsection{Flows}\label{flows}
 As an alternative for the current arrows, you can also use the following flows. They can also be used to indicate thermal or power flows. The syntax is pretty the same as for currents.
@@ -1688,20 +2658,20 @@ See introduction note at Currents (chapter \ref{curr-and-volt}, page \pageref{cu
 \begin{circuitikz}
    \draw (0,0) to[V=10V, i_=$i_1$] (2,0);
 \end{circuitikz}
-\end{LTXexample}	
-	
+\end{LTXexample}
+
 \begin{LTXexample}[varwidth=true]
 \begin{circuitikz}
    \draw (0,0) to[V<=10V, i_=$i_1$] (2,0);
 \end{circuitikz}
-\end{LTXexample}		
+\end{LTXexample}
 
 \begin{LTXexample}[varwidth=true]
 \begin{circuitikz}
    \draw (0,0) to[I=1A, v_=$u_1$] (2,0);
 \end{circuitikz}
-\end{LTXexample}	
-	
+\end{LTXexample}
+
 \begin{LTXexample}[varwidth=true]
 \begin{circuitikz}
    \draw (0,0) to[I<=1A, v_=$u_1$] (2,0);
@@ -1718,7 +2688,7 @@ See introduction note at Currents (chapter \ref{curr-and-volt}, page \pageref{cu
 \begin{circuitikz}
    \draw (0,0) to[I,l=1A, v_=$u_1$] (2,0);
 \end{circuitikz}
-\end{LTXexample}	
+\end{LTXexample}
 
 \begin{LTXexample}[varwidth=true]
 \begin{circuitikz}
@@ -1729,7 +2699,8 @@ See introduction note at Currents (chapter \ref{curr-and-volt}, page \pageref{cu
 
 
 
-\subsubsection{American style} For those who like it (not me). Use option \texttt{americanvoltage} or set \verb![american voltages]!.
+\subsubsection{American style}
+Use option \texttt{americanvoltage} or set \verb![american voltages]!.
 
 \begin{LTXexample}[varwidth=true]
 \begin{circuitikz}[american voltages]
@@ -1759,8 +2730,8 @@ See introduction note at Currents (chapter \ref{curr-and-volt}, page \pageref{cu
 \begin{circuitikz}[american]
    \draw (0,0) to[I=1A, v_=$u_1$] (2,0);
 \end{circuitikz}
-\end{LTXexample}	
-	
+\end{LTXexample}
+
 \begin{LTXexample}[varwidth=true]
 \begin{circuitikz}[american]
    \draw (0,0) to[I<=1A, v_=$i_1$] (2,0);
@@ -1772,9 +2743,9 @@ See introduction note at Currents (chapter \ref{curr-and-volt}, page \pageref{cu
 \begin{LTXexample}[varwidth=true]
 \begin{circuitikz}[]
    \draw (0,0) to[R, v=$v_1$, i=$i_1$] (2,0);
-   \draw (0,-1) to[R, v=$v_1$, i=$i_1$, 
+   \draw (0,-1) to[R, v=$v_1$, i=$i_1$,
       voltage shift=0.5] (2,-1);
-   \draw (0,-2) to[R, v=$v_1$, i=$i_1$, 
+   \draw (0,-2) to[R, v=$v_1$, i=$i_1$,
       voltage shift=1.0, ] (2,-2);
 \end{circuitikz}
 \end{LTXexample}
@@ -1785,7 +2756,7 @@ See introduction note at Currents (chapter \ref{curr-and-volt}, page \pageref{cu
 \end{circuitikz}
 \end{LTXexample}
 
-Notes that \texttt{american voltage} will not affect batteries (and that the default direction of \texttt{european voltages} is a bit strange).
+Notes that \texttt{american voltage} will not affect batteries.
 
 \begin{LTXexample}[varwidth=true]
     \begin{circuitikz}[voltage shift=0.5]
@@ -1798,6 +2769,34 @@ Notes that \texttt{american voltage} will not affect batteries (and that the def
    \draw (0,0) to[battery,l_=1V, v=$u_1$, i=$i_1$] (2,0);
 \end{circuitikz}
 \end{LTXexample}
+
+\subsubsection{Global properties of voltages and currents}
+
+\begin{LTXexample}[varwidth=true]
+\tikz \draw (0,0) to[R, v=1<\volt>] (2,0); \par
+\ctikzset{voltage/distance from node=.1}
+\tikz \draw (0,0) to[R, v=1<\volt>] (2,0);
+\end{LTXexample}
+
+\begin{LTXexample}[varwidth=true]
+\tikz \draw (0,0) to[C, i=$\imath$] (2,0); \par
+\ctikzset{current/distance = .2}
+\tikz \draw (0,0) to[C, i=$\imath$] (2,0);
+\end{LTXexample}
+
+\noindent However, you can override the properties \verb!voltage/distance from node!\footnote{That is, how distant from the initial and final points of the path the arrow starts and ends.}, \verb!voltage/bump b!\footnote{Controlling how high the bump of the arrow is --- how curved it is.} and \verb!voltage/european label distance!\footnote{Controlling how distant from the bipole the voltage label will be.} on a per-component basis, in order to fine-tune the voltages:
+
+\begin{LTXexample}[varwidth=true]
+\tikz \draw (0,0) to[R, v=1<\volt>] (1.5,0)
+       to[C, v=2<\volt>] (3,0); \par
+\ctikzset{bipoles/capacitor/voltage/%
+     distance from node/.initial=.7}
+\tikz \draw (0,0) to[R, v=1<\volt>] (1.5,0)
+       to[C, v=2<\volt>] (3,0); \par
+\end{LTXexample}
+
+
+
 
 \subsection{Nodes}
 
@@ -1928,7 +2927,7 @@ For some components label, current and voltage behave as one would expect:
 \end{circuitikz}
 \end{LTXexample}
 
-The following results from using the option \texttt{americancurrent} or using the style \verb![american currents]!.
+The following results from using the option \texttt{americancurrent} or using the style \texttt{[american currents]}.
 
 \begin{LTXexample}[varwidth=true]
 \begin{circuitikz}[american currents]
@@ -1996,7 +2995,7 @@ The same holds for voltage sources:
 \end{circuitikz}
 \end{LTXexample}
 
-The following results from using the option \texttt{americanvoltage} or the style \verb![american voltages]!.
+The following results from using the option \texttt{americanvoltage} or the style \texttt{[american voltages]}.
 
 \begin{LTXexample}[varwidth=true]
 \begin{circuitikz}[american voltages]
@@ -2038,37 +3037,37 @@ If the option {\ttfamily siunitx} is active (and \emph{not} in \ConTeXt), then t
 \begin{circuitikz}
    \draw (0,0) to[R, l=1<\kilo\ohm>] (2,0);
 \end{circuitikz}
-\end{LTXexample}	
+\end{LTXexample}
 
 \begin{LTXexample}[varwidth=true]
 \begin{circuitikz}
    \draw (0,0) to[R, l=$\SI{1}{\kilo\ohm}$] (2,0);
 \end{circuitikz}
-\end{LTXexample}	
+\end{LTXexample}
 
 \begin{LTXexample}[varwidth=true]
 \begin{circuitikz}
    \draw (0,0) to[R, i=1<\milli\ampere>] (2,0);
 \end{circuitikz}
-\end{LTXexample}	
+\end{LTXexample}
 
 \begin{LTXexample}[varwidth=true]
 \begin{circuitikz}
    \draw (0,0) to[R, i=$\SI{1}{\milli\ampere}$] (2,0);
 \end{circuitikz}
-\end{LTXexample}	
+\end{LTXexample}
 
 \begin{LTXexample}[varwidth=true]
 \begin{circuitikz}
    \draw (0,0) to[R, v=1<\volt>] (2,0);
 \end{circuitikz}
-\end{LTXexample}	
+\end{LTXexample}
 
 \begin{LTXexample}[varwidth=true]
 \begin{circuitikz}
    \draw (0,0) to[R, v=$\SI{1}{\volt}$] (2,0);
 \end{circuitikz}
-\end{LTXexample}	
+\end{LTXexample}
 
 
 
@@ -2079,7 +3078,7 @@ Bipole paths can also mirrored and inverted (or reverted) to change the drawing 
 \begin{circuitikz}
    \draw (0,0) to[pD] (2,0);
 \end{circuitikz}
-\end{LTXexample}	
+\end{LTXexample}
 
 \begin{LTXexample}[varwidth=true]
 \begin{circuitikz}
@@ -2090,20 +3089,20 @@ Bipole paths can also mirrored and inverted (or reverted) to change the drawing 
 \begin{circuitikz}
    \draw (0,0) to[pD, invert] (2,0);
 \end{circuitikz}
-\end{LTXexample}	
+\end{LTXexample}
 
 Placing labels, currents and voltages works also, please note, that mirroring and inverting does not incfluence the positioning of labels and voltages. Labels are by default above/right of the bipole and voltages below/left, respectively.
 \begin{LTXexample}[varwidth=true]
 \begin{circuitikz}
    \draw (0,0) to[ospst=T, i=$i_1$, v=$v$] (2,0);
 \end{circuitikz}
-\end{LTXexample}	
+\end{LTXexample}
 
 \begin{LTXexample}[varwidth=true]
 \begin{circuitikz}
    \draw (0,0) to[ospst=T, mirror, i=$i_1$, v=$v$] (2,0);
 \end{circuitikz}
-\end{LTXexample}	
+\end{LTXexample}
 
 \begin{LTXexample}[varwidth=true]
 \begin{circuitikz}
@@ -2114,7 +3113,7 @@ Placing labels, currents and voltages works also, please note, that mirroring an
 \begin{circuitikz}
    \draw (0,0) to[ospst=T,mirror,invert, i=$i_1$, v=$v$] (2,0);
 \end{circuitikz}
-\end{LTXexample}	
+\end{LTXexample}
 
 
 \subsection{Putting them together}
@@ -2133,6 +3132,8 @@ Placing labels, currents and voltages works also, please note, that mirroring an
 \end{LTXexample}
 
 \subsection{Line joins between Path Components}
+\label{sec:line-joins}
+
 Line joins should be calculated correctly, if the were on the same path and if the path is not closed. For example, the following path is not closed correctly(\textit{--cycle} does not work here!):
 \begin{LTXexample}[varwidth=true]
 	\begin{tikzpicture}[line width=3pt,european]
@@ -2151,541 +3152,7 @@ To correct the line ending, there are support shapes to fill the missing rectang
 \end{LTXexample}
 
 
-\section{Not only bipoles}
-Since only bipoles (but see section~\ref{sec:transasbip}) can be placed "along a line", components with more than two terminals are placed as nodes:
-\begin{LTXexample}[varwidth=true]
-\begin{circuitikz}
-\draw (0,0) node[npn](npn)  at (0,0) {};
-\draw (npn.C) --++(0,0.5) node[vcc]{+5\,\textnormal{V}};
-\draw (npn.E) --++(0,-0.5) node[vee]{-5\,\textnormal{V}};
-\end{circuitikz}
-\end{LTXexample}
-
-\subsection{Anchors}
-
-In order to allow connections with other components, all components define anchors. 
-
-\subsubsection{Sensors} generic sensors have an extra label to help positioning the type of dependence, if needed:
-
-\begin{LTXexample}[varwidth=true]
-\begin{circuitikz}
-   \draw (0,2) to[sR, l=$R$, name=mySR] ++(3,0);
-   \node [font=\tiny, right] at(mySR.label) {-t\si{\degree}};
-   \draw (0,0) to[sL, l=$L$, name=mySL] ++(3,0);
-   \node [draw, circle, inner sep=2pt] at(mySL.label) {};
-\end{circuitikz}
-\end{LTXexample}
-
-The anchor is positioned just on the corner of the segmented line crossing the component.
-
-\subsubsection{Transistors} For \textsc{nmos}, \textsc{pmos}, \textsc{nfet}, \textsc{nigfete}, \textsc{nigfetd}, \textsc{pfet}, \textsc{pigfete}, and \textsc{pigfetd}  transistors  one has \texttt{base}, \texttt{gate}, \texttt{source} and \texttt{drain} anchors (which can be abbreviated with \texttt{B}, \texttt{G}, \texttt{S} and \texttt{D}):
-
-\begin{LTXexample}[varwidth=true]
-\begin{circuitikz} \draw 
-  (0,0) node[nmos] (mos)  {}
-  (mos.gate) node[anchor=east] {G}
-  (mos.drain) node[anchor=south] {D}
-  (mos.source) node[anchor=north] {S}
-;\end{circuitikz}
-\end{LTXexample}
-
-\begin{LTXexample}[varwidth=true]
-\begin{circuitikz} \draw 
-  (0,0) node[pigfete] (pigfete)  {}
-  (pigfete.G) node[anchor=east] {G}
-  (pigfete.D) node[anchor=north] {D}
-  (pigfete.S) node[anchor=south] {S}
-  (pigfete.bulk) node[anchor=west] {Bulk}
-;\end{circuitikz}
-\end{LTXexample}
-
-Similarly \textsc{njfet} and \textsc{pjfet} have  \texttt{gate}, \texttt{source} and \texttt{drain} anchors (which can be abbreviated with  \texttt{G}, \texttt{S} and \texttt{D}):
-
-\begin{LTXexample}[varwidth=true]
-\begin{circuitikz} \draw 
-  (0,0) node[pjfet] (pjfet)  {}
-  (pjfet.G) node[anchor=east] {G}
-  (pjfet.D) node[anchor=north] {D}
-  (pjfet.S) node[anchor=south] {S}
-;\end{circuitikz}
-\end{LTXexample}
-
-For \textsc{npn}, \textsc{pnp}, \textsc{nigbt}, and \textsc{pigbt} transistors the anchors are  \texttt{base}, \texttt{emitter} and \texttt{collector} anchors (which can be abbreviated with \texttt{B}, \texttt{E} and \texttt{C}):
-
-\begin{LTXexample}[varwidth=true]
-\begin{circuitikz} \draw 
-  (0,0) node[npn] (npn)  {}
-  (npn.base) node[anchor=east] {B}
-  (npn.collector) node[anchor=south] {C}
-  (npn.emitter) node[anchor=north] {E}
-;\end{circuitikz}
-\end{LTXexample}
-
-\begin{LTXexample}[varwidth=true]
-\begin{circuitikz} \draw 
-  (0,0) node[pigbt] (pigbt)  {}
-  (pigbt.B) node[anchor=east] {B}
-  (pigbt.C) node[anchor=north] {C}
-  (pigbt.E) node[anchor=south] {E}
-;\end{circuitikz}
-\end{LTXexample}
-
-Here is one composite example (please notice that the \texttt{xscale=-1} style would also reflect the label of the transistors, so here a new node is added and its text is used, instead of that of \texttt{pnp1}):
-
-\begin{LTXexample}[varwidth=true]
-\begin{circuitikz} \draw 
-  (0,0) node[pnp] (pnp2) {2}
-  (pnp2.B) node[pnp, xscale=-1, anchor=B] (pnp1) {}
-    (pnp1) node {1}
-  (pnp1.C) node[npn, anchor=C] (npn1) {}
-  (pnp2.C) node[npn, xscale=-1, anchor=C] (npn2) {}
-  (pnp1.E) -- (pnp2.E)  (npn1.E) -- (npn2.E)
-  (pnp1.B) node[circ] {} |- (pnp2.C) node[circ] {}
-;\end{circuitikz}
-\end{LTXexample}
-
-Similarly, transistors and other components can be reflected vertically:
-\begin{LTXexample}[varwidth=true]
-\begin{circuitikz} \draw 
-  (0,0) node[pigfete, yscale=-1] (pigfete)  {}
-  (pigfete.bulk) node[anchor=west] {Bulk}
-  (pigfete.G) node[anchor=east] {G}
-  (pigfete.D) node[anchor=south] {D}
-  (pigfete.S) node[anchor=north] {S}
-;\end{circuitikz}
-\end{LTXexample}
-
-\begin{LTXexample}[varwidth=true]
-   \begin{circuitikz}
-        \draw (0,2) 
-            node[rground, yscale=-1] {} 
-        to[R=$R_1$] (0,0) 
-            node[sground] {};
-    \end{circuitikz} 
-\end{LTXexample}
-
-\subsubsection{Other tripoles} When inserting a thrystor, a triac or a potentiometer, one needs to refer to the third node--gate (\texttt{gate} or \texttt{G}) for the former two; wiper (\texttt{wiper} or \texttt{W}) for the latter one. This is done by giving a name to the bipole:
-\label{bipole-naming}
-\begin{LTXexample}[varwidth=true]
-\begin{circuitikz} \draw 
-  (0,0) to[Tr, n=TRI] (2,0) 
-        to[pR, n=POT] (4,0);
-  \draw[dashed] (TRI.G) -| (POT.wiper) 
-;\end{circuitikz}
-\end{LTXexample}
-
-As for the switches:
-\begin{LTXexample}[varwidth=true]
-\begin{circuitikz} \draw 
-  (0,0) node[spdt] (Sw) {}
-  (Sw.in) node[left] {in}
-  (Sw.out 1) node[right] {out 1}
-  (Sw.out 2) node[right] {out 2}
-;\end{circuitikz}
-\end{LTXexample}
-\begin{LTXexample}[varwidth=true]
-\begin{circuitikz} \draw 
- (0,0) to[C] (1,0) to[toggle switch , n=Sw] (2.5,0) 
-   -- (2.5,-1) to[battery1] (1.5,-1) to[R] (0,-1) -| (0,0)
-  (Sw.out 2) -| (2.5, 1) to[R] (0,1) -- (0,0)
-;\end{circuitikz}
-\end{LTXexample}
-
-The ports of the mixer and adder can be addressed with numbers or \texttt{west}/\texttt{south}/\texttt{east}/\texttt{north}:
-\begin{LTXexample}[varwidth=true]
-\begin{circuitikz} \draw 
-  (0,0) node[mixer] (mix) {}
-  (mix.1) node[left] {1}
-  (mix.2) node[below] {2}
-  (mix.3) node[right] {3}
-  (mix.4) node[above] {4}
-;\end{circuitikz}
-\end{LTXexample}
-
-The Wilkinson divider has:
-\begin{LTXexample}[varwidth=true]
-\begin{circuitikz} \draw
-  (0,0) node[wilkinson] (w) {\SI{3}{dB}}
-  (w.in) to[short,-o] ++(-0.5,0)
-  (w.out1) to[short,-o] ++(0.5,0)
-  (w.out2) to[short,-o] ++(0.5,0)
-  (w.in) node[below left] {\texttt{in}}
-  (w.out1) node[below right] {\texttt{out1}}
-  (w.out2) node[above right] {\texttt{out2}}
-  ;
-\end{circuitikz}
-\end{LTXexample}
-
-\subsubsection{Operational amplifier} The op amp defines the inverting input (\texttt{-}), the non-inverting input (\texttt{+}) and the output (\texttt{out}) anchors:
-
-\begin{LTXexample}[varwidth=true]
-\begin{circuitikz} \draw 
-  (0,0) node[op amp] (opamp) {}
-  (opamp.+) node[left] {$v_+$}
-  (opamp.-) node[left] {$v_-$}
-  (opamp.out) node[right] {$v_o$}
-  (opamp.up) --++(0,0.5) node[vcc]{5\,\textnormal{V}}
-  (opamp.down) --++(0,-0.5) node[vee]{-5\,\textnormal{V}}
-;\end{circuitikz}
-\end{LTXexample}
-
-There are also two more anchors defined, \texttt{up} and \texttt{down}, for the power supplies:
-\begin{LTXexample}[varwidth=true]
-\begin{circuitikz} \draw 
-  (0,0) node[op amp] (opamp) {}
-  (opamp.+) node[left] {$v_+$}
-  (opamp.-) node[left] {$v_-$}
-  (opamp.out) node[right] {$v_o$}
-  (opamp.down) node[ground] {}
-  (opamp.up) ++ (0,.5) node[above] {\SI{12}{\volt}} 
-     -- (opamp.up)
-;\end{circuitikz}
-\end{LTXexample}
-
-The fully differential op amp defines two outputs:
-\begin{LTXexample}[varwidth=true]
-\begin{circuitikz} \draw 
-  (0,0) node[fd op amp] (opamp) {}
-  (opamp.+) node[left] {$v_+$}
-  (opamp.-) node[left] {$v_-$}
-  (opamp.out +) node[right] {out +}
-  (opamp.out -) node[right] {out -}
-  (opamp.down) node[ground] {}
-;\end{circuitikz}
-\end{LTXexample}
-
-The instrumentation amplifier inst amp defines also references (normally you use the "down", unless you are flipping the component):
-\begin{LTXexample}[varwidth=true]
-\begin{circuitikz} \draw 
-  (0,0) node[inst amp] (opamp) {}
-  (opamp.+) node[left] {$v_+$}
-  (opamp.-) node[left] {$v_-$}
-  (opamp.out) node[right] {out}
-  (opamp.up) node[vcc]{}
-  (opamp.down) node[vee] {}
-  (opamp.refv down) node[ground]{}
-  (opamp.refv up) to[short, -o] ++(0,0.3)
-;\end{circuitikz}
-\end{LTXexample}
-
-The fully diffential instrumentation amplifier inst amp defines two outputs:
-\begin{LTXexample}[varwidth=true]
-\begin{circuitikz} \draw 
-  (0,0) node[fd inst amp] (opamp) {}
-  (opamp.+) node[left] {$v_+$}
-  (opamp.-) node[left] {$v_-$}
-  (opamp.out +) node[right] {out +}
-  (opamp.out -) node[right] {out -}
-  (opamp.up) node[vcc]{}
-  (opamp.down) node[vee] {}
-  (opamp.refv down) node[ground]{}
-  (opamp.refv up) to[short, -o] ++(0,0.3)
-;\end{circuitikz}
-\end{LTXexample}
-
-The instrumentation amplifier with resistance terminals (\texttt{inst amp ra}) defines also terminals to add an amplification resistor:
-\begin{LTXexample}[varwidth=true]
-\begin{circuitikz} \draw 
-  (0,0) node[inst amp ra] (opamp) {}
-  (opamp.+) node[left] {$v_+$}
-  (opamp.-) node[left] {$v_-$}
-  (opamp.out) node[right] {out}
-  (opamp.up) node[vcc]{}
-  (opamp.down) node[vee] {}
-  (opamp.refv down) node[ground]{}
-  (opamp.refv up) to[short, -o] ++(0,0.3)
-  (opamp.ra-) to[R] (opamp.ra+)
-;\end{circuitikz}
-\end{LTXexample}
-
-All these amplifier have the possibility to flip input and output (if needed) polarity. You can change polarity of the input with the 
-\texttt{noinv input down} (default) or \texttt{noinv input up} key; and the output with \texttt{noinv output up} (default) or \texttt{noinv output down} key: 
-\begin{LTXexample}[varwidth=true]
-\begin{circuitikz} \draw 
-  (0,0) node[fd inst amp,
-     noinv input up, 
-     noinv output down] (opamp) {}
-  (opamp.+) node[left] {$v_+$}
-  (opamp.-) node[left] {$v_-$}
-  (opamp.out +) node[right] {out +}
-  (opamp.out -) node[right] {out -}
-  (opamp.up) node[vcc]{}
-  (opamp.down) node[vee] {}
-  (opamp.refv down) node[ground]{}
-  (opamp.refv up) to[short, -o] ++(0,0.3)
-;\end{circuitikz}
-\end{LTXexample}
-
-When you use the \texttt{noinv input/output ...} keys the anchors (\texttt{+}, \texttt{-}, \texttt{out +}, \texttt{out -}) will change with the effective position of the terminals. You have also the anchors \texttt{in up}, \texttt{in down}, \texttt{out up}, \texttt{out down} that will not change with the positive or negatie sign.
-
-
-
-\subsubsection{Double bipoles: transformers and gyrator}
-
-All the (few, actually) double bipoles/quadrupoles have the four anchors, two for each port.
-The first port, to the left, is port \texttt{A}, having the anchors \texttt{A1} (up) and \texttt{A2} (down); same for port \texttt{B}. 
-
-They also expose the \texttt{base} anchor, for labelling, and anchors for setting dots or signs to specify polarity. 
-The set of anchors, to which the standard ``geographical'' \texttt{north}, \texttt{north east}, etc. is here: 
-
-\begin{quote}
-\begin{circuitikz}[cute inductors,
-    ]
-    \def\coordx(#1)[#2:#3]#4{node[circle, #4, draw, inner sep=1pt,pin={[#4, overlay, inner sep=0.5pt, font=\scriptsize, pin distance=#2cm, pin edge={#4, overlay,}]#3:#1}](#1){}}
-    \foreach \comp/\pos/\case in {%
-                            transformer/0/0%
-                            ,transformer core/4/1%
-                            ,gyrator/8/2%
-                            }{
-        \draw (\pos, 0) node[\comp](T){};
-        \ifcase\case
-            \foreach \a/\d/\t in {inner dot A1/0.2/75, inner dot A2/0.2/-75, inner dot B1/0.1/-45, inner dot B2/0.1/45}
-            \path (T.\a) \coordx(\a)[\d:\t]{red};
-        \or
-            \foreach \a/\d/\t in {outer dot A1/0.2/75, outer dot A2/0.2/-75, outer dot B1/0.2/-45, outer dot B2/0.2/45}
-            \path (T.\a) \coordx(\a)[\d:\t]{blue};
-        \or
-            \foreach \a/\t in {A1/120, A2/-120, B1/120, B2/-120, base/-90}
-            \path (T.\a) \coordx(\a)[0.2:\t]{green!50!black};
-        \fi
-    }
-\end{circuitikz}
-\end{quote}
-
-Alse the standard ``geographical'' \texttt{north}, \texttt{north east}, etc. are defined. 
-A couple of examples follow:
-
-\begin{LTXexample}[varwidth=true]
-\begin{circuitikz} \draw 
-  (0,0) node[transformer] (T) {}
-  (T.A1) node[anchor=east] {A1}
-  (T.A2) node[anchor=east] {A2}
-  (T.B1) node[anchor=west] {B1}
-  (T.B2) node[anchor=west] {B2}
-  (T.base) node{K}
-  (T.inner dot A1) node[circ]{}
-  (T.inner dot B2) node[circ]{}
-;\end{circuitikz}
-\end{LTXexample}
-
-\begin{LTXexample}[varwidth=true]
-\begin{circuitikz} \draw 
-  (0,0) node[gyrator] (G) {}
-  (G.A1) node[anchor=east] {A1}
-  (G.A2) node[anchor=east] {A2}
-  (G.B1) node[anchor=west] {B1}
-  (G.B2) node[anchor=west] {B2}
-  (G.base) node{K}
-;\end{circuitikz}
-\end{LTXexample}
-
-
-
-
-\subsubsection{Couplers}
-
-\begin{LTXexample}[varwidth=true]
-\begin{circuitikz} \draw
-  (0,0) node[coupler] (c) {\SI{10}{dB}}
-  (c.1) to[short,-o] ++(-0.5,0)
-  (c.2) to[short,-o] ++(0.5,0)
-  (c.3) to[short,-o] ++(0.5,0)
-  (c.4) to[short,-o] ++(-0.5,0)
-  (c.1) node[below left] {\texttt{1}}
-  (c.2) node[below right] {\texttt{2}}
-  (c.3) node[above right] {\texttt{3}}
-  (c.4) node[above left] {\texttt{4}}
-  ;
-\end{circuitikz}
-\end{LTXexample}
-		
-\begin{LTXexample}[varwidth=true]
-\begin{circuitikz} \draw
-  (0,0) node[coupler2] (c) {\SI{3}{dB}}
-  (c.1) to[short,-o] ++(-0.5,0)
-  (c.2) to[short,-o] ++(0.5,0)
-  (c.3) to[short,-o] ++(0.5,0)
-  (c.4) to[short,-o] ++(-0.5,0)
-  (c.1) node[below left] {\texttt{1}}
-  (c.2) node[below right] {\texttt{2}}
-  (c.3) node[above right] {\texttt{3}}
-  (c.4) node[above left] {\texttt{4}}
-  ;
-\end{circuitikz}
-\end{LTXexample}
-
-
-\subsection{Input arrows}
-\subsubsection*{Two ports}
-With the option \texttt{>} you can draw an arrow to the input of the block diagram symbols.
-\begin{LTXexample}[varwidth=true]
-\begin{circuitikz} \draw
-  (0,0) to[short,o-] ++(0.3,0)
-  to[lowpass,>] ++(2,0)
-  to[adc,>] ++(2,0)
-  to[short,-o] ++(0.3,0);
-\end{circuitikz}
-\end{LTXexample}
-
-
-\subsubsection*{Multi ports}
-Since inputs and outputs can vary, input arrows can be placed as nodes. Note that you have to rotate the arrow on your own:
-\begin{LTXexample}[varwidth=true]
-\begin{circuitikz} \draw
-  (0,0) node[mixer] (m) {}
-  (m.1) to[short,-o] ++(-1,0)
-  (m.2) to[short,-o] ++(0,-1)
-  (m.3) to[short,-o] ++(1,0)
-  (m.1) node[inputarrow] {}
-  (m.2) node[inputarrow,rotate=90] {};
-\end{circuitikz}
-\end{LTXexample}
-
-
-\subsection{Labels and custom twoport boxes}
-Some twoports have the option to place a normal label (\texttt{l=}) and a inner label (\texttt{t=}).
-\begin{LTXexample}[varwidth=true]
-\begin{circuitikz}
-  \ctikzset{bipoles/amp/width=0.9}
-  \draw (0,0) to[amp,t=LNA,l_=$F{=}0.9\,$dB,o-o] ++(3,0);
-\end{circuitikz}
-\end{LTXexample}
-
-
-\subsection{Box option}
-Some devices have the possibility to add a box around them. The inner symbol scales down to fit inside the box.
-\begin{LTXexample}[varwidth=true]
-\begin{circuitikz} \draw
-  (0,0) node[mixer,box,anchor=east] (m) {}
-    to[amp,box,>,-o] ++(2.5,0)
-  (m.west) node[inputarrow] {} to[short,-o] ++(-0.8,0)
-  (m.south) node[inputarrow,rotate=90] {} --
-    ++(0,-0.7) node[oscillator,box,anchor=north] {};
-\end{circuitikz}
-\end{LTXexample}
-
-
-\subsection{Dash optional parts}
-To show that a device is optional, you can dash it. The inner symbol will be kept with solid lines.
-\begin{LTXexample}[varwidth=true]
-\begin{circuitikz}
-  \draw (0,0) to[amp,l=\SI{10}{dB}] ++(2.5,0);
-  \draw[dashed] (2.5,0) to[lowpass,l=opt.] ++(2.5,0);
-\end{circuitikz}
-\end{LTXexample}
-
-\subsection{Transistor paths}\label{sec:transasbip}
-
-For syntactical convenience transistors can be placed using the normal path notation used for bipoles. The transitor type can be specified by  simply adding a ``T'' (for transistor) in front of the node name of the transistor. It will be placed with the base/gate orthogonal to the direction of the path:
-\begin{LTXexample}[varwidth=true]
-\begin{circuitikz} \draw
-  (0,0) node[njfet] {1}
-  (-1,2) to[Tnjfet=2] (1,2) 
-    to[Tnjfet=3, mirror] (3,2);
-;\end{circuitikz}
-\end{LTXexample}
-
-Access to the gate and/or base nodes can be gained by naming the transistors with the \texttt{n} or \texttt{name} path style:
-\begin{LTXexample}[varwidth=true]
-\begin{circuitikz} \draw[yscale=1.1, xscale=.8]
-  (2,4.5) -- (0,4.5) to[Tpmos, n=p1] (0,3) 
-     to[Tnmos, n=n1] (0,1.5) 
-     to[Tnmos, n=n2] (0,0) node[ground] {}
-  (2,4.5) to[Tpmos,n=p2] (2,3) to[short, -*] (0,3)
-  (p1.G) -- (n1.G) to[short, *-o] ($(n1.G)+(3,0)$)
-  (n2.G) ++(2,0) node[circ] {} -| (p2.G)
-  (n2.G) to[short, -o] ($(n2.G)+(3,0)$)
-  (0,3) to[short, -o] (-1,3)
-;\end{circuitikz}
-\end{LTXexample}
-
-The \texttt{name} property is available also for bipoles, although this is useful mostly for triac, potentiometer and thyristor (see~\ref{sec:othertrip}).
-
-\section{Customization}
-
-\subsection{Parameters}
-
-Pretty much all Circui\TikZ\ relies heavily on \texttt{pgfkeys} for value handling and configuration. Indeed, at the beginning of \texttt{circuitikz.sty} a series of key definitions can be found that modify all the graphical characteristics of the package.
-
-All can be varied using the \verb!\ctikzset! command, anywhere in the code.
-
-\paragraph{Shape of the components} (on a per-component-class basis)
-\begin{LTXexample}[varwidth=true]
-\tikz \draw (0,0) to[R=1<\ohm>] (2,0); \par
-\ctikzset{bipoles/resistor/height=.6}
-\tikz \draw (0,0) to[R=1<\ohm>] (2,0);
-\end{LTXexample}
-
-
-
-\paragraph{Thickness of the lines} (globally)
-\begin{LTXexample}[varwidth=true]
-\tikz \draw (0,0) to[C=1<\farad>] (2,0); \par
-\ctikzset{bipoles/thickness=1}
-\tikz \draw (0,0) to[C=1<\farad>] (2,0);
-\end{LTXexample}
-
-
-\paragraph{Global properties} Of voltage and current
-\begin{LTXexample}[varwidth=true]
-\tikz \draw (0,0) to[R, v=1<\volt>] (2,0); \par
-\ctikzset{voltage/distance from node=.1}
-\tikz \draw (0,0) to[R, v=1<\volt>] (2,0);
-\end{LTXexample}
-
-\begin{LTXexample}[varwidth=true]
-\tikz \draw (0,0) to[C, i=$\imath$] (2,0); \par
-\ctikzset{current/distance = .2}
-\tikz \draw (0,0) to[C, i=$\imath$] (2,0);
-\end{LTXexample}
-
-\noindent However, you can override the properties \verb!voltage/distance from node!\footnote{That is, how distant from the initial and final points of the path the arrow starts and ends.}, \verb!voltage/bump b!\footnote{Controlling how high the bump of the arrow is --- how curved it is.} and \verb!voltage/european label distance!\footnote{Controlling how distant from the bipole the voltage label will be.} on a per-component basis, in order to fine-tune the voltages:
-
-\begin{LTXexample}[varwidth=true]
-\tikz \draw (0,0) to[R, v=1<\volt>] (1.5,0) 
-       to[C, v=2<\volt>] (3,0); \par
-\ctikzset{bipoles/capacitor/voltage/%
-     distance from node/.initial=.7}
-\tikz \draw (0,0) to[R, v=1<\volt>] (1.5,0)
-       to[C, v=2<\volt>] (3,0); \par
-\end{LTXexample}
-
-
-
-\subsection{Components size}
-\label{sec:components-size}
-Perhaps the most important parameter is \verb!\circuitikzbasekey/bipoles/length!, which 
-can be interpreted as the length of a resistor (including reasonable connections): all other lenghts are relative to this value. For instance:
-
-\begin{LTXexample}[pos=t,varwidth=true]
-\ctikzset{bipoles/length=1.4cm} 
-\begin{circuitikz}[scale=1.2]\draw
-  (0,0) node[anchor=east] {B}
-        to[short, o-*] (1,0)
-        to[R=20<\ohm>, *-*] (1,2)
-        to[R=10<\ohm>, v=$v_x$] (3,2) -- (4,2)
-        to[cI=$\frac{\si{\siemens}}{5} v_x$, *-*] (4,0) -- (3,0)
-        to[R=5<\ohm>, *-*] (3,2)
-  (3,0) -- (1,0)
-  (1,2) to[short, -o] (0,2) node[anchor=east]{A}  
-;\end{circuitikz}
-\end{LTXexample}
-
-\begin{LTXexample}[pos=t,varwidth=true]
-\ctikzset{bipoles/length=.8cm} 
-\begin{circuitikz}[scale=1.2]\draw
-  (0,0) node[anchor=east] {B}
-        to[short, o-*] (1,0)
-        to[R=20<\ohm>, *-*] (1,2)
-        to[R=10<\ohm>, v=$v_x$] (3,2) -- (4,2)
-        to[cI=$\frac{\siemens}{5} v_x$, *-*] (4,0) -- (3,0)
-        to[R=5<\ohm>, *-*] (3,2)
-  (3,0) -- (1,0)
-  (1,2) to[short, -o] (0,2) node[anchor=east]{A}  
-;\end{circuitikz}
-\end{LTXexample}
-
-\subsection{Colors}
+\section{Colors}
 
 The color of the components is stored in the key \verb!\circuitikzbasekey/color!. Circui\TikZ\ tries to follow the color set in \TikZ, although sometimes it fails. If you change color in the picture, please do not use just the color name as a style, like \verb![red]!, but rather assign the style \verb![color=red]!.
 
@@ -2714,7 +3181,7 @@ and
 
 One can of course change the color \emph{in medias res}:
 \begin{LTXexample}[pos=t, varwidth=true]
-\begin{circuitikz} \draw 
+\begin{circuitikz} \draw
   (0,0) node[pnp, color=blue] (pnp2) {}
   (pnp2.B) node[pnp, xscale=-1, anchor=B, color=brown] (pnp1) {}
   (pnp1.C) node[npn, anchor=C, color=green] (npn1) {}
@@ -2726,7 +3193,7 @@ One can of course change the color \emph{in medias res}:
 
 The all-in-one stream of bipoles poses some challanges, as only the actual body of the bipole, and not the connecting lines, will be rendered in the specified color. Also, please notice the curly braces around the \texttt{to}:
 \begin{LTXexample}[varwidth=true]
-\begin{circuitikz} \draw 
+\begin{circuitikz} \draw
   (0,0) to[V=1<\volt>] (0,2)
       { to[R=1<\ohm>, color=red] (2,2) }
         to[C=1<\farad>] (2,0) -- (0,0)
@@ -2735,9 +3202,9 @@ The all-in-one stream of bipoles poses some challanges, as only the actual body 
 
 Which, for some bipoles, can be frustrating:
 \begin{LTXexample}[varwidth=true]
-\begin{circuitikz} \draw 
+\begin{circuitikz} \draw
   (0,0){to[V=1<\volt>, color=red] (0,2) }
-        to[R=1<\ohm>] (2,2) 
+        to[R=1<\ohm>] (2,2)
         to[C=1<\farad>] (2,0) -- (0,0)
 ;\end{circuitikz}
 \end{LTXexample}
@@ -2746,7 +3213,7 @@ The only way out is to specify different paths:
 \begin{LTXexample}[varwidth=true]
 \begin{circuitikz} \draw[color=red]
   (0,0) to[V=1<\volt>, color=red] (0,2);
-  \draw (0,2) to[R=1<\ohm>] (2,2) 
+  \draw (0,2) to[R=1<\ohm>] (2,2)
         to[C=1<\farad>] (2,0) -- (0,0)
 ;\end{circuitikz}
 \end{LTXexample}
@@ -2763,7 +3230,7 @@ And yes: this is a bug and \emph{not} a feature\ldots
 \noindent A: The \TikZ\ manual states:
 \begin{quotation}
 Furthermore, the library assumes that all \LaTeX\ pictures are ended
-    with \verb!\end{tikzpicture}!.
+    with \\\verb!\end{tikzpicture}!.
 \end{quotation}
 
 Just substitute every occurrence of the environment \verb!circuitikz! with \verb!tikzpicture!. They are actually pretty much the same.
@@ -2797,9 +3264,9 @@ Use \verb|\def{\eq}{=}|  \verb!to[R = $R_1\eq 12V$]! and  \verb!to[ospst = open{
         to[R, l=2.2<\kilo\ohm>] (4,3) -- (4,2)
         to[L, l=12<\milli\henry>, i=$i_1$,v=b] (4,0) -- (0,0)
   (4,2) { to[D*, *-*, color=red] (2,0) }
-  (0,2) to[R, l=1<\kilo\ohm>, *-] (2,2) 
+  (0,2) to[R, l=1<\kilo\ohm>, *-] (2,2)
         to[cV, i=1,v=$\SI{.3}{\kilo\ohm} i_1$] (4,2)
-  (2,0) to[I, i=1<\milli\ampere>, -*] (2,2) 
+  (2,0) to[I, i=1<\milli\ampere>, -*] (2,2)
 ;\end{circuitikz}
 \end{LTXexample}
 
@@ -2813,7 +3280,7 @@ Use \verb|\def{\eq}{=}|  \verb!to[R = $R_1\eq 12V$]! and  \verb!to[ospst = open{
   (5,0) to[I, i_=$a(t)$, -*] (5,2) -- (4,2)
   (0,0) -- (5,0)
   (0,2) -- (0,3) to[L, l=2<\milli\henry>] (5,3) -- (5,2)
- 
+
  {[anchor=south east] (0,2) node {1} (2,2) node {2} (4,2) node {3}}
 ;\end{circuitikz}
 \end{LTXexample}
@@ -2827,10 +3294,10 @@ Use \verb|\def{\eq}{=}|  \verb!to[R = $R_1\eq 12V$]! and  \verb!to[ospst = open{
         to[cI=$\frac{\siemens}{5} v_x$, *-*] (4,0) -- (3,0)
         to[R=5<\ohm>, *-*] (3,2)
   (3,0) -- (1,0)
-  (1,2) to[short, -o] (0,2) node[anchor=east]{A}  
+  (1,2) to[short, -o] (0,2) node[anchor=east]{A}
 ;\end{circuitikz}
 \end{LTXexample}
- 
+
 \begin{LTXexample}[pos=t,varwidth=true]
 \begin{circuitikz}[scale=1]\draw
 	(0,0) node[transformer] (T) {}
@@ -2842,16 +3309,16 @@ Use \verb|\def{\eq}{=}|  \verb!to[R = $R_1\eq 12V$]! and  \verb!to[ospst = open{
 
 \begin{LTXexample}[pos=t,varwidth=true]
 \begin{circuitikz}[scale=1]\draw
-	(5,.5) node [op amp] (opamp) {}
-	(0,0) node [left] {$U_{we}$} to [R, l=$R_d$, o-*] (2,0)
-	to [R, l=$R_d$, *-*] (opamp.+)
-	to [C, l_=$C_{d2}$, *-] ($(opamp.+)+(0,-2)$) node [ground] {}
-	(opamp.out) |- (3.5,2) to [C, l_=$C_{d1}$, *-] (2,2) to [short] (2,0)
-	(opamp.-) -| (3.5,2)
-	(opamp.out) to [short, *-o] (7,.5) node [right] {$U_{wy}$}
+    (5,.5) node [op amp] (opamp) {}
+    (0,0) node [left] {$U_{we}$} to [R, l=$R_d$, o-*] (2,0)
+    to [R, l=$R_d$, *-*] (opamp.+)
+    to [C, l_=$C_{d2}$, *-] ($(opamp.+)+(0,-2)$) node [ground] {}
+    (opamp.out) |- (3.5,2) to [C, l_=$C_{d1}$, *-] (2,2) to [short] (2,0)
+    (opamp.-) -| (3.5,2)
+    (opamp.out) to [short, *-o] (7,.5) node [right] {$U_{wy}$}
 ;\end{circuitikz}
 \end{LTXexample}
- 
+
 \begin{LTXexample}[pos=t,varwidth=true]
 \begin{circuitikz}[scale=1.2, american]\draw
   (0,2) to[I=1<\milli\ampere>] (2,2)
@@ -2867,44 +3334,44 @@ Use \verb|\def{\eq}{=}|  \verb!to[R = $R_1\eq 12V$]! and  \verb!to[ospst = open{
     \draw [->] (-2,0) -- (2.5,0) node[anchor=west] {$v_1/\volt$};
     \draw [->] (0,-2) -- (0,2) node[anchor=west] {$i_1/\SI{}{\milli\ampere}$} ;
     \draw (-1,0) node[anchor=north] {-2} (1,0) node[anchor=south] {2}
-          (0,1) node[anchor=west] {4} (0,-1) node[anchor=east] {-4} 
+          (0,1) node[anchor=west] {4} (0,-1) node[anchor=east] {-4}
           (2,0) node[anchor=north west] {4}
           (-1.5,0) node[anchor=south east] {-3};
     \draw [thick] (-2,-1) -- (-1,1) -- (1,-1) -- (2,0) -- (2.5,.5);
-    \draw [dotted] (-1,1) -- (-1,0) (1,-1) -- (1,0) 
+    \draw [dotted] (-1,1) -- (-1,0) (1,-1) -- (1,0)
           (-1,1) -- (0,1) (1,-1) -- (0,-1);
-   \end{scope}  
+   \end{scope}
 \end{circuitikz}
 \end{LTXexample}
 
 \begin{LTXexample}[pos=t,varwidth=true]
-	\begin{circuitikz}[scale=1]
-		\ctikzset{bipoles/detector/width=.35}
-		\ctikzset{quadpoles/coupler/width=1}
-		\ctikzset{quadpoles/coupler/height=1}
-		\ctikzset{tripoles/wilkinson/width=1}
-		\ctikzset{tripoles/wilkinson/height=1}
-		%\draw[help lines,red,thin,dotted] (0,-5) grid (5,5);
-		\draw
-		(-2,0) node[wilkinson](w1){}
-		(2,0) node[coupler] (c1) {}
-		(0,2) node[coupler,rotate=90] (c2) {}
-		(0,-2) node[coupler,rotate=90] (c3) {}
-		(w1.out1) .. controls ++(0.8,0) and ++(0,0.8) .. (c3.3)
-		(w1.out2) .. controls ++(0.8,0) and ++(0,-0.8) .. (c2.4)
-		(c1.1) .. controls ++(-0.8,0) and ++(0,0.8) .. (c3.2)
-		(c1.4) .. controls ++(-0.8,0) and ++(0,-0.8) .. (c2.1)
-		(w1.in) to[short,-o] ++(-1,0)
-		(w1.in) node[left=30] {LO}
-		(c1.2) node[match,yscale=1] {}
-		(c1.3) to[short,-o] ++(1,0)
-		(c1.3) node[right=30] {RF}
-		(c2.3) to[detector,-o] ++(0,1.5)
-		(c2.2) to[detector,-o] ++(0,1.5)
-		(c3.1) to[detector,-o] ++(0,-1.5)
-		(c3.4) to[detector,-o] ++(0,-1.5)
-		;
-	\end{circuitikz}
+    \begin{circuitikz}[scale=1]
+        \ctikzset{bipoles/detector/width=.35}
+        \ctikzset{quadpoles/coupler/width=1}
+        \ctikzset{quadpoles/coupler/height=1}
+        \ctikzset{tripoles/wilkinson/width=1}
+        \ctikzset{tripoles/wilkinson/height=1}
+        %\draw[help lines,red,thin,dotted] (0,-5) grid (5,5);
+        \draw
+        (-2,0) node[wilkinson](w1){}
+        (2,0) node[coupler] (c1) {}
+        (0,2) node[coupler,rotate=90] (c2) {}
+        (0,-2) node[coupler,rotate=90] (c3) {}
+        (w1.out1) .. controls ++(0.8,0) and ++(0,0.8) .. (c3.3)
+        (w1.out2) .. controls ++(0.8,0) and ++(0,-0.8) .. (c2.4)
+        (c1.1) .. controls ++(-0.8,0) and ++(0,0.8) .. (c3.2)
+        (c1.4) .. controls ++(-0.8,0) and ++(0,-0.8) .. (c2.1)
+        (w1.in) to[short,-o] ++(-1,0)
+        (w1.in) node[left=30] {LO}
+        (c1.2) node[match,yscale=1] {}
+        (c1.3) to[short,-o] ++(1,0)
+        (c1.3) node[right=30] {RF}
+        (c2.3) to[detector,-o] ++(0,1.5)
+        (c2.2) to[detector,-o] ++(0,1.5)
+        (c3.1) to[detector,-o] ++(0,-1.5)
+        (c3.4) to[detector,-o] ++(0,-1.5)
+        ;
+    \end{circuitikz}
 \end{LTXexample}
 
 
@@ -2919,7 +3386,7 @@ Use \verb|\def{\eq}{=}|  \verb!to[R = $R_1\eq 12V$]! and  \verb!to[ospst = open{
 \usetikzlibrary{circuits.ee.IEC}
 \usetikzlibrary{positioning}
 
-\usepackage[compatibility]{circuitikz}
+\usepackage[compatibility]{circuitikzgit}
 \ctikzset{bipoles/length=.9cm}
 
 \begin{document}
@@ -2936,7 +3403,7 @@ Use \verb|\def{\eq}{=}|  \verb!to[R = $R_1\eq 12V$]! and  \verb!to[ospst = open{
 % % changelog.tex will be updated by makefile from CHANGELOG.md
 \section{Changelog}
 \IfFileExists{changelog.tex}
-{\input{changelog.tex}}
+{\sloppy\input{changelog.tex}}
 {The file changelog.tex was not found, run 'make changelog' at toplevel to generate it with pandoc from CHANGELOG.md}
 
 \printindex
