@@ -23,6 +23,7 @@ The major changes among the different circuitikz versions are listed here. See <
     - Changed labels spacing so that they are independent on scale factor
     - Fixed the position of text labels in amplifiers
     - Added new switches.
+    - Added border anchors for the logic gates
   
 * Version 0.8.3 (2017-05-28) 
 	- Removed unwanted lines at to-paths if the starting point is a node without a explicit anchor.

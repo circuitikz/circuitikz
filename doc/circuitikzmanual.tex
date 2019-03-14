@@ -1058,6 +1058,44 @@ These are the anchors for logic ports:
 \end{circuitikz}
 \bigskip
 
+You have also ``border pin anchors'':
+
+\bigskip
+\begin{circuitikz} [american]
+\def\coorda(#1)<#2>{node[circle, red, draw, inner sep=1pt,pin={[red, overlay, inner sep=0.5pt, font=\small, pin distance=0.1cm, pin edge={red, overlay,}]#2:#1}](#1){}}
+\path(-2,1) -- (11,-1);
+
+\draw (0,0) node[american and port, number inputs=3](A){IC1} ;
+  \foreach \a/\d in {bin 1/-135, bin 2/-135, bin 3/-135, bout/-45}
+    \path (A.\a) \coorda(\a)<\d>;
+
+\draw (4.5,0) node[american or port, number inputs=3](A){IC1};
+  \foreach \a/\d in {bin 1/-135, bin 2/-135, bin 3/-135, bout/-45}
+    \path (A.\a) \coorda(\a)<\d>;
+
+\draw (9,0) node[european and port, ](A){} ;
+  \foreach \a/\d in {bin 1/-135, bin 2/-135, bout/-45}
+    \path (A.\a) \coorda(\a)<\d>;
+\end{circuitikz}
+\bigskip
+
+These anchors are especially useful if you want to negate inputs:
+
+\begin{LTXexample}[varwidth=true]
+\begin{circuitikz}
+\draw (0,3) node[american and port] (A)  {P1};
+\node at (A.bin 1) [ocirc, left]{} ;
+\begin{scope}
+    \ctikzset{tripoles/american or port/height=1.6}
+    \draw (A.out) -- ++(0.5,0) node[american or port,
+    number inputs=5, anchor=in 1] (B)  {P2};
+    \node at (B.bin 3) [ocirc, left]{} ;
+\end{scope}
+\draw (0,1.5) node[american or port] (C)  {P3};
+\node at (C.bin 2) [ocirc, left]{} ;
+\draw (C.out) |- (B.in 2);
+\end{circuitikz}
+\end{LTXexample}
 As you can see, the \texttt{center} anchor is (for historic reasons) not in the center at all. You can fix this with the command \verb|\ctikzset{logic ports origin=center}|:
 
 \begin{LTXexample}[varwidth=true]
