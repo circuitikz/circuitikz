@@ -1,4 +1,4 @@
-\def\pgfcircversion{git:7521146}
+\def\pgfcircversion{git:e1fc7f9}
 \def\pgfcircversiondate{2019/03/22}
 \writestatus{loading}{\pgfcircversiondate{} The CircuiTikz circuit drawing package version \pgfcircversion}
 
@@ -69,11 +69,6 @@
 }
 
 \pgfarrowsdeclarereversed{latexslim reversed}{latexslim reversed}{latexslim}{latexslim}
-
-
-
-
-
 
 %% Keys
 
@@ -156,6 +151,10 @@
 \ctikzset{monopoles/rxantenna/label/xanchor/.initial=.4}            
 \ctikzset{monopoles/rxantenna/label/yanchor/.initial=.75}            
 \ctikzset{monopoles/rxantenna/width/.initial=.25}
+\ctikzset{monopoles/bareantenna/width/.initial=.25}
+\ctikzset{monopoles/bareantenna/label/xanchor/.initial=1}
+\ctikzset{monopoles/bareantenna/label/yanchor/.initial=0.5}
+\ctikzset{monopoles/waves/width/.initial=0.5}
 
 \ctikzset{bipoles/resistor/height/.initial=.3}
 \ctikzset{bipoles/resistor/width/.initial=.8}
@@ -1943,8 +1942,193 @@
       }
 }
                             
+%% New antennas without tails
+
+% main body
+\def\pgf@circ@antennabody{%
+    \pgfstartlinewidth=\pgflinewidth
+    \pgf@circ@res@step=\ctikzvalof{monopoles/bareantenna/width}\pgf@circ@Rlen
+    \pgfscope
+    \pgfpathmoveto{\pgfpointorigin}
+    \pgfpathlineto{\pgfpoint{-\pgf@circ@res@step}{2\pgf@circ@res@step}}
+    \pgfpathlineto{\pgfpoint{\pgf@circ@res@step}{2\pgf@circ@res@step}}
+    \pgfsetbeveljoin
+    \pgfpathclose
+    \pgfsetcolor{\pgfkeysvalueof{/tikz/circuitikz/color}}
+    \pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}\pgfstartlinewidth}
+    \pgfusepath{draw}
+    \endpgfscope
+    \pgfsetlinewidth{\pgfstartlinewidth}
+    \pgfpathmoveto{\pgfpointorigin}
+    \pgfpathlineto{\pgfpoint{0pt}{2\pgf@circ@res@step}}
+    \pgfusepath{draw}
+}
+
+% Waves for the antennas.
+\def\pgf@circ@antennawaves{%
+    \pgfscope
+    % define a triangle for clipping the waves
+    \pgfpathmoveto{\pgfpoint{0pt}{\pgf@circ@res@step}}
+    \pgfpathlineto{\pgfpoint{4.2\pgf@circ@res@step}{3\pgf@circ@res@step}}
+    \pgfpathlineto{\pgfpoint{4.2\pgf@circ@res@step}{-1\pgf@circ@res@step}}
+    \pgfpathclose
+    \pgfusepath{clip}
+    % ...and build the waves as clipped circles
+    \c@pgf@counta=8\pgf@circ@res@other=0.5\pgf@circ@res@step
+    \pgfmathloop%
+    \ifnum\c@pgf@counta>2
+        \pgfpathcircle{\pgfpoint{0pt}{\pgf@circ@res@step}}{\the\c@pgf@counta*\pgf@circ@res@other}
+        \advance\c@pgf@counta-1\relax%
+        \repeatpgfmathloop
+        \pgfusepath{draw}
+    \endpgfscope
+}
 
 
+% additional shape with the waves
+\pgfdeclareshape{waves}{
+    \anchor{center}{\pgfpointorigin}
+    \savedanchor{\northeast}{
+        \pgf@circ@res@step=\ctikzvalof{monopoles/waves/width}\pgf@circ@Rlen
+        \pgf@x=\pgf@circ@res@step
+        \pgf@y=\pgf@circ@res@step
+    }
+    \anchor{text}{
+        \northeast
+        \pgf@y=\dimexpr\pgf@y+.5\dp\pgfnodeparttextbox-.5\ht\pgfnodeparttextbox\relax
+    }
+    \anchor{top}{\northeast\pgf@x=0pt}
+    \anchor{right}{\northeast\pgf@y=0pt}
+    \anchor{left}{\northeast\pgf@x=-\pgf@x\pgf@y=0pt}
+    \anchor{bottom}{\northeast\pgf@y=-\pgf@y\pgf@x=0pt}
+    \anchor{north}{\northeast\pgf@x=0pt}
+    \anchor{north east}{\northeast}
+    \anchor{east}{\northeast\pgf@y=0pt}
+    \anchor{south east}{\northeast\pgf@y=-\pgf@y}
+    \anchor{south}{\northeast\pgf@y=-\pgf@y\pgf@x=0pt}
+    \anchor{south west}{\northeast\pgf@y=-\pgf@y\pgf@x=-\pgf@x}
+    \anchor{west}{\northeast\pgf@x=-\pgf@x\pgf@y=0pt}
+    \anchor{north west}{\northeast\pgf@x=-\pgf@x}
+    \behindforegroundpath{
+        \pgf@circ@res@step=\ctikzvalof{monopoles/waves/width}\pgf@circ@Rlen
+        \pgf@circ@res@step=0.5\pgf@circ@res@step
+        \pgfsetcolor{\pgfkeysvalueof{/tikz/circuitikz/color}}
+        \pgfscope
+        % define a triangle for clipping the waves
+        \pgfpathmoveto{\pgfpoint{-2\pgf@circ@res@step}{0pt}}
+        \pgfpathlineto{\pgfpoint{2.1\pgf@circ@res@step}{2\pgf@circ@res@step}}
+        \pgfpathlineto{\pgfpoint{2.1\pgf@circ@res@step}{-2\pgf@circ@res@step}}
+        \pgfpathclose
+        \pgfusepath{clip}
+        % ...and build the waves as clipped circles
+        \c@pgf@counta=8\pgf@circ@res@other=0.5\pgf@circ@res@step
+        \pgfmathloop%
+        \ifnum\c@pgf@counta>1
+            \pgfpathcircle{\pgfpoint{-2\pgf@circ@res@step}{0pt}}{\the\c@pgf@counta*\pgf@circ@res@other}
+            \advance\c@pgf@counta-1\relax%
+            \repeatpgfmathloop
+            \pgfusepath{draw}
+        \endpgfscope
+    }
+}
+
+% the three types of antennas: simple, TX, RX. Notice that you can flip them...
+
+\pgfdeclareshape{bareantenna}{
+    \anchor{center}{\pgfpointorigin}
+    \savedanchor{\northeast}{
+        \pgf@circ@res@step=\ctikzvalof{monopoles/bareantenna/width}\pgf@circ@Rlen
+        \pgf@x=\pgf@circ@res@step
+        \pgf@y=2\pgf@circ@res@step
+    }
+    \anchor{text}{
+        \northeast
+        \pgf@x=\ctikzvalof{monopoles/bareantenna/label/xanchor}\pgf@x
+        \pgf@y=\ctikzvalof{monopoles/bareantenna/label/yanchor}\pgf@y
+        \pgf@y=\dimexpr\pgf@y+.5\dp\pgfnodeparttextbox-.5\ht\pgfnodeparttextbox\relax
+    }
+    \anchor{top}{\northeast\pgf@x=0pt}
+    \anchor{right}{\northeast\pgf@y=0.5\pgf@y}
+    \anchor{left}{\northeast\pgf@x=-\pgf@x\pgf@y=0.5\pgf@y}
+    \anchor{bottom}{\pgfpointorigin}
+    \anchor{north}{\northeast\pgf@x=0pt}
+    \anchor{east}{\northeast\pgf@y=0.5\pgf@y}
+    \anchor{west}{\northeast\pgf@x=-\pgf@x\pgf@y=0.5\pgf@y}
+    \anchor{south}{\pgfpointorigin}
+    \behindforegroundpath{
+        \pgf@circ@antennabody
+    }
+}
+
+\pgfdeclareshape{bareTXantenna}{
+    \anchor{center}{\pgfpointorigin}
+    \savedanchor{\northeast}{
+        \pgf@circ@res@step=\ctikzvalof{monopoles/bareantenna/width}\pgf@circ@Rlen
+        \pgf@x=\pgf@circ@res@step
+        \pgf@y=2\pgf@circ@res@step
+    }
+    \anchor{text}{
+        \northeast
+        \pgf@x=\ctikzvalof{monopoles/bareantenna/label/xanchor}\pgf@x
+        \pgf@y=\ctikzvalof{monopoles/bareantenna/label/yanchor}\pgf@y
+        \pgf@x=\dimexpr-\pgf@x-\wd\pgfnodeparttextbox\relax
+        \pgf@y=\dimexpr\pgf@y+.5\dp\pgfnodeparttextbox-.5\ht\pgfnodeparttextbox\relax
+    }
+    \anchor{waves}{
+        \northeast
+        \pgf@circ@res@step=\ctikzvalof{monopoles/bareantenna/width}\pgf@circ@Rlen
+        \pgf@x=4.2\pgf@circ@res@step
+        \pgf@y=\pgf@circ@res@step
+    }
+    \anchor{top}{\northeast\pgf@x=0pt}
+    \anchor{right}{\northeast\pgf@y=0.5\pgf@y}
+    \anchor{left}{\northeast\pgf@x=-\pgf@x\pgf@y=0.5\pgf@y}
+    \anchor{bottom}{\pgfpointorigin}
+    \anchor{north}{\northeast\pgf@x=0pt}
+    \anchor{east}{\northeast\pgf@y=0.5\pgf@y}
+    \anchor{west}{\northeast\pgf@x=-\pgf@x\pgf@y=0.5\pgf@y}
+    \anchor{south}{\pgfpointorigin}
+    \behindforegroundpath{
+        \pgf@circ@antennabody
+        \pgf@circ@antennawaves
+    }
+}
+
+\pgfdeclareshape{bareRXantenna}{
+    \anchor{center}{\pgfpointorigin}
+    \savedanchor{\northeast}{
+        \pgf@circ@res@step=\ctikzvalof{monopoles/bareantenna/width}\pgf@circ@Rlen
+        \pgf@x=\pgf@circ@res@step
+        \pgf@y=2\pgf@circ@res@step
+    }
+    \anchor{text}{
+        \northeast
+        \pgf@x=\ctikzvalof{monopoles/bareantenna/label/xanchor}\pgf@x
+        \pgf@y=\ctikzvalof{monopoles/bareantenna/label/yanchor}\pgf@y
+        \pgf@y=\dimexpr\pgf@y+.5\dp\pgfnodeparttextbox-.5\ht\pgfnodeparttextbox\relax
+    }
+    \anchor{waves}{
+        \northeast
+        \pgf@circ@res@step=\ctikzvalof{monopoles/bareantenna/width}\pgf@circ@Rlen
+        \pgf@x=-4.2\pgf@circ@res@step
+        \pgf@y=\pgf@circ@res@step
+    }
+    \anchor{top}{\northeast\pgf@x=0pt}
+    \anchor{right}{\northeast\pgf@y=0.5\pgf@y}
+    \anchor{left}{\northeast\pgf@x=-\pgf@x\pgf@y=0.5\pgf@y}
+    \anchor{bottom}{\pgfpointorigin}
+    \anchor{north}{\northeast\pgf@x=0pt}
+    \anchor{east}{\northeast\pgf@y=0.5\pgf@y}
+    \anchor{west}{\northeast\pgf@x=-\pgf@x\pgf@y=0.5\pgf@y}
+    \anchor{south}{\pgfpointorigin}
+    \behindforegroundpath{
+        \pgf@circ@antennabody
+        \pgftransformxshift{-5.2\pgf@circ@res@step}
+        \pgf@circ@antennawaves
+    }
+}
+
+% Legacy antennas (with tails)
 
 \pgfdeclareshape{antenna}{
 \anchor{center}{\pgfpointorigin}
