@@ -24,7 +24,7 @@ The major changes among the different circuitikz versions are listed here. See <
     - Fixed the position of text labels in amplifiers
     - Added new switches.
     - Added border anchors for the logic gates
-    - Added antennas with no wires
+    - Added antennas with no wires, loudspeakers and microphone
   
 * Version 0.8.3 (2017-05-28) 
 	- Removed unwanted lines at to-paths if the starting point is a node without a explicit anchor.
