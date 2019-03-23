@@ -1,5 +1,5 @@
-\def\pgfcircversion{git:e1fc7f9}
-\def\pgfcircversiondate{2019/03/22}
+\def\pgfcircversion{git:6fc1794}
+\def\pgfcircversiondate{2019/03/23}
 \writestatus{loading}{\pgfcircversiondate{} The CircuiTikz circuit drawing package version \pgfcircversion}
 
 \usemodule[tikz]
@@ -155,6 +155,14 @@
 \ctikzset{monopoles/bareantenna/label/xanchor/.initial=1}
 \ctikzset{monopoles/bareantenna/label/yanchor/.initial=0.5}
 \ctikzset{monopoles/waves/width/.initial=0.5}
+
+% microphone and loudspeaker
+\ctikzset{bipoles/loudspeaker/height/.initial=.8}
+\ctikzset{bipoles/loudspeaker/depth/.initial=.3}
+\ctikzset{bipoles/loudspeaker/width/.initial=.8}
+\ctikzset{bipoles/mic/height/.initial=1.2}
+\ctikzset{bipoles/mic/depth/.initial=.0}
+\ctikzset{bipoles/mic/width/.initial=.8}
 
 \ctikzset{bipoles/resistor/height/.initial=.3}
 \ctikzset{bipoles/resistor/width/.initial=.8}
@@ -6197,6 +6205,54 @@
         \pgfusepath{draw}
         \endpgfscope
     }
+
+%% loudspeaker and microphone
+
+\pgfcircdeclarebipole
+{}
+{\ctikzvalof{bipoles/loudspeaker/depth}}
+{loudspeaker}
+{\ctikzvalof{bipoles/loudspeaker/height}}
+{\ctikzvalof{bipoles/loudspeaker/width}}{
+
+    \pgfpathrectanglecorners{\pgfpoint{\pgf@circ@res@left}{.4\pgf@circ@res@up}}
+    {\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@down}}
+    \pgfpathmoveto{\pgfpoint{0.5\pgf@circ@res@left}{.4\pgf@circ@res@up}}
+    \pgfpathlineto{\pgfpoint{0.8\pgf@circ@res@left}{\pgf@circ@res@up}}
+    \pgfpathlineto{\pgfpoint{0.8\pgf@circ@res@right}{\pgf@circ@res@up}}
+    \pgfpathlineto{\pgfpoint{0.5\pgf@circ@res@right}{.4\pgf@circ@res@up}}
+    \pgfpathclose
+    \pgfsetlinewidth{\ctikzvalof{bipoles/thickness}\pgfstartlinewidth}
+    \pgfusepath{draw}
+}
+
+\pgfcircdeclarebipole
+{}
+{\ctikzvalof{bipoles/mic/depth}}
+{mic}
+{\ctikzvalof{bipoles/mic/height}}
+{\ctikzvalof{bipoles/mic/width}}{
+
+    \pgfscope
+    \pgfpathcircle{\pgfpoint{0pt}{.6\pgf@circ@res@up}}{.4\pgf@circ@res@up}
+    \pgfsetlinewidth{\ctikzvalof{bipoles/thickness}\pgfstartlinewidth}
+    \pgfpathmoveto{\pgfpoint{.6\pgf@circ@res@left}{\pgf@circ@res@up}}
+    \pgfpathlineto{\pgfpoint{.6\pgf@circ@res@right}{\pgf@circ@res@up}}
+    \pgfusepath{draw}
+    \endpgfscope
+    \pgfscope
+    \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{0pt}}
+    \pgfpathlineto{\pgfpoint{-.2\pgf@circ@res@up}{0pt}}
+    % 0.25358 is 0.6-0.4*cos(30)
+    \pgfpathlineto{\pgfpoint{-.2\pgf@circ@res@up}{.25358\pgf@circ@res@up}}
+    \pgfpathmoveto{\pgfpoint{.2\pgf@circ@res@up}{.25358\pgf@circ@res@up}}
+    \pgfpathlineto{\pgfpoint{.2\pgf@circ@res@up}{0pt}}
+    \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{0pt}}
+    \pgfusepath{draw}
+
+    \pgfusepath{draw}
+    \endpgfscope
+}
 
 % end of pgfcircbipoles.tex
 %%%---------- close: tex/pgfcircbipoles
@@ -13163,6 +13219,15 @@
 \def\pgf@circ@crossing@path#1{\pgf@circ@bipole@path{crossing}{#1}}
 \compattikzset{crossing/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@crossing@path, l=#1}}
 \compattikzset{xing/.style= {\comnpatname crossing= #1}}
+
+
+%% loudspeaker and microphone
+
+\def\pgf@circ@loudspeaker@path#1{\pgf@circ@bipole@path{loudspeaker}{#1}}
+\compattikzset{loudspeaker/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@loudspeaker@path, l=#1}}
+
+\def\pgf@circ@mic@path#1{\pgf@circ@bipole@path{mic}{#1}}
+\compattikzset{mic/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@mic@path, l=#1}}
 
 % Transistor like bipoles
 
