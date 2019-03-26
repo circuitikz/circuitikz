@@ -12,263 +12,261 @@
 
 %% Options
 \ctikzset{label/.style = { l=#1 } }
-\ctikzset{l/.code = { 
-	\pgfkeys{/tikz/circuitikz/bipole/label/name=#1}
-	\ctikzsetvalof{bipole/label/unit}{}
-	\ifpgf@circ@siunitx 
-		\pgf@circ@handleSI{#1}
-		\ifpgf@circ@siunitx@res 
-			\edef\pgf@temp{\pgf@circ@handleSI@val}
-			\pgfkeyslet{/tikz/circuitikz/bipole/label/name}{\pgf@temp}
-			\edef\pgf@temp{\pgf@circ@handleSI@unit}
-			\pgfkeyslet{/tikz/circuitikz/bipole/label/unit}{\pgf@temp}
-		\else
-		\fi
-	\else
-	\fi
+\ctikzset{l/.code = {
+        \pgfkeys{/tikz/circuitikz/bipole/label/name=#1}
+        \ctikzsetvalof{bipole/label/unit}{}
+        \ifpgf@circ@siunitx
+            \pgf@circ@handleSI{#1}
+            \ifpgf@circ@siunitx@res
+                \edef\pgf@temp{\pgf@circ@handleSI@val}
+                \pgfkeyslet{/tikz/circuitikz/bipole/label/name}{\pgf@temp}
+                \edef\pgf@temp{\pgf@circ@handleSI@unit}
+                \pgfkeyslet{/tikz/circuitikz/bipole/label/unit}{\pgf@temp}
+            \else
+        \fi
+        \else
+    \fi
 }}
 
-\ctikzset{label above/.code = { 
-		l=#1, 
-		\circuitikzbasekey/bipole/label/position=90 }
+\ctikzset{label above/.code = {
+        l=#1,
+    \circuitikzbasekey/bipole/label/position=90 }
 }
 
-\ctikzset{l^/.style = { 
-		l=#1,
-		\circuitikzbasekey/bipole/label/position=90 } 
+\ctikzset{l^/.style = {
+        l=#1,
+    \circuitikzbasekey/bipole/label/position=90 }
 }
 
-\ctikzset{label below/.code = { 
-		l=#1,
-		\circuitikzbasekey/bipole/label/position=-90 } 
+\ctikzset{label below/.code = {
+        l=#1,
+    \circuitikzbasekey/bipole/label/position=-90 }
 }
 
-\ctikzset{l_/.style = { 
-		l=#1,
-		\circuitikzbasekey/bipole/label/position=-90 } 
+\ctikzset{l_/.style = {
+        l=#1,
+    \circuitikzbasekey/bipole/label/position=-90 }
 }
 
 \ctikzset{annotation/.style = { a=#1 } }
 \ctikzset{a/.code = {
-		\pgfkeys{/tikz/circuitikz/bipole/annotation/name=#1}
-		\ctikzsetvalof{bipole/annotation/unit}{}
-		\ifpgf@circ@siunitx
-		\pgf@circ@handleSI{#1}
-		\ifpgf@circ@siunitx@res
-		\edef\pgf@temp{\pgf@circ@handleSI@val}
-		\pgfkeyslet{/tikz/circuitikz/bipole/annotation/name}{\pgf@temp}
-		\edef\pgf@temp{\pgf@circ@handleSI@unit}
-		\pgfkeyslet{/tikz/circuitikz/bipole/annotation/unit}{\pgf@temp}
-		\else
-		\fi
-		\else
-		\fi
-	}}
+    \pgfkeys{/tikz/circuitikz/bipole/annotation/name=#1}
+    \ctikzsetvalof{bipole/annotation/unit}{}
+    \ifpgf@circ@siunitx
+        \pgf@circ@handleSI{#1}
+        \ifpgf@circ@siunitx@res
+            \edef\pgf@temp{\pgf@circ@handleSI@val}
+            \pgfkeyslet{/tikz/circuitikz/bipole/annotation/name}{\pgf@temp}
+            \edef\pgf@temp{\pgf@circ@handleSI@unit}
+            \pgfkeyslet{/tikz/circuitikz/bipole/annotation/unit}{\pgf@temp}
+        \else
+        \fi
+    \else
+    \fi
+}}
 
-\ctikzset{annotation above/.code = { 
-	a=#1, 
-	\circuitikzbasekey/bipole/annotation/position=90 }
+\ctikzset{annotation above/.code = {
+        a=#1,
+    \circuitikzbasekey/bipole/annotation/position=90 }
 }
 
-\ctikzset{a^/.style = { 
-	a=#1,
-	\circuitikzbasekey/bipole/annotation/position=90 } 
+\ctikzset{a^/.style = {
+        a=#1,
+    \circuitikzbasekey/bipole/annotation/position=90 }
 }
 
-\ctikzset{annotation below/.code = { 
-	a=#1,
-	\circuitikzbasekey/bipole/annotation/position=-90 } 
+\ctikzset{annotation below/.code = {
+        a=#1,
+    \circuitikzbasekey/bipole/annotation/position=-90 }
 }
-\ctikzset{a_/.style = { 
-	a=#1,
-	\circuitikzbasekey/bipole/annotation/position=-90 } 
+\ctikzset{a_/.style = {
+        a=#1,
+    \circuitikzbasekey/bipole/annotation/position=-90 }
 }
 
 % This is to adjust spacing for the labels so that they are not cramped on components
 \def\pgf@circ@ls{.75ex} % labelspace to have just one point to change
 
-
 \def\pgf@circ@drawlabels#1{
-	\pgfextra{
-            % This function will be called with argument #1 equal
-            % to "label" or "annotation" form pgfcircpath.tex.
-            % pgf@circ@direction is the direction of the path,
-            % its value is set in pgfcircpath.tex
-		\pgfmathsubtract{\pgf@circ@direction}{90}
-                \pgfmathround{\pgfmathresult} % avoid precision loss errors
-		\edef\pgf@circ@labanc{\expandafter\pgf@circ@stripdecimals\pgfmathresult\pgf@nil}
-		
-		\edef\pgf@circ@temp{\ctikzvalof{bipole/#1/position}} 
-		\ifnum \pgf@circ@temp < 0
-			\pgfmathadd{\pgf@circ@labanc}{180}
-			\edef\pgf@circ@labanc{\expandafter\pgf@circ@stripdecimals\pgfmathresult\pgf@nil}
-		\fi
-		\ifpgf@circuit@bipole@inverted
-			\pgfmathadd{\pgf@circ@temp}{180} %If shape is inverted, use opposite anchor
-			\edef\pgf@circ@temp{\expandafter\pgf@circ@stripdecimals\pgfmathresult\pgf@nil}
-		\fi
-		
-		\ifnum \ctikzvalof{mirror value} = -1
-			\pgfmathadd{\pgf@circ@temp}{180} %If shape is mirrored, use opposite anchor
-			\edef\pgf@circ@temp{\expandafter\pgf@circ@stripdecimals\pgfmathresult\pgf@nil}
-		\fi
-	}
-		%Firstly, place a coordinate directly at the edge of the shape
-		(\ctikzvalof{bipole/name}.\pgf@circ@temp) coordinate (labelcoor)
-		%now decide, which labels should be drawn
-		\pgfextra{
-			\edef\pgf@temp{\ctikzvalof{label/align}}
-			\def\pgf@circ@temp{straight}
-		}
-		\ifx\pgf@temp\pgf@circ@temp %straight
-			\pgf@circ@drawreglabels{#1}
-		\else
-			\pgfextra{\def\pgf@circ@temp{rotate}}
-			\ifx\pgf@temp\pgf@circ@temp %rotate
-				\pgf@circ@drawrotlabels{#1}
-			\else% smart
-				\pgf@circ@drawsmartlabels{#1}
-			\fi
-		\fi
+    \pgfextra{
+        % This function will be called with argument #1 equal
+        % to "label" or "annotation" form pgfcircpath.tex.
+        % pgf@circ@direction is the direction of the path,
+        % its value is set in pgfcircpath.tex
+        \pgfmathsubtract{\pgf@circ@direction}{90}
+        \pgfmathround{\pgfmathresult} % avoid precision loss errors
+        \edef\pgf@circ@labanc{\expandafter\pgf@circ@stripdecimals\pgfmathresult\pgf@nil}
+
+        \edef\pgf@circ@temp{\ctikzvalof{bipole/#1/position}}
+        \ifnum \pgf@circ@temp < 0
+                \pgfmathadd{\pgf@circ@labanc}{180}
+                \edef\pgf@circ@labanc{\expandafter\pgf@circ@stripdecimals\pgfmathresult\pgf@nil}
+        \fi
+        \ifpgf@circuit@bipole@inverted
+                \pgfmathadd{\pgf@circ@temp}{180} %If shape is inverted, use opposite anchor
+                \edef\pgf@circ@temp{\expandafter\pgf@circ@stripdecimals\pgfmathresult\pgf@nil}
+        \fi
+
+        \ifnum \ctikzvalof{mirror value} = -1
+                \pgfmathadd{\pgf@circ@temp}{180} %If shape is mirrored, use opposite anchor
+                \edef\pgf@circ@temp{\expandafter\pgf@circ@stripdecimals\pgfmathresult\pgf@nil}
+        \fi
+    }
+    %Firstly, place a coordinate directly at the edge of the shape
+    (\ctikzvalof{bipole/name}.\pgf@circ@temp) coordinate (labelcoor)
+    %now decide, which labels should be drawn
+    \pgfextra{
+            \edef\pgf@temp{\ctikzvalof{label/align}}
+            \def\pgf@circ@temp{straight}
+    }
+    \ifx\pgf@temp\pgf@circ@temp %straight
+            \pgf@circ@drawreglabels{#1}
+    \else
+            \pgfextra{\def\pgf@circ@temp{rotate}}
+            \ifx\pgf@temp\pgf@circ@temp %rotate
+                    \pgf@circ@drawrotlabels{#1}
+            \else% smart
+                    \pgf@circ@drawsmartlabels{#1}
+            \fi
+    \fi
 }
 
 
 \def\pgf@circ@drawsmartlabels#1{
-	\pgfextra{
-		\pgfmathmod{\pgf@circ@direction}{90}
-		\edef\pgfcircmathresult{\expandafter\pgf@circ@stripdecimals\pgfmathresult\pgf@nil}
-	}
-	\ifnum \pgfcircmathresult > 20	
-		\ifnum \pgfcircmathresult < 70
-			\pgf@circ@drawrotlabels{#1}
-		\else
-			\pgf@circ@drawreglabels{#1}
-		\fi
-	\else
-		\pgf@circ@drawreglabels{#1}
-	\fi
-}
+    \pgfextra{
+        \pgfmathmod{\pgf@circ@direction}{90}
+        \edef\pgfcircmathresult{\expandafter\pgf@circ@stripdecimals\pgfmathresult\pgf@nil}
+    }
+    \ifnum \pgfcircmathresult > 20
+    \ifnum \pgfcircmathresult < 70
+        \pgf@circ@drawrotlabels{#1}
+    \else
+        \pgf@circ@drawreglabels{#1}
+    \fi
+    \else
+        \pgf@circ@drawreglabels{#1}
+    \fi
+    }
 
 
 \def\pgf@circ@drawrotlabels#1{
-	\pgfextra{
-                % scale the distances in function of zoom, so that they are not
-                % dependent on it but on font size. Thanks to @marmot
-                % https://tex.stackexchange.com/a/476018/38080
-                % the coeffcient is adjusted so that the distance is more or less
-                % the same for rotated labels and straight ones (although it will
-                % depend on the font, so it's not exact).
-                \pgfgettransformentries{\tmp}{\tmp}{\tmp}{\myscale}{\tmp}{\tmp}
-                \pgfmathsetlength\pgf@circ@res@temp{1.5*\pgf@circ@ls/\myscale}
-		\ifnum \ctikzvalof{bipole/#1/position}>0
-		%we need some more space for placement below, due to mid-anchor
-		    \else % we do not have <= in \ifnum...
-			\pgf@circ@res@temp=1.5\pgf@circ@res@temp
-		\fi
-		%Calculate rotation of the label from direction and strip decimals
-		\edef\pgfcirclabrot{\expandafter\pgf@circ@stripdecimals\pgf@circ@direction\pgf@nil}
-		% rotate the label at second or third quadrant:
-		\ifnum \pgfcirclabrot > 90 \ifnum \pgfcirclabrot < 270
-			\pgfmathsubtract{\pgf@circ@direction}{180}
-			\edef\pgfcirclabrot{\expandafter\pgf@circ@stripdecimals\pgfmathresult\pgf@nil}
-			%invert the space relationships due to rotated strings
-			\ifnum \ctikzvalof{bipole/#1/position}>0
-                                \pgf@circ@res@temp=1.5\pgf@circ@res@temp
-                        \fi
-		\fi\fi
-		\pgfmathparse{\ctikzvalof{bipole/#1/position}>0?\pgf@circ@direction+90:\pgf@circ@direction-90}
-		\edef\pgf@circ@labposangle{\expandafter\pgf@circ@stripdecimals\pgfmathresult\pgf@nil}
-	}
-        % reset cm is not working correctly here
-        (labelcoor)++(\pgf@circ@labposangle:\the\pgf@circ@res@temp) coordinate(labelcoor)
-	node[anchor=mid, rotate=\pgfcirclabrot](\ctikzvalof{bipole/name}#1){\pgf@circ@finallabels{#1}}
+    \pgfextra{
+        % scale the distances in function of zoom, so that they are not
+        % dependent on it but on font size. Thanks to @marmot
+        % https://tex.stackexchange.com/a/476018/38080
+        % the coeffcient is adjusted so that the distance is more or less
+        % the same for rotated labels and straight ones (although it will
+        % depend on the font, so it's not exact).
+        \pgfgettransformentries{\tmp}{\tmp}{\tmp}{\myscale}{\tmp}{\tmp}
+        \pgfmathsetlength\pgf@circ@res@temp{1.5*\pgf@circ@ls/\myscale}
+        \ifnum \ctikzvalof{bipole/#1/position}>0
+        %we need some more space for placement below, due to mid-anchor
+            \else % we do not have <= in \ifnum...
+                \pgf@circ@res@temp=1.5\pgf@circ@res@temp
+        \fi
+        %Calculate rotation of the label from direction and strip decimals
+        \edef\pgfcirclabrot{\expandafter\pgf@circ@stripdecimals\pgf@circ@direction\pgf@nil}
+        % rotate the label at second or third quadrant:
+        \ifnum \pgfcirclabrot > 90 \ifnum \pgfcirclabrot < 270
+                \pgfmathsubtract{\pgf@circ@direction}{180}
+                \edef\pgfcirclabrot{\expandafter\pgf@circ@stripdecimals\pgfmathresult\pgf@nil}
+                %invert the space relationships due to rotated strings
+                \ifnum \ctikzvalof{bipole/#1/position}>0
+                        \pgf@circ@res@temp=1.5\pgf@circ@res@temp
+                \fi
+        \fi\fi
+        \pgfmathparse{\ctikzvalof{bipole/#1/position}>0?\pgf@circ@direction+90:\pgf@circ@direction-90}
+        \edef\pgf@circ@labposangle{\expandafter\pgf@circ@stripdecimals\pgfmathresult\pgf@nil}
+    }
+    % reset cm is not working correctly here
+    (labelcoor)++(\pgf@circ@labposangle:\the\pgf@circ@res@temp) coordinate(labelcoor)
+    node[anchor=mid, rotate=\pgfcirclabrot](\ctikzvalof{bipole/name}#1){\pgf@circ@finallabels{#1}}
 }
 
 \def\pgf@circ@drawreglabels#1{
-
-	%Now calculate all shape positions
-	%Use mid-anchor at x-axis and base-anchor at y-axis, respectively.
-	%All points between will be addressed by angled-anchors:
-	\pgfextra{
-                % scale ex-distance to make it independent on scale
-                % thanks @marmot see https://tex.stackexchange.com/a/476018/38080
-                \pgfgettransformentries{\tmp}{\tmp}{\tmp}{\myscale}{\tmp}{\tmp}
-                \pgfmathsetlength\pgf@circ@res@temp{\pgf@circ@ls/\myscale}
-		\pgfmathadd{\pgf@circ@labanc}{90}
-                \pgfmathround{\pgfmathresult}
-                \def\pgf@circ@labanctext{\pgf@circ@labanc}
-		\edef\pgf@circ@temp{\expandafter\pgf@circ@stripdecimals\pgfmathresult\pgf@nil}
-		\pgfmathparse{mod(\pgf@circ@temp,180)>135?mod(\pgf@circ@temp,180)-180:mod(\pgf@circ@temp,180)}
-		\edef\pgfcircmathresult{\expandafter\pgf@circ@stripdecimals\pgfmathresult\pgf@nil}
-	}
-	%Values around 90 are at both y-axis
-	\ifnum \pgfcircmathresult > 84 \ifnum \pgfcircmathresult< 96
-		\pgfextra{\edef\pgf@circ@labpos{\expandafter\pgf@circ@stripdecimals\pgf@circ@direction\pgf@nil}}
-		\ifnum \pgf@circ@labpos > 180
-			\ifnum \ctikzvalof{bipole/#1/position} > 0
-				\pgfextra{\def\pgf@circ@labanctext{mid west}}
-			\else
-				\pgfextra{\def\pgf@circ@labanctext{mid east}}
-			\fi
-		\else
-			\ifnum \ctikzvalof{bipole/#1/position} > 0
-				\pgfextra{\def\pgf@circ@labanctext{mid east}}
-			\else
-				\pgfextra{\def\pgf@circ@labanctext{mid west}}
-			\fi
-		\fi
-	\fi\fi
-	%Values between -5 and 5 are at pos /neg x-axis
-        \pgfextra{\def\uffa{}\newdimen\realshift\realshift=\dimexpr1pt\relax}
-                \ifnum \pgfcircmathresult <6 \ifnum \pgfcircmathresult > -6
-                    \ifnum \ctikzvalof{bipole/#1/position} < 0
-                        \ifnum \pgf@circ@labanc > 90
-                            % using base coordinate instead of south to naturally align
-                            % symbols with descendants; but this invalidate the effect of
-                            % the inner sep, so recover it by shifting the anchor
-                            % reset cm is not working sometime, use @marmot solution
-                            % see https://tex.stackexchange.com/a/476018/38080
-                            (labelcoor) ++(-\pgf@circ@labanc:\pgf@circ@res@temp) coordinate(labelcoor)
-                            \pgfextra{\def\pgf@circ@labanctext{base}}%base
-                        \else
-                            \pgfextra{\def\pgf@circ@labanctext{north}}%north
-                        \fi
-                     \else
-                        \ifnum \pgf@circ@labanc < 90
-                            % shift, as above
-                            (labelcoor) ++(-\pgf@circ@labanc:\pgf@circ@res@temp) coordinate(labelcoor)
-                            \pgfextra{\def\pgf@circ@labanctext{base}}%base
-                        \else
-                            \ifnum \pgf@circ@labanc > 180
-                                % this shouldn't  happen, but somehow it does (270 degree anchors)
-                                % shift, as above
-                                (labelcoor) ++(-\pgf@circ@labanc:\pgf@circ@res@temp) coordinate(labelcoor)
-                                 \pgfextra{\def\pgf@circ@labanctext{base}}%base
-                            \else
-                              \pgfextra{\def\pgf@circ@labanctext{north}}%north
-                           \fi
-                        \fi
-                    \fi
-                \fi\fi
-        (labelcoor) node[anchor=\pgf@circ@labanctext,
-            inner sep=0.5\pgf@circ@res@temp, outer sep=0pt,
-            ](\ctikzvalof{bipole/name}#1){\strut\pgf@circ@finallabels{#1}%
-        }
+    %Now calculate all shape positions
+    %Use mid-anchor at x-axis and base-anchor at y-axis, respectively.
+    %All points between will be addressed by angled-anchors:
+    \pgfextra{
+        % scale ex-distance to make it independent on scale
+        % thanks @marmot see https://tex.stackexchange.com/a/476018/38080
+        \pgfgettransformentries{\tmp}{\tmp}{\tmp}{\myscale}{\tmp}{\tmp}
+        \pgfmathsetlength\pgf@circ@res@temp{\pgf@circ@ls/\myscale}
+        \pgfmathadd{\pgf@circ@labanc}{90}
+        \pgfmathround{\pgfmathresult}
+        \def\pgf@circ@labanctext{\pgf@circ@labanc}
+        \edef\pgf@circ@temp{\expandafter\pgf@circ@stripdecimals\pgfmathresult\pgf@nil}
+        \pgfmathparse{mod(\pgf@circ@temp,180)>135?mod(\pgf@circ@temp,180)-180:mod(\pgf@circ@temp,180)}
+        \edef\pgfcircmathresult{\expandafter\pgf@circ@stripdecimals\pgfmathresult\pgf@nil}
+    }
+    %Values around 90 are at both y-axis
+    \ifnum \pgfcircmathresult > 84 \ifnum \pgfcircmathresult< 96
+        \pgfextra{\edef\pgf@circ@labpos{\expandafter\pgf@circ@stripdecimals\pgf@circ@direction\pgf@nil}}
+        \ifnum \pgf@circ@labpos > 180
+            \ifnum \ctikzvalof{bipole/#1/position} > 0
+                    \pgfextra{\def\pgf@circ@labanctext{mid west}}
+            \else
+                    \pgfextra{\def\pgf@circ@labanctext{mid east}}
+            \fi
+        \else
+            \ifnum \ctikzvalof{bipole/#1/position} > 0
+                    \pgfextra{\def\pgf@circ@labanctext{mid east}}
+            \else
+                    \pgfextra{\def\pgf@circ@labanctext{mid west}}
+            \fi
+        \fi
+    \fi\fi
+    %Values between -5 and 5 are at pos /neg x-axis
+    \pgfextra{\def\uffa{}\newdimen\realshift\realshift=\dimexpr1pt\relax}
+        \ifnum \pgfcircmathresult <6 \ifnum \pgfcircmathresult > -6
+            \ifnum \ctikzvalof{bipole/#1/position} < 0
+                \ifnum \pgf@circ@labanc > 90
+                    % using base coordinate instead of south to naturally align
+                    % symbols with descendants; but this invalidate the effect of
+                    % the inner sep, so recover it by shifting the anchor
+                    % reset cm is not working sometime, use @marmot solution
+                    % see https://tex.stackexchange.com/a/476018/38080
+                    (labelcoor) ++(-\pgf@circ@labanc:\pgf@circ@res@temp) coordinate(labelcoor)
+                    \pgfextra{\def\pgf@circ@labanctext{base}}%base
+                \else
+                    \pgfextra{\def\pgf@circ@labanctext{north}}%north
+                \fi
+             \else
+                \ifnum \pgf@circ@labanc < 90
+                    % shift, as above
+                    (labelcoor) ++(-\pgf@circ@labanc:\pgf@circ@res@temp) coordinate(labelcoor)
+                    \pgfextra{\def\pgf@circ@labanctext{base}}%base
+                \else
+                    \ifnum \pgf@circ@labanc > 180
+                        % this shouldn't  happen, but somehow it does (270 degree anchors)
+                        % shift, as above
+                        (labelcoor) ++(-\pgf@circ@labanc:\pgf@circ@res@temp) coordinate(labelcoor)
+                         \pgfextra{\def\pgf@circ@labanctext{base}}%base
+                    \else
+                      \pgfextra{\def\pgf@circ@labanctext{north}}%north
+                   \fi
+                \fi
+            \fi
+        \fi\fi
+    (labelcoor) node[anchor=\pgf@circ@labanctext,
+        inner sep=0.5\pgf@circ@res@temp, outer sep=0pt,
+        ](\ctikzvalof{bipole/name}#1){\strut\pgf@circ@finallabels{#1}%
+    }
 }
 
 \def\pgf@circ@finallabels#1{%
-	\edef\pgf@temp{}%
-	\edef\pgf@circ@temp{\ctikzvalof{bipole/#1/unit}}%
-	\ifx\pgf@temp\pgf@circ@temp%
-	\ctikzvalof{bipole/#1/name}%
-	\else%
-	$\SI{\ctikzvalof{bipole/#1/name}}{\ctikzvalof{bipole/#1/unit}}$%
-	\fi%
+    \edef\pgf@temp{}%
+    \edef\pgf@circ@temp{\ctikzvalof{bipole/#1/unit}}%
+    \ifx\pgf@temp\pgf@circ@temp%
+        \ctikzvalof{bipole/#1/name}%
+    \else%
+        $\SI{\ctikzvalof{bipole/#1/name}}{\ctikzvalof{bipole/#1/unit}}$%
+    \fi%
 }
 
 \ctikzset{text/.style = { t=#1 } }
-\ctikzset{t/.code = { 
-	\ctikzsetvalof{bipoles/twoport/text}{#1}
+\ctikzset{t/.code = {
+        \ctikzsetvalof{bipoles/twoport/text}{#1}
 }}
 
 %%%% Stacked labels
