@@ -2203,8 +2203,17 @@
 
         \pgfpathlineto{\pgfpoint{0pt}{-\pgf@circ@res@down}}
         \pgfpathlineto{\pgfpoint{0pt}{\pgf@circ@res@down}}
-        \pgfpathlineto{\pgfpoint{\pgf@circ@res@step-\pgf@circ@res@other}{0pt}}
-        \pgfusepath{draw}
+        \pgfpathclose
+        \pgf@circ@draworfill
+        \pgfscope
+            % to allow filling, we need to draw explicitily the stroke here.
+            \pgfsetlinewidth{\pgfstartlinewidth}
+            \ifpgf@circuit@bipole@strokedsymbol
+                \pgfpathmoveto{\pgfpoint{\pgf@circ@res@step-\pgf@circ@res@other}{0pt}}
+                \pgfpathlineto{\pgfpoint{0pt}{0pt}}
+                \pgfusepath{draw}
+            \fi
+        \endpgfscope
 
         \pgfsetlinewidth{\pgfstartlinewidth}
 
@@ -2270,7 +2279,7 @@
     \pgfpathlineto{\pgfpoint{\pgf@circ@res@step}{-1.414*(\pgf@circ@res@other-\pgf@circ@res@step)}}
     \pgfpathlineto{\pgfpoint{\pgf@circ@res@step}{1.414*(\pgf@circ@res@other-\pgf@circ@res@step)}}
 
-    \pgfusepath{draw}
+    \pgf@circ@draworfill
 
     \pgfsetlinewidth{\pgfstartlinewidth}
 
@@ -2288,7 +2297,7 @@
 
 }
 
-%% Empty triac
+%% Full triac
 
 \pgfcircdeclarebipole{
 	\anchor{gate}{
@@ -3276,11 +3285,11 @@
     \pgf@circ@res@step = \ctikzvalof{bipoles/resistor/width}\pgf@circ@Rlen
     \divide \pgf@circ@res@step by 14
 
-    \pgfpathrectanglecorners{\pgfpoint{\pgf@circ@res@left}{-\pgf@circ@res@down}}{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@down}}
-    \pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}\pgfstartlinewidth}
-
-    \pgfusepath{draw}
-
+    \pgfscope
+        \pgfpathrectanglecorners{\pgfpoint{\pgf@circ@res@left}{-\pgf@circ@res@down}}{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@down}}
+        \pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}\pgfstartlinewidth}
+        \pgf@circ@draworfill
+    \endpgfscope
     \pgfscope
         %\pgfsetlinewidth{\pgfstartlinewidth}
         \pgfsetarrowsend{latexslim}
@@ -3418,7 +3427,7 @@
                 \pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}\pgfstartlinewidth}
             \fi
             \pgfpathcircle{\pgfpoint{0}{0}} {0.5\pgf@circ@res@step}
-            \pgfusepath{draw}
+            \pgf@circ@draworfill
 
             % draw inner stuff
             \pgfsetdash{}{0pt}	% always draw solid line for inner symbol
@@ -3562,7 +3571,7 @@
                 \pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}\pgfstartlinewidth}
             \fi
             \pgfpathcircle{\pgfpoint{0}{0}} {0.5\pgf@circ@res@step}
-            \pgfusepath{draw}
+            \pgf@circ@draworfill
 
             % draw inner stuff
             \pgfsetdash{}{0pt}	% always draw solid line for inner symbol
@@ -3643,7 +3652,7 @@
                 \pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}\pgfstartlinewidth}
             \fi
             \pgfpathcircle{\pgfpoint{0}{0}} {0.5\pgf@circ@res@step}
-            \pgfusepath{draw}
+            \pgf@circ@draworfill
 
             % draw inner sine waves
             \pgfsetdash{}{0pt}	% always draw solid line for inner symbol
@@ -3752,7 +3761,7 @@
 				\pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}\pgfstartlinewidth}
 			\fi
 			\pgfpathcircle{\pgfpoint{0}{0}} {0.5\pgf@circ@res@step}
-			\pgfusepath{draw}
+                        \pgf@circ@draworfill
 
 			% inner arrow
 			\pgfsetdash{}{0pt}	% always draw solid line for inner symbol
@@ -3848,9 +3857,7 @@
         \pgfstartlinewidth=\pgflinewidth
 
         % draw outer box
-        \pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}\pgfstartlinewidth}
-        \pgfpathrectanglecorners{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@up}}{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@down}}
-        \pgfusepath{draw}
+        \pgf@circ@twoportbox
 
         % draw inner stuff
         \pgfsetdash{}{0pt}	% always draw solid line for inner symbol
@@ -3966,23 +3973,23 @@
         \pgf@circ@res@up=\ctikzvalof{tripoles/elmech/height}\pgf@circ@Rlen
         \pgfscope
             \pgfstartlinewidth=\pgflinewidth
-            % draw outer box
-            %	\ifpgf@circuit@boxed
-            %		\pgfnode{box}{center}{}{pgf@box}{\pgfusepath{draw}}
-            %	\fi
-            % draw outer circle
-            %\ifpgf@circuit@boxed
-            %	\pgf@circ@res@step=.7\pgf@circ@res@step
-            %	\pgfsetdash{}{0pt}	% draw solid circle if boxed
-            %\else
             \pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}\pgfstartlinewidth}
-            %\fi
-            \pgfpathrectangle{\pgfpoint{-.25\pgf@circ@res@step}{-.5\pgf@circ@res@up}}{\pgfpoint{.5\pgf@circ@res@step}{\pgf@circ@res@up}}
-            \pgfsetfillcolor{black}
-            \pgfusepath{draw,fill}
+            \pgfscope % clip the bar: whole size minus the circle
+                \pgfpathrectanglecorners{\pgfpoint{-.5\pgf@circ@res@step}{-.5\pgf@circ@res@up}}{\pgfpoint{.5\pgf@circ@res@step}{.5\pgf@circ@res@up}}
+                \pgfpathcircle{\pgfpoint{0}{0}} {0.5\pgf@circ@res@step}
+                \pgfseteorule
+                \pgfusepath{clip}
+                \pgfpathrectangle{\pgfpoint{-.25\pgf@circ@res@step}{-.5\pgf@circ@res@up}}{\pgfpoint{.5\pgf@circ@res@step}{\pgf@circ@res@up}}
+                \pgfsetfillcolor{black}
+                \pgfusepath{fill, draw}
+            \endpgfscope
             \pgfpathcircle{\pgfpoint{0}{0}} {0.5\pgf@circ@res@step}
-            \pgfsetfillcolor{white}
-            \pgfusepath{draw,fill}
+            \ifx\tikz@fillcolor\pgfutil@empty
+                \pgfsetfillcolor{white}
+            \else
+                \pgfsetfillcolor{\tikz@fillcolor}
+            \fi
+            \pgfusepath{draw, fill}
         \endpgfscope
     }
 }
@@ -4089,21 +4096,10 @@
 
         \pgfscope
             \pgfstartlinewidth=\pgflinewidth
-            % draw outer box
-            %	\ifpgf@circuit@boxed
-            %		\pgfnode{box}{center}{}{pgf@box}{\pgfusepath{draw}}
-            %	\fi
-            % draw outer circle
-            %\ifpgf@circuit@boxed
-            %	\pgf@circ@res@step=.7\pgf@circ@res@step
-            %	\pgfsetdash{}{0pt}	% draw solid circle if boxed
-            %\else
             \pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}\pgfstartlinewidth}
-            %\fi
             %create outer circle
             \pgfpathcircle{\pgfpoint{0}{0}} {\pgf@circ@res@right}
-            \pgfsetfillcolor{white}
-            \pgfusepath{draw}
+            \pgf@circ@draworfill
             %create chambers
             \foreach \angle in {45,135,225,315}{
                 \pgfpathmoveto{ \pgfpointpolar{\angle}{0.6\pgf@circ@res@right}}
