@@ -5,8 +5,9 @@
 % !TeX spellcheck = en_US
 % !TeX encoding = utf8
 
-\documentclass[a4paper]{article}
+\documentclass[a4paper, titlepage]{article}
 \usepackage{a4wide}	%smaller borders
+\usepackage{titling}
 
 \def\modern{
 	\usepackage{fontspec}
@@ -152,6 +153,13 @@
 \newcommand{\email}[1]{\href{mailto:#1}{#1}}
 \long\def\comment#1{}
 
+% There are a lot of boxes in the document; let's try to give TeX
+% a bit of leverage... do not use parindent (which looks strange between examples)
+% and add stretch between paragraph, to avoid a lot of sections and subsections
+% starting at the end of the page.
+\parindent=0pt
+\parskip=4pt plus 6pt minus 2pt
+
 \begin{document}
 \setcounter{secnumdepth}{4}
 \setcounter{tocdepth}{4}
@@ -168,6 +176,36 @@
     Stefan Erhardt (\email{stefan.erhardt@fau.de})\\
     Romano Giannetti (\email{romano.giannetti@gmail.com})}
 \date{\today}
+
+\pretitle{\begin{center}%
+    \begin{circuitikz}
+        \draw (0,0) node[dipchip, rotate=90, num pins=40, fill=cyan!20!white](C){%
+            \rotatebox{-90}{\LARGE\Circuitikz}%
+        };
+        \draw (C.pin 20) -- ++(0,-8) node[ground](GND){};
+        \draw (C.pin 7) to[D, fill=blue] ++(0,-1) -- ++(0.5,0) to[R] ++(2,0)
+            coordinate(a1) to[short, -*]
+            node[above left, blue]{Massimo A. Redaelli}
+            node[below left,]{\email{m.redaelli@gmail.com}}
+            (a1-|GND);
+            \draw (C.pin 5) to[D, fill=red] ++(0,-3)-- ++(0.5,0) to[R] ++(2,0)
+            coordinate(a2) to[short, -*]
+            node[above left, blue]{Stefan Lindner}
+            node[below left,]{\email{stefan.lindner@fau.de}}
+            (a2-|GND);
+            \draw (C.pin 3) to[D, fill=green] ++(0,-5)-- ++(0.5,0) to[R] ++(2,0)
+            coordinate(a3) to[short, -*]
+            node[above left, blue]{Stefan Erhart}
+            node[below left,]{\email{stefan.erhardt@fau.de}}
+            (a3-|GND);
+            \draw (C.pin 1) to[D, fill=yellow] ++(0,-7)-- ++(0.5,0) to[R] ++(2,0)
+            coordinate(a4) to[short, -*]
+            node[above left, blue]{Romano Giannetti}
+            node[below left,]{\email{romano.giannetti@gmail.com}}
+            (a4-|GND);
+    \end{circuitikz}
+    \par\bigskip\vfill}
+\posttitle{\end{center}}
 
 \maketitle
 
@@ -338,7 +376,7 @@ Feel free to load the package with your own cultural options:
 
     \medskip
 
-    In \ConTeXt\ the options are similarly specified: \texttt{current=european|american}, \texttt{voltage=european|american},  \texttt{resistor=american|european},  \texttt{inductor=cute|american|european}, \texttt{logic=american|european}, \texttt{siunitx=true|false}, \texttt{arrowmos=false|true}.
+    In \ConTeXt\ the options are similarly specified: \texttt{current= european|american}, \texttt{voltage= european|american},  \texttt{resistor= american|european},  \texttt{inductor= cute|american|european}, \texttt{logic= american|european}, \texttt{siunitx= true|false}, \texttt{arrowmos= false|true}.
 
 } %\stop the \sloppy processing
 
@@ -708,7 +746,7 @@ Pretty much all Circui\TikZ\ relies heavily on \texttt{pgfkeys} for value handli
 All can be varied using the \verb!\ctikzset! command, anywhere in the code.
 
 \paragraph{Components size}
-Perhaps the most important parameter is \verb!\circuitikzbasekey/bipoles/length! (default \SI{1.4}{cm}), which
+Perhaps the most important parameter is \texttt{bipoles/length}  (default \SI{1.4}{cm}), which
 can be interpreted as the length of a resistor (including reasonable connections): all other lenghts are relative to this value. For instance:
 
 \begin{LTXexample}[pos=t,varwidth=true]
@@ -883,7 +921,7 @@ For the monopoles, the \texttt{center} anchor is put on the connecting point of 
     \circuitdescbip*{memristor}{Memristor}{Mr}
 \end{groupdesc}
 
-If (default behaviour) \texttt{americanresistors} option is active (or the style \texttt{[american resistors]} is used), the resistor is displayed as follows:
+If \texttt{americanresistors} option is active (or the style \texttt{[american resistors]} is used; this is the default for the package), the resistors are displayed as follows:
 \begin{groupdesc}
     \ctikzset{resistor=american}
     \circuitdescbip[resistor]{R}{Resistor}{american resistor}
@@ -1854,7 +1892,7 @@ Path style:
     \circuitdesc{diamondpole}{Diamond-style terminal}{}
     \circuitdesc{jump crossing}{Jumper-style crossing node}{}
     \circuitdesc{plain crossing}{Plain style crossing node}{}
-    \circuitdesc{waves}{Waves}{}( north/90/0.4, north east/45/0.4, east/0/0.4, south east/-45/0.4,
+    \circuitdesc{waves}{Waves}{}( north/90/0.4, north east/45/0.4, east/-45/0.4, south east/-45/0.4,
     south/-90/0.4, south west/-135/0.4, west/180/0.4, north west/135/0.4,
     left/135/0.2, top/45/0.2, right/45/0.2, bottom/-45/0.2 )
 \end{groupdesc}
@@ -3242,6 +3280,8 @@ To correct the line ending, there are support shapes to fill the missing rectang
 
 \section{Colors}
 
+\subsection{Shape colors}
+
 The color of the components is stored in the key \verb!\circuitikzbasekey/color!. Circui\TikZ\ tries to follow the color set in \TikZ, although sometimes it fails. If you change color in the picture, please do not use just the color name as a style, like \verb![red]!, but rather assign the style \verb![color=red]!.
 
 Compare for instance
@@ -3307,6 +3347,59 @@ The only way out is to specify different paths:
 \end{LTXexample}
 
 And yes: this is a bug and \emph{not} a feature\ldots
+
+\subsection{Fill colors}
+
+Since version 0.8.4, you can also fill most shapes with a color (the manual specifies which ones are fillable or not). The syntax is quite intuitive:
+
+\begin{LTXexample}[varwidth=true]
+\begin{circuitikz} \draw
+    (0,2) node[and port, fill=yellow] (myand1)  {}
+    (0,0) node[and port, fill=cyan] (myand2)  {}
+    (2,1) node[xnor port,fill=red!30!white] (myxnor)  {}
+  (myand1.out) -| (myxnor.in 1)
+  (myand2.out) -| (myxnor.in 2)
+;\end{circuitikz}
+\end{LTXexample}
+
+You can combine shape colors with fill colors, too, but you should use the \texttt{draw} color option style for this:
+
+\begin{LTXexample}[varwidth=true]
+\begin{circuitikz} \draw[color=red]
+    (0,2) node[and port, fill=yellow] (myand1)  {1}
+    (0,0) node[and port, fill=cyan] (myand2)  {2}
+    (2,1) node[xnor port,fill=red!30!white] (myxnor)  {3}
+  (myand1.out) -| (myxnor.in 1)
+  (myand2.out) -| (myxnor.in 2)
+;\end{circuitikz}
+\end{LTXexample}
+
+This is because, as you can see from the following example in port \texttt{2}, you can't specify both a fill and a color in the node (yes, it's a bug too, but it's quite complex to solve given the current circuit\TikZ{} architecture).  a workaround is shown in port \texttt{3}:
+
+
+\begin{LTXexample}[varwidth=true]
+\begin{circuitikz} \draw
+  (0,2) node[and port, color=black] (myand1)  {1}
+  (0,0) node[and port, color=blue, fill=cyan] (myand2)  {2}
+  (2,1) {[color=blue] node[xnor port, fill=cyan] (myxnor)  {3}}
+  (myand1.out) -| (myxnor.in 1)
+  (myand2.out) -| (myxnor.in 2)
+;\end{circuitikz}
+\end{LTXexample}
+
+Notice also that the connection point are always filled, although the color \emph{tries} to follow the color of the filling of the component:
+
+\begin{LTXexample}[varwidth=true, pos=t]
+\begin{circuitikz}
+    \fill[cyan] (0,3.0) rectangle (7,7);
+    \draw [fill=yellow, ] (4,4) to [D,o-o] ++(0,2) to[D*, fill=yellow] ++(2,0)
+    to[D*] ++(0,-2)  to[D, fill=red, o-o] ++(-2,0);
+    \draw (1,4) node[ocirc]{} -- ++(1,0) node[ocirc]{};
+    \draw (1,4.5) to[short, o-o] ++(1,0) to[short, -o] ++(1,0);
+    \draw[fill=yellow] (1,5) to[short, o-o] ++(1,0) to[short, -o] ++(1,0);
+    \draw (1,5.5) to[short, fill=red, o-o] ++(1,0) to[short, -o] ++(1,0);
+\end{circuitikz}
+\end{LTXexample}
 
 \section{FAQ}
 
