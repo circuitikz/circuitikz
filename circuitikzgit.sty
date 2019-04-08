@@ -9,8 +9,8 @@
 
 \NeedsTeXFormat{LaTeX2e}
 
-\def\pgfcircversion{git:d280a18}
-\def\pgfcircversiondate{2019/03/27}
+\def\pgfcircversion{git:6796e20}
+\def\pgfcircversiondate{2019/04/08}
 
 \ProvidesPackage{circuitikzgit}
 [\pgfcircversiondate{} The CircuiTikz circuit drawing package version \pgfcircversion]
@@ -376,6 +376,34 @@
 
 \pgfarrowsdeclarereversed{latexslim reversed}{latexslim reversed}{latexslim}{latexslim}
 
+%% Macro to fill or draw
+
+\def\pgf@circ@draworfill{%
+    \ifx\tikz@fillcolor\pgfutil@empty
+        \pgfusepath{draw}
+    \else
+        \pgfsetfillcolor{\tikz@fillcolor}
+        \pgfusepath{draw, fill}
+    \fi
+}
+
+\def\pgf@circ@draworfillandclip{%
+    \ifx\tikz@fillcolor\pgfutil@empty
+        \pgfusepath{draw, clip}
+    \else
+        \pgfsetfillcolor{\tikz@fillcolor}
+        \pgfusepath{draw, clip, fill}
+    \fi
+}
+
+\def\pgf@circ@maybefill{%
+    \ifx\tikz@fillcolor\pgfutil@empty
+        \pgfusepath{discard}
+    \else
+        \pgfsetfillcolor{\tikz@fillcolor}
+        \pgfusepath{fill}
+    \fi
+}
 %% Keys
 
 \long\def\pgf@circ@comment#1{}
@@ -1721,6 +1749,7 @@
         \pgfscope
             \pgfpathcircle{\pgfpointorigin}{\pgfkeysvalueof{/tikz/circuitikz/nodes width}*\pgf@circ@Rlen}
             \pgfsetcolor{\pgfkeysvalueof{/tikz/circuitikz/color}}
+            \pgfsetfillopacity{1.0}
             \pgfusepath{draw,fill}
         \endpgfscope
 
@@ -1762,7 +1791,12 @@
         \pgfscope
             \pgfpathcircle{\pgfpointorigin}{\pgfkeysvalueof{/tikz/circuitikz/nodes width}*\pgf@circ@Rlen}
             \pgfsetcolor{\pgfkeysvalueof{/tikz/circuitikz/color}}
-            \pgfsetfillcolor{white}
+            \ifx\tikz@fillcolor\pgfutil@empty
+                \pgfsetfillcolor{white}
+            \else
+                \pgfsetfillcolor{\tikz@fillcolor}
+            \fi
+            \pgfsetfillopacity{1.0}
             \pgfusepath{draw,fill}
         \endpgfscope
 
@@ -1804,6 +1838,7 @@
             {\pgfpoint{\pgf@circ@res@left-\pgf@circ@res@temp}{\pgf@circ@res@up+\pgf@circ@res@temp}}
             {\pgfpoint{\pgf@circ@res@left+\pgf@circ@res@temp}{\pgf@circ@res@up-\pgf@circ@res@temp}}
             \pgfsetcolor{\pgfkeysvalueof{/tikz/circuitikz/color}}
+            \pgfsetfillopacity{1.0}
             \pgfusepath{draw,fill}
         \endpgfscope
     }
@@ -1930,7 +1965,7 @@
             \pgf@circ@res@step = 0.5\pgf@circ@res@step
             \pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}\pgfstartlinewidth}
             \pgfpathrectanglecorners{\pgfpoint{-\pgf@circ@res@step}{\pgf@circ@res@step}}{\pgfpoint{\pgf@circ@res@step}{-\pgf@circ@res@step}}
-            \pgfusepath{draw}
+            \pgf@circ@draworfill
         \endpgfscope
     }
 
@@ -2131,7 +2166,7 @@
             \pgfpathlineto{\pgfpoint{\pgf@circ@res@step}{-\pgf@circ@res@step}}
             \pgfpathlineto{\pgfpoint{0}{-1.8\pgf@circ@res@step}}
             \pgfpathclose
-            \pgfusepath{draw}
+            \pgf@circ@draworfill
 
             \pgfsetlinewidth{\pgfstartlinewidth}
 
@@ -2230,20 +2265,22 @@
         \pgfstartlinewidth=\pgflinewidth
 
         \pgf@circ@res@step=\ctikzvalof{bipoles/tline/width} \pgf@circ@Rlen
-        \pgfpathmoveto{\pgfpoint{0.5\pgf@circ@res@step}{0.25\pgf@circ@res@step}}
 
-        \pgfpathmoveto{\pgfpointorigin}
-        \pgfpathlineto{\pgfpoint{0.5\pgf@circ@res@step}{0pt}}
-        \pgfusepath{draw}
-        \pgfscope
+        \pgfscope\begin{pgftransparencygroup}
             \pgfpathellipse{\pgfpoint{0.5\pgf@circ@res@step}{0\pgf@circ@res@step}}{\pgfpoint{0.125\pgf@circ@res@step}{0\pgf@circ@res@step}}{\pgfpoint{0\pgf@circ@res@step}{0.25\pgf@circ@res@step}}
+            \pgf@circ@maybefill
             \pgfpathmoveto{\pgfpoint{0.5\pgf@circ@res@step}{0.25\pgf@circ@res@step}}
             \pgfpathlineto{\pgfpoint{1.5\pgf@circ@res@step}{0.25\pgf@circ@res@step}}
             \pgfpatharc{90}{-90}{0.125\pgf@circ@res@step and 0.25\pgf@circ@res@step}
             \pgfpathlineto{\pgfpoint{0.5\pgf@circ@res@step}{-0.25\pgf@circ@res@step}}
             \pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}\pgfstartlinewidth}
+            \pgf@circ@draworfill
+            \pgfpathellipse{\pgfpoint{0.5\pgf@circ@res@step}{0\pgf@circ@res@step}}{\pgfpoint{0.125\pgf@circ@res@step}{0\pgf@circ@res@step}}{\pgfpoint{0\pgf@circ@res@step}{0.25\pgf@circ@res@step}}
             \pgfusepath{draw}
-        \endpgfscope
+        \end{pgftransparencygroup} \endpgfscope
+        \pgfpathmoveto{\pgfpointorigin}
+        \pgfpathlineto{\pgfpoint{0.5\pgf@circ@res@step}{0pt}}
+        \pgfusepath{draw}
     }
 }
 
@@ -2252,16 +2289,16 @@
 % main body
 \def\pgf@circ@antennabody{%
     \pgfstartlinewidth=\pgflinewidth
+    \pgfsetcolor{\pgfkeysvalueof{/tikz/circuitikz/color}}
     \pgf@circ@res@step=\ctikzvalof{monopoles/bareantenna/width}\pgf@circ@Rlen
     \pgfscope
-    \pgfpathmoveto{\pgfpointorigin}
-    \pgfpathlineto{\pgfpoint{-\pgf@circ@res@step}{2\pgf@circ@res@step}}
-    \pgfpathlineto{\pgfpoint{\pgf@circ@res@step}{2\pgf@circ@res@step}}
-    \pgfsetbeveljoin
-    \pgfpathclose
-    \pgfsetcolor{\pgfkeysvalueof{/tikz/circuitikz/color}}
-    \pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}\pgfstartlinewidth}
-    \pgfusepath{draw}
+        \pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}\pgfstartlinewidth}
+        \pgfpathmoveto{\pgfpointorigin}
+        \pgfpathlineto{\pgfpoint{-\pgf@circ@res@step}{2\pgf@circ@res@step}}
+        \pgfpathlineto{\pgfpoint{\pgf@circ@res@step}{2\pgf@circ@res@step}}
+        \pgfsetbeveljoin
+        \pgfpathclose
+        \pgf@circ@draworfill
     \endpgfscope
     \pgfsetlinewidth{\pgfstartlinewidth}
     \pgfpathmoveto{\pgfpointorigin}
@@ -3045,8 +3082,7 @@
     \pgfpathlineto{\pgfpoint{.4\pgf@circ@res@left}{\pgf@circ@res@down}}
     \pgfpathlineto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@down}}
     \pgfpathlineto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@up}}
-    \pgfsetfillcolor{white}
-    \pgfusepath{draw,fill}
+    \pgf@circ@draworfill
     % % Draw minus pole
     \pgfpathmoveto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@up}}
     \pgfpathlineto{\pgfpoint{.4\pgf@circ@res@right}{\pgf@circ@res@up}}
@@ -3442,6 +3478,7 @@
     \pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}\pgfstartlinewidth}
 
     \pgfpathellipse{\pgfpointorigin}{\pgfpoint{0}{\pgf@circ@res@up}}{\pgfpoint{\pgf@circ@res@left}{0}}
+    \pgf@circ@draworfill
     \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@zero}}
     \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@zero}}
     \pgfusepath{draw}
@@ -3460,7 +3497,8 @@
 
     \pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}\pgfstartlinewidth}
     \pgfpathellipse{\pgfpointorigin}{\pgfpoint{0}{\pgf@circ@res@up}}{\pgfpoint{\pgf@circ@res@left}{0}}
-    \pgfusepath{draw}
+    \pgf@circ@draworfill
+    \pgfsetcolor{\pgfkeysvalueof{/tikz/circuitikz/color}}
     \ifpgf@circ@oldvoltagedirection
         \pgftext[bottom,rotate=90,y=\ctikzvalof{bipoles/vsourceam/margin}\pgf@circ@res@down]{$+$}
         \pgftext[top,rotate=90,y=\ctikzvalof{bipoles/vsourceam/margin}\pgf@circ@res@up]{$-$}
@@ -3484,7 +3522,7 @@
 
     \pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}\pgfstartlinewidth}
     \pgfpathellipse{\pgfpointorigin}{\pgfpoint{0}{\pgf@circ@res@up}}{\pgfpoint{\pgf@circ@res@left}{0}}
-    \pgfusepath{draw}
+    \pgf@circ@draworfill
 
     \pgf@circ@res@up = .5\pgf@circ@res@up
     \pgfscope
@@ -3508,7 +3546,7 @@
 {
     \pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}\pgfstartlinewidth}
     \pgfpathellipse{\pgfpointorigin}{\pgfpoint{0}{\pgf@circ@res@up}}{\pgfpoint{\pgf@circ@res@left}{0}}
-    \pgfusepath{draw}
+    \pgf@circ@draworfill
     \pgf@circ@res@up = .5\pgf@circ@res@up
     \pgfscope
         \pgftransformrotate{90}
@@ -3533,7 +3571,7 @@
 
     \pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}\pgfstartlinewidth}
     \pgfpathellipse{\pgfpointorigin}{\pgfpoint{0}{\pgf@circ@res@up}}{\pgfpoint{\pgf@circ@res@left}{0}}
-    \pgfusepath{draw}
+    \pgf@circ@draworfill
 
     \pgf@circ@res@up = .5\pgf@circ@res@up
     \pgfscope
@@ -3559,7 +3597,7 @@
     \pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}\pgfstartlinewidth}
     \pgfpathellipse{\pgfpointorigin}{\pgfpoint{0}{\pgf@circ@res@up}}{\pgfpoint{\pgf@circ@res@left}{0}}
     \pgfpathmoveto{\pgfpoint{\pgf@circ@res@step}{\pgf@circ@res@up}}
-    \pgfusepath{draw}
+    \pgf@circ@draworfill
 
     \pgfpathmoveto{\pgfpoint{.15\pgf@circ@res@right}{0}}
     \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{0}}
@@ -3599,8 +3637,7 @@
     \pgfpointorigin
     \pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}\pgfstartlinewidth}
     \pgfpathellipse{\pgfpointorigin}{\pgfpoint{0}{\pgf@circ@res@up}}{\pgfpoint{\pgf@circ@res@left}{0}}
-    \pgfpathmoveto{\pgfpoint{\pgf@circ@res@step}{\pgf@circ@res@up}}
-    \pgfusepath{draw}
+    \pgf@circ@draworfill
 }
 
 %% DC Current Source with open shape
@@ -3613,6 +3650,8 @@
 {
     \pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}\pgfstartlinewidth}
     \pgfpathmoveto{\pgfpointorigin}
+    \pgfpathellipse{\pgfpointorigin}{\pgfpoint{0}{\pgf@circ@res@up}}{\pgfpoint{\pgf@circ@res@left}{0}}
+    \pgf@circ@maybefill
     \pgfpathmoveto{\pgfpoint{\pgf@circ@res@right}{0}}\pgfpatharc{0}{90}{0.85\pgf@circ@res@right and \pgf@circ@res@up}
     \pgfpathmoveto{\pgfpoint{\pgf@circ@res@right}{0}}\pgfpatharc{0}{-90}{0.85\pgf@circ@res@right and \pgf@circ@res@up}
     \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{0}}\pgfpatharc{180}{270}{0.85\pgf@circ@res@right and \pgf@circ@res@up}
@@ -3639,8 +3678,7 @@
     \pgfpointorigin
     \pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}\pgfstartlinewidth}
     \pgfpathellipse{\pgfpointorigin}{\pgfpoint{0}{\pgf@circ@res@up}}{\pgfpoint{\pgf@circ@res@left}{0}}
-    \pgfpathmoveto{\pgfpoint{\pgf@circ@res@step}{\pgf@circ@res@up}}
-    \pgfusepath{draw}
+    \pgf@circ@draworfill
     \pgfpathmoveto{\pgfpoint{.2\pgf@circ@res@up}{.5\pgf@circ@res@left}}
     \pgfpathlineto{\pgfpoint{.2\pgf@circ@res@up}{.5\pgf@circ@res@right}}
     \pgfpathmoveto{\pgfpoint{.2\pgf@circ@res@down}{.5\pgf@circ@res@left}}
@@ -3663,7 +3701,7 @@
     \pgfpathellipse{\pgfpointorigin}{\pgfpoint{0}{\pgf@circ@res@up}}{\pgfpoint{\pgf@circ@res@left}{0}}
     \pgfpathmoveto{\pgfpoint{\pgf@circ@res@step}{\pgf@circ@res@up}}
     \pgfpathlineto{\pgfpoint{\pgf@circ@res@step}{\pgf@circ@res@down}}
-    \pgfusepath{draw}
+    \pgf@circ@draworfill
 }
 
 %% Independent double oo source
@@ -3678,9 +3716,13 @@
     \pgfpointorigin
     \pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}\pgfstartlinewidth}
     \pgfpathcircle{\pgfpoint{\ctikzvalof{bipoles/oosource/circleoffset}\pgf@circ@res@left}{0}}
-    {\ctikzvalof{bipoles/oosource/circlesize}\pgf@circ@res@left}
+        {\ctikzvalof{bipoles/oosource/circlesize}\pgf@circ@res@left}
+    \pgf@circ@maybefill
     \pgfpathcircle{\pgfpoint{\ctikzvalof{bipoles/oosource/circleoffset}\pgf@circ@res@right}{0}}
-    {\ctikzvalof{bipoles/oosource/circlesize}\pgf@circ@res@right}
+        {\ctikzvalof{bipoles/oosource/circlesize}\pgf@circ@res@right}
+    \pgf@circ@draworfill
+    \pgfpathcircle{\pgfpoint{\ctikzvalof{bipoles/oosource/circleoffset}\pgf@circ@res@left}{0}}
+        {\ctikzvalof{bipoles/oosource/circlesize}\pgf@circ@res@left}
     \pgfusepath{draw}
 }
 
@@ -3697,7 +3739,7 @@
     \pgfpointorigin
     \pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}\pgfstartlinewidth}
     \pgfpathellipse{\pgfpointorigin}{\pgfpoint{0}{\pgf@circ@res@up}}{\pgfpoint{\pgf@circ@res@left}{0}}
-    \pgfusepath{draw}
+    \pgf@circ@draworfill
 
     \pgfpathmoveto{\pgfpoint{.7\pgf@circ@res@left}{\pgf@circ@res@zero}}
     \pgfpathlineto{\pgfpoint{.7\pgf@circ@res@right}{\pgf@circ@res@zero}}
@@ -3721,7 +3763,7 @@
     \pgfpointorigin
     \pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}\pgfstartlinewidth}
     \pgfpathellipse{\pgfpointorigin}{\pgfpoint{0}{\pgf@circ@res@up}}{\pgfpoint{\pgf@circ@res@left}{0}}
-    \pgfusepath{draw}
+    \pgf@circ@draworfill
 
     \pgf@circ@res@up = .5\pgf@circ@res@up
     \pgfscope
@@ -3753,7 +3795,10 @@
     \pgfpathlineto{\pgfpoint{\pgf@circ@res@zero}{\pgf@circ@res@up}}
     \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@zero}}
     \pgfpathlineto{\pgfpoint{\pgf@circ@res@zero}{\pgf@circ@res@down}}
-    \pgfpathlineto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@zero}}
+    \pgfpathclose
+    \pgf@circ@draworfill
+
+    \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@zero}}
     \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@zero}}
     \pgfusepath{draw}
 }
@@ -3774,9 +3819,10 @@
     \pgfpathlineto{\pgfpoint{\pgf@circ@res@zero}{\pgf@circ@res@up}}
     \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@zero}}
     \pgfpathlineto{\pgfpoint{\pgf@circ@res@zero}{\pgf@circ@res@down}}
-    \pgfpathlineto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@zero}}
-    \pgfusepath{draw}
+    \pgfpathclose
+    \pgf@circ@draworfill
 
+    \pgfsetcolor{\pgfkeysvalueof{/tikz/circuitikz/color}}
     \ifpgf@circ@oldvoltagedirection
         \pgftext[bottom,rotate=90,y=\ctikzvalof{bipoles/cvsourceam/margin}\pgf@circ@res@left]{$+$}
         \pgftext[top,rotate=90,y=\ctikzvalof{bipoles/cvsourceam/margin}\pgf@circ@res@right]{$-$}
@@ -3803,8 +3849,8 @@
         \pgfpathlineto{\pgfpoint{\pgf@circ@res@zero}{\pgf@circ@res@up}}
         \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@zero}}
         \pgfpathlineto{\pgfpoint{\pgf@circ@res@zero}{\pgf@circ@res@down}}
-        \pgfpathlineto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@zero}}
-        \pgfusepath{draw}
+        \pgfpathclose
+        \pgf@circ@draworfill
     \endpgfscope
 
     \pgf@circ@res@up = .5\pgf@circ@res@up
@@ -3838,8 +3884,8 @@
         \pgfpathlineto{\pgfpoint{\pgf@circ@res@zero}{\pgf@circ@res@up}}
         \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@zero}}
         \pgfpathlineto{\pgfpoint{\pgf@circ@res@zero}{\pgf@circ@res@down}}
-        \pgfpathlineto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@zero}}
-        \pgfusepath{draw}
+        \pgfpathclose
+        \pgf@circ@draworfill
     \endpgfscope
 
     \pgf@circ@res@up = .5\pgf@circ@res@up
@@ -3870,7 +3916,9 @@
     \pgfpathlineto{\pgfpoint{\pgf@circ@res@zero}{\pgf@circ@res@up}}
     \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@zero}}
     \pgfpathlineto{\pgfpoint{\pgf@circ@res@zero}{\pgf@circ@res@down}}
-    \pgfpathlineto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@zero}}
+    \pgfpathclose
+    \pgf@circ@draworfill
+
     \pgfpathmoveto{\pgfpoint{\pgf@circ@res@zero}{\pgf@circ@res@up}}
     \pgfpathlineto{\pgfpoint{\pgf@circ@res@zero}{\pgf@circ@res@down}}
     \pgfusepath{draw}
@@ -3892,8 +3940,8 @@
     \pgfpathlineto{\pgfpoint{\pgf@circ@res@zero}{\pgf@circ@res@up}}
     \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@zero}}
     \pgfpathlineto{\pgfpoint{\pgf@circ@res@zero}{\pgf@circ@res@down}}
-    \pgfpathlineto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@zero}}
-    \pgfusepath{draw}
+    \pgfpathclose
+    \pgf@circ@draworfill
     \pgfpathmoveto{\pgfpoint{.7\pgf@circ@res@left}{\pgf@circ@res@zero}}
     \pgfpathlineto{\pgfpoint{.7\pgf@circ@res@right}{\pgf@circ@res@zero}}
     \pgfusepath{draw}
@@ -3914,12 +3962,12 @@
 {
     \pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}\pgfstartlinewidth}
     \pgfpathellipse{\pgfpointorigin}{\pgfpoint{0}{\pgf@circ@res@up}}{\pgfpoint{\pgf@circ@res@left}{0}}
-    \pgfusepath{draw}
-    \pgfmathsetmacro{\@@thicker}{4*\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}}
+    \pgf@circ@draworfill
+    \pgfmathsetmacro{\@@thicker}{3*\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}}
     \pgfsetlinewidth{\@@thicker\pgfstartlinewidth}
-    \pgfpathmoveto{\pgfpoint{.7\pgf@circ@res@left}{\pgf@circ@res@zero}}
-    \pgfpathlineto{\pgfpoint{.7\pgf@circ@res@right}{\pgf@circ@res@zero}}
-    \pgfusepath{draw}
+    \pgfpathmoveto{\pgfpoint{.6\pgf@circ@res@left}{\pgf@circ@res@zero}}
+    \pgfpathlineto{\pgfpoint{.6\pgf@circ@res@right}{\pgf@circ@res@zero}}
+    \pgfsetroundcap\pgfusepath{draw}
 }
 %% Cute Independent current source
 
@@ -3933,12 +3981,12 @@
     \pgfpointorigin
     \pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}\pgfstartlinewidth}
     \pgfpathellipse{\pgfpointorigin}{\pgfpoint{0}{\pgf@circ@res@up}}{\pgfpoint{\pgf@circ@res@left}{0}}
-    \pgfusepath{draw}
-    \pgfmathsetmacro{\@@thicker}{4*\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}}
+    \pgf@circ@draworfill
+    \pgfmathsetmacro{\@@thicker}{3*\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}}
     \pgfsetlinewidth{\@@thicker\pgfstartlinewidth}
-    \pgfpathmoveto{\pgfpoint{\pgf@circ@res@step}{.7\pgf@circ@res@up}}
-    \pgfpathlineto{\pgfpoint{\pgf@circ@res@step}{.7\pgf@circ@res@down}}
-    \pgfusepath{draw}
+    \pgfpathmoveto{\pgfpoint{\pgf@circ@res@step}{.6\pgf@circ@res@up}}
+    \pgfpathlineto{\pgfpoint{\pgf@circ@res@step}{.6\pgf@circ@res@down}}
+    \pgfsetroundcap\pgfusepath{draw}
 }
 %% Cute Controlled voltage source
 
@@ -3955,12 +4003,12 @@
     \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@zero}}
     \pgfpathlineto{\pgfpoint{\pgf@circ@res@zero}{\pgf@circ@res@down}}
     \pgfpathlineto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@zero}}
-    \pgfusepath{draw}
-    \pgfmathsetmacro{\@@thicker}{4*\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}}
+    \pgf@circ@draworfill
+    \pgfmathsetmacro{\@@thicker}{3*\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}}
     \pgfsetlinewidth{\@@thicker\pgfstartlinewidth}
-    \pgfpathmoveto{\pgfpoint{.7\pgf@circ@res@left}{\pgf@circ@res@zero}}
-    \pgfpathlineto{\pgfpoint{.7\pgf@circ@res@right}{\pgf@circ@res@zero}}
-    \pgfusepath{draw}
+    \pgfpathmoveto{\pgfpoint{.6\pgf@circ@res@left}{\pgf@circ@res@zero}}
+    \pgfpathlineto{\pgfpoint{.6\pgf@circ@res@right}{\pgf@circ@res@zero}}
+    \pgfsetroundcap\pgfusepath{draw}
 }
 
 %% Cute Controlled current source
@@ -3978,12 +4026,12 @@
     \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@zero}}
     \pgfpathlineto{\pgfpoint{\pgf@circ@res@zero}{\pgf@circ@res@down}}
     \pgfpathlineto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@zero}}
-    \pgfusepath{draw}
-    \pgfmathsetmacro{\@@thicker}{4*\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}}
+    \pgf@circ@draworfill
+    \pgfmathsetmacro{\@@thicker}{3*\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}}
     \pgfsetlinewidth{\@@thicker\pgfstartlinewidth}
-    \pgfpathmoveto{\pgfpoint{\pgf@circ@res@zero}{.7\pgf@circ@res@up}}
-    \pgfpathlineto{\pgfpoint{\pgf@circ@res@zero}{.7\pgf@circ@res@down}}
-    \pgfusepath{draw}
+    \pgfpathmoveto{\pgfpoint{\pgf@circ@res@zero}{.6\pgf@circ@res@up}}
+    \pgfpathlineto{\pgfpoint{\pgf@circ@res@zero}{.6\pgf@circ@res@down}}
+    \pgfsetroundcap\pgfusepath{draw}
 }
 
 %%  Noise voltage source
@@ -4003,8 +4051,8 @@
         \edef\pgf@noise@temp{dashed}
         \edef\pgf@noise@fill{\pgfkeysvalueof{/tikz/circuitikz/bipoles/noise sources/fillcolor}}
         \ifx\pgf@noise@temp\pgf@noise@fill
-            % no fill here
-            \pgfusepath{draw, clip}
+            % fillable in this case
+            \pgf@circ@draworfillandclip
             \pgfmathsetmacro{\thinner}{.5*\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}}
             \pgfsetlinewidth{\thinner\pgfstartlinewidth}
             \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@up}}
@@ -4034,11 +4082,11 @@
             \pgfusepath{draw,fill}
         \fi
     \endpgfscope
-    \pgfmathsetmacro{\@@thicker}{4*\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}}
+    \pgfmathsetmacro{\@@thicker}{3*\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}}
     \pgfsetlinewidth{\@@thicker\pgfstartlinewidth}
-    \pgfpathmoveto{\pgfpoint{.7\pgf@circ@res@left}{\pgf@circ@res@zero}}
-    \pgfpathlineto{\pgfpoint{.7\pgf@circ@res@right}{\pgf@circ@res@zero}}
-    \pgfusepath{draw}
+    \pgfpathmoveto{\pgfpoint{.6\pgf@circ@res@left}{\pgf@circ@res@zero}}
+    \pgfpathlineto{\pgfpoint{.6\pgf@circ@res@right}{\pgf@circ@res@zero}}
+    \pgfsetroundcap\pgfusepath{draw}
 }
 %% Noise current source
 
@@ -4058,8 +4106,8 @@
         \edef\pgf@noise@temp{dashed}
         \edef\pgf@noise@fill{\pgfkeysvalueof{/tikz/circuitikz/bipoles/noise sources/fillcolor}}
         \ifx\pgf@noise@temp\pgf@noise@fill
-            % no fill here
-            \pgfusepath{draw, clip}
+            % fillable in this case
+            \pgf@circ@draworfillandclip
             \pgfmathsetmacro{\thinner}{.5*\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}}
             \pgfsetlinewidth{\thinner\pgfstartlinewidth}
             \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@up}}
@@ -4089,11 +4137,11 @@
             \pgfusepath{draw,fill}
         \fi
     \endpgfscope
-    \pgfmathsetmacro{\@@thicker}{4*\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}}
+    \pgfmathsetmacro{\@@thicker}{3*\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}}
     \pgfsetlinewidth{\@@thicker\pgfstartlinewidth}
-    \pgfpathmoveto{\pgfpoint{\pgf@circ@res@step}{.7\pgf@circ@res@up}}
-    \pgfpathlineto{\pgfpoint{\pgf@circ@res@step}{.7\pgf@circ@res@down}}
-    \pgfusepath{draw}
+    \pgfpathmoveto{\pgfpoint{\pgf@circ@res@step}{.6\pgf@circ@res@up}}
+    \pgfpathlineto{\pgfpoint{\pgf@circ@res@step}{.6\pgf@circ@res@down}}
+    \pgfsetroundcap\pgfusepath{draw}
 }
 %% Black generic diode
 
@@ -4321,6 +4369,28 @@
     \pgfusepath{draw}
 }
 
+%% Code for the diode triangle
+\def\pgf@circ@basicdiodeshape{
+    % \pgfscope
+        \pgftransformxshift{\pgf@circ@res@left}
+        \pgfpathmoveto{\pgfpoint{\pgf@circ@res@right-\pgf@circ@res@left}{0pt}}
+        \pgfpathlineto{\pgfpoint{0pt}{\pgf@circ@res@up}}
+        \pgfpathlineto{\pgfpoint{0pt}{\pgf@circ@res@down}}
+        \pgfpathclose
+        \pgf@circ@draworfill
+        \pgfscope
+            % to allow filling, we need to draw explicitily the stroke here.
+            \pgfsetlinewidth{\pgfstartlinewidth}
+            \ifpgf@circuit@bipole@strokedsymbol
+                \pgfpathmoveto{\pgfpoint{\pgf@circ@res@right-\pgf@circ@res@left}{0pt}}
+                \pgfpathlineto{\pgfpoint{0pt}{0pt}}
+                \pgfusepath{draw}
+            \fi
+        \endpgfscope
+    % \endpgfscope
+}
+
+
 %% Empty generic diode
 
 \pgfcircdeclarebipole
@@ -4330,17 +4400,9 @@
 {\ctikzvalof{bipoles/diode/height}}
 {\ctikzvalof{bipoles/diode/width}}
 {
-
-
     \pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}\pgfstartlinewidth}
-
     \pgfscope
-        \pgftransformxshift{\pgf@circ@res@left}
-        \pgfpathmoveto{\pgfpoint{\pgf@circ@res@right-\pgf@circ@res@left}{0pt}}
-        \pgfpathlineto{\pgfpoint{0pt}{\pgf@circ@res@up}}
-        \pgfpathlineto{\pgfpoint{0pt}{\pgf@circ@res@down}}
-        \pgfpathlineto{\pgfpoint{\pgf@circ@res@right-\pgf@circ@res@left}{0pt}}
-        \pgfusepath{draw}
+        \pgf@circ@basicdiodeshape
     \endpgfscope
     \pgfpathmoveto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@down}}
     \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@up}}
@@ -4360,12 +4422,7 @@
     \pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}\pgfstartlinewidth}
 
     \pgfscope
-        \pgftransformxshift{\pgf@circ@res@left}
-        \pgfpathmoveto{\pgfpoint{\pgf@circ@res@right-\pgf@circ@res@left}{0pt}}
-        \pgfpathlineto{\pgfpoint{0pt}{\pgf@circ@res@up}}
-        \pgfpathlineto{\pgfpoint{0pt}{\pgf@circ@res@down}}
-        \pgfpathlineto{\pgfpoint{\pgf@circ@res@right-\pgf@circ@res@left}{0pt}}
-        \pgfusepath{draw}
+        \pgf@circ@basicdiodeshape
         \pgfpathmoveto{\pgfpoint{\pgf@circ@res@right-\pgf@circ@res@left}{\pgf@circ@res@down}}
         \pgfpathlineto{\pgfpoint{\pgf@circ@res@right-\pgf@circ@res@left}{\pgf@circ@res@up}}
         \pgfpathlineto{\pgfpoint{\pgf@circ@res@right-0.6\pgf@circ@res@left}{\pgf@circ@res@up}}
@@ -4385,12 +4442,7 @@
     \pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}\pgfstartlinewidth}
 
     \pgfscope
-        \pgftransformxshift{\pgf@circ@res@left}
-        \pgfpathmoveto{\pgfpoint{\pgf@circ@res@right-\pgf@circ@res@left}{0pt}}
-        \pgfpathlineto{\pgfpoint{0pt}{\pgf@circ@res@up}}
-        \pgfpathlineto{\pgfpoint{0pt}{\pgf@circ@res@down}}
-        \pgfpathlineto{\pgfpoint{\pgf@circ@res@right-\pgf@circ@res@left}{0pt}}
-        \pgfusepath{draw}
+        \pgf@circ@basicdiodeshape
         \pgfpathmoveto{\pgfpoint{\pgf@circ@res@right-1.8\pgf@circ@res@left}{\pgf@circ@res@down-0.5\pgf@circ@res@up}}
         \pgfpathlineto{\pgfpoint{\pgf@circ@res@right-\pgf@circ@res@left}{\pgf@circ@res@down}}
         \pgfpathlineto{\pgfpoint{\pgf@circ@res@right-\pgf@circ@res@left}{\pgf@circ@res@up}}
@@ -4410,13 +4462,7 @@
 
     \pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}\pgfstartlinewidth}
     \pgfscope
-        \pgftransformxshift{\pgf@circ@res@left}
-        \pgfpathmoveto{\pgfpoint{\pgf@circ@res@right-\pgf@circ@res@left}{0pt}}
-        \pgfpathlineto{\pgfpoint{0pt}{\pgf@circ@res@up}}
-        \pgfpathlineto{\pgfpoint{0pt}{\pgf@circ@res@down}}
-        \pgfpathlineto{\pgfpoint{\pgf@circ@res@right-\pgf@circ@res@left}{0pt}}
-        \pgfusepath{draw}
-
+        \pgf@circ@basicdiodeshape
         \pgfpathmoveto{\pgfpoint{\pgf@circ@res@right-.6\pgf@circ@res@left}{.6\pgf@circ@res@down}}
         \pgfpathlineto{\pgfpoint{\pgf@circ@res@right-.6\pgf@circ@res@left}{\pgf@circ@res@down}}
         \pgfpathlineto{\pgfpoint{\pgf@circ@res@right-\pgf@circ@res@left}{\pgf@circ@res@down}}
@@ -4441,13 +4487,7 @@
 
     \pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}\pgfstartlinewidth}
     \pgfscope
-        \pgftransformxshift{\pgf@circ@res@left}
-        \pgfpathmoveto{\pgfpoint{\pgf@circ@res@right-\pgf@circ@res@left}{0pt}}
-        \pgfpathlineto{\pgfpoint{0pt}{\pgf@circ@res@up}}
-        \pgfpathlineto{\pgfpoint{0pt}{\pgf@circ@res@down}}
-        \pgfpathlineto{\pgfpoint{\pgf@circ@res@right-\pgf@circ@res@left}{0pt}}
-        \pgfusepath{draw}
-
+        \pgf@circ@basicdiodeshape
         \pgfpathmoveto{\pgfpoint{\pgf@circ@res@right-.6\pgf@circ@res@left}{\pgf@circ@res@down}}
         \pgfpathlineto{\pgfpoint{\pgf@circ@res@right-\pgf@circ@res@left}{\pgf@circ@res@down}}
         \pgfpathlineto{\pgfpoint{\pgf@circ@res@right-\pgf@circ@res@left}{\pgf@circ@res@up}}
@@ -4468,12 +4508,7 @@
 
     \pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}\pgfstartlinewidth}
     \pgfscope
-        \pgftransformxshift{\pgf@circ@res@left}
-        \pgfpathmoveto{\pgfpoint{\pgf@circ@res@right-\pgf@circ@res@left}{0pt}}
-        \pgfpathlineto{\pgfpoint{0pt}{\pgf@circ@res@up}}
-        \pgfpathlineto{\pgfpoint{0pt}{\pgf@circ@res@down}}
-        \pgfpathlineto{\pgfpoint{\pgf@circ@res@right-\pgf@circ@res@left}{0pt}}
-        \pgfusepath{draw}
+        \pgf@circ@basicdiodeshape
     \endpgfscope
     \pgfpathmoveto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@down}}
     \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@up}}
@@ -4501,12 +4536,7 @@
 
     \pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}\pgfstartlinewidth}
     \pgfscope
-        \pgftransformxshift{\pgf@circ@res@left}
-        \pgfpathmoveto{\pgfpoint{\pgf@circ@res@right-\pgf@circ@res@left}{0pt}}
-        \pgfpathlineto{\pgfpoint{0pt}{\pgf@circ@res@up}}
-        \pgfpathlineto{\pgfpoint{0pt}{\pgf@circ@res@down}}
-        \pgfpathlineto{\pgfpoint{\pgf@circ@res@right-\pgf@circ@res@left}{0pt}}
-        \pgfusepath{draw}
+        \pgf@circ@basicdiodeshape
     \endpgfscope
     \pgfpathmoveto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@down}}
     \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@up}}
@@ -4525,18 +4555,7 @@
 %% Empty varcap
 
 \pgfcircdeclarebipole
-{
-    \anchor{strokepathstart}{
-        \northeast
-        \pgf@y=0cm
-        \advance\pgf@x by -\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}\pgflinewidth
-        \advance\pgf@x by -\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}\pgflinewidth
-    }
-    \anchor{strokepathend}{
-        \northeast
-        \pgf@y=0cm
-    }
-}
+{}
 {\ctikzvalof{bipoles/varcap/height}}
 {emptyvarcap}
 {\ctikzvalof{bipoles/varcap/height}}
@@ -4547,8 +4566,18 @@
     \pgfpathmoveto{\pgfpoint{\pgf@circ@res@right-2\pgf@circ@res@temp}{0pt}}
     \pgfpathlineto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@up}}
     \pgfpathlineto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@down}}
-    \pgfpathlineto{\pgfpoint{\pgf@circ@res@right-2\pgf@circ@res@temp}{0pt}}
-    \pgfusepath{draw}
+    % \pgfpathlineto{\pgfpoint{\pgf@circ@res@right-2\pgf@circ@res@temp}{0pt}}
+    \pgfpathclose
+    \pgf@circ@draworfill
+    \pgfscope
+        % to allow filling, we need to draw explicitily the stroke here.
+        \pgfsetlinewidth{\pgfstartlinewidth}
+        \ifpgf@circuit@bipole@strokedsymbol
+            \pgfpathmoveto{\pgfpoint{\pgf@circ@res@right-2\pgf@circ@res@temp}{0pt}}
+            \pgfpathlineto{\pgfpoint{\pgf@circ@res@left}{0pt}}
+            \pgfusepath{draw}
+        \fi
+    \endpgfscope
     %
     \pgfpathmoveto{\pgfpoint{\pgf@circ@res@right-2\pgf@circ@res@temp}{\pgf@circ@res@down}}
     \pgfpathlineto{\pgfpoint{\pgf@circ@res@right-2\pgf@circ@res@temp}{\pgf@circ@res@up}}
@@ -4577,7 +4606,8 @@
 	\pgfpathlineto{\pgfpoint{\pgf@circ@res@step}{-1.414*(\pgf@circ@res@other-\pgf@circ@res@step)}}
 	\pgfpathlineto{\pgfpoint{\pgf@circ@res@step}{1.414*(\pgf@circ@res@other-\pgf@circ@res@step)}}
 
-	\pgfusepath{draw}
+        \pgf@circ@draworfill
+	% \pgfusepath{draw}
 
 	\pgfsetlinewidth{\pgfstartlinewidth}
 
@@ -4858,7 +4888,7 @@
         \pgfscope
             \pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}\pgfstartlinewidth}
             \pgfpathcircle{\pgfpointorigin}{.9\pgf@circ@res@up}
-            \pgfusepath{draw}
+            \pgf@circ@draworfill
         \endpgfscope
         %draw arrow
         \pgfscope
@@ -4936,8 +4966,7 @@
 {
     \pgfpathrectanglecorners{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@up}}{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@down}}
     \pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}\pgfstartlinewidth}
-
-    \pgfusepath{draw}
+    \pgf@circ@draworfill
 }
 
 
@@ -4958,7 +4987,7 @@
     \pgfpathrectanglecorners{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@up}}{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@down}}
     \pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}\pgfstartlinewidth}
 
-    \pgfusepath{draw}
+    \pgf@circ@draworfill
 }
 
 
@@ -5015,10 +5044,11 @@
 {\ctikzvalof{bipoles/ageneric/height}}
 {\ctikzvalof{bipoles/ageneric/width}}
 {
-    \pgfpathrectanglecorners{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@up}}{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@down}}
-    \pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}\pgfstartlinewidth}
-
-    \pgfusepath{draw}
+    \pgfscope
+        \pgfpathrectanglecorners{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@up}}{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@down}}
+        \pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}\pgfstartlinewidth}
+        \pgf@circ@draworfill
+    \endpgfscope 
 
     \pgfpathrectanglecorners{\pgfpoint{.7\pgf@circ@res@right}{\pgf@circ@res@up}}{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@down}}
     \pgfusepath{stroke,fill}
@@ -5038,10 +5068,11 @@
     \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{0}}
     \pgfusepath{draw}
 
-    \pgfpathrectanglecorners{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@up}}{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@down}}
-    \pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}\pgfstartlinewidth}
-
-    \pgfusepath{draw}
+    \pgfscope
+        \pgfpathrectanglecorners{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@up}}{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@down}}
+        \pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}\pgfstartlinewidth}
+        \pgf@circ@draworfill
+    \endpgfscope
 
     \pgfpathrectanglecorners{\pgfpoint{.7\pgf@circ@res@right}{\pgf@circ@res@up}}{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@down}}
     \pgfusepath{stroke,fill}
@@ -5062,9 +5093,11 @@
     \pgf@circ@res@step = \ctikzvalof{bipoles/resistor/width}\pgf@circ@Rlen
     \divide \pgf@circ@res@step by 14
 
-    \pgfpathrectanglecorners{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@up}}{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@down}}
-    \pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}\pgfstartlinewidth}
-
+    \pgfscope
+        \pgfpathrectanglecorners{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@up}}{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@down}}
+        \pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}\pgfstartlinewidth}
+        \pgf@circ@draworfill
+    \endpgfscope
     \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{0pt}}
     \pgfpathlineto{\pgfpoint{.72*\pgf@circ@res@left}{0pt}}
     \pgfpathlineto{\pgfpoint{.72*\pgf@circ@res@left}{\ctikzvalof{bipoles/memristor/wave height}\pgf@circ@res@up}}
@@ -5096,8 +5129,7 @@
 {
     \pgfpathrectanglecorners{\pgfpoint{\pgf@circ@res@left}{.4\pgf@circ@res@up}}{\pgfpoint{\pgf@circ@res@right}{.4\pgf@circ@res@down}}
     \pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}\pgfstartlinewidth}
-    \pgfusepath{draw}
-
+    \pgf@circ@draworfill
     \pgfscope
         \pgfsetarrowsend{latexslim}
         \pgfpathmoveto{\pgfpoint{.5\pgf@circ@res@left}{\pgf@circ@res@up}}
@@ -5115,9 +5147,11 @@
 {\ctikzvalof{bipoles/photoresistor/height}}
 {\ctikzvalof{bipoles/photoresistor/width}}
 {
-    \pgfpathrectanglecorners{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@down}}{\pgfpoint{\pgf@circ@res@right}{-\pgf@circ@res@down}}
-    \pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}\pgfstartlinewidth}
-    \pgfusepath{draw}
+    \pgfscope
+        \pgfpathrectanglecorners{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@down}}{\pgfpoint{\pgf@circ@res@right}{-\pgf@circ@res@down}}
+        \pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}\pgfstartlinewidth}
+        \pgf@circ@draworfill
+    \endpgfscope
 
     \pgfscope
         \pgfsetarrowsend{latexslim}
@@ -5147,9 +5181,11 @@
 {\ctikzvalof{bipoles/thermistor/height}}
 {\ctikzvalof{bipoles/thermistor/width}}
 {
+    \pgfscope
     \pgfpathrectanglecorners{\pgfpoint{\pgf@circ@res@left}{\pgfkeysvalueof{/tikz/circuitikz/bipoles/thermistor/main}\pgf@circ@res@up}}{\pgfpoint{\pgf@circ@res@right}{-\pgfkeysvalueof{/tikz/circuitikz/bipoles/thermistor/main}\pgf@circ@res@up}}
     \pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}\pgfstartlinewidth}
-    \pgfusepath{draw}
+    \pgf@circ@draworfill
+    \endpgfscope
 
     %\pgfscope
     \pgfpathmoveto{\pgfpoint{-\pgf@circ@res@left}{-\pgf@circ@res@down}}
@@ -5168,10 +5204,11 @@
 {\ctikzvalof{bipoles/thermistorptc/height}}
 {\ctikzvalof{bipoles/thermistorptc/width}}
 {
-    \pgfpathrectanglecorners{\pgfpoint{\pgf@circ@res@left}{\pgfkeysvalueof{/tikz/circuitikz/bipoles/thermistorptc/main}\pgf@circ@res@up}}{\pgfpoint{\pgf@circ@res@right}{-\pgfkeysvalueof{/tikz/circuitikz/bipoles/thermistorptc/main}\pgf@circ@res@up}}
-    \pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}\pgfstartlinewidth}
-    \pgfusepath{draw}
-
+    \pgfscope
+        \pgfpathrectanglecorners{\pgfpoint{\pgf@circ@res@left}{\pgfkeysvalueof{/tikz/circuitikz/bipoles/thermistorptc/main}\pgf@circ@res@up}}{\pgfpoint{\pgf@circ@res@right}{-\pgfkeysvalueof{/tikz/circuitikz/bipoles/thermistorptc/main}\pgf@circ@res@up}}
+        \pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}\pgfstartlinewidth}
+        \pgf@circ@draworfill
+    \endpgfscope
     \pgfpathmoveto{\pgfpoint{-\pgf@circ@res@left}{\pgf@circ@res@up}}
     \pgfpathlineto{\pgfpoint{.4\pgf@circ@res@left}{-\pgf@circ@res@up}}
     \pgfpathlineto{\pgfpoint{\pgf@circ@res@left}{-\pgf@circ@res@up}}
@@ -5196,9 +5233,11 @@
 {\ctikzvalof{bipoles/thermistorntc/height}}
 {\ctikzvalof{bipoles/thermistorntc/width}}
 {
-    \pgfpathrectanglecorners{\pgfpoint{\pgf@circ@res@left}{\pgfkeysvalueof{/tikz/circuitikz/bipoles/thermistorntc/main}\pgf@circ@res@up}}{\pgfpoint{\pgf@circ@res@right}{-\pgfkeysvalueof{/tikz/circuitikz/bipoles/thermistorntc/main}\pgf@circ@res@up}}
-    \pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}\pgfstartlinewidth}
-    \pgfusepath{draw}
+    \pgfscope
+        \pgfpathrectanglecorners{\pgfpoint{\pgf@circ@res@left}{\pgfkeysvalueof{/tikz/circuitikz/bipoles/thermistorntc/main}\pgf@circ@res@up}}{\pgfpoint{\pgf@circ@res@right}{-\pgfkeysvalueof{/tikz/circuitikz/bipoles/thermistorntc/main}\pgf@circ@res@up}}
+        \pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}\pgfstartlinewidth}
+        \pgf@circ@draworfill
+    \endpgfscope
 
     \pgfpathmoveto{\pgfpoint{-\pgf@circ@res@left}{\pgf@circ@res@up}}
     \pgfpathlineto{\pgfpoint{.4\pgf@circ@res@left}{-\pgf@circ@res@up}}
@@ -5247,9 +5286,11 @@
 {\ctikzvalof{bipoles/varistor/height}}
 {\ctikzvalof{bipoles/varistor/width}}
 {
-    \pgfpathrectanglecorners{\pgfpoint{\pgf@circ@res@left}{\pgfkeysvalueof{/tikz/circuitikz/bipoles/varistor/main}\pgf@circ@res@up}}{\pgfpoint{\pgf@circ@res@right}{-\pgfkeysvalueof{/tikz/circuitikz/bipoles/varistor/main}\pgf@circ@res@up}}
-    \pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}\pgfstartlinewidth}
-    \pgfusepath{draw}
+    \pgfscope
+        \pgfpathrectanglecorners{\pgfpoint{\pgf@circ@res@left}{\pgfkeysvalueof{/tikz/circuitikz/bipoles/varistor/main}\pgf@circ@res@up}}{\pgfpoint{\pgf@circ@res@right}{-\pgfkeysvalueof{/tikz/circuitikz/bipoles/varistor/main}\pgf@circ@res@up}}
+        \pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}\pgfstartlinewidth}
+        \pgf@circ@draworfill
+    \endpgfscope
 
     \pgfpathmoveto{\pgfpoint{-\pgf@circ@res@left}{-\pgf@circ@res@down}}
     \pgfpathlineto{\pgfpoint{.4\pgf@circ@res@left}{\pgf@circ@res@down}}
@@ -5349,10 +5390,11 @@
     \pgfusepath{draw}
 
     %% Inner Box
-    \pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}\pgfstartlinewidth}
-    \pgfpathrectanglecorners{\pgfpoint{\pgf@circ@res@left+4}{\pgf@circ@res@up-1}}{\pgfpoint{\pgf@circ@res@right-4}{\pgf@circ@res@down+1}}
-    \pgfusepath{draw}
-
+    \pgfscope
+        \pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}\pgfstartlinewidth}
+        \pgfpathrectanglecorners{\pgfpoint{\pgf@circ@res@left+4}{\pgf@circ@res@up-1}}{\pgfpoint{\pgf@circ@res@right-4}{\pgf@circ@res@down+1}}
+        \pgf@circ@draworfill
+    \endpgfscope
 }
 
 
@@ -5454,6 +5496,7 @@
     \pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}\pgfstartlinewidth}
 
     \pgfpathellipse{\pgfpointorigin}{\pgfpoint{0}{\pgf@circ@res@up}}{\pgfpoint{\pgf@circ@res@left}{0}}
+    \pgf@circ@draworfill
     \pgfpathmoveto{\pgfpoint{.7071*\pgf@circ@res@left}{.7071*\pgf@circ@res@up}}
     \pgfpathlineto{\pgfpoint{.7071*\pgf@circ@res@right}{.7071*\pgf@circ@res@down}}
     \pgfpathmoveto{\pgfpoint{.7071*\pgf@circ@res@left}{.7071*\pgf@circ@res@down}}
@@ -5470,17 +5513,18 @@
 {\ctikzvalof{bipoles/bulb/width}}
 {%
     \pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}\pgfstartlinewidth}
+    \pgfpathellipse{\pgfpointorigin}{\pgfpoint{0}{0.8\pgf@circ@res@up}}{\pgfpoint{0.8\pgf@circ@res@left}{0}}
+    \pgf@circ@draworfill
     \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@zero}}
     \pgfpathlineto{\pgfpoint{0.4\pgf@circ@res@left}{\pgf@circ@res@zero}}
     \pgfpatharc{0}{-180}{0.4*\pgf@circ@res@left}
     \pgfsetbeveljoin
     \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@zero}}
-    \pgfpathellipse{\pgfpointorigin}{\pgfpoint{0}{0.8\pgf@circ@res@up}}{\pgfpoint{0.8\pgf@circ@res@left}{0}}
     \pgfusepath{draw}
 }
 
 
-% transmission line 
+% transmission line
 
 \pgfcircdeclarebipole
 {}
@@ -5490,19 +5534,22 @@
 {\ctikzvalof{bipoles/tline/width}}
 {
     \pgf@circ@res@step=.2\pgf@circ@res@right % half x axis
-    \pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}\pgfstartlinewidth}
-    \pgfpathellipse{\pgfpoint{\pgf@circ@res@right-\pgf@circ@res@step}{0}}
-    {\pgfpoint{\pgf@circ@res@step}{0}}
-    {\pgfpoint{0}{-\pgf@circ@res@up}}
-    \pgfpathmoveto{\pgfpoint{\pgf@circ@res@right-\pgf@circ@res@step}{\pgf@circ@res@up}}
-    \pgfpathlineto{\pgfpoint{\pgf@circ@res@left+\pgf@circ@res@step}{\pgf@circ@res@up}}
-    \pgfpatharc{-90}{90}{-\pgf@circ@res@step and -\pgf@circ@res@up}
-    \pgfpathlineto{\pgfpoint{\pgf@circ@res@right-\pgf@circ@res@step}{\pgf@circ@res@down}}
-    \pgfusepath{draw}
+    \begin{pgftransparencygroup}
+        \pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}\pgfstartlinewidth}
+        \pgfpathmoveto{\pgfpoint{\pgf@circ@res@right-\pgf@circ@res@step}{\pgf@circ@res@up}}
+        \pgfpathlineto{\pgfpoint{\pgf@circ@res@left+\pgf@circ@res@step}{\pgf@circ@res@up}}
+        \pgfpatharc{-90}{90}{-\pgf@circ@res@step and -\pgf@circ@res@up}
+        \pgfpathlineto{\pgfpoint{\pgf@circ@res@right-\pgf@circ@res@step}{\pgf@circ@res@down}}
+        \pgf@circ@draworfill
+        \pgfpathellipse{\pgfpoint{\pgf@circ@res@right-\pgf@circ@res@step}{0pt}}
+        {\pgfpoint{\pgf@circ@res@step}{0pt}}{\pgfpoint{0pt}{-\pgf@circ@res@up}}
+        \pgf@circ@draworfill
+    \end{pgftransparencygroup}
+    \pgfsetlinewidth{\pgfstartlinewidth}
+    \pgfpathmoveto{\pgfpoint{\pgf@circ@res@right-\pgf@circ@res@step}{0pt}}
+    \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{0pt}}
+    \pgfusepath{stroke}
 }
-
-
-
 
 %% SQUID added by Cor Molenaar 5 March 2010
 
@@ -5557,181 +5604,190 @@
 % Contributed by Danilo Piazzalunga
 
 \pgfdeclareshape{buffer}
-	{
-	  \anchor{center}{\pgfpointorigin}
-	  \savedanchor\northwest{%
-		\pgf@y=\pgfkeysvalueof{/tikz/circuitikz/bipoles/buffer/height}\pgf@circ@Rlen
-		\pgf@y=.5\pgf@y
-		\pgf@x=-\pgfkeysvalueof{/tikz/circuitikz/bipoles/buffer/width}\pgf@circ@Rlen
-		\pgf@x=.5\pgf@x
-	  }
-	  \anchor{south}{
-		\northwest
-		\pgf@y=-\pgf@y
-	  }
-	  \savedanchor\left{%
-	  	\pgf@y=0pt
-	  }
-	  \anchor{in}{
-		\northwest
-		\pgf@y=0pt
-	  }
-	  \anchor{out}{
-		\northwest
-		\pgf@y=0pt
-		\pgf@x=-\pgf@x
-	  }
+{
+    \anchor{center}{\pgfpointorigin}
+    \savedanchor\northwest{%
+        \pgf@y=\pgfkeysvalueof{/tikz/circuitikz/bipoles/buffer/height}\pgf@circ@Rlen
+        \pgf@y=.5\pgf@y
+        \pgf@x=-\pgfkeysvalueof{/tikz/circuitikz/bipoles/buffer/width}\pgf@circ@Rlen
+        \pgf@x=.5\pgf@x
+    }
+    \anchor{south}{
+        \northwest
+        \pgf@y=-\pgf@y
+    }
+    \savedanchor\left{%
+        \pgf@y=0pt
+    }
+    \anchor{in}{
+        \northwest
+        \pgf@y=0pt
+    }
+    \anchor{out}{
+        \northwest
+        \pgf@y=0pt
+        \pgf@x=-\pgf@x
+    }
 
-          \anchor{text}{\pgfpoint{-.5\wd\pgfnodeparttextbox}{\dimexpr.5\dp\pgfnodeparttextbox-.5\ht\pgfnodeparttextbox}}
+    \anchor{text}{\pgfpoint{-.5\wd\pgfnodeparttextbox}{\dimexpr.5\dp\pgfnodeparttextbox-.5\ht\pgfnodeparttextbox}}
 
-	  \backgroundpath{
-			\pgfsetcolor{\pgfkeysvalueof{/tikz/circuitikz/color}}
+    \backgroundpath{
+        \pgfsetcolor{\pgfkeysvalueof{/tikz/circuitikz/color}}
 
 
-			\northwest
-			\pgf@circ@res@up = \pgf@y
-			\pgf@circ@res@down = -\pgf@y
-			\pgf@circ@res@right = -\pgf@x
-			\pgf@circ@res@left = \pgf@x
+        \northwest
+        \pgf@circ@res@up = \pgf@y
+        \pgf@circ@res@down = -\pgf@y
+        \pgf@circ@res@right = -\pgf@x
+        \pgf@circ@res@left = \pgf@x
+        \pgfscope
+            \pgfsetlinewidth{2\pgflinewidth}
+            \pgftransformxshift{.7\pgf@circ@res@left}
+            \pgf@circ@res@step=\pgf@circ@res@right
+            \advance\pgf@circ@res@step by -\pgf@circ@res@left
+            \pgf@circ@res@step=.7\pgf@circ@res@step
 
-	\pgfscope
-		\pgfsetlinewidth{2\pgflinewidth}
-		\pgftransformxshift{.7\pgf@circ@res@left}
-		\pgf@circ@res@step=\pgf@circ@res@right
-		\advance\pgf@circ@res@step by -\pgf@circ@res@left
-		\pgf@circ@res@step=.7\pgf@circ@res@step
+            \pgfpathmoveto{\pgfpoint{\pgf@circ@res@step}{0pt}}
+            \pgfpathlineto{\pgfpoint{0pt}{\pgf@circ@res@up}}
+            \pgfpathlineto{\pgfpoint{0pt}{\pgf@circ@res@down}}
+            \pgfpathclose
+            \pgf@circ@draworfill
+        \endpgfscope
 
-		\pgfpathmoveto{\pgfpoint{\pgf@circ@res@step}{0pt}}
-		\pgfpathlineto{\pgfpoint{0pt}{\pgf@circ@res@up}}
-		\pgfpathlineto{\pgfpoint{0pt}{\pgf@circ@res@down}}
-		\pgfpathlineto{\pgfpoint{\pgf@circ@res@step}{0pt}}
-		\pgfusepath{draw}
-	\endpgfscope
 
-		\pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{0pt}}
-		\pgfpathlineto{\pgfpoint{.7\pgf@circ@res@left}{0pt}}
+        \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{0pt}}
+        \pgfpathlineto{\pgfpoint{.7\pgf@circ@res@left}{0pt}}
 
-		\pgfpathmoveto{\pgfpoint{\pgf@circ@res@right}{0pt}}
-		\pgfpathlineto{\pgfpoint{.7\pgf@circ@res@right}{0pt}}
+        \pgfpathmoveto{\pgfpoint{\pgf@circ@res@right}{0pt}}
+        \pgfpathlineto{\pgfpoint{.7\pgf@circ@res@right}{0pt}}
 
-		\pgfusepath{draw}
+        \pgfusepath{draw}
 
-	  }
-	}
+    }
+}
 
 
 
 
 
 \pgfdeclareshape{plain amp}
-	{
-	  \anchor{center}{\pgfpointorigin}
-	  \savedanchor\northwest{%
-		\pgf@y=\pgfkeysvalueof{/tikz/circuitikz/tripoles/plain amp/height}\pgf@circ@Rlen
-		\pgf@y=.5\pgf@y
-		\pgf@x=-\pgfkeysvalueof{/tikz/circuitikz/tripoles/plain amp/width}\pgf@circ@Rlen
-		\pgf@x=.5\pgf@x
-	  }
-	  \anchor{south}{
-		\northwest
-		\pgf@y=-\pgf@y
-	  }
-	  \savedanchor\left{%
-	  	\pgf@y=0pt
-	  }
-	  \savedanchor\inOne{%
-		\pgf@y=\pgfkeysvalueof{/tikz/circuitikz/tripoles/plain amp/height}\pgf@circ@Rlen
-		\pgf@y=.5\pgf@y
-		\pgf@y=\pgfkeysvalueof{/tikz/circuitikz/tripoles/plain amp/input height}\pgf@y
-		\pgf@x=-\pgfkeysvalueof{/tikz/circuitikz/tripoles/plain amp/width}\pgf@circ@Rlen
-		\pgf@x=.5\pgf@x
-	  }
-	  \anchor{-}{
-		\inOne
-	  }
-	  \anchor{+}{
-		\inOne
-		\pgf@y=-\pgf@y
-	  }
-	  \savedanchor\up{%
-		\pgf@y=\pgfkeysvalueof{/tikz/circuitikz/tripoles/plain amp/height}\pgf@circ@Rlen
-		\pgf@y=.5\pgf@y
-		\pgf@x=-\pgfkeysvalueof{/tikz/circuitikz/tripoles/plain amp/width}\pgf@circ@Rlen
-		\pgf@x=.5\pgf@x
-			\pgf@circ@res@up = \pgf@y
-			\pgf@circ@res@right = -\pgf@x
-			\pgf@circ@res@left = \pgf@x
-	    \pgfpointlineattime{
-			\pgfkeysvalueof{/tikz/circuitikz/tripoles/plain amp/up pos}}{
-			\pgfpoint{
-				\pgfkeysvalueof{/tikz/circuitikz/tripoles/plain amp/port width}\pgf@circ@res@left}
-				{\pgf@circ@res@up}}
-			{\pgfpoint{.7\pgf@circ@res@right}{0pt}}
-	  }
-	  \anchor{up}{
-		\up
-	  }
-	  \anchor{down}{
-		\up
-		\pgf@y=-\pgf@y
-	  }
-	  \anchor{out}{
-		\northwest
-		\pgf@y=0pt
-		\pgf@x=-\pgf@x
-	  }
+{
+    \anchor{center}{\pgfpointorigin}
+    \savedanchor\northwest{%
+        \pgf@y=\pgfkeysvalueof{/tikz/circuitikz/tripoles/plain amp/height}\pgf@circ@Rlen
+        \pgf@y=.5\pgf@y
+        \pgf@x=-\pgfkeysvalueof{/tikz/circuitikz/tripoles/plain amp/width}\pgf@circ@Rlen
+        \pgf@x=.5\pgf@x
+    }
+    \anchor{south}{
+        \northwest
+        \pgf@y=-\pgf@y
+    }
+    \savedanchor\left{%
+        \pgf@y=0pt
+    }
+    \savedanchor\inOne{%
+        \pgf@y=\pgfkeysvalueof{/tikz/circuitikz/tripoles/plain amp/height}\pgf@circ@Rlen
+        \pgf@y=.5\pgf@y
+        \pgf@y=\pgfkeysvalueof{/tikz/circuitikz/tripoles/plain amp/input height}\pgf@y
+        \pgf@x=-\pgfkeysvalueof{/tikz/circuitikz/tripoles/plain amp/width}\pgf@circ@Rlen
+        \pgf@x=.5\pgf@x
+    }
+    \anchor{-}{
+        \inOne
+    }
+    \anchor{+}{
+        \inOne
+        \pgf@y=-\pgf@y
+    }
+    \savedanchor\up{%
+        \pgf@y=\pgfkeysvalueof{/tikz/circuitikz/tripoles/plain amp/height}\pgf@circ@Rlen
+        \pgf@y=.5\pgf@y
+        \pgf@x=-\pgfkeysvalueof{/tikz/circuitikz/tripoles/plain amp/width}\pgf@circ@Rlen
+        \pgf@x=.5\pgf@x
+        \pgf@circ@res@up = \pgf@y
+        \pgf@circ@res@right = -\pgf@x
+        \pgf@circ@res@left = \pgf@x
+        \pgfpointlineattime{
+            \pgfkeysvalueof{/tikz/circuitikz/tripoles/plain amp/up pos}}{
+            \pgfpoint{
+            \pgfkeysvalueof{/tikz/circuitikz/tripoles/plain amp/port width}\pgf@circ@res@left}
+        {\pgf@circ@res@up}}
+        {\pgfpoint{.7\pgf@circ@res@right}{0pt}}
+    }
+    \anchor{up}{
+        \up
+    }
+    \anchor{down}{
+        \up
+        \pgf@y=-\pgf@y
+    }
+    \anchor{out}{
+        \northwest
+        \pgf@y=0pt
+        \pgf@x=-\pgf@x
+    }
 
-          \anchor{text}{\pgfpoint{-.5\wd\pgfnodeparttextbox}{\dimexpr.5\dp\pgfnodeparttextbox-.5\ht\pgfnodeparttextbox}}
+    \anchor{text}{\pgfpoint{-.5\wd\pgfnodeparttextbox}{\dimexpr.5\dp\pgfnodeparttextbox-.5\ht\pgfnodeparttextbox}}
 
-	  \backgroundpath{
-			\pgfsetcolor{\pgfkeysvalueof{/tikz/circuitikz/color}}
+    \backgroundpath{
+        \pgfsetcolor{\pgfkeysvalueof{/tikz/circuitikz/color}}
+
+        \northwest
+        \pgf@circ@res@up = \pgf@y
+        \pgf@circ@res@down = -\pgf@y
+        \pgf@circ@res@right = -\pgf@x
+        \pgf@circ@res@left = \pgf@x
+
+        \pgfscope
+            \pgfsetlinewidth{2\pgflinewidth}
+            \pgftransformxshift{.7\pgf@circ@res@left}
+            \pgf@circ@res@step=\pgf@circ@res@right
+            \advance\pgf@circ@res@step by -\pgf@circ@res@left
+            \pgf@circ@res@step=.7\pgf@circ@res@step
+
+            \pgfpathmoveto{\pgfpoint{\pgf@circ@res@step}{0pt}}
+            \pgfpathlineto{\pgfpoint{0pt}{\pgf@circ@res@up}}
+            \pgfpathlineto{\pgfpoint{0pt}{\pgf@circ@res@down}}
+            \pgfpathclose
+            \pgf@circ@draworfill
+        \endpgfscope
+        \pgfpathmoveto{\pgfpoint
+            {\pgf@circ@res@left}
+        {\pgfkeysvalueof{/tikz/circuitikz/tripoles/plain amp/input height}\pgf@circ@res@up}}
+        \pgfpathlineto{\pgfpoint
+            {\pgfkeysvalueof{/tikz/circuitikz/tripoles/plain amp/port width}\pgf@circ@res@left}
+        {\pgfkeysvalueof{/tikz/circuitikz/tripoles/plain amp/input height}\pgf@circ@res@up}}
 
 
-			\northwest
-			\pgf@circ@res@up = \pgf@y
-			\pgf@circ@res@down = -\pgf@y
-			\pgf@circ@res@right = -\pgf@x
-			\pgf@circ@res@left = \pgf@x
+        \pgfpathmoveto{\pgfpoint
+            {\pgf@circ@res@left}
+        {\pgfkeysvalueof{/tikz/circuitikz/tripoles/plain amp/input height}\pgf@circ@res@down}}
+        \pgfpathlineto{\pgfpoint
+            {\pgfkeysvalueof{/tikz/circuitikz/tripoles/plain amp/port width}\pgf@circ@res@left}
+        {\pgfkeysvalueof{/tikz/circuitikz/tripoles/plain amp/input height}\pgf@circ@res@down}}
 
-	\pgfpathmoveto{\pgfpoint
-		{\pgf@circ@res@left}
-		{\pgfkeysvalueof{/tikz/circuitikz/tripoles/plain amp/input height}\pgf@circ@res@up}}
-	\pgfpathlineto{\pgfpoint
-		{\pgfkeysvalueof{/tikz/circuitikz/tripoles/plain amp/port width}\pgf@circ@res@left}
-		{\pgfkeysvalueof{/tikz/circuitikz/tripoles/plain amp/input height}\pgf@circ@res@up}}
+        \pgfpathmoveto{\pgfpoint{\pgf@circ@res@right}{0pt}}
+        \pgfpathlineto{\pgfpoint{.7\pgf@circ@res@right}{0pt}}
 
-
-	\pgfpathmoveto{\pgfpoint
-		{\pgf@circ@res@left}
-		{\pgfkeysvalueof{/tikz/circuitikz/tripoles/plain amp/input height}\pgf@circ@res@down}}
-	\pgfpathlineto{\pgfpoint
-		{\pgfkeysvalueof{/tikz/circuitikz/tripoles/plain amp/port width}\pgf@circ@res@left}
-		{\pgfkeysvalueof{/tikz/circuitikz/tripoles/plain amp/input height}\pgf@circ@res@down}}
-
-	\pgfpathmoveto{\pgfpoint{\pgf@circ@res@right}{0pt}}
-	\pgfpathlineto{\pgfpoint{.7\pgf@circ@res@right}{0pt}}
-
-	\pgfusepath{draw}
-
-
-	\pgfscope
-		\pgfsetlinewidth{2\pgflinewidth}
-		\pgftransformxshift{.7\pgf@circ@res@left}
-		\pgf@circ@res@step=\pgf@circ@res@right
-		\advance\pgf@circ@res@step by -\pgf@circ@res@left
-		\pgf@circ@res@step=.7\pgf@circ@res@step
-
-		\pgfpathmoveto{\pgfpoint{\pgf@circ@res@step}{0pt}}
-		\pgfpathlineto{\pgfpoint{0pt}{\pgf@circ@res@up}}
-		\pgfpathlineto{\pgfpoint{0pt}{\pgf@circ@res@down}}
-		\pgfpathlineto{\pgfpoint{\pgf@circ@res@step}{0pt}}
-		\pgfusepath{draw}
-	\endpgfscope
+        \pgfusepath{draw}
 
 
 
-	  }
-	}
+
+
+    }
+}
+
+
+%% Draw the two-port fillable box
+\def\pgf@circ@twoportbox{
+    \pgfscope
+        \pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}\pgfstartlinewidth}
+        \pgfpathrectanglecorners{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@up}}{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@down}}
+        \pgf@circ@draworfill
+    \endpgfscope
+}
 
 %% Generic two port box
 \pgfcircdeclarebipole
@@ -5751,10 +5807,7 @@
         \pgfsetdash{{0.1cm}{0.1cm}}{0cm}
     \fi
     % draw outer box
-    \pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}\pgfstartlinewidth}
-    \pgfpathrectanglecorners{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@up}}{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@down}}
-    \pgfusepath{draw}
-
+    \pgf@circ@twoportbox
     \ifpgf@circuit@inputarrow
         {
             \advance \pgf@circ@res@left by -.5\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}\pgfstartlinewidth
@@ -5799,10 +5852,11 @@
         \pgfsetdash{{0.1cm}{0.1cm}}{0cm}
     \fi
     % draw circle
-    \pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}\pgfstartlinewidth}
-    \pgfpathcircle{\pgfpoint{0}{0}} {\pgf@circ@res@step}
-    \pgfusepath{draw}
-
+    \pgfscope
+        \pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}\pgfstartlinewidth}
+        \pgfpathcircle{\pgfpoint{0}{0}} {\pgf@circ@res@step}
+        \pgf@circ@draworfill
+    \endpgfscope
     \ifpgf@circuit@inputarrow
         {
             \advance \pgf@circ@res@left by -.5\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}\pgfstartlinewidth
@@ -5856,9 +5910,7 @@
     \fi
 
     % draw outer box
-    \pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}\pgfstartlinewidth}
-    \pgfpathrectanglecorners{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@up}}{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@down}}
-    \pgfusepath{draw}
+    \pgf@circ@twoportbox
 
     \ifpgf@circuit@inputarrow
         {
@@ -5932,9 +5984,7 @@
     \fi
 
     % draw outer box
-    \pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}\pgfstartlinewidth}
-    \pgfpathrectanglecorners{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@up}}{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@down}}
-    \pgfusepath{draw}
+    \pgf@circ@twoportbox
 
     \ifpgf@circuit@inputarrow
         {
@@ -6005,9 +6055,7 @@
     \fi
 
     % draw outer box
-    \pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}\pgfstartlinewidth}
-    \pgfpathrectanglecorners{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@up}}{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@down}}
-    \pgfusepath{draw}
+    \pgf@circ@twoportbox
 
     \ifpgf@circuit@inputarrow
         {
@@ -6081,9 +6129,7 @@
     \fi
 
     % draw outer box
-    \pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}\pgfstartlinewidth}
-    \pgfpathrectanglecorners{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@up}}{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@down}}
-    \pgfusepath{draw}
+    \pgf@circ@twoportbox
 
     \ifpgf@circuit@inputarrow
         {
@@ -6157,9 +6203,7 @@
     \fi
 
     % draw outer box
-    \pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}\pgfstartlinewidth}
-    \pgfpathrectanglecorners{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@up}}{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@down}}
-    \pgfusepath{draw}
+    \pgf@circ@twoportbox
 
     \ifpgf@circuit@inputarrow
         {
@@ -6221,9 +6265,7 @@
     \fi
 
     % draw outer box
-    \pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}\pgfstartlinewidth}
-    \pgfpathrectanglecorners{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@up}}{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@down}}
-    \pgfusepath{draw}
+    \pgf@circ@twoportbox
 
     \ifpgf@circuit@inputarrow
         {
@@ -6285,9 +6327,7 @@
     \fi
 
     % draw outer box
-    \pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}\pgfstartlinewidth}
-    \pgfpathrectanglecorners{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@up}}{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@down}}
-    \pgfusepath{draw}
+    \pgf@circ@twoportbox
 
     \ifpgf@circuit@inputarrow
         {
@@ -6333,9 +6373,7 @@
     \fi
 
     % draw outer box
-    \pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}\pgfstartlinewidth}
-    \pgfpathrectanglecorners{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@up}}{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@down}}
-    \pgfusepath{draw}
+    \pgf@circ@twoportbox
 
     \ifpgf@circuit@inputarrow
         {
@@ -6397,6 +6435,7 @@
     \ifpgf@circuit@boxed
         \pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}\pgfstartlinewidth}
         \pgfnode{box}{center}{}{pgf@box}{\pgfusepath{draw}}
+    \pgf@circ@draworfill
     \fi
 
     % draw input arrow
@@ -6424,7 +6463,7 @@
     \pgfpathlineto{\pgfpoint{-0.5\pgf@circ@res@step}{-0.55\pgf@circ@res@step}}
 
     \pgfpathclose
-    \pgfusepath{draw}
+    \pgf@circ@draworfill
 
     % draw inner text
     \pgftext[center,x=-0.12\pgf@circ@res@step,y=0]{\ctikzvalof{bipoles/twoport/text}}
@@ -6495,7 +6534,7 @@
     \pgfpathlineto{\pgfpoint{-0.5\pgf@circ@res@step}{-0.55\pgf@circ@res@step}}
 
     \pgfpathclose
-    \pgfusepath{draw}
+    \pgf@circ@draworfill
 
     % draw inner text
     \pgftext[center,x=-0.12\pgf@circ@res@step,y=0]{\ctikzvalof{bipoles/twoport/text}}
@@ -6528,9 +6567,7 @@
     \fi
 
     % draw outer box
-    \pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}\pgfstartlinewidth}
-    \pgfpathrectanglecorners{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@up}}{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@down}}
-    \pgfusepath{draw}
+    \pgf@circ@twoportbox
 
     \ifpgf@circuit@inputarrow
         {
@@ -6584,9 +6621,7 @@
     \fi
 
     % draw outer box
-    \pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}\pgfstartlinewidth}
-    \pgfpathrectanglecorners{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@up}}{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@down}}
-    \pgfusepath{draw}
+    \pgf@circ@twoportbox
 
     \ifpgf@circuit@inputarrow
         {
@@ -6645,9 +6680,7 @@
     \fi
 
     % draw outer box
-    \pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}\pgfstartlinewidth}
-    \pgfpathrectanglecorners{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@up}}{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@down}}
-    \pgfusepath{draw}
+    \pgf@circ@twoportbox
 
     \ifpgf@circuit@inputarrow
         {
@@ -6698,9 +6731,7 @@
     \fi
 
     % draw outer box
-    \pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}\pgfstartlinewidth}
-    \pgfpathrectanglecorners{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@up}}{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@down}}
-    \pgfusepath{draw}
+    \pgf@circ@twoportbox
 
     \ifpgf@circuit@inputarrow
         {
@@ -6756,9 +6787,7 @@
     \fi
 
     % draw outer box
-    \pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}\pgfstartlinewidth}
-    \pgfpathrectanglecorners{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@up}}{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@down}}
-    \pgfusepath{draw}
+    \pgf@circ@twoportbox
 
     \ifpgf@circuit@inputarrow
         {
@@ -6804,9 +6833,7 @@
     \fi
 
     % draw outer box
-    \pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}\pgfstartlinewidth}
-    \pgfpathrectanglecorners{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@up}}{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@down}}
-    \pgfusepath{draw}
+    \pgf@circ@twoportbox
 
     \ifpgf@circuit@inputarrow
         {
@@ -6859,9 +6886,7 @@
     \fi
 
     % draw outer box
-    \pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}\pgfstartlinewidth}
-    \pgfpathrectanglecorners{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@up}}{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@down}}
-    \pgfusepath{draw}
+    \pgf@circ@twoportbox
 
     \ifpgf@circuit@inputarrow
         {
@@ -6910,7 +6935,7 @@
     \pgfpathrectanglecorners{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@up}}{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@down}}
     \pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}\pgfstartlinewidth}
 
-    \pgfusepath{draw}
+    \pgf@circ@draworfill
 
     \pgfscope
         \pgfsetarrowsend{latexslim}
@@ -6927,57 +6952,42 @@
 
 %% american gas filled surge arrester
 
-\pgfcircdeclarebipole{}{\ctikzvalof{bipoles/american gas filled surge arrester/height}}{american gas filled surge arrester}{\ctikzvalof{bipoles/american gas filled surge arrester/height}}{\ctikzvalof{bipoles/american gas filled surge arrester/width}}{
-	%\def\pgf@circ@temp{right}
-	%\ifx\tikz@res@label@pos\pgf@circ@temp
-	%	\pgf@circ@res@step=-1.2\pgf@circ@res@up
-	%\else
-%		\def\pgf@circ@temp{below}
-%		\ifx\tikz@res@label@pos\pgf@circ@temp
-%			\pgf@circ@res@step=-1.2\pgf@circ@res@up
-%		\else
-%			\pgf@circ@res@step=1.2\pgf@circ@res@up
-%		\fi
-%	\fi
+\pgfcircdeclarebipole
+{}
+{\ctikzvalof{bipoles/american gas filled surge arrester/height}}
+{american gas filled surge arrester}
+{\ctikzvalof{bipoles/american gas filled surge arrester/height}}
+{\ctikzvalof{bipoles/american gas filled surge arrester/width}}{
 
-	\pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@zero}}
-	\pgfpointorigin	\pgf@circ@res@other =  \pgf@x  \advance \pgf@circ@res@other by -\pgf@circ@res@up
-	\pgfpathlineto{\pgfpoint{\pgf@circ@res@other}{\pgf@circ@res@zero}}
-	\pgfusepath{draw}
+    \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@zero}}
+    \pgfpointorigin	\pgf@circ@res@other =  \pgf@x  \advance \pgf@circ@res@other by -\pgf@circ@res@up
+    \pgfpathlineto{\pgfpoint{\pgf@circ@res@other}{\pgf@circ@res@zero}}
+    \pgfusepath{draw}
 
-	\pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}\pgfstartlinewidth}
+    \pgfscope
+        \pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}\pgfstartlinewidth}
+        \pgfpathcircle{\pgfpointorigin}{.9\pgf@circ@res@up}
+        \pgf@circ@draworfill
+    \endpgfscope
 
-		\pgfscope
-			\pgfpathcircle{\pgfpointorigin}{.9\pgf@circ@res@up}
-			\pgfusepath{draw}
-		\endpgfscope
+    \pgfpathmoveto{\pgfpoint{-\pgf@circ@res@other}{\pgf@circ@res@zero}}
+    \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@zero}}
+    \pgfusepath{draw}
 
-	\pgfsetlinewidth{\pgfstartlinewidth}
+    \pgfscope
+        \pgfsetarrowsend{latex}
 
+        \pgfpathmoveto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@zero}}
+        \pgfpathlineto{\pgfpoint{\pgfkeysvalueof{/tikz/circuitikz/bipoles/american gas filled surge arrester/inside}\pgf@circ@res@right}{\pgf@circ@res@zero}}
+        \pgfusepath{draw}
 
-	\pgfpathmoveto{\pgfpoint{-\pgf@circ@res@other}{\pgf@circ@res@zero}}
-	\pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@zero}}
-	\pgfusepath{draw}
+        \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@zero}}
+        \pgfpathlineto{\pgfpoint{\pgfkeysvalueof{/tikz/circuitikz/bipoles/american gas filled surge arrester/inside}\pgf@circ@res@left}{\pgf@circ@res@zero}}
+        \pgfusepath{draw}
+    \endpgfscope{}
 
-	\pgfnode{circle}{center}{}{}{}
-
-	\pgfscope
-		\pgfsetarrowsend{latex}
-
-		\pgfpathmoveto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@zero}}
-		\pgfpathlineto{\pgfpoint{\pgfkeysvalueof{/tikz/circuitikz/bipoles/american gas filled surge arrester/inside}\pgf@circ@res@right}{\pgf@circ@res@zero}}
-		\pgfusepath{draw}
-
-		\pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@zero}}
-		\pgfpathlineto{\pgfpoint{\pgfkeysvalueof{/tikz/circuitikz/bipoles/american gas filled surge arrester/inside}\pgf@circ@res@left}{\pgf@circ@res@zero}}
-		\pgfusepath{draw}
-	\endpgfscope{}
-
-	%\pgftransformshift{\pgfpoint{.25\pgf@circ@res@left}{.45\pgf@circ@res@down}}
-	%\pgfnode{circ}{center}{}{}{}
-	%\pgftransformshift{}
-	\pgfcircle{\pgfpoint{\pgfkeysvalueof{/tikz/circuitikz/bipoles/american gas filled surge arrester/dot x}\pgf@circ@res@left}{\pgfkeysvalueof{/tikz/circuitikz/bipoles/american gas filled surge arrester/dot y}\pgf@circ@res@down}}{\pgfkeysvalueof{/tikz/circuitikz/bipoles/american gas filled surge arrester/size}\pgf@circ@res@down}
-	\pgfusepath{fill}
+    \pgfcircle{\pgfpoint{\pgfkeysvalueof{/tikz/circuitikz/bipoles/american gas filled surge arrester/dot x}\pgf@circ@res@left}{\pgfkeysvalueof{/tikz/circuitikz/bipoles/american gas filled surge arrester/dot y}\pgf@circ@res@down}}{\pgfkeysvalueof{/tikz/circuitikz/bipoles/american gas filled surge arrester/size}\pgf@circ@res@down}
+    \pgfusepath{fill}
 }
 
 % % MECHANICAL SYMBOLS
@@ -7018,43 +7028,62 @@
 }
 
 %% mechanical inductance - mass
-\pgfcircdeclarebipole{}{\ctikzvalof{bipoles/mass/box height}}{mass}{\ctikzvalof{bipoles/mass/height}}{\ctikzvalof{bipoles/mass/width}}{
-	\pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}\pgfstartlinewidth}
-	\pgftransformationadjustments
-	\pgfpathrectangle{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@down}}
-		{\pgfpoint{-2\pgf@circ@res@down}{-2\pgf@circ@res@down}}
+\pgfcircdeclarebipole
+{}
+{\ctikzvalof{bipoles/mass/box height}}
+{mass}
+{\ctikzvalof{bipoles/mass/height}}
+{\ctikzvalof{bipoles/mass/width}}
+{
+    \pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}\pgfstartlinewidth}
+    \pgftransformationadjustments
+    \pgfpathrectangle{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@down}}
+        {\pgfpoint{-2\pgf@circ@res@down}{-2\pgf@circ@res@down}}
+    \pgf@circ@draworfill
 
-\pgfpathmoveto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@down}}
-\pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@up}}
-\pgfpathlineto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@up}}
-	\pgfsetrectcap
-	\pgfsetmiterjoin
-	\pgfusepath{stroke}
+    \pgfpathmoveto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@down}}
+    \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@up}}
+    \pgfpathlineto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@up}}
+    \pgfsetrectcap
+    \pgfsetmiterjoin
+    \pgfusepath{stroke}
 }
 
 %% mechanical resistor - damper
-\pgfcircdeclarebipole{}{\ctikzvalof{bipoles/damper/height}}{damper}{\ctikzvalof{bipoles/damper/height}}{\ctikzvalof{bipoles/damper/width}}{
-	\pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@zero}}
-	\pgfpathlineto{\pgfpoint{\ctikzvalof{bipoles/damper/length}\pgf@circ@res@right}
-					{\pgf@circ@res@zero}}
-	\pgfusepath{stroke}
+\pgfcircdeclarebipole
+{}
+{\ctikzvalof{bipoles/damper/height}}
+{damper}
+{\ctikzvalof{bipoles/damper/height}}
+{\ctikzvalof{bipoles/damper/width}}
+{
+    \pgfpathrectanglecorners{\pgfpoint{\ctikzvalof{bipoles/damper/length}\pgf@circ@res@right}{\pgf@circ@res@down}}{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@up}}
+    \pgf@circ@maybefill
 
-	\pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}\pgfstartlinewidth}
-	\pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@down}}
-	\pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@down}}
-	\pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@up}}
-	\pgfpathlineto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@up}}
+    % line into the damper
+    \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@zero}}
+    \pgfpathlineto{\pgfpoint{\ctikzvalof{bipoles/damper/length}\pgf@circ@res@right}
+        {\pgf@circ@res@zero}}
+    \pgfusepath{stroke}
 
-	\pgfsetrectcap
-	\pgfsetmiterjoin
-	\pgfusepath{stroke}
+    % damper box
+    \pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}\pgfstartlinewidth}
+    \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@down}}
+    \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@down}}
+    \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@up}}
+    \pgfpathlineto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@up}}
 
-	\pgfpathmoveto{\pgfpoint{\ctikzvalof{bipoles/damper/length}\pgf@circ@res@right}
-						{.8\pgf@circ@res@down}}
-	\pgfpathlineto{\pgfpoint{\ctikzvalof{bipoles/damper/length}\pgf@circ@res@right}
-						{.8\pgf@circ@res@up}}
-	\pgfsetbuttcap
-	\pgfusepath{stroke}
+    \pgfsetrectcap
+    \pgfsetmiterjoin
+    \pgfusepath{stroke}
+
+    % damper vertical element
+    \pgfpathmoveto{\pgfpoint{\ctikzvalof{bipoles/damper/length}\pgf@circ@res@right}
+        {.8\pgf@circ@res@down}}
+    \pgfpathlineto{\pgfpoint{\ctikzvalof{bipoles/damper/length}\pgf@circ@res@right}
+        {.8\pgf@circ@res@up}}
+    \pgfsetbuttcap
+    \pgfusepath{stroke}
 
 }
 
@@ -7137,7 +7166,7 @@
     \pgfpathlineto{\pgfpoint{0.5\pgf@circ@res@right}{.4\pgf@circ@res@up}}
     \pgfpathclose
     \pgfsetlinewidth{\ctikzvalof{bipoles/thickness}\pgfstartlinewidth}
-    \pgfusepath{draw}
+    \pgf@circ@draworfill
 }
 
 \pgfcircdeclarebipole
@@ -7148,8 +7177,9 @@
 {\ctikzvalof{bipoles/mic/width}}{
 
     \pgfscope
-    \pgfpathcircle{\pgfpoint{0pt}{.6\pgf@circ@res@up}}{.4\pgf@circ@res@up}
     \pgfsetlinewidth{\ctikzvalof{bipoles/thickness}\pgfstartlinewidth}
+    \pgfpathcircle{\pgfpoint{0pt}{.6\pgf@circ@res@up}}{.4\pgf@circ@res@up}
+    \pgf@circ@draworfill
     \pgfpathmoveto{\pgfpoint{.6\pgf@circ@res@left}{\pgf@circ@res@up}}
     \pgfpathlineto{\pgfpoint{.6\pgf@circ@res@right}{\pgf@circ@res@up}}
     \pgfusepath{draw}
@@ -7617,7 +7647,7 @@
     \pgfpathlineto{\pgfpoint{\pgf@circ@res@other}{\pgf@circ@res@down}}
     \pgfpatharc{-90}{90}{-2\pgf@circ@res@other and \pgf@circ@res@up}
     \pgfpathclose
-    \pgfusepath{draw}
+    \pgf@circ@draworfill
     }
 %%% american nand %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     \pgfcircdeclarelogicport{nand}{1}{
@@ -7654,7 +7684,7 @@
     {\pgfpoint{.5\pgf@circ@res@step}{0pt}}
     {\pgfpoint{0pt}{.5\pgf@circ@res@step}}
 
-    \pgfusepath{draw}
+    \pgf@circ@draworfill
 }
 %%% american nor %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \pgfcircdeclarelogicport{nor}{2}{
@@ -7701,7 +7731,7 @@
     {\pgfpoint{.5\pgf@circ@res@step}{0pt}}
     {\pgfpoint{0pt}{.5\pgf@circ@res@step}}
 
-    \pgfusepath{draw}
+    \pgf@circ@draworfill
 }
 %%% american or %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \pgfcircdeclarelogicport{or}{2}{
@@ -7740,7 +7770,7 @@
     \pgfpatharc{-90}{0}{2\pgf@circ@res@other and \pgf@circ@res@up}%
     \pgfpathclose
 
-    \pgfusepath{draw}
+    \pgf@circ@draworfill
 }
 %%% american xor %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \pgfcircdeclarelogicport{xor}{3}{
@@ -7784,6 +7814,7 @@
     \pgfpatharc{\pgf@circ@math@angle}{-\pgf@circ@math@angle}{\pgf@circ@math@xradius and \pgf@circ@math@yradius}%
     \pgfpatharc{-90}{0}{2\pgf@circ@res@other and \pgf@circ@res@up}%
     \pgfpathclose
+    \pgf@circ@draworfill
 
     \pgfmathsetlength{\pgf@circ@res@temp}{(\pgf@circ@math@yradiusA)*sin(\pgf@circ@math@angle)}%
 
@@ -7842,6 +7873,7 @@
     {\pgfpoint{\pgf@circ@res@other+.5\pgf@circ@res@step}{0pt}}
     {\pgfpoint{.5\pgf@circ@res@step}{0pt}}
     {\pgfpoint{0pt}{.5\pgf@circ@res@step}}
+    \pgf@circ@draworfill
 
     \pgf@circ@res@other=\pgfkeysvalueof{/tikz/circuitikz/tripoles/american xnor port/port width}\pgf@circ@res@left
     \pgfmathsetlength{\pgf@circ@res@temp}{(\pgf@circ@math@yradiusA)*sin(\pgf@circ@math@angle)}%
@@ -7932,12 +7964,12 @@
             \pgfpathlineto{\pgfpoint{0pt}{\pgf@circ@res@up}}
             \pgfpathlineto{\pgfpoint{0pt}{\pgf@circ@res@down}}
             \pgfpathlineto{\pgfpoint{\pgf@circ@res@step-\pgf@circ@res@other}{0pt}}
-            \pgfusepath{draw}
+            \pgf@circ@draworfill
             \pgfpathellipse
             {\pgfpoint{\pgf@circ@res@step-.5\pgf@circ@res@other}{0pt}}
             {\pgfpoint{.5\pgf@circ@res@other}{0pt}}
             {\pgfpoint{0pt}{.5\pgf@circ@res@other}}
-            \pgfusepath{draw}
+            \pgf@circ@draworfill
         \endpgfscope
 
         \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{0pt}}
@@ -8028,13 +8060,12 @@
             \pgfpathlineto{\pgfpoint{0pt}{\pgf@circ@res@up}}
             \pgfpathlineto{\pgfpoint{0pt}{\pgf@circ@res@down}}
             \pgfpathclose
-            \pgfusepath{draw}
+            \pgf@circ@draworfill
             \pgfpathellipse
             {\pgfpoint{\pgf@circ@res@step-.5\pgf@circ@res@other}{0pt}}
             {\pgfpoint{.5\pgf@circ@res@other}{0pt}}
             {\pgfpoint{0pt}{.5\pgf@circ@res@other}}
-            \pgfsetfillcolor{white}
-            \pgfusepath{draw,fill}
+            \pgf@circ@draworfill
         \endpgfscope
 
         \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{0pt}}
@@ -8137,7 +8168,7 @@
             \pgfpathlineto{\pgfpoint{0pt}{\pgf@circ@res@up}}
             \pgfpathlineto{\pgfpoint{0pt}{\pgf@circ@res@down}}
             \pgfpathclose
-            \pgfusepath{draw}
+            \pgf@circ@draworfill
         \endpgfscope
 
         \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{0pt}}
@@ -8250,6 +8281,13 @@
 
     \backgroundpath{
         \pgfsetcolor{\pgfkeysvalueof{/tikz/circuitikz/color}}
+        \pgfscope
+            \pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/tripoles/thickness}\pgflinewidth}
+            \pgfpathrectanglecorners
+            {\pgfpoint{\pgfkeysvalueof{/tikz/circuitikz/tripoles/european #1 port/reserved}\pgf@circ@res@left}{\pgf@circ@res@up}}
+            {\pgfpoint{\pgfkeysvalueof{/tikz/circuitikz/tripoles/european #1 port/reserved}\pgf@circ@res@right}{\pgf@circ@res@down}}
+            \pgf@circ@draworfill
+        \endpgfscope
         \ifnum#3=1\relax
             \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{0pt}}%
             \pgfpathlineto{\pgfpoint{\pgfkeysvalueof{/tikz/circuitikz/tripoles/european #1 port/reserved}\pgf@circ@res@left}{0pt}}%
@@ -8284,11 +8322,6 @@
             \pgfpathmoveto{\pgfpointorigin}
             \pgftext{#2}
             %
-            \pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/tripoles/thickness}\pgflinewidth}
-            \pgfpathrectanglecorners
-            {\pgfpoint{\pgfkeysvalueof{/tikz/circuitikz/tripoles/european #1 port/reserved}\pgf@circ@res@left}{\pgf@circ@res@up}}
-            {\pgfpoint{\pgfkeysvalueof{/tikz/circuitikz/tripoles/european #1 port/reserved}\pgf@circ@res@right}{\pgf@circ@res@down}}
-            \pgfusepath{draw}
             %
             %
         }
@@ -9377,8 +9410,17 @@
 
         \pgfpathlineto{\pgfpoint{0pt}{-\pgf@circ@res@down}}
         \pgfpathlineto{\pgfpoint{0pt}{\pgf@circ@res@down}}
-        \pgfpathlineto{\pgfpoint{\pgf@circ@res@step-\pgf@circ@res@other}{0pt}}
-        \pgfusepath{draw}
+        \pgfpathclose
+        \pgf@circ@draworfill
+        \pgfscope
+            % to allow filling, we need to draw explicitily the stroke here.
+            \pgfsetlinewidth{\pgfstartlinewidth}
+            \ifpgf@circuit@bipole@strokedsymbol
+                \pgfpathmoveto{\pgfpoint{\pgf@circ@res@step-\pgf@circ@res@other}{0pt}}
+                \pgfpathlineto{\pgfpoint{0pt}{0pt}}
+                \pgfusepath{draw}
+            \fi
+        \endpgfscope
 
         \pgfsetlinewidth{\pgfstartlinewidth}
 
@@ -9444,7 +9486,7 @@
     \pgfpathlineto{\pgfpoint{\pgf@circ@res@step}{-1.414*(\pgf@circ@res@other-\pgf@circ@res@step)}}
     \pgfpathlineto{\pgfpoint{\pgf@circ@res@step}{1.414*(\pgf@circ@res@other-\pgf@circ@res@step)}}
 
-    \pgfusepath{draw}
+    \pgf@circ@draworfill
 
     \pgfsetlinewidth{\pgfstartlinewidth}
 
@@ -9462,7 +9504,7 @@
 
 }
 
-%% Empty triac
+%% Full triac
 
 \pgfcircdeclarebipole{
 	\anchor{gate}{
@@ -9671,6 +9713,20 @@
         \pgf@circ@res@right = -\pgf@x
         \pgf@circ@res@left = \pgf@x
 
+        \pgfscope
+            \pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/tripoles/thickness}\pgflinewidth}
+            \pgftransformxshift{.7\pgf@circ@res@left}
+            \pgf@circ@res@step=\pgf@circ@res@right
+            \advance\pgf@circ@res@step by -\pgf@circ@res@left
+            \pgf@circ@res@step=.7\pgf@circ@res@step
+
+            \pgfpathmoveto{\pgfpoint{\pgf@circ@res@step}{0pt}}
+            \pgfpathlineto{\pgfpoint{0pt}{\pgf@circ@res@up}}
+            \pgfpathlineto{\pgfpoint{0pt}{\pgf@circ@res@down}}
+            \pgfpathclose
+            \pgf@circ@draworfill
+        \endpgfscope
+
         \pgfpathmoveto{\pgfpoint
             {\pgf@circ@res@left}
             {\pgfkeysvalueof{/tikz/circuitikz/tripoles/op amp/input height}\pgf@circ@res@up}}
@@ -9694,19 +9750,6 @@
         \pgfusepath{draw}
 
 
-        \pgfscope
-            \pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/tripoles/thickness}\pgflinewidth}
-            \pgftransformxshift{.7\pgf@circ@res@left}
-            \pgf@circ@res@step=\pgf@circ@res@right
-            \advance\pgf@circ@res@step by -\pgf@circ@res@left
-            \pgf@circ@res@step=.7\pgf@circ@res@step
-
-            \pgfpathmoveto{\pgfpoint{\pgf@circ@res@step}{0pt}}
-            \pgfpathlineto{\pgfpoint{0pt}{\pgf@circ@res@up}}
-            \pgfpathlineto{\pgfpoint{0pt}{\pgf@circ@res@down}}
-            \pgfpathclose
-            \pgfusepath{draw}
-        \endpgfscope
     }
 }
 
@@ -9797,6 +9840,16 @@
         \pgf@circ@res@right = -\pgf@x
         \pgf@circ@res@left = \pgf@x
 
+        \pgfscope
+            \pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/tripoles/thickness}\pgflinewidth}
+            \pgfpathmoveto{\pgfpoint{\pgfkeysvalueof{/tikz/circuitikz/tripoles/american nand port/port width}\pgf@circ@res@left}{\pgf@circ@res@down}}
+            \pgfpathlineto{\pgfpoint{\pgfkeysvalueof{/tikz/circuitikz/tripoles/american nand port/port width}\pgf@circ@res@left}{\pgf@circ@res@up}}
+            \pgfpathlineto{\pgfpoint{\pgfkeysvalueof{/tikz/circuitikz/tripoles/american nand port/port width}\pgf@circ@res@right}{\pgf@circ@res@up}}
+            \pgfpathlineto{\pgfpoint{\pgfkeysvalueof{/tikz/circuitikz/tripoles/american nand port/port width}\pgf@circ@res@right}{\pgf@circ@res@down}}
+            \pgfpathclose
+            \pgf@circ@draworfill
+        \endpgfscope
+
         \pgfpathmoveto{\pgfpoint
             {\pgf@circ@res@left}
             {\pgfkeysvalueof{/tikz/circuitikz/tripoles/en amp/input height}\pgf@circ@res@up}}
@@ -9817,16 +9870,6 @@
         \pgfpathlineto{\pgfpoint{.7\pgf@circ@res@right}{0pt}}
         \pgfsetrectcap
         \pgfusepath{draw}
-
-        \pgfscope
-            \pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/tripoles/thickness}\pgflinewidth}
-            \pgfpathmoveto{\pgfpoint{\pgfkeysvalueof{/tikz/circuitikz/tripoles/american nand port/port width}\pgf@circ@res@left}{\pgf@circ@res@down}}
-            \pgfpathlineto{\pgfpoint{\pgfkeysvalueof{/tikz/circuitikz/tripoles/american nand port/port width}\pgf@circ@res@left}{\pgf@circ@res@up}}
-            \pgfpathlineto{\pgfpoint{\pgfkeysvalueof{/tikz/circuitikz/tripoles/american nand port/port width}\pgf@circ@res@right}{\pgf@circ@res@up}}
-            \pgfpathlineto{\pgfpoint{\pgfkeysvalueof{/tikz/circuitikz/tripoles/american nand port/port width}\pgf@circ@res@right}{\pgf@circ@res@down}}
-            \pgfpathclose
-            \pgfusepath{draw}
-        \endpgfscope
 
         \pgftext[base,y=-3ex,at=\pgfpoint{.3\pgf@circ@res@left}{\pgf@circ@res@up}]{\pgfkeysvalueof{/tikz/circuitikz/tripoles/en amp/font2} $\triangleright$}
         \pgftext[base,y=-3ex,at=\pgfpoint{.3\pgf@circ@res@right}{\pgf@circ@res@up}]{\pgfkeysvalueof{/tikz/circuitikz/tripoles/en amp/font2} $\infty$}
@@ -9934,6 +9977,22 @@
         \pgf@circ@res@right = -\pgf@x
         \pgf@circ@res@left = \pgf@x
 
+        \pgfscope
+            \pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/tripoles/thickness}\pgflinewidth}
+            \pgftransformxshift{.7\pgf@circ@res@left}
+            \pgf@circ@res@step=\pgf@circ@res@right
+            \advance\pgf@circ@res@step by -\pgf@circ@res@left
+            \pgf@circ@res@step=.7\pgf@circ@res@step
+            %Umrandung:
+            \pgfpathmoveto{\pgfpoint{\pgf@circ@res@right}{0}} %geändert startpunkt neu am ausgangsstrich
+            \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{.5\pgf@circ@res@up}}%vom Ausgang nach oben
+            \pgfpathlineto{\pgfpoint{0pt}{\pgf@circ@res@up}} %neu ecke links oben nach rechts oben
+            \pgfpathlineto{\pgfpoint{0pt}{\pgf@circ@res@down}} %bei deneigängen runter
+            \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{.5\pgf@circ@res@down}}%ecke links unten nach rechts unten
+            \pgfpathclose
+            \pgf@circ@draworfill
+        \endpgfscope
+
         \pgfpathmoveto{\pgfpoint
             {\pgf@circ@res@left}
             {\pgfkeysvalueof{/tikz/circuitikz/tripoles/gm amp/input height}\pgf@circ@res@up}}
@@ -9955,22 +10014,6 @@
         \pgfpathlineto{\pgfpoint{.3\pgf@circ@res@right}{0pt}} %
         \pgfsetrectcap
         \pgfusepath{draw}
-
-        \pgfscope
-            \pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/tripoles/thickness}\pgflinewidth}
-            \pgftransformxshift{.7\pgf@circ@res@left}
-            \pgf@circ@res@step=\pgf@circ@res@right
-            \advance\pgf@circ@res@step by -\pgf@circ@res@left
-            \pgf@circ@res@step=.7\pgf@circ@res@step
-            %Umrandung:
-            \pgfpathmoveto{\pgfpoint{\pgf@circ@res@right}{0}} %geändert startpunkt neu am ausgangsstrich
-            \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{.5\pgf@circ@res@up}}%vom Ausgang nach oben
-            \pgfpathlineto{\pgfpoint{0pt}{\pgf@circ@res@up}} %neu ecke links oben nach rechts oben
-            \pgfpathlineto{\pgfpoint{0pt}{\pgf@circ@res@down}} %bei deneigängen runter
-            \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{.5\pgf@circ@res@down}}%ecke links unten nach rechts unten
-            \pgfpathclose
-            \pgfusepath{draw}
-        \endpgfscope
 
     }
 }
@@ -10108,6 +10151,25 @@
         \pgf@circ@res@down = -\pgf@y
         \pgf@circ@res@right = -\pgf@x
         \pgf@circ@res@left = \pgf@x
+        % main component, normally in thicker lines
+        \pgfscope
+            \pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/tripoles/thickness}\pgflinewidth}
+            \pgftransformxshift{.7\pgf@circ@res@left}
+            \pgf@circ@res@step=\pgf@circ@res@right
+            \advance\pgf@circ@res@step by -\pgf@circ@res@left
+            \pgf@circ@res@step=.7\pgf@circ@res@step
+            %first point (near output)
+            \pgfpathmoveto{\pgfpoint{1.4\pgf@circ@res@right}{0}}
+            %from the exit to the top (short side)... (note that the .6 must be copied in \up and \refv anchors
+            \pgfpathlineto{\pgfpoint{1.4\pgf@circ@res@right}{.6\pgf@circ@res@up}}
+            % and then to the input "front up", "down", to the output short side "down"
+            \pgfpathlineto{\pgfpoint{0pt}{\pgf@circ@res@up}}
+            \pgfpathlineto{\pgfpoint{0pt}{\pgf@circ@res@down}}
+            \pgfpathlineto{\pgfpoint{1.4\pgf@circ@res@right}{.6\pgf@circ@res@down}}
+            % ...and close
+            \pgfpathclose
+            \pgf@circ@draworfill
+        \endpgfscope
         % input terminal -
         \pgfpathmoveto{\pgfpoint
             {\pgf@circ@res@left}
@@ -10134,25 +10196,6 @@
         %
         \pgfsetrectcap
         \pgfusepath{draw}
-        % main component, normally in thicker lines
-        \pgfscope
-            \pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/tripoles/thickness}\pgflinewidth}
-            \pgftransformxshift{.7\pgf@circ@res@left}
-            \pgf@circ@res@step=\pgf@circ@res@right
-            \advance\pgf@circ@res@step by -\pgf@circ@res@left
-            \pgf@circ@res@step=.7\pgf@circ@res@step
-            %first point (near output)
-            \pgfpathmoveto{\pgfpoint{1.4\pgf@circ@res@right}{0}}
-            %from the exit to the top (short side)... (note that the .6 must be copied in \up and \refv anchors
-            \pgfpathlineto{\pgfpoint{1.4\pgf@circ@res@right}{.6\pgf@circ@res@up}}
-            % and then to the input "front up", "down", to the output short side "down"
-            \pgfpathlineto{\pgfpoint{0pt}{\pgf@circ@res@up}}
-            \pgfpathlineto{\pgfpoint{0pt}{\pgf@circ@res@down}}
-            \pgfpathlineto{\pgfpoint{1.4\pgf@circ@res@right}{.6\pgf@circ@res@down}}
-            % ...and close
-            \pgfpathclose
-            \pgfusepath{draw}
-        \endpgfscope
     }
 }
 
@@ -10316,6 +10359,26 @@
         \pgf@circ@res@right = -\pgf@x
         \pgf@circ@res@left = \pgf@x
 
+        % main component, normally in thicker lines
+        \pgfscope
+            \pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/tripoles/thickness}\pgflinewidth}
+            \pgftransformxshift{.7\pgf@circ@res@left}
+            \pgf@circ@res@step=\pgf@circ@res@right
+            \advance\pgf@circ@res@step by -\pgf@circ@res@left
+            \pgf@circ@res@step=.7\pgf@circ@res@step
+            %primer punto: la linea de salida (lado componente)
+            \pgfpathmoveto{\pgfpoint{1.4\pgf@circ@res@right}{0}}
+            %from the exit to the top (short side)... (note that the .4 must be copied in \up anchor
+            \pgfpathlineto{\pgfpoint{1.4\pgf@circ@res@right}{.4\pgf@circ@res@up}}
+            % and then to the input "front up", "down", to the output short side "down"
+            \pgfpathlineto{\pgfpoint{0pt}{\pgf@circ@res@up}}
+            \pgfpathlineto{\pgfpoint{0pt}{\pgf@circ@res@down}}
+            \pgfpathlineto{\pgfpoint{1.4\pgf@circ@res@right}{.4\pgf@circ@res@down}}
+            % ...and close
+            \pgfpathclose
+            \pgf@circ@draworfill
+        \endpgfscope
+
         % ra terminal -
         \pgfpathmoveto{\pgfpoint
             {\pgf@circ@res@left}
@@ -10358,26 +10421,6 @@
         %
         \pgfsetrectcap
         \pgfusepath{draw}
-        % main component, normally in thicker lines
-        \pgfscope
-            \pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/tripoles/thickness}\pgflinewidth}
-            \pgftransformxshift{.7\pgf@circ@res@left}
-            \pgf@circ@res@step=\pgf@circ@res@right
-            \advance\pgf@circ@res@step by -\pgf@circ@res@left
-            \pgf@circ@res@step=.7\pgf@circ@res@step
-            %primer punto: la linea de salida (lado componente)
-            \pgfpathmoveto{\pgfpoint{1.4\pgf@circ@res@right}{0}}
-            %from the exit to the top (short side)... (note that the .4 must be copied in \up anchor
-            \pgfpathlineto{\pgfpoint{1.4\pgf@circ@res@right}{.4\pgf@circ@res@up}}
-            % and then to the input "front up", "down", to the output short side "down"
-            \pgfpathlineto{\pgfpoint{0pt}{\pgf@circ@res@up}}
-            \pgfpathlineto{\pgfpoint{0pt}{\pgf@circ@res@down}}
-            \pgfpathlineto{\pgfpoint{1.4\pgf@circ@res@right}{.4\pgf@circ@res@down}}
-            % ...and close
-            \pgfpathclose
-            \pgfusepath{draw}
-        \endpgfscope
-
     }
 }
 %% Potentiometer
@@ -10450,11 +10493,11 @@
     \pgf@circ@res@step = \ctikzvalof{bipoles/resistor/width}\pgf@circ@Rlen
     \divide \pgf@circ@res@step by 14
 
-    \pgfpathrectanglecorners{\pgfpoint{\pgf@circ@res@left}{-\pgf@circ@res@down}}{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@down}}
-    \pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}\pgfstartlinewidth}
-
-    \pgfusepath{draw}
-
+    \pgfscope
+        \pgfpathrectanglecorners{\pgfpoint{\pgf@circ@res@left}{-\pgf@circ@res@down}}{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@down}}
+        \pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}\pgfstartlinewidth}
+        \pgf@circ@draworfill
+    \endpgfscope
     \pgfscope
         %\pgfsetlinewidth{\pgfstartlinewidth}
         \pgfsetarrowsend{latexslim}
@@ -10592,7 +10635,7 @@
                 \pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}\pgfstartlinewidth}
             \fi
             \pgfpathcircle{\pgfpoint{0}{0}} {0.5\pgf@circ@res@step}
-            \pgfusepath{draw}
+            \pgf@circ@draworfill
 
             % draw inner stuff
             \pgfsetdash{}{0pt}	% always draw solid line for inner symbol
@@ -10736,7 +10779,7 @@
                 \pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}\pgfstartlinewidth}
             \fi
             \pgfpathcircle{\pgfpoint{0}{0}} {0.5\pgf@circ@res@step}
-            \pgfusepath{draw}
+            \pgf@circ@draworfill
 
             % draw inner stuff
             \pgfsetdash{}{0pt}	% always draw solid line for inner symbol
@@ -10817,7 +10860,7 @@
                 \pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}\pgfstartlinewidth}
             \fi
             \pgfpathcircle{\pgfpoint{0}{0}} {0.5\pgf@circ@res@step}
-            \pgfusepath{draw}
+            \pgf@circ@draworfill
 
             % draw inner sine waves
             \pgfsetdash{}{0pt}	% always draw solid line for inner symbol
@@ -10926,7 +10969,7 @@
 				\pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}\pgfstartlinewidth}
 			\fi
 			\pgfpathcircle{\pgfpoint{0}{0}} {0.5\pgf@circ@res@step}
-			\pgfusepath{draw}
+                        \pgf@circ@draworfill
 
 			% inner arrow
 			\pgfsetdash{}{0pt}	% always draw solid line for inner symbol
@@ -11022,9 +11065,7 @@
         \pgfstartlinewidth=\pgflinewidth
 
         % draw outer box
-        \pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}\pgfstartlinewidth}
-        \pgfpathrectanglecorners{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@up}}{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@down}}
-        \pgfusepath{draw}
+        \pgf@circ@twoportbox
 
         % draw inner stuff
         \pgfsetdash{}{0pt}	% always draw solid line for inner symbol
@@ -11140,23 +11181,23 @@
         \pgf@circ@res@up=\ctikzvalof{tripoles/elmech/height}\pgf@circ@Rlen
         \pgfscope
             \pgfstartlinewidth=\pgflinewidth
-            % draw outer box
-            %	\ifpgf@circuit@boxed
-            %		\pgfnode{box}{center}{}{pgf@box}{\pgfusepath{draw}}
-            %	\fi
-            % draw outer circle
-            %\ifpgf@circuit@boxed
-            %	\pgf@circ@res@step=.7\pgf@circ@res@step
-            %	\pgfsetdash{}{0pt}	% draw solid circle if boxed
-            %\else
             \pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}\pgfstartlinewidth}
-            %\fi
-            \pgfpathrectangle{\pgfpoint{-.25\pgf@circ@res@step}{-.5\pgf@circ@res@up}}{\pgfpoint{.5\pgf@circ@res@step}{\pgf@circ@res@up}}
-            \pgfsetfillcolor{black}
-            \pgfusepath{draw,fill}
+            \pgfscope % clip the bar: whole size minus the circle
+                \pgfpathrectanglecorners{\pgfpoint{-.5\pgf@circ@res@step}{-.5\pgf@circ@res@up}}{\pgfpoint{.5\pgf@circ@res@step}{.5\pgf@circ@res@up}}
+                \pgfpathcircle{\pgfpoint{0}{0}} {0.5\pgf@circ@res@step}
+                \pgfseteorule
+                \pgfusepath{clip}
+                \pgfpathrectangle{\pgfpoint{-.25\pgf@circ@res@step}{-.5\pgf@circ@res@up}}{\pgfpoint{.5\pgf@circ@res@step}{\pgf@circ@res@up}}
+                \pgfsetfillcolor{black}
+                \pgfusepath{fill, draw}
+            \endpgfscope
             \pgfpathcircle{\pgfpoint{0}{0}} {0.5\pgf@circ@res@step}
-            \pgfsetfillcolor{white}
-            \pgfusepath{draw,fill}
+            \ifx\tikz@fillcolor\pgfutil@empty
+                \pgfsetfillcolor{white}
+            \else
+                \pgfsetfillcolor{\tikz@fillcolor}
+            \fi
+            \pgfusepath{draw, fill}
         \endpgfscope
     }
 }
@@ -11263,21 +11304,10 @@
 
         \pgfscope
             \pgfstartlinewidth=\pgflinewidth
-            % draw outer box
-            %	\ifpgf@circuit@boxed
-            %		\pgfnode{box}{center}{}{pgf@box}{\pgfusepath{draw}}
-            %	\fi
-            % draw outer circle
-            %\ifpgf@circuit@boxed
-            %	\pgf@circ@res@step=.7\pgf@circ@res@step
-            %	\pgfsetdash{}{0pt}	% draw solid circle if boxed
-            %\else
             \pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}\pgfstartlinewidth}
-            %\fi
             %create outer circle
             \pgfpathcircle{\pgfpoint{0}{0}} {\pgf@circ@res@right}
-            \pgfsetfillcolor{white}
-            \pgfusepath{draw}
+            \pgf@circ@draworfill
             %create chambers
             \foreach \angle in {45,135,225,315}{
                 \pgfpathmoveto{ \pgfpointpolar{\angle}{0.6\pgf@circ@res@right}}
@@ -11690,6 +11720,20 @@
         \pgf@circ@res@right = -\pgf@x
         \pgf@circ@res@left = \pgf@x
 
+        % Triangle
+        \pgfscope
+            \pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/quadpoles/thickness}\pgflinewidth}
+            \pgftransformxshift{.7\pgf@circ@res@left}
+            \pgf@circ@res@step=\pgf@circ@res@right
+            \advance\pgf@circ@res@step by -\pgf@circ@res@left
+            \pgf@circ@res@step=.7\pgf@circ@res@step
+            \pgfpathmoveto{\pgfpoint{\pgf@circ@res@step}{0pt}}
+            \pgfpathlineto{\pgfpoint{0pt}{\pgf@circ@res@up}}
+            \pgfpathlineto{\pgfpoint{0pt}{\pgf@circ@res@down}}
+            \pgfpathlineto{\pgfpoint{\pgf@circ@res@step}{0pt}}
+            \pgfpathclose
+            \pgf@circ@draworfill
+        \endpgfscope
         % Negative input terminal
         \pgfpathmoveto{\pgfpoint
             {\pgf@circ@res@left}
@@ -11730,20 +11774,6 @@
         % Draw them all!
         \pgfusepath{draw}
 
-        % Triangle
-        \pgfscope
-            \pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/quadpoles/thickness}\pgflinewidth}
-            \pgftransformxshift{.7\pgf@circ@res@left}
-            \pgf@circ@res@step=\pgf@circ@res@right
-            \advance\pgf@circ@res@step by -\pgf@circ@res@left
-            \pgf@circ@res@step=.7\pgf@circ@res@step
-            \pgfpathmoveto{\pgfpoint{\pgf@circ@res@step}{0pt}}
-            \pgfpathlineto{\pgfpoint{0pt}{\pgf@circ@res@up}}
-            \pgfpathlineto{\pgfpoint{0pt}{\pgf@circ@res@down}}
-            \pgfpathlineto{\pgfpoint{\pgf@circ@res@step}{0pt}}
-            \pgfpathclose
-            \pgfusepath{draw}
-        \endpgfscope
     }
 }
 
@@ -11910,6 +11940,25 @@
         \pgf@circ@res@down = -\pgf@y
         \pgf@circ@res@right = -\pgf@x
         \pgf@circ@res@left = \pgf@x
+        % main component, normally in thicker lines
+        \pgfscope
+            \pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/tripoles/thickness}\pgflinewidth}
+            \pgftransformxshift{.7\pgf@circ@res@left}
+            \pgf@circ@res@step=\pgf@circ@res@right
+            \advance\pgf@circ@res@step by -\pgf@circ@res@left
+            \pgf@circ@res@step=.7\pgf@circ@res@step
+            %first point (near output)
+            \pgfpathmoveto{\pgfpoint{1.4\pgf@circ@res@right}{0}}
+            %from the exit to the top (short side)... (note that the .6 must be copied in \up and \refv anchors
+            \pgfpathlineto{\pgfpoint{1.4\pgf@circ@res@right}{.6\pgf@circ@res@up}}
+            % and then to the input "front up", "down", to the output short side "down"
+            \pgfpathlineto{\pgfpoint{0pt}{\pgf@circ@res@up}}
+            \pgfpathlineto{\pgfpoint{0pt}{\pgf@circ@res@down}}
+            \pgfpathlineto{\pgfpoint{1.4\pgf@circ@res@right}{.6\pgf@circ@res@down}}
+            % ...and close
+            \pgfpathclose
+            \pgf@circ@draworfill
+        \endpgfscope
         % input terminal up
         \pgfpathmoveto{\pgfpoint
             {\pgf@circ@res@left}
@@ -11940,25 +11989,6 @@
         %
         \pgfsetrectcap
         \pgfusepath{draw}
-        % main component, normally in thicker lines
-        \pgfscope
-            \pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/tripoles/thickness}\pgflinewidth}
-            \pgftransformxshift{.7\pgf@circ@res@left}
-            \pgf@circ@res@step=\pgf@circ@res@right
-            \advance\pgf@circ@res@step by -\pgf@circ@res@left
-            \pgf@circ@res@step=.7\pgf@circ@res@step
-            %first point (near output)
-            \pgfpathmoveto{\pgfpoint{1.4\pgf@circ@res@right}{0}}
-            %from the exit to the top (short side)... (note that the .6 must be copied in \up and \refv anchors
-            \pgfpathlineto{\pgfpoint{1.4\pgf@circ@res@right}{.6\pgf@circ@res@up}}
-            % and then to the input "front up", "down", to the output short side "down"
-            \pgfpathlineto{\pgfpoint{0pt}{\pgf@circ@res@up}}
-            \pgfpathlineto{\pgfpoint{0pt}{\pgf@circ@res@down}}
-            \pgfpathlineto{\pgfpoint{1.4\pgf@circ@res@right}{.6\pgf@circ@res@down}}
-            % ...and close
-            \pgfpathclose
-            \pgfusepath{draw}
-        \endpgfscope
     }
 }
 
@@ -12276,12 +12306,14 @@
         \pgfscope% (for the line width)
         \pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/multipoles/thickness}\pgflinewidth}
         \pgfpathrectanglecorners{\pgfpoint{-\width/2}{-\height/2}}{\pgfpoint{\width/2}{\height/2}}%
+        \pgf@circ@draworfill
         %% upside mark
         \ifpgf@circuit@chip@topmark
             \pgfpathmoveto{\pgfpoint{0.2*\pgf@circ@res@left}{\pgf@circ@res@up}}
             \pgfpatharc{0}{180}{0.2*\pgf@circ@res@left}
         \fi
         \pgfusepath{stroke}%
+        \pgfsetcolor{\pgfkeysvalueof{/tikz/circuitikz/color}}
         % Adding the pin number
         \ifpgf@circuit@chip@shownumbers
             \c@pgf@counta=\pgfkeysvalueof{/tikz/circuitikz/multipoles/dipchip/num pins}%
@@ -12484,8 +12516,9 @@
         \pgfpathlineto{\pgfpoint{\width/2}{-\height/2}}
         \pgfpathlineto{\pgfpoint{-\width/2}{-\height/2}}
         \pgfpathclose
-        \pgfusepath{stroke}%
+        \pgf@circ@draworfill
         % Adding the pin number
+        \pgfsetcolor{\pgfkeysvalueof{/tikz/circuitikz/color}}
         \ifpgf@circuit@chip@shownumbers
             \c@pgf@counta=\pgfkeysvalueof{/tikz/circuitikz/multipoles/qfpchip/num pins}%
             \divide\c@pgf@counta by 4 \pgf@circ@count@b=\c@pgf@counta
@@ -13999,17 +14032,8 @@
         \pgfextra{\def\pgf@temp{open}\def\pgf@circ@temp{#1}}
         \ifx\pgf@temp\pgf@circ@temp  % if it is an open
         \else
-            \ifpgf@circuit@bipole@strokedsymbol%draw line thrue symbol(e.g. diodes)
-                \ifcsname pgf@anchor@#1shape@strokepathstart\endcsname%if special path-anchors are defined, use them!
-                    (\ctikzvalof{bipole/name}start.center) -- (\ctikzvalof{bipole/name}.strokepathstart)
-                    (\ctikzvalof{bipole/name}.strokepathend)  -- (\ctikzvalof{bipole/name}end.center)
-                \else
-                    (\ctikzvalof{bipole/name}start.center) -- (\ctikzvalof{bipole/name}end.center)
-                \fi
-                \else
-                (\ctikzvalof{bipole/name}start.center) -- (anchorstartnode)
-                (anchorendnode)  -- (\ctikzvalof{bipole/name}end.center)
-            \fi
+            (\ctikzvalof{bipole/name}start.center) -- (anchorstartnode)
+            (anchorendnode)  -- (\ctikzvalof{bipole/name}end.center)
         \fi
 
         \drawpoles
