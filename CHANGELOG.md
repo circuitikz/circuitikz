@@ -26,6 +26,7 @@ The major changes among the different circuitikz versions are listed here. See <
     - Added border anchors for the logic gates
     - Added antennas with no wires, loudspeakers and microphone
     - Make the components fillable
+    - Added the oscilloscope component
   
 * Version 0.8.3 (2017-05-28) 
 	- Removed unwanted lines at to-paths if the starting point is a node without a explicit anchor.
