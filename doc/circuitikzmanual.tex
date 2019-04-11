@@ -102,7 +102,7 @@
                 \foreach \n/\a/\d in {#6} \path(N.\n) \showcoord(\n)<\a:\d>;
             }
         \end{circuitikz}%
-        }{%
+        }{\sloppy%
         {#4, type: node\IfBooleanT{#1}{, fillable}%
     } (\texttt{node[#3]\{#5\}}) \index{#3} }
 }
@@ -124,7 +124,7 @@
                 \foreach \n/\a/\d in {#6} \path(B.\n) \showcoord(\n)<\a:\d>;
             }
         \end{circuitikz}%
-        }{%
+        }{\sloppy%
         \texttt{\textbf{#3}, type: path-style\IfBooleanT{#1}{, fillable}%
             \IfValueTF{#2}{%
                 , nodename: #2shape.%\drawphantomshape{#2shape}%
@@ -150,6 +150,22 @@
         pin distance=#3\pgf@circ@Rlen, pin edge={red, }%
     ]#2:#1}](#1){}}
 \makeatother
+% show anchors of a node component:
+% optional: options of the circuitikz environment
+% mandatory  node spec, node text
+% optional between (): anchor specification list
+\NewDocumentCommand{\showanchors}{O{1} m m d()}
+{
+        \begin{circuitikz}[#1]
+                \draw (0,0) node[#2](N){#3};
+            \IfValueT{#4}{%
+                \foreach \n/\a/\d in {#4} \path(N.\n) \showcoord(\n)<\a:\d>;
+            }
+        \end{circuitikz}%
+}
+
+%
+
 \newcommand{\email}[1]{\href{mailto:#1}{#1}}
 \long\def\comment#1{}
 
@@ -872,9 +888,9 @@ If the component can be filled it will be specified in the description. In addit
     \circuitdesc*{plain amp}{Plain amplifier}{}( out/45/0.3 )
 \end{groupdesc}
 
-\subsection{Monopoles}
+\subsection{Grounds and supply voltages}
 
-For the monopoles, the \texttt{center} anchor is put on the connecting point of the symbol, so that you can use them directly in a \texttt{path} specification.
+For the grounds, the \texttt{center} anchor is put on the connecting point of the symbol, so that you can use them directly in a \texttt{path} specification.
 
 \begin{groupdesc}
     \circuitdesc{ground}{Ground}{}( center/0/0.3 )
@@ -885,30 +901,31 @@ For the monopoles, the \texttt{center} anchor is put on the connecting point of 
     \circuitdesc{pground}{Protective ground}{}
     \circuitdesc{cground}{Chassis ground\footnotemark}{}
     \footnotetext{These last three were contributed by Luigi «Liverpool»)}
-    \circuitdesc*{bareantenna}{Bare Antenna}{A}( top/90/0.1, bottom/180/0.3, left/180/0.3, right/45/0.3, center/0/0.3 )
-    \circuitdesc*{bareTXantenna}{Bare TX Antenna}{Tx}( top/90/0.1, center/180/0.3, waves/90/0.3 )
-    \circuitdesc*{bareRXantenna}{Bare RX Antenna}{Rx}( top/90/0.1, center/0/0.3, waves/90/0.3 )
-    \circuitdesc{antenna}{Antenna}{}( center/0/0.3 )
-    \circuitdesc{rxantenna}{Receiving antenna}{}
-    \circuitdesc{txantenna}{Transmitting antenna}{}
-    \circuitdesc*{tlinestub}{Transmission line stub}{}
+    \circuitdesc{eground}{European style ground}{}
+    \circuitdesc{eground2}{European style ground, version 2\footnotemark}{}
+    \footnotetext{These last two were contributed by \texttt{@fotesan})}
     \circuitdesc{vcc}{VCC/VDD}{}
     \circuitdesc{vee}{VEE/VSS}{}
-    \circuitdesc{match}{match}{}
-    %\circuitdesc{oscillator}{LO\footnote{These last three come from Stefan Erhardt's contribution of block diagram components}}{}
 \end{groupdesc}
 
+\subsubsection{Grounds anchors}
 
-\subsection{Bipoles}
+Anchors for grounds are a bit strange, given that they have the \texttt{center} spot at the same location than \texttt{north} and all the ground will develop ``going down'':
 
-\subsubsection{Instruments}
+\showanchors[baseline]{ground, scale=2}{}(north/90/0.4, north east/45/0.4, east/0/0.4, south east/-45/0.4,
+    south/-90/0.4, south west/-135/0.4, west/180/0.4, north west/135/0.4)
+\showanchors[baseline]{ground, scale=2}{}(left/135/0.2, right/45/0.2, center/-180/0.2)
+
+
+
+\subsection{Instruments}
 \begin{groupdesc}
     \circuitdescbip*{ammeter}{Ammeter}{}
     \circuitdescbip*{voltmeter}{Voltmeter}{}
     \circuitdescbip*{ohmmeter}{Ohmmeter}{}
 \end{groupdesc}
 
-\subsubsection{Resistive bipoles}
+\subsection{Resistive bipoles}
 
 \begin{groupdesc}
     \circuitdescbip{short}{Short circuit}{}
@@ -952,7 +969,7 @@ Other miscellaneous resistor-like devices:
     \circuitdescbip*{afuse}{Asymmetric fuse}{asymmetric fuse}
 \end{groupdesc}
 
-\paragraph{Generic sensors anchors}
+\subsubsection{Generic sensors anchors}
 Generic sensors have an extra label to help positioning the type of dependence, if needed:
 
 \begin{LTXexample}[varwidth=true]
@@ -966,7 +983,7 @@ Generic sensors have an extra label to help positioning the type of dependence, 
 
 The anchor is positioned just on the corner of the segmented line crossing the component.
 
-\subsubsection{Diodes and such}
+\subsection{Diodes and such}
 \begin{groupdesc}
     \circuitdescbip*[emptydiode] {empty diode}{Empty diode}{Do}
     \circuitdescbip*[emptysdiode]{empty Schottky diode}{Empty Schottky diode}{sDo}
@@ -1001,7 +1018,7 @@ These shapes has no exact node-style counterpart, because the stroke line is bui
     \circuitdescbip*[emptyvarcap]{stroke varcap}{Stroke varcap}{VC-}
 \end{groupdesc}
 
-\subsubsection{Tripole-like diodes}\label{sec:othertrip} The following tripoles are entered with the usual command of the form
+\subsection{Tripole-like diodes}\label{sec:othertrip} The following tripoles are entered with the usual command of the form
 \begin{groupdesc}
     \circuitdescbip*[emptytriac]{triac}{Standard triac (shape depends on package option)}{Tr}( G/0/0.3 )
     \circuitdescbip*[emptytriac]{empty triac}{Empty triac}{Tro}( gate/0/0.3 )
@@ -1012,7 +1029,7 @@ These shapes has no exact node-style counterpart, because the stroke line is bui
     \circuitdescbip*[emptythyristor]{stroke thyristor}{Stroke thyristor}{Ty-}
 \end{groupdesc}
 
-\paragraph{Triacs anchors}
+\subsubsection{Triacs anchors}
 
 When inserting a thrystor, a triac or a potentiometer, one needs to refer to the third node--gate (\texttt{gate} or \texttt{G}) for the former two; wiper (\texttt{wiper} or \texttt{W}) for the latter one. This is done by giving a name to the bipole:
 \label{bipole-naming}
@@ -1030,7 +1047,7 @@ The package options \texttt{fulldiode}, \texttt{strokediode}, and \texttt{emptyd
 \end{framed}
 
 
-\subsubsection{Basic dynamical bipoles}
+\subsection{Basic dynamical bipoles}
 \begin{groupdesc}
     \circuitdescbip{capacitor}{Capacitor}{C}
     \circuitdescbip[polarcapacitor]{polar capacitor}{Polar capacitor}{pC}
@@ -1066,12 +1083,8 @@ Finally, if \texttt{europeaninductors} option is active (or the style \texttt{[e
     \ctikzset{inductor=cute} % back to default
 \end{groupdesc}
 
-There is also a transmission line:
-\begin{groupdesc}
-    \circuitdescbip*[tline]{TL}{Transmission line}{transmission line, tline}
-\end{groupdesc}
 
-\subsubsection{Stationary sources}
+\subsection{Stationary sources}
 \begin{groupdesc}
     \circuitdescbip{battery}{Battery}{}
     \circuitdescbip{battery1}{Single battery cell}{}
@@ -1091,13 +1104,13 @@ Similarly, if (default behaviour) \texttt{europeanvoltages} option is active (or
 \end{framed}
 
 
-\subsubsection{Sinusoidal sources} Here because I was asked for them. But how do you distinguish one from the other?!
+\subsection{Sinusoidal sources} Here because I was asked for them. But how do you distinguish one from the other?!
 \begin{groupdesc}
     \circuitdescbip*[vsourcesin]{sinusoidal voltage source}{Sinusoidal voltage source}{vsourcesin, sV}
     \circuitdescbip*[isourcesin]{sinusoidal current source}{Sinusoidal current source}{isourcesin, sI}
 \end{groupdesc}
 
-\subsubsection{Controlled sources}
+\subsection{Controlled sources}
 \begin{groupdesc}
     \circuitdescbip*[cvsource]{european controlled voltage source}{Controlled voltage source (european style)}{}
     \circuitdescbip*[cvsourceC]{cute european controlled voltage source}{Voltage source (cute european style)}{cvsourceC, cceV}
@@ -1120,7 +1133,7 @@ Similarly, if (default behaviour) \texttt{europeanvoltages} option is active (or
 
 
 
-\subsubsection{Noise sources}
+\subsection{Noise sources}
 
 In this case, the ``direction''  of the source has no sense. Noise sources are filled in gray by default, but if you choose the dashed style, they become fillable.
 
@@ -1166,7 +1179,7 @@ Notice that if you choose the dashed style, the noise sources are fillable:
 \end{circuitikz}
 \end{LTXexample}
 
-\subsubsection{Special sources}
+\subsection{Special sources}
 \begin{groupdesc}
     \circuitdescbip*[vsourcesquare]{square voltage source}{Square voltage source}{vsourcesquare, sqV}
     \circuitdescbip*{vsourcetri}{Triangle voltage source}{tV}
@@ -1176,20 +1189,20 @@ Notice that if you choose the dashed style, the noise sources are fillable:
     \circuitdescbip*[oosource]{voosource}{Double Zero style voltage source}{}
 \end{groupdesc}
 
-\subsubsection{DC sources}
+\subsection{DC sources}
 \begin{groupdesc}
     \circuitdescbip*{dcvsource}{DC voltage source}{}
     \circuitdescbip*{dcisource}{DC current source}{}
 \end{groupdesc}
 
-\subsubsection{Mechanical Analogy}
+\subsection{Mechanical Analogy}
 \begin{groupdesc}
     \circuitdescbip*{damper}{Mechanical Damping}{}
     \circuitdescbip{spring}{Mechanical Stiffness}{}
     \circuitdescbip*{mass}{Mechanical Mass}{}
 \end{groupdesc}
 
-\subsubsection{Other bipoles}
+\subsection{Other bipoles}
 
 Here you'll find bipoles that are not easily grouped in the categories above. 
 
@@ -1404,8 +1417,7 @@ To show that a device is optional, you can dash it. The inner symbol will be kep
 
 
 
-\subsection{Tripoles}
-\subsubsection{Transistors}
+\subsection{Transistors}
 
 \begin{groupdesc}
     \circuitdesc{nmos}{\scshape nmos}{}( G/180/0.2,D/0/0.2,S/0/0.2 )
@@ -1498,7 +1510,7 @@ Borsche. Use the package options \texttt{fetsolderdot}/\texttt{nofetsolderdot} t
     \circuitdesc{isfet}{\scshape isfet}{}
 \end{groupdesc}
 
-\paragraph{Transistors anchors}
+\subsubsection{Transistors anchors}
 
 For \textsc{nmos}, \textsc{pmos}, \textsc{nfet}, \textsc{nigfete}, \textsc{nigfetd}, \textsc{pfet}, \textsc{pigfete}, and \textsc{pigfetd}  transistors  one has \texttt{base}, \texttt{gate}, \texttt{source} and \texttt{drain} anchors (which can be abbreviated with \texttt{B}, \texttt{G}, \texttt{S} and \texttt{D}):
 
@@ -1579,7 +1591,7 @@ Similarly, transistors like other components can be reflected vertically:
 ;\end{circuitikz}
 \end{LTXexample}
 
-\paragraph{Transistor paths}\label{sec:transasbip}
+\subsubsection{Transistor paths}\label{sec:transasbip}
 
 For syntactical convenience transistors can be placed using the normal path notation used for bipoles. The transitor type can be specified by  simply adding a ``T'' (for transistor) in front of the node name of the transistor. It will be placed with the base/gate orthogonal to the direction of the path:
 \begin{LTXexample}[varwidth=true]
@@ -1607,7 +1619,7 @@ Access to the gate and/or base nodes can be gained by naming the transistors wit
 The \texttt{name} property is available also for bipoles, although this is useful mostly for triac, potentiometer and thyristor (see~\ref{sec:othertrip}).
 
 
-\subsubsection{Electronic Tubes}
+\subsection{Electronic Tubes}
 \begin{groupdesc}
     \circuitdesc*{magnetron}{Magnetron}{}( anode/-90/0.2, cathode1/135/0.2,
     cathode2/45/0.2, left/180/0.2, right/0/0.2, top/90/0.4 )
@@ -1625,7 +1637,25 @@ The \texttt{name} property is available also for bipoles, although this is usefu
 	\end{circuitikz}
 \end{LTXexample}
 
-\subsubsection{Electro-Mechanical Devices}
+\subsection{RF components}
+
+For the RF components, similarly to the grounds and supply rails, the \texttt{center} anchor is put on the connecting point of the symbol, so that you can use them directly in a \texttt{path} specification.
+
+\begin{groupdesc}
+    \circuitdesc*{bareantenna}{Bare Antenna}{A}( top/90/0.1, bottom/180/0.3, left/180/0.3, right/45/0.3, center/0/0.3 )
+    \circuitdesc*{bareTXantenna}{Bare TX Antenna}{Tx}( top/90/0.1, center/180/0.3, waves/90/0.3 )
+    \circuitdesc*{bareRXantenna}{Bare RX Antenna}{Rx}( top/90/0.1, center/0/0.3, waves/90/0.3 )
+    \circuitdesc{antenna}{Antenna}{}( center/0/0.3 )
+    \circuitdesc{rxantenna}{Receiving antenna}{}
+    \circuitdesc{txantenna}{Transmitting antenna}{}
+    \circuitdesc*{tlinestub}{Transmission line stub}{}
+    \circuitdescbip*[tline]{TL}{Transmission line}{transmission line, tline}
+    \circuitdesc{match}{match}{}
+\end{groupdesc}
+
+
+
+\subsection{Electro-Mechanical Devices}
 
 The internal part of the motor and generator are, by default, filled white (to avoid compatibility problems with older versions of the package).
 
