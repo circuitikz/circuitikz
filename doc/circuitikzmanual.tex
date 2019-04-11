@@ -125,7 +125,7 @@
             }
         \end{circuitikz}%
         }{\sloppy%
-        \texttt{\textbf{#3}, type: path-style\IfBooleanT{#1}{, fillable}%
+        \texttt{\textbf{#3}}: #4, \texttt{type: path-style\IfBooleanT{#1}{, fillable}%
             \IfValueTF{#2}{%
                 , nodename: #2shape.%\drawphantomshape{#2shape}%
             }{
@@ -923,7 +923,39 @@ Anchors for grounds are a bit strange, given that they have the \texttt{center} 
     \circuitdescbip*{ammeter}{Ammeter}{}
     \circuitdescbip*{voltmeter}{Voltmeter}{}
     \circuitdescbip*{ohmmeter}{Ohmmeter}{}
+    \circuitdescbip*[oscope]{oscope}{Oscilloscope\footnotemark}{}(left/135/0.2, right/45/0.2,
+    in 1/-135/0.4, in 2/-45/0.4)
+    \footnotetext{Suggested by \texttt{@nobrl} on GitHub}
 \end{groupdesc}
+
+
+The \texttt{oscope} element will not rotate the ``graph'' shown with the component:
+
+\begin{LTXexample}[varwidth=true]
+\begin{circuitikz}
+    \foreach \a in {0,45,...,350} {
+        \draw (0,0) to[oscope] (\a:3);
+    }
+\end{circuitikz}
+\end{LTXexample}
+
+Moreover, the node-style usage of the \texttt{oscope} is also interesting, using the additional \texttt{in 1} and \texttt{in 2} anchors; notice that in this case you can use the text content of the node to put labels above it.
+Moreover, you can change the size of the osciloscope by changing \texttt{bipoles/oscope/width} and \texttt{bipoles/oscope/height} keys (which both default at 0.6).
+
+\begin{LTXexample}[varwidth=true]
+\begin{circuitikz}
+    \draw (0,1)
+        to[oscope=$C_1$, fill=green!20!gray, name=O1] ++(2,0);
+    \path (O1.right)
+        node[ground, scale=0.5, below right=4pt]{};
+    \ctikzset{bipoles/oscope/width=1.0}
+    \draw (1,-1)
+        node[oscopeshape, fill=yellow!20!orange](O2){$C_2$};
+    \draw (O2.in 2) to[short, *-] ++(0,-0.5) node[ground]{};
+    \draw (O2.in 1) to[short, *-] ++(0,-0.5)
+           -- ++(-1,0) node[currarrow, xscale=-1]{};
+\end{circuitikz}
+\end{LTXexample}
 
 \subsection{Resistive bipoles}
 

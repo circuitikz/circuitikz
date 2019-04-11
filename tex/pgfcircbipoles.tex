@@ -2217,6 +2217,62 @@
 
 }
 
+% oscilloscope, suggested by @nobrl https://github.com/circuitikz/circuitikz/issues/176
+\pgfcircdeclarebipole
+{
+    \anchor{in 1}{\southwest\pgf@y=0.75\pgf@y\pgf@x=0.4\pgf@x}
+    \anchor{in 2}{\southwest\pgf@y=0.75\pgf@y\pgf@x=-0.4\pgf@x}
+    % put the node text above and centered
+    \anchor{text}{\pgfextracty{\pgf@circ@res@up}{\northeast}
+        \pgfpoint{-.5\wd\pgfnodeparttextbox}{
+            \dimexpr.5\dp\pgfnodeparttextbox+.5\ht\pgfnodeparttextbox+\pgf@circ@res@up\relax
+        }
+    }
+}
+{\ctikzvalof{bipoles/oscope/height}}
+{oscope}
+{\ctikzvalof{bipoles/oscope/height}}
+{\ctikzvalof{bipoles/oscope/width}}
+{
+    \pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}\pgfstartlinewidth}
+    \pgfextracty{\pgf@circ@res@up}{\northeast}
+    \pgfextractx{\pgf@circ@res@right}{\northeast}
+    \pgfextractx{\pgf@circ@res@left}{\southwest}
+    \pgfextracty{\pgf@circ@res@down}{\southwest}
+    \pgfmathsetlength{\pgf@circ@res@step}{0.25*\pgf@circ@res@up}
+    \pgfscope
+        \pgfsetcornersarced{\pgfpoint{\pgf@circ@res@step}{\pgf@circ@res@step}}
+        \pgfpathrectanglecorners{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@down}}{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@up}}
+        % this would create a round (analog?) scope...
+        % \pgfpathellipse{\pgfpointorigin}{\pgfpoint{0}{\pgf@circ@res@up}}{\pgfpoint{\pgf@circ@res@left}{0}}
+        \pgf@circ@draworfill
+    \endpgfscope
+    % get the rotation
+    \pgfgettransformentries\a\b\temp\temp\temp\temp
+    \pgfmathsetmacro{\rot}{-atan2(\b,\a)}
+    % and unrotate the scope
+    \pgfscope
+        \pgftransformrotate{\rot}
+        % grid
+        \pgfscope
+            \pgfsetlinewidth{0.5\pgfstartlinewidth}
+            \pgfpathmoveto{\pgfpoint{0.75\pgf@circ@res@left}{0.25\pgf@circ@res@down}}
+            \pgfpathgrid[stepx=\pgf@circ@res@step, stepy=\pgf@circ@res@step]%
+            {\pgfpoint{0.75\pgf@circ@res@left}{0.5\pgf@circ@res@down}}
+            {\pgfpoint{0.75\pgf@circ@res@right}{0.5\pgf@circ@res@up}}
+            \pgfsetstrokeopacity{0.5}
+            \pgfusepath{draw}
+        \endpgfscope
+        % function displayed, thanks to
+        \pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}\pgfstartlinewidth}
+        \pgfpathmoveto{\pgfpoint{0.75\pgf@circ@res@left}{0.25\pgf@circ@res@down}}
+        \pgfpathlineto{\pgfpoint{0.05\pgf@circ@res@left}{0.25\pgf@circ@res@up}}
+        \pgfpathlineto{\pgfpoint{0.05\pgf@circ@res@left}{0.25\pgf@circ@res@down}}
+        \pgfpathlineto{\pgfpoint{0.65\pgf@circ@res@right}{0.25\pgf@circ@res@up}}
+        \pgfpathlineto{\pgfpoint{0.65\pgf@circ@res@right}{0.25\pgf@circ@res@down}}
+        \pgfusepath{draw}
+    \endpgfscope
+}
 %% Short circuit
 
 %%% NOTICE that the short is really NOT drawn; we trust the fact that its
@@ -2332,7 +2388,7 @@
         \pgfpathrectanglecorners{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@up}}{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@down}}
         \pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}\pgfstartlinewidth}
         \pgf@circ@draworfill
-    \endpgfscope 
+    \endpgfscope
 
     \pgfpathrectanglecorners{\pgfpoint{.7\pgf@circ@res@right}{\pgf@circ@res@up}}{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@down}}
     \pgfusepath{stroke,fill}
