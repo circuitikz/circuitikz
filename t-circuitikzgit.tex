@@ -1,5 +1,5 @@
-\def\pgfcircversion{git:ca8f20e}
-\def\pgfcircversiondate{2019/04/09}
+\def\pgfcircversion{git:6d04a4e}
+\def\pgfcircversiondate{2019/04/11}
 \writestatus{loading}{\pgfcircversiondate{} The CircuiTikz circuit drawing package version \pgfcircversion}
 
 \usemodule[tikz]
@@ -165,6 +165,7 @@
 \ctikzset{monopoles/ground/width/.initial=.25}
 \ctikzset{monopoles/ground/connectionthickness/.initial=1}
 \ctikzset{monopoles/ground/thickness/.initial=2}
+\ctikzset{monopoles/rground/thickness/.initial=2}
 \ctikzset{monopoles/tground/thickness/.initial=3}
 \ctikzset{monopoles/vcc/width/.initial=.2}
 \ctikzset{monopoles/match/width/.initial=.4}
@@ -1764,192 +1765,196 @@
 %% Monopoles
 
 %% Ground symbol
+% #1 -> name
+% #2 -> width
+% #3 -> depth
+% #4 -> code
+\long\def\pgf@circ@declareground#1#2#3#4{
+    \pgfdeclareshape{#1}{
+        \savedanchor{\southeast}{
+            \pgf@x=\ctikzvalof{monopoles/ground/width}\pgf@circ@Rlen
+            \pgf@x=#2\pgf@x
+            \pgf@y=\ctikzvalof{monopoles/ground/width}\pgf@circ@Rlen
+            \pgf@y=-#3\pgf@y
+        }
+        \anchor{north}{\pgfpointorigin}
+        \anchor{north east}{\southeast\pgf@y=0pt\relax}
+        \anchor{east}{\southeast\pgf@y=.5\pgf@y}
+        \anchor{south east}{\southeast}
+        \anchor{south}{\southeast\pgf@x=0pt\relax}
+        \anchor{south west}{\southeast\pgf@x=-\pgf@x}
+        \anchor{west}{\southeast\pgf@y=.5\pgf@y\pgf@x=-\pgf@x}
+        \anchor{north west}{\southeast\pgf@y=0pt\pgf@x=-\pgf@x}
+        \anchor{left}{\pgfpointorigin}
+        \anchor{right}{\pgfpointorigin}
+        \anchor{center}{\pgfpointorigin}
+        \behindforegroundpath{
+            \pgf@circ@res@step=\ctikzvalof{monopoles/ground/width}\pgf@circ@Rlen
+            \pgfscope
+                \pgfstartlinewidth=\pgflinewidth
+                #4
+            \endpgfscope
+        }
+    }
+}
 
-\pgfdeclareshape{ground}{
-  \anchor{center}{
-    \pgfpointorigin
-  }
-  \behindforegroundpath{
-    \pgf@circ@res@step=\ctikzvalof{monopoles/ground/width}\pgf@circ@Rlen
-    \pgfscope
-      \pgfstartlinewidth=\pgflinewidth
-      \pgfsetlinewidth{\ctikzvalof{monopoles/ground/connectionthickness}\pgfstartlinewidth}
-      \pgfpathmoveto{\pgfpointorigin}
-      \pgfpathlineto{\pgfpoint{0pt}{-1.2\pgf@circ@res@step}}
-      \pgfusepath{draw}
-      \pgfsetlinewidth{\ctikzvalof{monopoles/ground/thickness}\pgfstartlinewidth}
-      \pgfpathmoveto{\pgfpoint{-.6\pgf@circ@res@step}{-1.2\pgf@circ@res@step}}
-      \pgfpathlineto{\pgfpoint{.6\pgf@circ@res@step}{-1.2\pgf@circ@res@step}}
-      \pgfpathmoveto{\pgfpoint{-.4\pgf@circ@res@step}{-1.4\pgf@circ@res@step}}
-      \pgfpathlineto{\pgfpoint{.4\pgf@circ@res@step}{-1.4\pgf@circ@res@step}}
-      \pgfpathmoveto{\pgfpoint{-.25\pgf@circ@res@step}{-1.6\pgf@circ@res@step}}
-      \pgfpathlineto{\pgfpoint{.25\pgf@circ@res@step}{-1.6\pgf@circ@res@step}}
-      \pgfusepath{draw}
-      \pgfsetlinewidth{\pgfstartlinewidth}
-    \endpgfscope
-  }
+
+\pgf@circ@declareground{ground}{0.6}{1.6}{
+    \pgfsetlinewidth{\ctikzvalof{monopoles/ground/connectionthickness}\pgfstartlinewidth}
+    \pgfpathmoveto{\pgfpointorigin}
+    \pgfpathlineto{\pgfpoint{0pt}{-1.2\pgf@circ@res@step}}
+    \pgfusepath{draw}
+    \pgfsetlinewidth{\ctikzvalof{monopoles/ground/thickness}\pgfstartlinewidth}
+    \pgfpathmoveto{\pgfpoint{-.6\pgf@circ@res@step}{-1.2\pgf@circ@res@step}}
+    \pgfpathlineto{\pgfpoint{.6\pgf@circ@res@step}{-1.2\pgf@circ@res@step}}
+    \pgfpathmoveto{\pgfpoint{-.4\pgf@circ@res@step}{-1.4\pgf@circ@res@step}}
+    \pgfpathlineto{\pgfpoint{.4\pgf@circ@res@step}{-1.4\pgf@circ@res@step}}
+    \pgfpathmoveto{\pgfpoint{-.25\pgf@circ@res@step}{-1.6\pgf@circ@res@step}}
+    \pgfpathlineto{\pgfpoint{.25\pgf@circ@res@step}{-1.6\pgf@circ@res@step}}
+    \pgfusepath{draw}
 }
 
 
 
-\pgfdeclareshape{rground}{
-    \anchor{center}{
-        \pgfpointorigin
-    }
-    \behindforegroundpath{
-        \pgf@circ@res@step=\ctikzvalof{monopoles/ground/width}\pgf@circ@Rlen
+\pgf@circ@declareground{rground}{0.6}{1}{
+    \pgfpathmoveto{\pgfpointorigin}
+    \pgfpathlineto{\pgfpoint{0pt}{-\pgf@circ@res@step}}
+    \pgfusepath{draw}
 
-        \pgfscope
-            \pgfpathmoveto{\pgfpointorigin}
-            \pgfpathlineto{\pgfpoint{0pt}{-\pgf@circ@res@step}}
-            \pgfusepath{draw}
+    \pgfstartlinewidth=\pgflinewidth
+    \pgfsetlinewidth{\ctikzvalof{monopoles/rground/thickness}\pgfstartlinewidth}
 
-            \pgfstartlinewidth=\pgflinewidth
-            \pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}\pgfstartlinewidth}
-
-            \pgfpathmoveto{\pgfpoint{-\pgf@circ@res@step}{-\pgf@circ@res@step}}
-            \pgfpathlineto{\pgfpoint{\pgf@circ@res@step}{-\pgf@circ@res@step}}
-            \pgfusepath{draw}
-
-            \pgfsetlinewidth{\pgfstartlinewidth}
-        \endpgfscope
-    }
+    \pgfpathmoveto{\pgfpoint{-.6\pgf@circ@res@step}{-\pgf@circ@res@step}}
+    \pgfpathlineto{\pgfpoint{.6\pgf@circ@res@step}{-\pgf@circ@res@step}}
+    \pgfsetroundcap\pgfusepath{draw}
 }
 
-\pgfdeclareshape{tground}{
-    \anchor{center}{
-        \pgfpointorigin
-    }
-    \behindforegroundpath{
-        \pgf@circ@res@step=\ctikzvalof{monopoles/ground/width}\pgf@circ@Rlen
+\pgf@circ@declareground{tground}{0.6}{0}{
+    \pgfpathmoveto{\pgfpointorigin}
+    \pgfusepath{draw}
 
-        \pgfscope
-            \pgfpathmoveto{\pgfpointorigin}
-            %\pgfpathlineto{\pgfpoint{0pt}{-\pgf@circ@res@step}}
-            \pgfusepath{draw}
+    \pgfstartlinewidth=\pgflinewidth
+    \pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/monopoles/tground/thickness}\pgfstartlinewidth}
 
-            \pgfstartlinewidth=\pgflinewidth
-            \pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/monopoles/tground/thickness}\pgfstartlinewidth}
-
-            \pgfpathmoveto{\pgfpoint{-\pgf@circ@res@step}{0pt}}
-            \pgfpathlineto{\pgfpoint{\pgf@circ@res@step}{0pt}}
-            \pgfusepath{draw}
-
-            \pgfsetlinewidth{\pgfstartlinewidth}
-
-        \endpgfscope
-    }
+    \pgfpathmoveto{\pgfpoint{-.6\pgf@circ@res@step}{0pt}}
+    \pgfpathlineto{\pgfpoint{.6\pgf@circ@res@step}{0pt}}
+    \pgfusepath{draw}
 }
 
-\pgfdeclareshape{sground}{
-    \anchor{center}{
-        \pgfpointorigin
-    }
-    \behindforegroundpath{
-        \pgf@circ@res@step=\ctikzvalof{monopoles/ground/width}\pgf@circ@Rlen
+\pgf@circ@declareground{sground}{0.6}{1.8}{
+    \pgfpathmoveto{\pgfpointorigin}
+    \pgfpathlineto{\pgfpoint{0pt}{-\pgf@circ@res@step}}
+    \pgfusepath{draw}
 
-        \pgfscope
-            \pgfpathmoveto{\pgfpointorigin}
-            \pgfpathlineto{\pgfpoint{0pt}{-\pgf@circ@res@step}}
-            \pgfusepath{draw}
+    \pgfstartlinewidth=\pgflinewidth
+    \pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}\pgfstartlinewidth}
 
-            \pgfstartlinewidth=\pgflinewidth
-            \pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}\pgfstartlinewidth}
-
-            \pgfpathmoveto{\pgfpoint{-\pgf@circ@res@step}{-\pgf@circ@res@step}}
-            \pgfpathlineto{\pgfpoint{\pgf@circ@res@step}{-\pgf@circ@res@step}}
-            \pgfpathlineto{\pgfpoint{0}{-1.8\pgf@circ@res@step}}
-            \pgfpathclose
-            \pgf@circ@draworfill
-
-            \pgfsetlinewidth{\pgfstartlinewidth}
-
-        \endpgfscope
-    }
-
+    \pgfpathmoveto{\pgfpoint{-.6\pgf@circ@res@step}{-\pgf@circ@res@step}}
+    \pgfpathlineto{\pgfpoint{.6\pgf@circ@res@step}{-\pgf@circ@res@step}}
+    \pgfpathlineto{\pgfpoint{0}{-1.8\pgf@circ@res@step}}
+    \pgfpathclose
+    \pgf@circ@draworfill
 }
 
 % noiseless ground
-\pgfdeclareshape{nground}{
-    \anchor{center}{
-        \pgfpointorigin
-    }
-    \behindforegroundpath{
-        \pgf@circ@res@step=\ctikzvalof{monopoles/ground/width}\pgf@circ@Rlen
-        \pgfscope
-            \pgfstartlinewidth=\pgflinewidth
-            \pgfsetlinewidth{\ctikzvalof{monopoles/ground/connectionthickness}\pgfstartlinewidth}
-            \pgfpathmoveto{\pgfpointorigin}
-            \pgfpathlineto{\pgfpoint{0pt}{-1.2\pgf@circ@res@step}}
-            \pgfusepath{draw}
-            \pgfsetlinewidth{\ctikzvalof{monopoles/ground/thickness}\pgfstartlinewidth}
-            \pgfpathmoveto{\pgfpoint{-.6\pgf@circ@res@step}{-1.2\pgf@circ@res@step}}
-            \pgfpathlineto{\pgfpoint{.6\pgf@circ@res@step}{-1.2\pgf@circ@res@step}}
-            \pgfpathmoveto{\pgfpoint{-.4\pgf@circ@res@step}{-1.4\pgf@circ@res@step}}
-            \pgfpathlineto{\pgfpoint{.4\pgf@circ@res@step}{-1.4\pgf@circ@res@step}}
-            \pgfpathmoveto{\pgfpoint{-.25\pgf@circ@res@step}{-1.6\pgf@circ@res@step}}
-            \pgfpathlineto{\pgfpoint{.25\pgf@circ@res@step}{-1.6\pgf@circ@res@step}}
-            \pgfusepath{draw}
-            \pgfpathmoveto{\pgfpoint{0.9\pgf@circ@res@step}{-1.6\pgf@circ@res@step}}
-            \pgfpatharc{0}{180}{0.9\pgf@circ@res@step}
-            \pgfusepath{draw}
-            \pgfsetlinewidth{\pgfstartlinewidth}
-        \endpgfscope
-    }
+\pgf@circ@declareground{nground}{0.9}{1.6}{
+    \pgfsetlinewidth{\ctikzvalof{monopoles/ground/connectionthickness}\pgfstartlinewidth}
+    \pgfpathmoveto{\pgfpointorigin}
+    \pgfpathlineto{\pgfpoint{0pt}{-1.2\pgf@circ@res@step}}
+    \pgfusepath{draw}
+    \pgfsetlinewidth{\ctikzvalof{monopoles/ground/thickness}\pgfstartlinewidth}
+    \pgfpathmoveto{\pgfpoint{-.6\pgf@circ@res@step}{-1.2\pgf@circ@res@step}}
+    \pgfpathlineto{\pgfpoint{.6\pgf@circ@res@step}{-1.2\pgf@circ@res@step}}
+    \pgfpathmoveto{\pgfpoint{-.4\pgf@circ@res@step}{-1.4\pgf@circ@res@step}}
+    \pgfpathlineto{\pgfpoint{.4\pgf@circ@res@step}{-1.4\pgf@circ@res@step}}
+    \pgfpathmoveto{\pgfpoint{-.25\pgf@circ@res@step}{-1.6\pgf@circ@res@step}}
+    \pgfpathlineto{\pgfpoint{.25\pgf@circ@res@step}{-1.6\pgf@circ@res@step}}
+    \pgfusepath{draw}
+    \pgfpathmoveto{\pgfpoint{0.9\pgf@circ@res@step}{-1.6\pgf@circ@res@step}}
+    \pgfpatharc{0}{180}{0.9\pgf@circ@res@step}
+    \pgfusepath{draw}
 }
 
 % protective ground
-\pgfdeclareshape{pground}{
-    \anchor{center}{
-        \pgfpointorigin
-    }
-    \behindforegroundpath{
-        \pgf@circ@res@step=\ctikzvalof{monopoles/ground/width}\pgf@circ@Rlen
-        \pgfscope
-            \pgfstartlinewidth=\pgflinewidth
-            \pgfsetlinewidth{\ctikzvalof{monopoles/ground/connectionthickness}\pgfstartlinewidth}
-            \pgfpathmoveto{\pgfpointorigin}
-            \pgfpathlineto{\pgfpoint{0pt}{-1\pgf@circ@res@step}}
-            \pgfusepath{draw}
-            \pgfsetlinewidth{\ctikzvalof{monopoles/ground/thickness}\pgfstartlinewidth}
-            \pgfpathmoveto{\pgfpoint{-.6\pgf@circ@res@step}{-1\pgf@circ@res@step}}
-            \pgfpathlineto{\pgfpoint{.6\pgf@circ@res@step}{-1\pgf@circ@res@step}}
-            \pgfpathmoveto{\pgfpoint{-.4\pgf@circ@res@step}{-1.2\pgf@circ@res@step}}
-            \pgfpathlineto{\pgfpoint{.4\pgf@circ@res@step}{-1.2\pgf@circ@res@step}}
-            \pgfpathmoveto{\pgfpoint{-.25\pgf@circ@res@step}{-1.4\pgf@circ@res@step}}
-            \pgfpathlineto{\pgfpoint{.25\pgf@circ@res@step}{-1.4\pgf@circ@res@step}}
-            \pgfusepath{draw}
-            \pgfpathcircle{\pgfpoint{0pt}{-0.75\pgf@circ@res@step}}{0.9\pgf@circ@res@step}
-            \pgfusepath{draw}
-            \pgfsetlinewidth{\pgfstartlinewidth}
-        \endpgfscope
-    }
+\pgf@circ@declareground{pground}{0.9}{1.8}{
+    \pgfsetlinewidth{\ctikzvalof{monopoles/ground/connectionthickness}\pgfstartlinewidth}
+    \pgfpathmoveto{\pgfpointorigin}
+    \pgfpathlineto{\pgfpoint{0pt}{-1\pgf@circ@res@step}}
+    \pgfusepath{draw}
+    \pgfsetlinewidth{\ctikzvalof{monopoles/ground/thickness}\pgfstartlinewidth}
+    \pgfpathmoveto{\pgfpoint{-.6\pgf@circ@res@step}{-1\pgf@circ@res@step}}
+    \pgfpathlineto{\pgfpoint{.6\pgf@circ@res@step}{-1\pgf@circ@res@step}}
+    \pgfpathmoveto{\pgfpoint{-.4\pgf@circ@res@step}{-1.2\pgf@circ@res@step}}
+    \pgfpathlineto{\pgfpoint{.4\pgf@circ@res@step}{-1.2\pgf@circ@res@step}}
+    \pgfpathmoveto{\pgfpoint{-.25\pgf@circ@res@step}{-1.4\pgf@circ@res@step}}
+    \pgfpathlineto{\pgfpoint{.25\pgf@circ@res@step}{-1.4\pgf@circ@res@step}}
+    \pgfusepath{draw}
+    \pgfpathcircle{\pgfpoint{0pt}{-0.9\pgf@circ@res@step}}{0.9\pgf@circ@res@step}
+    \pgfusepath{draw}
 }
 
 % chassis ground
-\pgfdeclareshape{cground}{
-    \anchor{center}{
-        \pgfpointorigin
-    }
-    \behindforegroundpath{
-        \pgf@circ@res@step=\ctikzvalof{monopoles/chassis/width}\pgf@circ@Rlen
-        \pgfscope
-            \pgfstartlinewidth=\pgflinewidth
-            \pgfsetlinewidth{\ctikzvalof{monopoles/ground/connectionthickness}\pgfstartlinewidth}
-            \pgfpathmoveto{\pgfpointorigin}
-            \pgfpathlineto{\pgfpoint{0pt}{-1.5\pgf@circ@res@step}}
-            \pgfusepath{draw}
-            \pgfsetlinewidth{\ctikzvalof{monopoles/ground/thickness}\pgfstartlinewidth}
-            \pgfpathmoveto{\pgfpoint{-1.00\pgf@circ@res@step}{-2.10\pgf@circ@res@step}}
-            \pgfpathlineto{\pgfpoint{-0.75\pgf@circ@res@step}{-1.50\pgf@circ@res@step}}
-            \pgfpathlineto{\pgfpoint{ 0.75\pgf@circ@res@step}{-1.50\pgf@circ@res@step}}
-            \pgfpathlineto{\pgfpoint{ 0.50\pgf@circ@res@step}{-2.10\pgf@circ@res@step}}
-            \pgfpathmoveto{\pgfpoint{ 0.00\pgf@circ@res@step}{-1.50\pgf@circ@res@step}}
-            \pgfpathlineto{\pgfpoint{-0.25\pgf@circ@res@step}{-2.10\pgf@circ@res@step}}
-            \pgfusepath{draw}
-            \pgfsetlinewidth{\pgfstartlinewidth}
-        \endpgfscope
-    }
+\pgf@circ@declareground{cground}{1}{2}{
+    \pgfsetlinewidth{\ctikzvalof{monopoles/ground/connectionthickness}\pgfstartlinewidth}
+    \pgfpathmoveto{\pgfpointorigin}
+    \pgfpathlineto{\pgfpoint{0pt}{-1.5\pgf@circ@res@step}}
+    \pgfusepath{draw}
+    \pgfsetlinewidth{\ctikzvalof{monopoles/ground/thickness}\pgfstartlinewidth}
+    \pgfpathmoveto{\pgfpoint{-1.00\pgf@circ@res@step}{-2.10\pgf@circ@res@step}}
+    \pgfpathlineto{\pgfpoint{-0.75\pgf@circ@res@step}{-1.50\pgf@circ@res@step}}
+    \pgfpathlineto{\pgfpoint{ 0.75\pgf@circ@res@step}{-1.50\pgf@circ@res@step}}
+    \pgfpathlineto{\pgfpoint{ 0.50\pgf@circ@res@step}{-2.10\pgf@circ@res@step}}
+    \pgfpathmoveto{\pgfpoint{ 0.00\pgf@circ@res@step}{-1.50\pgf@circ@res@step}}
+    \pgfpathlineto{\pgfpoint{-0.25\pgf@circ@res@step}{-2.10\pgf@circ@res@step}}
+    \pgfusepath{draw}
+}
+
+% Contributed by @fotesan https://github.com/fotesan
+
+\pgf@circ@declareground{eground}{1.1}{1.7}{
+    \pgfpathmoveto{\pgfpointorigin}
+    \pgfpathlineto{\pgfpoint{0pt}{-\pgf@circ@res@step}}
+    \pgfusepath{draw}
+
+    \pgfstartlinewidth=\pgflinewidth
+    \pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/monopoles/tground/thickness}\pgfstartlinewidth}
+
+    \pgfpathmoveto{\pgfpoint{-1\pgf@circ@res@step}{-\pgf@circ@res@step}}
+    \pgfpathlineto{\pgfpoint{1\pgf@circ@res@step}{-\pgf@circ@res@step}}
+    \pgfusepath{draw}
+
+    \pgfsetlinewidth{\pgfstartlinewidth}
+    \pgfpathmoveto{\pgfpoint{-1.1\pgf@circ@res@step}{-1.7\pgf@circ@res@step}}
+    \pgfpathlineto{\pgfpoint{-.6\pgf@circ@res@step}{-1\pgf@circ@res@step}}
+    \pgfpathmoveto{\pgfpoint{-.6\pgf@circ@res@step}{-1.7\pgf@circ@res@step}}
+    \pgfpathlineto{\pgfpoint{-.1\pgf@circ@res@step}{-1\pgf@circ@res@step}}
+    \pgfpathmoveto{\pgfpoint{-.1\pgf@circ@res@step}{-1.7\pgf@circ@res@step}}
+    \pgfpathlineto{\pgfpoint{.4\pgf@circ@res@step}{-1\pgf@circ@res@step}}
+    \pgfpathmoveto{\pgfpoint{.4\pgf@circ@res@step}{-1.7\pgf@circ@res@step}}
+    \pgfpathlineto{\pgfpoint{.9\pgf@circ@res@step}{-1\pgf@circ@res@step}}
+    \pgfusepath{draw}
+}
+
+\pgf@circ@declareground{eground2}{1.1}{1.7}{
+    \pgfpathmoveto{\pgfpointorigin}
+    \pgfpathlineto{\pgfpoint{0pt}{-\pgf@circ@res@step}}
+    \pgfusepath{draw}
+
+    \pgfstartlinewidth=\pgflinewidth
+    \pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/monopoles/tground/thickness}\pgfstartlinewidth}
+
+    \pgfpathmoveto{\pgfpoint{-1\pgf@circ@res@step}{-\pgf@circ@res@step}}
+    \pgfpathlineto{\pgfpoint{1\pgf@circ@res@step}{-\pgf@circ@res@step}}
+    \pgfusepath{draw}
+
+    \pgfsetlinewidth{\pgfstartlinewidth}
+    \pgfpathmoveto{\pgfpoint{-1.1\pgf@circ@res@step}{-1.7\pgf@circ@res@step}}
+    \pgfpathlineto{\pgfpoint{-.4\pgf@circ@res@step}{-1\pgf@circ@res@step}}
+    \pgfpathmoveto{\pgfpoint{-.45\pgf@circ@res@step}{-1.7\pgf@circ@res@step}}
+    \pgfpathlineto{\pgfpoint{.25\pgf@circ@res@step}{-1\pgf@circ@res@step}}
+    \pgfpathmoveto{\pgfpoint{.2\pgf@circ@res@step}{-1.7\pgf@circ@res@step}}
+    \pgfpathlineto{\pgfpoint{.9\pgf@circ@res@step}{-1\pgf@circ@res@step}}
+    \pgfusepath{draw}
 }
 
 % Contributed by Leonardo Azzinnari
