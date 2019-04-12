@@ -9,7 +9,7 @@
 
 \NeedsTeXFormat{LaTeX2e}
 
-\def\pgfcircversion{git:10aa7de}
+\def\pgfcircversion{git:a9f8acc}
 \def\pgfcircversiondate{2019/04/12}
 
 \ProvidesPackage{circuitikzgit}
@@ -502,6 +502,13 @@
 \ctikzset{monopoles/bareantenna/label/xanchor/.initial=1}
 \ctikzset{monopoles/bareantenna/label/yanchor/.initial=0.5}
 \ctikzset{monopoles/waves/width/.initial=0.5}
+% microstrips
+\ctikzset{bipoles/mstline/height/.initial=0.3}
+\ctikzset{bipoles/mstline/width/.initial=1.2}
+\pgfkeys{/tikz/mstlinelen/.add code={}{\ctikzset{bipoles/mstline/width=#1}}}
+\ctikzset{monopoles/msport/width/.initial=.5}
+\ctikzset{monopoles/msrstub/height/.initial=1.0}
+\ctikzset{monopoles/msrstub/width/.initial=0.6}
 
 % microphone and loudspeaker
 \ctikzset{bipoles/loudspeaker/height/.initial=.8}
@@ -2487,6 +2494,157 @@
     }
 }
 
+% Microstrip monopoles
+
+\pgfdeclareshape{mslstub}{
+    \savedanchor{\southeast}{
+        \pgf@x=\ctikzvalof{bipoles/mstline/width}\pgf@circ@Rlen
+        \pgf@x=.5\pgf@x
+        \pgf@y=\ctikzvalof{bipoles/mstline/height}\pgf@circ@Rlen
+        \pgf@y=-.5\pgf@y
+    }
+    \savedanchor{\northwest}{
+        \pgf@x=\ctikzvalof{bipoles/mstline/width}\pgf@circ@Rlen
+        \pgf@x=-.5\pgf@x
+        \pgf@y=\ctikzvalof{bipoles/mstline/height}\pgf@circ@Rlen
+        \pgf@y=.5\pgf@y
+    }
+    \anchor{north}{\northwest\pgf@x=0pt\relax}
+    \anchor{north east}{\northwest\pgf@x=-\pgf@x}
+    \anchor{east}{\southeast\pgf@y=0pt\relax}
+    \anchor{south east}{\southeast}
+    \anchor{south}{\southeast\pgf@x=0pt\relax}
+    \anchor{south west}{\southeast\pgf@x=-\pgf@x}
+    \anchor{west}{\northwest\pgf@y=0pt\relax}
+    \anchor{north west}{\northwest}
+    %
+    \anchor{center}{\northwest\pgf@y=0pt\relax}
+    \anchor{left}{\northwest\pgf@y=0pt\relax}
+    \anchor{right}{\southeast\pgf@y=0pt\relax}
+    % put the node text above and centered
+    \anchor{text}{\pgfextracty{\pgf@circ@res@up}{\northwest}
+        \pgfpoint{-.5\wd\pgfnodeparttextbox}{
+            \dimexpr.5\dp\pgfnodeparttextbox+.5\ht\pgfnodeparttextbox+\pgf@circ@res@up\relax
+        }
+    }
+    \behindbackgroundpath{
+        \pgfextracty{\pgf@circ@res@up}{\northwest}
+        \pgfextractx{\pgf@circ@res@right}{\southeast}
+        \pgfextractx{\pgf@circ@res@left}{\northwest}
+        \pgfextracty{\pgf@circ@res@down}{\southeast}
+        \pgfmathsetlength{\pgf@circ@res@step}{0.25*\pgf@circ@res@up}
+        \pgfstartlinewidth=\pgflinewidth
+        \pgfscope
+            \pgfsetlinewidth{\ctikzvalof{bipoles/thickness}\pgfstartlinewidth}
+            \pgfpathrectanglecorners{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@up}}{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@down}}
+            \pgf@circ@draworfill
+        \endpgfscope
+    }
+}
+
+\pgfdeclareshape{msrstub}{
+    \savedanchor{\southeast}{
+        \pgf@x=\ctikzvalof{monopoles/msrstub/width}\pgf@circ@Rlen
+        \pgf@x=.5\pgf@x
+        \pgf@y=0pt\relax
+    }
+    \savedanchor{\northwest}{
+        \pgf@x=\ctikzvalof{monopoles/msrstub/width}\pgf@circ@Rlen
+        \pgf@x=-.5\pgf@x
+        \pgf@y=\ctikzvalof{monopoles/msrstub/height}\pgf@circ@Rlen
+        \pgf@y=.5\pgf@y
+    }
+    \anchor{north}{\northwest\pgf@x=0pt\relax}
+    \anchor{north east}{\northwest\pgf@x=-\pgf@x}
+    \anchor{east}{\southeast\pgf@y=0pt\relax}
+    \anchor{south east}{\southeast}
+    \anchor{south}{\southeast\pgf@x=0pt\relax}
+    \anchor{south west}{\southeast\pgf@x=-\pgf@x}
+    \anchor{west}{\northwest\pgf@y=0pt\relax}
+    \anchor{north west}{\northwest}
+    %
+    \anchor{center}{\pgfpointorigin}
+    \anchor{left}{\pgfpointorigin}
+    \anchor{right}{\pgfpointorigin}
+    % put the node text above and centered
+    \anchor{text}{\pgfextracty{\pgf@circ@res@up}{\northwest}
+        \pgfpoint{-.5\wd\pgfnodeparttextbox}{
+            \dimexpr.5\dp\pgfnodeparttextbox+.5\ht\pgfnodeparttextbox+\pgf@circ@res@up\relax
+        }
+    }
+    \behindbackgroundpath{
+        \pgfextracty{\pgf@circ@res@up}{\northwest}
+        \pgfextractx{\pgf@circ@res@right}{\southeast}
+        \pgfextractx{\pgf@circ@res@left}{\northwest}
+        \pgfextracty{\pgf@circ@res@down}{\southeast}
+        \pgfmathsetlength{\pgf@circ@res@step}{0.25*\pgf@circ@res@up}
+        \pgfstartlinewidth=\pgflinewidth
+        \pgfscope
+            \pgfpathmoveto{\pgfpointorigin}
+            \pgfpathlineto{\pgfpoint{0pt}{\pgf@circ@res@step}}
+            \pgfusepath{draw}
+            \pgfsetlinewidth{\ctikzvalof{bipoles/thickness}\pgfstartlinewidth}
+            \pgfpathmoveto{\pgfpointpolar{135}{\pgf@circ@res@step}}
+            \pgfpatharc{135}{45}{\pgf@circ@res@step}
+            \pgfpathlineto{\pgfpointpolar{45}{\pgf@circ@res@up}}
+            \pgfpatharc{45}{135}{\pgf@circ@res@up}
+            \pgfclosepath
+            % \pgfpathrectanglecorners{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@up}}{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@down}}
+            \pgf@circ@draworfill
+        \endpgfscope
+    }
+}
+
+\pgfdeclareshape{msport}{
+    \savedanchor{\southeast}{
+        \pgf@x=\ctikzvalof{monopoles/msport/width}\pgf@circ@Rlen
+        \pgf@x=.5\pgf@x
+        \pgf@y=\ctikzvalof{bipoles/mstline/height}\pgf@circ@Rlen
+        \pgf@y=-.5\pgf@y
+    }
+    \savedanchor{\northwest}{
+        \pgf@x=\ctikzvalof{monopoles/msport/width}\pgf@circ@Rlen
+        \pgf@x=-.5\pgf@x
+        \pgf@y=\ctikzvalof{bipoles/mstline/height}\pgf@circ@Rlen
+        \pgf@y=.5\pgf@y
+    }
+    \anchor{north}{\northwest\pgf@x=0pt\relax}
+    \anchor{north east}{\northwest\pgf@x=-\pgf@x}
+    \anchor{east}{\southeast\pgf@y=0pt\relax}
+    \anchor{south east}{\southeast}
+    \anchor{south}{\southeast\pgf@x=0pt\relax}
+    \anchor{south west}{\southeast\pgf@x=-\pgf@x}
+    \anchor{west}{\northwest\pgf@y=0pt\relax}
+    \anchor{north west}{\northwest}
+    %
+    \anchor{center}{\northwest\pgf@y=0pt\relax}
+    \anchor{left}{\northwest\pgf@y=0pt\relax}
+    \anchor{right}{\southeast\pgf@y=0pt\relax}
+    % put the node text above and centered
+    \anchor{text}{\pgfextracty{\pgf@circ@res@up}{\northwest}
+        \pgfpoint{-.5\wd\pgfnodeparttextbox}{
+            \dimexpr-.5\dp\pgfnodeparttextbox-.5\ht\pgfnodeparttextbox\relax
+        }
+    }
+    \behindbackgroundpath{
+        \pgfextracty{\pgf@circ@res@up}{\northwest}
+        \pgfextractx{\pgf@circ@res@right}{\southeast}
+        \pgfextractx{\pgf@circ@res@left}{\northwest}
+        \pgfextracty{\pgf@circ@res@down}{\southeast}
+        \pgfmathsetlength{\pgf@circ@res@step}{0.5*\pgf@circ@res@up}
+        \pgfstartlinewidth=\pgflinewidth
+        \pgfscope
+            \pgfsetlinewidth{\ctikzvalof{bipoles/thickness}\pgfstartlinewidth}
+            \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{0pt}}
+            \pgfpathlineto{\pgfpoint{\pgf@circ@res@left+\pgf@circ@res@step}{\pgf@circ@res@up}}
+            \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@up}}
+            \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@down}}
+            \pgfpathlineto{\pgfpoint{\pgf@circ@res@left+\pgf@circ@res@step}{\pgf@circ@res@down}}
+            \pgfpathclose
+            \pgf@circ@draworfill
+        \endpgfscope
+    }
+}
 % Legacy antennas (with tails)
 
 \pgfdeclareshape{antenna}{
@@ -5624,6 +5782,19 @@
     \pgfusepath{stroke}
 }
 
+% microstrip transmission line
+
+\pgfcircdeclarebipole
+{}
+{\ctikzvalof{bipoles/mstline/height}}
+{mstline}
+{\ctikzvalof{bipoles/mstline/height}}
+{\ctikzvalof{bipoles/mstline/width}}
+{
+    \pgfpathrectanglecorners{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@up}}{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@down}}
+    \pgfsetlinewidth{\ctikzvalof{bipoles/thickness}\pgfstartlinewidth}
+    \pgf@circ@draworfill
+}
 %% SQUID added by Cor Molenaar 5 March 2010
 
 \pgfcircdeclarebipole
@@ -14254,6 +14425,7 @@
 \def\pgf@circ@emptytriac@path#1{\pgf@circ@bipole@path{emptytriac}{#1}}
 \def\pgf@circ@fulltriac@path#1{\pgf@circ@bipole@path{fulltriac}{#1}}
 \def\pgf@circ@tline@path#1{\pgf@circ@bipole@path{tline}{#1}}
+\def\pgf@circ@mstline@path#1{\pgf@circ@bipole@path{mstline}{#1}}
 \def\pgf@circ@squid@path#1{\pgf@circ@bipole@path{squid}{#1}}
 \def\pgf@circ@barrier@path#1{\pgf@circ@bipole@path{barrier}{#1}}
 \def\pgf@circ@thermocouple@path#1{\pgf@circ@bipole@path{thermocouple}{#1}}
@@ -14340,6 +14512,7 @@
 \compattikzset{tline/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@tline@path, l=#1}}
 \compattikzset{transmission line/.style = {tline = #1}}
 \compattikzset{TL/.style = {tline = #1}}
+\compattikzset{mstline/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@mstline@path, l=#1}}
 \compattikzset{european voltage source/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@vsource@path, \circuitikzbasekey/bipole/is voltage=true, \circuitikzbasekey/bipole/is voltageoutsideofsymbol=true, v=#1}}
 \compattikzset{american voltage source/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@vsourceam@path, \circuitikzbasekey/bipole/is voltage=true, v=#1}}
 \compattikzset{european current source/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@isource@path, \circuitikzbasekey/bipole/is current=true, i=#1}}
