@@ -1677,6 +1677,11 @@ For the RF components, similarly to the grounds and supply rails, the \texttt{ce
     \circuitdesc*{bareantenna}{Bare Antenna}{A}( top/90/0.1, bottom/180/0.3, left/180/0.3, right/45/0.3, center/0/0.3 )
     \circuitdesc*{bareTXantenna}{Bare TX Antenna}{Tx}( top/90/0.1, center/180/0.3, waves/90/0.3 )
     \circuitdesc*{bareRXantenna}{Bare RX Antenna}{Rx}( top/90/0.1, center/0/0.3, waves/90/0.3 )
+    \circuitdescbip*{mstline}{Microstrip transmission line\footnotemark}{}(left/135/0.2, right/45/0.2, center/-90/0.3)
+    \circuitdesc*{mslstub}{Microstrip stub}{text}(left/135/0.2, right/45/0.2, center/-45/0.3)
+    \circuitdesc*{msport}{Microstrip port}{T}(left/135/0.2, right/45/0.2, center/-45/0.3)
+    \circuitdesc*{msrstub}{Microstrip radial stub}{}(left/135/0.2, right/45/0.2, center/-45/0.3)
+    \footnotetext{This four components were suggested by \texttt{@tcpluess} on GitHub}
     \circuitdesc{antenna}{Antenna}{}( center/0/0.3 )
     \circuitdesc{rxantenna}{Receiving antenna}{}
     \circuitdesc{txantenna}{Transmitting antenna}{}
@@ -1685,6 +1690,24 @@ For the RF components, similarly to the grounds and supply rails, the \texttt{ce
     \circuitdesc{match}{match}{}
 \end{groupdesc}
 
+
+\subsubsection{Microstrip customization}
+
+The microstrip linear components (\texttt{mstline}, \texttt{mslstub}, \texttt{msport}) height depend from the parameters \texttt{bipoles/mstline/height} (for the three or them, default 0.3). The width are specified in \texttt{bipoles/mstline/width} for the first two and by \texttt{monopoles/msport/width} for the port (defaults: 1.2, 0.5).
+
+For the length parameter of the transmission line there is a shortcut in the form of the direct parameter \texttt{mstlinelen}.
+
+\begin{LTXexample}[varwidth=true, pos=t]
+\begin{circuitikz}
+    \draw (0,0) node[msport, right, xscale=-1]{}
+    to[mstline, -o]  ++(3,0) coordinate(there)
+    to[mstline, mstlinelen=2, l=longer, o-*]  ++(4,0)
+        coordinate(here) -- ++(0.5,0) node[mslstub, fill=yellow]{stub}
+        (here) -- ++(0,0.5) node[mslstub, rotate=90, mstlinelen=0.5]{short};
+        \draw (there) to[short, o-]  ++(0, 0.5) node[msrstub]{};
+        \draw (here) -- ++(0, -0.5) node[msrstub, yscale=-1]{};
+\end{circuitikz}
+\end{LTXexample}
 
 
 \subsection{Electro-Mechanical Devices}
