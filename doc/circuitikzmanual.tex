@@ -1140,12 +1140,14 @@ Notice that if you choose the dashed style, the noise sources are fillable:
 \begin{groupdesc}
     \circuitdescbip*{damper}{Mechanical Damping}{}
     \circuitdescbip{spring}{Mechanical Stiffness}{}
+    \circuitdescbip*{viscoe}{Mechanical viscoelastic element\footnotemark}{}(left/135/0.2, right/45/0.2, center/-90/0.3)
+    \footnotetext{Suggested by @Alex in \url{https://tex.stackexchange.com/q/484268/38080}}
     \circuitdescbip*{mass}{Mechanical Mass}{}
 \end{groupdesc}
 
 \subsection{Other bipoles}
 
-Here you'll find bipoles that are not easily grouped in the categories above. 
+Here you'll find bipoles that are not easily grouped in the categories above.
 
 \begin{groupdesc}
     \circuitdescbip{squid}{Squid}{}
@@ -3434,7 +3436,214 @@ Just substitute every occurrence of the environment \verb!circuitikz! with \verb
 Use \verb|\def{\eq}{=}|  \verb!to[R = $R_1\eq 12V$]! and  \verb!to[ospst = open{,} 3s]! instead; see caveat in section~\ref{sec:labels-and-annotations}.
 
 
+\section{Defining new components}
+
+\begin{quote}
+    Per me si va ne la città dolente,\\
+    per me si va ne l'etterno dolore,\\
+    per me si va tra la perduta gente.\\
+    \dots\\
+    Lasciate ogne speranza, voi ch'intrate.%
+    \footnote{\url{https://classicsincontext.wordpress.com/2010/02/28/canto-iii-per-me-si-va-ne-la-citta-dolente/}}
+\end{quote}
+
+
+\textbf{Big fat warning}: this material is reserved to \TeX-hackers; do not delve into this if you have no familiarity with (at least) a bit of core \TeX{} programming and to the basic \TikZ{} layer. You have been warned.
+
+
+\subsection{Suggested setup}
+
+The suggested way to start working on a new component is to use the utilities of the \Circuitikz{} manual for checking and testing your device. Basically, find (or download) the source code of the last version of \Circuitikz{} and find the file \texttt{ctikzmanutils.sty}; copy it in your directory and prepare a file like this:
+
+\begin{lstlisting}
+\documentclass[a4paper, titlepage]{article}
+\usepackage{a4wide}	%smaller borders
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\parindent=0pt
+\parskip=4pt plus 6pt minus 2pt
+\usepackage[siunitx, RPvoltages]{circuitikz}
+\usepackage{ctikzmanutils}
+\makeatletter
+%%  Test things here
+% defines
+
+% components
+
+% paths
+\makeatother
+
+\begin{document}
+
+\circuitdescbip*{damper}{Mechanical damping\footnotemark}{}(left/135/0.2, right/45/0.2, center/-90/0.3)
+
+\geolrcoord{dampershape, fill=yellow}
+
+\begin{LTXexample}[varwidth]
+\begin{circuitikz}
+    \draw (0,0) to[R] ++(2,0)
+    to[damper] ++(2,0);
+\end{circuitikz}
+\end{LTXexample}
+\end{document}
+\end{lstlisting}
+
+This will compile in something like this (in this case, we are using a couple of existing components to check everything is ok):
+
+\circuitdescbip*{damper}{Mechanical damping\footnotemark}{}(left/135/0.2, right/45/0.2, center/-90/0.3)
+
+\geolrcoord{dampershape, fill=yellow}
+
+\begin{LTXexample}[varwidth]
+\begin{circuitikz}
+    \draw (0,0) to[R] ++(2,0)
+    to[damper] ++(2,0);
+\end{circuitikz}
+\end{LTXexample}
+
+The command \verb|circuitdescbip*| is used to show the component description (you can check the definition and the usage looking at \texttt{ctikzmanutils.sty} file, and the \verb|\geolrcoord| is used to show the main anchors (geographical plus \texttt{left} and \texttt{right}) of the component.
+
+From now on, you can add the new commands for the component between the \verb|\makeatletter| and \verb|\makeatother| commands and, modifying the example, check the results.
+
+\subsection{Path-style component}
+
+Let's define for example a path style component, like the one suggested by the user \texttt{@alex} on \href{https://tex.stackexchange.com/questions/484268/combined-spring-damper-in-circuitikz}{tex.stackexchange.com}. The component will be a mix of the \texttt{damper} and the \texttt{spring} components already present.
+
+The first step is to check if we can use the definition already existing for similar elements (for coherence of size) or if we need to define new ones; for this you have to check the file \texttt{pgfcirc.defines.tex}: we find
+
+\begin{lstlisting}
+    \ctikzset{bipoles/spring/height/.initial=.5}
+    \ctikzset{bipoles/spring/width/.initial=.5}
+    \ctikzset{bipoles/damper/height/.initial=.35}
+    \ctikzset{bipoles/damper/length/.initial=.3}
+    \ctikzset{bipoles/damper/width/.initial=.4}
+\end{lstlisting}
+
+We will use them; at this stage you can decide to add other parameters if you need them. (Notice, however, than although flexibility is good, these parameters should be described in the manual, otherwise they're as good as a fixed number in the code).
+
+
+To define the new component we will look into \texttt{pgfcircbipoles.tex} and we will copy, for example, the definition of the damper into our code, just changing the name:
+
+\begin{lstlisting}
+%% mechanical resistor - damper
+\pgfcircdeclarebipole
+{}                                   % extra anchors
+{\ctikzvalof{bipoles/damper/height}} % depth (under the path line)
+{viscoe}                             % name
+{\ctikzvalof{bipoles/damper/height}} % height (above the path line)
+{\ctikzvalof{bipoles/damper/width}}  % width
+{ % draw the bipole
+    \pgfpathrectanglecorners{\pgfpoint{\ctikzvalof{bipoles/damper/length}\pgf@circ@res@right}{\pgf@circ@res@down}}{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@up}}
+    \pgf@circ@maybefill
+
+    % line into the damper
+    \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@zero}}
+    \pgfpathlineto{\pgfpoint{\ctikzvalof{bipoles/damper/length}\pgf@circ@res@right}
+        {\pgf@circ@res@zero}}
+    \pgfusepath{stroke}
+
+    % damper box
+    \pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}\pgfstartlinewidth}
+    \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@down}}
+    \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@down}}
+    \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@up}}
+    \pgfpathlineto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@up}}
+
+    \pgfsetrectcap
+    \pgfsetmiterjoin
+    \pgfusepath{stroke}
+
+    % damper vertical element
+    \pgfpathmoveto{\pgfpoint{\ctikzvalof{bipoles/damper/length}\pgf@circ@res@right}
+        {.8\pgf@circ@res@down}}
+    \pgfpathlineto{\pgfpoint{\ctikzvalof{bipoles/damper/length}\pgf@circ@res@right}
+        {.8\pgf@circ@res@up}}
+    \pgfsetbuttcap
+    \pgfusepath{stroke}
+}
+\end{lstlisting}
+
+This command will define a shape that is named \texttt{viscoeshape}, with all the correct geographical anchors based on the depth, height and width defined in the parameters of \verb|\pgfcircdeclarebipole|. This is not sufficient for using the element in a \texttt{to[]} path command; you need to ``activate'' it with (this commands are normally in \texttt{pgfcircpath.tex}):
+
+\begin{lstlisting}
+\def\pgf@circ@viscoe@path#1{\pgf@circ@bipole@path{viscoe}{#1}}
+\compattikzset{viscoe/.style = {\circuitikzbasekey,
+        /tikz/to path=\pgf@circ@dviscoe@path, l=#1}}
+\end{lstlisting}
+
+And now you can show it with:
+
+\begin{lstlisting}
+\circuitdescbip*{viscoe}{Mechanical viscoelastic element\footnotemark}{}(left/135/0.2, right/45/0.2, center/-90/0.3)
+
+\geolrcoord{viscoeshape, fill=yellow}
+
+\begin{LTXexample}[varwidth]
+\begin{circuitikz}
+    \draw (0,0) to[spring] ++(2,0)
+    to[viscoe] ++(2,0);
+\end{circuitikz}
+\end{LTXexample}
+\end{lstlisting}
+
+Obviously, at first you you just have a component that is the same as the one you copied with another name. It is now just a matter of modifying it so that it has the desired shape; in the example above you can already see the new symbol after the changes.
+
+When doing the drawing, the \verb|\pgfcircdeclarebipole| will setup the lengths \verb|\pgf@circ@res@right|
+and \verb|\pgf@circ@res@up| as the $x$-$y$ coordinates of the upper right corner, and
+\verb|\pgf@circ@res@left|  and \verb|\pgf@circ@res@down| as the $x$-$y$ coordinates of the lower left corner of your shape. The \texttt{center} coordinate is usually at $(0pt, 0pt)$.
+
+Looking at the implementation of the \texttt{spring} element, a possible implementation is changing the lines between  lines~12 and~16 with:
+
+\begin{lstlisting}
+    % spring into the damper
+    \pgfscope
+        \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@zero}}
+        \pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}\pgfstartlinewidth}
+        \pgfsetcornersarced{\pgfpoint{.25\pgf@circ@res@up}{.25\pgf@circ@res@up}}
+        \pgfpathlineto{\pgfpoint{.75\pgf@circ@res@left}{.75\pgf@circ@res@up}}
+        \pgfpathlineto{\pgfpoint{.5\pgf@circ@res@left}{-.75\pgf@circ@res@up}}
+        \pgfpathlineto{\pgfpoint{.25\pgf@circ@res@left}{.75\pgf@circ@res@up}}
+        \pgfpathlineto{\pgfpoint{0pt}{-.75\pgf@circ@res@up}}
+        \pgfpathlineto{\pgfpoint{\ctikzvalof{bipoles/damper/length}\pgf@circ@res@right}{.75\pgf@circ@res@up}}
+        \pgfusepath{stroke}
+    \endpgfscope
+\end{lstlisting}
+
+which leads to:
+
+\circuitdescbip*{viscoe}{Mechanical viscoelastic element\footnotemark}{}(left/135/0.2, right/45/0.2, center/-90/0.3)
+
+\geolrcoord{viscoeshape, fill=yellow}
+
+\begin{LTXexample}[varwidth]
+\begin{circuitikz}
+    \draw (0,0) to[spring] ++(2,0)
+    to[viscoe] ++(2,0);
+\end{circuitikz}
+\end{LTXexample}
+
+
+As a final note, notice that the \texttt{viscoe} element is already added to the standard package.
+
+\subsection{Node-style component}
+
+Adding a node-style component is much more straightforward. Just define it by following examples in, for example, \texttt{pgfcirctripoles.tex} or the other files; be careful that you should define all the geographical anchors of the shape if you want that the \TikZ{} positioning options (like \texttt{left}, \texttt{above}, etc.) behave correctly with your component.
+
+\subsubsection{Finishing your work}
+
+Once you have a satisfactory element, you should
+\begin{itemize}
+    \item Clean up your code;
+    \item write a piece of documentation explaining its use with example;
+    \item Propose the element for inclusion in the GitHub page of the project (you will have to license this as explained in that page, of course).
+\end{itemize}
+
+The best way of contributing is forking the project, adding your component in the correct files, modify the manual and creating a pull request for the developers to merge. Anyway, if this is a problem, just open an issue and someone (when they have time\dots) will answer.
+
+
+
 \section{Examples}
+
 \begin{LTXexample}[pos=t,varwidth=true]
 \begin{circuitikz}[scale=1.4]\draw
   (0,0) to[C, l=10<\micro\farad>] (0,2) -- (0,3)
