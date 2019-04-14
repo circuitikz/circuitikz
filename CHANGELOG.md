@@ -27,6 +27,8 @@ The major changes among the different circuitikz versions are listed here. See <
     - Added antennas with no wires, loudspeakers and microphone
     - Make the components fillable
     - Added the oscilloscope component
+    - Added viscoelastic element
+    - Added a manual section on how to define new components
   
 * Version 0.8.3 (2017-05-28) 
 	- Removed unwanted lines at to-paths if the starting point is a node without a explicit anchor.
