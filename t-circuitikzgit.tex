@@ -1,4 +1,4 @@
-\def\pgfcircversion{git:69d8564}
+\def\pgfcircversion{git:2e95431}
 \def\pgfcircversiondate{2019/04/14}
 \writestatus{loading}{\pgfcircversiondate{} The CircuiTikz circuit drawing package version \pgfcircversion}
 
@@ -7164,6 +7164,51 @@
     \pgfusepath{stroke}
 
 }
+%% mechanical viscoelastic element, suggested by @alex
+%% in https://tex.stackexchange.com/questions/484268/combined-spring-damper-in-circuitikz
+\pgfcircdeclarebipole
+{}                                   % extra anchors
+{\ctikzvalof{bipoles/damper/height}} % depth (under the path line)
+{viscoe}                             % name
+{\ctikzvalof{bipoles/damper/height}} % height (above the path line)
+{\ctikzvalof{bipoles/damper/width}}  % width
+{ % draw the bipole
+    \pgfpathrectanglecorners{\pgfpoint{\ctikzvalof{bipoles/damper/length}\pgf@circ@res@right}{\pgf@circ@res@down}}{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@up}}
+    \pgf@circ@maybefill
+
+    % spring into the damper
+    \pgfscope
+        \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@zero}}
+        \pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}\pgfstartlinewidth}
+        \pgfsetcornersarced{\pgfpoint{.25\pgf@circ@res@up}{.25\pgf@circ@res@up}}
+        \pgfpathlineto{\pgfpoint{.75\pgf@circ@res@left}{.75\pgf@circ@res@up}}
+        \pgfpathlineto{\pgfpoint{.5\pgf@circ@res@left}{-.75\pgf@circ@res@up}}
+        \pgfpathlineto{\pgfpoint{.25\pgf@circ@res@left}{.75\pgf@circ@res@up}}
+        \pgfpathlineto{\pgfpoint{0pt}{-.75\pgf@circ@res@up}}
+        \pgfpathlineto{\pgfpoint{\ctikzvalof{bipoles/damper/length}\pgf@circ@res@right}{.75\pgf@circ@res@up}}
+        \pgfusepath{stroke}
+    \endpgfscope
+    % damper box
+    \pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}\pgfstartlinewidth}
+    \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@down}}
+    \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@down}}
+    \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@up}}
+    \pgfpathlineto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@up}}
+
+    \pgfsetrectcap
+    \pgfsetmiterjoin
+    \pgfusepath{stroke}
+
+    % damper vertical element
+    \pgfpathmoveto{\pgfpoint{\ctikzvalof{bipoles/damper/length}\pgf@circ@res@right}
+        {.8\pgf@circ@res@down}}
+    \pgfpathlineto{\pgfpoint{\ctikzvalof{bipoles/damper/length}\pgf@circ@res@right}
+        {.8\pgf@circ@res@up}}
+    \pgfsetbuttcap
+    \pgfusepath{stroke}
+
+}
+
 
 \pgfcircdeclarebipole
 {% anchor for labelling the type of dependency
@@ -13858,6 +13903,7 @@
 \def\pgf@circ@spring@path#1{\pgf@circ@bipole@path{spring}{#1}}
 \def\pgf@circ@mass@path#1{\pgf@circ@bipole@path{mass}{#1}}
 \def\pgf@circ@damper@path#1{\pgf@circ@bipole@path{damper}{#1}}
+\def\pgf@circ@viscoe@path#1{\pgf@circ@bipole@path{viscoe}{#1}}
 
 %% Styles
 
@@ -13871,6 +13917,7 @@
 \compattikzset{spring/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@spring@path, l=#1}}
 \compattikzset{mass/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@mass@path, l=#1}}
 \compattikzset{damper/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@damper@path, l=#1}}
+\compattikzset{viscoe/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@viscoe@path, l=#1}}
 \compattikzset{resistor/.style= {\circuitikzbasekey, /tikz/to path=\pgf@circ@resistor@path, l=#1}}
 \compattikzset{american resistor/.style= {\circuitikzbasekey, /tikz/to path=\pgf@circ@bipole@path{resistor}{#1}, l=#1}}
 \compattikzset{european resistor/.style= {\circuitikzbasekey, /tikz/to path=\pgf@circ@bipole@path{generic}{#1}, l=#1}}
