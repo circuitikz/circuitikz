@@ -1,0 +1,123 @@
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{ctikzmanutils}[2019/04/14 utilities for formatting circuitikz manual]
+\RequirePackage{ifthen}
+\RequirePackage{xparse}
+\RequirePackage{showexpl}
+%
+% The following trick is used to silence showexpl a bit, so that the
+% logs are readable...
+%
+\makeatletter
+\let\SX@Info=\relax % silence showexpl a bit...
+\makeatother
+%
+\lstset{pos=l,width=-99pt, overhang=0pt,hsep=\columnsep,vsep=\bigskipamount,
+    rframe=single,numbers=left,numberstyle=\tiny,numbersep=.3em, xleftmargin=1em,
+    columns=flexible, language=[LaTeX]TEX,breaklines=true,
+    basicstyle=\normalsize\ttfamily,tabsize=3}
+
+%
+% draw the shape without affecting anything
+\newcommand{\drawphantomshape}[1] {%
+    {\tikz [overlay, color=blue] \path (0,0) node[#1]{};}
+}
+%% New circuit description macros
+\newcommand{\twopartbox}[2]{%
+    \leavevmode\null\par\noindent\fbox{\parbox[c]{0.3\linewidth}{#1} \parbox[c]{0.6\linewidth}{\raggedright #2}\par\noindent}%
+}
+% filling color for filled-enabled component
+\colorlet{fillcol}{cyan!30!white}
+% description of a node component:
+% optional star for fillable
+% optional: scale of the component in the entry
+% mandatory  shape name, description, node text:
+% optional between (): anchor specification list
+\NewDocumentCommand{\circuitdesc}{s O{1} m m m d()}
+{
+    \twopartbox{%
+        \begin{circuitikz}[]
+            \IfBooleanTF{#1}{%
+                \draw (0,0) node[#3,scale=#2, fill=fillcol](N){#5};
+                }{
+                \draw (0,0) node[#3,scale=#2](N){#5};
+            }
+            \IfValueT{#6}{%
+                \foreach \n/\a/\d in {#6} \path(N.\n) \showcoord(\n)<\a:\d>;
+            }
+        \end{circuitikz}%
+        }{\sloppy%
+        {#4, type: node\IfBooleanT{#1}{, fillable}%
+    } (\texttt{node[#3]\{#5\}}) \index{#3} }
+}
+% description of a path-style component:
+% optional: main name, if different from above
+% mandatory component name, description, comma separated alias
+% optional between (): anchor specification list
+\NewDocumentCommand{\circuitdescbip}{s o m m m d()}
+{
+\index{#3} \tikz\foreach \i in {#5} {\index{\i|see{#3}} };
+    \twopartbox{%
+        \begin{circuitikz}
+        \IfBooleanTF{#1}{%
+            \draw (0,0) to[#3, name=B, fill=fillcol] (2,0);
+            }{
+            \draw (0,0) to[#3, name=B] (2,0);
+        }
+        \IfValueT{#6}{%
+                \foreach \n/\a/\d in {#6} \path(B.\n) \showcoord(\n)<\a:\d>;
+            }
+        \end{circuitikz}%
+        }{\sloppy%
+        \texttt{\textbf{#3}}: #4, \texttt{type: path-style\IfBooleanT{#1}{, fillable}%
+            \IfValueTF{#2}{%
+                , nodename: #2shape.%\drawphantomshape{#2shape}%
+            }{
+                , nodename: #3shape.%\drawphantomshape{#3shape}%
+            }
+        }%
+        \ifthenelse{\equal{#5}{}}{}{%
+        Aliases: \texttt{#5}.}%
+    }
+}
+
+
+%new environment for grouping descriptions
+\newenvironment{groupdesc}{\medskip\begingroup}{\endgroup\par\medskip\par\noindent}
+
+% command to show anchors: (name)<angle>
+% usage in path: \path (anchor) \coord(anchor)<60>
+\makeatletter % we use the internal circuitikz base length
+\def\showcoord(#1)<#2:#3>{%
+    node[circle, red, draw, inner sep=1pt,pin={%
+        [red, inner sep=0.5pt, font=\small,
+        pin distance=#3\pgf@circ@Rlen, pin edge={red, }%
+    ]#2:#1}](#1){}}
+\makeatother
+% show anchors of a node component:
+% optional: options of the circuitikz environment
+% mandatory  node spec, node text
+% optional between (): anchor specification list
+\NewDocumentCommand{\showanchors}{O{} m m d()}
+{
+        \begin{circuitikz}[#1]
+                \draw (0,0) node[#2](N){#3};
+            \IfValueT{#4}{%
+                \foreach \n/\a/\d in {#4} \path(N.\n) \showcoord(\n)<\a:\d>;
+            }
+        \end{circuitikz}%
+}
+
+
+\def\geolrcoord#1{\showanchors{#1}{text}(north/90/0.4, north east/45/0.4, east/0/0.4,
+    south east/-45/0.4,
+    south/-90/0.4, south west/-135/0.4, west/180/0.4, north west/135/0.4,
+    left/160/0.4, right/30/0.4, center/-120/0.3
+    )
+}
+
+\def\geocoord#1{\showanchors{#1}{text}(north/90/0.4, north east/45/0.4, east/0/0.4,
+    south east/-45/0.4,
+    south/-90/0.4, south west/-135/0.4, west/180/0.4, north west/135/0.4,
+    center/-120/0.3
+    )
+}
