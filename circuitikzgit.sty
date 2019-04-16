@@ -9,8 +9,8 @@
 
 \NeedsTeXFormat{LaTeX2e}
 
-\def\pgfcircversion{git:2e95431}
-\def\pgfcircversiondate{2019/04/14}
+\def\pgfcircversion{git:6d7d9d7}
+\def\pgfcircversiondate{2019/04/16}
 
 \ProvidesPackage{circuitikzgit}
 [\pgfcircversiondate{} The CircuiTikz circuit drawing package version \pgfcircversion]
@@ -695,6 +695,13 @@
 \ctikzset{bipoles/ohmmeter/width/.initial=.60}
 \ctikzset{bipoles/voltmeter/height/.initial=.60}
 \ctikzset{bipoles/voltmeter/width/.initial=.60}
+\ctikzset{bipoles/smeter/height/.initial=.60}
+\ctikzset{bipoles/smeter/width/.initial=.60}
+\ctikzset{bipoles/qmeter/depth/.initial=.40}
+\ctikzset{bipoles/qmeter/height/.initial=.80}
+\ctikzset{bipoles/qmeter/width/.initial=.60}
+\ctikzset{bipoles/iloop/width/.initial=.40}
+\ctikzset{bipoles/iloop/height/.initial=.60}
 \ctikzset{bipoles/oscope/height/.initial=.60}
 \ctikzset{bipoles/oscope/width/.initial=.60}
 \ctikzset{bipoles/buffer/height/.initial=1}
@@ -1848,6 +1855,80 @@
             \pgfsetcolor{\pgfkeysvalueof{/tikz/circuitikz/color}}
             \pgfsetfillopacity{1.0}
             \pgfusepath{draw,fill}
+        \endpgfscope
+    }
+}
+
+% BNC connector
+
+\pgfdeclareshape{bnc}{
+    \anchor{center}{
+        \pgfpointorigin
+    }
+    % BNC size is 2.5 times the size of the internal "ocirc"
+    \savedanchor\northwest{%
+        \pgf@y=\pgfkeysvalueof{/tikz/circuitikz/nodes width}\pgf@circ@Rlen
+        \pgf@y=2.5\pgf@y
+        \pgf@x=-\pgf@y
+    }
+    % center is on the opening
+    \anchor{center}{ \northwest \pgf@y=0pt \pgf@x=-\pgf@x  }
+    \anchor{zero}{ \pgfpointorigin }
+    \anchor{hot}{ \northwest \pgf@y=0pt \pgf@x=-\pgf@x  }
+    \anchor{shield}{ \northwest \pgf@x=0pt \pgf@y=-\pgf@y }
+    % geo-anchors
+    \anchor{east}{ \northwest \pgf@y=0pt \pgf@x=-\pgf@x  }
+    \anchor{right}{ \northwest \pgf@y=0pt \pgf@x=-\pgf@x  }
+    \anchor{west}{ \northwest \pgf@y=0pt }
+    \anchor{left}{ \northwest \pgf@y=0pt }
+    \anchor{south}{ \northwest \pgf@x=0pt \pgf@y=-\pgf@y }
+    \anchor{north}{ \northwest \pgf@x=0pt }
+    \anchor{south west}{ \northwest \pgf@y=-\pgf@y }
+    \anchor{north east}{ \northwest \pgf@x=-\pgf@x }
+    \anchor{north west}{ \northwest }
+    \anchor{south east}{ \northwest \pgf@x=-\pgf@x \pgf@y=-\pgf@y }
+    % put the node text above and centered
+    \anchor{text}{\pgfextracty{\pgf@circ@res@up}{\northwest}
+        \pgfpoint{-.5\wd\pgfnodeparttextbox}{
+            \dimexpr.5\dp\pgfnodeparttextbox+.5\ht\pgfnodeparttextbox+\pgf@circ@res@up\relax
+        }
+    }
+    \anchorborder{
+        \pgf@circ@res@left=\pgf@x
+        \pgf@circ@res@up=\pgf@y
+        \pgfpointborderellipse{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@up}
+        }{\pgfpoint{2.5*\pgfkeysvalueof{/tikz/circuitikz/nodes width}*\pgf@circ@Rlen}{2.5*\pgfkeysvalueof{/tikz/circuitikz/nodes width}*\pgf@circ@Rlen}}
+    }
+    \behindforegroundpath{
+        \pgfextracty{\pgf@circ@res@other}{\northwest}
+        \pgf@circ@res@step=\pgfkeysvalueof{/tikz/circuitikz/nodes width}\pgf@circ@Rlen
+        \pgfscope
+            \pgfstartlinewidth=\pgflinewidth
+            \pgfsetlinewidth{\ctikzvalof{bipoles/thickness}\pgflinewidth}
+            \pgfsetcolor{\pgfkeysvalueof{/tikz/circuitikz/color}}
+            % external circle
+            \pgfscope
+                % clipping path: first a rectangle bigger then the shape
+                % to avoid problems with the line thickness
+                \pgfpathrectanglecorners{\pgfpoint{-2\pgf@circ@res@other}{-2\pgf@circ@res@other}}
+                    {\pgfpoint{2\pgf@circ@res@other}{2\pgf@circ@res@other}}
+                % next the opening to the right
+                \pgfpathrectanglecorners{\pgfpoint{-\pgf@circ@res@step}{-\pgf@circ@res@step}}
+                    {\pgfpoint{2\pgf@circ@res@other}{\pgf@circ@res@step}}
+                % do the difference and clip before drawing
+                \pgfseteorule
+                \pgfusepath{clip}
+                \pgfpathcircle{\pgfpointorigin}{\pgf@circ@res@other}
+                \pgfusepath{draw}
+            \endpgfscope
+            % internal circle
+            \pgfpathcircle{\pgfpointorigin}{\pgf@circ@res@step}
+            \pgf@circ@draworfill
+            % and the contact line to the right
+            \pgfsetlinewidth{\pgfstartlinewidth}
+            \pgfpathmoveto{\pgfpoint{\pgf@circ@res@step}{0pt}}
+            \pgfpathlineto{\pgfpoint{\pgf@circ@res@other}{0pt}}
+            \pgfusepath{draw}
         \endpgfscope
     }
 }
@@ -7634,6 +7715,368 @@
     \pgfusepath{draw}
 
     \pgfusepath{draw}
+    \endpgfscope
+}
+
+% generic round meter with always horizontal text, no arrow
+\pgfcircdeclarebipole
+{}
+{\ctikzvalof{bipoles/esource/height}}
+{rmeter}
+{\ctikzvalof{bipoles/esource/height}}
+{\ctikzvalof{bipoles/esource/width}}
+{
+    \pgfpointorigin
+    \pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}\pgfstartlinewidth}
+    \pgfpathellipse{\pgfpointorigin}{\pgfpoint{0}{\pgf@circ@res@up}}{\pgfpoint{\pgf@circ@res@left}{0}}
+    \pgf@circ@draworfill
+    % draw the text label
+    % get the rotation
+    \pgfgettransformentries\a\b\temp\temp\temp\temp
+    \pgfmathsetmacro{\rot}{-atan2(\b,\a)}
+    % and unrotate the scope
+    \pgfscope
+        \pgfsetcolor{\pgfkeysvalueof{/tikz/circuitikz/color}}
+        \pgftransformrotate{\rot}
+        \pgftext[center,x=0,y=0]{\ctikzvalof{bipoles/twoport/text}}
+    \endpgfscope
+}
+
+% generic round meter with always horizontal text, with arrow
+\pgfcircdeclarebipole
+{}
+{\ctikzvalof{bipoles/esource/height}}
+{rmeterwa}
+{\ctikzvalof{bipoles/esource/height}}
+{\ctikzvalof{bipoles/esource/width}}
+{
+    \pgfpointorigin
+    \pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}\pgfstartlinewidth}
+    \pgfpathellipse{\pgfpointorigin}{\pgfpoint{0}{\pgf@circ@res@up}}{\pgfpoint{\pgf@circ@res@left}{0}}
+    \pgf@circ@draworfill
+    % draw the text label
+    % get the rotation
+    \pgfgettransformentries\a\b\temp\temp\temp\temp
+    \pgfmathsetmacro{\rot}{-atan2(\b,\a)}
+    % and unrotate the scope
+    \pgfscope
+        \pgftransformrotate{\rot}
+        \pgfsetcolor{\pgfkeysvalueof{/tikz/circuitikz/color}}
+        \pgfsetlinewidth{\pgfstartlinewidth}
+        % arrow: create  a center hole to have better visual
+        \pgfscope
+            % clipping path: first a rectangle bigger then the shape
+            % to avoid problems with the line thickness
+            \pgfpathrectanglecorners{\pgfpoint{2\pgf@circ@res@left}{2\pgf@circ@res@down}}
+            {\pgfpoint{2\pgf@circ@res@right}{2\pgf@circ@res@up}}
+            % next open a circle into it
+            \pgfpathellipse{\pgfpointorigin}{\pgfpoint{0}{.6\pgf@circ@res@up}}{\pgfpoint{.6\pgf@circ@res@left}{0}}
+            % do the difference and clip before drawing
+            \pgfseteorule
+            \pgfusepath{clip}
+            \pgfsetarrowsend{latexslim}
+            % the arrow is better if it has a bit of breath and it's not 45º
+            \pgfpathmoveto{\pgfpoint{.8\pgf@circ@res@left}{1.2\pgf@circ@res@down}}
+            \pgfpathlineto{\pgfpoint{.8\pgf@circ@res@right}{1.2\pgf@circ@res@up}}
+            \pgfusepath{draw}
+        \endpgfscope
+        \pgftext[center]{\ctikzvalof{bipoles/twoport/text}}
+    \endpgfscope
+}
+
+% generic square meter with always horizontal text
+\pgfcircdeclarebipole
+{
+    \anchor{in 1}{\southwest\pgf@y=0.75\pgf@y\pgf@x=0.4\pgf@x}
+    \anchor{in 2}{\southwest\pgf@y=0.75\pgf@y\pgf@x=-0.4\pgf@x}
+    % put the node text above and centered
+    \anchor{text}{\pgfextracty{\pgf@circ@res@up}{\northeast}
+        \pgfpoint{-.5\wd\pgfnodeparttextbox}{
+            \dimexpr.5\dp\pgfnodeparttextbox+.5\ht\pgfnodeparttextbox+\pgf@circ@res@up\relax
+        }
+    }
+}
+{\ctikzvalof{bipoles/smeter/height}}
+{smeter}
+{\ctikzvalof{bipoles/smeter/height}}
+{\ctikzvalof{bipoles/smeter/width}}
+{
+    \pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}\pgfstartlinewidth}
+    \pgfextracty{\pgf@circ@res@up}{\northeast}
+    \pgfextractx{\pgf@circ@res@right}{\northeast}
+    \pgfextractx{\pgf@circ@res@left}{\southwest}
+    \pgfextracty{\pgf@circ@res@down}{\southwest}
+    \pgfmathsetlength{\pgf@circ@res@step}{0.25*\pgf@circ@res@up}
+    \pgfscope
+        \pgfsetcornersarced{\pgfpoint{\pgf@circ@res@step}{\pgf@circ@res@step}}
+        \pgfpathrectanglecorners{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@down}}{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@up}}
+        \pgf@circ@draworfill
+    \endpgfscope
+    % get the rotation
+    \pgfgettransformentries\a\b\temp\temp\temp\temp
+    \pgfmathsetmacro{\rot}{-atan2(\b,\a)}
+    % and unrotate the scope
+    \pgfscope
+        \pgftransformrotate{\rot}
+        % the metering window
+        \pgfscope
+            \def\@starta{105}\def\@stopa{75}
+            \pgfsetlinewidth{\pgfstartlinewidth}
+            \pgftransformshift{\pgfpoint{0pt}{-1.8\pgf@circ@res@up}}
+            \pgfpathmoveto{\pgfpointpolar{\@starta}{2\pgf@circ@res@up}}
+            \pgfpatharc{\@starta}{\@stopa}{2\pgf@circ@res@up}
+            \pgfpathlineto{\pgfpointpolar{\@stopa}{2.5\pgf@circ@res@up}}
+            \pgfpatharc{\@stopa}{\@starta}{2.5\pgf@circ@res@up}
+            \pgfclosepath
+            \pgfpathmoveto{\pgfpointpolar{80}{2\pgf@circ@res@up}}
+            \pgfpathlineto{\pgfpointpolar{80}{2.4\pgf@circ@res@up}}
+            \pgfusepath{draw}
+        \endpgfscope
+        \pgftext[center, y=0.5\pgf@circ@res@down]{\ctikzvalof{bipoles/twoport/text}}
+    \endpgfscope
+}
+
+% probles qucs style:
+% #1 : name
+% #2 : extra code
+\long\def\pgfcirc@qucsprobe#1#2{
+    \pgfcircdeclarebipole
+    {
+        \anchor{v+}{\southwest\pgf@x=0.6\pgf@x}
+        \anchor{v-}{\southwest\pgf@x=-0.6\pgf@x}
+        % put the node text above and centered
+        \anchor{text}{\pgfextracty{\pgf@circ@res@up}{\northeast}
+            \pgfpoint{-.5\wd\pgfnodeparttextbox}{
+                \dimexpr.5\dp\pgfnodeparttextbox+.5\ht\pgfnodeparttextbox+\pgf@circ@res@up\relax
+            }
+        }
+    }
+    {\ctikzvalof{bipoles/qmeter/depth}}
+    {#1}
+    {\ctikzvalof{bipoles/qmeter/height}}
+    {\ctikzvalof{bipoles/qmeter/width}}
+    {
+        \pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}\pgfstartlinewidth}
+        \pgfextracty{\pgf@circ@res@up}{\northeast}
+        \pgfextractx{\pgf@circ@res@right}{\northeast}
+        \pgfextractx{\pgf@circ@res@left}{\southwest}
+        \pgfextracty{\pgf@circ@res@down}{\southwest}
+        \pgfmathsetlength{\pgf@circ@res@step}{0.25*\pgf@circ@res@up}
+        \pgfscope
+            \pgfscope
+                \pgfsetcornersarced{\pgfpoint{\pgf@circ@res@step}{\pgf@circ@res@step}}
+                \pgfpathrectanglecorners{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@down}}{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@up}}
+            \pgf@circ@draworfill
+            \endpgfscope
+            \def\@starta{103}\def\@stopa{77}
+            \pgfsetlinewidth{\pgfstartlinewidth}
+            \pgfscope
+                \pgftransformshift{\pgfpoint{0pt}{-1.7\pgf@circ@res@up}}
+                \pgfpathmoveto{\pgfpointpolar{\@starta}{2.1\pgf@circ@res@up}}
+                \pgfpatharc{\@starta}{\@stopa}{2.1\pgf@circ@res@up}
+                \pgfpathlineto{\pgfpointpolar{\@stopa}{2.5\pgf@circ@res@up}}
+                \pgfpatharc{\@stopa}{\@starta}{2.5\pgf@circ@res@up}
+                \pgfclosepath
+                \pgfpathmoveto{\pgfpointpolar{83}{2.1\pgf@circ@res@up}}
+                \pgfpathlineto{\pgfpointpolar{83}{2.4\pgf@circ@res@up}}
+                \pgfusepath{draw}
+                \pgf@circ@draworfill
+            \endpgfscope
+            #2
+        \endpgfscope
+    }
+}
+
+\pgfcirc@qucsprobe{qiprobe}{
+    \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{0pt}}
+    \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{0pt}}
+    \pgfusepath{draw}
+    \pgfnode{currarrow}{center}{}{}{}
+}
+
+\pgfcirc@qucsprobe{qvprobe}{
+    \pgfmathsetlength{\pgf@circ@res@other}{\pgfkeysvalueof{/tikz/circuitikz/nodes width}*\pgf@circ@Rlen}
+    \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{0pt}}
+    \pgfpathlineto{\pgfpoint{.6\pgf@circ@res@left}{0pt}}
+    \pgfpathcircle{\pgfpoint{.6\pgf@circ@res@left+\pgf@circ@res@other}{0pt}}{\pgf@circ@res@other}
+    \pgfpathmoveto{\pgfpoint{.6\pgf@circ@res@right}{0pt}}
+    \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{0pt}}
+    \pgfpathcircle{\pgfpoint{.6\pgf@circ@res@right-\pgf@circ@res@other}{0pt}}{\pgf@circ@res@other}
+    \pgfusepath{draw}
+    \pgfscope
+        % "+" and "-", drawn so that they scale correctly
+        \pgfsetlinewidth{2\pgfstartlinewidth}
+        \pgfpathmoveto{\pgfpoint{.6\pgf@circ@res@left+\pgf@circ@res@other}{-1.5\pgf@circ@res@other}}
+        \pgfpathlineto{\pgfpoint{.6\pgf@circ@res@left+\pgf@circ@res@other}{-3.5\pgf@circ@res@other}}
+        \pgfpathmoveto{\pgfpoint{.6\pgf@circ@res@left+0\pgf@circ@res@other}{-2.5\pgf@circ@res@other}}
+        \pgfpathlineto{\pgfpoint{.6\pgf@circ@res@left+2\pgf@circ@res@other}{-2.5\pgf@circ@res@other}}
+        \pgfpathmoveto{\pgfpoint{.6\pgf@circ@res@right+0\pgf@circ@res@other}{-2.5\pgf@circ@res@other}}
+        \pgfpathlineto{\pgfpoint{.6\pgf@circ@res@right-2\pgf@circ@res@other}{-2.5\pgf@circ@res@other}}
+        \pgfusepath{draw}
+    \endpgfscope
+}
+
+\pgfcirc@qucsprobe{qpprobe}{
+    \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{0pt}}
+    \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{0pt}}
+    \pgfusepath{draw}
+    \pgfnode{currarrow}{center}{}{}{}
+    \pgfmathsetlength{\pgf@circ@res@other}{\pgfkeysvalueof{/tikz/circuitikz/nodes width}*\pgf@circ@Rlen}
+    \pgfpathcircle{\pgfpoint{.6\pgf@circ@res@left}{-3\pgf@circ@res@other}}{\pgf@circ@res@other}
+    \pgfpathmoveto{\pgfpoint{.6\pgf@circ@res@left}{-4\pgf@circ@res@other}}
+    \pgfpathlineto{\pgfpoint{.6\pgf@circ@res@left}{\pgf@circ@res@down}}
+    \pgfpathcircle{\pgfpoint{.6\pgf@circ@res@right}{-3\pgf@circ@res@other}}{\pgf@circ@res@other}
+    \pgfpathmoveto{\pgfpoint{.6\pgf@circ@res@right}{-4\pgf@circ@res@other}}
+    \pgfpathlineto{\pgfpoint{.6\pgf@circ@res@right}{\pgf@circ@res@down}}
+    \pgfusepath{draw}
+    \pgfscope
+        % "+" and "-", drawn so that they scale correctly
+        \pgfsetlinewidth{2\pgfstartlinewidth}
+        \pgfpathmoveto{\pgfpoint{.6\pgf@circ@res@left+3\pgf@circ@res@other}{-2\pgf@circ@res@other}}
+        \pgfpathlineto{\pgfpoint{.6\pgf@circ@res@left+3\pgf@circ@res@other}{-4\pgf@circ@res@other}}
+        \pgfpathmoveto{\pgfpoint{.6\pgf@circ@res@left+2\pgf@circ@res@other}{-3\pgf@circ@res@other}}
+        \pgfpathlineto{\pgfpoint{.6\pgf@circ@res@left+4\pgf@circ@res@other}{-3\pgf@circ@res@other}}
+        \pgfpathmoveto{\pgfpoint{.6\pgf@circ@res@right-4\pgf@circ@res@other}{-3\pgf@circ@res@other}}
+        \pgfpathlineto{\pgfpoint{.6\pgf@circ@res@right-2\pgf@circ@res@other}{-3\pgf@circ@res@other}}
+        \pgfusepath{draw}
+    \endpgfscope
+}
+
+
+% current loop for oscope and similar: stylized
+
+\pgfcircdeclarebipole
+{
+    \anchor{i}{\northeast\pgf@x=0pt\relax}
+    \anchor{text}{
+        \pgfextracty{\pgf@circ@res@up}{\northeast}
+        \pgfextractx{\pgf@circ@res@left}{\northeast}
+        \pgfpoint{-.5\wd\pgfnodeparttextbox+\pgf@circ@res@left}{
+            \dimexpr.5\dp\pgfnodeparttextbox+.5\ht\pgfnodeparttextbox+\pgf@circ@res@up\relax
+        }
+    }
+}
+{\ctikzvalof{bipoles/iloop/height}}
+{iloop}
+{\ctikzvalof{bipoles/iloop/height}}
+{\ctikzvalof{bipoles/iloop/width}}
+{
+    \pgfextracty{\pgf@circ@res@up}{\northeast}
+    \pgfextractx{\pgf@circ@res@right}{\northeast}
+    \pgf@circ@res@down=-\pgf@circ@res@up
+    \pgf@circ@res@left=-\pgf@circ@res@right
+    \pgfscope
+        \pgfstartlinewidth=\pgflinewidth
+        \pgfsetcolor{\pgfkeysvalueof{/tikz/circuitikz/color}}
+        % external ellipse
+        \pgfscope
+            \pgfsetlinewidth{\ctikzvalof{bipoles/thickness}\pgflinewidth}
+            % clipping path: first a rectangle bigger then the shape
+            % to avoid problems with the line thickness
+            \pgfpathrectanglecorners{\pgfpoint{2\pgf@circ@res@left}{2\pgf@circ@res@down}}
+            {\pgfpoint{2\pgf@circ@res@right}{2\pgf@circ@res@up}}
+            % next the opening to the left
+            \pgfpathrectanglecorners{\pgfpoint{2\pgf@circ@res@left}{.1\pgf@circ@res@down}}
+            {\pgfpoint{0pt}{.1\pgf@circ@res@up}}
+            % do the difference and clip before drawing
+            \pgfseteorule
+            \pgfusepath{clip}
+            \pgfpathellipse{\pgfpointorigin}{
+                \pgfpoint{0pt}{0.8\pgf@circ@res@up}}{
+            \pgfpoint{0.4\pgf@circ@res@right}{0pt}}
+            \pgfusepath{draw}
+        \endpgfscope
+        % internal wire
+        \pgfsetlinewidth{\pgfstartlinewidth}
+        \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{0pt}}
+        \pgfpathlineto{\pgfpoint{0.3\pgf@circ@res@right}{0pt}}
+        \pgfpathmoveto{\pgfpoint{0.5\pgf@circ@res@right}{0pt}}
+        \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{0pt}}
+        % and the contact line up
+        \pgfpathmoveto{\pgfpoint{0pt}{0.8\pgf@circ@res@up}}
+        \pgfpathlineto{\pgfpoint{0pt}{\pgf@circ@res@up}}
+        \pgfusepath{draw}
+    \endpgfscope
+}
+
+
+% current loop for oscope and similar: real (double connection)
+
+\pgfcircdeclarebipole
+{
+    \anchor{i+}{
+        \pgfextracty{\pgf@circ@res@up}{\northeast}
+        \pgfextractx{\pgf@circ@res@right}{\northeast}
+        \pgf@circ@res@step=0.4\pgf@circ@res@right
+        \pgf@circ@res@other=0.8\pgf@circ@res@up
+        \pgfpointpolar{105}{\pgf@circ@res@step and \pgf@circ@res@other}
+        \pgf@y=\pgf@circ@res@up
+    }
+    \anchor{i-}{
+        \pgfextracty{\pgf@circ@res@up}{\northeast}
+        \pgfextractx{\pgf@circ@res@right}{\northeast}
+        \pgf@circ@res@step=0.4\pgf@circ@res@right
+        \pgf@circ@res@other=0.8\pgf@circ@res@up
+        \pgfpointpolar{75}{\pgf@circ@res@step and \pgf@circ@res@other}
+        \pgf@y=\pgf@circ@res@up
+    }
+    \anchor{text}{
+        \pgfextracty{\pgf@circ@res@up}{\northeast}
+        \pgfextractx{\pgf@circ@res@left}{\northeast}
+        \pgfpoint{-.5\wd\pgfnodeparttextbox+\pgf@circ@res@left}{
+            \dimexpr.5\dp\pgfnodeparttextbox+.5\ht\pgfnodeparttextbox+\pgf@circ@res@up\relax
+        }
+    }
+}
+{\ctikzvalof{bipoles/iloop/height}}
+{iloop2}
+{\ctikzvalof{bipoles/iloop/height}}
+{\ctikzvalof{bipoles/iloop/width}}
+{
+    \pgfextracty{\pgf@circ@res@up}{\northeast}
+    \pgfextractx{\pgf@circ@res@right}{\northeast}
+    \pgf@circ@res@down=-\pgf@circ@res@up
+    \pgf@circ@res@left=-\pgf@circ@res@right
+    % must be the same than internal i+ and i- anchors definition
+    \pgf@circ@res@step=0.4\pgf@circ@res@right
+    \pgf@circ@res@other=0.8\pgf@circ@res@up
+    \def\@plus{\pgfpointpolar{105}{\pgf@circ@res@step and \pgf@circ@res@other}}
+    \def\@minus{\pgfpointpolar{75}{\pgf@circ@res@step and \pgf@circ@res@other}}
+    \pgfscope
+        \pgfstartlinewidth=\pgflinewidth
+        \pgfsetcolor{\pgfkeysvalueof{/tikz/circuitikz/color}}
+        % external ellipse
+        \pgfscope
+            \pgfsetlinewidth{\ctikzvalof{bipoles/thickness}\pgflinewidth}
+            % clipping path: first a rectangle bigger then the shape
+            % to avoid problems with the line thickness
+            \pgfpathrectanglecorners{\pgfpoint{2\pgf@circ@res@left}{2\pgf@circ@res@down}}
+            {\pgfpoint{2\pgf@circ@res@right}{2\pgf@circ@res@up}}
+            % next the opening to the left
+            \pgfpathrectanglecorners{\pgfpoint{2\pgf@circ@res@left}{.1\pgf@circ@res@down}}
+            {\pgfpoint{0pt}{.1\pgf@circ@res@up}}
+            % do the difference and clip before drawing
+            \pgfseteorule
+            \pgfusepath{clip}
+            \pgfpathmoveto{\@plus}
+            \pgfpatharc{105}{435}{\pgf@circ@res@step and \pgf@circ@res@other}
+            \pgfusepath{draw}
+        \endpgfscope
+        % internal wire
+        \pgfsetlinewidth{\pgfstartlinewidth}
+        \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{0pt}}
+        \pgfpathlineto{\pgfpoint{0.3\pgf@circ@res@right}{0pt}}
+        \pgfpathmoveto{\pgfpoint{0.5\pgf@circ@res@right}{0pt}}
+        \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{0pt}}
+        % and the contact line up
+        % I use ...left and ---right as temporal lengths here to avoid defining more
+        \pgfextractx{\pgf@circ@res@left}{\@plus}
+        \pgfextractx{\pgf@circ@res@right}{\@minus}
+        \pgfpathmoveto{\@plus}
+        \pgfpathlineto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@up}}
+        \pgfpathmoveto{\@minus}
+        \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@up}}
+        \pgfusepath{draw}
     \endpgfscope
 }
 
@@ -15119,6 +15562,27 @@
 
 \def\pgf@circ@mic@path#1{\pgf@circ@bipole@path{mic}{#1}}
 \compattikzset{mic/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@mic@path, l=#1}}
+
+% more instrument
+\def\pgf@circ@rmeter@path#1{\pgf@circ@bipole@path{rmeter}{#1}}
+\compattikzset{rmeter/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@rmeter@path, l=#1}}
+\def\pgf@circ@rmeterwa@path#1{\pgf@circ@bipole@path{rmeterwa}{#1}}
+\compattikzset{rmeterwa/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@rmeterwa@path, l=#1}}
+\def\pgf@circ@smeter@path#1{\pgf@circ@bipole@path{smeter}{#1}}
+\compattikzset{smeter/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@smeter@path, l=#1}}
+% current loop probes
+\def\pgf@circ@iloop@path#1{\pgf@circ@bipole@path{iloop}{#1}}
+\compattikzset{iloop/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@iloop@path, l=#1}}
+\def\pgf@circ@iloop2@path#1{\pgf@circ@bipole@path{iloop2}{#1}}
+\compattikzset{iloop2/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@iloop2@path, l=#1}}
+% qucs-style probes
+\def\pgf@circ@qiprobe@path#1{\pgf@circ@bipole@path{qiprobe}{#1}}
+\compattikzset{qiprobe/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@qiprobe@path, l=#1}}
+\def\pgf@circ@qvprobe@path#1{\pgf@circ@bipole@path{qvprobe}{#1}}
+\compattikzset{qvprobe/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@qvprobe@path, l=#1}}
+\def\pgf@circ@qpprobe@path#1{\pgf@circ@bipole@path{qpprobe}{#1}}
+\compattikzset{qpprobe/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@qpprobe@path, l=#1}}
+
 
 % Transistor like bipoles
 
