@@ -160,6 +160,80 @@
     }
 }
 
+% BNC connector
+
+\pgfdeclareshape{bnc}{
+    \anchor{center}{
+        \pgfpointorigin
+    }
+    % BNC size is 2.5 times the size of the internal "ocirc"
+    \savedanchor\northwest{%
+        \pgf@y=\pgfkeysvalueof{/tikz/circuitikz/nodes width}\pgf@circ@Rlen
+        \pgf@y=2.5\pgf@y
+        \pgf@x=-\pgf@y
+    }
+    % center is on the opening
+    \anchor{center}{ \northwest \pgf@y=0pt \pgf@x=-\pgf@x  }
+    \anchor{zero}{ \pgfpointorigin }
+    \anchor{hot}{ \northwest \pgf@y=0pt \pgf@x=-\pgf@x  }
+    \anchor{shield}{ \northwest \pgf@x=0pt \pgf@y=-\pgf@y }
+    % geo-anchors
+    \anchor{east}{ \northwest \pgf@y=0pt \pgf@x=-\pgf@x  }
+    \anchor{right}{ \northwest \pgf@y=0pt \pgf@x=-\pgf@x  }
+    \anchor{west}{ \northwest \pgf@y=0pt }
+    \anchor{left}{ \northwest \pgf@y=0pt }
+    \anchor{south}{ \northwest \pgf@x=0pt \pgf@y=-\pgf@y }
+    \anchor{north}{ \northwest \pgf@x=0pt }
+    \anchor{south west}{ \northwest \pgf@y=-\pgf@y }
+    \anchor{north east}{ \northwest \pgf@x=-\pgf@x }
+    \anchor{north west}{ \northwest }
+    \anchor{south east}{ \northwest \pgf@x=-\pgf@x \pgf@y=-\pgf@y }
+    % put the node text above and centered
+    \anchor{text}{\pgfextracty{\pgf@circ@res@up}{\northwest}
+        \pgfpoint{-.5\wd\pgfnodeparttextbox}{
+            \dimexpr.5\dp\pgfnodeparttextbox+.5\ht\pgfnodeparttextbox+\pgf@circ@res@up\relax
+        }
+    }
+    \anchorborder{
+        \pgf@circ@res@left=\pgf@x
+        \pgf@circ@res@up=\pgf@y
+        \pgfpointborderellipse{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@up}
+        }{\pgfpoint{2.5*\pgfkeysvalueof{/tikz/circuitikz/nodes width}*\pgf@circ@Rlen}{2.5*\pgfkeysvalueof{/tikz/circuitikz/nodes width}*\pgf@circ@Rlen}}
+    }
+    \behindforegroundpath{
+        \pgfextracty{\pgf@circ@res@other}{\northwest}
+        \pgf@circ@res@step=\pgfkeysvalueof{/tikz/circuitikz/nodes width}\pgf@circ@Rlen
+        \pgfscope
+            \pgfstartlinewidth=\pgflinewidth
+            \pgfsetlinewidth{\ctikzvalof{bipoles/thickness}\pgflinewidth}
+            \pgfsetcolor{\pgfkeysvalueof{/tikz/circuitikz/color}}
+            % external circle
+            \pgfscope
+                % clipping path: first a rectangle bigger then the shape
+                % to avoid problems with the line thickness
+                \pgfpathrectanglecorners{\pgfpoint{-2\pgf@circ@res@other}{-2\pgf@circ@res@other}}
+                    {\pgfpoint{2\pgf@circ@res@other}{2\pgf@circ@res@other}}
+                % next the opening to the right
+                \pgfpathrectanglecorners{\pgfpoint{-\pgf@circ@res@step}{-\pgf@circ@res@step}}
+                    {\pgfpoint{2\pgf@circ@res@other}{\pgf@circ@res@step}}
+                % do the difference and clip before drawing
+                \pgfseteorule
+                \pgfusepath{clip}
+                \pgfpathcircle{\pgfpointorigin}{\pgf@circ@res@other}
+                \pgfusepath{draw}
+            \endpgfscope
+            % internal circle
+            \pgfpathcircle{\pgfpointorigin}{\pgf@circ@res@step}
+            \pgf@circ@draworfill
+            % and the contact line to the right
+            \pgfsetlinewidth{\pgfstartlinewidth}
+            \pgfpathmoveto{\pgfpoint{\pgf@circ@res@step}{0pt}}
+            \pgfpathlineto{\pgfpoint{\pgf@circ@res@other}{0pt}}
+            \pgfusepath{draw}
+        \endpgfscope
+    }
+}
+
 %% Fill for correct rectangular joins
 
 \pgfdeclareshape{rectjoinfill}{

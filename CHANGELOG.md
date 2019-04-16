@@ -26,8 +26,9 @@ The major changes among the different circuitikz versions are listed here. See <
     - Added border anchors for the logic gates
     - Added antennas with no wires, loudspeakers and microphone
     - Make the components fillable
-    - Added the oscilloscope component
+    - Added the oscilloscope component and several new instruments
     - Added viscoelastic element
+    - Added a BNC connector
     - Added a manual section on how to define new components
   
 * Version 0.8.3 (2017-05-28) 
