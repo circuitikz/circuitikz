@@ -832,11 +832,20 @@ Anchors for grounds are a bit strange, given that they have the \texttt{center} 
     \circuitdescbip*{ammeter}{Ammeter}{}
     \circuitdescbip*{voltmeter}{Voltmeter}{}
     \circuitdescbip*{ohmmeter}{Ohmmeter}{}
+    \circuitdescbip*{rmeter}{Round meter (use \texttt{t=...} for the symbol)}{}(left/135/0.2, right/45/0.2, center/-90/0.3)
+    \circuitdescbip*{rmeterwa}{Round meter with arrow (use \texttt{t=...} for the symbol)}{}(left/135/0.2, right/45/0.2, center/-90/0.3)
+    \circuitdescbip*{smeter}{Square meter (use \texttt{t=...} for the symbol)}{}(left/135/0.2, right/45/0.2, center/-90/0.3, in 1/-135/.5, in 2/-45/.5)
+    \circuitdescbip*{qiprobe}{QUCS-style current probe}{}(left/135/0.2, right/45/0.2, center/-90/0.3)
+    \circuitdescbip*{qvprobe}{QUCS-style voltage probe}{}(left/135/0.2, right/45/0.2, center/-90/0.3)
+    \circuitdescbip*{qpprobe}{QUCS-style power probe}{}(left/135/0.2, right/45/0.2, center/-90/0.3, v+/-135/.5, v-/-45/.5)
     \circuitdescbip*[oscope]{oscope}{Oscilloscope\footnotemark}{}(left/135/0.2, right/45/0.2,
     in 1/-135/0.4, in 2/-45/0.4)
     \footnotetext{Suggested by \texttt{@nobrl} on GitHub}
+    \circuitdescbip{iloop}{Current loop (symbolic)}{}(left/135/0.2, right/45/0.2, center/-90/0.3, i/30/0.4)
+    \circuitdescbip{iloop2}{Current loop (real)}{}(left/135/0.2, right/-45/0.2, center/-90/0.3, i+/135/0.4, i-/45/0.4)
 \end{groupdesc}
 
+\subsubsection{Rotation-invariant elements}
 
 The \texttt{oscope} element will not rotate the ``graph'' shown with the component:
 
@@ -848,8 +857,12 @@ The \texttt{oscope} element will not rotate the ``graph'' shown with the compone
 \end{circuitikz}
 \end{LTXexample}
 
-Moreover, the node-style usage of the \texttt{oscope} is also interesting, using the additional \texttt{in 1} and \texttt{in 2} anchors; notice that in this case you can use the text content of the node to put labels above it.
-Moreover, you can change the size of the osciloscope by changing \texttt{bipoles/oscope/width} and \texttt{bipoles/oscope/height} keys (which both default at 0.6).
+The \texttt{rmeter}, \texttt{rmaterwa}, and \texttt{smeter} have the same behavior.
+
+\subsubsection{Instruments as node elements}
+
+The node-style usage of the \texttt{oscope} is also interesting, using the additional \texttt{in 1} and \texttt{in 2} anchors; notice that in this case you can use the text content of the node to put labels above it.
+Moreover, you can change the size of the oscilloscope by changing \texttt{bipoles/oscope/width} and \texttt{bipoles/oscope/height} keys (which both default at 0.6).
 
 \begin{LTXexample}[varwidth=true]
 \begin{circuitikz}
@@ -863,6 +876,132 @@ Moreover, you can change the size of the osciloscope by changing \texttt{bipoles
     \draw (O2.in 2) to[short, *-] ++(0,-0.5) node[ground]{};
     \draw (O2.in 1) to[short, *-] ++(0,-0.5)
            -- ++(-1,0) node[currarrow, xscale=-1]{};
+\end{circuitikz}
+\end{LTXexample}
+
+\subsection{Measuring voltage and currents, multiple ways}
+
+This is the classical (legacy) option, with the \texttt{voltmeter} and \texttt{ammeter}. The problem is that elements are intrinsically horizontal and so they looks funny if put in vertical way.
+
+\begin{LTXexample}[varwidth=true]
+\begin{circuitikz}
+    \draw (0,0) -- ++(1,0) to[R] ++(2,0)
+    to [ammeter] ++(0,-2) node[ground]{};
+    \draw (1,0) to[voltmeter] ++(0,-2)
+    node[ground]{};
+\end{circuitikz}
+\end{LTXexample}
+
+So the solution is often changing the structure to keep the meters in horizontal position.
+
+\begin{LTXexample}[varwidth=true]
+\begin{circuitikz}
+    \draw (0,0) -- ++(1,0) to[R] ++(2,0)
+    to [ammeter] ++(2,0) --
+    ++(0,-1) node[ground]{};
+    \draw (1,0) -- (1,1) to[voltmeter]
+    ++(2,0) node[ground]{};
+\end{circuitikz}
+\end{LTXexample}
+
+Since version 0.8.4 you have more options for the measuring instruments. You can use the generic \texttt{rmeterwa} (round meter with arrow), to which you can specify the internal symbol with the option \texttt{t=...} (and is fillable).
+
+\begin{LTXexample}[varwidth=true]
+    \begin{circuitikz}[american]
+    \draw (0,0) -- ++(1,0) to[R] ++(2,0)
+    to [rmeterwa, t=A, i=$i$] ++(0,-2) node[ground]{};
+    \draw (1,0) to[rmeterwa, t=V, v=$v$] ++(0,-2)
+    node[ground]{};
+\end{circuitikz}
+\end{LTXexample}
+
+This kind of component will maintain the symbol horizontal whatever the orientation:
+
+\begin{LTXexample}[varwidth=true]
+    \begin{circuitikz}[american]
+    \draw (0,0) -- ++(1,0) to[R] ++(2,0)
+    to [rmeterwa, t=A, i=$i$] ++(2,0) --
+    ++(0,-1) node[ground]{};
+    \draw (1,0) -- (1,1) to[rmeterwa, t=V, v^=$v$]
+    ++(2,0) node[ground]{};
+\end{circuitikz}
+\end{LTXexample}
+
+The plain \texttt{rmeter} is the same, without the measuring arrow:
+
+\begin{LTXexample}[varwidth=true]
+\begin{circuitikz}[american]
+    \draw (0,0) -- ++(1,0) to[R] ++(2,0)
+    to [rmeter, t=A, i=$i$] ++(0,-2) node[ground]{};
+    \draw (1,0) to[rmeter, t=V, v=$v$] ++(0,-2)
+    node[ground]{};
+\end{circuitikz}
+\end{LTXexample}
+
+
+If you prefer, you have the option to use square meters, to have more visual difference from generators:
+
+\begin{LTXexample}[varwidth=true]
+\begin{circuitikz}[american]
+    \draw (0,0) -- ++(1,0) to[R] ++(2,0)
+    to [smeter, t=A, i=$i$] ++(0,-2) node[ground]{};
+    \draw (1,0) to[smeter, t=V, v=$v$] ++(0,-2)
+    node[ground]{};
+\end{circuitikz}
+\end{LTXexample}
+
+Another possibility is to use the QUCS\footnote{QUCS is an open source circuit simulator: \url{http://qucs.sourceforge.net/}}-styled probes, which have the nice property of explictly showing the type of connection (in series or parallel) of the meter:
+
+\begin{LTXexample}[varwidth=true]
+\begin{circuitikz}[american]
+    \draw (0,0) -- ++(1,0) to[R] ++(2,0)
+    to [qiprobe, l=$i$] ++(0,-2) node[ground]{};
+    \draw (1,0) to[qvprobe, l=$v$] ++(0,-2)
+    node[ground]{};
+\end{circuitikz}
+\end{LTXexample}
+
+If you want to explicitly show a power measurement, you can use the power probe \texttt{qpprobe} and using the additional anchors \texttt{v+} and \texttt{v-} :
+
+\begin{LTXexample}[varwidth=true]
+\begin{circuitikz}[american]
+    \draw (0,0) to[short,-*]  ++(1,0) coordinate(b)
+    to[R] ++(2,0) to [qpprobe, l=$i$, a=$v$, name=P]
+    ++(0,-2.5) node[ground](GND){};
+    \draw (P.v-) -| ++(-0.5,-1) coordinate(a)
+    to [short, -*] (a-|GND);
+    \draw (P.v+) -| (b);
+\end{circuitikz}
+\end{LTXexample}
+
+The final possibility is to use oscilloscopes, like for example:
+
+\begin{LTXexample}[varwidth=true]
+\begin{circuitikz}[american]
+    \draw (0,0) -- ++(1,0) to[R] ++(3,0)
+    to [iloop, mirror, name=I] ++(0,-2)
+    node[ground] (GND){};
+    \draw (1,0) to[oscope, v=$v$] ++(0,-2)
+    node[ground]{};
+    \draw (I.i) -- ++(-0.5,0) node[oscopeshape, anchor=right, name=O]{};
+    \draw (O.south) -- (O.south |- GND) node[ground]{};
+\end{circuitikz}
+\end{LTXexample}
+
+Or, if you want  a more physical structure for the measurement setup:
+
+
+\begin{LTXexample}[varwidth=true, pos=b]
+\begin{circuitikz}[american]
+    \draw (0,0) -- ++(1,0) to[R] ++(3,0) to [iloop2, name=I] ++(0,-2)
+    node[ground] (GND){};
+    \ctikzset{bipoles/oscope/width=1.6}\ctikzset{bipoles/oscope/height=1.2}
+    \node [oscopeshape, fill=green!10](O) at (6,2){};
+    \node [bnc, xscale=-1, anchor=zero](bnc1) at (O.in 1){};
+    \node [bnc, , anchor=zero, rotate=-90](bnc2) at (O.in 2){};
+    \draw [-latexslim] (bnc1.hot) -| (1,0);
+    \draw (bnc2.hot) |- (I.i+);
+    \draw (I.i-) node[ground, scale=0.5]{};
 \end{circuitikz}
 \end{LTXexample}
 
@@ -1893,7 +2032,18 @@ Path style:
     \circuitdesc{waves}{Waves}{}( north/90/0.4, north east/45/0.4, east/-45/0.4, south east/-45/0.4,
     south/-90/0.4, south west/-135/0.4, west/180/0.4, north west/135/0.4,
     left/135/0.2, top/45/0.2, right/45/0.2, bottom/-45/0.2 )
+    \circuitdesc*{bnc}{BNC connector}{}(left/135/0.6, right/45/0.6, center/-90/0.6, hot/0/0.6, zero/-135/0.6)
 \end{groupdesc}
+
+Moreover, you have the arrow tip \texttt{latexslim} which is an arrow similar to the old (in deprecated \texttt{arrows} library) \texttt{latex'} element:
+
+\begin{LTXexample}[varwidth=true]
+\begin{circuitikz}[american,]
+    \draw [latexslim-latexslim] (0,0) -- (1,0);
+\end{circuitikz}
+\end{LTXexample}
+
+
 
 \subsubsection{Terminal shapes}
 Since version 0.8.4, \texttt{circ}, \texttt{ocirc} , and \texttt{diamondpole} have all the standard geographical anchors, so you can do things like these:
@@ -1905,6 +2055,27 @@ Since version 0.8.4, \texttt{circ}, \texttt{ocirc} , and \texttt{diamondpole} ha
 \end{circuitikz}
 \end{LTXexample}
 
+The BNC connector is defined so that you can easily connect it as input or output (but remember that you need to flip the text if you flip the component):
+
+\begin{LTXexample}[varwidth, ]
+\begin{circuitikz}
+    \draw (0,0)
+    node[bnc](B1){$v_i$} to[R=\SI{50}{\ohm}] ++(3,0)
+    node[bnc, xscale=-1](B2){\scalebox{-1}[1]{$v_o$}};
+    \node [ground] at (B1.shield) {};
+    \node [eground] at (B2.shield){};
+\end{circuitikz}
+\end{LTXexample}
+
+It also has a \texttt{zero} anchor if you need to rotate it about its real center.
+
+\begin{LTXexample}[varwidth, ]
+\begin{circuitikz}
+    \draw[thin, red] (0,0) -- ++(1,0) (0,-1) -- ++(1,0);
+    \path (0,0) node[bnc]{} ++(1,0) node[bnc, rotate=-90]{};
+    \path (0,-1) node[bnc, anchor=zero]{} ++(1,0) node[bnc, anchor=zero, rotate=-90]{};
+\end{circuitikz}
+\end{LTXexample}
 
 \subsubsection{Crossings}
 
