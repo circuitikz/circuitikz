@@ -1988,7 +1988,7 @@ The instrumentation amplifier with resistance terminals (\texttt{inst amp ra}) d
 ;\end{circuitikz}
 \end{LTXexample}
 
-\subsubsection{Amplifiers cutomization}
+\subsubsection{Amplifiers customization}
 
 All these amplifier have the possibility to flip input and output (if needed) polarity. You can change polarity of the input with the
 \texttt{noinv input down} (default) or \texttt{noinv input up} key; and the output with \texttt{noinv output up} (default) or \texttt{noinv output down} key:
@@ -2008,8 +2008,104 @@ All these amplifier have the possibility to flip input and output (if needed) po
 ;\end{circuitikz}
 \end{LTXexample}
 
-When you use the \texttt{noinv input/output ...} keys the anchors (\texttt{+}, \texttt{-}, \texttt{out +}, \texttt{out -}) will change with the effective position of the terminals. You have also the anchors \texttt{in up}, \texttt{in down}, \texttt{out up}, \texttt{out down} that will not change with the positive or negatie sign.
+When you use the \texttt{noinv input/output ...} keys the anchors (\texttt{+}, \texttt{-}, \texttt{out +}, \texttt{out -}) will change with the effective position of the terminals. You have also the anchors \texttt{in up}, \texttt{in down}, \texttt{out up}, \texttt{out down} that will not change with the positive or negative sign.
 
+\paragraph{European-style amplifier customization}
+
+Thanks to the suggestions from David Rouvel (\email{david.rouvel@iphc.cnrs.fr}) there are several possible customization for the European-style amplifiers.
+
+Since 0.8.4, the default appearance of the symbol has changed to be more in line with the standard; notice that to have a bigger triangle by default we should require more packages, and I fear {Con\TeX t} compatibility; but see later on how to change it. Notice that the font used for the symbol is defined in \texttt{tripoles/en amp/font2} and that the font used for the \texttt{+} and \texttt{-} symbols is  \texttt{tripoles/en amp/font}.
+
+You can change the distances of the inputs, using \texttt{tripoles/en amp/input height} (default 0.3):
+
+\begin{LTXexample}[varwidth=true]
+\begin{circuitikz}
+    \ctikzset{tripoles/en amp/input height=0.45}
+    \draw (0,0)node[en amp](E){}
+        (E.out) node[right] {$v_{\mathrm{out}}$}
+        (E.-) node[left] {$v_{\mathrm{in}-}$}
+        (E.+) node[left] {$v_{\mathrm{in}+}$};
+\end{circuitikz}
+\end{LTXexample}
+
+and of course the key \texttt{noinv input up} is fully functional:
+
+\begin{LTXexample}[varwidth=true]
+\begin{circuitikz}
+    \ctikzset{tripoles/en amp/input height=0.45}
+    \draw (0,0)node[en amp, noinv input up](E){}
+        (E.out) node[right] {$v_{\mathrm{out}}$}
+        (E.-) node[left] {$v_{\mathrm{in}-}$}
+        (E.+) node[left] {$v_{\mathrm{in}+}$};
+\end{circuitikz}
+\end{LTXexample}
+
+To flip the amplifier in the horizontal direction, you can use \texttt{xscale=-1} as usual:
+
+\begin{LTXexample}[varwidth=true]
+\begin{circuitikz}
+    \ctikzset{tripoles/en amp/input height=0.45}
+    \draw (0,0)node[en amp, xscale=-1, noinv input up](E){}
+        (E.out) node[left] {$v_{\mathrm{out}}$}
+        (E.-) node[right] {$v_{\mathrm{in}-}$}
+        (E.+) node[right] {$v_{\mathrm{in}+}$};
+\end{circuitikz}
+\end{LTXexample}
+
+Notice that the label is fully mirrored, so check below for the generic way of changing this.
+
+You can use the new key \texttt{en amp text A} to change the infinity symbol with an A:
+
+\begin{LTXexample}[varwidth=true]
+\begin{circuitikz}
+    \draw (0,0)node[en amp, en amp text A](E){}
+        (E.out) node[right] {$v_{\mathrm{out}}$}
+        (E.-) node[left] {$v_{\mathrm{in}-}$}
+        (E.+) node[left] {$v_{\mathrm{in}+}$} ;
+\end{circuitikz}
+\end{LTXexample}
+
+And if you want, you can completely change the text using the key \texttt{en amp text={}}, which by default is \verb|$\mathstrut{\triangleright}\,{\infty}$|:
+
+\begin{LTXexample}[varwidth=true]
+\begin{circuitikz}
+    \draw (0,0)node[en amp, en amp text={%
+            ${\triangleright}$ \small 200}](E){}
+        (E.out) node[right] {$v_{\mathrm{out}}$}
+        (E.-) node[left] {$v_{\mathrm{in}-}$}
+        (E.+) node[left] {$v_{\mathrm{in}+}$} ;
+\end{circuitikz}
+\end{LTXexample}
+
+Notice two things here: the first, that \verb|\triangleright| is enclosed in braces to remove the default spacing it has as a binary operator, and that \texttt{en amp text A} is simply a shortcut for
+
+\begin{lstlisting}
+    en amp text={$\mathstrut{\triangleright}\,\mathrm{A}$}
+\end{lstlisting}
+
+
+To combine flipping with a generic label you just do:
+
+\begin{LTXexample}[varwidth=true]
+\begin{circuitikz}
+    \draw (0,0)node[en amp, xscale=-1, en amp text A](E){}
+        (E.out) node[left] {$v_{\mathrm{out}}$}
+        (E.-) node[right] {$v_{\mathrm{in}-}$}
+        (E.+) node[right] {$v_{\mathrm{in}+}$} ;
+\end{circuitikz}
+\end{LTXexample}
+
+But notice that the ``A'' is also flipped by the \texttt{xscale} parameter. So the solution in this case is to use \texttt{scalebox}, like this:
+
+\begin{LTXexample}[varwidth=true]
+\begin{circuitikz}
+    \draw (0,0)node[en amp, xscale=-1, en amp text={%
+    ${\triangleright}$ \scalebox{-1}[1]{\small 200}}](E){}
+        (E.out) node[left] {$v_{\mathrm{out}}$}
+        (E.-) node[right] {$v_{\mathrm{in}-}$}
+        (E.+) node[right] {$v_{\mathrm{in}+}$} ;
+\end{circuitikz}
+\end{LTXexample}
 
 
 \subsection{Support shapes and bipoles}\label{sec:support}
