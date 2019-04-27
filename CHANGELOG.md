@@ -30,6 +30,7 @@ The major changes among the different circuitikz versions are listed here. See <
     - Added viscoelastic element
     - Added a BNC connector
     - Added a manual section on how to define new components
+    - Fix american voltage symbols and allow to customize them
   
 * Version 0.8.3 (2017-05-28) 
 	- Removed unwanted lines at to-paths if the starting point is a node without a explicit anchor.
