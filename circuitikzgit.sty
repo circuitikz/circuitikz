@@ -9,7 +9,7 @@
 
 \NeedsTeXFormat{LaTeX2e}
 
-\def\pgfcircversion{git:bb09ece}
+\def\pgfcircversion{git:1399b8d}
 \def\pgfcircversiondate{2019/04/27}
 
 \ProvidesPackage{circuitikzgit}
@@ -1559,6 +1559,11 @@
 \tikzset{voltage shift/.style={\circuitikzbasekey/voltage/shift=#1}}
 \ctikzset{voltage/european label distance/.initial=1.4}
 \ctikzset{voltage/american label distance/.initial=1.1}
+% shaping the +/- sign, see pgfcircvoltage.tex
+\ctikzset{voltage/american font/.initial={}}
+\ctikzset{voltage/american plus/.initial={$+$}}
+\ctikzset{voltage/american minus/.initial={$-$}}
+
 % special cases
 \ctikzset{bipoles/generic/voltage/distance from node/.initial=.4}
 \ctikzset{bipoles/generic/voltage/bump b/.initial=2}
@@ -14154,8 +14159,16 @@
     }
 }
 
-
-
+% american voltage font selection and symbol definition
+% the default font command is {} --- nothing
+\def\pgf@circ@avfont{\ctikzvalof{voltage/american font}}
+%
+% plus and minus symbols (default is $+$ and $-$, see pgfcirc.defines.tex)
+% notice that the double braces are needed  to be able
+% to use \boldmath in the font (although it is semi-deprecated...)
+%
+\def\pgf@circ@avplus{\ctikzvalof{voltage/american plus}}
+\def\pgf@circ@avminus{\ctikzvalof{voltage/american minus}}
 
 %% Output routine for generic bipoles
 
@@ -14279,19 +14292,27 @@
         \else
         \ifpgf@circuit@bipole@voltage@backward
             \ifpgf@circ@oldvoltagedirection
-                (pgfcirc@Vfrom) node[inner sep=0, anchor=\pgf@circ@bipole@voltage@label@anchor]{\scriptsize$+$}
-                (pgfcirc@Vto) node[inner sep=0, anchor=\pgf@circ@bipole@voltage@label@anchor]{$-$}
+                (pgfcirc@Vfrom) node[inner sep=0, node font=\pgf@circ@avfont,
+                    anchor=\pgf@circ@bipole@voltage@label@anchor]{\pgf@circ@avplus}
+                (pgfcirc@Vto) node[inner sep=0, node font=\pgf@circ@avfont,
+                    anchor=\pgf@circ@bipole@voltage@label@anchor]{\pgf@circ@avminus}
             \else
-                (pgfcirc@Vfrom) node[inner sep=0, anchor=\pgf@circ@bipole@voltage@label@anchor]{\scriptsize$-$}
-                (pgfcirc@Vto) node[inner sep=0, anchor=\pgf@circ@bipole@voltage@label@anchor]{$+$}
+                (pgfcirc@Vfrom) node[inner sep=0, node font=\pgf@circ@avfont,
+                    anchor=\pgf@circ@bipole@voltage@label@anchor]{\pgf@circ@avminus}
+                (pgfcirc@Vto) node[inner sep=0, node font=\pgf@circ@avfont,
+                    anchor=\pgf@circ@bipole@voltage@label@anchor]{\pgf@circ@avplus}
             \fi
             \else
             \ifpgf@circ@oldvoltagedirection
-                (pgfcirc@Vfrom) node[inner sep=0, anchor=\pgf@circ@bipole@voltage@label@anchor]{\scriptsize$-$}
-                (pgfcirc@Vto) node[inner sep=0, anchor=\pgf@circ@bipole@voltage@label@anchor]{$+$}
+                (pgfcirc@Vfrom) node[inner sep=0, node font=\pgf@circ@avfont,
+                    anchor=\pgf@circ@bipole@voltage@label@anchor]{\pgf@circ@avminus}
+                (pgfcirc@Vto) node[inner sep=0, node font=\pgf@circ@avfont,
+                    anchor=\pgf@circ@bipole@voltage@label@anchor]{\pgf@circ@avplus}
             \else
-                (pgfcirc@Vfrom) node[inner sep=0, anchor=\pgf@circ@bipole@voltage@label@anchor]{\scriptsize$+$}
-                (pgfcirc@Vto) node[inner sep=0, anchor=\pgf@circ@bipole@voltage@label@anchor]{$-$}
+                (pgfcirc@Vfrom) node[inner sep=0, node font=\pgf@circ@avfont,
+                    anchor=\pgf@circ@bipole@voltage@label@anchor]{\pgf@circ@avplus}
+                (pgfcirc@Vto) node[inner sep=0, node font=\pgf@circ@avfont,
+                    anchor=\pgf@circ@bipole@voltage@label@anchor]{\pgf@circ@avminus}
             \fi
         \fi
     \fi
@@ -14325,15 +14346,19 @@
 
             \ifpgf@circ@fixbatteries
                 \ifpgf@circuit@bipole@voltage@backward
-                    (pgfcirc@Vfrom)  node {$+$}  (pgfcirc@Vto) node {$-$}
+                    (pgfcirc@Vfrom)  node[node font=\pgf@circ@avfont] {\pgf@circ@avplus}
+                    (pgfcirc@Vto) node[node font=\pgf@circ@avfont] {\pgf@circ@avminus}
                 \else
-                    (pgfcirc@Vfrom)  node {$-$}  (pgfcirc@Vto) node {$+$}
+                    (pgfcirc@Vfrom)  node[node font=\pgf@circ@avfont] {\pgf@circ@avminus}
+                    (pgfcirc@Vto) node[node font=\pgf@circ@avfont] {\pgf@circ@avplus}
                 \fi
                 \else
                 \ifpgf@circuit@bipole@voltage@backward
-                    (pgfcirc@Vfrom)  node {$-$}  (pgfcirc@Vto) node {$+$}
+                    (pgfcirc@Vfrom)  node[node font=\pgf@circ@avfont] {\pgf@circ@avminus}
+                    (pgfcirc@Vto) node[node font=\pgf@circ@avfont] {\pgf@circ@avplus}
                 \else
-                    (pgfcirc@Vfrom)  node {$+$}  (pgfcirc@Vto) node {$-$}
+                    (pgfcirc@Vfrom)  node[node font=\pgf@circ@avfont] {\pgf@circ@avplus}
+                    (pgfcirc@Vto) node[node font=\pgf@circ@avfont] {\pgf@circ@avminus}
                 \fi
             \fi
         \fi
