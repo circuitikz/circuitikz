@@ -1,38 +1,33 @@
 <!--- CircuiTikz - Changelog --->
 The major changes among the different circuitikz versions are listed here. See <https://github.com/circuitikz/circuitikz/commits> for a full list of changes.
 
-* Version git (unreleased)
-	- Fixed placement of straightlabels within 4th quadrant
-	- Fixed straightvoltages at Diodes, varcap and some other components
-	- Adjusted ground symbols to better match ISO standard
-    - Fixed a bug about straightlabels (thanks to @fotesan)
-    - Added Romano as contributor
+* Version 0.9.0 (2019-05-10)
+    - Added Romano Giannetti as contributor
     - Added a CONTRIBUTING file
-    - Added new sources (cute european versions, noise sources) 
+    - Added options for solving the voltage direction problems.
+	- Adjusted ground symbols to better match ISO standard, added new symbols
+    - Added new sources (cute european versions, noise sources)
     - Added new types of amplifiers, and option to flip inputs and outputs
-    - Added bidirectional diodes (diac) thanks to Andre Lucas Chinazzo 
+    - Added bidirectional diodes (diac) thanks to Andre Lucas Chinazzo
     - Added L,R,C sensors (with european, american and cute variants)
     - Added stacked labels (thanks to the original work by Claudio Fiandrino)
     - Make the position of voltage symbols adjustable
     - Make the position of arrows in FETs and  BJTs adjustable
-    - Added the bulb symbol
-    - Added options for solving the voltage direction problems. 
-    - Added chips (DIP, QFP) with a generic number of pins. 
+    - Added chips (DIP, QFP) with a generic number of pins
     - Added special anchors for transformers (and fixed the wrong center anchor)
-    - Changed the logical port implementation to multiple inputs (thanks to John Kormylo)
-    - Changed labels spacing so that they are independent on scale factor
-    - Fixed the position of text labels in amplifiers
-    - Added new switches.
-    - Added border anchors for the logic gates
-    - Added antennas with no wires, loudspeakers and microphone
-    - Make the components fillable
+    - Changed the logical port implementation to multiple inputs (thanks to John Kormylo) with border anchors.
+    - Added several symbols: bulb, new switches, new antennas, loudspeaker, microphone, coaxial connector, viscoelastic element
+    - Make most components fillable
     - Added the oscilloscope component and several new instruments
     - Added viscoelastic element
-    - Added a BNC connector
     - Added a manual section on how to define new components
-    - Fix american voltage symbols and allow to customize them
-  
-* Version 0.8.3 (2017-05-28) 
+    - Fixed american voltage symbols and allow to customize them
+	- Fixed placement of straightlabels in several cases
+    - Fixed a bug about straightlabels (thanks to @fotesan)
+    - Fixed labels spacing so that they are independent on scale factor
+    - Fixed the position of text labels in amplifiers
+
+* Version 0.8.3 (2017-05-28)
 	- Removed unwanted lines at to-paths if the starting point is a node without a explicit anchor.
 	- Fixed scaling option, now all parts are scaled by bipoles/length
 	- Surge arrester appears no more if a to path is used without []-options
@@ -42,7 +37,7 @@ The major changes among the different circuitikz versions are listed here. See <
 	- Adjustable default distance for straight-voltages: 'bipoles/voltage/straight label distance'
 	- Added Symbol for bandstop filter
 	- New annotation type to show flows using f=... like currents, can be used for thermal, power or current flows
-	
+
 * Version 0.8.2 (2017-05-01)
 	- Fixes pgfkeys error using alternatively specified mixed colors(see pgfplots manual section "4.7.5 Colors")
 	- Added new switches "ncs" and "nos"
@@ -52,13 +47,13 @@ The major changes among the different circuitikz versions are listed here. See <
 	- current label "i=" can now be used independent of the regular label "l=" at current sources
 	- rewrite of current arrow placement. Current arrows can now also be rotated on zero-length paths
 	- New DIN/EN compliant operational amplifier symbol "en amp"
-	
+
 * Version 0.8.1 (2017-03-25)
 	- Fixed unwanted line through components if target coordinate is a name of a node
 	- Fixed position of labels with subscript letters.
 	- Absolute distance calculation in terms of ex at rotated labels
 	- Fixed label for transistor paths (no label drawn)
-	
+
 * Version 0.8 (2017-03-08)
 	- Allow use of voltage label at a [short]
 	- Correct line joins between path components (to[...])
@@ -128,7 +123,7 @@ The major changes among the different circuitikz versions are listed here. See <
     - added isfet
     - added noiseless, protective, chassis, signal and reference grounds (Luigi «Liverpool»)
 
-* Version 0.2.4	
+* Version 0.2.4
 	- added square voltage source (contributed by Alistair Kwan)
 	- added buffer and plain amplifier (contributed by Danilo Piazzalunga)
 	- added squid and barrier (contributed by  Cor Molenaar)
@@ -147,7 +142,7 @@ The major changes among the different circuitikz versions are listed here. See <
 	- Variable capacitor
 	- polarized capacitor
 	- ConTeXt support (read the manual!)
-	- nfet, nigfete, nigfetd, pfet, pigfete, pigfetd (contribution of Clemens Helfmeier and Theodor 
+	- nfet, nigfete, nigfetd, pfet, pigfete, pigfetd (contribution of Clemens Helfmeier and Theodor
 Borsche)
 	- njfet, pjfet (contribution of Danilo Piazzalunga)
 	- pigbt, nigbt
@@ -162,7 +157,7 @@ Borsche)
 	- new placing option for some tripoles (mostly transistors)
 	- mirror path style
 
-		
+
 * Version 0.2.2 - 20090520
     - Added the shape for lamps.
 	- Added options \texttt{europeanresistor}, \texttt{europeaninductor}, \texttt{americanresistor} and \texttt{americaninductor}, with corresponding styles.
