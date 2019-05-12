@@ -1,6 +1,9 @@
 <!--- CircuiTikz - Changelog --->
 The major changes among the different circuitikz versions are listed here. See <https://github.com/circuitikz/circuitikz/commits> for a full list of changes.
 
+* Version git (0.9.1, unreleased)
+    - Bumped the version to 0.9.1 so it's clearly different in log from the released one.
+
 * Version 0.9.0 (2019-05-10)
     - Added Romano Giannetti as contributor
     - Added a CONTRIBUTING file
