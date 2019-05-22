@@ -27,6 +27,10 @@
 % DIP (dual in line package) chips
 
 \pgfdeclareshape{dipchip}{
+    \savedmacro\numpins{%
+            \c@pgf@counta=\pgfkeysvalueof{/tikz/circuitikz/multipoles/dipchip/num pins}%
+            \def\numpins{\the\c@pgf@counta}
+    }
     \savedanchor\centerpoint{%
         \pgf@x=-.5\wd\pgfnodeparttextbox%
         \pgf@y=-.5\ht\pgfnodeparttextbox%
@@ -36,7 +40,7 @@
     \anchor{center}{\origin}
     \anchor{text}{\centerpoint}% to adjust text
     \saveddimen\height{%
-        \pgfmathsetlength\pgf@x{((\pgfkeysvalueof{/tikz/circuitikz/multipoles/dipchip/num pins})
+        \pgfmathsetlength\pgf@x{((\numpins)
         *\pgfkeysvalueof{/tikz/circuitikz/multipoles/dipchip/pin spacing})*\pgf@circ@Rlen/2}%
     }%
     \saveddimen{\chipspacing}{\pgfmathsetlength\pgf@x{\pgf@circ@Rlen*\pgfkeysvalueof{/tikz/circuitikz/multipoles/dipchip/pin spacing}}}
@@ -44,7 +48,7 @@
     \saveddimen{\extshift}{\pgfmathsetlength\pgf@x{\pgf@circ@Rlen*\pgfkeysvalueof{/tikz/circuitikz/multipoles/external pins width}}}
     % standard anchors
     \savedanchor\northwest{%
-        \pgfmathsetlength\pgf@y{0.5*((\pgfkeysvalueof{/tikz/circuitikz/multipoles/dipchip/num pins})
+        \pgfmathsetlength\pgf@y{0.5*((\numpins)
         *\pgfkeysvalueof{/tikz/circuitikz/multipoles/dipchip/pin spacing})*\pgf@circ@Rlen/2}%
         \pgfmathsetlength\pgf@x{-0.5*\pgf@circ@Rlen*\pgfkeysvalueof{/tikz/circuitikz/multipoles/dipchip/width}}
     }
@@ -90,7 +94,7 @@
         \pgfsetcolor{\pgfkeysvalueof{/tikz/circuitikz/color}}
         % Adding the pin number
         \ifpgf@circuit@chip@shownumbers
-            \c@pgf@counta=\pgfkeysvalueof{/tikz/circuitikz/multipoles/dipchip/num pins}%
+            \c@pgf@counta=\numpins\relax
             \divide\c@pgf@counta by 2 \pgf@circ@count@b=\c@pgf@counta
             % thanks to @marmot: https://tex.stackexchange.com/a/473571/38080
             \ifpgf@circuit@chip@straightnumbers
@@ -157,7 +161,7 @@
             \ifdim\pgf@circ@res@other>0pt
             \pgfscope
                 \pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/multipoles/external pins thickness}\pgflinewidth}
-                \c@pgf@counta=\pgfkeysvalueof{/tikz/circuitikz/multipoles/dipchip/num pins}%
+                \c@pgf@counta=\numpins\relax
                 \divide\c@pgf@counta by 2 \pgf@circ@count@b=\c@pgf@counta
                 \pgfmathloop%
                 \ifnum\c@pgf@counta>0
@@ -192,29 +196,18 @@
         % and is executed just before a node is drawn.
         \pgfutil@g@addto@macro\pgf@sh@s@dipchip{%
             % Start with the maximum pin number and go backwards.
-            % If the anchor is undefined, create it. Otherwise stop.
-            \c@pgf@counta=\pgfkeysvalueof{/tikz/circuitikz/multipoles/dipchip/num pins}%
-            \divide\c@pgf@counta by 2 \pgf@circ@count@b=\c@pgf@counta
+            \c@pgf@counta=\numpins\relax
             \pgfmathloop%
             \ifnum\c@pgf@counta>0
-                % left side, pins 1..npins/2
                 % we will create two anchors per pin: the "normal one" like `pin 1` for the
                 % electrical contact, and the "border one" like `bpin 1` for labels.
                 % they will coincide if `external pins width` is set to 0.
-                \expandafter\xdef\csname pgf@anchor@dipchip@bpin\space\the\c@pgf@counta\endcsname{%
-                    \noexpand\pgf@circ@chippinanchorLB{\the\c@pgf@counta}%
-                }
                 \expandafter\xdef\csname pgf@anchor@dipchip@pin\space\the\c@pgf@counta\endcsname{%
-                    \noexpand\pgf@circ@chippinanchorL{\the\c@pgf@counta}%
+                    \noexpand\pgf@circ@dippinanchor{\the\c@pgf@counta}{1}%
                 }
-                % right side
-                \pgf@circ@count@c=\numexpr2*\pgf@circ@count@b-\c@pgf@counta+1\relax
-                \expandafter\xdef\csname pgf@anchor@dipchip@bpin\space\the\pgf@circ@count@c\endcsname{%
-                    \noexpand\pgf@circ@chippinanchorRB{\the\c@pgf@counta}%
-                }%
-                \expandafter\xdef\csname pgf@anchor@dipchip@pin\space\the\pgf@circ@count@c\endcsname{%
-                    \noexpand\pgf@circ@chippinanchorR{\the\c@pgf@counta}%
-                }%
+                \expandafter\xdef\csname pgf@anchor@dipchip@bpin\space\the\c@pgf@counta\endcsname{%
+                    \noexpand\pgf@circ@dippinanchor{\the\c@pgf@counta}{0}%
+                }
                 \advance\c@pgf@counta by -1\relax%
                 \repeatpgfmathloop%
             }%
@@ -223,6 +216,10 @@
 % QFP (quad flat package) chips
 
 \pgfdeclareshape{qfpchip}{
+    \savedmacro\numpins{%
+            \c@pgf@counta=\pgfkeysvalueof{/tikz/circuitikz/multipoles/qfpchip/num pins}%
+            \def\numpins{\the\c@pgf@counta}
+    }
     \savedanchor\centerpoint{%
         \pgf@x=-.5\wd\pgfnodeparttextbox%
         \pgf@y=-.5\ht\pgfnodeparttextbox%
@@ -232,18 +229,18 @@
     \anchor{center}{\origin}
     \anchor{text}{\centerpoint}% to adjust text
     \saveddimen\height{%
-        \pgfmathsetlength\pgf@x{((\pgfkeysvalueof{/tikz/circuitikz/multipoles/qfpchip/num pins}+2)
+        \pgfmathsetlength\pgf@x{((\numpins+2)
         *\pgfkeysvalueof{/tikz/circuitikz/multipoles/qfpchip/pin spacing})*\pgf@circ@Rlen/4}%
     }%
     \saveddimen\width{%
-        \pgfmathsetlength\pgf@x{((\pgfkeysvalueof{/tikz/circuitikz/multipoles/qfpchip/num pins}+2)
+        \pgfmathsetlength\pgf@x{((\numpins+2)
         *\pgfkeysvalueof{/tikz/circuitikz/multipoles/qfpchip/pin spacing})*\pgf@circ@Rlen/4}%
     }%
     \saveddimen{\chipspacing}{\pgfmathsetlength\pgf@x{\pgf@circ@Rlen*\pgfkeysvalueof{/tikz/circuitikz/multipoles/qfpchip/pin spacing}}}
     \saveddimen{\extshift}{\pgfmathsetlength\pgf@x{\pgf@circ@Rlen*\pgfkeysvalueof{/tikz/circuitikz/multipoles/external pins width}}}
     % standard anchors
     \savedanchor\northwest{%
-        \pgfmathsetlength\pgf@y{0.5*((\pgfkeysvalueof{/tikz/circuitikz/multipoles/qfpchip/num pins}+2)
+        \pgfmathsetlength\pgf@y{0.5*((\numpins+2)
         *\pgfkeysvalueof{/tikz/circuitikz/multipoles/qfpchip/pin spacing})*\pgf@circ@Rlen/4}%
         \pgf@x=-\pgf@y
     }
@@ -294,7 +291,7 @@
         % Adding the pin number
         \pgfsetcolor{\pgfkeysvalueof{/tikz/circuitikz/color}}
         \ifpgf@circuit@chip@shownumbers
-            \c@pgf@counta=\pgfkeysvalueof{/tikz/circuitikz/multipoles/qfpchip/num pins}%
+            \c@pgf@counta=\numpins%
             \divide\c@pgf@counta by 4 \pgf@circ@count@b=\c@pgf@counta
             % thanks to @marmot: https://tex.stackexchange.com/a/473571/38080
             \ifpgf@circuit@chip@straightnumbers
@@ -401,7 +398,7 @@
             \ifdim\pgf@circ@res@other>0pt
             \pgfscope
                 \pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/multipoles/external pins thickness}\pgflinewidth}
-                \c@pgf@counta=\pgfkeysvalueof{/tikz/circuitikz/multipoles/qfpchip/num pins}%
+                \c@pgf@counta=\numpins%
                 \divide\c@pgf@counta by 4 \pgf@circ@count@b=\c@pgf@counta
                 \pgfmathloop%
                 \ifnum\c@pgf@counta>0
@@ -452,41 +449,14 @@
         % and is executed just before a node is drawn.
         \pgfutil@g@addto@macro\pgf@sh@s@qfpchip{%
             % Start with the maximum pin number and go backwards.
-            % If the anchor is undefined, create it. Otherwise stop.
-            \c@pgf@counta=\pgfkeysvalueof{/tikz/circuitikz/multipoles/qfpchip/num pins}%
-            \divide\c@pgf@counta by 4 \pgf@circ@count@b=\c@pgf@counta
+            \c@pgf@counta=\numpins%
             \pgfmathloop%
             \ifnum\c@pgf@counta>0
-                % left side; 1..npins/4
                 \expandafter\xdef\csname pgf@anchor@qfpchip@pin\space\the\c@pgf@counta\endcsname{%
-                    \noexpand\pgf@circ@chippinanchorQL{\the\c@pgf@counta}%
+                    \noexpand\pgf@circ@qfppinanchor{\the\c@pgf@counta}{1}%
                 }
                 \expandafter\xdef\csname pgf@anchor@qfpchip@bpin\space\the\c@pgf@counta\endcsname{%
-                    \noexpand\pgf@circ@chippinanchorQLB{\the\c@pgf@counta}%
-                }
-                % bottom side;
-                \pgf@circ@count@c=\numexpr2*\pgf@circ@count@b-\c@pgf@counta+1\relax
-                \expandafter\xdef\csname pgf@anchor@qfpchip@pin\space\the\pgf@circ@count@c\endcsname{%
-                    \noexpand\pgf@circ@chippinanchorQB{\the\c@pgf@counta}%
-                }
-                \expandafter\xdef\csname pgf@anchor@qfpchip@bpin\space\the\pgf@circ@count@c\endcsname{%
-                    \noexpand\pgf@circ@chippinanchorQBB{\the\c@pgf@counta}%
-                }
-                % right side; 2*npins/4+1, 3*npins/4
-                \pgf@circ@count@c=\numexpr3*\pgf@circ@count@b-\c@pgf@counta+1\relax
-                \expandafter\xdef\csname pgf@anchor@qfpchip@pin\space\the\pgf@circ@count@c\endcsname{%
-                    \noexpand\pgf@circ@chippinanchorQR{\the\c@pgf@counta}%
-                }
-                \expandafter\xdef\csname pgf@anchor@qfpchip@bpin\space\the\pgf@circ@count@c\endcsname{%
-                    \noexpand\pgf@circ@chippinanchorQRB{\the\c@pgf@counta}%
-                }
-                % top side
-                \pgf@circ@count@c=\numexpr3*\pgf@circ@count@b+\c@pgf@counta\relax
-                \expandafter\xdef\csname pgf@anchor@qfpchip@pin\space\the\pgf@circ@count@c\endcsname{%
-                    \noexpand\pgf@circ@chippinanchorQT{\the\c@pgf@counta}%
-                }
-                \expandafter\xdef\csname pgf@anchor@qfpchip@bpin\space\the\pgf@circ@count@c\endcsname{%
-                    \noexpand\pgf@circ@chippinanchorQTB{\the\c@pgf@counta}%
+                    \noexpand\pgf@circ@qfppinanchor{\the\c@pgf@counta}{0}%
                 }
                 \advance\c@pgf@counta-1\relax%
                 \repeatpgfmathloop%
@@ -494,66 +464,38 @@
         }
 
 %% anchors for DIP
-\def\pgf@circ@chippinanchorR#1{%
-  % When this macro is called,
-  % \extshift, \height and \chipspacing will be defined.
-    \pgfpoint{\width/2+\extshift}{\height/2+(\pgf@circ@dip@pin@shift-#1)*\chipspacing}%
-}
-\def\pgf@circ@chippinanchorL#1{%
-  % When this macro is called,
-  % \extshift, \height and \chipspacing will be defined.
-    \pgfpoint{-\width/2-\extshift}{\height/2+(\pgf@circ@dip@pin@shift-#1)*\chipspacing}%
-}
-\def\pgf@circ@chippinanchorRB#1{%
-  % When this macro is called,
-  % \extshift, \height and \chipspacing will be defined.
-    \pgfpoint{\width/2}{\height/2+(\pgf@circ@dip@pin@shift-#1)*\chipspacing}%
-}
-\def\pgf@circ@chippinanchorLB#1{%
-  % When this macro is called,
-  % \extshift, \height and \chipspacing will be defined.
-    \pgfpoint{-\width/2}{\height/2+(\pgf@circ@dip@pin@shift-#1)*\chipspacing}%
+\def\pgf@circ@dippinanchor#1#2{% #1: pin number #2: 0 for border pin, 1 for external pin
+    \c@pgf@countc=\numpins\relax
+    \divide\c@pgf@countc by 2
+    \ifnum #1 > \the\c@pgf@countc
+        % right side
+        \pgfpoint{\width/2+#2*\extshift}{-\height/2+(\pgf@circ@dip@pin@shift-\c@pgf@countc+#1-1)*\chipspacing}
+    \else
+        \pgfpoint{-\width/2-#2*\extshift}{\height/2+(\pgf@circ@dip@pin@shift-#1)*\chipspacing}
+\fi
 }
 
 %% anchors for QFP
-\def\pgf@circ@chippinanchorQR#1{%
-  % When this macro is called,
-  % \extshift, \height and \chipspacing will be defined.
-    \pgfpoint{\width/2+\extshift}{\height/2+(\pgf@circ@qfp@pin@shift-#1)*\chipspacing}%
+\def\pgf@circ@qfppinanchor#1#2{% #1: pin number #2: 0 for border pin, 1 for external pin
+    \c@pgf@countc=\numpins\relax
+    \divide\c@pgf@countc by 4
+    \ifnum #1 > \the\c@pgf@countc
+        \c@pgf@countb=\c@pgf@countc \multiply \c@pgf@countb by 2
+        \ifnum #1 > \the\c@pgf@countb
+            \c@pgf@countb=\c@pgf@countc \multiply \c@pgf@countb by 3
+            \ifnum #1 > \the\c@pgf@countb
+                % 3*npins/4 < pin, top side
+                \pgfpoint{\width/2+(\pgf@circ@qfp@pin@shift+\c@pgf@countb-#1)*\chipspacing}{\height/2+#2*\extshift}%
+            \else
+                % 2*npins/4 < pin <= 3*npins/4, right side
+                \pgfpoint{\width/2+#2*\extshift}{\height/2+(\pgf@circ@qfp@pin@shift-\c@pgf@countb+#1-1)*\chipspacing}%
+            \fi
+        \else
+            %  npins/4 < pin <= 2*npins/4, bottom side
+            \pgfpoint{\width/2+(\pgf@circ@qfp@pin@shift-\c@pgf@countb+#1-1)*\chipspacing}{-\height/2-#2*\extshift}%
+        \fi
+    \else
+        % <= npins/4, left side
+        \pgfpoint{-\width/2-#2*\extshift}{\height/2+(\pgf@circ@qfp@pin@shift-#1)*\chipspacing}%
+    \fi
 }
-\def\pgf@circ@chippinanchorQL#1{%
-  % When this macro is called,
-  % \extshift, \height and \chipspacing will be defined.
-    \pgfpoint{-\width/2-\extshift}{\height/2+(\pgf@circ@qfp@pin@shift-#1)*\chipspacing}%
-}
-\def\pgf@circ@chippinanchorQT#1{%
-  % When this macro is called,
-  % \extshift, \height and \chipspacing will be defined.
-    \pgfpoint{\width/2+(\pgf@circ@qfp@pin@shift-#1)*\chipspacing}{\height/2+\extshift}%
-}
-\def\pgf@circ@chippinanchorQB#1{%
-  % When this macro is called,
-  % \extshift, \height and \chipspacing will be defined.
-    \pgfpoint{\width/2+(\pgf@circ@qfp@pin@shift-#1)*\chipspacing}{-\height/2-\extshift}%
-}
-\def\pgf@circ@chippinanchorQRB#1{%
-  % When this macro is called,
-  % \extshift, \height and \chipspacing will be defined.
-    \pgfpoint{\width/2}{\height/2+(\pgf@circ@qfp@pin@shift-#1)*\chipspacing}%
-}
-\def\pgf@circ@chippinanchorQLB#1{%
-  % When this macro is called,
-  % \extshift, \height and \chipspacing will be defined.
-    \pgfpoint{-\width/2}{\height/2+(\pgf@circ@qfp@pin@shift-#1)*\chipspacing}%
-}
-\def\pgf@circ@chippinanchorQTB#1{%
-  % When this macro is called,
-  % \extshift, \height and \chipspacing will be defined.
-    \pgfpoint{\width/2+(\pgf@circ@qfp@pin@shift-#1)*\chipspacing}{\height/2}%
-}
-\def\pgf@circ@chippinanchorQBB#1{%
-  % When this macro is called,
-  % \extshift, \height and \chipspacing will be defined.
-    \pgfpoint{\width/2+(\pgf@circ@qfp@pin@shift-#1)*\chipspacing}{-\height/2}%
-}
-
