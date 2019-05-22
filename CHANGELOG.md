@@ -3,6 +3,7 @@ The major changes among the different circuitikz versions are listed here. See <
 
 * Version git (0.9.1, unreleased)
     - Bumped the version to 0.9.1 so it's clearly different in log from the released one.
+    - Fixed a bug (#205) about unstable anchors in the chip components
     - Fixed a regression in label placement for some values of scaling
 
 * Version 0.9.0 (2019-05-10)
