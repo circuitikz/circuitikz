@@ -1811,7 +1811,7 @@ The symbols can also be used along a path, using the transistor-path-syntax(T in
 
 
 
-\subsection{Double bipoles}
+\subsection{Double bipoles (transformers)}
 
 Transformers automatically use the inductor shape currently selected. These are the three possibilities:
 \begin{groupdesc}
@@ -1840,8 +1840,6 @@ Transformers with core are also available:
     \circuitdesc{transformer core}{Transformer core (european inductor)}{}
     \ctikzset{inductor=cute} % reset default
 \end{groupdesc}
-
-
 
 \subsubsection{Double dipoles anchors}
 
@@ -1902,7 +1900,55 @@ A couple of examples follow:
 ;\end{circuitikz}
 \end{LTXexample}
 
+\subsubsection{Double dipoles customization}
 
+You can change the aspect of a quadpole using the corresponding parameters \texttt{quadpoles/*/width} and  \texttt{quadpoles/*/heigth} (substitute the star for \texttt{transformer}, \texttt{transformer core} or \texttt{gyrator}; default value is \texttt{1.5} for all). You have to be careful to not choose value that overlaps the components!
+
+\begin{LTXexample}[varwidth=true]
+\begin{circuitikz}
+\ctikzset{quadpoles/transformer/width=1,
+    quadpoles/transformer/height=2}
+  \draw (0,0) node[transformer] (T) {}
+    (T.base) node{K}
+    (T.inner dot A1) node[circ]{}
+    (T.inner dot B2) node[circ]{};
+\end{circuitikz}
+\end{LTXexample}
+
+Another very useful parameter is \texttt{quadpoles/*/inner} (default \texttt{0.4}) that determine which part of the component is the ``vertical'' one. So, setting that parameter to 1 will eliminate the horizontal part of the component (obviously, to maintain the general aspect ratio you need to change the width also):
+
+
+\begin{LTXexample}[varwidth=true]
+\begin{circuitikz}
+\draw (0,0) node[transformer] (T) {}
+  (T.A1) node[anchor=east] {A1}
+  (T.A2) node[anchor=east] {A2}
+  (T.B1) node[anchor=west] {B1}
+  (T.B2) node[anchor=west] {B2}
+  (T.base) node{K} ;
+\ctikzset{quadpoles/transformer/inner=1, quadpoles/transformer/width=0.6}
+\draw (0,-3) node[transformer] (P) {}
+  (P.base) node{T}
+  (P.inner dot A2) node[ocirc]{}
+  (P.inner dot B2) node[ocirc]{};
+\end{circuitikz}
+\end{LTXexample}
+
+This can be useful if you want to put seamlessly something in series with either side of the component; for simplicity, you have a style setting \texttt{quadpoles style} to toggle between the standard shape of double bipoles  (called \texttt{inward}, default) and the one without horizontal leads (called \texttt{inline}):
+
+\begin{LTXexample}[varwidth=true]
+\begin{circuitikz}
+\ctikzset{inductor=cute, quadpoles style=inline}
+\draw
+  (0,0) to[R] ++(0,-2)
+  node[transformer, anchor=A1](T){}
+  (T.A2) node[ground](GND){}
+  (T.inner dot A1) node[font=\small\boldmath]{$\oplus$}
+  (T.inner dot B2) node[]{$+$}
+  (T.B1) node[above, ocirc]{}
+  (T.B2) -- (GND);
+\end{circuitikz}
+\end{LTXexample}
 
 
 \subsection{Amplifiers}
