@@ -18,7 +18,7 @@
             \pgf@x=0pt
             \pgf@y=0pt
         }
-        \savedmacro{\stretto}{\def\stretto{0.4}}
+        \savedmacro{\stretto}{\def\stretto{\ctikzvalof{quadpoles/#1/inner}}}
         \savedanchor\northwest{%
             \pgf@y=\pgfkeysvalueof{/tikz/circuitikz/quadpoles/#1/height}\pgf@circ@Rlen
             \pgf@y=.5\pgf@y
@@ -254,6 +254,234 @@
 }
 
 
+\pgfcircdeclarequadpole{transformer}{
+    \pgf@circ@drawtransformerbasicbody
+}{\pgf@circ@drawtransformerbasicanchor}
+
+\pgfcircdeclarequadpole{transformer core}{
+
+    \pgf@circ@drawtransformerbasicbody
+
+    \pgfmoveto{\pgfpoint%
+        {\ctikzvalof{quadpoles/transformer core/core width}\pgf@circ@res@right}%
+        {\ctikzvalof{quadpoles/transformer core/core height}\pgf@circ@res@down}%
+    }
+    \pgflineto{
+        \pgfpoint
+        {\ctikzvalof{quadpoles/transformer core/core width}\pgf@circ@res@right}%
+        {\ctikzvalof{quadpoles/transformer core/core height}\pgf@circ@res@up}%
+    }
+
+    \pgfmoveto{\pgfpoint%
+        {\ctikzvalof{quadpoles/transformer core/core width}\pgf@circ@res@left}%
+        {\ctikzvalof{quadpoles/transformer core/core height}\pgf@circ@res@down}%
+    }
+    \pgflineto{
+        \pgfpoint
+        {\ctikzvalof{quadpoles/transformer core/core width}\pgf@circ@res@left}%
+        {\ctikzvalof{quadpoles/transformer core/core height}\pgf@circ@res@up}%
+    }
+
+    \pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}\pgflinewidth}
+    \pgfusepath{draw}
+}{\pgf@circ@drawtransformerbasicanchor}
+
+
+\pgfcircdeclarequadpole{gyrator}{
+
+    \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@up}}
+    \pgfpathlineto{\pgfpoint{\stretto\pgf@circ@res@left}{\pgf@circ@res@up}}
+    \pgfpathlineto{\pgfpoint{\stretto\pgf@circ@res@left}{\pgf@circ@res@down}}
+    \pgfpathlineto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@down}}
+
+    \pgfpathmoveto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@up}}
+    \pgfpathlineto{\pgfpoint{\stretto\pgf@circ@res@right}{\pgf@circ@res@up}}
+    \pgfpathlineto{\pgfpoint{\stretto\pgf@circ@res@right}{\pgf@circ@res@down}}
+    \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@down}}
+
+    \pgfusepath{draw}
+
+    \pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/quadpoles/thickness}\pgflinewidth}
+    \pgfpathmoveto{\pgfpoint{\stretto\pgf@circ@res@left}{.7*\stretto\pgf@circ@res@down}}
+    \pgfpatharc{90}{270}{.7*\stretto\pgf@circ@res@down}
+
+    \pgfpathmoveto{\pgfpoint{\stretto\pgf@circ@res@right}{.7*\stretto\pgf@circ@res@up}}
+    \pgfpatharc{-90}{90}{.7*\stretto\pgf@circ@res@down}
+    \pgfusepath{draw}
+
+}{}
+
+%% four-port
+% defines a general outer box for four-ports
+% TikZ usage:
+%		\draw (0,0) node[coupler](coup){\SI{-3}{dB}}
+%		(coup.port1) to[short,-o] ++(-1,0)
+%
+
+\long\def\pgfcircdeclarefourport#1#2{
+    \pgfdeclareshape{#1}{
+        \anchor{center}{
+            \northwest
+            \pgf@x=0pt
+            \pgf@y=0pt
+        }
+        \savedanchor\northwest{%
+            \pgf@y=\pgfkeysvalueof{/tikz/circuitikz/quadpoles/#1/height}\pgf@circ@Rlen
+            \pgf@y=.5\pgf@y
+            \pgf@x=.5\pgf@circ@Rlen
+            \pgf@x=-\pgfkeysvalueof{/tikz/circuitikz/quadpoles/#1/width}\pgf@x
+        }
+        \anchor{north}{
+            \northwest
+            \pgf@x=0pt
+        }
+        \anchor{south}{
+            \northwest
+            \pgf@x=0pt
+            \pgf@y=-\pgf@y
+        }
+        \anchor{west}{
+            \northwest
+            \pgf@y=0pt
+        }
+        \anchor{east}{
+            \northwest
+            \pgf@y=0pt
+            \pgf@x=-\pgf@x
+        }
+        \anchor{south west}{
+            \northwest
+            \pgf@y=-\pgf@y
+        }
+        \anchor{north east}{
+            \northwest
+            \pgf@x=-\pgf@x
+        }
+        \anchor{north west}{
+            \northwest
+        }
+        \anchor{south east}{
+            \northwest
+            \pgf@x=-\pgf@x
+            \pgf@y=-\pgf@y
+        }
+        \anchor{port1}{
+            \northwest
+            \pgf@y=-0.5\pgf@y
+        }
+        \anchor{port2}{
+            \northwest
+            \pgf@x=-\pgf@x
+            \pgf@y=-0.5\pgf@y
+        }
+        \anchor{port3}{
+            \northwest
+            \pgf@x=-\pgf@x
+            \pgf@y=0.5\pgf@y
+        }
+        \anchor{port4}{
+            \northwest
+            \pgf@y=0.5\pgf@y
+        }
+        \anchor{1}{
+            \northwest
+            \pgf@y=-0.5\pgf@y
+        }
+        \anchor{2}{
+            \northwest
+            \pgf@x=-\pgf@x
+            \pgf@y=-0.5\pgf@y
+        }
+        \anchor{3}{
+            \northwest
+            \pgf@x=-\pgf@x
+            \pgf@y=0.5\pgf@y
+        }
+        \anchor{4}{
+            \northwest
+            \pgf@y=0.5\pgf@y
+        }
+
+        \anchor{text}{
+            \northwest
+            \advance \pgf@y by 0.5\ht\pgfnodeparttextbox
+            \pgf@x=-.5\wd\pgfnodeparttextbox
+        }
+        \backgroundpath{
+            \pgfsetcolor{\pgfkeysvalueof{/tikz/circuitikz/color}}
+
+            \northwest
+            \pgf@circ@res@up = \pgf@y
+            \pgf@circ@res@down = -\pgf@y
+            \pgf@circ@res@right = -\pgf@x
+            \pgf@circ@res@left = \pgf@x
+
+            \pgfstartlinewidth=\pgflinewidth
+
+            % draw outer box
+            \pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}\pgfstartlinewidth}
+            \pgfpathrectanglecorners{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@up}}{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@down}}
+            \pgfusepath{draw}
+
+            % draw inner stuff
+            #2
+
+            % draw inner text
+            \pgftext[center,x=-0.15\pgf@circ@res@step,y=0]{\ctikzvalof{bipoles/twoport/text}}
+        }
+    }
+}
+
+% four-port
+\pgfcircdeclarefourport{fourport}{}
+
+
+% straight coupler
+\pgfcircdeclarefourport{coupler}{
+    \pgfsetlinewidth{\pgfstartlinewidth}
+    \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{0.5\pgf@circ@res@up}}
+    \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{0.5\pgf@circ@res@up}}
+    \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{0.5\pgf@circ@res@down}}
+    \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{0.5\pgf@circ@res@down}}
+    \pgfusepath{draw}
+
+    \pgfpathmoveto{\pgfpoint{0.7\pgf@circ@res@left}{0.4\pgf@circ@res@down}}
+    \pgfpathlineto{\pgfpoint{0.7\pgf@circ@res@right}{0.4\pgf@circ@res@up}}
+    \pgfsetarrows{latex-latex}
+    \pgfusepath{draw}
+    \pgfpathmoveto{\pgfpoint{0.7\pgf@circ@res@left}{0.4\pgf@circ@res@up}}
+    \pgfpathlineto{\pgfpoint{0.7\pgf@circ@res@right}{0.4\pgf@circ@res@down}}
+    \pgfsetarrows{latex-latex}
+    \pgfusepath{draw}
+}
+
+% "bended" coupler
+\pgfcircdeclarefourport{coupler2}{
+    \pgfsetlinewidth{\pgfstartlinewidth}
+    \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{0.5\pgf@circ@res@up}}
+    \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{0.5\pgf@circ@res@up}}
+    \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{0.5\pgf@circ@res@down}}
+    \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{0.5\pgf@circ@res@down}}
+    \pgfusepath{draw}
+
+    \pgfpathmoveto{\pgfpoint{0.1\pgf@circ@res@left}{0pt}}
+    \pgfpatharc{0}{90} {0.4\pgf@circ@res@up}
+    \pgfsetarrowsend{latex}
+    \pgfusepath{draw}
+    \pgfpathmoveto{\pgfpoint{0.1\pgf@circ@res@left}{0pt}}
+    \pgfpatharc{0}{-90} {0.4\pgf@circ@res@up}
+    \pgfsetarrowsend{latex}
+    \pgfusepath{draw}
+
+    \pgfpathmoveto{\pgfpoint{0.1\pgf@circ@res@right}{0pt}}
+    \pgfpatharc{180}{90} {0.4\pgf@circ@res@up}
+    \pgfsetarrowsend{latex}
+    \pgfusepath{draw}
+    \pgfpathmoveto{\pgfpoint{0.1\pgf@circ@res@right}{0pt}}
+    \pgfpatharc{-180}{-90} {0.4\pgf@circ@res@up}
+    \pgfsetarrowsend{latex}
+    \pgfusepath{draw}
+}
 
 % contrib Kristofer M. Monisit
 
@@ -649,234 +877,4 @@
         \pgfsetrectcap
         \pgfusepath{draw}
     }
-}
-
-
-\pgfcircdeclarequadpole{transformer}{
-    \pgf@circ@drawtransformerbasicbody
-}{\pgf@circ@drawtransformerbasicanchor}
-
-\pgfcircdeclarequadpole{transformer core}{
-
-    \pgf@circ@drawtransformerbasicbody
-
-    \pgfmoveto{\pgfpoint%
-        {\ctikzvalof{quadpoles/transformer core/core width}\pgf@circ@res@right}%
-        {\ctikzvalof{quadpoles/transformer core/core height}\pgf@circ@res@down}%
-    }
-    \pgflineto{
-        \pgfpoint
-        {\ctikzvalof{quadpoles/transformer core/core width}\pgf@circ@res@right}%
-        {\ctikzvalof{quadpoles/transformer core/core height}\pgf@circ@res@up}%
-    }
-
-    \pgfmoveto{\pgfpoint%
-        {\ctikzvalof{quadpoles/transformer core/core width}\pgf@circ@res@left}%
-        {\ctikzvalof{quadpoles/transformer core/core height}\pgf@circ@res@down}%
-    }
-    \pgflineto{
-        \pgfpoint
-        {\ctikzvalof{quadpoles/transformer core/core width}\pgf@circ@res@left}%
-        {\ctikzvalof{quadpoles/transformer core/core height}\pgf@circ@res@up}%
-    }
-
-    \pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}\pgflinewidth}
-    \pgfusepath{draw}
-}{\pgf@circ@drawtransformerbasicanchor}
-
-
-\pgfcircdeclarequadpole{gyrator}{
-
-    \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@up}}
-    \pgfpathlineto{\pgfpoint{\stretto\pgf@circ@res@left}{\pgf@circ@res@up}}
-    \pgfpathlineto{\pgfpoint{\stretto\pgf@circ@res@left}{\pgf@circ@res@down}}
-    \pgfpathlineto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@down}}
-
-    \pgfpathmoveto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@up}}
-    \pgfpathlineto{\pgfpoint{\stretto\pgf@circ@res@right}{\pgf@circ@res@up}}
-    \pgfpathlineto{\pgfpoint{\stretto\pgf@circ@res@right}{\pgf@circ@res@down}}
-    \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@down}}
-
-    \pgfusepath{draw}
-
-    \pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/quadpoles/thickness}\pgflinewidth}
-    \pgfpathmoveto{\pgfpoint{\stretto\pgf@circ@res@left}{.7*\stretto\pgf@circ@res@down}}
-    \pgfpatharc{90}{270}{.7*\stretto\pgf@circ@res@down}
-
-    \pgfpathmoveto{\pgfpoint{\stretto\pgf@circ@res@right}{.7*\stretto\pgf@circ@res@up}}
-    \pgfpatharc{-90}{90}{.7*\stretto\pgf@circ@res@down}
-    \pgfusepath{draw}
-
-}{}
-
-%% four-port
-% defines a general outer box for four-ports
-% TikZ usage:
-%		\draw (0,0) node[coupler](coup){\SI{-3}{dB}}
-%		(coup.port1) to[short,-o] ++(-1,0)
-%
-
-\long\def\pgfcircdeclarefourport#1#2{
-    \pgfdeclareshape{#1}{
-        \anchor{center}{
-            \northwest
-            \pgf@x=0pt
-            \pgf@y=0pt
-        }
-        \savedanchor\northwest{%
-            \pgf@y=\pgfkeysvalueof{/tikz/circuitikz/quadpoles/#1/height}\pgf@circ@Rlen
-            \pgf@y=.5\pgf@y
-            \pgf@x=.5\pgf@circ@Rlen
-            \pgf@x=-\pgfkeysvalueof{/tikz/circuitikz/quadpoles/#1/width}\pgf@x
-        }
-        \anchor{north}{
-            \northwest
-            \pgf@x=0pt
-        }
-        \anchor{south}{
-            \northwest
-            \pgf@x=0pt
-            \pgf@y=-\pgf@y
-        }
-        \anchor{west}{
-            \northwest
-            \pgf@y=0pt
-        }
-        \anchor{east}{
-            \northwest
-            \pgf@y=0pt
-            \pgf@x=-\pgf@x
-        }
-        \anchor{south west}{
-            \northwest
-            \pgf@y=-\pgf@y
-        }
-        \anchor{north east}{
-            \northwest
-            \pgf@x=-\pgf@x
-        }
-        \anchor{north west}{
-            \northwest
-        }
-        \anchor{south east}{
-            \northwest
-            \pgf@x=-\pgf@x
-            \pgf@y=-\pgf@y
-        }
-        \anchor{port1}{
-            \northwest
-            \pgf@y=-0.5\pgf@y
-        }
-        \anchor{port2}{
-            \northwest
-            \pgf@x=-\pgf@x
-            \pgf@y=-0.5\pgf@y
-        }
-        \anchor{port3}{
-            \northwest
-            \pgf@x=-\pgf@x
-            \pgf@y=0.5\pgf@y
-        }
-        \anchor{port4}{
-            \northwest
-            \pgf@y=0.5\pgf@y
-        }
-        \anchor{1}{
-            \northwest
-            \pgf@y=-0.5\pgf@y
-        }
-        \anchor{2}{
-            \northwest
-            \pgf@x=-\pgf@x
-            \pgf@y=-0.5\pgf@y
-        }
-        \anchor{3}{
-            \northwest
-            \pgf@x=-\pgf@x
-            \pgf@y=0.5\pgf@y
-        }
-        \anchor{4}{
-            \northwest
-            \pgf@y=0.5\pgf@y
-        }
-
-        \anchor{text}{
-            \northwest
-            \advance \pgf@y by 0.5\ht\pgfnodeparttextbox
-            \pgf@x=-.5\wd\pgfnodeparttextbox
-        }
-        \backgroundpath{
-            \pgfsetcolor{\pgfkeysvalueof{/tikz/circuitikz/color}}
-
-            \northwest
-            \pgf@circ@res@up = \pgf@y
-            \pgf@circ@res@down = -\pgf@y
-            \pgf@circ@res@right = -\pgf@x
-            \pgf@circ@res@left = \pgf@x
-
-            \pgfstartlinewidth=\pgflinewidth
-
-            % draw outer box
-            \pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}\pgfstartlinewidth}
-            \pgfpathrectanglecorners{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@up}}{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@down}}
-            \pgfusepath{draw}
-
-            % draw inner stuff
-            #2
-
-            % draw inner text
-            \pgftext[center,x=-0.15\pgf@circ@res@step,y=0]{\ctikzvalof{bipoles/twoport/text}}
-        }
-    }
-}
-
-% four-port
-\pgfcircdeclarefourport{fourport}{}
-
-
-% straight coupler
-\pgfcircdeclarefourport{coupler}{
-    \pgfsetlinewidth{\pgfstartlinewidth}
-    \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{0.5\pgf@circ@res@up}}
-    \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{0.5\pgf@circ@res@up}}
-    \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{0.5\pgf@circ@res@down}}
-    \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{0.5\pgf@circ@res@down}}
-    \pgfusepath{draw}
-
-    \pgfpathmoveto{\pgfpoint{0.7\pgf@circ@res@left}{0.4\pgf@circ@res@down}}
-    \pgfpathlineto{\pgfpoint{0.7\pgf@circ@res@right}{0.4\pgf@circ@res@up}}
-    \pgfsetarrows{latex-latex}
-    \pgfusepath{draw}
-    \pgfpathmoveto{\pgfpoint{0.7\pgf@circ@res@left}{0.4\pgf@circ@res@up}}
-    \pgfpathlineto{\pgfpoint{0.7\pgf@circ@res@right}{0.4\pgf@circ@res@down}}
-    \pgfsetarrows{latex-latex}
-    \pgfusepath{draw}
-}
-
-% "bended" coupler
-\pgfcircdeclarefourport{coupler2}{
-    \pgfsetlinewidth{\pgfstartlinewidth}
-    \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{0.5\pgf@circ@res@up}}
-    \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{0.5\pgf@circ@res@up}}
-    \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{0.5\pgf@circ@res@down}}
-    \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{0.5\pgf@circ@res@down}}
-    \pgfusepath{draw}
-
-    \pgfpathmoveto{\pgfpoint{0.1\pgf@circ@res@left}{0pt}}
-    \pgfpatharc{0}{90} {0.4\pgf@circ@res@up}
-    \pgfsetarrowsend{latex}
-    \pgfusepath{draw}
-    \pgfpathmoveto{\pgfpoint{0.1\pgf@circ@res@left}{0pt}}
-    \pgfpatharc{0}{-90} {0.4\pgf@circ@res@up}
-    \pgfsetarrowsend{latex}
-    \pgfusepath{draw}
-
-    \pgfpathmoveto{\pgfpoint{0.1\pgf@circ@res@right}{0pt}}
-    \pgfpatharc{180}{90} {0.4\pgf@circ@res@up}
-    \pgfsetarrowsend{latex}
-    \pgfusepath{draw}
-    \pgfpathmoveto{\pgfpoint{0.1\pgf@circ@res@right}{0pt}}
-    \pgfpatharc{-180}{-90} {0.4\pgf@circ@res@up}
-    \pgfsetarrowsend{latex}
-    \pgfusepath{draw}
 }
