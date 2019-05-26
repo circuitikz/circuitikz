@@ -2313,7 +2313,7 @@ These are all of the to-style type:
 while this is a node-style component:
 
 \begin{groupdesc}
-	\circuitdesc{spdt}{spdt}{}( in/180/0.2, out 1/0/0.2, out 2/0/0.2 )
+        \circuitdesc{spdt}{spdt}{}( in/180/0.2, out 1/0/0.2, out 2/0/0.2 )
 \end{groupdesc}
 
 \subsubsection{Cute switches}
@@ -2344,11 +2344,35 @@ The nodes-style switches have the following anchors:
 \begin{circuitikz}
     \def\coorda(#1)<#2>{node[circle, red, draw, inner sep=1pt,pin={[red, overlay, inner sep=0.5pt, font=\small, pin distance=0.1cm, pin edge={red, overlay,}]#2:#1}](#1){}}
     \path (0,-1) -- (3,1); %bbox
-    \draw (0, 0) node[cute spdt up arrow](CS){};
-    \draw (2, 0) node[cute spdt up arrow](CS){};
+    \draw (0, 0) node[spdt](S){};
+    \foreach \a/\b in {center/0, in/-135, out 1/45, out 2/-45}
+        \path (S.\a) \coorda(\a)<\b>;
+    \draw (3, 0) node[cute spdt up arrow](CS){};
     \foreach \a/\b in {center/0, in/-135, out 1/45, out 2/-45, mid/135}
-    \path (CS.\a) \coorda(\a)<\b>;
+        \path (CS.\a) \coorda(\a)<\b>;
+    \draw (6, 0) node[cute spdt up arrow](CS2){};
+    \foreach \a/\b in {cin/-135, cout 1/45, cout 2/-45}
+        \path (CS2.\a) \coorda(\a)<\b>;
 \end{circuitikz}
+
+Please notice the position of the normal anchors at the border of the \texttt{ocirc} shape for the cute switches; they are thought to be compatible with an horizontal wire going out.
+Additionaly, you have the \texttt{cin}, \texttt{cout 1} y \texttt{cout 2} which are anchors on the center of the contacts.
+
+For more complex situations, the contact nodes are available\footnote{Thanks to \texttt{@marmot} on \href{https://tex.stackexchange.com/a/492599/38080}{tex.stackexchange.com}.} using the syntax \emph{name of the node}\texttt{-in}, \dots\texttt{-out 1} and \dots\texttt{-out 2}, with all their anchors.
+
+\begin{LTXexample}[varwidth=true]
+\begin{circuitikz}
+\draw (0,0) node[cute spdt up] (S1) {}
+  (S1.in) node[left] {in}
+  (S1.out 1) node[right] {out 1};
+  \draw (0,-2) node[cute spdt up,
+      /tikz/circuitikz/bipoles/cuteswitch/height=0.8] (S2) {}
+  (S2.in) node[left] {in}
+  (S2.out 2) node[right] {out 2};
+  \draw [red] (S1-in.s) -- (S2-in.n);
+  \draw [blue] (S1-out 2.s) -- (S2-out 1.n);
+\end{circuitikz}
+\end{LTXexample}
 
 
 \begin{LTXexample}[varwidth=true]
@@ -2381,7 +2405,8 @@ The \texttt{mid} anchor in the cute switches (both path- and node-style) can be 
 
 \subsubsection{Cute switches customization}
 
-You can use the key \texttt{bipoles/cuteswitch/thickness} to decide the thickness of the switch lever. The units are the diameter of the \texttt{ocirc} connector, and the default is \texttt{1}.
+You can use the key \texttt{bipoles/cuteswitch/thickness} to decide the thickness of the switch lever.
+The units are the diameter of the \texttt{ocirc} connector, and the default is \texttt{1}.
 
 \begin{LTXexample}[varwidth=true]
 \begin{circuitikz}
@@ -2389,6 +2414,26 @@ You can use the key \texttt{bipoles/cuteswitch/thickness} to decide the thicknes
     \draw (0,1.4) node[cute spdt up](S1){};
     \draw (0,0)   node[cute spdt up](S2){};
     \draw (0,-1)  node[cuteclosedswitchshape, yscale=-1](S3){};
+    \draw [densely dashed] (S1.mid)--(S2.mid)--(S3.mid);
+\end{circuitikz}
+\end{LTXexample}
+
+Finally, the switches are normally drawn using the \texttt{ocirc} shape, but you can change it, as in the following example, with the key \texttt{bipoles/cuteswitch/shape}. Be careful that the shape is used with its defaults (which can lead to strange results), and that the standard anchors will be correct only for \texttt{circ} and \texttt{ocirc} shapes, so you have to use the internal node syntax to connect it.
+
+\begin{LTXexample}[varwidth=true]
+\begin{circuitikz}
+    \begin{scope}
+        \ctikzset{bipoles/cuteswitch/thickness=0.5,
+        bipoles/cuteswitch/shape=circ}
+        \draw (0,2) node[cute spdt up](S1){};
+        \ctikzset{bipoles/cuteswitch/thickness=0.25,
+        bipoles/cuteswitch/shape=emptyshape}
+        \draw (0,0) node[cute spdt up](S2){};
+        \draw (S2.cin) node[draw, inner sep=2pt]{};
+        \draw (S2.cout 1) node[draw, inner sep=2pt]{};
+        \draw (S2.cout 2) node[draw=red, inner sep=2pt]{};
+    \end{scope}
+    \draw (0,-2)  node[cuteclosedswitchshape, yscale=-1](S3){};
     \draw [densely dashed] (S1.mid)--(S2.mid)--(S3.mid);
 \end{circuitikz}
 \end{LTXexample}

@@ -145,13 +145,23 @@
             \pgf@x=0pt
             \pgf@y=.5\pgf@circ@res@other
         }
+        % radius of the connector
+        % This is the radius of the "ocirc" shape (see pgfcircshapes.tex)
+        \saveddimen{\radius}{\pgfmathsetlength\pgf@x{\pgf@circ@Rlen*\ctikzvalof{nodes width}}}
+        % shapename
+        \savedmacro{\thisshape}{\def\thisshape{\tikz@fig@name}}
+        % shape type
+        \savedmacro{\cshape}{\def\cshape{\ctikzvalof{bipoles/cuteswitch/shape}}}
         % mid of the lever, to stack switches
         \anchor{mid}{\midlever}
-
-        \anchor{left}{\northwest \pgf@y=0pt }
-        \anchor{in}{ \northwest \pgf@y=0pt}
-        \anchor{out 1}{ \northwest \pgf@x=-\pgf@x }
-        \anchor{out 2}{ \northwest \pgf@x=-\pgf@x \pgf@y=-\pgf@y }
+        % center anchors
+        \anchor{cin}{ \northwest \pgf@y=0pt}
+        \anchor{cout 1}{ \northwest \pgf@x=-\pgf@x }
+        \anchor{cout 2}{ \northwest \pgf@x=-\pgf@x \pgf@y=-\pgf@y }
+        % horizontal angles
+        \anchor{in}{ \northwest \pgf@y=0pt\advance\pgf@x by -\radius}
+        \anchor{out 1}{ \northwest \pgf@x=-\pgf@x \advance\pgf@x by \radius}
+        \anchor{out 2}{ \northwest \pgf@x=-\pgf@x \advance\pgf@x by \radius \pgf@y=-\pgf@y }
 
         \anchor{center}{ \pgf@y=0pt \pgf@x=0pt }
         \anchor{east}{ \northwest \pgf@y=0pt \pgf@x=-\pgf@x  }
@@ -173,7 +183,7 @@
 
             \pgfscope
             % This is the radius of the "ocirc" shape (see pgfcircshapes.tex)
-            \pgf@circ@res@temp=\pgfkeysvalueof{/tikz/circuitikz/nodes width}\pgf@circ@Rlen
+            \pgf@circ@res@temp=\radius\relax
             \pgf@circ@res@temp=\ctikzvalof{bipoles/cuteswitch/thickness}\pgf@circ@res@temp
             \pgfsetlinewidth{2\pgf@circ@res@temp}
             \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{0pt}}
@@ -186,15 +196,15 @@
             % terminals
             \pgfscope
             \pgftransformshift{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@up}}
-            \pgfnode{ocirc}{center}{}{spdt1}{\pgfusepath{stroke}}
+            \pgfnode{\cshape}{center}{}{\thisshape-out 1}{\pgfusepath{stroke}}
             \endpgfscope
             \pgfscope
             \pgftransformshift{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@down}}
-            \pgfnode{ocirc}{center}{}{}{\pgfusepath{stroke}}
+            \pgfnode{\cshape}{center}{}{\thisshape-out 2}{\pgfusepath{stroke}}
             \endpgfscope
             \pgfscope
             \pgftransformshift{\pgfpoint{\pgf@circ@res@left}{0pt}}
-            \pgfnode{ocirc}{center}{}{spdt2}{\pgfusepath{stroke}}
+            \pgfnode{\cshape}{center}{}{\thisshape-in}{\pgfusepath{stroke}}
             \endpgfscope
 
         }
