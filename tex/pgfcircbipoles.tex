@@ -2088,10 +2088,19 @@
             \pgf@x=0pt
             \pgf@y=.5\pgf@circ@res@other
         }
+        % radius of the connector
+        % This is the radius of the "ocirc" shape (see pgfcircshapes.tex)
+        \saveddimen{\radius}{\pgfmathsetlength\pgf@x{\pgf@circ@Rlen*\ctikzvalof{nodes width}}}
+        % shapename
+        \savedmacro{\thisshape}{\def\thisshape{\tikz@fig@name}}
+        % shape type
+        \savedmacro{\cshape}{\def\cshape{\ctikzvalof{bipoles/cuteswitch/shape}}}
         % mid of the lever, to stack switches
         \anchor{mid}{\midlever}
-        \anchor{out}{\northeast \pgf@y=0cm}
-        \anchor{in}{\southwest\pgf@y=0cm}
+        \anchor{cout}{\northeast \pgf@y=0cm}
+        \anchor{cin}{\southwest\pgf@y=0cm}
+        \anchor{out}{\northeast \pgf@y=0cm\advance\pgf@x by \radius}
+        \anchor{in}{\southwest\pgf@y=0cm\advance\pgf@x by -\radius}
     }
     {\ctikzvalof{bipoles/cuteswitch/height 2}}
     {#1}
@@ -2110,9 +2119,9 @@
         #3
         \endpgfscope
         \pgftransformshift{\pgfpoint{\pgf@circ@res@left}{0pt}}
-        \pgfnode{ocirc}{center}{}{}{\pgfusepath{draw}}
+        \pgfnode{\cshape}{center}{}{\thisshape-in}{\pgfusepath{draw}}
         \pgftransformshift{\pgfpoint{2\pgf@circ@res@right}{0pt}}
-        \pgfnode{ocirc}{center}{}{}{\pgfusepath{draw}}
+        \pgfnode{\cshape}{center}{}{\thisshape-out}{\pgfusepath{draw}}
     }
 }
 

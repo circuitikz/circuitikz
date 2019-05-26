@@ -6,6 +6,7 @@ The major changes among the different circuitikz versions are listed here. See <
     - Added the option to have inline transformers and gyrators
     - Fixed a bug (#205) about unstable anchors in the chip components
     - Fixed a regression in label placement for some values of scaling
+    - Fixed problems with cute switches anchors
 
 * Version 0.9.0 (2019-05-10)
     - Added Romano Giannetti as contributor
