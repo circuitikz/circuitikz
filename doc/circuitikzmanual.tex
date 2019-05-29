@@ -813,6 +813,14 @@ If the component can be filled it will be specified in the description. In addit
     \circuitdesc*{plain amp}{Plain amplifier}{}( out/45/0.3 )
 \end{groupdesc}
 
+Sometime, components will expose internal (sub-)shapes that can be accessed with the syntax \texttt{\textsl{<node name>}-\textsl{<internal node name>}} (a dash is separating the node name and the internal node name); that will be shown in the description as a blue ``anchor'':
+
+\begin{groupdesc}
+\circuitdesc{rotaryswitch}{Rotary switch}{}(in/-180/0.2, cin/145/0.2, center/-90/0.2, mid/0/0.4, out 1/0/0.2,
+cout 1/180/0.2)[out 1.n/90/0.2, out 4.w/0/0.3]
+\end{groupdesc}
+
+
 \subsection{Grounds and supply voltages}
 
 For the grounds, the \texttt{center} anchor is put on the connecting point of the symbol, so that you can use them directly in a \texttt{path} specification.
@@ -2316,13 +2324,30 @@ while this is a node-style component:
         \circuitdesc{spdt}{spdt}{}( in/180/0.2, out 1/0/0.2, out 2/0/0.2 )
 \end{groupdesc}
 
+\begin{LTXexample}[varwidth=true]
+\begin{circuitikz} \draw
+  (0,0) node[spdt] (Sw) {}
+  (Sw.in) node[left] {in}
+  (Sw.out 1) node[right] {out 1}
+  (Sw.out 2) node[right] {out 2}
+;\end{circuitikz}
+\end{LTXexample}
+
+\begin{LTXexample}[varwidth=true]
+\begin{circuitikz} \draw
+ (0,0) to[C] (1,0) to[toggle switch , n=Sw] (2.5,0)
+   -- (2.5,-1) to[battery1] (1.5,-1) to[R] (0,-1) -| (0,0)
+  (Sw.out 2) -| (2.5, 1) to[R] (0,1) -- (0,0)
+;\end{circuitikz}
+\end{LTXexample}
+
 \subsubsection{Cute switches}
 These switches have been introduced after version 0.9.0, and they come in also in to-style and in node-style, but they are size-matched so that they can be used together in a seamless way.
 
 The path element (to-style) are:
 \begin{groupdesc}
     \circuitdescbip[cuteclosedswitch]{cute closed switch}{Cute closed switch}{ccsw}(mid/90/0.2, in/-135/0.2, out/-45/0.2)
-    \circuitdescbip[cuteopenswitch]{cute open switch}{Cute open switch}{cosw}
+    \circuitdescbip[cuteopenswitch]{cute open switch}{Cute open switch}{cosw}(out/45/0.2)[out.s/-90/0.2]
     \circuitdescbip[cuteclosingswitch]{cute closing switch}{Cute closing switch}{ccgsw}
     \circuitdescbip[cuteopeningswitch]{cute opening switch}{Cute opening switch}{cogsw}
 \end{groupdesc}
@@ -2336,7 +2361,7 @@ while the node-style components are the single-pole, double-throw (\texttt{spdt}
     \circuitdesc{cute spdt down arrow}{Cute spdt down with arrow}{}
 \end{groupdesc}
 
-\subsubsection{Switches anchors}
+\paragraph{Cute switches anchors}
 
 The nodes-style switches have the following anchors:
 
@@ -2375,22 +2400,6 @@ For more complex situations, the contact nodes are available\footnote{Thanks to 
 \end{LTXexample}
 
 
-\begin{LTXexample}[varwidth=true]
-\begin{circuitikz} \draw
-  (0,0) node[spdt] (Sw) {}
-  (Sw.in) node[left] {in}
-  (Sw.out 1) node[right] {out 1}
-  (Sw.out 2) node[right] {out 2}
-;\end{circuitikz}
-\end{LTXexample}
-
-\begin{LTXexample}[varwidth=true]
-\begin{circuitikz} \draw
- (0,0) to[C] (1,0) to[toggle switch , n=Sw] (2.5,0)
-   -- (2.5,-1) to[battery1] (1.5,-1) to[R] (0,-1) -| (0,0)
-  (Sw.out 2) -| (2.5, 1) to[R] (0,1) -- (0,0)
-;\end{circuitikz}
-\end{LTXexample}
 
 The \texttt{mid} anchor in the cute switches (both path- and node-style) can be used to combine switches to get more complex configurations:
 
@@ -2403,7 +2412,7 @@ The \texttt{mid} anchor in the cute switches (both path- and node-style) can be 
 \end{circuitikz}
 \end{LTXexample}
 
-\subsubsection{Cute switches customization}
+\paragraph{Cute switches customization}
 
 You can use the key \texttt{bipoles/cuteswitch/thickness} to decide the thickness of the switch lever.
 The units are the diameter of the \texttt{ocirc} connector, and the default is \texttt{1}.
@@ -2437,6 +2446,135 @@ Finally, the switches are normally drawn using the \texttt{ocirc} shape, but you
     \draw [densely dashed] (S1.mid)--(S2.mid)--(S3.mid);
 \end{circuitikz}
 \end{LTXexample}
+
+
+\subsubsection{Rotary switches}
+
+Rotary switches are a kind of generic multipole switches; they are implemented as a strongly customizable element (and a couple of styles to simplify its usage). The basic element is the following one, and it has the same basic anchors of the cute switches, included the access to internal nodes (shown in blue here).
+
+\begin{groupdesc}
+\circuitdesc{rotaryswitch}{Rotary switch}{}(in/-180/0.2, cin/145/0.2, center/-90/0.2, mid/0/0.4, out 1/0/0.2,
+cout 1/180/0.2)[out 1.n/90/0.2, out 4.w/0/0.3]
+\end{groupdesc}
+
+Notice that the name of the shape is \texttt{rotaryswitch}, no spaces.
+The default rotary switch component has 5 channels (this is set in the parameter \texttt{multipoles/rotary/channels}), spanning form \SI{-60}{\degree}  to \SI{60}{\degree} (parameter \texttt{multipoles/rotary/angle}) and with the wiper at \SI{20}{\degree} (parameter \texttt{multipoles/rotary/wiper}).
+
+Moreover, there are by default no arrows on the wiper; you can set this with the parameter \texttt{multipoles/rotary/arrow} which can assume the values \texttt{none}, \texttt{cw} (clockwise), \texttt{ccw} (counterclockwise) or \texttt{both}.
+
+To simplify the usage of the component, a series of styles are defined: \texttt{rotary switch=\textsl{<channels>} in \textsl{<angle>} wiper \textsl{<wiper angle>}} (notice the space in the name of the style!). Using \texttt{rotary switch} without parameters will generate a default switch.
+
+To add arrows, you can use the styles \texttt{rotary switch -} (no arrow, whatever the default), \texttt{rotary switch <-} (counterclockwise arrow), \texttt{rotary switch ->} (clockwise) and \texttt{rotary switch <->} (both).
+
+Notice that the defaults of the styles are the same as the default values of the parameters, but that if you change globally the defaults using the keys mentioned above, you only change the defaults for the ``bare'' component \texttt{rotaryswitch}, not for the styles.
+
+
+\begin{LTXexample}[varwidth=true, pos=t, basicstyle=\small\ttfamily]
+\begin{circuitikz}
+\ctikzset{multipoles/rotary/arrow=both}
+\draw (0,0) -- ++(1,0) node[rotary switch <-=8 in 120 wiper 40, anchor=in](A){};
+\draw (3,0) -- ++(1,0) node[rotary switch, anchor=in](B){}; % default values
+\draw[red] (A.out 4) -| (3,0);
+\draw[blue] (A-out 2.n) -- ++(0,0.5) -| (B-out 1.n);
+\draw (B.out 3) -- ++(1,0) node[rotary switch -=5 in 90 wiper 15, anchor=in](C){};
+\draw (C.out 3) -- ++(1,0) node[rotary switch ->, xscale=-1, anchor=out 3](D){};
+\draw[green, dashed] (B.mid) -- ++(-.5,-1) -| (C.mid);
+\end{circuitikz}
+\end{LTXexample}
+
+\paragraph{Rotary switch anchors}
+
+Rotary switches anchors are basically the same as the cute switches, included the access (with the \texttt{\textsl{<node name>}-<anchor name>} notation) to the internal connection nodes. The geographical anchors works as expected, marking the limits of the component.
+
+\showanchors{rotary switch}{}(north/90/0.4, north east/45/0.4, east/0/0.4, south east/-45/0.4,
+    south/-90/0.4, south west/-135/0.4, west/180/0.4, north west/135/0.4, center/-120/0.3)
+\qquad
+\showanchors{rotary switch=25 in 120 wiper 10}{}(north/90/0.4, north east/45/0.4, east/0/0.4, south east/-45/0.4,
+    south/-90/0.4, south west/-135/0.4, west/180/0.4, north west/135/0.4, center/-120/0.3)
+
+In addition to the anchors they have in common with the cute switches, the rotary switch has the so called ``angled'' anchors and the ``external square anchors''. \emph{Angled anchors}, called \texttt{aout 1}, \texttt{aout 2} and so forth, are anchors placed on the output poles at the same angle as the imaginary lines coming from the input pole; \emph{square anchors}, called \texttt{sqout 1}\dots,  are located on an imaginary square surrounding the rotary switch on the same line.
+
+\bigskip
+
+\begin{circuitikz}
+    \begin{scope}[scale=2, transform shape]
+        \clip (-1,-.4) rectangle (1,.6);
+        \draw (0,0) node[rotary switch=9 in 90 wiper 10](Z){};
+        \draw [dashed, blue] (Z.cin) -- (Z.sqout 4);
+    \end{scope}
+    \path (Z.aout 4) \showcoord(aout 4)<-15:0.4>;
+    \path (Z.sqout 4) \showcoord(sqout 4)<0:0.4>;
+    \path (Z.out 3) \showcoord(out 3)<15:0.4>;
+    \path (Z.cout 3) \showcoord(cout 3)<180:0.4>;
+    \draw (8,0) node[rotary switch -=31 in 150 wiper 10](D){};
+    \foreach \i in {1,...,31} \draw (D.sqout \i) -- (D.aout \i);
+    \foreach \l/\a/\d in {north/90/0.2, north east/45/0.2, east/0/0.2,
+        south east/-45/0.2, south/-90/0.2, south west/-135/0.2, west/180/0.2, north west/135/0.2,
+    center/-145/0.7}
+    \path (D.ext \l) \showcoord(ext \l)<\a:\d>;
+    \path (D.aout 12)  \showcoordb(aout 12)<-5:0.4>;
+    \path (D.sqout 12)  \showcoordb(sqout 12)<0:0.4>;
+    \draw[blue, densely dotted] (D.ext north west) rectangle (D.ext south east);
+\end{circuitikz}
+
+The code for the diagram at the left, above, without the markings for the anchors, is:
+\begin{lstlisting}[basicstyle=\small\ttfamily]
+\begin{circuitikz}
+    \draw (8,0) node[rotary switch -=31 in 150 wiper 10](D){};
+    \foreach \i in {1,...,31} \draw (D.sqout \i) -- (D.aout \i);
+    \draw[blue, densely dotted] (D.ext north west) rectangle (D.ext south east);
+\end{circuitikz}
+\end{lstlisting}
+
+One possible application for the angled and the ``on square'' anchors is that you can use them to move radially from the output poles, for example for adding numbers:
+
+\begin{LTXexample}[varwidth=true, basicstyle=\small\ttfamily]
+\begin{circuitikz}
+\draw (0,0) node[rotary switch=13 in 120 wiper 0](S){};
+\foreach \i in {1,...,13} % requires "calc"
+    \path ($(S.aout \i)!1ex!(S.sqout \i)$)
+        node[font=\tiny\color{red}]{\i};
+\end{circuitikz}
+\end{LTXexample}
+
+Finally, notice that the value of width for the rotary switches is taken from the one for the ``cute switches'' which in turn is taken from the width of standard spdt, so that they match (notice that the ``center'' anchor is better centered in the rotary switch, so you have to explicitly align them).
+
+\begin{LTXexample}[varwidth=true, basicstyle=\small\ttfamily]
+\begin{circuitikz}
+    \draw (0,0) node[color=blue, rotary switch=2 in 35 wiper 30,
+        anchor=in](R){};
+    \draw (0,-1) node[cute spdt up, anchor=in](C){};
+    \draw (0,-2) node[color=blue, rotary switch=3 in 35 wiper 30,
+        anchor=in](R){};
+\end{circuitikz}
+\end{LTXexample}
+
+\paragraph{Rotary switch customization}
+
+A part from the basic customization seen above (number of channels, etc.) you can change, as in the cute switches, the shape used by the connection points with the parameter \texttt{multipoles/rotary/shape}, and the thickness of the wiper with \texttt{multipoles/rotary/thickness}. The optional arrow has thickness equal to the standard bipole thickness \texttt{bipoles/thickness} (default 2).
+
+\begin{LTXexample}[varwidth=true]
+\begin{circuitikz}
+    \ctikzset{multipoles/rotary/thickness=0.5}
+    \draw (0,1.6) node[rotary switch ->, color=blue](S1){};
+    \ctikzset{multipoles/rotary/shape=circ}
+    \draw (0,0) node[rotary switch ->](S2){};
+    \ctikzset{bipoles/thickness=0.5}
+    \draw (0,-1.6) node[rotary switch ->, color=red](S3){};
+\end{circuitikz}
+\end{LTXexample}
+
+Finally, the size can be changed using the parameter \texttt{tripoles/spdt/width} (default 0.85).
+
+\begin{LTXexample}[varwidth=true]
+\begin{circuitikz}
+    \draw (0,2) node[rotary switch ->, color=blue](S1){};
+    \ctikzset{tripoles/spdt/width=1.6}
+    \draw (0,0) node[rotary switch ->](S2){};
+\end{circuitikz}
+\end{LTXexample}
+
+
 
 \subsection{Logic gates}
 
