@@ -32,7 +32,8 @@
 % optional: scale of the component in the entry
 % mandatory  shape name, description, node text:
 % optional between (): anchor specification list
-\NewDocumentCommand{\circuitdesc}{s O{1} m m m d()}
+% optional between []: internal nodes specification list
+\NewDocumentCommand{\circuitdesc}{s O{1} m m m d() d[]}
 {
     \twopartbox{%
         \begin{circuitikz}[]
@@ -44,16 +45,20 @@
             \IfValueT{#6}{%
                 \foreach \n/\a/\d in {#6} \path(N.\n) \showcoord(\n)<\a:\d>;
             }
+            \IfValueT{#7}{%
+                \foreach \n/\a/\d in {#7} \path(N-\n) \showcoordb(N-\n)<\a:\d>;
+            }
         \end{circuitikz}%
         }{\sloppy%
         {#4, type: node\IfBooleanT{#1}{, fillable}%
-    } (\texttt{node[#3]\{#5\}}) \index{#3} }
+    } (\texttt{node[#3]\IfValueT{#7}{(N)}\{#5\}}) \index{#3} }
 }
 % description of a path-style component:
 % optional: main name, if different from above
 % mandatory component name, description, comma separated alias
 % optional between (): anchor specification list
-\NewDocumentCommand{\circuitdescbip}{s o m m m d()}
+% optional between []: internal nodes specification list
+\NewDocumentCommand{\circuitdescbip}{s o m m m d() d[]}
 {
 \index{#3} \tikz\foreach \i in {#5} {\index{\i|see{#3}} };
     \twopartbox{%
@@ -66,13 +71,15 @@
         \IfValueT{#6}{%
                 \foreach \n/\a/\d in {#6} \path(B.\n) \showcoord(\n)<\a:\d>;
             }
+            \IfValueT{#7}{%
+                \foreach \n/\a/\d in {#7} \path(B-\n) \showcoordb(B-\n)<\a:\d>;
+            }
         \end{circuitikz}%
         }{\sloppy%
         \texttt{\textbf{#3}}: #4, \texttt{type: path-style\IfBooleanT{#1}{, fillable}%
-            \IfValueTF{#2}{%
-                , nodename: #2shape.%\drawphantomshape{#2shape}%
-            }{
-                , nodename: #3shape.%\drawphantomshape{#3shape}%
+            \IfValueT{#7}{, \texttt{name=B}}%
+            \IfValueTF{#2}{, nodename: #2shape.%\drawphantomshape{#2shape}%
+            }{, nodename: #3shape.%\drawphantomshape{#3shape}%
             }
         }%
         \ifthenelse{\equal{#5}{}}{}{%
@@ -91,6 +98,11 @@
     node[circle, red, draw, inner sep=1pt,pin={%
         [red, inner sep=0.5pt, font=\small,
         pin distance=#3\pgf@circ@Rlen, pin edge={red, }%
+    ]#2:#1}](#1){}}
+\def\showcoordb(#1)<#2:#3>{%
+    node[circle, blue, draw, inner sep=1pt,pin={%
+        [blue, inner sep=0.5pt, font=\small,
+        pin distance=#3\pgf@circ@Rlen, pin edge={blue, }%
     ]#2:#1}](#1){}}
 \makeatother
 % show anchors of a node component:
