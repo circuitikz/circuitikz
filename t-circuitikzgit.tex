@@ -1,5 +1,5 @@
-\def\pgfcircversion{git:cde66c2}
-\def\pgfcircversiondate{2019/05/26}
+\def\pgfcircversion{git:7b96175}
+\def\pgfcircversiondate{2019/05/30}
 \writestatus{loading}{\pgfcircversiondate{} The CircuiTikz circuit drawing package version \pgfcircversion}
 
 \usemodule[tikz]
@@ -1120,7 +1120,51 @@
 \pgfkeys{/tikz/no topmark/.add code={}{\pgf@circuit@chip@topmarkfalse}}
 \ctikzset{no topmark/.add code={}{\pgf@circuit@chip@topmarkfalse}}
 
+% rotary switch by Romano
+\ctikzset{multipoles/rotary/thickness/.initial=1}
+\ctikzset{multipoles/rotary/shape/.initial=ocirc}
+\ctikzset{multipoles/rotary/channels/.initial=5}
+\ctikzset{multipoles/rotary/angle/.initial=60}
+\ctikzset{multipoles/rotary/wiper/.initial=20}
+\ctikzset{multipoles/rotary/arrow/.is choice}
+\newif\ifpgf@circ@rotaryarrow\pgf@circ@rotaryarrowfalse
+\newif\ifpgf@circ@rotaryarrow@cw\pgf@circ@rotaryarrow@cwfalse
+\newif\ifpgf@circ@rotaryarrow@ccw\pgf@circ@rotaryarrow@ccwfalse
+\ctikzset{multipoles/rotary/arrow/none/.code={\pgf@circ@rotaryarrowfalse\pgf@circ@rotaryarrow@cwfalse\pgf@circ@rotaryarrow@ccwfalse}}
+\ctikzset{multipoles/rotary/arrow/both/.code={\pgf@circ@rotaryarrowtrue\pgf@circ@rotaryarrow@cwtrue\pgf@circ@rotaryarrow@ccwtrue}}
+\ctikzset{multipoles/rotary/arrow/cw/.code={\pgf@circ@rotaryarrowtrue\pgf@circ@rotaryarrow@cwtrue\pgf@circ@rotaryarrow@ccwfalse}}
+\ctikzset{multipoles/rotary/arrow/ccw/.code={\pgf@circ@rotaryarrowtrue\pgf@circ@rotaryarrow@cwfalse\pgf@circ@rotaryarrow@ccwtrue}}
 
+\tikzset{%
+    rotary switch/.style args={#1in#2wiper#3}{
+        shape=rotaryswitch,
+        /tikz/circuitikz/multipoles/rotary/channels=#1,
+        /tikz/circuitikz/multipoles/rotary/angle=#2,
+        /tikz/circuitikz/multipoles/rotary/wiper=#3,
+    },
+    rotary switch -/.style args={#1in#2wiper#3}{
+        rotary switch=#1 in #2 wiper #3,
+        /tikz/circuitikz/multipoles/rotary/arrow=none,
+    },
+    rotary switch <-/.style args={#1in#2wiper#3}{
+        rotary switch=#1 in #2 wiper #3,
+        /tikz/circuitikz/multipoles/rotary/arrow=ccw,
+    },
+    rotary switch ->/.style args={#1in#2wiper#3}{
+        rotary switch=#1 in #2 wiper #3,
+        /tikz/circuitikz/multipoles/rotary/arrow=cw,
+    },
+    rotary switch <->/.style args={#1in#2wiper#3}{
+        rotary switch=#1 in #2 wiper #3,
+        /tikz/circuitikz/multipoles/rotary/arrow=both,
+    },
+    % Notice that these should be the same as the initial values of the keys
+    rotary switch/.default={5 in 60 wiper 20 },
+    rotary switch -/.default={5 in 60 wiper 20 },
+    rotary switch <-/.default={5 in 60 wiper 20 },
+    rotary switch ->/.default={5 in 60 wiper 20 },
+    rotary switch <->/.default={5 in 60 wiper 20 },
+}
 
 % %Mechanical section
 \ctikzset{/tikz/circuitikz/tripoles/elmech/height/.initial=.8}
