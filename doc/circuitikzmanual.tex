@@ -2190,9 +2190,6 @@ Path style:
 \begin{groupdesc}
     \circuitdesc{currarrow}{Arrows (current and voltage)}{}
     \circuitdesc{inputarrow}{Arrow to draw at its tip, useful for block diagrams.}{}
-    \circuitdesc{circ}{Connected terminal}{}
-    \circuitdesc{ocirc}{Unconnected terminal}{}
-    \circuitdesc{diamondpole}{Diamond-style terminal}{}
     \circuitdesc{jump crossing}{Jumper-style crossing node}{}
     \circuitdesc{plain crossing}{Plain style crossing node}{}
     \circuitdesc{waves}{Waves}{}( north/90/0.4, north east/45/0.4, east/-45/0.4, south east/-45/0.4,
@@ -2200,6 +2197,18 @@ Path style:
     left/135/0.2, top/45/0.2, right/45/0.2, bottom/-45/0.2 )
     \circuitdesc*{bnc}{BNC connector}{}(left/135/0.6, right/45/0.6, center/-90/0.6, hot/0/0.6, zero/-135/0.6)
 \end{groupdesc}
+
+These are the so-called ``bipole nodes'' shapes, or poles (see section~\ref{sec:bipole-nodes}). These nodes are always filled; the ``open'' versions (starting with an \texttt{o}) are by default filled white, but you can override it with the \texttt{fill} parameter.
+
+\begin{groupdesc}
+    \circuitdesc{circ}{Connected terminal}{}
+    \circuitdesc{ocirc}{Unconnected terminal}{}
+    \circuitdesc{diamondpole}{Diamond-square terminal}{}
+    \circuitdesc{odiamondpole}{Open diamond-square terminal}{}
+    \circuitdesc{squarepole}{Square-shape terminal}{}
+    \circuitdesc{osquarepole}{Open square-shape terminal}{}
+\end{groupdesc}
+
 
 Moreover, you have the arrow tip \texttt{latexslim} which is an arrow similar to the old (in deprecated \texttt{arrows} library) \texttt{latex'} element:
 
@@ -2209,10 +2218,8 @@ Moreover, you have the arrow tip \texttt{latexslim} which is an arrow similar to
 \end{circuitikz}
 \end{LTXexample}
 
-
-
 \subsubsection{Terminal shapes}
-Since version 0.9.0, \texttt{circ}, \texttt{ocirc} , and \texttt{diamondpole} have all the standard geographical anchors, so you can do things like these:
+Since version 0.9.0, ``bipole nodes'' shapes have all the standard geographical anchors, so you can do things like these:
 
 \begin{LTXexample}[varwidth=true]
 \begin{circuitikz}[american,]
@@ -2569,7 +2576,8 @@ Finally, the size can be changed using the parameter \texttt{tripoles/spdt/width
 \begin{LTXexample}[varwidth=true]
 \begin{circuitikz}
     \draw (0,2) node[rotary switch ->, color=blue](S1){};
-    \ctikzset{tripoles/spdt/width=1.6}
+    \ctikzset{tripoles/spdt/width=1.6, fill=cyan,
+        multipoles/rotary/shape=osquarepole}
     \draw (0,0) node[rotary switch ->](S2){};
 \end{circuitikz}
 \end{LTXexample}
@@ -3484,9 +3492,49 @@ This could be especially useful if you define a style, to use like this:
 \end{LTXexample}
 
 
+\subsection{Nodes (also called poles)}\label{sec:bipole-nodes}
+
+You can add nodes to the bipoles, positioned at the coordinates surrounding the component. The general style to use is \texttt{bipole nodes=\{start\}\{stop\}}, where \texttt{start} and \texttt{stop} are the nodes --- to be chosen between \texttt{none}, \texttt{circ}, \texttt{ocirc}, \texttt{squarepole}, \texttt{osquarepole}, \texttt{diamondpole},  \texttt{odiamondpole} and \texttt{rectfill}\footnote{You can use other shapes too, but at your own risk\dots Moreover, notice that \texttt{none} is not really a node, just a special word used to say ``do not put any node here''.} (see section~\ref{sec:support}).
 
 
-\subsection{Nodes}
+\begin{LTXexample}[varwidth=true,
+        basicstyle=\small\ttfamily
+    ]
+\begin{circuitikz}
+    \ctikzset{bipoles/length=.5cm, nodes width=0.1}%small components, big nodes
+    \foreach \a/\p [evaluate=\a as \b using (\a+180)] in
+    {-90/none, -60/circ, -30/ocirc, 0/diamondpole, 30/odiamondpole, 60/squarepole, 90/osquarepole}
+        \draw (0,0) to[R, bipole nodes={none}{\p}] ++(\a:1.5)  node[font=\tiny, anchor=\b]{\p};
+\end{circuitikz}
+\end{LTXexample}
+
+
+
+These bipole nodes are added after the path is drawn, as every node in Ti\emph{k}Z --- this is the reason why they are always filled (with the main color the normal nodes, with white the open ones), in order to ``hide'' the wire below. You can override the fill color if you want; but notice that if you draw things in two different paths, you will have ``strange'' results; notice that in the second line of resistors the second wire is starting from the center of the white \texttt{ocirc} of the previous path.
+
+\begin{LTXexample}[varwidth=true,
+        pos=t, basicstyle=\small\ttfamily
+    ]
+\begin{circuitikz}
+    \draw (0,0) to[R, *-o] ++(2,0) to[R, -d] ++(2,0)
+        to[R, bipole nodes={diamondpole}{odiamondpole, fill=red}] ++(2,0);
+    \draw (0,-1) to[R, *-o] ++(2,0) ;
+    \draw (2,-1) to[R, -d] ++(2,0) to[R, bipole nodes={none}{squarepole}] ++(2,0);
+\end{circuitikz}
+\end{LTXexample}
+
+You can define shortcuts for the \texttt{bipole bodes} you use most; for example if you want a shortcut for a bipole with open square node in red in the right side you can:
+
+\begin{LTXexample}[varwidth=true,
+        basicstyle=\small\ttfamily
+    ]
+\begin{circuitikz}
+    \ctikzset{-s/.style = {bipole nodes={none}{osquarepole, fill=red}}}
+    \draw (0,0) to[R, -s] ++(2,0);
+\end{circuitikz}
+\end{LTXexample}
+
+There are several predefined shorthand as the above; in the following pages you can see all of them.
 
 \begin{LTXexample}[varwidth=true]
 \begin{circuitikz}
