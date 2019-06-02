@@ -1,5 +1,5 @@
-\def\pgfcircversion{git:7b96175}
-\def\pgfcircversiondate{2019/05/30}
+\def\pgfcircversion{git:0b51a20}
+\def\pgfcircversiondate{2019/06/02}
 \writestatus{loading}{\pgfcircversiondate{} The CircuiTikz circuit drawing package version \pgfcircversion}
 
 \usemodule[tikz]
@@ -1239,7 +1239,6 @@
 \ctikzset{flow/distance/.initial = .5}
 \ctikzset{flow/offset/.initial = .2}%distance between flow-arrow and conductor
 
-
 \ctikzset{bipole/label/.is family}
 \ctikzset{bipole/label/position/.initial=90}
 \ctikzset{bipole/label/unit/.initial=}
@@ -1248,19 +1247,6 @@
 \ctikzset{bipole/annotation/position/.initial=-90}
 \ctikzset{bipole/annotation/unit/.initial=}
 \ctikzset{bipole/annotation/name/.initial=}
-\ctikzset{bipole/nodes/.is family}
-\ctikzset{bipole/nodes/left/.is choice}
-\ctikzset{bipole/nodes/left/none/.code={\ctikzsetvalof{bipole/nodes/left}{none}}}
-\ctikzset{bipole/nodes/left/empty/.code={\ctikzsetvalof{bipole/nodes/left}{empty}}}
-\ctikzset{bipole/nodes/left/full/.code={\ctikzsetvalof{bipole/nodes/left}{full}}}
-\ctikzset{bipole/nodes/left/diamond/.code={\ctikzsetvalof{bipole/nodes/left}{diamond}}}
-\ctikzset{bipole/nodes/left/rectjoinfill/.code={\ctikzsetvalof{bipole/nodes/left}{rectjoinfill}}}
-\ctikzset{bipole/nodes/right/.is choice}
-\ctikzset{bipole/nodes/right/none/.code={\ctikzsetvalof{bipole/nodes/right}{none}}}
-\ctikzset{bipole/nodes/right/empty/.code={\ctikzsetvalof{bipole/nodes/right}{empty}}}
-\ctikzset{bipole/nodes/right/full/.code={\ctikzsetvalof{bipole/nodes/right}{full}}}
-\ctikzset{bipole/nodes/right/diamond/.code={\ctikzsetvalof{bipole/nodes/right}{diamond}}}
-\ctikzset{bipole/nodes/right/rectjoinfill/.code={\ctikzsetvalof{bipole/nodes/right}{rectjoinfill}}}
 
 \newif\ifpgf@circuit@europeanresistor
 \ctikzset{resistor/.is choice}
@@ -1593,7 +1579,7 @@
         \pgfpointorigin
     }
     \savedanchor\northwest{%
-        \pgf@y=\pgfkeysvalueof{/tikz/circuitikz/nodes width}\pgf@circ@Rlen
+        \pgfmathsetlength{\pgf@y}{sqrt(2)*\ctikzvalof{nodes width}*\pgf@circ@Rlen}
         \pgf@x=-\pgf@y
     }
     \anchor{center}{ \pgf@y=0pt \pgf@x=0pt }
@@ -1610,16 +1596,28 @@
     \anchor{north west}{ \northwest }
     \anchor{south east}{ \northwest \pgf@x=-\pgf@x \pgf@y=-\pgf@y }
     \anchorborder{
-        \pgf@circ@res@left=\pgf@x
-        \pgf@circ@res@up=\pgf@y
+        % \typeout{IN\space X:\the\pgf@x\space Y:\the\pgf@y}
+        \pgfmathsetmacro{\@@switchx}{ifthenelse(\pgf@x>0,1,-1)}
+        \pgfmathsetmacro{\@@switchy}{ifthenelse(\pgf@y>0,1,-1)}
+        \pgfmathsetlength{\pgf@xa}{abs(\pgf@x)}
+        \pgfmathsetlength{\pgf@ya}{abs(\pgf@y)}
+        \pgfextracty{\pgf@circ@res@up}{\northwest}
+        % \typeout{MID\space X:\the\pgf@xa\space Y:\the\pgf@ya\space L:\the\pgf@circ@res@up}
+        % \typeout{MID\space SX:\@@switchx\space SY:\@@switchy}
+        \pgfpointintersectionoflines
+            {\pgfpointorigin}{\pgfqpoint{\pgf@xa}{\pgf@ya}}
+            {\pgfqpoint{0pt}{\pgf@circ@res@up}}{\pgfqpoint{\pgf@circ@res@up}{0pt}}
+        % \typeout{CROSS \space X:\the\pgf@x\space Y:\the\pgf@y}
+        \pgf@x=\@@switchx\pgf@x
+        \pgf@y=\@@switchy\pgf@y
     }
     \behindforegroundpath{
         \pgfscope
-            \pgfmathsetlength{\pgf@circ@res@temp}{\pgfkeysvalueof{/tikz/circuitikz/nodes width}*\pgf@circ@Rlen}
+            \pgfmathsetlength{\pgf@circ@res@temp}{\ctikzvalof{nodes width}*\pgf@circ@Rlen}
             \pgftransformrotate{45}
             \pgfpathrectanglecorners
-            {\pgfpoint{\pgf@circ@res@left-\pgf@circ@res@temp}{\pgf@circ@res@up+\pgf@circ@res@temp}}
-            {\pgfpoint{\pgf@circ@res@left+\pgf@circ@res@temp}{\pgf@circ@res@up-\pgf@circ@res@temp}}
+            {\pgfpoint{-\pgf@circ@res@temp}{-\pgf@circ@res@temp}}
+            {\pgfpoint{\pgf@circ@res@temp}{\pgf@circ@res@temp}}
             \pgfsetcolor{\pgfkeysvalueof{/tikz/circuitikz/color}}
             \pgfsetfillopacity{1.0}
             \pgfusepath{draw,fill}
@@ -1627,6 +1625,155 @@
     }
 }
 
+%% Diamond terminal, unfilled
+
+\pgfdeclareshape{odiamondpole}{
+    \anchor{center}{
+        \pgfpointorigin
+    }
+    \savedanchor\northwest{%
+        \pgfmathsetlength{\pgf@y}{sqrt(2)*\ctikzvalof{nodes width}*\pgf@circ@Rlen}
+        \pgf@x=-\pgf@y
+    }
+    \anchor{center}{ \pgf@y=0pt \pgf@x=0pt }
+    \anchor{east}{ \northwest \pgf@y=0pt \pgf@x=-\pgf@x  }
+    \anchor{e}{ \northwest \pgf@y=0pt \pgf@x=-\pgf@x  }
+    \anchor{west}{ \northwest \pgf@y=0pt }
+    \anchor{w}{ \northwest \pgf@y=0pt }
+    \anchor{south}{ \northwest \pgf@x=0pt \pgf@y=-\pgf@y }
+    \anchor{s}{ \northwest \pgf@x=0pt \pgf@y=-\pgf@y }
+    \anchor{north}{ \northwest \pgf@x=0pt }
+    \anchor{n}{ \northwest \pgf@x=0pt }
+    \anchor{south west}{ \northwest \pgf@y=-\pgf@y }
+    \anchor{north east}{ \northwest \pgf@x=-\pgf@x }
+    \anchor{north west}{ \northwest }
+    \anchor{south east}{ \northwest \pgf@x=-\pgf@x \pgf@y=-\pgf@y }
+    \anchorborder{
+        % \typeout{IN\space X:\the\pgf@x\space Y:\the\pgf@y}
+        \pgfmathsetmacro{\@@switchx}{ifthenelse(\pgf@x>0,1,-1)}
+        \pgfmathsetmacro{\@@switchy}{ifthenelse(\pgf@y>0,1,-1)}
+        \pgfmathsetlength{\pgf@xa}{abs(\pgf@x)}
+        \pgfmathsetlength{\pgf@ya}{abs(\pgf@y)}
+        \pgfextracty{\pgf@circ@res@up}{\northwest}
+        % \typeout{MID\space X:\the\pgf@xa\space Y:\the\pgf@ya\space L:\the\pgf@circ@res@up}
+        % \typeout{MID\space SX:\@@switchx\space SY:\@@switchy}
+        \pgfpointintersectionoflines
+            {\pgfpointorigin}{\pgfqpoint{\pgf@xa}{\pgf@ya}}
+            {\pgfqpoint{0pt}{\pgf@circ@res@up}}{\pgfqpoint{\pgf@circ@res@up}{0pt}}
+        % \typeout{CROSS \space X:\the\pgf@x\space Y:\the\pgf@y}
+        \pgf@x=\@@switchx\pgf@x
+        \pgf@y=\@@switchy\pgf@y
+    }
+    \behindforegroundpath{
+        \pgfscope
+            \pgfmathsetlength{\pgf@circ@res@temp}{\ctikzvalof{nodes width}*\pgf@circ@Rlen}
+            \pgftransformrotate{45}
+            \pgfpathrectanglecorners
+            {\pgfpoint{-\pgf@circ@res@temp}{-\pgf@circ@res@temp}}
+            {\pgfpoint{\pgf@circ@res@temp}{\pgf@circ@res@temp}}
+            \pgfsetcolor{\pgfkeysvalueof{/tikz/circuitikz/color}}
+            \ifx\tikz@fillcolor\pgfutil@empty
+                \pgfsetfillcolor{white}
+            \else
+                \pgfsetfillcolor{\tikz@fillcolor}
+            \fi
+            \pgfsetfillopacity{1.0}
+            \pgfusepath{draw,fill}
+        \endpgfscope
+    }
+}
+
+%% square terminal, filled
+
+\pgfdeclareshape{squarepole}{
+    \anchor{center}{
+        \pgfpointorigin
+    }
+    \savedanchor\northwest{%
+        \pgfmathsetlength{\pgf@y}{\ctikzvalof{nodes width}*\pgf@circ@Rlen}
+        \pgf@x=-\pgf@y
+    }
+    \anchor{center}{ \pgf@y=0pt \pgf@x=0pt }
+    \anchor{east}{ \northwest \pgf@y=0pt \pgf@x=-\pgf@x  }
+    \anchor{e}{ \northwest \pgf@y=0pt \pgf@x=-\pgf@x  }
+    \anchor{west}{ \northwest \pgf@y=0pt }
+    \anchor{w}{ \northwest \pgf@y=0pt }
+    \anchor{south}{ \northwest \pgf@x=0pt \pgf@y=-\pgf@y }
+    \anchor{s}{ \northwest \pgf@x=0pt \pgf@y=-\pgf@y }
+    \anchor{north}{ \northwest \pgf@x=0pt }
+    \anchor{n}{ \northwest \pgf@x=0pt }
+    \anchor{south west}{ \northwest \pgf@y=-\pgf@y }
+    \anchor{north east}{ \northwest \pgf@x=-\pgf@x }
+    \anchor{north west}{ \northwest }
+    \anchor{south east}{ \northwest \pgf@x=-\pgf@x \pgf@y=-\pgf@y }
+    \anchorborder{
+        \pgf@xa=\pgf@x
+        \pgf@ya=\pgf@y
+        \pgfextracty{\pgf@circ@res@up}{\northwest}
+        \pgfpointborderrectangle
+            {\pgfqpoint{\pgf@xa}{\pgf@ya}}
+            {\pgfqpoint{\pgf@circ@res@up}{\pgfqpoint{\pgf@circ@res@up}}}
+    }
+    \behindforegroundpath{
+        \pgfscope
+            \pgfmathsetlength{\pgf@circ@res@temp}{\ctikzvalof{nodes width}*\pgf@circ@Rlen}
+            \pgfpathrectanglecorners
+            {\pgfpoint{-\pgf@circ@res@temp}{-\pgf@circ@res@temp}}
+            {\pgfpoint{\pgf@circ@res@temp}{\pgf@circ@res@temp}}
+            \pgfsetcolor{\pgfkeysvalueof{/tikz/circuitikz/color}}
+            \pgfsetfillopacity{1.0}
+            \pgfusepath{draw,fill}
+        \endpgfscope
+    }
+}
+%% square terminal, unfilled
+
+\pgfdeclareshape{osquarepole}{
+    \anchor{center}{
+        \pgfpointorigin
+    }
+    \savedanchor\northwest{%
+        \pgfmathsetlength{\pgf@y}{\ctikzvalof{nodes width}*\pgf@circ@Rlen}
+        \pgf@x=-\pgf@y
+    }
+    \anchor{center}{ \pgf@y=0pt \pgf@x=0pt }
+    \anchor{east}{ \northwest \pgf@y=0pt \pgf@x=-\pgf@x  }
+    \anchor{e}{ \northwest \pgf@y=0pt \pgf@x=-\pgf@x  }
+    \anchor{west}{ \northwest \pgf@y=0pt }
+    \anchor{w}{ \northwest \pgf@y=0pt }
+    \anchor{south}{ \northwest \pgf@x=0pt \pgf@y=-\pgf@y }
+    \anchor{s}{ \northwest \pgf@x=0pt \pgf@y=-\pgf@y }
+    \anchor{north}{ \northwest \pgf@x=0pt }
+    \anchor{n}{ \northwest \pgf@x=0pt }
+    \anchor{south west}{ \northwest \pgf@y=-\pgf@y }
+    \anchor{north east}{ \northwest \pgf@x=-\pgf@x }
+    \anchor{north west}{ \northwest }
+    \anchor{south east}{ \northwest \pgf@x=-\pgf@x \pgf@y=-\pgf@y }
+    \anchorborder{
+        \pgf@xa=\pgf@x
+        \pgf@ya=\pgf@y
+        \pgfextracty{\pgf@circ@res@up}{\northwest}
+        \pgfpointborderrectangle
+            {\pgfqpoint{\pgf@xa}{\pgf@ya}}
+            {\pgfqpoint{\pgf@circ@res@up}{\pgfqpoint{\pgf@circ@res@up}}}
+    }
+    \behindforegroundpath{
+        \pgfscope
+            \pgfmathsetlength{\pgf@circ@res@temp}{\ctikzvalof{nodes width}*\pgf@circ@Rlen}
+            \pgfpathrectanglecorners
+            {\pgfpoint{-\pgf@circ@res@temp}{-\pgf@circ@res@temp}}
+            {\pgfpoint{\pgf@circ@res@temp}{\pgf@circ@res@temp}}
+            \pgfsetcolor{\pgfkeysvalueof{/tikz/circuitikz/color}}
+            \ifx\tikz@fillcolor\pgfutil@empty
+                \pgfsetfillcolor{white}
+            \else
+                \pgfsetfillcolor{\tikz@fillcolor}
+            \fi
+            \pgfsetfillopacity{1.0}
+            \pgfusepath{draw,fill}
+        \endpgfscope
+    }
+}
 % BNC connector
 
 \pgfdeclareshape{bnc}{
@@ -5634,87 +5781,6 @@
 
 
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%% Handling of terminals
-
-
-%% Easily usable styles
-
-\ctikzset{o-o/.style = {\circuitikzbasekey/bipole/nodes/left=empty, \circuitikzbasekey/bipole/nodes/right=empty}}
-\ctikzset{-o/.style = {\circuitikzbasekey/bipole/nodes/left=none, \circuitikzbasekey/bipole/nodes/right=empty}}
-\ctikzset{o-/.style = {\circuitikzbasekey/bipole/nodes/left=empty, \circuitikzbasekey/bipole/nodes/right=none}}
-\ctikzset{*-o/.style = {\circuitikzbasekey/bipole/nodes/left=full, \circuitikzbasekey/bipole/nodes/right=empty}}
-\ctikzset{o-*/.style = {\circuitikzbasekey/bipole/nodes/left=empty, \circuitikzbasekey/bipole/nodes/right=full}}
-\ctikzset{d-o/.style = {\circuitikzbasekey/bipole/nodes/left=diamond, \circuitikzbasekey/bipole/nodes/right=empty}}
-\ctikzset{o-d/.style = {\circuitikzbasekey/bipole/nodes/left=empty, \circuitikzbasekey/bipole/nodes/right=diamond}}
-\ctikzset{*-/.style = {\circuitikzbasekey/bipole/nodes/left=full, \circuitikzbasekey/bipole/nodes/right=none}}
-\ctikzset{-*/.style = {\circuitikzbasekey/bipole/nodes/left=none, \circuitikzbasekey/bipole/nodes/right=full}}
-\ctikzset{d-/.style = {\circuitikzbasekey/bipole/nodes/left=diamond, \circuitikzbasekey/bipole/nodes/right=none}}
-\ctikzset{-d/.style = {\circuitikzbasekey/bipole/nodes/left=none, \circuitikzbasekey/bipole/nodes/right=diamond}}
-\ctikzset{*-*/.style = {\circuitikzbasekey/bipole/nodes/left=full, \circuitikzbasekey/bipole/nodes/right=full}}
-\ctikzset{d-*/.style = {\circuitikzbasekey/bipole/nodes/left=diamond, \circuitikzbasekey/bipole/nodes/right=full}}
-\ctikzset{*-d/.style = {\circuitikzbasekey/bipole/nodes/left=full, \circuitikzbasekey/bipole/nodes/right=diamond}}
-\ctikzset{d-d/.style = {\circuitikzbasekey/bipole/nodes/left=diamond, \circuitikzbasekey/bipole/nodes/right=diamond}}
-
-\ctikzset{.-/.style = {\circuitikzbasekey/bipole/nodes/left=rectjoinfill, \circuitikzbasekey/bipole/nodes/right=none}}
-\ctikzset{.-*/.style = {\circuitikzbasekey/bipole/nodes/left=rectjoinfill, \circuitikzbasekey/bipole/nodes/right=full}}
-\ctikzset{.-o/.style = {\circuitikzbasekey/bipole/nodes/left=rectjoinfill, \circuitikzbasekey/bipole/nodes/right=empty}}
-\ctikzset{.-d/.style = {\circuitikzbasekey/bipole/nodes/left=rectjoinfill, \circuitikzbasekey/bipole/nodes/right=diamond}}
-\ctikzset{-./.style = {\circuitikzbasekey/bipole/nodes/left=none, \circuitikzbasekey/bipole/nodes/right=rectjoinfill}}
-\ctikzset{o-./.style = {\circuitikzbasekey/bipole/nodes/left=empty, \circuitikzbasekey/bipole/nodes/right=rectjoinfill}}
-\ctikzset{*-./.style = {\circuitikzbasekey/bipole/nodes/left=full, \circuitikzbasekey/bipole/nodes/right=rectjoinfill}}
-\ctikzset{d-./.style = {\circuitikzbasekey/bipole/nodes/left=diamond, \circuitikzbasekey/bipole/nodes/right=rectjoinfill}}
-\ctikzset{.-./.style = {\circuitikzbasekey/bipole/nodes/left=rectjoinfill, \circuitikzbasekey/bipole/nodes/right=rectjoinfill}}
-
-\tikzset{reversed/.style = {\circuitikzbasekey/bipole/inverted=true}}
-
-
-%% The output routine
-
-\def\drawpoles{
-	\pgfextra{ \edef\pgf@circ@temp{\ctikzvalof{bipole/nodes/left}} \def\pgf@temp{diamond}  }
-	\ifx\pgf@temp\pgf@circ@temp
-		 (\tikztostart) node[diamondpole] {}
-	\else
-		\pgfextra{ \def\pgf@temp{empty}  }
-		\ifx\pgf@temp\pgf@circ@temp
-			 (\tikztostart) node[ocirc] {}
-		\else
-			\pgfextra{  \def\pgf@temp{full}  }
-			\ifx\pgf@temp\pgf@circ@temp
-				(\tikztostart) node[circ] {}
-			\else
-				\pgfextra{ \def\pgf@temp{rectjoinfill} }
-				\ifx\pgf@temp\pgf@circ@temp
-				 (\tikztostart) node[rectjoinfill] {}
-				\else
-				\fi
-			\fi
-		\fi
-	\fi
-	\pgfextra{ \edef\pgf@circ@temp{\ctikzvalof{bipole/nodes/right}} \def\pgf@temp{diamond}  }
-	\ifx\pgf@temp\pgf@circ@temp
-		 (\tikztotarget) node[diamondpole] {}
-	\else
-		\pgfextra{ \def\pgf@temp{empty}  }
-		\ifx\pgf@temp\pgf@circ@temp
-			 (\tikztotarget) node[ocirc] {}
-		\else
-			\pgfextra{  \def\pgf@temp{full}  }
-			\ifx\pgf@temp\pgf@circ@temp
-				(\tikztotarget) node[circ] {}
-			\else
-				\pgfextra{ \def\pgf@temp{rectjoinfill} }
-				\ifx\pgf@temp\pgf@circ@temp
-				 (\tikztotarget) node[rectjoinfill] {}
-				\else
-				\fi
-			\fi
-		\fi
-	\fi
-}
-
-
 
 %% Lamp
 
@@ -7858,6 +7924,7 @@
         \pgfusepath{draw}
     \endpgfscope
 }
+
 
 % end of pgfcircbipoles.tex
 %%%---------- close: tex/pgfcircbipoles
@@ -14211,13 +14278,10 @@
 \newif\ifpgf@circuit@bipole@inverted
 \ctikzset{bipole/inverted/.is if=pgf@circuit@bipole@inverted}
 
-
 \newif\ifpgf@circuit@bipole@voltage@backward
 \ctikzset{bipole/voltage/direction/.is choice}
 \ctikzset{bipole/voltage/direction/forward/.code={\pgf@circuit@bipole@voltage@backwardfalse}}
 \ctikzset{bipole/voltage/direction/backward/.code={\pgf@circuit@bipole@voltage@backwardtrue}}
-
-
 
 % Initialize paths
 \def\pgfcircresetpath{
@@ -14327,6 +14391,56 @@
     \tikztonodes%draw pending nodes an path
 }
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Handling of terminals
+
+\ctikzset{bipole/nodes/.is family}
+\ctikzset{bipole/nodes/left/.initial=none}
+\ctikzset{bipole/nodes/right/.initial=none}
+\tikzset{bipole nodes/.style n args={2}{%
+    \circuitikzbasekey/bipole/nodes/left=#1,
+    \circuitikzbasekey/bipole/nodes/right=#2
+    }
+}
+
+%% Easily usable styles
+
+\ctikzset{o-o/.style = {\circuitikzbasekey/bipole/nodes/left=ocirc, \circuitikzbasekey/bipole/nodes/right=ocirc}}
+\ctikzset{-o/.style = {\circuitikzbasekey/bipole/nodes/left=none, \circuitikzbasekey/bipole/nodes/right=ocirc}}
+\ctikzset{o-/.style = {\circuitikzbasekey/bipole/nodes/left=ocirc, \circuitikzbasekey/bipole/nodes/right=none}}
+\ctikzset{*-o/.style = {\circuitikzbasekey/bipole/nodes/left=circ, \circuitikzbasekey/bipole/nodes/right=ocirc}}
+\ctikzset{o-*/.style = {\circuitikzbasekey/bipole/nodes/left=ocirc, \circuitikzbasekey/bipole/nodes/right=circ}}
+\ctikzset{d-o/.style = {\circuitikzbasekey/bipole/nodes/left=diamondpole, \circuitikzbasekey/bipole/nodes/right=ocirc}}
+\ctikzset{o-d/.style = {\circuitikzbasekey/bipole/nodes/left=ocirc, \circuitikzbasekey/bipole/nodes/right=diamondpole}}
+\ctikzset{*-/.style = {\circuitikzbasekey/bipole/nodes/left=circ, \circuitikzbasekey/bipole/nodes/right=none}}
+\ctikzset{-*/.style = {\circuitikzbasekey/bipole/nodes/left=none, \circuitikzbasekey/bipole/nodes/right=circ}}
+\ctikzset{d-/.style = {\circuitikzbasekey/bipole/nodes/left=diamondpole, \circuitikzbasekey/bipole/nodes/right=none}}
+\ctikzset{-d/.style = {\circuitikzbasekey/bipole/nodes/left=none, \circuitikzbasekey/bipole/nodes/right=diamondpole}}
+\ctikzset{*-*/.style = {\circuitikzbasekey/bipole/nodes/left=circ, \circuitikzbasekey/bipole/nodes/right=circ}}
+\ctikzset{d-*/.style = {\circuitikzbasekey/bipole/nodes/left=diamondpole, \circuitikzbasekey/bipole/nodes/right=circ}}
+\ctikzset{*-d/.style = {\circuitikzbasekey/bipole/nodes/left=circ, \circuitikzbasekey/bipole/nodes/right=diamondpole}}
+\ctikzset{d-d/.style = {\circuitikzbasekey/bipole/nodes/left=diamondpole, \circuitikzbasekey/bipole/nodes/right=diamondpole}}
+
+% rectjoinfill workarounds
+
+\ctikzset{.-/.style = {\circuitikzbasekey/bipole/nodes/left=rectjoinfill, \circuitikzbasekey/bipole/nodes/right=none}}
+\ctikzset{.-*/.style = {\circuitikzbasekey/bipole/nodes/left=rectjoinfill, \circuitikzbasekey/bipole/nodes/right=circ}}
+\ctikzset{.-o/.style = {\circuitikzbasekey/bipole/nodes/left=rectjoinfill, \circuitikzbasekey/bipole/nodes/right=ocirc}}
+\ctikzset{.-d/.style = {\circuitikzbasekey/bipole/nodes/left=rectjoinfill, \circuitikzbasekey/bipole/nodes/right=diamondpole}}
+\ctikzset{-./.style = {\circuitikzbasekey/bipole/nodes/left=none, \circuitikzbasekey/bipole/nodes/right=rectjoinfill}}
+\ctikzset{o-./.style = {\circuitikzbasekey/bipole/nodes/left=ocirc, \circuitikzbasekey/bipole/nodes/right=rectjoinfill}}
+\ctikzset{*-./.style = {\circuitikzbasekey/bipole/nodes/left=circ, \circuitikzbasekey/bipole/nodes/right=rectjoinfill}}
+\ctikzset{d-./.style = {\circuitikzbasekey/bipole/nodes/left=diamondpole, \circuitikzbasekey/bipole/nodes/right=rectjoinfill}}
+\ctikzset{.-./.style = {\circuitikzbasekey/bipole/nodes/left=rectjoinfill, \circuitikzbasekey/bipole/nodes/right=rectjoinfill}}
+
+\tikzset{reversed/.style = {\circuitikzbasekey/bipole/inverted=true}}
+
+\def\drawpoles{
+    \pgfextra{ \edef\pgf@circ@temp{\ctikzvalof{bipole/nodes/left}} \def\pgf@temp{none}}
+    \ifx\pgf@temp\pgf@circ@temp\else(\tikztostart) node[\pgf@circ@temp] {}\fi
+    \pgfextra{ \edef\pgf@circ@temp{\ctikzvalof{bipole/nodes/right}} }
+    \ifx\pgf@temp\pgf@circ@temp\else(\tikztotarget) node[\pgf@circ@temp] {}\fi
+}
 
 %% Path definitions
 \def\pgf@circ@resistor@path#1{\ifpgf@circuit@europeanresistor\pgf@circ@bipole@path{generic}{#1}\else\pgf@circ@bipole@path{resistor}{#1}\fi}
