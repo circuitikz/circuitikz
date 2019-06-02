@@ -126,7 +126,7 @@
         \pgfpointorigin
     }
     \savedanchor\northwest{%
-        \pgf@y=\pgfkeysvalueof{/tikz/circuitikz/nodes width}\pgf@circ@Rlen
+        \pgfmathsetlength{\pgf@y}{sqrt(2)*\ctikzvalof{nodes width}*\pgf@circ@Rlen}
         \pgf@x=-\pgf@y
     }
     \anchor{center}{ \pgf@y=0pt \pgf@x=0pt }
@@ -143,16 +143,28 @@
     \anchor{north west}{ \northwest }
     \anchor{south east}{ \northwest \pgf@x=-\pgf@x \pgf@y=-\pgf@y }
     \anchorborder{
-        \pgf@circ@res@left=\pgf@x
-        \pgf@circ@res@up=\pgf@y
+        % \typeout{IN\space X:\the\pgf@x\space Y:\the\pgf@y}
+        \pgfmathsetmacro{\@@switchx}{ifthenelse(\pgf@x>0,1,-1)}
+        \pgfmathsetmacro{\@@switchy}{ifthenelse(\pgf@y>0,1,-1)}
+        \pgfmathsetlength{\pgf@xa}{abs(\pgf@x)}
+        \pgfmathsetlength{\pgf@ya}{abs(\pgf@y)}
+        \pgfextracty{\pgf@circ@res@up}{\northwest}
+        % \typeout{MID\space X:\the\pgf@xa\space Y:\the\pgf@ya\space L:\the\pgf@circ@res@up}
+        % \typeout{MID\space SX:\@@switchx\space SY:\@@switchy}
+        \pgfpointintersectionoflines
+            {\pgfpointorigin}{\pgfqpoint{\pgf@xa}{\pgf@ya}}
+            {\pgfqpoint{0pt}{\pgf@circ@res@up}}{\pgfqpoint{\pgf@circ@res@up}{0pt}}
+        % \typeout{CROSS \space X:\the\pgf@x\space Y:\the\pgf@y}
+        \pgf@x=\@@switchx\pgf@x
+        \pgf@y=\@@switchy\pgf@y
     }
     \behindforegroundpath{
         \pgfscope
-            \pgfmathsetlength{\pgf@circ@res@temp}{\pgfkeysvalueof{/tikz/circuitikz/nodes width}*\pgf@circ@Rlen}
+            \pgfmathsetlength{\pgf@circ@res@temp}{\ctikzvalof{nodes width}*\pgf@circ@Rlen}
             \pgftransformrotate{45}
             \pgfpathrectanglecorners
-            {\pgfpoint{\pgf@circ@res@left-\pgf@circ@res@temp}{\pgf@circ@res@up+\pgf@circ@res@temp}}
-            {\pgfpoint{\pgf@circ@res@left+\pgf@circ@res@temp}{\pgf@circ@res@up-\pgf@circ@res@temp}}
+            {\pgfpoint{-\pgf@circ@res@temp}{-\pgf@circ@res@temp}}
+            {\pgfpoint{\pgf@circ@res@temp}{\pgf@circ@res@temp}}
             \pgfsetcolor{\pgfkeysvalueof{/tikz/circuitikz/color}}
             \pgfsetfillopacity{1.0}
             \pgfusepath{draw,fill}
@@ -160,6 +172,155 @@
     }
 }
 
+%% Diamond terminal, unfilled
+
+\pgfdeclareshape{odiamondpole}{
+    \anchor{center}{
+        \pgfpointorigin
+    }
+    \savedanchor\northwest{%
+        \pgfmathsetlength{\pgf@y}{sqrt(2)*\ctikzvalof{nodes width}*\pgf@circ@Rlen}
+        \pgf@x=-\pgf@y
+    }
+    \anchor{center}{ \pgf@y=0pt \pgf@x=0pt }
+    \anchor{east}{ \northwest \pgf@y=0pt \pgf@x=-\pgf@x  }
+    \anchor{e}{ \northwest \pgf@y=0pt \pgf@x=-\pgf@x  }
+    \anchor{west}{ \northwest \pgf@y=0pt }
+    \anchor{w}{ \northwest \pgf@y=0pt }
+    \anchor{south}{ \northwest \pgf@x=0pt \pgf@y=-\pgf@y }
+    \anchor{s}{ \northwest \pgf@x=0pt \pgf@y=-\pgf@y }
+    \anchor{north}{ \northwest \pgf@x=0pt }
+    \anchor{n}{ \northwest \pgf@x=0pt }
+    \anchor{south west}{ \northwest \pgf@y=-\pgf@y }
+    \anchor{north east}{ \northwest \pgf@x=-\pgf@x }
+    \anchor{north west}{ \northwest }
+    \anchor{south east}{ \northwest \pgf@x=-\pgf@x \pgf@y=-\pgf@y }
+    \anchorborder{
+        % \typeout{IN\space X:\the\pgf@x\space Y:\the\pgf@y}
+        \pgfmathsetmacro{\@@switchx}{ifthenelse(\pgf@x>0,1,-1)}
+        \pgfmathsetmacro{\@@switchy}{ifthenelse(\pgf@y>0,1,-1)}
+        \pgfmathsetlength{\pgf@xa}{abs(\pgf@x)}
+        \pgfmathsetlength{\pgf@ya}{abs(\pgf@y)}
+        \pgfextracty{\pgf@circ@res@up}{\northwest}
+        % \typeout{MID\space X:\the\pgf@xa\space Y:\the\pgf@ya\space L:\the\pgf@circ@res@up}
+        % \typeout{MID\space SX:\@@switchx\space SY:\@@switchy}
+        \pgfpointintersectionoflines
+            {\pgfpointorigin}{\pgfqpoint{\pgf@xa}{\pgf@ya}}
+            {\pgfqpoint{0pt}{\pgf@circ@res@up}}{\pgfqpoint{\pgf@circ@res@up}{0pt}}
+        % \typeout{CROSS \space X:\the\pgf@x\space Y:\the\pgf@y}
+        \pgf@x=\@@switchx\pgf@x
+        \pgf@y=\@@switchy\pgf@y
+    }
+    \behindforegroundpath{
+        \pgfscope
+            \pgfmathsetlength{\pgf@circ@res@temp}{\ctikzvalof{nodes width}*\pgf@circ@Rlen}
+            \pgftransformrotate{45}
+            \pgfpathrectanglecorners
+            {\pgfpoint{-\pgf@circ@res@temp}{-\pgf@circ@res@temp}}
+            {\pgfpoint{\pgf@circ@res@temp}{\pgf@circ@res@temp}}
+            \pgfsetcolor{\pgfkeysvalueof{/tikz/circuitikz/color}}
+            \ifx\tikz@fillcolor\pgfutil@empty
+                \pgfsetfillcolor{white}
+            \else
+                \pgfsetfillcolor{\tikz@fillcolor}
+            \fi
+            \pgfsetfillopacity{1.0}
+            \pgfusepath{draw,fill}
+        \endpgfscope
+    }
+}
+
+%% square terminal, filled
+
+\pgfdeclareshape{squarepole}{
+    \anchor{center}{
+        \pgfpointorigin
+    }
+    \savedanchor\northwest{%
+        \pgfmathsetlength{\pgf@y}{\ctikzvalof{nodes width}*\pgf@circ@Rlen}
+        \pgf@x=-\pgf@y
+    }
+    \anchor{center}{ \pgf@y=0pt \pgf@x=0pt }
+    \anchor{east}{ \northwest \pgf@y=0pt \pgf@x=-\pgf@x  }
+    \anchor{e}{ \northwest \pgf@y=0pt \pgf@x=-\pgf@x  }
+    \anchor{west}{ \northwest \pgf@y=0pt }
+    \anchor{w}{ \northwest \pgf@y=0pt }
+    \anchor{south}{ \northwest \pgf@x=0pt \pgf@y=-\pgf@y }
+    \anchor{s}{ \northwest \pgf@x=0pt \pgf@y=-\pgf@y }
+    \anchor{north}{ \northwest \pgf@x=0pt }
+    \anchor{n}{ \northwest \pgf@x=0pt }
+    \anchor{south west}{ \northwest \pgf@y=-\pgf@y }
+    \anchor{north east}{ \northwest \pgf@x=-\pgf@x }
+    \anchor{north west}{ \northwest }
+    \anchor{south east}{ \northwest \pgf@x=-\pgf@x \pgf@y=-\pgf@y }
+    \anchorborder{
+        \pgf@xa=\pgf@x
+        \pgf@ya=\pgf@y
+        \pgfextracty{\pgf@circ@res@up}{\northwest}
+        \pgfpointborderrectangle
+            {\pgfqpoint{\pgf@xa}{\pgf@ya}}
+            {\pgfqpoint{\pgf@circ@res@up}{\pgfqpoint{\pgf@circ@res@up}}}
+    }
+    \behindforegroundpath{
+        \pgfscope
+            \pgfmathsetlength{\pgf@circ@res@temp}{\ctikzvalof{nodes width}*\pgf@circ@Rlen}
+            \pgfpathrectanglecorners
+            {\pgfpoint{-\pgf@circ@res@temp}{-\pgf@circ@res@temp}}
+            {\pgfpoint{\pgf@circ@res@temp}{\pgf@circ@res@temp}}
+            \pgfsetcolor{\pgfkeysvalueof{/tikz/circuitikz/color}}
+            \pgfsetfillopacity{1.0}
+            \pgfusepath{draw,fill}
+        \endpgfscope
+    }
+}
+%% square terminal, unfilled
+
+\pgfdeclareshape{osquarepole}{
+    \anchor{center}{
+        \pgfpointorigin
+    }
+    \savedanchor\northwest{%
+        \pgfmathsetlength{\pgf@y}{\ctikzvalof{nodes width}*\pgf@circ@Rlen}
+        \pgf@x=-\pgf@y
+    }
+    \anchor{center}{ \pgf@y=0pt \pgf@x=0pt }
+    \anchor{east}{ \northwest \pgf@y=0pt \pgf@x=-\pgf@x  }
+    \anchor{e}{ \northwest \pgf@y=0pt \pgf@x=-\pgf@x  }
+    \anchor{west}{ \northwest \pgf@y=0pt }
+    \anchor{w}{ \northwest \pgf@y=0pt }
+    \anchor{south}{ \northwest \pgf@x=0pt \pgf@y=-\pgf@y }
+    \anchor{s}{ \northwest \pgf@x=0pt \pgf@y=-\pgf@y }
+    \anchor{north}{ \northwest \pgf@x=0pt }
+    \anchor{n}{ \northwest \pgf@x=0pt }
+    \anchor{south west}{ \northwest \pgf@y=-\pgf@y }
+    \anchor{north east}{ \northwest \pgf@x=-\pgf@x }
+    \anchor{north west}{ \northwest }
+    \anchor{south east}{ \northwest \pgf@x=-\pgf@x \pgf@y=-\pgf@y }
+    \anchorborder{
+        \pgf@xa=\pgf@x
+        \pgf@ya=\pgf@y
+        \pgfextracty{\pgf@circ@res@up}{\northwest}
+        \pgfpointborderrectangle
+            {\pgfqpoint{\pgf@xa}{\pgf@ya}}
+            {\pgfqpoint{\pgf@circ@res@up}{\pgfqpoint{\pgf@circ@res@up}}}
+    }
+    \behindforegroundpath{
+        \pgfscope
+            \pgfmathsetlength{\pgf@circ@res@temp}{\ctikzvalof{nodes width}*\pgf@circ@Rlen}
+            \pgfpathrectanglecorners
+            {\pgfpoint{-\pgf@circ@res@temp}{-\pgf@circ@res@temp}}
+            {\pgfpoint{\pgf@circ@res@temp}{\pgf@circ@res@temp}}
+            \pgfsetcolor{\pgfkeysvalueof{/tikz/circuitikz/color}}
+            \ifx\tikz@fillcolor\pgfutil@empty
+                \pgfsetfillcolor{white}
+            \else
+                \pgfsetfillcolor{\tikz@fillcolor}
+            \fi
+            \pgfsetfillopacity{1.0}
+            \pgfusepath{draw,fill}
+        \endpgfscope
+    }
+}
 % BNC connector
 
 \pgfdeclareshape{bnc}{

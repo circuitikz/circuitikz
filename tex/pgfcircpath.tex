@@ -23,13 +23,10 @@
 \newif\ifpgf@circuit@bipole@inverted
 \ctikzset{bipole/inverted/.is if=pgf@circuit@bipole@inverted}
 
-
 \newif\ifpgf@circuit@bipole@voltage@backward
 \ctikzset{bipole/voltage/direction/.is choice}
 \ctikzset{bipole/voltage/direction/forward/.code={\pgf@circuit@bipole@voltage@backwardfalse}}
 \ctikzset{bipole/voltage/direction/backward/.code={\pgf@circuit@bipole@voltage@backwardtrue}}
-
-
 
 % Initialize paths
 \def\pgfcircresetpath{
@@ -139,6 +136,56 @@
     \tikztonodes%draw pending nodes an path
 }
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Handling of terminals
+
+\ctikzset{bipole/nodes/.is family}
+\ctikzset{bipole/nodes/left/.initial=none}
+\ctikzset{bipole/nodes/right/.initial=none}
+\tikzset{bipole nodes/.style n args={2}{%
+    \circuitikzbasekey/bipole/nodes/left=#1,
+    \circuitikzbasekey/bipole/nodes/right=#2
+    }
+}
+
+%% Easily usable styles
+
+\ctikzset{o-o/.style = {\circuitikzbasekey/bipole/nodes/left=ocirc, \circuitikzbasekey/bipole/nodes/right=ocirc}}
+\ctikzset{-o/.style = {\circuitikzbasekey/bipole/nodes/left=none, \circuitikzbasekey/bipole/nodes/right=ocirc}}
+\ctikzset{o-/.style = {\circuitikzbasekey/bipole/nodes/left=ocirc, \circuitikzbasekey/bipole/nodes/right=none}}
+\ctikzset{*-o/.style = {\circuitikzbasekey/bipole/nodes/left=circ, \circuitikzbasekey/bipole/nodes/right=ocirc}}
+\ctikzset{o-*/.style = {\circuitikzbasekey/bipole/nodes/left=ocirc, \circuitikzbasekey/bipole/nodes/right=circ}}
+\ctikzset{d-o/.style = {\circuitikzbasekey/bipole/nodes/left=diamondpole, \circuitikzbasekey/bipole/nodes/right=ocirc}}
+\ctikzset{o-d/.style = {\circuitikzbasekey/bipole/nodes/left=ocirc, \circuitikzbasekey/bipole/nodes/right=diamondpole}}
+\ctikzset{*-/.style = {\circuitikzbasekey/bipole/nodes/left=circ, \circuitikzbasekey/bipole/nodes/right=none}}
+\ctikzset{-*/.style = {\circuitikzbasekey/bipole/nodes/left=none, \circuitikzbasekey/bipole/nodes/right=circ}}
+\ctikzset{d-/.style = {\circuitikzbasekey/bipole/nodes/left=diamondpole, \circuitikzbasekey/bipole/nodes/right=none}}
+\ctikzset{-d/.style = {\circuitikzbasekey/bipole/nodes/left=none, \circuitikzbasekey/bipole/nodes/right=diamondpole}}
+\ctikzset{*-*/.style = {\circuitikzbasekey/bipole/nodes/left=circ, \circuitikzbasekey/bipole/nodes/right=circ}}
+\ctikzset{d-*/.style = {\circuitikzbasekey/bipole/nodes/left=diamondpole, \circuitikzbasekey/bipole/nodes/right=circ}}
+\ctikzset{*-d/.style = {\circuitikzbasekey/bipole/nodes/left=circ, \circuitikzbasekey/bipole/nodes/right=diamondpole}}
+\ctikzset{d-d/.style = {\circuitikzbasekey/bipole/nodes/left=diamondpole, \circuitikzbasekey/bipole/nodes/right=diamondpole}}
+
+% rectjoinfill workarounds
+
+\ctikzset{.-/.style = {\circuitikzbasekey/bipole/nodes/left=rectjoinfill, \circuitikzbasekey/bipole/nodes/right=none}}
+\ctikzset{.-*/.style = {\circuitikzbasekey/bipole/nodes/left=rectjoinfill, \circuitikzbasekey/bipole/nodes/right=circ}}
+\ctikzset{.-o/.style = {\circuitikzbasekey/bipole/nodes/left=rectjoinfill, \circuitikzbasekey/bipole/nodes/right=ocirc}}
+\ctikzset{.-d/.style = {\circuitikzbasekey/bipole/nodes/left=rectjoinfill, \circuitikzbasekey/bipole/nodes/right=diamondpole}}
+\ctikzset{-./.style = {\circuitikzbasekey/bipole/nodes/left=none, \circuitikzbasekey/bipole/nodes/right=rectjoinfill}}
+\ctikzset{o-./.style = {\circuitikzbasekey/bipole/nodes/left=ocirc, \circuitikzbasekey/bipole/nodes/right=rectjoinfill}}
+\ctikzset{*-./.style = {\circuitikzbasekey/bipole/nodes/left=circ, \circuitikzbasekey/bipole/nodes/right=rectjoinfill}}
+\ctikzset{d-./.style = {\circuitikzbasekey/bipole/nodes/left=diamondpole, \circuitikzbasekey/bipole/nodes/right=rectjoinfill}}
+\ctikzset{.-./.style = {\circuitikzbasekey/bipole/nodes/left=rectjoinfill, \circuitikzbasekey/bipole/nodes/right=rectjoinfill}}
+
+\tikzset{reversed/.style = {\circuitikzbasekey/bipole/inverted=true}}
+
+\def\drawpoles{
+    \pgfextra{ \edef\pgf@circ@temp{\ctikzvalof{bipole/nodes/left}} \def\pgf@temp{none}}
+    \ifx\pgf@temp\pgf@circ@temp\else(\tikztostart) node[\pgf@circ@temp] {}\fi
+    \pgfextra{ \edef\pgf@circ@temp{\ctikzvalof{bipole/nodes/right}} }
+    \ifx\pgf@temp\pgf@circ@temp\else(\tikztotarget) node[\pgf@circ@temp] {}\fi
+}
 
 %% Path definitions
 \def\pgf@circ@resistor@path#1{\ifpgf@circuit@europeanresistor\pgf@circ@bipole@path{generic}{#1}\else\pgf@circ@bipole@path{resistor}{#1}\fi}

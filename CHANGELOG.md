@@ -5,6 +5,8 @@ The major changes among the different circuitikz versions are listed here. See <
     - Bumped the version to 0.9.1 so it's clearly different in log from the released one.
     - Added the option to have inline transformers and gyrators
     - Added rotary switches
+    - Added more configurable bipole nodes and more shapes
+    - Fixed anchors of diamondpole nodes
     - Fixed a bug (#205) about unstable anchors in the chip components
     - Fixed a regression in label placement for some values of scaling
     - Fixed problems with cute switches anchors
