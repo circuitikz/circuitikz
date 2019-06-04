@@ -3,6 +3,7 @@ The major changes among the different circuitikz versions are listed here. See <
 
 * Version git (0.9.1, unreleased)
     - Bumped the version to 0.9.1 so it's clearly different in log from the released one.
+    - Added old LaTeX versions for 0.8.3, 0.7, 0.6 and 0.4
     - Added the option to have inline transformers and gyrators
     - Added rotary switches
     - Added more configurable bipole nodes and more shapes

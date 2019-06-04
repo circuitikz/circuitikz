@@ -74,7 +74,7 @@ ctan: manual clean
 	cp tex/t-circuitikz.tex ctan_tmp/circuitikz/tex/context/third/circuitikz
 	#latex-files
 	mkdir -p ctan_tmp/circuitikz/tex/latex/circuitikz
-	cp tex/circuitikz.sty ctan_tmp/circuitikz/tex/latex/circuitikz
+	cp tex/*.sty ctan_tmp/circuitikz/tex/latex/circuitikz
 	#common files
 	mkdir -p ctan_tmp/circuitikz/tex/generic/circuitikz
 	cp tex/pgfcirc* ctan_tmp/circuitikz/tex/generic/circuitikz
