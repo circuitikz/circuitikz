@@ -8,6 +8,7 @@ The major changes among the different circuitikz versions are listed here. See <
     - Added rotary switches
     - Added more configurable bipole nodes and more shapes
     - Made the open shape of dcisources configurable
+    - Made the arrows on vcc and vee configurable
     - Fixed anchors of diamondpole nodes
     - Fixed a bug (#205) about unstable anchors in the chip components
     - Fixed a regression in label placement for some values of scaling
