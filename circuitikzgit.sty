@@ -9,8 +9,8 @@
 
 \NeedsTeXFormat{LaTeX2e}
 
-\def\pgfcircversion{git:e9b575c}
-\def\pgfcircversiondate{2019/06/04}
+\def\pgfcircversion{git:cb2789d}
+\def\pgfcircversiondate{2019/06/08}
 
 \ProvidesPackage{circuitikzgit}
 [\pgfcircversiondate{} The CircuiTikz circuit drawing package version \pgfcircversion]
@@ -584,6 +584,7 @@
 \ctikzset{bipoles/oosource/width/.initial=.60}
 \ctikzset{bipoles/oosource/circlesize/.initial=.65}%circlesize+circleoffset should be =1
 \ctikzset{bipoles/oosource/circleoffset/.initial=.35}%circlesize+circleoffset should be =1
+\ctikzset{bipoles/dcisource/angle/.initial=80}
 \ctikzset{bipoles/dcisource/height/.initial=.60}
 \ctikzset{bipoles/dcisource/width/.initial=.60}
 \ctikzset{bipoles/dcvsource/height/.initial=.60}
@@ -4281,10 +4282,11 @@
     \pgfpathmoveto{\pgfpointorigin}
     \pgfpathellipse{\pgfpointorigin}{\pgfpoint{0}{\pgf@circ@res@up}}{\pgfpoint{\pgf@circ@res@left}{0}}
     \pgf@circ@maybefill
-    \pgfpathmoveto{\pgfpoint{\pgf@circ@res@right}{0}}\pgfpatharc{0}{90}{0.85\pgf@circ@res@right and \pgf@circ@res@up}
-    \pgfpathmoveto{\pgfpoint{\pgf@circ@res@right}{0}}\pgfpatharc{0}{-90}{0.85\pgf@circ@res@right and \pgf@circ@res@up}
-    \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{0}}\pgfpatharc{180}{270}{0.85\pgf@circ@res@right and \pgf@circ@res@up}
-    \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{0}}\pgfpatharc{180}{90}{0.85\pgf@circ@res@right and \pgf@circ@res@up}
+    \edef\@@angle{\ctikzvalof{bipoles/dcisource/angle}}
+    \pgfpathmoveto{\pgfpointpolar{\@@angle}{\pgf@circ@res@up}}
+    \pgfpatharc{\@@angle}{-\@@angle}{\pgf@circ@res@up}
+    \pgfpathmoveto{\pgfpointpolar{180-\@@angle}{\pgf@circ@res@up}}
+    \pgfpatharc{180-\@@angle}{180+\@@angle}{\pgf@circ@res@up}
     \pgfusepath{draw}
 
     \pgfpathmoveto{\pgfpoint{.7\pgf@circ@res@left}{\pgf@circ@res@zero}}
@@ -4295,7 +4297,6 @@
         \pgfnode{currarrow}{center}{}{}{\pgfusepath{stroke}}
     \endpgfscope
 }
-
 %% DC-Voltage source
 \pgfcircdeclarebipole
 {}
