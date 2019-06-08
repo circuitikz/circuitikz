@@ -1,4 +1,4 @@
-\def\pgfcircversion{git:1029f9d}
+\def\pgfcircversion{git:6f5d737}
 \def\pgfcircversiondate{2019/06/08}
 \writestatus{loading}{\pgfcircversiondate{} The CircuiTikz circuit drawing package version \pgfcircversion}
 
@@ -168,6 +168,8 @@
 \ctikzset{monopoles/rground/thickness/.initial=2}
 \ctikzset{monopoles/tground/thickness/.initial=3}
 \ctikzset{monopoles/vcc/width/.initial=.2}
+\ctikzset{monopoles/vcc/arrow/.initial=legacy}
+\ctikzset{monopoles/vee/arrow/.initial=legacy}
 \ctikzset{monopoles/match/width/.initial=.4}
 \ctikzset{monopoles/chassis/width/.initial=.25}
 \ctikzset{monopoles/alternative chassis/width/.initial=.25}
@@ -2912,23 +2914,25 @@
     \behindforegroundpath{
         \pgf@circ@res@step=\ctikzvalof{monopoles/vcc/width}\pgf@circ@Rlen
         \pgfscope
-            \pgfpathmoveto{\pgfpointorigin}
-            \pgfpathlineto{\pgfpoint{0pt}{1.5\pgf@circ@res@step}}
-            \pgfusepath{draw}
+            \edef\pgf@circ@temp{\ctikzvalof{monopoles/vcc/arrow}}\edef\pgf@temp{legacy}
+            \ifx\pgf@temp\pgf@circ@temp
+                \pgfstartlinewidth=\pgflinewidth
+                \pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}\pgfstartlinewidth}
 
-            \pgfstartlinewidth=\pgflinewidth
-            \pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}\pgfstartlinewidth}
+                \pgfpathmoveto{\pgfpoint{-0.5\pgf@circ@res@step}{.8\pgf@circ@res@step}}
+                \pgfpathlineto{\pgfpoint{0}{1.5\pgf@circ@res@step}}
+                \pgfpathlineto{\pgfpoint{0.5\pgf@circ@res@step}{.8\pgf@circ@res@step}}
+                \pgfusepath{draw}
 
-            \pgfpathmoveto{\pgfpoint{-0.5\pgf@circ@res@step}{.8\pgf@circ@res@step}}
-            \pgfpathlineto{\pgfpoint{0}{1.5\pgf@circ@res@step}}
-            \pgfpathlineto{\pgfpoint{0.5\pgf@circ@res@step}{.8\pgf@circ@res@step}}
-            \pgfusepath{draw}
-
-            \pgfsetlinewidth{\pgfstartlinewidth}
-
-        \endpgfscope
+                \pgfsetlinewidth{\pgfstartlinewidth}
+            \else
+            \pgfsetarrowsend{\pgf@circ@temp}
+        \fi
+        \pgfpathmoveto{\pgfpointorigin}
+        \pgfpathlineto{\pgfpoint{0pt}{1.5\pgf@circ@res@step}}
+        \pgfusepath{draw}
+    \endpgfscope
     }
-
 }
 
 % Vee
@@ -2959,26 +2963,27 @@
 
     \behindforegroundpath{
         \pgf@circ@res@step=\ctikzvalof{monopoles/vcc/width}\pgf@circ@Rlen
-
         \pgfscope
+            \edef\pgf@circ@temp{\ctikzvalof{monopoles/vee/arrow}}\edef\pgf@temp{legacy}
+            \ifx\pgf@temp\pgf@circ@temp
+
+                \pgfstartlinewidth=\pgflinewidth
+                \pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}\pgfstartlinewidth}
+
+                \pgfpathmoveto{\pgfpoint{-0.5\pgf@circ@res@step}{-.8\pgf@circ@res@step}}
+                \pgfpathlineto{\pgfpoint{0}{-1.5\pgf@circ@res@step}}
+                \pgfpathlineto{\pgfpoint{0.5\pgf@circ@res@step}{-.8\pgf@circ@res@step}}
+                \pgfusepath{draw}
+                \pgfsetlinewidth{\pgfstartlinewidth}
+            \else
+                \pgfsetarrowsend{\pgf@circ@temp}
+            \fi
             \pgfpathmoveto{\pgfpointorigin}
             \pgfpathlineto{\pgfpoint{0pt}{-1.5\pgf@circ@res@step}}
             \pgfusepath{draw}
-
-            \pgfstartlinewidth=\pgflinewidth
-            \pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}\pgfstartlinewidth}
-
-            \pgfpathmoveto{\pgfpoint{-0.5\pgf@circ@res@step}{-.8\pgf@circ@res@step}}
-            \pgfpathlineto{\pgfpoint{0}{-1.5\pgf@circ@res@step}}
-            \pgfpathlineto{\pgfpoint{0.5\pgf@circ@res@step}{-.8\pgf@circ@res@step}}
-            \pgfusepath{draw}
-            \pgfsetlinewidth{\pgfstartlinewidth}
-
         \endpgfscope
     }
-
 }
-
 
 % match
 \pgfdeclareshape{match}{
