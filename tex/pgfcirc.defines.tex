@@ -1365,5 +1365,79 @@
 \ctikzset{label/align/rotate/.code={\ctikzsetvalof{label/align}{rotate}}}
 \ctikzset{label/align/smart/.code={\ctikzsetvalof{label/align}{smart}}}
 
+% seven segment displays by RGtti
+
+\newif\ifpgf@circ@sevenseg@dot
+\newif\ifpgf@circ@sevenseg@box
+\def\pgf@circ@sevenseg@dotstate{empty}
+\ctikzset{seven seg/.is family}
+\ctikzset{seven seg/dot/.is choice}
+% none means no dot, not space for it. Empty means no dot, but space
+\ctikzset{seven seg/dot/none/.code={\pgf@circ@sevenseg@dotfalse}}
+\ctikzset{seven seg/dot/empty/.code={\pgf@circ@sevenseg@dottrue\def\pgf@circ@sevenseg@dotstate{empty}}}
+\ctikzset{seven seg/dot/off/.code={\pgf@circ@sevenseg@dottrue\def\pgf@circ@sevenseg@dotstate{off}}}
+\ctikzset{seven seg/dot/on/.code={\pgf@circ@sevenseg@dottrue\def\pgf@circ@sevenseg@dotstate{on}}}
+%
+\ctikzset{seven seg/width/.initial=0.4}% relative to \pgf@circ@Rlen
+\ctikzset{seven seg/thickness/.initial=4pt}% segment thickness
+\ctikzset{seven seg/segment sep/.initial=0.2pt}% gap between segments
+\ctikzset{seven seg/box sep/.initial=1pt}% external box gap
+\ctikzset{seven seg/color on/.initial=red}% color for segment "on"
+\ctikzset{seven seg/color off/.initial=gray!20!white} % ...and "off"
+\ctikzset{seven seg/box/.is choice}
+\ctikzset{seven seg/box/off/.code={\pgf@circ@sevenseg@boxfalse}}
+\ctikzset{seven seg/box/on/.code={\pgf@circ@sevenseg@boxtrue}}
+
+\ctikzset{seven seg/bits/.initial=0000000}
+
+\ctikzset{seven seg/value/.code={
+    \edef\@@tmp{#1}
+    \edef\@@n{0} \ifx\@@tmp\@@n\relax\ctikzset{seven seg/bits=1111110}\fi
+    \edef\@@n{1} \ifx\@@tmp\@@n\relax\ctikzset{seven seg/bits=0110000}\fi
+    \edef\@@n{2} \ifx\@@tmp\@@n\relax\ctikzset{seven seg/bits=1101101}\fi
+    \edef\@@n{3} \ifx\@@tmp\@@n\relax\ctikzset{seven seg/bits=1111001}\fi
+    \edef\@@n{4} \ifx\@@tmp\@@n\relax\ctikzset{seven seg/bits=0110011}\fi
+    \edef\@@n{5} \ifx\@@tmp\@@n\relax\ctikzset{seven seg/bits=1011011}\fi
+    \edef\@@n{6} \ifx\@@tmp\@@n\relax\ctikzset{seven seg/bits=1011111}\fi
+    \edef\@@n{7} \ifx\@@tmp\@@n\relax\ctikzset{seven seg/bits=1110000}\fi
+    \edef\@@n{8} \ifx\@@tmp\@@n\relax\ctikzset{seven seg/bits=1111111}\fi
+    \edef\@@n{9} \ifx\@@tmp\@@n\relax\ctikzset{seven seg/bits=1111011}\fi
+    \edef\@@n{10}\ifx\@@tmp\@@n\relax\ctikzset{seven seg/bits=1110111}\fi
+    \edef\@@n{11}\ifx\@@tmp\@@n\relax\ctikzset{seven seg/bits=0011111}\fi
+    \edef\@@n{12}\ifx\@@tmp\@@n\relax\ctikzset{seven seg/bits=1001110}\fi
+    \edef\@@n{13}\ifx\@@tmp\@@n\relax\ctikzset{seven seg/bits=0111101}\fi
+    \edef\@@n{14}\ifx\@@tmp\@@n\relax\ctikzset{seven seg/bits=1001111}\fi
+    \edef\@@n{15}\ifx\@@tmp\@@n\relax\ctikzset{seven seg/bits=1000111}\fi
+    \edef\@@n{A} \ifx\@@tmp\@@n\relax\ctikzset{seven seg/bits=1110111}\fi
+    \edef\@@n{B} \ifx\@@tmp\@@n\relax\ctikzset{seven seg/bits=0011111}\fi
+    \edef\@@n{C} \ifx\@@tmp\@@n\relax\ctikzset{seven seg/bits=1001110}\fi
+    \edef\@@n{D} \ifx\@@tmp\@@n\relax\ctikzset{seven seg/bits=0111101}\fi
+    \edef\@@n{E} \ifx\@@tmp\@@n\relax\ctikzset{seven seg/bits=1001111}\fi
+    \edef\@@n{F} \ifx\@@tmp\@@n\relax\ctikzset{seven seg/bits=1000111}\fi
+    \edef\@@n{a} \ifx\@@tmp\@@n\relax\ctikzset{seven seg/bits=1110111}\fi
+    \edef\@@n{b} \ifx\@@tmp\@@n\relax\ctikzset{seven seg/bits=0011111}\fi
+    \edef\@@n{c} \ifx\@@tmp\@@n\relax\ctikzset{seven seg/bits=1001110}\fi
+    \edef\@@n{d} \ifx\@@tmp\@@n\relax\ctikzset{seven seg/bits=0111101}\fi
+    \edef\@@n{e} \ifx\@@tmp\@@n\relax\ctikzset{seven seg/bits=1001111}\fi
+    \edef\@@n{f} \ifx\@@tmp\@@n\relax\ctikzset{seven seg/bits=1000111}\fi
+    \edef\@@n{-} \ifx\@@tmp\@@n\relax\ctikzset{seven seg/bits=0000001}\fi
+}}
+
+\tikzset{%
+    seven segment val/.style args={#1dot#2box#3}{
+        shape=bare7seg,
+        /tikz/circuitikz/seven seg/value=#1,
+        /tikz/circuitikz/seven seg/dot=#2,
+        /tikz/circuitikz/seven seg/box=#3,
+    },
+    seven segment bits/.style args={#1dot#2box#3}{
+        shape=bare7seg,
+        /tikz/circuitikz/seven seg/bits=#1,
+        /tikz/circuitikz/seven seg/dot=#2,
+        /tikz/circuitikz/seven seg/box=#3,
+    },
+}
+
+
 %%%%%%%%%% new
 \pgfkeys{\circuitikzbasekey/.search also={/tikz}}

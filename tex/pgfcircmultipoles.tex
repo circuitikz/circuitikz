@@ -679,3 +679,137 @@
     \pgfpointborderrectangle{\pgfpointpolar{\myangle}{1pt}}{\pgfpoint{2.5\pgf@circ@res@temp}{2.5\pgf@circ@res@temp}}
     \advance\pgf@x by -\pgf@circ@res@temp
 }
+
+% Seven segments displays
+
+\pgfdeclareshape{bare7seg}{
+    \savedmacro{\dotstatus}{\edef\dotstatus{\pgf@circ@sevenseg@dotstate}}
+    \saveddimen{\dotspace}{% the dot is on the right, and occupy the same as the thickness
+        \ifpgf@circ@sevenseg@dot
+            \pgfmathsetlength{\pgf@x}{\ctikzvalof{seven seg/thickness}}
+        \else
+            \pgf@x=0pt
+        \fi
+    }
+    % The object extension is more or less (-width/2,-width) to (width/2,width)
+    % and adjusted for line thickness (both sides) and eventually the dot
+    \saveddimen{\width}{\pgfmathsetlength{\pgf@x}{\ctikzvalof{seven seg/width}*\pgf@circ@Rlen}}
+    \saveddimen{\gap}{\pgfmathsetlength{\pgf@x}{\ctikzvalof{seven seg/segment sep}}}
+    \saveddimen{\boxgap}{\pgfmathsetlength{\pgf@x}{\ctikzvalof{seven seg/box sep}}}
+    \savedanchor{\southwest}{% both negative
+        \pgfmathsetlength{\pgf@x}{-0.5*\ctikzvalof{seven seg/width}*\pgf@circ@Rlen
+        -0.5*\ctikzvalof{seven seg/thickness}-\ctikzvalof{seven seg/box sep}}
+        \pgfmathsetlength{\pgf@y}{-\ctikzvalof{seven seg/width}*\pgf@circ@Rlen
+        -0.5*\ctikzvalof{seven seg/thickness}-\ctikzvalof{seven seg/box sep}}
+    }
+    \savedanchor{\northeast}{% both positive
+        \ifpgf@circ@sevenseg@dot
+            \pgfmathsetlength{\pgf@circ@res@other}{\ctikzvalof{seven seg/thickness}}
+        \else
+            \pgf@circ@res@other=0pt
+        \fi
+        \pgfmathsetlength{\pgf@x}{0.5*\ctikzvalof{seven seg/width}*\pgf@circ@Rlen
+        +0.5*\ctikzvalof{seven seg/thickness}+\pgf@circ@res@other+\ctikzvalof{seven seg/box sep}}
+        \pgfmathsetlength{\pgf@y}{\ctikzvalof{seven seg/width}*\pgf@circ@Rlen
+        +0.5*\ctikzvalof{seven seg/thickness}+\ctikzvalof{seven seg/box sep}}
+    }
+    \savedanchor{\topright}{% anchor without the box sep and the thickness
+        \pgfmathsetlength{\pgf@x}{0.5*\ctikzvalof{seven seg/width}*\pgf@circ@Rlen}
+        \pgfmathsetlength{\pgf@y}{\ctikzvalof{seven seg/width}*\pgf@circ@Rlen}
+    }
+    \anchor{center}{\pgfpointorigin}
+    \anchor{north west}{\southwest\pgf@y=-\pgf@y}
+    \anchor{north east}{\northeast}
+    \anchor{south east}{\northeast\pgf@y=-\pgf@y}
+    \anchor{south west}{\southwest}
+    \anchor{north}{\northeast\pgf@x=0pt}
+    \anchor{east}{\northeast\pgf@y=0pt}
+    \anchor{south}{\southwest\pgf@x=0pt}
+    \anchor{west}{\southwest\pgf@y=0pt}
+    \anchor{a}{\topright\pgf@x=0pt}
+    \anchor{b}{\topright\pgf@y=0.5\pgf@y}
+    \anchor{c}{\topright\pgf@y=-0.5\pgf@y}
+    \anchor{d}{\topright\pgf@y=-\pgf@y\pgf@x=0pt}
+    \anchor{e}{\topright\pgf@x=-\pgf@x\pgf@y=-0.5\pgf@y}
+    \anchor{f}{\topright\pgf@x=-\pgf@x\pgf@y=0.5\pgf@y}
+    \anchor{g}{\pgfpointorigin}
+    \anchor{dot}{\topright\pgf@y=-\pgf@y\advance\pgf@x by \dotspace}
+    \behindbackgroundpath{%
+        \southwest % I do not want the dot here, it will stick out
+        \pgf@circ@res@up = -\pgf@y
+        \pgf@circ@res@down = \pgf@y
+        \pgf@circ@res@right = \pgf@x
+        \pgf@circ@res@left = -\pgf@x
+        \pgfscope
+        \pgfsetlinewidth{\ctikzvalof{multipoles/thickness}\pgflinewidth}
+        \pgfsetcolor{\pgfkeysvalueof{/tikz/circuitikz/color}}
+        \pgfpathrectanglecorners%
+        {\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@down}}
+        {\pgfpoint{\pgf@circ@res@left+\dotspace}{\pgf@circ@res@up}}
+        \ifpgf@circ@sevenseg@box
+            \pgf@circ@draworfill
+        \else
+            \pgf@circ@maybefill
+        \fi
+        \endpgfscope
+        \edef\bits{\ctikzvalof{seven seg/bits}}
+        \pgfscope
+            \pfg@circ@sseg@drawbits{\bits}
+        \endpgfscope
+        \pgfscope
+            \ifpgf@circ@sevenseg@dot
+                \pgf@circ@sseg@drawdots
+            \fi
+        \endpgfscope
+    }
+}
+
+\def\pgf@circ@sseg@splitbits#1#2#3#4#5#6#7\relax{%split the seven bits
+    \edef\@@a{#1}\edef\@@b{#2}\edef\@@c{#3}\edef\@@d{#4}\edef\@@e{#5}\edef\@@f{#6}\edef\@@g{#7}%
+}
+\def\pgf@circ@sseg@drawone#1#2#3#4#5{% #1 on off the x1, y1, x2 , y2
+    \ifnum #1 > 0\relax
+        \pgfsetcolor{\ctikzvalof{seven seg/color on}}
+    \else
+        \pgfsetcolor{\ctikzvalof{seven seg/color off}}
+    \fi
+    \pgfpathmoveto{\pgfpoint{#2}{#3}}
+    \pgfpathlineto{\pgfpoint{#4}{#5}}
+    \pgfusepath{draw}
+}
+\def\pfg@circ@sseg@drawbits#1{% #1 must be 7 bits
+    \expandafter\pgf@circ@sseg@splitbits#1\relax% a bit of magic...
+    \pgfmathsetlength{\pgf@circ@res@other}{0.5*\ctikzvalof{seven seg/thickness}}
+    \pgfsetlinewidth{\ctikzvalof{seven seg/thickness}}
+    % \pgfsetroundcap
+    \pgfsetarrowsstart{Triangle Cap[]}
+    \pgfsetarrowsend{Triangle Cap[]}
+    % segments
+    \pgf@circ@sseg@drawone{\@@a}{-\width/2+\gap}{\width}{\width/2-\gap}{\width}
+    \pgf@circ@sseg@drawone{\@@b}{\width/2}{\width-\gap}{\width/2}{0pt+\gap}
+    \pgf@circ@sseg@drawone{\@@c}{\width/2}{0pt-\gap}{\width/2}{-\width+\gap}
+    \pgf@circ@sseg@drawone{\@@d}{\width/2-\gap}{-\width}{-\width/2+\gap}{-\width}
+    \pgf@circ@sseg@drawone{\@@e}{-\width/2}{-\width+\gap}{-\width/2}{0pt-\gap}
+    \pgf@circ@sseg@drawone{\@@f}{-\width/2}{0pt+\gap}{-\width/2}{\width-\gap}
+    \pgf@circ@sseg@drawone{\@@g}{-\width/2+\gap}{0pt}{\width/2-\gap}{0pt}
+}
+\def\pgf@circ@sseg@drawdots{% dots
+    \edef\what{empty}
+    \ifx\what\pgf@circ@sevenseg@dotstate
+        % do nothing
+    \else
+        \pgfmathsetlength{\pgf@circ@res@other}{0.5*\ctikzvalof{seven seg/thickness}}
+        \edef\what{off}
+        \ifx\what\pgf@circ@sevenseg@dotstate
+            % dot off
+            \pgfsetfillcolor{\ctikzvalof{seven seg/color off}}
+            \pgfsetcolor{\ctikzvalof{seven seg/color off}}
+        \else
+            % dot on
+            \pgfsetfillcolor{\ctikzvalof{seven seg/color on}}
+            \pgfsetcolor{\ctikzvalof{seven seg/color on}}
+        \fi
+        \pgfpathcircle{\pgfpoint{\width/2+2*\pgf@circ@res@other}{-\width}}{\pgf@circ@res@other}
+        \pgfusepath{draw,fill}
+    \fi
+}
