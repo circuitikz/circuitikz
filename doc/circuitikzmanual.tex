@@ -74,15 +74,15 @@
 \usepackage{hyperref}
 \hypersetup{
     bookmarks=false,         % show bookmarks bar?
-    pdftitle={CircuiTikZ \pgfcircversion\ - manual},    % title
-    pdfauthor={Massimo Redaelli, Stefan Lindner, Stefan Erhardt, Romano Giannetti},     % author
+    pdftitle={CircuiTikZ \pgfcircversion\ - manual}, % title
+    pdfauthor={Massimo Redaelli, Stefan Lindner, Stefan Erhardt, Romano Giannetti}, % authors
     pdfsubject={CircuiTikZ manual},   % subject of the document
-    pdfkeywords={}, % list of keywords
-    colorlinks=true,       % false: boxed links; true: colored links
-    linkcolor=blue,          % color of internal links
-    citecolor=black,        % color of links to bibliography
-    filecolor=black,      % color of file links
-    urlcolor=black           % color of external links
+    pdfkeywords={},   % list of keywords
+    colorlinks=true,  % false: boxed links; true: colored links
+    linkcolor=blue,   % color of internal links
+    citecolor=blue,   % color of links to bibliography
+    filecolor=blue,   % color of file links
+    urlcolor=blue     % color of external links
 }
 \usepackage{imakeidx}
 \usepackage{textcomp}
@@ -1187,7 +1187,7 @@ The package options \texttt{fulldiode}, \texttt{strokediode}, and \texttt{emptyd
 \end{framed}
 
 
-\subsection{Basic dynamical bipoles}
+\subsection{Capacitors and inductors: dynamical bipoles}
 \begin{groupdesc}
     \circuitdescbip{capacitor}{Capacitor}{C}
     \circuitdescbip[polarcapacitor]{polar capacitor}{Polar capacitor}{pC}
@@ -1411,11 +1411,11 @@ You can use microphones and loudspeakers with \texttt{waves} (see section~\ref{s
 \noindent Contributed by Stefan Erhardt.
 
 \begin{groupdesc}
-    \circuitdesc*{mixer}{\scshape mixer}{}( 1/180/0.1,2/-90/0.1,3/0/0.1,4/90/0.1 )
-    \circuitdesc*{adder}{\scshape adder}{}( west/180/0.1,south/-90/0.1,east/0/0.1,north/90/0.1 )
-    \circuitdesc*{oscillator}{\scshape oscillator}{}
-    \circuitdesc*{circulator}{\scshape circulator}{}
-    \circuitdesc*{wilkinson}{\scshape wilkinson divider}{}( in/180/0.1, out2/45/0.1, out1/-45/0.1 )
+    \circuitdesc*{mixer}{mixer}{}( 1/180/0.1,2/-90/0.1,3/0/0.1,4/90/0.1 )
+    \circuitdesc*{adder}{adder}{}( west/180/0.1,south/-90/0.1,east/0/0.1,north/90/0.1 )
+    \circuitdesc*{oscillator}{oscillator}{}
+    \circuitdesc*{circulator}{circulator}{}
+    \circuitdesc*{wilkinson}{wilkinson divider}{}( in/180/0.1, out2/45/0.1, out1/-45/0.1 )
 \end{groupdesc}
 
 \begin{groupdesc}
@@ -2813,10 +2813,7 @@ In the case of \textsc{not}, there are only \texttt{in} and \texttt{out} (althou
 
 
 
-\subsection{Chips}
-%%% This chapter is in the new format --- description and components.
-%%% The idea is to try to reorganize the manual before the next release.
-%%% See issue #24
+\subsection{Chips (integrated circuits)}
 
 \texttt{CircuiTikZ} supports two types of variable-pin chips: DIP (Dual-in-Line Package) and QFP (Quad-Flat Package).
 \begin{groupdesc}
@@ -2955,6 +2952,83 @@ Look at the following example, which is easily put into a macro.
     \draw (C.n) -- ++(0,1) node[vcc]{};
     \draw (C.s) -- ++(0,-1) node[ground]{};
 \end{circuitikz}\end{LTXexample}
+
+\subsection{Seven segment displays}
+
+\begin{groupdesc}
+    \circuitdesc*{bare7seg}{Seven segment display}{}
+\end{groupdesc}
+
+The seven segment display lets you show values as if they were displayed in a classical seven segment display.\footnote{This component has been loosely inspired by the package \texttt{SevenSeg} by Germain Gondor, 2009, see \href{http://www.texample.net/tikz/examples/seven-segment-display/}{\TeX{}example.net}.}
+
+The main ``bare'' component is the one shown above, but for simplicity a couple of style interfaces are defined:
+
+\begin{LTXexample}[varwidth=true]
+\begin{circuitikz}
+    \draw (0,0) node[seven segment val=A dot off box on]{};
+    \draw (1,0) node[seven segment val=- dot none box on]{};
+    \draw (0,-2) node[seven segment bits=1001001 dot empty box on]{};
+    \draw (1,-2) node[seven segment bits=0011101 dot none box off]{};
+\end{circuitikz}
+\end{LTXexample}
+
+There are two main configuration methods. The first one is \texttt{seven segment val}, which will take an hexadecimal number or value and display it: the possible values are \texttt{0,...,15}, plus \texttt{A, B, C, D, E, F} (or lowercase) and the symbol \texttt{-} (minus).
+
+
+The other interface is \texttt{seven segment bits}, where you specify seven bits saying which segment must be on (please never specify a different number of bits, it will throw a very obscure error); you can see in the anchors the name of each segment.
+
+The option \texttt{dot} specifies if you want a decimal dot or not. The key \texttt{none} will remove the dot and the space it would take; \texttt{empty} will not show the dot at all but reserve the space, and \texttt{on} or \texttt{off} will show the dot in the corresponding state.
+
+The option \texttt{box} (can be \texttt{on} or \texttt{off}) simply toggles the drawing of the external box. You can separate it from the display with the key \texttt{seven seg/box sep} (default \texttt{1pt}), and it will use the thickness specified in \texttt{multipoles/thickness} (The same as the chips).
+
+You can use these option with the ``bare'' object \texttt{bare7seg} and the keys \texttt{seven seg/bits} (default \texttt{0000000}), \texttt{seven seg/dot} (default \texttt{none}) and \texttt{seven seg/box} (default \texttt{off}); there is no option equivalent to the \texttt{val} interface.
+
+\subsubsection{Seven segments anchors}
+
+These are the anchors for the seven segment displays; notice that when the \texttt{dot} parameter is not \texttt{none}, the cell is a bit wider at the right side.
+
+\begingroup
+\ctikzset{seven seg/color off=gray, multipoles/thickness=1}
+\showanchors{bare7seg}{}(north/90/0.4, north east/45/0.4, east/0/0.4,
+south east/-45/0.4, south/-90/0.4, south west/-135/0.4, west/180/0.4,
+north west/135/0.4, center/-140/0.5)
+\ctikzset{seven seg/dot=off}
+\ctikzset{seven seg/box=on}
+\showanchors{bare7seg}{}(north/90/0.4, north east/45/0.4, east/0/0.4,
+south east/-45/0.4, south/-90/0.4, center/-140/0.5)
+\ctikzset{seven seg/box=off}
+\showanchors{bare7seg}{}(a/90/0.4, b/45/0.4, c/0/0.4, d/-90/0.4,
+e/-129/0.4, f/145/0.4, g/190/0.4, dot/-45/0.2)
+\endgroup
+
+\subsubsection{Seven segments customization}
+
+You can change several parameters to adjust the displays:
+\begin{lstlisting}[basicstyle=\small\ttfamily]
+\ctikzset{seven seg/width/.initial=0.4}% relative to \pgf@circ@Rlen
+\ctikzset{seven seg/thickness/.initial=4pt}% segment thickness
+\ctikzset{seven seg/segment sep/.initial=0.2pt}% gap between segments
+\ctikzset{seven seg/box sep/.initial=1pt}% external box gap
+\ctikzset{seven seg/color on/.initial=red}% color for segment "on"
+\ctikzset{seven seg/color off/.initial=gray!20!white} % ...and "off"
+\end{lstlisting}
+
+A couple of examples following:
+
+\begin{LTXexample}[varwidth=true, pos=b, basicstyle=\small\ttfamily]
+\begin{circuitikz}[scale=0.5]
+\ctikzset{seven seg/width=0.2, seven seg/thickness=2pt}
+\foreach \i in {0,...,15} \path (\i,0)
+    node[seven segment val=\i dot on box off]{};
+\ctikzset{seven seg/color on=black}
+\foreach \i in {0,...,15} \path (\i,-1.5)
+    node[seven segment val=\i dot off box off, fill=gray!30!white]{};
+\ctikzset{seven seg/color on=green, seven seg/color off=yellow!30}
+\foreach \i in {0,...,15} \path[color=red] (\i,-3)
+    node[seven segment val=\i dot none box on, xslant=0.2]{};
+\end{circuitikz}
+\end{LTXexample}
+
 
 \section{Labels and similar annotations}
 

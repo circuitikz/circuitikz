@@ -7,6 +7,7 @@ The major changes among the different circuitikz versions are listed here. See <
     - Added the option to have inline transformers and gyrators
     - Added rotary switches
     - Added more configurable bipole nodes and more shapes
+    - Added 7-segment displays
     - Made the open shape of dcisources configurable
     - Made the arrows on vcc and vee configurable
     - Fixed anchors of diamondpole nodes
