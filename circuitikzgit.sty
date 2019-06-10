@@ -9,8 +9,8 @@
 
 \NeedsTeXFormat{LaTeX2e}
 
-\def\pgfcircversion{git:6f5d737}
-\def\pgfcircversiondate{2019/06/08}
+\def\pgfcircversion{git:5f372f2}
+\def\pgfcircversiondate{2019/06/10}
 
 \ProvidesPackage{circuitikzgit}
 [\pgfcircversiondate{} The CircuiTikz circuit drawing package version \pgfcircversion]
@@ -1697,6 +1697,80 @@
 \ctikzset{label/align/straight/.code={\ctikzsetvalof{label/align}{straight}}}
 \ctikzset{label/align/rotate/.code={\ctikzsetvalof{label/align}{rotate}}}
 \ctikzset{label/align/smart/.code={\ctikzsetvalof{label/align}{smart}}}
+
+% seven segment displays by RGtti
+
+\newif\ifpgf@circ@sevenseg@dot
+\newif\ifpgf@circ@sevenseg@box
+\def\pgf@circ@sevenseg@dotstate{empty}
+\ctikzset{seven seg/.is family}
+\ctikzset{seven seg/dot/.is choice}
+% none means no dot, not space for it. Empty means no dot, but space
+\ctikzset{seven seg/dot/none/.code={\pgf@circ@sevenseg@dotfalse}}
+\ctikzset{seven seg/dot/empty/.code={\pgf@circ@sevenseg@dottrue\def\pgf@circ@sevenseg@dotstate{empty}}}
+\ctikzset{seven seg/dot/off/.code={\pgf@circ@sevenseg@dottrue\def\pgf@circ@sevenseg@dotstate{off}}}
+\ctikzset{seven seg/dot/on/.code={\pgf@circ@sevenseg@dottrue\def\pgf@circ@sevenseg@dotstate{on}}}
+%
+\ctikzset{seven seg/width/.initial=0.4}% relative to \pgf@circ@Rlen
+\ctikzset{seven seg/thickness/.initial=4pt}% segment thickness
+\ctikzset{seven seg/segment sep/.initial=0.2pt}% gap between segments
+\ctikzset{seven seg/box sep/.initial=1pt}% external box gap
+\ctikzset{seven seg/color on/.initial=red}% color for segment "on"
+\ctikzset{seven seg/color off/.initial=gray!20!white} % ...and "off"
+\ctikzset{seven seg/box/.is choice}
+\ctikzset{seven seg/box/off/.code={\pgf@circ@sevenseg@boxfalse}}
+\ctikzset{seven seg/box/on/.code={\pgf@circ@sevenseg@boxtrue}}
+
+\ctikzset{seven seg/bits/.initial=0000000}
+
+\ctikzset{seven seg/value/.code={
+    \edef\@@tmp{#1}
+    \edef\@@n{0} \ifx\@@tmp\@@n\relax\ctikzset{seven seg/bits=1111110}\fi
+    \edef\@@n{1} \ifx\@@tmp\@@n\relax\ctikzset{seven seg/bits=0110000}\fi
+    \edef\@@n{2} \ifx\@@tmp\@@n\relax\ctikzset{seven seg/bits=1101101}\fi
+    \edef\@@n{3} \ifx\@@tmp\@@n\relax\ctikzset{seven seg/bits=1111001}\fi
+    \edef\@@n{4} \ifx\@@tmp\@@n\relax\ctikzset{seven seg/bits=0110011}\fi
+    \edef\@@n{5} \ifx\@@tmp\@@n\relax\ctikzset{seven seg/bits=1011011}\fi
+    \edef\@@n{6} \ifx\@@tmp\@@n\relax\ctikzset{seven seg/bits=1011111}\fi
+    \edef\@@n{7} \ifx\@@tmp\@@n\relax\ctikzset{seven seg/bits=1110000}\fi
+    \edef\@@n{8} \ifx\@@tmp\@@n\relax\ctikzset{seven seg/bits=1111111}\fi
+    \edef\@@n{9} \ifx\@@tmp\@@n\relax\ctikzset{seven seg/bits=1111011}\fi
+    \edef\@@n{10}\ifx\@@tmp\@@n\relax\ctikzset{seven seg/bits=1110111}\fi
+    \edef\@@n{11}\ifx\@@tmp\@@n\relax\ctikzset{seven seg/bits=0011111}\fi
+    \edef\@@n{12}\ifx\@@tmp\@@n\relax\ctikzset{seven seg/bits=1001110}\fi
+    \edef\@@n{13}\ifx\@@tmp\@@n\relax\ctikzset{seven seg/bits=0111101}\fi
+    \edef\@@n{14}\ifx\@@tmp\@@n\relax\ctikzset{seven seg/bits=1001111}\fi
+    \edef\@@n{15}\ifx\@@tmp\@@n\relax\ctikzset{seven seg/bits=1000111}\fi
+    \edef\@@n{A} \ifx\@@tmp\@@n\relax\ctikzset{seven seg/bits=1110111}\fi
+    \edef\@@n{B} \ifx\@@tmp\@@n\relax\ctikzset{seven seg/bits=0011111}\fi
+    \edef\@@n{C} \ifx\@@tmp\@@n\relax\ctikzset{seven seg/bits=1001110}\fi
+    \edef\@@n{D} \ifx\@@tmp\@@n\relax\ctikzset{seven seg/bits=0111101}\fi
+    \edef\@@n{E} \ifx\@@tmp\@@n\relax\ctikzset{seven seg/bits=1001111}\fi
+    \edef\@@n{F} \ifx\@@tmp\@@n\relax\ctikzset{seven seg/bits=1000111}\fi
+    \edef\@@n{a} \ifx\@@tmp\@@n\relax\ctikzset{seven seg/bits=1110111}\fi
+    \edef\@@n{b} \ifx\@@tmp\@@n\relax\ctikzset{seven seg/bits=0011111}\fi
+    \edef\@@n{c} \ifx\@@tmp\@@n\relax\ctikzset{seven seg/bits=1001110}\fi
+    \edef\@@n{d} \ifx\@@tmp\@@n\relax\ctikzset{seven seg/bits=0111101}\fi
+    \edef\@@n{e} \ifx\@@tmp\@@n\relax\ctikzset{seven seg/bits=1001111}\fi
+    \edef\@@n{f} \ifx\@@tmp\@@n\relax\ctikzset{seven seg/bits=1000111}\fi
+    \edef\@@n{-} \ifx\@@tmp\@@n\relax\ctikzset{seven seg/bits=0000001}\fi
+}}
+
+\tikzset{%
+    seven segment val/.style args={#1dot#2box#3}{
+        shape=bare7seg,
+        /tikz/circuitikz/seven seg/value=#1,
+        /tikz/circuitikz/seven seg/dot=#2,
+        /tikz/circuitikz/seven seg/box=#3,
+    },
+    seven segment bits/.style args={#1dot#2box#3}{
+        shape=bare7seg,
+        /tikz/circuitikz/seven seg/bits=#1,
+        /tikz/circuitikz/seven seg/dot=#2,
+        /tikz/circuitikz/seven seg/box=#3,
+    },
+}
+
 
 %%%%%%%%%% new
 \pgfkeys{\circuitikzbasekey/.search also={/tikz}}
@@ -14004,6 +14078,140 @@
     \pgfmathsetmacro{\myangle}{\angle-(#1-1)*\stepa}
     \pgfpointborderrectangle{\pgfpointpolar{\myangle}{1pt}}{\pgfpoint{2.5\pgf@circ@res@temp}{2.5\pgf@circ@res@temp}}
     \advance\pgf@x by -\pgf@circ@res@temp
+}
+
+% Seven segments displays
+
+\pgfdeclareshape{bare7seg}{
+    \savedmacro{\dotstatus}{\edef\dotstatus{\pgf@circ@sevenseg@dotstate}}
+    \saveddimen{\dotspace}{% the dot is on the right, and occupy the same as the thickness
+        \ifpgf@circ@sevenseg@dot
+            \pgfmathsetlength{\pgf@x}{\ctikzvalof{seven seg/thickness}}
+        \else
+            \pgf@x=0pt
+        \fi
+    }
+    % The object extension is more or less (-width/2,-width) to (width/2,width)
+    % and adjusted for line thickness (both sides) and eventually the dot
+    \saveddimen{\width}{\pgfmathsetlength{\pgf@x}{\ctikzvalof{seven seg/width}*\pgf@circ@Rlen}}
+    \saveddimen{\gap}{\pgfmathsetlength{\pgf@x}{\ctikzvalof{seven seg/segment sep}}}
+    \saveddimen{\boxgap}{\pgfmathsetlength{\pgf@x}{\ctikzvalof{seven seg/box sep}}}
+    \savedanchor{\southwest}{% both negative
+        \pgfmathsetlength{\pgf@x}{-0.5*\ctikzvalof{seven seg/width}*\pgf@circ@Rlen
+        -0.5*\ctikzvalof{seven seg/thickness}-\ctikzvalof{seven seg/box sep}}
+        \pgfmathsetlength{\pgf@y}{-\ctikzvalof{seven seg/width}*\pgf@circ@Rlen
+        -0.5*\ctikzvalof{seven seg/thickness}-\ctikzvalof{seven seg/box sep}}
+    }
+    \savedanchor{\northeast}{% both positive
+        \ifpgf@circ@sevenseg@dot
+            \pgfmathsetlength{\pgf@circ@res@other}{\ctikzvalof{seven seg/thickness}}
+        \else
+            \pgf@circ@res@other=0pt
+        \fi
+        \pgfmathsetlength{\pgf@x}{0.5*\ctikzvalof{seven seg/width}*\pgf@circ@Rlen
+        +0.5*\ctikzvalof{seven seg/thickness}+\pgf@circ@res@other+\ctikzvalof{seven seg/box sep}}
+        \pgfmathsetlength{\pgf@y}{\ctikzvalof{seven seg/width}*\pgf@circ@Rlen
+        +0.5*\ctikzvalof{seven seg/thickness}+\ctikzvalof{seven seg/box sep}}
+    }
+    \savedanchor{\topright}{% anchor without the box sep and the thickness
+        \pgfmathsetlength{\pgf@x}{0.5*\ctikzvalof{seven seg/width}*\pgf@circ@Rlen}
+        \pgfmathsetlength{\pgf@y}{\ctikzvalof{seven seg/width}*\pgf@circ@Rlen}
+    }
+    \anchor{center}{\pgfpointorigin}
+    \anchor{north west}{\southwest\pgf@y=-\pgf@y}
+    \anchor{north east}{\northeast}
+    \anchor{south east}{\northeast\pgf@y=-\pgf@y}
+    \anchor{south west}{\southwest}
+    \anchor{north}{\northeast\pgf@x=0pt}
+    \anchor{east}{\northeast\pgf@y=0pt}
+    \anchor{south}{\southwest\pgf@x=0pt}
+    \anchor{west}{\southwest\pgf@y=0pt}
+    \anchor{a}{\topright\pgf@x=0pt}
+    \anchor{b}{\topright\pgf@y=0.5\pgf@y}
+    \anchor{c}{\topright\pgf@y=-0.5\pgf@y}
+    \anchor{d}{\topright\pgf@y=-\pgf@y\pgf@x=0pt}
+    \anchor{e}{\topright\pgf@x=-\pgf@x\pgf@y=-0.5\pgf@y}
+    \anchor{f}{\topright\pgf@x=-\pgf@x\pgf@y=0.5\pgf@y}
+    \anchor{g}{\pgfpointorigin}
+    \anchor{dot}{\topright\pgf@y=-\pgf@y\advance\pgf@x by \dotspace}
+    \behindbackgroundpath{%
+        \southwest % I do not want the dot here, it will stick out
+        \pgf@circ@res@up = -\pgf@y
+        \pgf@circ@res@down = \pgf@y
+        \pgf@circ@res@right = \pgf@x
+        \pgf@circ@res@left = -\pgf@x
+        \pgfscope
+        \pgfsetlinewidth{\ctikzvalof{multipoles/thickness}\pgflinewidth}
+        \pgfsetcolor{\pgfkeysvalueof{/tikz/circuitikz/color}}
+        \pgfpathrectanglecorners%
+        {\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@down}}
+        {\pgfpoint{\pgf@circ@res@left+\dotspace}{\pgf@circ@res@up}}
+        \ifpgf@circ@sevenseg@box
+            \pgf@circ@draworfill
+        \else
+            \pgf@circ@maybefill
+        \fi
+        \endpgfscope
+        \edef\bits{\ctikzvalof{seven seg/bits}}
+        \pgfscope
+            \pfg@circ@sseg@drawbits{\bits}
+        \endpgfscope
+        \pgfscope
+            \ifpgf@circ@sevenseg@dot
+                \pgf@circ@sseg@drawdots
+            \fi
+        \endpgfscope
+    }
+}
+
+\def\pgf@circ@sseg@splitbits#1#2#3#4#5#6#7\relax{%split the seven bits
+    \edef\@@a{#1}\edef\@@b{#2}\edef\@@c{#3}\edef\@@d{#4}\edef\@@e{#5}\edef\@@f{#6}\edef\@@g{#7}%
+}
+\def\pgf@circ@sseg@drawone#1#2#3#4#5{% #1 on off the x1, y1, x2 , y2
+    \ifnum #1 > 0\relax
+        \pgfsetcolor{\ctikzvalof{seven seg/color on}}
+    \else
+        \pgfsetcolor{\ctikzvalof{seven seg/color off}}
+    \fi
+    \pgfpathmoveto{\pgfpoint{#2}{#3}}
+    \pgfpathlineto{\pgfpoint{#4}{#5}}
+    \pgfusepath{draw}
+}
+\def\pfg@circ@sseg@drawbits#1{% #1 must be 7 bits
+    \expandafter\pgf@circ@sseg@splitbits#1\relax% a bit of magic...
+    \pgfmathsetlength{\pgf@circ@res@other}{0.5*\ctikzvalof{seven seg/thickness}}
+    \pgfsetlinewidth{\ctikzvalof{seven seg/thickness}}
+    % \pgfsetroundcap
+    \pgfsetarrowsstart{Triangle Cap[]}
+    \pgfsetarrowsend{Triangle Cap[]}
+    % segments
+    \pgf@circ@sseg@drawone{\@@a}{-\width/2+\gap}{\width}{\width/2-\gap}{\width}
+    \pgf@circ@sseg@drawone{\@@b}{\width/2}{\width-\gap}{\width/2}{0pt+\gap}
+    \pgf@circ@sseg@drawone{\@@c}{\width/2}{0pt-\gap}{\width/2}{-\width+\gap}
+    \pgf@circ@sseg@drawone{\@@d}{\width/2-\gap}{-\width}{-\width/2+\gap}{-\width}
+    \pgf@circ@sseg@drawone{\@@e}{-\width/2}{-\width+\gap}{-\width/2}{0pt-\gap}
+    \pgf@circ@sseg@drawone{\@@f}{-\width/2}{0pt+\gap}{-\width/2}{\width-\gap}
+    \pgf@circ@sseg@drawone{\@@g}{-\width/2+\gap}{0pt}{\width/2-\gap}{0pt}
+}
+\def\pgf@circ@sseg@drawdots{% dots
+    \edef\what{empty}
+    \ifx\what\pgf@circ@sevenseg@dotstate
+        % do nothing
+    \else
+        \pgfmathsetlength{\pgf@circ@res@other}{0.5*\ctikzvalof{seven seg/thickness}}
+        \edef\what{off}
+        \ifx\what\pgf@circ@sevenseg@dotstate
+            % dot off
+            \pgfsetfillcolor{\ctikzvalof{seven seg/color off}}
+            \pgfsetcolor{\ctikzvalof{seven seg/color off}}
+        \else
+            % dot on
+            \pgfsetfillcolor{\ctikzvalof{seven seg/color on}}
+            \pgfsetcolor{\ctikzvalof{seven seg/color on}}
+        \fi
+        \pgfpathcircle{\pgfpoint{\width/2+2*\pgf@circ@res@other}{-\width}}{\pgf@circ@res@other}
+        \pgfusepath{draw,fill}
+    \fi
 }
 %%%---------- close: tex/pgfcircmultipoles
 
