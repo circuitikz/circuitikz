@@ -39,7 +39,7 @@ or, for ConTeXt,
   \usemodule[circuitikzgit]
 ```
 
-### Older versions
+### Older versions (v0.9.1 onwards)
 
 If you want to use older versions of `circuitikz`, just append the version number to the package name, as in `circuitikz-$version`:
 ```latex
