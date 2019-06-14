@@ -1,5 +1,5 @@
-\def\pgfcircversion{git:0e2cb2c}
-\def\pgfcircversiondate{2019/06/13}
+\def\pgfcircversion{git:471eade}
+\def\pgfcircversiondate{2019/06/14}
 \writestatus{loading}{\pgfcircversiondate{} The CircuiTikz circuit drawing package version \pgfcircversion}
 
 \usemodule[tikz]
@@ -1462,6 +1462,34 @@
 
 %%%%%%%%%% new
 \pgfkeys{\circuitikzbasekey/.search also={/tikz}}
+
+% Electronic tubes: diodetube, triode, tetrode and pentode
+\ctikzset{tubes/width/.initial=1}                    % relative width
+\ctikzset{tubes/height/.initial=1.4}                 % relative height
+\ctikzset{tubes/tube radius/.initial=0.40}           % radius of tube circle
+\ctikzset{tubes/anode distance/.initial=0.40}        % distance from center
+\ctikzset{tubes/anode width/.initial=0.40}           % width of an anode/plate
+\ctikzset{tubes/grid protrusion/.initial=0.25}       % distance from center
+\ctikzset{tubes/grid dashes/.initial=5}              % number of grid dashes
+\ctikzset{tubes/grid separation/.initial=0.2}        % separation between grids
+\ctikzset{tubes/grid shift/.initial=0.0}             % y shift grids from center
+\ctikzset{tubes/cathode distance/.initial=0.40}      % distance from grid
+\ctikzset{tubes/cathode width/.initial=0.40}         % width of an cathode
+\ctikzset{tubes/cathode corners/.initial=0.06}       % corners of the cathode wire
+\ctikzset{tubes/cathode right extend/.initial=0.075} % extension at the right side
+\ctikzset{tubes/filament distance/.initial=0.1}      % distance from cathode
+\ctikzset{tubes/filament angle/.initial=15}          % Angle from centerpoint
+
+\newif\ifpgf@circuit@tubes@filament\pgf@circuit@tubes@filamentfalse
+\pgfkeys{/tikz/filament/.add code={}{\pgf@circuit@tubes@filamenttrue}}
+\ctikzset{tubes/filament/.add code={}{\pgf@circuit@tubes@filamenttrue}}
+\newif\ifpgf@circuit@tubes@nocathode\pgf@circuit@tubes@nocathodefalse
+\pgfkeys{/tikz/nocathode/.add code={}{\pgf@circuit@tubes@nocathodetrue}}
+\ctikzset{tubes/nocathode/.add code={}{\pgf@circuit@tubes@nocathodetrue}}
+\newif\ifpgf@circuit@tubes@fullcathode\pgf@circuit@tubes@fullcathodefalse
+\pgfkeys{/tikz/fullcathode/.add code={}{\pgf@circuit@tubes@fullcathodetrue}}
+\ctikzset{tubes/fullcathode/.add code={}{\pgf@circuit@tubes@fullcathodetrue}}
+
 %%%---------- close: tex/pgfcirc.defines
 %%%%%%%%%%% Springe nach tex/pgfcircutils
 %%%---------- open: tex/pgfcircutils.tex
@@ -12198,6 +12226,348 @@
             \pgfusepath{draw}
         \endpgfscope
     }
+}
+
+% Electronic tubes, submitted by J. op den Brouw
+
+% Draw tube outline
+\def\pgf@circ@tubes@drawtube{%
+	\ifdim\ctikzvalof{tubes/width}pt>\ctikzvalof{tubes/height}pt\relax
+		\pgfpathmoveto{\pgfpoint{0pt}{\pgf@circ@res@up}}
+		\pgfutil@tempdima=\pgf@circ@res@right
+		\advance\pgfutil@tempdima by -\pgf@circ@res@up
+		\pgfpathlineto{\pgfpoint{\pgfutil@tempdima}{\pgf@circ@res@up}}
+		\pgfpatharc{90}{-90}{\pgf@circ@res@up}
+		\pgfpathlineto{\pgfpoint{-\pgfutil@tempdima}{-\pgf@circ@res@up}}
+		\pgfpatharc{270}{90}{\pgf@circ@res@up}
+	\else
+		\pgfpathmoveto{\pgfpoint{-\pgf@circ@res@right}{0pt}}
+		\pgfutil@tempdima=\pgf@circ@res@up
+		\advance\pgfutil@tempdima by -\pgf@circ@res@right
+		\pgfpathlineto{\pgfpoint{-\pgf@circ@res@right}{\pgfutil@tempdima}}
+		\pgfpatharc{180}{0}{\pgf@circ@res@right}
+		\pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{-\pgfutil@tempdima}}
+		\pgfpatharc{180}{0}{-\pgf@circ@res@right}
+	\fi
+	\pgfpathclose
+}
+
+%% The diode (tube), triode, tetrode and pentode only differ in the
+%% number of grids. So we construct a generic declare function in
+%% which we can put code for the grid anchors and grid drawing code
+%% \pgfcircdeclaretube{tube name}{grid anchors}{grid drawing code}
+\long\def\pgfcircdeclaretube#1#2#3{%
+	\pgfdeclareshape{#1}{
+	    \anchor{center}{
+	        \pgfpointorigin
+	    }
+	    \savedanchor\northwest{%
+	        \pgf@circ@res@up=\ctikzvalof{tubes/height}\pgf@circ@Rlen
+			\pgf@circ@res@right=\ctikzvalof{tubes/width}\pgf@circ@Rlen
+			% x and y should be half the Rlen
+	        \pgf@y=\pgf@circ@res@up
+	        \pgf@y=.5\pgf@y
+	        \pgf@x=-\pgf@circ@res@right
+	        \pgf@x=.5\pgf@x
+	    }
+		\anchor{north} {%
+			\northwest
+			\pgf@x=0pt
+		}
+	    \anchor{east}{%
+	        \northwest
+	        \pgf@x=-\pgf@x
+	        \pgf@y=0pt
+	    }
+		\anchor{south}{%
+	        \northwest
+	        \pgf@y=-\pgf@y
+			\pgf@x=0pt
+		}
+	    \anchor{west}{%
+	        \northwest
+	        \pgf@y=0pt
+	    }
+	    \anchor{north west}{%
+	        \northwest
+	    }
+	    \anchor{north east}{%
+	        \northwest
+	        \pgf@x=-\pgf@x
+	    }
+	    \anchor{south east}{
+	        \northwest
+	        \pgf@x=-\pgf@x
+	        \pgf@y=-\pgf@y
+	    }
+	    \anchor{south west}{
+	        \northwest
+	        \pgf@y=-\pgf@y
+	    }
+		\anchor{anode} {%
+			\northwest
+			\pgf@x=0pt
+		}
+		\anchor{cathode}{%
+			\northwest
+			\pgf@y=-\pgf@y
+			\pgf@x=\ctikzvalof{tubes/cathode width}\pgf@x
+		}
+		\anchor{cathode 1}{%
+			\northwest
+			\pgf@y=-\pgf@y
+			\pgf@x=\ctikzvalof{tubes/cathode width}\pgf@x
+		}
+		\anchor{cathode 2}{%
+			\northwest
+			\pgf@y=-\pgf@y
+			\pgf@x=-\ctikzvalof{tubes/cathode width}\pgf@x
+		}
+		\anchor{filament 1}{%
+			\northwest
+			\pgfmathparse{(\ctikzvalof{tubes/tube radius}*sin(\ctikzvalof{tubes/filament angle})}
+			\pgf@x=\pgfmathresult\pgf@x
+			\pgf@y=-\pgf@y
+		}
+		\anchor{filament 2}{%
+			\northwest
+			\pgfmathparse{(\ctikzvalof{tubes/tube radius}*sin(\ctikzvalof{tubes/filament angle})}
+			\pgf@x=-\pgfmathresult\pgf@x
+			\pgf@y=-\pgf@y
+		}
+
+		% Extra anchors
+		#2
+
+		\backgroundpath{
+			\pgfscope
+				% Line width for tripoles
+				\pgfsetlinewidth{\ctikzvalof{tripoles/thickness}\pgflinewidth}
+	
+				% Setup to draw tube
+				\pgf@circ@res@up=\ctikzvalof{tubes/height}\pgf@circ@Rlen
+				\pgf@circ@res@right=\ctikzvalof{tubes/width}\pgf@circ@Rlen
+				\pgf@circ@res@up=\ctikzvalof{tubes/tube radius}\pgf@circ@res@up
+				\pgf@circ@res@right=\ctikzvalof{tubes/tube radius}\pgf@circ@res@right
+	
+				% Tube fill color (if any)
+				\ifx\tikz@fillcolor\pgfutil@empty
+				\else
+					\pgfscope
+						\pgfsetfillcolor{\tikz@fillcolor}
+						\pgf@circ@tubes@drawtube
+						\pgfusepath{fill}
+					\endpgfscope
+				\fi
+	
+				% Tube outline
+				\pgf@circ@tubes@drawtube
+
+				% Setup to draw grid, filament, anode and cathode
+				\pgf@circ@res@up=\ctikzvalof{tubes/height}\pgf@circ@Rlen
+				\pgf@circ@res@right=\ctikzvalof{tubes/width}\pgf@circ@Rlen
+				\pgf@circ@res@up=0.5\pgf@circ@res@up
+				\pgf@circ@res@right=0.5\pgf@circ@res@right
+
+				% Grid drawing
+				#3
+				
+				% Filament (is not drawn by default)
+				\ifpgf@circuit@tubes@filament
+					\pgf@circ@res@temp=-\ctikzvalof{tubes/cathode distance}\pgf@circ@res@up
+					\advance\pgf@circ@res@temp by -\ctikzvalof{tubes/filament distance}\pgf@circ@res@up
+					\pgfmathparse{(\ctikzvalof{tubes/tube radius}*sin(\ctikzvalof{tubes/filament angle})}
+					\pgf@xa=\pgfmathresult\pgf@circ@res@right
+					\pgfmathparse{\ctikzvalof{tubes/tube radius}+\ctikzvalof{tubes/tube radius}*cos(\ctikzvalof{tubes/filament angle}}
+					\pgf@ya=\pgfmathresult\pgf@circ@res@up
+					\pgfpathmoveto{\pgfpoint{0pt}{\pgf@circ@res@temp}}
+					\pgfpathlineto{\pgfpoint{-\pgf@xa}{-\pgf@ya}}
+					\pgfpathlineto{\pgfpoint{-\pgf@xa}{-\pgf@circ@res@up}}
+					\pgfpathmoveto{\pgfpoint{0pt}{\pgf@circ@res@temp}}
+					\pgfpathlineto{\pgfpoint{\pgf@xa}{-\pgf@ya}}
+					\pgfpathlineto{\pgfpoint{\pgf@xa}{-\pgf@circ@res@up}}
+					\pgf@circuit@tubes@filamentfalse
+				\fi
+	
+				% Anode (or plate)
+				\pgfpathmoveto{\pgfpoint{0pt}{\pgf@circ@res@up}} % north
+				\pgfpathlineto{\pgfpoint{0pt}{\ctikzvalof{tubes/anode distance}\pgf@circ@res@up}}
+				\pgfpathmoveto{\pgfpoint{-\ctikzvalof{tubes/anode width}\pgf@circ@res@right}{\ctikzvalof{tubes/anode distance}\pgf@circ@res@up}}
+				\pgfpathlineto{\pgfpoint{\ctikzvalof{tubes/anode width}\pgf@circ@res@right}{\ctikzvalof{tubes/anode distance}\pgf@circ@res@up}}
+	
+				% Cathode
+				\ifpgf@circuit@tubes@nocathode
+					\pgf@circuit@tubes@nocathodefalse
+				\else
+					\pgfsetcornersarced{\pgfpoint{\ctikzvalof{tubes/cathode corners}\pgf@circ@res@up}{\ctikzvalof{tubes/cathode corners}\pgf@circ@res@up}}
+					\pgfpathmoveto{\pgfpoint{-\ctikzvalof{tubes/cathode width}\pgf@circ@res@right}{-\pgf@circ@res@up}}
+					\pgfpathlineto{\pgfpoint{-\ctikzvalof{tubes/cathode width}\pgf@circ@res@right}{-\ctikzvalof{tubes/cathode distance}\pgf@circ@res@up}}
+					\pgfpathlineto{\pgfpoint{\ctikzvalof{tubes/cathode width}\pgf@circ@res@right}{-\ctikzvalof{tubes/cathode distance}\pgf@circ@res@up}}
+					\ifpgf@circuit@tubes@fullcathode
+						\pgfpathlineto{\pgfpoint{\ctikzvalof{tubes/cathode width}\pgf@circ@res@right}{-\pgf@circ@res@up}}
+						\pgf@circuit@tubes@fullcathodefalse
+					\else
+						\pgfpathlineto{\pgfpoint{\ctikzvalof{tubes/cathode width}\pgf@circ@res@right}{-\ctikzvalof{tubes/cathode distance}\pgf@circ@res@up-\ctikzvalof{tubes/cathode right extend}\pgf@circ@res@up}}
+					\fi
+				\fi
+
+				% Draw the background	
+				\pgfusepath{draw}
+
+			\endpgfscope
+		}
+	}
+}
+
+\pgfcircdeclaretube{diodetube}{}{} % shape diode already exists
+
+\pgfcircdeclaretube{triode}
+{
+	\anchor{grid} {%
+        \northwest
+		\pgf@y=\ctikzvalof{tubes/grid shift}\pgf@y
+    }
+}
+{
+	% Grid protrusion
+	\pgf@xa=-\ctikzvalof{tubes/tube radius}\pgf@circ@res@right
+	\advance\pgf@xa by -\ctikzvalof{tubes/grid protrusion}\pgf@circ@res@right
+	\pgfpathmoveto{\pgfpoint{-\pgf@circ@res@right}{\ctikzvalof{tubes/grid shift}\pgf@circ@res@up}}
+	\pgfpathlineto{\pgfpoint{\pgf@xa}{\ctikzvalof{tubes/grid shift}\pgf@circ@res@up}}
+	% Grid dashes: calculations
+	\pgf@xb=2\pgf@circ@res@right
+	\pgf@circ@res@step=\ctikzvalof{tubes/tube radius}\pgf@xb
+	\@tempcnta=\ctikzvalof{tubes/grid dashes}  % dashes*2+1
+	\multiply\@tempcnta by 2\relax
+	\advance\@tempcnta by 1\relax
+	\advance\pgf@circ@res@step by -\pgf@xa
+	\divide\pgf@circ@res@step by \@tempcnta
+	% Grid dashes: draw
+	\pgf@circ@res@temp=\pgf@xa
+	\@tempcnta=\ctikzvalof{tubes/grid dashes}
+	\loop
+		\advance\pgf@circ@res@temp by\pgf@circ@res@step
+		\pgfpathmoveto{\pgfpoint{\pgf@circ@res@temp}{\ctikzvalof{tubes/grid shift}\pgf@circ@res@up}}
+		\advance\pgf@circ@res@temp by\pgf@circ@res@step
+		\pgfpathlineto{\pgfpoint{\pgf@circ@res@temp}{\ctikzvalof{tubes/grid shift}\pgf@circ@res@up}}
+		\advance\@tempcnta by-1
+		\ifnum\@tempcnta>0\relax
+	\repeat
+}
+
+\pgfcircdeclaretube{tetrode}
+{
+	\anchor{grid} {%
+        \northwest
+		\pgfutil@tempdima=\pgf@y
+		\pgf@y=-\ctikzvalof{tubes/grid separation}\pgf@y
+		\pgf@y=0.5\pgf@y
+		\advance\pgf@y by \ctikzvalof{tubes/grid shift}\pgfutil@tempdima
+    }
+	\anchor{screen} {%
+        \northwest
+		\pgfutil@tempdima=\pgf@y
+		\pgf@y=\ctikzvalof{tubes/grid separation}\pgf@y
+		\pgf@y=0.5\pgf@y
+		\advance\pgf@y by \ctikzvalof{tubes/grid shift}\pgfutil@tempdima
+    }
+}
+{
+	% Grid x/y points
+	\pgf@xa=-\ctikzvalof{tubes/tube radius}\pgf@circ@res@right
+	\advance\pgf@xa by -\ctikzvalof{tubes/grid protrusion}\pgf@circ@res@right
+	\pgfutil@tempdima=\ctikzvalof{tubes/grid separation}\pgf@circ@res@up
+	\pgfutil@tempdimb=-\pgfutil@tempdima
+	\pgfutil@tempdima=0.5\pgfutil@tempdima
+	\advance\pgfutil@tempdima by \ctikzvalof{tubes/grid shift}\pgf@circ@res@up
+	\pgfutil@tempdimb=0.5\pgfutil@tempdimb
+	\advance\pgfutil@tempdimb by \ctikzvalof{tubes/grid shift}\pgf@circ@res@up
+	% Grid protrusion
+	\pgfpathmoveto{\pgfpoint{-\pgf@circ@res@right}{\pgfutil@tempdimb}}
+	\pgfpathlineto{\pgfpoint{\pgf@xa}{\pgfutil@tempdimb}}
+	\pgfpathmoveto{\pgfpoint{-\pgf@circ@res@right}{\pgfutil@tempdima}}
+	\pgfpathlineto{\pgfpoint{\pgf@xa}{\pgfutil@tempdima}}
+	% Grid dashes: calculations
+	\pgf@xb=2\pgf@circ@res@right
+	\pgf@circ@res@step=\ctikzvalof{tubes/tube radius}\pgf@xb
+	\@tempcnta=\ctikzvalof{tubes/grid dashes}  % dashes*2+1
+	\multiply\@tempcnta by 2\relax
+	\advance\@tempcnta by 1\relax
+	\advance\pgf@circ@res@step by -\pgf@xa
+	\divide\pgf@circ@res@step by \@tempcnta
+	% Grid dashes: draw
+	\pgf@circ@res@temp=\pgf@xa
+	\@tempcnta=\ctikzvalof{tubes/grid dashes}
+	\loop
+		\advance\pgf@circ@res@temp by\pgf@circ@res@step
+		\pgfpathmoveto{\pgfpoint{\pgf@circ@res@temp}{\pgfutil@tempdima}}
+		\pgfpathlineto{\pgfpoint{\pgf@circ@res@temp+\pgf@circ@res@step}{\pgfutil@tempdima}}
+		\pgfpathmoveto{\pgfpoint{\pgf@circ@res@temp}{\pgfutil@tempdimb}}
+		\pgfpathlineto{\pgfpoint{\pgf@circ@res@temp+\pgf@circ@res@step}{\pgfutil@tempdimb}}
+		\advance\pgf@circ@res@temp by\pgf@circ@res@step
+		\advance\@tempcnta by-1
+		\ifnum\@tempcnta>0\relax
+	\repeat
+}
+
+\pgfcircdeclaretube{pentode}
+{
+	\anchor{grid} {%
+        \northwest
+		\pgfutil@tempdima=\pgf@y
+		\pgf@y=-\ctikzvalof{tubes/grid separation}\pgf@y
+		\advance\pgf@y by \ctikzvalof{tubes/grid shift}\pgfutil@tempdima
+    }
+	\anchor{screen} {%
+        \northwest
+		\pgf@y=\ctikzvalof{tubes/grid shift}\pgf@y
+    }
+	\anchor{suppressor} {%
+        \northwest
+		\pgfutil@tempdima=\pgf@y
+		\pgf@y=\ctikzvalof{tubes/grid separation}\pgf@y
+		\advance\pgf@y by \ctikzvalof{tubes/grid shift}\pgfutil@tempdima
+    }
+}
+{
+	% Grid x/y points
+	\pgf@xa=-\ctikzvalof{tubes/tube radius}\pgf@circ@res@right
+	\advance\pgf@xa by -\ctikzvalof{tubes/grid protrusion}\pgf@circ@res@right
+	\pgfutil@tempdima=\ctikzvalof{tubes/grid separation}\pgf@circ@res@up
+	\pgfutil@tempdimb=-\pgfutil@tempdima
+	\advance\pgfutil@tempdima by \ctikzvalof{tubes/grid shift}\pgf@circ@res@up
+	\advance\pgfutil@tempdimb by \ctikzvalof{tubes/grid shift}\pgf@circ@res@up
+	\@tempdimc=\ctikzvalof{tubes/grid shift}\pgf@circ@res@up
+	% Grid protrusion
+	\pgfpathmoveto{\pgfpoint{-\pgf@circ@res@right}{\pgfutil@tempdimb}}
+	\pgfpathlineto{\pgfpoint{\pgf@xa}{\pgfutil@tempdimb}}
+	\pgfpathmoveto{\pgfpoint{-\pgf@circ@res@right}{\pgfutil@tempdima}}
+	\pgfpathlineto{\pgfpoint{\pgf@xa}{\pgfutil@tempdima}}
+	\pgfpathmoveto{\pgfpoint{-\pgf@circ@res@right}{\@tempdimc}}
+	\pgfpathlineto{\pgfpoint{\pgf@xa}{\@tempdimc}}
+	% Grid dashes: calculations
+	\pgf@xb=2\pgf@circ@res@right
+	\pgf@circ@res@step=\ctikzvalof{tubes/tube radius}\pgf@xb
+	\@tempcnta=\ctikzvalof{tubes/grid dashes}  % dashes*2+1
+	\multiply\@tempcnta by 2\relax
+	\advance\@tempcnta by 1\relax
+	\advance\pgf@circ@res@step by -\pgf@xa
+	\divide\pgf@circ@res@step by \@tempcnta
+	% Grid dashes: draw
+	\pgf@circ@res@temp=\pgf@xa
+	\@tempcnta=\ctikzvalof{tubes/grid dashes}
+	\loop
+		\advance\pgf@circ@res@temp by\pgf@circ@res@step
+		\pgfpathmoveto{\pgfpoint{\pgf@circ@res@temp}{\pgfutil@tempdima}}
+		\pgfpathlineto{\pgfpoint{\pgf@circ@res@temp+\pgf@circ@res@step}{\pgfutil@tempdima}}
+		\pgfpathmoveto{\pgfpoint{\pgf@circ@res@temp}{\pgfutil@tempdimb}}
+		\pgfpathlineto{\pgfpoint{\pgf@circ@res@temp+\pgf@circ@res@step}{\pgfutil@tempdimb}}
+		\pgfpathmoveto{\pgfpoint{\pgf@circ@res@temp}{\@tempdimc}}
+		\pgfpathlineto{\pgfpoint{\pgf@circ@res@temp+\pgf@circ@res@step}{\@tempdimc}}
+		\advance\pgf@circ@res@temp by\pgf@circ@res@step
+		\advance\@tempcnta by-1
+		\ifnum\@tempcnta>0\relax
+	\repeat
 }
 
 %%%---------- close: tex/pgfcirctripoles
