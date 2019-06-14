@@ -1774,6 +1774,115 @@ The \texttt{name} property is available also for bipoles, although this is usefu
 
 
 \subsection{Electronic Tubes}
+
+Electronic tubes, also known as vacuum tubes, control current flow between electrodes.  They come in many different flavours.
+\small{Contributed by J. op den Brouw (\texttt{J.E.J.opdenBrouw@hhs.nl}).}
+
+\begin{groupdesc}
+	\circuitdesc*{diodetube}{Tube Diode}{}(anode/90/0.2, cathode/-90/0.2 )
+	\circuitdesc*{triode}{Triode}{}(anode/90/0.2, cathode/-90/0.2, grid/180/0.2 )
+	\circuitdesc*{tetrode}{Tetrode}{}(anode/90/0.2, cathode/-90/0.2, grid/190/0.2,screen/170/0.2 )
+	\circuitdesc*{pentode}{Pentode}{}(anode/90/0.2, cathode/-90/0.2, grid/190/0.2,screen/180/0.2,suppressor/170/0.2 )
+\end{groupdesc}
+
+Note that the \verb|diodetube| is used as component name to avoid clashes with the semiconductor diode.
+Normally, the filament is not drawn. If you want a filament, put the \verb|filament| option in the node description:
+
+\begin{groupdesc}
+	\circuitdesc*{diodetube,filament}{Tube Diode}{}(anode/90/0.2, filament 1/-135/0.2, filament 2/-45/0.2 )
+\end{groupdesc}
+
+Sometimes, you don't want the cathode to be drawn (but you do want the filament). Use the \verb|nocathode| option in the node description:
+
+\begin{groupdesc}
+	\circuitdesc*{diodetube,filament,nocathode}{Tube Diode}{}(anode/90/0.2 )
+\end{groupdesc}
+
+If you want a full cathode to be drawn, use the \verb|fullcathode| option in the node description. You can then use the anchors \verb|cathode 1| and \verb|cathode 2|.
+
+\begin{groupdesc}
+	\circuitdesc*{diodetube,fullcathode}{Tube Diode}{}(anode/90/0.2, cathode 1/-135/0.2, cathode 2/-45/0.2 )
+\end{groupdesc}
+
+These circuit elements are fully configurable, and the attributes are described below:
+
+\begin{tabular}{l | l | l}
+
+  Key & Default value & Description\\
+  \hline
+  \verb|tubes/width| & \verb|1|                    & relative width               \\
+  \verb|tubes/height| & \verb|1.4|                 & relative height              \\
+  \verb|tubes/tube radius| & \verb|0.40|           & radius of tube circle        \\
+  \verb|tubes/anode distance| & \verb|0.40|        & distance from center         \\
+  \verb|tubes/anode width| & \verb|0.40|           & width of an anode/plate      \\
+  \verb|tubes/grid protrusion| & \verb|0.25|       & distance from center         \\
+  \verb|tubes/grid dashes| & \verb|5|              & number of grid dashes        \\
+  \verb|tubes/grid separation| & \verb|0.2|        & separation between grids     \\
+  \verb|tubes/grid shift| & \verb|0.0|             & y shift of grids from center \\
+  \verb|tubes/cathode distance| & \verb|0.40|      & distance from grid           \\
+  \verb|tubes/cathode width| & \verb|0.40|         & width of a cathode           \\
+  \verb|tubes/cathode corners| & \verb|0.06|       & corners of the cathode wire  \\
+  \verb|tubes/cathode right extend| & \verb|0.075| & extension at the right side  \\
+  \verb|tubes/filament distance| & \verb|0.1|      & distance from cathode        \\
+  \verb|tubes/filament angle| & \verb|15|          & angle from the centerpoint   \\
+\end{tabular}
+
+Conventionally, the model of the tube is indicated at the \verb|east| anchor:
+
+\begin{LTXexample}[varwidth]
+\ctikzset{tubes/width=1.4}
+\ctikzset{tubes/height=1}
+
+\begin{circuitikz}
+\draw (0,0) node[triode] (Tri) {};
+\draw  (Tri.east) node[right] {12AX7};
+\end{circuitikz}
+\end{LTXexample}
+
+Example triode amplifier:
+
+\begin{lstlisting}
+\begin{circuitikz}
+\draw (0,0) node (start) {}
+                to[sV=$V_i$] ++(0,2+\ctikzvalof{tubes/height})
+                to[C=$C_i$] ++(2,0) node (Rg) {}
+                to[R=$R_g$] (Rg |- start)
+(Rg)            to[short,*-] ++(1,0)
+                node[triode,anchor=grid] (Tri) {} ++(2,0)
+(Tri.cathode)   to[R=$R_c$,-*] (Tri.cathode |- start)
+(Tri.anode)     to [R=$R_a$] ++(0,2)
+                to [short] ++(3.5,0) node(Vatop) {}
+                to [V<=$V_a$] (Vatop |- start)
+                to [short] (start)
+(Tri.anode)     ++(0,0.2) to[C=$C_o$,*-o] ++(2,0)
+(Tri.cathode)   ++(0,-0.2) to[short,*-] ++(1.5,0) node(Cctop) {}
+                to[C=$C_c$,-*] (start -| Cctop)
+;
+\draw[red,thin,dashed] (Tri.north west) rectangle (Tri.south east);
+\draw (Tri.east) node[right] {12AX7};
+\end{circuitikz}
+\end{lstlisting}
+
+\begin{circuitikz}
+\draw (0,0) node (start) {}
+                to[sV=$V_i$] ++(0,2+\ctikzvalof{tubes/height})
+                to[C=$C_i$] ++(2,0) node (Rg) {}
+                to[R=$R_g$] (Rg |- start)
+(Rg)            to[short,*-] ++(1,0)
+                node[triode,anchor=grid] (Tri) {} ++(2,0)
+(Tri.cathode)   to[R=$R_c$,-*] (Tri.cathode |- start)
+(Tri.anode)     to [R=$R_a$] ++(0,2)
+                to [short] ++(3.5,0) node(Vatop) {}
+                to [V<=$V_a$] (Vatop |- start)
+                to [short] (start)
+(Tri.anode)     ++(0,0.2) to[C=$C_o$,*-o] ++(2,0)
+(Tri.cathode)   ++(0,-0.2) to[short,*-] ++(1.5,0) node(Cctop) {}
+                to[C=$C_c$,-*] (start -| Cctop)
+;
+\draw[red,thin,dashed] (Tri.north west) rectangle (Tri.south east);
+\draw (Tri.east) node[right] {12AX7};
+\end{circuitikz}
+
 \begin{groupdesc}
     \circuitdesc*{magnetron}{Magnetron}{}( anode/-90/0.2, cathode1/135/0.2,
     cathode2/45/0.2, left/180/0.2, right/0/0.2, top/90/0.4 )

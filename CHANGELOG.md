@@ -8,6 +8,7 @@ The major changes among the different circuitikz versions are listed here. See <
     - Added rotary switches
     - Added more configurable bipole nodes and more shapes
     - Added 7-segment displays
+    - Added vacuum tubes by J. op den Brouw 
     - Made the open shape of dcisources configurable
     - Made the arrows on vcc and vee configurable
     - Fixed anchors of diamondpole nodes
