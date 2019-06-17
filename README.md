@@ -41,23 +41,27 @@ or, for ConTeXt,
 
 ### Older versions (v0.9.1 onwards)
 
-If you want to use older versions of `circuitikz`, just append the version number to the package name, as in `circuitikz-$version`:
+If you want to use older versions of `circuitikz` in LaTeX, just append the version number to the package name, as in `circuitikz-$version`:
 ```latex
   \usepackage{circuitikz-0.8.3}
 ```
-or, for ConTeXt,
+The available versions are  0.8.3, 0.7, 0.6 and 0.4.
+
+In ConTeXt, only the 0.8.3 version is available for the time being; you can use it with 
 ```latex
   \usemodule[circuitikz-0.8.3]
 ```
+
+
 ## More Information
-More Information can be found in the manual and at the wiki of the project located at https://github.com/circuitikz/circuitikz/wiki.
+More Information can be found in the manual and (maybe) at the wiki of the project located at https://github.com/circuitikz/circuitikz/wiki.
 
 ## Contact the authors
 * git: https://github.com/circuitikz/circuitikz
 * Massimo Redaelli (m.redaelli@gmail.com)
 * Stefan Lindner (stefan.lindner@fau.de)
 * Stefan Erhardt (stefan.erhardt@fau.de)
-* Romano Giannetti (romano@rgtti.com)
+* Romano Giannetti (romano.giannetti@gmail.com)
 
 -------------
 Copyright 2007-18 by Massimo Redaelli
