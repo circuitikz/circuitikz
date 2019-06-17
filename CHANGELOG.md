@@ -1,12 +1,11 @@
 <!--- CircuiTikz - Changelog --->
 The major changes among the different circuitikz versions are listed here. See <https://github.com/circuitikz/circuitikz/commits> for a full list of changes.
 
-* Version git (0.9.1, unreleased)
-    - Bumped the version to 0.9.1 so it's clearly different in log from the released one.
+* Version 0.9.1
     - Added old LaTeX versions for 0.8.3, 0.7, 0.6 and 0.4
     - Added the option to have inline transformers and gyrators
     - Added rotary switches
-    - Added more configurable bipole nodes and more shapes
+    - Added more configurable bipole nodes (connectors) and more shapes
     - Added 7-segment displays
     - Added vacuum tubes by J. op den Brouw 
     - Made the open shape of dcisources configurable
