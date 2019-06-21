@@ -50,6 +50,9 @@ clean:
 	find doc -not -name "*.tex" -not -name "*.sty" -not -name "circuitikz*.pdf" -not -name ".gitignore" -type f -delete
 	find tex -name "*circ*" -not -name "*.sty" -not -name "*.tex" -type f -delete
 
+fullclean: clean
+	rm -f circuitikz.zip circuitikzmanualgit.pdf  t-circuitikzgit.tex circuitikzgit.sty
+
 ctan: manual clean
 	rm -rf ctan_tmp
 	rm -f circuitikz.zip
