@@ -1,12 +1,12 @@
 <!--- CircuiTikz - Changelog --->
 The major changes among the different circuitikz versions are listed here. See <https://github.com/circuitikz/circuitikz/commits> for a full list of changes.
 
-* Version 0.9.2 (unreleased)
+* Version 0.9.2 (2019-06-21)
     - (hopefully) fixed ConTeXt compatibility. Most new functionality is not tested; testers and developers for the ConTeXt side are needed.
     - Added old ConTeXt version for 0.8.3
     - Added tailless ground
 
-* Version 0.9.1
+* Version 0.9.1 (2019-06-16)
     - Added old LaTeX versions for 0.8.3, 0.7, 0.6 and 0.4
     - Added the option to have inline transformers and gyrators
     - Added rotary switches

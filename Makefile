@@ -27,7 +27,7 @@ manual: manual-latex manual-context clean
 manual-context: changelog
 	rm -f doc/circuitikz-context.pdf
 	rm -f doc/tmp.pdf
-	cd doc;context circuitikz-context.tex
+	cd doc; TEXINPUTS=.:../tex/: context circuitikz-context.tex
 	#optimize for smaller filesize(faktor 2!)--> no benefit at context!
 	#gs -sDEVICE=pdfwrite -dCompatibilityLevel=1.4 -dPDFSETTINGS=/screen -dNOPAUSE -dQUIET -dBATCH -sOutputFile=doc/tmp.pdf doc/circuitikz-context.pdf
 	#mv doc/tmp.pdf doc/circuitikz-context.pdf
