@@ -1,6 +1,9 @@
 <!--- CircuiTikz - Changelog --->
 The major changes among the different circuitikz versions are listed here. See <https://github.com/circuitikz/circuitikz/commits> for a full list of changes.
 
+* Version 0.9.3 (unreleased, starting development 2019-06-23)
+    - Bumped version to avoid confusion.
+
 * Version 0.9.2 (2019-06-21)
     - (hopefully) fixed ConTeXt compatibility. Most new functionality is not tested; testers and developers for the ConTeXt side are needed.
     - Added old ConTeXt version for 0.8.3
