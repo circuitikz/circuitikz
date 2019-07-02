@@ -5,6 +5,7 @@ The major changes among the different circuitikz versions are listed here. See <
     - Bumped version to avoid confusion.
     - Added the option to have "dotless" P-MOS (to use with arrowmos option)
     - Fixed a (puzzling) problem with coupler2
+    - Fixed a compatibility problem with newer PGF (>3.0.1a)
 
 * Version 0.9.2 (2019-06-21)
     - (hopefully) fixed ConTeXt compatibility. Most new functionality is not tested; testers and developers for the ConTeXt side are needed.
