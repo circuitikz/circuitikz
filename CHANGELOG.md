@@ -3,6 +3,7 @@ The major changes among the different circuitikz versions are listed here. See <
 
 * Version 0.9.3 (unreleased, starting development 2019-06-23)
     - Bumped version to avoid confusion.
+    - Fixed a (puzzling) problem with coupler2
 
 * Version 0.9.2 (2019-06-21)
     - (hopefully) fixed ConTeXt compatibility. Most new functionality is not tested; testers and developers for the ConTeXt side are needed.
