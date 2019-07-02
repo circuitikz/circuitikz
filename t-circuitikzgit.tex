@@ -1,4 +1,4 @@
-\def\pgfcircversion{git:4ad3dea}
+\def\pgfcircversion{git:6c32a4c}
 \def\pgfcircversiondate{2019/07/02}
 \writestatus{loading}{\pgfcircversiondate{} The CircuiTikz circuit drawing package version \pgfcircversion}
 
@@ -451,6 +451,8 @@
 \ctikzset{tripoles/mos style/.is choice}
 \ctikzset{tripoles/mos style/no arrows/.code={\pgf@circuit@mos@arrowsfalse}}
 \ctikzset{tripoles/mos style/arrows/.code={\pgf@circuit@mos@arrowstrue}}
+\pgfkeys{/tikz/arrowmos/.add code={}{\pgf@circuit@mos@arrowstrue}}
+\pgfkeys{/tikz/noarrowmos/.add code={}{\pgf@circuit@mos@arrowsfalse}}
 
 % Option solderdot for fet
 \newif\ifpgf@circuit@fet@solderdot
@@ -492,10 +494,17 @@
 
 % Option draw pmos with empty circle
 \newif\ifpgf@circuit@pmos@emptycircle
-\newif\ifpgf@circuit@pmos@emptycircle
 \pgf@circuit@pmos@emptycirclefalse
 \pgfkeys{/tikz/emptycircle/.add code={}{\pgf@circuit@pmos@emptycircletrue}}
 \ctikzset{tripoles/pmos style/emptycircle/.add code={}{\pgf@circuit@pmos@emptycircletrue}}
+% Option draw pmos with no circle
+\newif\ifpgf@circuit@pmos@nocircle
+\pgf@circuit@pmos@nocirclefalse
+\pgfkeys{/tikz/nocircle/.add code={}{\pgf@circuit@pmos@nocircletrue}}
+\ctikzset{tripoles/pmos style/nocircle/.add code={}{\pgf@circuit@pmos@nocircletrue}}
+% back to normal
+\pgfkeys{/tikz/fullcircle/.add code={}{\pgf@circuit@pmos@emptycirclefalse\pgf@circuit@pmos@nocirclefalse}}
+\ctikzset{tripoles/pmos style/fullcircle/.add code={}{\pgf@circuit@pmos@emptycirclefalse\pgf@circuit@pmos@nocirclefalse}}
 
 
 \newif\ifpgf@circuit@trans@ntype
@@ -9697,13 +9706,15 @@
         \pgfpathlineto{\pgfpoint{\pgf@circ@res@left-\pgfhorizontaltransformationadjustment*.5*\pgflinewidth}{\pgf@circ@res@up+\pgf@circ@res@down}}
         \pgfusepath{draw}
     \fi
-    \pgfpathcircle{\pgfpoint
-        {\pgfkeysvalueof{/tikz/circuitikz/tripoles/pmos/gate width}\pgf@circ@res@left - \pgfkeysvalueof{/tikz/circuitikz/nodes width}*\pgf@circ@Rlen}
-    {\pgf@circ@res@up+\pgf@circ@res@down}}{\pgfkeysvalueof{/tikz/circuitikz/nodes width}*\pgf@circ@Rlen}
-    \ifpgf@circuit@pmos@emptycircle
-        \pgfsetfillcolor{white}
+        \ifpgf@circuit@pmos@nocircle\else
+        \pgfpathcircle{\pgfpoint
+            {\pgfkeysvalueof{/tikz/circuitikz/tripoles/pmos/gate width}\pgf@circ@res@left - \pgfkeysvalueof{/tikz/circuitikz/nodes width}*\pgf@circ@Rlen}
+        {\pgf@circ@res@up+\pgf@circ@res@down}}{\pgfkeysvalueof{/tikz/circuitikz/nodes width}*\pgf@circ@Rlen}
+        \ifpgf@circuit@pmos@emptycircle
+            \pgfsetfillcolor{white}
+        \fi
+        \pgfusepath{draw,fill}
     \fi
-    \pgfusepath{draw,fill}
 }
 
 %% HEMT FET Transistor
