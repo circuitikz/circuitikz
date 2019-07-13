@@ -1,6 +1,9 @@
 <!--- CircuiTikz - Changelog --->
 The major changes among the different circuitikz versions are listed here. See <https://github.com/circuitikz/circuitikz/commits> for a full list of changes.
 
+* Version 0.9.4 (unreleased)
+    - Bumped the release number to avoid problems
+
 * Version 0.9.3 (2019-07-13)
     - Added the option to have "dotless" P-MOS (to use with arrowmos option)
     - Fixed a (puzzling) problem with coupler2
