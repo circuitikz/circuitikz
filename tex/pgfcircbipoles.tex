@@ -14,42 +14,58 @@
 % #4 - upper y-size of the bipole (from the center)
 % #5 - width of the bipole
 % #6 - macros drawing the bipole
+%
+\long\def\pgfcircdeclarebipole{%
+    \pgfcircdeclarebipolescaled{default}}
 
-
-\long\def\pgfcircdeclarebipole#1#2#3#4#5#6{
-    \pgfdeclareshape{#3shape}{
-
+%% Generic macro for defining a bipole shape
+% #1 - scale factor
+% #2 - additional anchors
+% #3 - lower y-size of the bipole (from the center).
+% #4 - #shape is the name of the shape
+% #5 - upper y-size of the bipole (from the center)
+% #6 - width of the bipole
+% #7 - macros drawing the bipole
+%
+\long\def\pgfcircdeclarebipolescaled#1#2#3#4#5#6#7{
+    \pgfdeclareshape{#4shape}{
+        \saveddimen{\scaledRlen}{\pgfmathsetlength{\pgf@x}{\ctikzvalof{#1/scale}\pgf@circ@Rlen}}
         \savedanchor{\northeast}{
-            \pgf@y=#4\pgf@circ@Rlen
+            \pgf@circ@scaled@Rlen=\ctikzvalof{#1/scale}\pgf@circ@Rlen
+            \pgf@y=#5\pgf@circ@scaled@Rlen
             \pgf@y=.5\pgf@y
-            \pgf@x=#5\pgf@circ@Rlen
+            \pgf@x=#6\pgf@circ@scaled@Rlen
             \pgf@x=.5\pgf@x
         }
         \savedanchor{\northeastborder}{
-            \pgf@y=#4\pgf@circ@Rlen
+            \pgf@circ@scaled@Rlen=\ctikzvalof{#1/scale}\pgf@circ@Rlen
+            \pgf@y=#5\pgf@circ@scaled@Rlen
             \pgf@y=.5\pgf@y
             \pgf@y=\ctikzvalof{bipoles/border margin}\pgf@y
-            \pgf@x=#5\pgf@circ@Rlen
+            \pgf@x=#6\pgf@circ@scaled@Rlen
             \pgf@x=.5\pgf@x
             \pgf@x=\ctikzvalof{bipoles/border margin}\pgf@x
         }
         \savedanchor{\southwestborder}{
-            \pgf@y=-#2\pgf@circ@Rlen
+            \pgf@circ@scaled@Rlen=\ctikzvalof{#1/scale}\pgf@circ@Rlen
+            \pgf@y=-#3\pgf@circ@scaled@Rlen
             \pgf@y=.5\pgf@y
             \pgf@y=\ctikzvalof{bipoles/border margin}\pgf@y
-            \pgf@x=-#5\pgf@circ@Rlen
+            \pgf@x=-#6\pgf@circ@scaled@Rlen
             \pgf@x=.5\pgf@x
             \pgf@x=\ctikzvalof{bipoles/border margin}\pgf@x
         }
         \savedanchor{\southwest}{
-            \pgf@y=-#2\pgf@circ@Rlen
+            \pgf@circ@scaled@Rlen=\ctikzvalof{#1/scale}\pgf@circ@Rlen
+            \pgf@y=-#3\pgf@circ@scaled@Rlen
             \pgf@y=.5\pgf@y
-            \pgf@x=-#5\pgf@circ@Rlen
+            \pgf@x=-#6\pgf@circ@scaled@Rlen
             \pgf@x=.5\pgf@x
         }
         \savedanchor{\centerpoint}{
-            \pgf@circ@res@down=-#2\pgf@circ@Rlen
-            \pgf@circ@res@up=#4\pgf@circ@Rlen
+            \pgf@circ@scaled@Rlen=\ctikzvalof{#1/scale}\pgf@circ@Rlen
+            \pgf@circ@res@down=-#3\pgf@circ@scaled@Rlen
+            \pgf@circ@res@up=#5\pgf@circ@scaled@Rlen
             \pgfpointorigin
             \pgf@y=\pgf@circ@res@up
             \advance\pgf@y by\pgf@circ@res@down
@@ -163,7 +179,7 @@
             \fi
         }
 
-        #1
+        #2
 
         \backgroundpath{
             \pgfsetcolor{\pgfkeysvalueof{/tikz/circuitikz/color}}
@@ -178,7 +194,7 @@
 
             \pgfstartlinewidth=\pgflinewidth
             \pgfsetcornersarced{\pgfpointorigin}% do not use rounded corners!
-            #6
+            #7
 
             \pgfsetlinewidth{\pgfstartlinewidth}
         }
@@ -189,7 +205,7 @@
 %% Standard bipole shapes declarations
 
 %% Resistor
-\pgfcircdeclarebipole
+\pgfcircdeclarebipolescaled{resistors}
 {}
 {\ctikzvalof{bipoles/resistor/height}}
 {resistor}
@@ -198,7 +214,7 @@
 {
     \pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}\pgfstartlinewidth}
     \pgftransformationadjustments
-    \pgfmathsetlength{\pgf@circ@res@step}{\ctikzvalof{bipoles/resistor/width}\pgf@circ@Rlen+\pgfhorizontaltransformationadjustment*0.5*\pgflinewidth}
+    \pgfmathsetlength{\pgf@circ@res@step}{\ctikzvalof{bipoles/resistor/width}*\scaledRlen+\pgfhorizontaltransformationadjustment*0.5*\pgflinewidth}
     \divide \pgf@circ@res@step by 12
 
     \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left-\pgfhorizontaltransformationadjustment*0.5*\pgflinewidth}{\pgf@circ@res@zero}}
@@ -222,9 +238,8 @@
 }
 
 
-
 %% Variable resistor
-\pgfcircdeclarebipole
+\pgfcircdeclarebipolescaled{resistors}
 {}
 {\ctikzvalof{bipoles/vresistor/height}}
 {vresistor}
@@ -233,7 +248,7 @@
 {
     \pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}\pgfstartlinewidth}
     \pgftransformationadjustments
-    \pgfmathsetlength{\pgf@circ@res@step}{\ctikzvalof{bipoles/resistor/width}\pgf@circ@Rlen+\pgfhorizontaltransformationadjustment*0.5*\pgflinewidth}
+    \pgfmathsetlength{\pgf@circ@res@step}{\ctikzvalof{bipoles/resistor/width}*\scaledRlen+\pgfhorizontaltransformationadjustment*0.5*\pgflinewidth}
     \divide \pgf@circ@res@step by 12
 
     \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left-\pgfhorizontaltransformationadjustment*0.5*\pgflinewidth}{\pgf@circ@res@zero}}
@@ -2308,7 +2323,7 @@
 
 %% Generic bipole - used as resistor by some (bleah)
 
-\pgfcircdeclarebipole
+\pgfcircdeclarebipolescaled{resistors}
 {}
 {\ctikzvalof{bipoles/generic/height}}
 {generic}
@@ -2388,7 +2403,7 @@
 
 %% Generic asymmetric bipole
 
-\pgfcircdeclarebipole
+\pgfcircdeclarebipolescaled{resistors}
 {}
 {\ctikzvalof{bipoles/ageneric/height}}
 {ageneric}
@@ -2434,14 +2449,14 @@
 
 %% Memristor
 
-\pgfcircdeclarebipole
+\pgfcircdeclarebipolescaled{resistors}
 {}
 {\ctikzvalof{bipoles/memristor/height}}
 {memristor}
 {\ctikzvalof{bipoles/memristor/height}}
 {\ctikzvalof{bipoles/memristor/width}}
 {
-    \pgf@circ@res@step = \ctikzvalof{bipoles/resistor/width}\pgf@circ@Rlen
+    \pgf@circ@res@step = \ctikzvalof{bipoles/resistor/width}\pgf@circ@scaled@Rlen
     \divide \pgf@circ@res@step by 14
 
     \pgfscope
@@ -2471,7 +2486,7 @@
 
 %% Generic empty tunable
 
-\pgfcircdeclarebipole
+\pgfcircdeclarebipolescaled{resistors}
 {}
 {\ctikzvalof{bipoles/tgeneric/height}}
 {tgeneric}
@@ -2491,7 +2506,7 @@
 
 %% Photoresistor
 
-\pgfcircdeclarebipole
+\pgfcircdeclarebipolescaled{resistors}
 {}
 {\ctikzvalof{bipoles/photoresistor/height 2}}
 {photoresistor}
@@ -2519,7 +2534,7 @@
 
 
 %% Thermistor
-\pgfcircdeclarebipole
+\pgfcircdeclarebipolescaled{resistors}
 {{% anchor for labelling the type of dependency
     \anchor{label}{%
         \southwest
@@ -2548,7 +2563,7 @@
 
 
 %% Thermistor PTC
-\pgfcircdeclarebipole
+\pgfcircdeclarebipolescaled{resistors}
 {}
 {\ctikzvalof{bipoles/thermistorptc/height 2}}
 {thermistorptc}
@@ -2577,7 +2592,7 @@
 }
 
 %% Thermistor NTC
-\pgfcircdeclarebipole
+\pgfcircdeclarebipolescaled{resistors}
 {}
 {\ctikzvalof{bipoles/thermistorntc/height 2}}
 {thermistorntc}
@@ -2630,7 +2645,7 @@
 }
 
 %% Varistor
-\pgfcircdeclarebipole
+\pgfcircdeclarebipolescaled{resistors}
 {}
 {\ctikzvalof{bipoles/varistor/height}}
 {varistor}
@@ -4423,7 +4438,7 @@
 }
 
 
-\pgfcircdeclarebipole
+\pgfcircdeclarebipolescaled{resistors}
 {% anchor for labelling the type of dependency
     \anchor{label}{%
         \southwest
@@ -4437,7 +4452,7 @@
 {%
     \pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}\pgfstartlinewidth}
     \pgftransformationadjustments
-    \pgfmathsetlength{\pgf@circ@res@step}{\ctikzvalof{bipoles/resistor/width}\pgf@circ@Rlen+\pgfhorizontaltransformationadjustment*0.5*\pgflinewidth}
+    \pgfmathsetlength{\pgf@circ@res@step}{\ctikzvalof{bipoles/resistor/width}*\scaledRlen+\pgfhorizontaltransformationadjustment*0.5*\pgflinewidth}
     \divide \pgf@circ@res@step by 12
 
     \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left-\pgfhorizontaltransformationadjustment*0.5*\pgflinewidth}{\pgf@circ@res@zero}}
