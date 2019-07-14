@@ -203,7 +203,266 @@
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Standard bipole shapes declarations
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+%%%%%%%%%%%%%%%%%%%%%%%%
+% Resistive components
+%%%%%%%%%%%%%%%%%%%%%%%%
+
+%% Short circuit
+
+%%% NOTICE that the short is really NOT drawn; we trust the fact that its
+%%% natural length is zero.
+\pgfcircdeclarebipole
+{}
+{0}
+{short}
+{0}
+{0}
+{ }
+
+%% Open circuit
+
+\pgfcircdeclarebipole
+{}
+{\ctikzvalof{bipoles/open/height}}
+{open}
+{\ctikzvalof{bipoles/open/height}}
+{\ctikzvalof{bipoles/open/width}}
+{ }
+
+%% Generic bipole - used as resistor by some (bleah)
+
+\pgfcircdeclarebipolescaled{resistors}
+{}
+{\ctikzvalof{bipoles/generic/height}}
+{generic}
+{\ctikzvalof{bipoles/generic/height}}
+{\ctikzvalof{bipoles/generic/width}}
+{
+    \pgfpathrectanglecorners{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@up}}{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@down}}
+    \pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}\pgfstartlinewidth}
+    \pgf@circ@draworfill
+}
+
+%% Generic empty tunable
+
+\pgfcircdeclarebipolescaled{resistors}
+{}
+{\ctikzvalof{bipoles/tgeneric/height}}
+{tgeneric}
+{\ctikzvalof{bipoles/tgeneric/height}}
+{\ctikzvalof{bipoles/tgeneric/width}}
+{
+    \pgfpathrectanglecorners{\pgfpoint{\pgf@circ@res@left}{.4\pgf@circ@res@up}}{\pgfpoint{\pgf@circ@res@right}{.4\pgf@circ@res@down}}
+    \pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}\pgfstartlinewidth}
+    \pgf@circ@draworfill
+    \pgfscope
+        \pgfsetarrowsend{latexslim}
+        \pgfpathmoveto{\pgfpoint{.5\pgf@circ@res@left}{\pgf@circ@res@up}}
+        \pgfpathlineto{\pgfpoint{-.5\pgf@circ@res@left}{\pgf@circ@res@down}}
+        \pgfusepath{draw}
+    \endpgfscope
+}
+
+%% Generic asymmetric bipole
+
+\pgfcircdeclarebipolescaled{resistors}
+{}
+{\ctikzvalof{bipoles/ageneric/height}}
+{ageneric}
+{\ctikzvalof{bipoles/ageneric/height}}
+{\ctikzvalof{bipoles/ageneric/width}}
+{
+    \pgfscope
+        \pgfpathrectanglecorners{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@up}}{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@down}}
+        \pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}\pgfstartlinewidth}
+        \pgf@circ@draworfill
+    \endpgfscope
+
+    \pgfpathrectanglecorners{\pgfpoint{.7\pgf@circ@res@right}{\pgf@circ@res@up}}{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@down}}
+    \pgfusepath{stroke,fill}
+}
+
+%% Memristor
+
+\pgfcircdeclarebipolescaled{resistors}
+{}
+{\ctikzvalof{bipoles/memristor/height}}
+{memristor}
+{\ctikzvalof{bipoles/memristor/height}}
+{\ctikzvalof{bipoles/memristor/width}}
+{
+    \pgf@circ@res@step = \ctikzvalof{bipoles/resistor/width}\pgf@circ@scaled@Rlen
+    \divide \pgf@circ@res@step by 14
+
+    \pgfscope
+        \pgfpathrectanglecorners{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@up}}{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@down}}
+        \pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}\pgfstartlinewidth}
+        \pgf@circ@draworfill
+    \endpgfscope
+    \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{0pt}}
+    \pgfpathlineto{\pgfpoint{.72*\pgf@circ@res@left}{0pt}}
+    \pgfpathlineto{\pgfpoint{.72*\pgf@circ@res@left}{\ctikzvalof{bipoles/memristor/wave height}\pgf@circ@res@up}}
+    \pgfpathlineto{\pgfpoint{.35*\pgf@circ@res@left}{\ctikzvalof{bipoles/memristor/wave height}\pgf@circ@res@up}}
+    \pgfpathlineto{\pgfpoint{.35*\pgf@circ@res@left}{-\ctikzvalof{bipoles/memristor/wave height}\pgf@circ@res@up}}
+    \pgfpathlineto{\pgfpoint{-.05*\pgf@circ@res@left}{-\ctikzvalof{bipoles/memristor/wave height}\pgf@circ@res@up}}
+    \pgfpathlineto{\pgfpoint{-.05*\pgf@circ@res@left}{\ctikzvalof{bipoles/memristor/wave height}\pgf@circ@res@up}}
+    \pgfpathlineto{\pgfpoint{.42*\pgf@circ@res@right}{\ctikzvalof{bipoles/memristor/wave height}\pgf@circ@res@up}}
+    \pgfpathlineto{\pgfpoint{.42*\pgf@circ@res@right}{0pt}}
+    \pgfpathlineto{\pgfpoint{.8*\pgf@circ@res@right}{0pt}}
+
+    \pgfusepath{draw}
+
+    \pgfpathrectanglecorners{\pgfpoint{.7\pgf@circ@res@right}{\pgf@circ@res@up}}{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@down}}
+    \pgfusepath{stroke,fill}
+}
+
+%% Photoresistor
+
+\pgfcircdeclarebipolescaled{resistors}
+{}
+{\ctikzvalof{bipoles/photoresistor/height 2}}
+{photoresistor}
+{\ctikzvalof{bipoles/photoresistor/height}}
+{\ctikzvalof{bipoles/photoresistor/width}}
+{
+    \pgfscope
+        \pgfpathrectanglecorners{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@down}}{\pgfpoint{\pgf@circ@res@right}{-\pgf@circ@res@down}}
+        \pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}\pgfstartlinewidth}
+        \pgf@circ@draworfill
+    \endpgfscope
+
+    \pgfscope
+        \pgfsetarrowsend{latexslim}
+        \pgfpathmoveto{\pgfpoint{.7\pgf@circ@res@right}{\pgf@circ@res@up}}
+        \pgfpathlineto{\pgfpoint{.3\pgf@circ@res@right}{-1.2\pgf@circ@res@down}}
+        \pgfusepath{draw}
+        \pgfpathmoveto{\pgfpoint{.45\pgf@circ@res@right}{\pgf@circ@res@up}}
+        \pgfpathlineto{\pgfpoint{.05\pgf@circ@res@right}{-1.2\pgf@circ@res@down}}
+        \pgfusepath{draw}
+    \endpgfscope
+}
+
+%% Thermistor
+\pgfcircdeclarebipolescaled{resistors}
+{{% anchor for labelling the type of dependency
+    \anchor{label}{%
+        \southwest
+        \pgf@x=0.4\pgf@x
+        \pgf@y=1.2\pgf@y
+    }%
+}}
+{\ctikzvalof{bipoles/thermistor/height}}
+{thermistor}
+{\ctikzvalof{bipoles/thermistor/height}}
+{\ctikzvalof{bipoles/thermistor/width}}
+{
+    \pgfscope
+    \pgfpathrectanglecorners{\pgfpoint{\pgf@circ@res@left}{\pgfkeysvalueof{/tikz/circuitikz/bipoles/thermistor/main}\pgf@circ@res@up}}{\pgfpoint{\pgf@circ@res@right}{-\pgfkeysvalueof{/tikz/circuitikz/bipoles/thermistor/main}\pgf@circ@res@up}}
+    \pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}\pgfstartlinewidth}
+    \pgf@circ@draworfill
+    \endpgfscope
+
+    %\pgfscope
+    \pgfpathmoveto{\pgfpoint{-\pgf@circ@res@left}{-\pgf@circ@res@down}}
+    \pgfpathlineto{\pgfpoint{.4\pgf@circ@res@left}{1.2\pgf@circ@res@down}}
+    \pgfpathlineto{\pgfpoint{\pgf@circ@res@left}{1.2\pgf@circ@res@down}}
+    \pgfusepath{draw}
+    %\endpgfscope
+}
+
+%% Thermistor PTC
+\pgfcircdeclarebipolescaled{resistors}
+{}
+{\ctikzvalof{bipoles/thermistorptc/height 2}}
+{thermistorptc}
+{\ctikzvalof{bipoles/thermistorptc/height}}
+{\ctikzvalof{bipoles/thermistorptc/width}}
+{
+    \pgfscope
+        \pgfpathrectanglecorners{\pgfpoint{\pgf@circ@res@left}{\pgfkeysvalueof{/tikz/circuitikz/bipoles/thermistorptc/main}\pgf@circ@res@up}}{\pgfpoint{\pgf@circ@res@right}{-\pgfkeysvalueof{/tikz/circuitikz/bipoles/thermistorptc/main}\pgf@circ@res@up}}
+        \pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}\pgfstartlinewidth}
+        \pgf@circ@draworfill
+    \endpgfscope
+    \pgfpathmoveto{\pgfpoint{-\pgf@circ@res@left}{\pgf@circ@res@up}}
+    \pgfpathlineto{\pgfpoint{.4\pgf@circ@res@left}{-\pgf@circ@res@up}}
+    \pgfpathlineto{\pgfpoint{\pgf@circ@res@left}{-\pgf@circ@res@up}}
+    \pgfusepath{draw}
+
+    \pgfsetlinewidth{\pgfstartlinewidth}
+    \pgftext[top,x=.85\pgf@circ@res@left,y=.75\pgf@circ@res@down]{\tiny$\vartheta$}
+    \pgfsetarrowsend{latexslim}
+    \pgfpathmoveto{\pgfpoint{.62\pgf@circ@res@left}{\pgf@circ@res@down}}
+    \pgfpathlineto{\pgfpoint{.62\pgf@circ@res@left}{.7\pgf@circ@res@down}}
+    \pgfusepath{draw}
+    \pgfpathmoveto{\pgfpoint{.45\pgf@circ@res@left}{\pgf@circ@res@down}}
+    \pgfpathlineto{\pgfpoint{.45\pgf@circ@res@left}{.7\pgf@circ@res@down}}
+    \pgfusepath{draw}
+}
+
+%% Thermistor NTC
+\pgfcircdeclarebipolescaled{resistors}
+{}
+{\ctikzvalof{bipoles/thermistorntc/height 2}}
+{thermistorntc}
+{\ctikzvalof{bipoles/thermistorntc/height}}
+{\ctikzvalof{bipoles/thermistorntc/width}}
+{
+    \pgfscope
+        \pgfpathrectanglecorners{\pgfpoint{\pgf@circ@res@left}{\pgfkeysvalueof{/tikz/circuitikz/bipoles/thermistorntc/main}\pgf@circ@res@up}}{\pgfpoint{\pgf@circ@res@right}{-\pgfkeysvalueof{/tikz/circuitikz/bipoles/thermistorntc/main}\pgf@circ@res@up}}
+        \pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}\pgfstartlinewidth}
+        \pgf@circ@draworfill
+    \endpgfscope
+
+    \pgfpathmoveto{\pgfpoint{-\pgf@circ@res@left}{\pgf@circ@res@up}}
+    \pgfpathlineto{\pgfpoint{.4\pgf@circ@res@left}{-\pgf@circ@res@up}}
+    \pgfpathlineto{\pgfpoint{\pgf@circ@res@left}{-\pgf@circ@res@up}}
+    \pgfusepath{draw}
+
+    \pgfsetlinewidth{\pgfstartlinewidth}
+    \pgftext[top,x=.85\pgf@circ@res@left,y=.75\pgf@circ@res@down]{\tiny$\vartheta$}
+    \pgfsetarrowsend{latexslim}
+    \pgfpathmoveto{\pgfpoint{.62\pgf@circ@res@left}{\pgf@circ@res@down}}
+    \pgfpathlineto{\pgfpoint{.62\pgf@circ@res@left}{.7\pgf@circ@res@down}}
+    \pgfusepath{draw}
+    \pgfpathmoveto{\pgfpoint{.45\pgf@circ@res@left}{.7\pgf@circ@res@down}}
+    \pgfpathlineto{\pgfpoint{.45\pgf@circ@res@left}{\pgf@circ@res@down}}
+    \pgfusepath{draw}
+}
+
+%% Generic tunable
+
+\pgfcircdeclarebipolescaled{resistors}{
+	\anchor{wiper}{
+		\northeast
+		\pgfpoint{0pt}{\pgf@y}
+	}
+}
+{\ctikzvalof{bipoles/generic potentiometer/height 2}}
+{genericpotentiometer}
+{\ctikzvalof{bipoles/generic potentiometer/height}}
+{\ctikzvalof{bipoles/generic potentiometer/width}}
+{
+
+    \pgf@circ@res@step = \ctikzvalof{bipoles/resistor/width}\pgf@circ@scaled@Rlen
+    \divide \pgf@circ@res@step by 14
+
+    \pgfscope
+        \pgfpathrectanglecorners{\pgfpoint{\pgf@circ@res@left}{-\pgf@circ@res@down}}{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@down}}
+        \pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}\pgfstartlinewidth}
+        \pgf@circ@draworfill
+    \endpgfscope
+    \pgfscope
+        %\pgfsetlinewidth{\pgfstartlinewidth}
+        \pgfsetarrowsend{latexslim}
+        \pgfpathmoveto{\pgfpoint{0pt}{\pgf@circ@res@up}}
+        \pgfpathlineto{\pgfpoint{0pt}{-\pgf@circ@res@down}}
+        \pgfusepath{draw}
+    \endpgfscope
+}
+
+%% Zig zag resistores
 %% Resistor
 \pgfcircdeclarebipolescaled{resistors}
 {}
@@ -279,6 +538,104 @@
     \endpgfscope
 }
 
+%% Potentiometer
+\pgfcircdeclarebipolescaled{resistors}
+{
+	\anchor{wiper}{
+		\northeast
+		\pgfpoint{0pt}{\pgf@y}
+	}
+	\anchor{W}{
+		\northeast
+		\pgfpoint{0pt}{\pgf@y}
+	}
+}
+{\ctikzvalof{bipoles/potentiometer/height 2}}
+{potentiometer}{\ctikzvalof{bipoles/potentiometer/height}}
+{\ctikzvalof{bipoles/potentiometer/width}}
+{
+    \pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}\pgfstartlinewidth}
+    \pgftransformationadjustments
+    \pgfmathsetlength{\pgf@circ@res@step}{\ctikzvalof{bipoles/resistor/width}*\scaledRlen+\pgfhorizontaltransformationadjustment*0.5*\pgflinewidth}
+    \divide \pgf@circ@res@step by 12
+
+    \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left-\pgfhorizontaltransformationadjustment*0.5*\pgflinewidth}{\pgf@circ@res@zero}}
+
+    \pgf@circ@res@other = \pgf@circ@res@left
+    \advance\pgf@circ@res@other by \pgf@circ@res@step
+    \pgfpathlineto{\pgfpoint{\pgf@circ@res@other}{-\pgf@circ@res@down}}
+    \advance\pgf@circ@res@other by 2\pgf@circ@res@step
+    \pgfpathlineto{\pgfpoint{\pgf@circ@res@other}{\pgf@circ@res@down}}
+    \advance\pgf@circ@res@other by 2\pgf@circ@res@step
+    \pgfpathlineto{\pgfpoint{\pgf@circ@res@other}{-\pgf@circ@res@down}}
+    \advance\pgf@circ@res@other by 2\pgf@circ@res@step
+    \pgfpathlineto{\pgfpoint{\pgf@circ@res@other}{\pgf@circ@res@down}}
+    \advance\pgf@circ@res@other by 2\pgf@circ@res@step
+    \pgfpathlineto{\pgfpoint{\pgf@circ@res@other}{-\pgf@circ@res@down}}
+    \advance\pgf@circ@res@other by 2\pgf@circ@res@step
+    \pgfpathlineto{\pgfpoint{\pgf@circ@res@other}{\pgf@circ@res@down}}
+    \advance\pgf@circ@res@other by \pgf@circ@res@step
+    \pgfpathlineto{\pgfpoint{\pgf@circ@res@other}{\pgf@circ@res@zero}}
+    \pgfsetbeveljoin
+    \pgfusepath{draw}
+
+    \pgfscope
+        %\pgfsetlinewidth{\pgfstartlinewidth}
+        \pgfsetarrowsend{latexslim}
+        \pgfpathmoveto{\pgfpoint{0pt}{\pgf@circ@res@up}}
+        \pgfpathlineto{\pgfpoint{0pt}{-\pgf@circ@res@down}}
+        \pgfusepath{draw}
+    \endpgfscope
+}
+
+
+
+%% resistive sensor
+
+\pgfcircdeclarebipolescaled{resistors}
+{% anchor for labelling the type of dependency
+    \anchor{label}{%
+        \southwest
+        \pgf@x=0.4\pgf@x
+    }%
+}
+{\ctikzvalof{bipoles/resistivesens/height}}
+{resistivesens}
+{\ctikzvalof{bipoles/resistivesens/height}}
+{\ctikzvalof{bipoles/resistivesens/width}}
+{%
+    \pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}\pgfstartlinewidth}
+    \pgftransformationadjustments
+    \pgfmathsetlength{\pgf@circ@res@step}{\ctikzvalof{bipoles/resistor/width}*\scaledRlen+\pgfhorizontaltransformationadjustment*0.5*\pgflinewidth}
+    \divide \pgf@circ@res@step by 12
+
+    \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left-\pgfhorizontaltransformationadjustment*0.5*\pgflinewidth}{\pgf@circ@res@zero}}
+
+    \pgf@circ@res@other = \pgf@circ@res@left
+    \advance\pgf@circ@res@other by \pgf@circ@res@step
+    \pgfpathlineto{\pgfpoint{\pgf@circ@res@other}{.5\pgf@circ@res@up}}
+    \advance\pgf@circ@res@other by 2\pgf@circ@res@step
+    \pgfpathlineto{\pgfpoint{\pgf@circ@res@other}{.5\pgf@circ@res@down}}
+    \advance\pgf@circ@res@other by 2\pgf@circ@res@step
+    \pgfpathlineto{\pgfpoint{\pgf@circ@res@other}{.5\pgf@circ@res@up}}
+    \advance\pgf@circ@res@other by 2\pgf@circ@res@step
+    \pgfpathlineto{\pgfpoint{\pgf@circ@res@other}{.5\pgf@circ@res@down}}
+    \advance\pgf@circ@res@other by 2\pgf@circ@res@step
+    \pgfpathlineto{\pgfpoint{\pgf@circ@res@other}{.5\pgf@circ@res@up}}
+    \advance\pgf@circ@res@other by 2\pgf@circ@res@step
+    \pgfpathlineto{\pgfpoint{\pgf@circ@res@other}{.5\pgf@circ@res@down}}
+    \advance\pgf@circ@res@other by \pgf@circ@res@step
+    \pgfpathlineto{\pgfpoint{\pgf@circ@res@other}{\pgf@circ@res@zero}}
+    \pgfsetbeveljoin
+    \pgfusepath{draw}
+
+    \pgfscope
+        \pgfpathmoveto{\pgfpoint{.4\pgf@circ@res@other}{\pgf@circ@res@up}}
+        \pgfpathlineto{\pgfpoint{-.4\pgf@circ@res@other}{\pgf@circ@res@down}}
+        \pgfpathlineto{\pgfpoint{-.9\pgf@circ@res@other}{\pgf@circ@res@down}}
+        \pgfusepath{draw}
+    \endpgfscope
+}
 
 
 %% Capacitor
@@ -2299,42 +2656,6 @@
         \pgfusepath{draw}
     \endpgfscope
 }
-%% Short circuit
-
-%%% NOTICE that the short is really NOT drawn; we trust the fact that its
-%%% natural length is zero.
-\pgfcircdeclarebipole
-{}
-{0}
-{short}
-{0}
-{0}
-{ }
-
-%% Open circuit
-
-\pgfcircdeclarebipole
-{}
-{\ctikzvalof{bipoles/open/height}}
-{open}
-{\ctikzvalof{bipoles/open/height}}
-{\ctikzvalof{bipoles/open/width}}
-{ }
-
-%% Generic bipole - used as resistor by some (bleah)
-
-\pgfcircdeclarebipolescaled{resistors}
-{}
-{\ctikzvalof{bipoles/generic/height}}
-{generic}
-{\ctikzvalof{bipoles/generic/height}}
-{\ctikzvalof{bipoles/generic/width}}
-{
-    \pgfpathrectanglecorners{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@up}}{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@down}}
-    \pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}\pgfstartlinewidth}
-    \pgf@circ@draworfill
-}
-
 
 %% fuse
 
@@ -2401,25 +2722,6 @@
 }
 
 
-%% Generic asymmetric bipole
-
-\pgfcircdeclarebipolescaled{resistors}
-{}
-{\ctikzvalof{bipoles/ageneric/height}}
-{ageneric}
-{\ctikzvalof{bipoles/ageneric/height}}
-{\ctikzvalof{bipoles/ageneric/width}}
-{
-    \pgfscope
-        \pgfpathrectanglecorners{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@up}}{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@down}}
-        \pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}\pgfstartlinewidth}
-        \pgf@circ@draworfill
-    \endpgfscope
-
-    \pgfpathrectanglecorners{\pgfpoint{.7\pgf@circ@res@right}{\pgf@circ@res@up}}{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@down}}
-    \pgfusepath{stroke,fill}
-}
-
 
 %% asymmetric fuse
 
@@ -2447,179 +2749,8 @@
 
 
 
-%% Memristor
-
-\pgfcircdeclarebipolescaled{resistors}
-{}
-{\ctikzvalof{bipoles/memristor/height}}
-{memristor}
-{\ctikzvalof{bipoles/memristor/height}}
-{\ctikzvalof{bipoles/memristor/width}}
-{
-    \pgf@circ@res@step = \ctikzvalof{bipoles/resistor/width}\pgf@circ@scaled@Rlen
-    \divide \pgf@circ@res@step by 14
-
-    \pgfscope
-        \pgfpathrectanglecorners{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@up}}{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@down}}
-        \pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}\pgfstartlinewidth}
-        \pgf@circ@draworfill
-    \endpgfscope
-    \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{0pt}}
-    \pgfpathlineto{\pgfpoint{.72*\pgf@circ@res@left}{0pt}}
-    \pgfpathlineto{\pgfpoint{.72*\pgf@circ@res@left}{\ctikzvalof{bipoles/memristor/wave height}\pgf@circ@res@up}}
-    \pgfpathlineto{\pgfpoint{.35*\pgf@circ@res@left}{\ctikzvalof{bipoles/memristor/wave height}\pgf@circ@res@up}}
-    \pgfpathlineto{\pgfpoint{.35*\pgf@circ@res@left}{-\ctikzvalof{bipoles/memristor/wave height}\pgf@circ@res@up}}
-    \pgfpathlineto{\pgfpoint{-.05*\pgf@circ@res@left}{-\ctikzvalof{bipoles/memristor/wave height}\pgf@circ@res@up}}
-    \pgfpathlineto{\pgfpoint{-.05*\pgf@circ@res@left}{\ctikzvalof{bipoles/memristor/wave height}\pgf@circ@res@up}}
-    \pgfpathlineto{\pgfpoint{.42*\pgf@circ@res@right}{\ctikzvalof{bipoles/memristor/wave height}\pgf@circ@res@up}}
-    \pgfpathlineto{\pgfpoint{.42*\pgf@circ@res@right}{0pt}}
-    \pgfpathlineto{\pgfpoint{.8*\pgf@circ@res@right}{0pt}}
-
-    \pgfusepath{draw}
-
-    \pgfpathrectanglecorners{\pgfpoint{.7\pgf@circ@res@right}{\pgf@circ@res@up}}{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@down}}
-    \pgfusepath{stroke,fill}
-}
 
 
-
-
-%% Generic empty tunable
-
-\pgfcircdeclarebipolescaled{resistors}
-{}
-{\ctikzvalof{bipoles/tgeneric/height}}
-{tgeneric}
-{\ctikzvalof{bipoles/tgeneric/height}}
-{\ctikzvalof{bipoles/tgeneric/width}}
-{
-    \pgfpathrectanglecorners{\pgfpoint{\pgf@circ@res@left}{.4\pgf@circ@res@up}}{\pgfpoint{\pgf@circ@res@right}{.4\pgf@circ@res@down}}
-    \pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}\pgfstartlinewidth}
-    \pgf@circ@draworfill
-    \pgfscope
-        \pgfsetarrowsend{latexslim}
-        \pgfpathmoveto{\pgfpoint{.5\pgf@circ@res@left}{\pgf@circ@res@up}}
-        \pgfpathlineto{\pgfpoint{-.5\pgf@circ@res@left}{\pgf@circ@res@down}}
-        \pgfusepath{draw}
-    \endpgfscope
-}
-
-%% Photoresistor
-
-\pgfcircdeclarebipolescaled{resistors}
-{}
-{\ctikzvalof{bipoles/photoresistor/height 2}}
-{photoresistor}
-{\ctikzvalof{bipoles/photoresistor/height}}
-{\ctikzvalof{bipoles/photoresistor/width}}
-{
-    \pgfscope
-        \pgfpathrectanglecorners{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@down}}{\pgfpoint{\pgf@circ@res@right}{-\pgf@circ@res@down}}
-        \pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}\pgfstartlinewidth}
-        \pgf@circ@draworfill
-    \endpgfscope
-
-    \pgfscope
-        \pgfsetarrowsend{latexslim}
-        \pgfpathmoveto{\pgfpoint{.7\pgf@circ@res@right}{\pgf@circ@res@up}}
-        \pgfpathlineto{\pgfpoint{.3\pgf@circ@res@right}{-1.2\pgf@circ@res@down}}
-        \pgfusepath{draw}
-        \pgfpathmoveto{\pgfpoint{.45\pgf@circ@res@right}{\pgf@circ@res@up}}
-        \pgfpathlineto{\pgfpoint{.05\pgf@circ@res@right}{-1.2\pgf@circ@res@down}}
-        \pgfusepath{draw}
-    \endpgfscope
-}
-
-
-
-
-%% Thermistor
-\pgfcircdeclarebipolescaled{resistors}
-{{% anchor for labelling the type of dependency
-    \anchor{label}{%
-        \southwest
-        \pgf@x=0.4\pgf@x
-        \pgf@y=1.2\pgf@y
-    }%
-}}
-{\ctikzvalof{bipoles/thermistor/height}}
-{thermistor}
-{\ctikzvalof{bipoles/thermistor/height}}
-{\ctikzvalof{bipoles/thermistor/width}}
-{
-    \pgfscope
-    \pgfpathrectanglecorners{\pgfpoint{\pgf@circ@res@left}{\pgfkeysvalueof{/tikz/circuitikz/bipoles/thermistor/main}\pgf@circ@res@up}}{\pgfpoint{\pgf@circ@res@right}{-\pgfkeysvalueof{/tikz/circuitikz/bipoles/thermistor/main}\pgf@circ@res@up}}
-    \pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}\pgfstartlinewidth}
-    \pgf@circ@draworfill
-    \endpgfscope
-
-    %\pgfscope
-    \pgfpathmoveto{\pgfpoint{-\pgf@circ@res@left}{-\pgf@circ@res@down}}
-    \pgfpathlineto{\pgfpoint{.4\pgf@circ@res@left}{1.2\pgf@circ@res@down}}
-    \pgfpathlineto{\pgfpoint{\pgf@circ@res@left}{1.2\pgf@circ@res@down}}
-    \pgfusepath{draw}
-    %\endpgfscope
-}
-
-
-%% Thermistor PTC
-\pgfcircdeclarebipolescaled{resistors}
-{}
-{\ctikzvalof{bipoles/thermistorptc/height 2}}
-{thermistorptc}
-{\ctikzvalof{bipoles/thermistorptc/height}}
-{\ctikzvalof{bipoles/thermistorptc/width}}
-{
-    \pgfscope
-        \pgfpathrectanglecorners{\pgfpoint{\pgf@circ@res@left}{\pgfkeysvalueof{/tikz/circuitikz/bipoles/thermistorptc/main}\pgf@circ@res@up}}{\pgfpoint{\pgf@circ@res@right}{-\pgfkeysvalueof{/tikz/circuitikz/bipoles/thermistorptc/main}\pgf@circ@res@up}}
-        \pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}\pgfstartlinewidth}
-        \pgf@circ@draworfill
-    \endpgfscope
-    \pgfpathmoveto{\pgfpoint{-\pgf@circ@res@left}{\pgf@circ@res@up}}
-    \pgfpathlineto{\pgfpoint{.4\pgf@circ@res@left}{-\pgf@circ@res@up}}
-    \pgfpathlineto{\pgfpoint{\pgf@circ@res@left}{-\pgf@circ@res@up}}
-    \pgfusepath{draw}
-
-    \pgfsetlinewidth{\pgfstartlinewidth}
-    \pgftext[top,x=.85\pgf@circ@res@left,y=.75\pgf@circ@res@down]{\tiny$\vartheta$}
-    \pgfsetarrowsend{latexslim}
-    \pgfpathmoveto{\pgfpoint{.62\pgf@circ@res@left}{\pgf@circ@res@down}}
-    \pgfpathlineto{\pgfpoint{.62\pgf@circ@res@left}{.7\pgf@circ@res@down}}
-    \pgfusepath{draw}
-    \pgfpathmoveto{\pgfpoint{.45\pgf@circ@res@left}{\pgf@circ@res@down}}
-    \pgfpathlineto{\pgfpoint{.45\pgf@circ@res@left}{.7\pgf@circ@res@down}}
-    \pgfusepath{draw}
-}
-
-%% Thermistor NTC
-\pgfcircdeclarebipolescaled{resistors}
-{}
-{\ctikzvalof{bipoles/thermistorntc/height 2}}
-{thermistorntc}
-{\ctikzvalof{bipoles/thermistorntc/height}}
-{\ctikzvalof{bipoles/thermistorntc/width}}
-{
-    \pgfscope
-        \pgfpathrectanglecorners{\pgfpoint{\pgf@circ@res@left}{\pgfkeysvalueof{/tikz/circuitikz/bipoles/thermistorntc/main}\pgf@circ@res@up}}{\pgfpoint{\pgf@circ@res@right}{-\pgfkeysvalueof{/tikz/circuitikz/bipoles/thermistorntc/main}\pgf@circ@res@up}}
-        \pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}\pgfstartlinewidth}
-        \pgf@circ@draworfill
-    \endpgfscope
-
-    \pgfpathmoveto{\pgfpoint{-\pgf@circ@res@left}{\pgf@circ@res@up}}
-    \pgfpathlineto{\pgfpoint{.4\pgf@circ@res@left}{-\pgf@circ@res@up}}
-    \pgfpathlineto{\pgfpoint{\pgf@circ@res@left}{-\pgf@circ@res@up}}
-    \pgfusepath{draw}
-
-    \pgfsetlinewidth{\pgfstartlinewidth}
-    \pgftext[top,x=.85\pgf@circ@res@left,y=.75\pgf@circ@res@down]{\tiny$\vartheta$}
-    \pgfsetarrowsend{latexslim}
-    \pgfpathmoveto{\pgfpoint{.62\pgf@circ@res@left}{\pgf@circ@res@down}}
-    \pgfpathlineto{\pgfpoint{.62\pgf@circ@res@left}{.7\pgf@circ@res@down}}
-    \pgfusepath{draw}
-    \pgfpathmoveto{\pgfpoint{.45\pgf@circ@res@left}{.7\pgf@circ@res@down}}
-    \pgfpathlineto{\pgfpoint{.45\pgf@circ@res@left}{\pgf@circ@res@down}}
-    \pgfusepath{draw}
-}
 
 %% thermocouple
 \pgfcircdeclarebipole
@@ -4437,51 +4568,6 @@
 
 }
 
-
-\pgfcircdeclarebipolescaled{resistors}
-{% anchor for labelling the type of dependency
-    \anchor{label}{%
-        \southwest
-        \pgf@x=0.4\pgf@x
-    }%
-}
-{\ctikzvalof{bipoles/resistivesens/height}}
-{resistivesens}
-{\ctikzvalof{bipoles/resistivesens/height}}
-{\ctikzvalof{bipoles/resistivesens/width}}
-{%
-    \pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}\pgfstartlinewidth}
-    \pgftransformationadjustments
-    \pgfmathsetlength{\pgf@circ@res@step}{\ctikzvalof{bipoles/resistor/width}*\scaledRlen+\pgfhorizontaltransformationadjustment*0.5*\pgflinewidth}
-    \divide \pgf@circ@res@step by 12
-
-    \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left-\pgfhorizontaltransformationadjustment*0.5*\pgflinewidth}{\pgf@circ@res@zero}}
-
-    \pgf@circ@res@other = \pgf@circ@res@left
-    \advance\pgf@circ@res@other by \pgf@circ@res@step
-    \pgfpathlineto{\pgfpoint{\pgf@circ@res@other}{.5\pgf@circ@res@up}}
-    \advance\pgf@circ@res@other by 2\pgf@circ@res@step
-    \pgfpathlineto{\pgfpoint{\pgf@circ@res@other}{.5\pgf@circ@res@down}}
-    \advance\pgf@circ@res@other by 2\pgf@circ@res@step
-    \pgfpathlineto{\pgfpoint{\pgf@circ@res@other}{.5\pgf@circ@res@up}}
-    \advance\pgf@circ@res@other by 2\pgf@circ@res@step
-    \pgfpathlineto{\pgfpoint{\pgf@circ@res@other}{.5\pgf@circ@res@down}}
-    \advance\pgf@circ@res@other by 2\pgf@circ@res@step
-    \pgfpathlineto{\pgfpoint{\pgf@circ@res@other}{.5\pgf@circ@res@up}}
-    \advance\pgf@circ@res@other by 2\pgf@circ@res@step
-    \pgfpathlineto{\pgfpoint{\pgf@circ@res@other}{.5\pgf@circ@res@down}}
-    \advance\pgf@circ@res@other by \pgf@circ@res@step
-    \pgfpathlineto{\pgfpoint{\pgf@circ@res@other}{\pgf@circ@res@zero}}
-    \pgfsetbeveljoin
-    \pgfusepath{draw}
-
-    \pgfscope
-        \pgfpathmoveto{\pgfpoint{.4\pgf@circ@res@other}{\pgf@circ@res@up}}
-        \pgfpathlineto{\pgfpoint{-.4\pgf@circ@res@other}{\pgf@circ@res@down}}
-        \pgfpathlineto{\pgfpoint{-.9\pgf@circ@res@other}{\pgf@circ@res@down}}
-        \pgfusepath{draw}
-    \endpgfscope
-}
 
 %% crossing bipole (but see also nodes)
 \pgfcircdeclarebipole
