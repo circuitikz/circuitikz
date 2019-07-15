@@ -463,9 +463,39 @@
 }
 
 %% Zig zag resistores
+
+\def\pgf@circ@zigzag#1{%
+    \divide \pgf@circ@res@step by \numexpr4*\zigs\relax
+
+    \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left-\pgfhorizontaltransformationadjustment*0.5*\pgflinewidth}{\pgf@circ@res@zero}}
+    \pgf@circ@res@other = \pgf@circ@res@left
+    \pgf@circ@count@a=\zigs\relax
+    % first half zig
+    \advance\pgf@circ@res@other by \pgf@circ@res@step
+    \pgfpathlineto{\pgfpoint{\pgf@circ@res@other}{-#1\pgf@circ@res@down}}
+    \pgfmathloop%
+    \advance\pgf@circ@count@a by -1\relax% Loop zigs -1 times
+    \ifnum\pgf@circ@count@a>0
+        \advance\pgf@circ@res@other by 2\pgf@circ@res@step
+        \pgfpathlineto{\pgfpoint{\pgf@circ@res@other}{#1\pgf@circ@res@down}}
+        \advance\pgf@circ@res@other by 2\pgf@circ@res@step
+        \pgfpathlineto{\pgfpoint{\pgf@circ@res@other}{-#1\pgf@circ@res@down}}
+    \repeatpgfmathloop%
+    % last zig and a half
+    \advance\pgf@circ@res@other by 2\pgf@circ@res@step
+    \pgfpathlineto{\pgfpoint{\pgf@circ@res@other}{#1\pgf@circ@res@down}}
+    \advance\pgf@circ@res@other by \pgf@circ@res@step
+    \pgfpathlineto{\pgfpoint{\pgf@circ@res@other}{\pgf@circ@res@zero}}
+    \pgfsetbeveljoin
+    \pgfusepath{draw}
+}
+
+
 %% Resistor
 \pgfcircdeclarebipolescaled{resistors}
-{}
+{
+\savedmacro{\zigs}{\edef\zigs{\ctikzvalof{resistors/zigs}}}
+}
 {\ctikzvalof{bipoles/resistor/height}}
 {resistor}
 {\ctikzvalof{bipoles/resistor/height}}
@@ -474,32 +504,15 @@
     \pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}\pgfstartlinewidth}
     \pgftransformationadjustments
     \pgfmathsetlength{\pgf@circ@res@step}{\ctikzvalof{bipoles/resistor/width}*\scaledRlen+\pgfhorizontaltransformationadjustment*0.5*\pgflinewidth}
-    \divide \pgf@circ@res@step by 12
-
-    \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left-\pgfhorizontaltransformationadjustment*0.5*\pgflinewidth}{\pgf@circ@res@zero}}
-    \pgf@circ@res@other = \pgf@circ@res@left
-    \advance\pgf@circ@res@other by \pgf@circ@res@step
-    \pgfpathlineto{\pgfpoint{\pgf@circ@res@other}{\pgf@circ@res@up}}
-    \advance\pgf@circ@res@other by 2\pgf@circ@res@step
-    \pgfpathlineto{\pgfpoint{\pgf@circ@res@other}{\pgf@circ@res@down}}
-    \advance\pgf@circ@res@other by 2\pgf@circ@res@step
-    \pgfpathlineto{\pgfpoint{\pgf@circ@res@other}{\pgf@circ@res@up}}
-    \advance\pgf@circ@res@other by 2\pgf@circ@res@step
-    \pgfpathlineto{\pgfpoint{\pgf@circ@res@other}{\pgf@circ@res@down}}
-    \advance\pgf@circ@res@other by 2\pgf@circ@res@step
-    \pgfpathlineto{\pgfpoint{\pgf@circ@res@other}{\pgf@circ@res@up}}
-    \advance\pgf@circ@res@other by 2\pgf@circ@res@step
-    \pgfpathlineto{\pgfpoint{\pgf@circ@res@other}{\pgf@circ@res@down}}
-    \advance\pgf@circ@res@other by \pgf@circ@res@step
-    \pgfpathlineto{\pgfpoint{\pgf@circ@res@other}{\pgf@circ@res@zero}}
-    \pgfsetbeveljoin
-    \pgfusepath{draw}
+    \pgf@circ@zigzag{1}
 }
 
 
 %% Variable resistor
 \pgfcircdeclarebipolescaled{resistors}
-{}
+{
+\savedmacro{\zigs}{\edef\zigs{\ctikzvalof{resistors/zigs}}}
+}
 {\ctikzvalof{bipoles/vresistor/height}}
 {vresistor}
 {\ctikzvalof{bipoles/vresistor/height}}
@@ -507,28 +520,8 @@
 {
     \pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}\pgfstartlinewidth}
     \pgftransformationadjustments
-    \pgfmathsetlength{\pgf@circ@res@step}{\ctikzvalof{bipoles/resistor/width}*\scaledRlen+\pgfhorizontaltransformationadjustment*0.5*\pgflinewidth}
-    \divide \pgf@circ@res@step by 12
-
-    \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left-\pgfhorizontaltransformationadjustment*0.5*\pgflinewidth}{\pgf@circ@res@zero}}
-
-    \pgf@circ@res@other = \pgf@circ@res@left
-    \advance\pgf@circ@res@other by \pgf@circ@res@step
-    \pgfpathlineto{\pgfpoint{\pgf@circ@res@other}{.5\pgf@circ@res@up}}
-    \advance\pgf@circ@res@other by 2\pgf@circ@res@step
-    \pgfpathlineto{\pgfpoint{\pgf@circ@res@other}{.5\pgf@circ@res@down}}
-    \advance\pgf@circ@res@other by 2\pgf@circ@res@step
-    \pgfpathlineto{\pgfpoint{\pgf@circ@res@other}{.5\pgf@circ@res@up}}
-    \advance\pgf@circ@res@other by 2\pgf@circ@res@step
-    \pgfpathlineto{\pgfpoint{\pgf@circ@res@other}{.5\pgf@circ@res@down}}
-    \advance\pgf@circ@res@other by 2\pgf@circ@res@step
-    \pgfpathlineto{\pgfpoint{\pgf@circ@res@other}{.5\pgf@circ@res@up}}
-    \advance\pgf@circ@res@other by 2\pgf@circ@res@step
-    \pgfpathlineto{\pgfpoint{\pgf@circ@res@other}{.5\pgf@circ@res@down}}
-    \advance\pgf@circ@res@other by \pgf@circ@res@step
-    \pgfpathlineto{\pgfpoint{\pgf@circ@res@other}{\pgf@circ@res@zero}}
-    \pgfsetbeveljoin
-    \pgfusepath{draw}
+    \pgfmathsetlength{\pgf@circ@res@step}{\ctikzvalof{bipoles/vresistor/width}*\scaledRlen+\pgfhorizontaltransformationadjustment*0.5*\pgflinewidth}
+    \pgf@circ@zigzag{.5}
 
     \pgfscope
         \pgfsetarrowsend{latexslim}
@@ -541,14 +534,15 @@
 %% Potentiometer
 \pgfcircdeclarebipolescaled{resistors}
 {
-	\anchor{wiper}{
-		\northeast
-		\pgfpoint{0pt}{\pgf@y}
-	}
-	\anchor{W}{
-		\northeast
-		\pgfpoint{0pt}{\pgf@y}
-	}
+    \anchor{wiper}{
+        \northeast
+        \pgfpoint{0pt}{\pgf@y}
+    }
+    \anchor{W}{
+        \northeast
+        \pgfpoint{0pt}{\pgf@y}
+    }
+    \savedmacro{\zigs}{\edef\zigs{\ctikzvalof{resistors/zigs}}}
 }
 {\ctikzvalof{bipoles/potentiometer/height 2}}
 {potentiometer}{\ctikzvalof{bipoles/potentiometer/height}}
@@ -556,28 +550,8 @@
 {
     \pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}\pgfstartlinewidth}
     \pgftransformationadjustments
-    \pgfmathsetlength{\pgf@circ@res@step}{\ctikzvalof{bipoles/resistor/width}*\scaledRlen+\pgfhorizontaltransformationadjustment*0.5*\pgflinewidth}
-    \divide \pgf@circ@res@step by 12
-
-    \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left-\pgfhorizontaltransformationadjustment*0.5*\pgflinewidth}{\pgf@circ@res@zero}}
-
-    \pgf@circ@res@other = \pgf@circ@res@left
-    \advance\pgf@circ@res@other by \pgf@circ@res@step
-    \pgfpathlineto{\pgfpoint{\pgf@circ@res@other}{-\pgf@circ@res@down}}
-    \advance\pgf@circ@res@other by 2\pgf@circ@res@step
-    \pgfpathlineto{\pgfpoint{\pgf@circ@res@other}{\pgf@circ@res@down}}
-    \advance\pgf@circ@res@other by 2\pgf@circ@res@step
-    \pgfpathlineto{\pgfpoint{\pgf@circ@res@other}{-\pgf@circ@res@down}}
-    \advance\pgf@circ@res@other by 2\pgf@circ@res@step
-    \pgfpathlineto{\pgfpoint{\pgf@circ@res@other}{\pgf@circ@res@down}}
-    \advance\pgf@circ@res@other by 2\pgf@circ@res@step
-    \pgfpathlineto{\pgfpoint{\pgf@circ@res@other}{-\pgf@circ@res@down}}
-    \advance\pgf@circ@res@other by 2\pgf@circ@res@step
-    \pgfpathlineto{\pgfpoint{\pgf@circ@res@other}{\pgf@circ@res@down}}
-    \advance\pgf@circ@res@other by \pgf@circ@res@step
-    \pgfpathlineto{\pgfpoint{\pgf@circ@res@other}{\pgf@circ@res@zero}}
-    \pgfsetbeveljoin
-    \pgfusepath{draw}
+    \pgfmathsetlength{\pgf@circ@res@step}{\ctikzvalof{bipoles/potentiometer/width}*\scaledRlen+\pgfhorizontaltransformationadjustment*0.5*\pgflinewidth}
+    \pgf@circ@zigzag{1}
 
     \pgfscope
         %\pgfsetlinewidth{\pgfstartlinewidth}
@@ -598,6 +572,7 @@
         \southwest
         \pgf@x=0.4\pgf@x
     }%
+    \savedmacro{\zigs}{\edef\zigs{\ctikzvalof{resistors/zigs}}}
 }
 {\ctikzvalof{bipoles/resistivesens/height}}
 {resistivesens}
@@ -606,28 +581,8 @@
 {%
     \pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}\pgfstartlinewidth}
     \pgftransformationadjustments
-    \pgfmathsetlength{\pgf@circ@res@step}{\ctikzvalof{bipoles/resistor/width}*\scaledRlen+\pgfhorizontaltransformationadjustment*0.5*\pgflinewidth}
-    \divide \pgf@circ@res@step by 12
-
-    \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left-\pgfhorizontaltransformationadjustment*0.5*\pgflinewidth}{\pgf@circ@res@zero}}
-
-    \pgf@circ@res@other = \pgf@circ@res@left
-    \advance\pgf@circ@res@other by \pgf@circ@res@step
-    \pgfpathlineto{\pgfpoint{\pgf@circ@res@other}{.5\pgf@circ@res@up}}
-    \advance\pgf@circ@res@other by 2\pgf@circ@res@step
-    \pgfpathlineto{\pgfpoint{\pgf@circ@res@other}{.5\pgf@circ@res@down}}
-    \advance\pgf@circ@res@other by 2\pgf@circ@res@step
-    \pgfpathlineto{\pgfpoint{\pgf@circ@res@other}{.5\pgf@circ@res@up}}
-    \advance\pgf@circ@res@other by 2\pgf@circ@res@step
-    \pgfpathlineto{\pgfpoint{\pgf@circ@res@other}{.5\pgf@circ@res@down}}
-    \advance\pgf@circ@res@other by 2\pgf@circ@res@step
-    \pgfpathlineto{\pgfpoint{\pgf@circ@res@other}{.5\pgf@circ@res@up}}
-    \advance\pgf@circ@res@other by 2\pgf@circ@res@step
-    \pgfpathlineto{\pgfpoint{\pgf@circ@res@other}{.5\pgf@circ@res@down}}
-    \advance\pgf@circ@res@other by \pgf@circ@res@step
-    \pgfpathlineto{\pgfpoint{\pgf@circ@res@other}{\pgf@circ@res@zero}}
-    \pgfsetbeveljoin
-    \pgfusepath{draw}
+    \pgfmathsetlength{\pgf@circ@res@step}{\ctikzvalof{bipoles/resistivesens/width}*\scaledRlen+\pgfhorizontaltransformationadjustment*0.5*\pgflinewidth}
+    \pgf@circ@zigzag{.5}
 
     \pgfscope
         \pgfpathmoveto{\pgfpoint{.4\pgf@circ@res@other}{\pgf@circ@res@up}}
