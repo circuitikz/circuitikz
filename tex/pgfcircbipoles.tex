@@ -191,7 +191,7 @@
             \pgf@circ@res@right = \pgf@x
             \southwest
             \pgf@circ@res@down = \pgf@y
-
+            \pgf@circ@scaled@Rlen=\scaledRlen
             \pgfstartlinewidth=\pgflinewidth
             \pgfsetcornersarced{\pgfpointorigin}% do not use rounded corners!
             #7
@@ -222,7 +222,6 @@
 { }
 
 %% Open circuit
-
 \pgfcircdeclarebipole
 {}
 {\ctikzvalof{bipoles/open/height}}
@@ -232,7 +231,6 @@
 { }
 
 %% Generic bipole - used as resistor by some (bleah)
-
 \pgfcircdeclarebipolescaled{resistors}
 {}
 {\ctikzvalof{bipoles/generic/height}}
@@ -246,7 +244,6 @@
 }
 
 %% Generic empty tunable
-
 \pgfcircdeclarebipolescaled{resistors}
 {}
 {\ctikzvalof{bipoles/tgeneric/height}}
@@ -266,7 +263,6 @@
 }
 
 %% Generic asymmetric bipole
-
 \pgfcircdeclarebipolescaled{resistors}
 {}
 {\ctikzvalof{bipoles/ageneric/height}}
@@ -285,7 +281,6 @@
 }
 
 %% Memristor
-
 \pgfcircdeclarebipolescaled{resistors}
 {}
 {\ctikzvalof{bipoles/memristor/height}}
@@ -319,7 +314,6 @@
 }
 
 %% Photoresistor
-
 \pgfcircdeclarebipolescaled{resistors}
 {}
 {\ctikzvalof{bipoles/photoresistor/height 2}}
@@ -432,7 +426,6 @@
 }
 
 %% Generic tunable
-
 \pgfcircdeclarebipolescaled{resistors}{
 	\anchor{wiper}{
 		\northeast
@@ -463,7 +456,6 @@
 }
 
 %% Zig zag resistores
-
 \def\pgf@circ@zigzag#1{%
     \divide \pgf@circ@res@step by \numexpr4*\zigs\relax
 
@@ -489,7 +481,6 @@
     \pgfsetbeveljoin
     \pgfusepath{draw}
 }
-
 
 %% Resistor
 \pgfcircdeclarebipolescaled{resistors}
@@ -534,14 +525,8 @@
 %% Potentiometer
 \pgfcircdeclarebipolescaled{resistors}
 {
-    \anchor{wiper}{
-        \northeast
-        \pgfpoint{0pt}{\pgf@y}
-    }
-    \anchor{W}{
-        \northeast
-        \pgfpoint{0pt}{\pgf@y}
-    }
+    \anchor{wiper}{\northeast\pgfpoint{0pt}{\pgf@y}}
+    \anchor{W}{\northeast\pgfpoint{0pt}{\pgf@y}}
     \savedmacro{\zigs}{\edef\zigs{\ctikzvalof{resistors/zigs}}}
 }
 {\ctikzvalof{bipoles/potentiometer/height 2}}
@@ -562,16 +547,10 @@
     \endpgfscope
 }
 
-
-
-%% resistive sensor
-
+%% Resistive sensor
 \pgfcircdeclarebipolescaled{resistors}
 {% anchor for labelling the type of dependency
-    \anchor{label}{%
-        \southwest
-        \pgf@x=0.4\pgf@x
-    }%
+    \anchor{label}{\southwest\pgf@x=0.4\pgf@x}%
     \savedmacro{\zigs}{\edef\zigs{\ctikzvalof{resistors/zigs}}}
 }
 {\ctikzvalof{bipoles/resistivesens/height}}
@@ -592,19 +571,18 @@
     \endpgfscope
 }
 
+%%%%%%%%%%%%%%
+%% Capacitors
+%%%%%%%%%%%%%
 
-%% Capacitor
-
-\pgfcircdeclarebipole
+%% Plain Capacitor
+\pgfcircdeclarebipolescaled{capacitors}
 {}
 {\ctikzvalof{bipoles/capacitor/height}}
 {capacitor}
 {\ctikzvalof{bipoles/capacitor/height}}
 {\ctikzvalof{bipoles/capacitor/width}}
 {
-    \pgf@circ@res@step = \ctikzvalof{bipoles/capacitor/width}\pgf@circ@Rlen
-    \divide \pgf@circ@res@step by 5
-
     \pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}\pgfstartlinewidth}
     \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@up}}
     \pgfpathlineto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@down}}
@@ -616,21 +594,15 @@
 }
 
 %% Capacitive sensor
-\pgfcircdeclarebipole
-{\anchor{label}{%
-        \southwest
-        \pgf@x=2.6\pgf@x
-        \pgf@y=1.4\pgf@y
-    }%
+\pgfcircdeclarebipolescaled{capacitors}
+{
+    \anchor{label}{\southwest\pgf@x=2.6\pgf@x\pgf@y=1.4\pgf@y}%
 }
 {\ctikzvalof{bipoles/capacitor/height}}
 {capacitivesens}
 {\ctikzvalof{bipoles/capacitor/height}}
 {\ctikzvalof{bipoles/capacitor/width}}
 {
-    \pgf@circ@res@step = \ctikzvalof{bipoles/capacitor/width}\pgf@circ@Rlen
-    \divide \pgf@circ@res@step by 5
-
     \pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}\pgfstartlinewidth}
     \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@up}}
     \pgfpathlineto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@down}}
@@ -647,17 +619,13 @@
 }
 
 %% Polar Capacitor
-
-\pgfcircdeclarebipole
+\pgfcircdeclarebipolescaled{capacitors}
 {}
 {\ctikzvalof{bipoles/pcapacitor/height}}
 {polarcapacitor}
 {\ctikzvalof{bipoles/pcapacitor/height}}
 {\ctikzvalof{bipoles/pcapacitor/width}}
 {
-    \pgf@circ@res@step = \ctikzvalof{bipoles/pcapacitor/width}\pgf@circ@Rlen
-    \divide \pgf@circ@res@step by 5
-
     \pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}\pgfstartlinewidth}
 
     \pgfscope
@@ -675,16 +643,13 @@
 }
 
 %% Electrolytic Capacitor
-
-\pgfcircdeclarebipole
+\pgfcircdeclarebipolescaled{capacitors}
 {}
 {\ctikzvalof{bipoles/ecapacitor/height}}
 {ecapacitor}
 {\ctikzvalof{bipoles/ecapacitor/height}}
 {\ctikzvalof{bipoles/ecapacitor/width}}
 {
-    \pgf@circ@res@step = \ctikzvalof{bipoles/ecapacitor/width}\pgf@circ@Rlen
-    \divide \pgf@circ@res@step by 5
     \pgfsetrectcap
     % % % Draw plus pole
     \pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}\pgfstartlinewidth}
@@ -707,6 +672,74 @@
     \pgftext[right,at=\pgfpoint{1.2\pgf@circ@res@left}{.6\pgf@circ@res@up}]
     {\pgfkeysvalueof{/tikz/circuitikz/bipoles/ecapacitor/font} $+$}
 }
+
+%% Variable Capacitor
+\pgfcircdeclarebipolescaled{capacitors}
+{}
+{\ctikzvalof{bipoles/vcapacitor/height}}
+{vcapacitor}
+{\ctikzvalof{bipoles/vcapacitor/height}}
+{\ctikzvalof{bipoles/vcapacitor/width}}
+{
+    \pgf@circ@res@step = \ctikzvalof{bipoles/vcapacitor/capacitor width} \pgf@circ@res@right
+
+    \pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}\pgfstartlinewidth}
+    \pgfpathmoveto{\pgfpoint{-\pgf@circ@res@step}{\pgf@circ@res@up}}
+    \pgfpathlineto{\pgfpoint{-\pgf@circ@res@step}{\pgf@circ@res@down}}
+
+    \pgfpathmoveto{\pgfpoint{\pgf@circ@res@step}{\pgf@circ@res@up}}
+    \pgfpathlineto{\pgfpoint{\pgf@circ@res@step}{\pgf@circ@res@down}}
+    \pgfusepath{draw}
+
+    \pgfscope
+        \pgfsetarrowsend{latexslim}
+        \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@up}}
+        \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@down}}
+        \pgfusepath{draw}
+    \endpgfscope
+
+    \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{0pt}}
+    \pgfpathlineto{\pgfpoint{-\pgf@circ@res@step}{0pt}}
+    \pgfpathmoveto{\pgfpoint{\pgf@circ@res@right}{0pt}}
+    \pgfpathlineto{\pgfpoint{\pgf@circ@res@step}{0pt}}
+    \pgfsetlinewidth{\pgfstartlinewidth}
+    \pgfusepath{draw}
+}
+
+
+%% Piezoelectric Element
+
+\pgfcircdeclarebipolescaled{capacitors}
+{}
+{\ctikzvalof{bipoles/piezoelectric/height}}
+{piezoelectric}
+{\ctikzvalof{bipoles/piezoelectric/height}}
+{\ctikzvalof{bipoles/piezoelectric/width}}
+{
+    % \pgf@circ@res@step = \ctikzvalof{bipoles/piezoelectric/width}\pgf@circ@Rlen
+    % \divide \pgf@circ@res@step by 5
+
+    %% Outer markings
+    \pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}\pgfstartlinewidth}
+    \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@up}}
+    \pgfpathlineto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@down}}
+
+    \pgfpathmoveto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@up}}
+    \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@down}}
+    \pgfusepath{draw}
+
+    %% Inner Box
+    \pgf@circ@res@step = \pgf@circ@res@right \divide \pgf@circ@res@step by 10
+    \pgfscope
+        \pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}\pgfstartlinewidth}
+        \pgfpathrectanglecorners
+            {\pgfpoint{\pgf@circ@res@left+4*\pgf@circ@res@step}{\pgf@circ@res@up-\pgf@circ@res@step}}
+            {\pgfpoint{\pgf@circ@res@right-4*\pgf@circ@res@step}{\pgf@circ@res@down+\pgf@circ@res@step}}
+        \pgf@circ@draworfill
+    \endpgfscope
+}
+
+
 
 %% Battery
 
@@ -2778,76 +2811,6 @@
     \endpgfscope
 }
 
-
-
-
-
-
-
-%% Variable Capacitor
-
-\pgfcircdeclarebipole
-{}
-{\ctikzvalof{bipoles/vcapacitor/height}}
-{vcapacitor}
-{\ctikzvalof{bipoles/vcapacitor/height}}
-{\ctikzvalof{bipoles/vcapacitor/width}}
-{
-    %\pgf@circ@res@step = \ctikzvalof{bipoles/vcapacitor/width}\pgf@circ@Rlen
-    \pgf@circ@res@step = \ctikzvalof{bipoles/vcapacitor/capacitor width} \pgf@circ@res@right
-
-    \pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}\pgfstartlinewidth}
-    \pgfpathmoveto{\pgfpoint{-\pgf@circ@res@step}{\pgf@circ@res@up}}
-    \pgfpathlineto{\pgfpoint{-\pgf@circ@res@step}{\pgf@circ@res@down}}
-
-    \pgfpathmoveto{\pgfpoint{\pgf@circ@res@step}{\pgf@circ@res@up}}
-    \pgfpathlineto{\pgfpoint{\pgf@circ@res@step}{\pgf@circ@res@down}}
-    \pgfusepath{draw}
-
-    \pgfscope
-        \pgfsetarrowsend{latexslim}
-        \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@up}}
-        \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@down}}
-        \pgfusepath{draw}
-    \endpgfscope
-
-    \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{0pt}}
-    \pgfpathlineto{\pgfpoint{-\pgf@circ@res@step}{0pt}}
-    \pgfpathmoveto{\pgfpoint{\pgf@circ@res@right}{0pt}}
-    \pgfpathlineto{\pgfpoint{\pgf@circ@res@step}{0pt}}
-    \pgfsetlinewidth{\pgfstartlinewidth}
-    \pgfusepath{draw}
-}
-
-
-%% Piezoelectric Element
-
-\pgfcircdeclarebipole
-{}
-{\ctikzvalof{bipoles/piezoelectric/height}}
-{piezoelectric}
-{\ctikzvalof{bipoles/piezoelectric/height}}
-{\ctikzvalof{bipoles/piezoelectric/width}}
-{
-    \pgf@circ@res@step = \ctikzvalof{bipoles/piezoelectric/width}\pgf@circ@Rlen
-    \divide \pgf@circ@res@step by 5
-
-    %% Outer markings
-    \pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}\pgfstartlinewidth}
-    \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@up}}
-    \pgfpathlineto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@down}}
-
-    \pgfpathmoveto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@up}}
-    \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@down}}
-    \pgfusepath{draw}
-
-    %% Inner Box
-    \pgfscope
-        \pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}\pgfstartlinewidth}
-        \pgfpathrectanglecorners{\pgfpoint{\pgf@circ@res@left+4}{\pgf@circ@res@up-1}}{\pgfpoint{\pgf@circ@res@right-4}{\pgf@circ@res@down+1}}
-        \pgf@circ@draworfill
-    \endpgfscope
-}
 
 
 
