@@ -637,6 +637,50 @@ This is the final circuit, with the nodes still marked:
 
 \end{circuitikz}
 
+Finally, if you like a more compact drawing, you can add the options (for example): 
+\begin{lstlisting}
+\begin{circuitikz}[american, scale=0.8] % this will scale only the coordinates
+    \ctikzset{resistors/scale=0.7, capacitors/scale=0.6}
+    ...
+\end{circuitikz}
+\end{lstlisting}
+
+and you will obtain the following diagram with the exact same code (I just removed the second \verb|\coord| definition to hide the coordinates markings).
+
+\ctikzset{resistors/scale=0.7, capacitors/scale=0.6}
+\def\coord(#1){coordinate(#1)}
+\begin{circuitikz}[american, scale=0.8]
+    \draw (0,0) node[nmos,](Q1){};
+    \draw (Q1.center) node[right]{\killdepth{Q1}};
+    \draw (Q1.S) to[R, l2^=$R_S$ and \SI{5}{k\ohm}] ++(0,-3) node[vee](VEE){$V_{EE}=\SI{-10}{V}$}; %define VEE level
+    \draw (Q1.S) to[short] ++(2,0) to[C=$C_1$] ++(0,-1.5) node[ground](GND){};
+    \draw (Q1.G) to[short] ++(-1,0) \coord (in) to[R, l2^=$R_G$ and \SI{1}{M\ohm}] (in |- GND) node[ground]{};
+    \draw (in) to[C, l_=$C_2$,*-o] ++(-1.5,0) node[left](vi1){$v_i=v_{i1}$};
+    \draw (Q1.D) to[R, l2_=$R_D$ and \SI{10}{k\ohm}] ++(0,3) node[vcc](VCC){$V_{CC}=\SI{10}{V}$};
+    \draw (Q1.D) to[short, -o] ++(1,0) node[right](vo1){$v_{o1}$};
+    %
+    \path (vo1) -- ++(3,0) \coord(bjt);
+    %
+    \draw (bjt) node[npn, ](Q2){};
+    \draw (Q2.center) node[right]{\killdepth{Q2}};
+    \draw (Q2.B) to[short, -o] ++(-0.5,0) node[left](vi2){$v_{12}$};
+    \draw (Q2.E) to[R,l2^=$R_E$ and \SI{9.3}{k\ohm}] (Q2.E |- VEE) node[vee]{};
+    \draw (Q2.E) to[short, -o] ++(1,0) node[right](vo2){$v_{o2}$};
+    \draw (Q2.C) to[short] (Q2.C |- VCC) node[vcc]{};
+    %
+    \path (vo2) ++(1.5,0) \coord(load);
+    \draw (load) to[C=$C_3$] ++(1,0) \coord(tmp) to[R=$R_L$] (tmp |- GND) node[ground]{};
+    \draw [densely dashed] (vo2) -- (load);
+    %
+    \draw [densely dashed] (vo1) -- (vi2);
+    %
+    \draw [blockdef](vi1|-VEE) ++(0,-2) \coord(tmp)
+          -- node[midway, fill=white]{bloque 1} (vo1|- tmp);
+          \draw [blockdef] (vi2|-VEE) ++(0,-2) \coord(tmp)
+          -- node[midway, fill=white]{bloque 2} (vo2|- tmp);
+
+\end{circuitikz}
+
 
 \endgroup
 
@@ -708,6 +752,8 @@ Pretty much all Circui\TikZ\ relies heavily on \texttt{pgfkeys} for value handli
 
 All can be varied using the \verb!\ctikzset! command, anywhere in the code.
 
+Notice that the details of the parameters that are not described in the manual can change in the future, so be ready to use a backward-compatible package (the ones with the specific number) if you dig into them.
+
 \paragraph{Components size}
 Perhaps the most important parameter is \texttt{bipoles/length}  (default \SI{1.4}{cm}), which
 can be interpreted as the length of a resistor (including reasonable connections): all other lengths are relative to this value. For instance:
@@ -738,6 +784,32 @@ can be interpreted as the length of a resistor (including reasonable connections
   (3,0) -- (1,0)
   (1,2) to[short, -o] (0,2) node[anchor=east]{A}
 ;\end{circuitikz}
+\end{LTXexample}
+
+The changes on \texttt{bipoles/length} should, however, being globally applied to every path, because they affects every element --- included the poles of the element. So you can have artifacts like these: 
+
+\begin{LTXexample}[varwidth=true]
+\begin{circuitikz}[
+    bigR/.style={R, bipoles/length=3cm}
+    ]
+    \draw (0,3) to [bigR, o-o] ++(4,0);
+    \draw (0,1.5) to [bigR, o-o] ++(4,0)
+      to[R, o-o] ++(2,0); % will fail here
+    \draw (0,0) to [R, o-o] ++(4,0);
+\end{circuitikz}
+\end{LTXexample}
+
+Several groups of components, on the other hand, have a special \texttt{scale} parameter that can be used safely in this case (starting with 0.9.4 --- more groups of components will be added going forward); the key to use will be explained in the specific description of the components. For example, in the case of resistors you have \texttt{resistors/scale} available:
+
+\begin{LTXexample}[varwidth=true]
+\begin{circuitikz}[
+    bigR/.style={R, resistors/scale=1.8}
+    ]
+    \draw (0,3) to [bigR, o-o] ++(4,0);
+    \draw (0,1.5) to [bigR, o-o] ++(4,0)
+      to[R, o-o] ++(2,0); % ok now
+    \draw (0,0) to [R, o-o] ++(4,0);
+\end{circuitikz}
 \end{LTXexample}
 
 \paragraph{Thickness of the lines} (globally)
@@ -891,10 +963,7 @@ Anchors for grounds are a bit strange, given that they have the \texttt{center} 
     south/-90/0.4, south west/-135/0.4, west/180/0.4, north west/135/0.4)
 \showanchors[baseline]{ground, scale=2}{}(left/135/0.2, right/45/0.2, center/-180/0.2)
 
-
-
 \subsection{Resistive bipoles}
-
 
 \begin{groupdesc}
     \circuitdescbip{short}{Short circuit}{}
@@ -934,7 +1003,7 @@ Other miscellaneous resistor-like devices:
 \end{groupdesc}
 
 \subsubsection{Generic sensors anchors}
-Generic sensors have an extra label to help positioning the type of dependence, if needed:
+Generic sensors have an extra anchor named \texttt{label}  to help positioning the type of dependence, if needed:
 
 \begin{LTXexample}[varwidth=true]
 \begin{circuitikz}
@@ -1034,6 +1103,17 @@ Moreover, you can change the number of ``coils'' drawn by setting the key
 
 \subsection{Diodes and such}
 
+There are three basic styles for diodes: \texttt{empty} (which are fillable in color), \texttt{full} (completely filled with the draw color) and \texttt{stroke}d, which are empty but with a line across them.
+
+You can switch between the styles setting the key \texttt{diode} (for example \verb|\ctikzset{diode=full}|  or \texttt{empty} or \texttt{stroke}, or with the styles \texttt{full diodes}, \texttt{empty diodes} and \texttt{stroke diodes}.
+
+
+To use the default element, simply use the name shown for the empty diodes without the final ``o'' --- that is \texttt{D}, \texttt{sD}, and so on. The names shown in the following tables will draw the specified diode independently on the style chosen (that is, \texttt{leD*} is always a full LED diode).
+
+\begin{framed}
+The package options \texttt{fulldiode}, \texttt{strokediode}, and \texttt{emptydiode} (and the styles \texttt{[full diodes]}, \texttt{[stroke diodes]}, and \texttt{[empty diodes]}) define which shape will be used by abbreviated commands such that \texttt{D}, \texttt{sD}, \texttt{zD}, \texttt{zzD}, \texttt{tD}, \texttt{pD}, \texttt{leD}, \texttt{VC}, \texttt{Ty},\texttt{Tr} (no stroke symbol available!).
+\end{framed}
+
 \begin{groupdesc}
     \circuitdescbip*[emptydiode] {empty diode}{Empty diode}{Do}
     \circuitdescbip*[emptysdiode]{empty Schottky diode}{Empty Schottky diode}{sDo}
@@ -1068,12 +1148,14 @@ These shapes have no exact node-style counterpart, because the stroke line is bu
     \circuitdescbip*[emptyvarcap]{stroke varcap}{Stroke varcap}{VC-}
 \end{groupdesc}
 
-\subsubsection{Tripole-like diodes}\label{sec:othertrip} The following tripoles are entered with the usual command, of the form
+\subsubsection{Tripole-like diodes}\label{sec:othertrip} The following tripoles are entered with the usual command, of the form \texttt{to[Tr, \dots]}. 
+
+
 \begin{groupdesc}
-    \circuitdescbip*[emptytriac]{triac}{Standard triac (shape depends on package option)}{Tr}( G/0/0.3 )
+    \circuitdescbip*[emptytriac]{triac}{Standard triac (shape depends on package option)}{Tr}( G/0/0.3, anode/-90/0.2, cathode/-90/0.2)
     \circuitdescbip*[emptytriac]{empty triac}{Empty triac}{Tro}( gate/0/0.3 )
     \circuitdescbip[fulltriac]{full triac}{Full triac}{Tr*}
-    \circuitdescbip*[emptythyristor]{thyristor}{Standard thyristor (shape depends on package option)}{Ty}
+    \circuitdescbip*[emptythyristor]{thyristor}{Standard thyristor (shape depends on package option)}{Ty}( G/0/0.3, anode/-90/0.2, cathode/-90/0.2)
     \circuitdescbip*[emptythyristor]{empty thyristor}{Empty thyristor}{Tyo}
     \circuitdescbip[fullthyristor]{full thyristor}{Full thyristor}{Ty*}
     \circuitdescbip*[emptythyristor]{stroke thyristor}{Stroke thyristor}{Ty-}
@@ -1091,10 +1173,19 @@ When inserting a thrystor, a triac or a potentiometer, one needs to refer to the
 ;\end{circuitikz}
 \end{LTXexample}
 
+\subsubsection{Diode customizations}\label{sec:tweak-d}
 
-\begin{framed}
-The package options \texttt{fulldiode}, \texttt{strokediode}, and \texttt{emptydiode} (and the styles \texttt{[full diodes]}, \texttt{[stroke diodes]}, and \texttt{[empty diodes]}) define which shape will be used by abbreviated commands such that \texttt{D}, \texttt{sD}, \texttt{zD}, \texttt{zzD}, \texttt{tD}, \texttt{pD}, \texttt{leD}, \texttt{VC}, \texttt{Ty},\texttt{Tr} (no stroke symbol available!).
-\end{framed}
+You can change the scale of the diodes by setting the key \texttt{diodes/scale}  to something different from the default \texttt{1.0}. Diodes are somewhat big in this package, so a setting like \verb|\ctikzset{diode/scale=0.6}| is recommended.
+
+\begin{LTXexample}[varwidth=true]
+\begin{circuitikz}
+   \draw (0,1) to[D, l=$D$] ++(2,0)
+      node[npn, anchor=B]{};
+   \ctikzset{diodes/scale=0.6}
+   \draw (0,-1) to[D, l=$D$] ++(2,0)
+      node[npn, anchor=B]{};
+\end{circuitikz}
+\end{LTXexample}
 
 \subsection{Sources and generators}
 
