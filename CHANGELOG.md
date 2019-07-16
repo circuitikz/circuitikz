@@ -3,6 +3,7 @@ The major changes among the different circuitikz versions are listed here. See <
 
 * Version 0.9.4 (unreleased)
     - Bumped the release number to avoid problems
+    - Fixed a bug with "inline" gyrators, now the circle will not overlap
 
 * Version 0.9.3 (2019-07-13)
     - Added the option to have "dotless" P-MOS (to use with arrowmos option)
