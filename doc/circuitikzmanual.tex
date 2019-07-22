@@ -754,7 +754,7 @@ All can be varied using the \verb!\ctikzset! command, anywhere in the code.
 
 Note that the details of the parameters that are not described in the manual can change in the future, so be ready to use a fixed version of the package (the ones with the specific number, like \verb|circuitikz-0.9.3|) if you dig into them.
 
-\paragraph{Components size}
+\paragraph{Components size}\label{sec:pgfcircRlen}
 Perhaps the most important parameter is \texttt{bipoles/length}  (default \SI{1.4}{cm}), which
 can be interpreted as the length of a resistor (including reasonable connections): all other lengths are relative to this value. For instance:
 
@@ -914,6 +914,85 @@ Sometime, components will expose internal (sub-)shapes that can be accessed with
 cout 1/180/0.2)[out 1.n/90/0.2, out 4.w/0/0.3]
 \end{groupdesc}
 
+\subsection{Size of circuits and components}\label{sec:relative-size}
+
+\begingroup % protect from style change the rest of the manual
+Component size can be changed globally (see section~\ref{sec:pgfcircRlen}), or you can change their relative size by scaling a family of components by setting the key \texttt{\emph{family}/scale}; for example, you can change the size of all the diodes in your circuit by setting \texttt{diodes/scale} to something different from the default \texttt{1.0}. Let's see the effect over a simple circuit\footnote{This is a just an example, the circuit is not intended to be functional.}.
+
+\def\killdepth#1{{\raisebox{0pt}[\height][0pt]{#1}}}
+\newcommand\bjtname[1]{($(#1.C)!0.5!(#1.E)$) node[anchor=west]{\killdepth{#1}} }
+\begin{lstlisting}[basicstyle=\small\ttfamily]
+\def\killdepth#1{{\raisebox{0pt}[\height][0pt]{#1}}}
+\newcommand\bjtname[1]{($(#1.C)!0.5!(#1.E)$) node[anchor=west]{\killdepth{#1}} }
+\begin{circuitikz}[american, cute inductors]
+    \node [op amp](A1){\texttt{OA1}};
+    \draw (A1.-) to[short] ++(0,1) coordinate(tmp) to[R, l_=$R$] (tmp -| A1.out) to[short] (A1.out);
+    \draw (tmp) to[short] ++(0,1) coordinate(tmp) to[C=$C$] (tmp -| A1.out) to[short] (A1.out);
+    \draw (A1.+) to [short] ++(0,-2.5) node[ground](GND){};
+    \draw (A1.-) to [L=$L$] ++(-2,0) coordinate(tmp) to[sV, l=$v_s$] (tmp |-GND) node[ground]{};
+    \draw (A1.out) to[R=$R_s$] ++(2,0) coordinate(bb) to[I, l_=$I_B$, invert] ++(0,2) node[vcc](VCC){};
+    \draw (bb) to[D*, l=$D$, *-] ++(0,-2) coordinate(bb1) to[R=$R_m$] ++(0,-2) node[vee](VEE){};
+    \draw (bb) --++(1,0) node[npn, anchor=B](Q1){} \bjtname{Q1};
+    \draw (bb1) --++(1,0) node[pnp, anchor=B](Q2){} \bjtname{Q2};
+    \draw (Q1.E) -- (Q2.E) ($(Q1.E)!0.5!(Q2.E)$) to [short, *-o, name=S]  ++(2.5,0)
+    node[right]{$v_{o_Q}$};
+    \draw (S.s) to[R=$R_L$, *-] (S.s|-GND) node[ground]{};
+    \draw (Q1.C) -- (Q1.C|-VCC) node[vcc]{\SI{5}{V}};
+    \draw (Q2.C) -- (Q2.C|-VEE) node[vee]{\SI{-5}{V}};
+\end{circuitikz}
+\end{lstlisting}
+
+This code, with the default parameters, will render like the following image.
+
+\long\def\tmpcirc#1#2{% Define the circuit to reuse it
+\begin{center}
+\begin{circuitikz}[american, cute inductors, #1]
+    #2
+    \node [op amp](A1){\texttt{OA1}};
+    \draw (A1.-) to[short] ++(0,1) coordinate(tmp) to[R, l_=$R$] (tmp -| A1.out) to[short] (A1.out);
+    \draw (tmp) to[short] ++(0,1) coordinate(tmp) to[C=$C$] (tmp -| A1.out) to[short] (A1.out);
+    \draw (A1.+) to [short] ++(0,-2.5) node[ground](GND){};
+    \draw (A1.-) to [L=$L$] ++(-2,0) coordinate(tmp) to[sV, l=$v_s$] (tmp |-GND) node[ground]{};
+    \draw (A1.out) to[R=$R_s$] ++(2,0) coordinate(bb) to[I, l_=$I_B$, invert] ++(0,2) node[vcc](VCC){};
+    \draw (bb) to[D*, l=$D$, *-] ++(0,-2) coordinate(bb1) to[R=$R_m$] ++(0,-2) node[vee](VEE){};
+    \draw (bb) --++(1,0) node[npn, anchor=B](Q1){} \bjtname{Q1};
+    \draw (bb1) --++(1,0) node[pnp, anchor=B](Q2){} \bjtname{Q2};
+    \draw (Q1.E) -- (Q2.E) ($(Q1.E)!0.5!(Q2.E)$) to [short, *-o, name=S]  ++(2.5,0)
+    node[right]{$v_{o_Q}$};
+    \draw (S.s) to[R=$R_L$, *-] (S.s|-GND) node[ground]{};
+    \draw (Q1.C) -- (Q1.C|-VCC) node[vcc]{\SI{5}{V}};
+    \draw (Q2.C) -- (Q2.C|-VEE) node[vee]{\SI{-5}{V}};
+\end{circuitikz}
+\end{center}}
+
+\tmpcirc{}{}
+
+Remember that if you use a global scale (be sure to read section~\ref{sec:bugs}!) you change the coordinate only, so using \texttt{scale=0.8} in the environment options you have:
+
+\tmpcirc{scale=0.8}{}
+
+If you want to scale all the circuit, you have to use also \texttt{transform shape}:
+
+\tmpcirc{scale=0.8, transform shape}{}
+
+Using relative sizes as described in section~\ref{sec:pgfcircRlen} enables your style for the circuit. For example,  setting:
+
+\begin{lstlisting}
+    \ctikzset{resistors/scale=0.8,      % smaller R
+        capacitors/scale=0.7,           % even smaller C
+        diodes/scale=0.6,               % small diodes
+        transistors/scale=1.3}          % bigger BJTs
+\end{lstlisting}
+
+Will result in a (much more readable in Romano's opinion) circuit:
+
+\tmpcirc{}{\ctikzset{resistors/scale=0.8, capacitors/scale=0.7, diodes/scale=0.6, transistors/scale=1.3}}
+
+\textbf{Caveat:} not every component has a ``size class'', so you have to play with the available ones (it's specified in the component description) and the absolute values to have the circuit following your taste. A bit of experimentation will create a kind of \emph{style options} that you could use in all your documents.
+
+\textbf{Warning:} relative scaling is meant to work for a reasonable range of stretching and shortening, so try to  keep your scale parameter in the \texttt{0.5} to~\texttt{2.0} range (more or less). Bigger or smaller value can result in awkward shapes.
+
+\endgroup % restore state before example of sizing
 
 \subsection{Grounds and supply voltages}
 
@@ -4679,12 +4758,23 @@ which leads to:
 \end{circuitikz}
 \end{LTXexample}
 
-
 As a final note, notice that the \texttt{viscoe} element is already added to the standard package.
+
+Using \verb|\pgfcircdeclarebipole| will set up a component which is not globally scalable; if you want such a thing, you should use the command
+
+\verb|\pgfcircdeclarebipolescaled{resistors}|
+
+(for example), to put the new component in the ``resistors'' scale class, and then use \verb|\pgf@circ@scaled@Rlen|  as the default length in your code.
 
 \subsection{Node-style component}
 
 Adding a node-style component is much more straightforward. Just define it by following examples in, for example, \texttt{pgfcirctripoles.tex} or the other files; be careful that you should define all the geographical anchors of the shape if you want that the \TikZ{} positioning options (like \texttt{left}, \texttt{above}, etc.) behave correctly with your component.
+
+To have a scalable component, for example in the \texttt{transistors} class, you should use something like
+\begin{lstlisting}
+    \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{transistors/scale}\pgf@circ@Rlen}
+\end{lstlisting}
+and then use \verb|\pgf@circ@scaled@Rlen| (or the anchors) as default lengths.
 
 \subsubsection{Finishing your work}
 
