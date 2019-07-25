@@ -1153,25 +1153,26 @@
 \long\def\pgfcircdeclaretransistor#1#2#3{
     \pgfdeclareshape{#1}
     {
-        \saveddimen{\scaledRlen}{\pgfmathsetlength{\pgf@x}{\ctikzvalof{transistors/scale}\pgf@circ@Rlen}}
+        \savedmacro{\ctikzclass}{\edef\ctikzclass{transistors}}
+        \saveddimen{\scaledRlen}{\pgfmathsetlength{\pgf@x}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}}
         \anchor{center}{
             \pgfpointorigin
         }
         \savedanchor\northeast{% upper right
-            \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{transistors/scale}\pgf@circ@Rlen}
+            \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
             \pgf@y=\ctikzvalof{tripoles/#1/height}\pgf@circ@scaled@Rlen
             \pgf@y=.5\pgf@y
             \pgf@x=0pt
         }
         \savedanchor\left{%center left
             \pgf@y=0pt
-            \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{transistors/scale}\pgf@circ@Rlen}
+            \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
             \pgf@x=-\ctikzvalof{tripoles/#1/width}\pgf@circ@scaled@Rlen
         }
         \anchor{text}{
             \northeast
             \pgf@y=.7\pgf@y
-            \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{transistors/scale}\pgf@circ@Rlen}
+            \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
             \pgf@x= \pgf@circ@scaled@Rlen
             \pgf@x=0.1\pgf@x
         }
@@ -1319,8 +1320,8 @@
         \pgftransformrotate{90}
         % diode scale and bodydiode scale interacts. We want the size of the diode
         % proportional to the transistor, so we will:
-        % 1) undo diode scale 2) apply transistor scale 3) apply bodydiode scale
-        \pgfmathsetmacro{\@@BDscale}{\ctikzvalof{tripoles/#1/bodydiode scale}* \ctikzvalof{transistors/scale}/\ctikzvalof{diodes/scale}}
+        % 1) undo diode scale 2) apply transistor scale (using the current class) 3) apply bodydiode scale
+        \pgfmathsetmacro{\@@BDscale}{\ctikzvalof{tripoles/#1/bodydiode scale}* \ctikzvalof{\ctikzclass/scale}/\ctikzvalof{diodes/scale}}
         \pgftransformscale{\@@BDscale}
         \ifpgf@circuit@fulldiode
             \pgfnode{fulldiodeshape}{center}{}{pgf@bodydiode}{\pgfusepath{fill}}
