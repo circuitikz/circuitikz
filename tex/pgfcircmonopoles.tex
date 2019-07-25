@@ -340,9 +340,17 @@
     }
 }
 
+%%%%%%%%%%%%%%%%
+%% RF elements
+%%%%%%%%%%%%%%%%
+
+% Legacy tlinestub
 % Contributed by Leonardo Azzinnari
 \pgfdeclareshape{tlinestub}{
+    \savedmacro{\ctikzclass}{\edef\ctikzclass{RF}}
+    \saveddimen{\scaledRlen}{\pgfmathsetlength{\pgf@x}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}}
     \savedanchor{\northeast}{%
+        \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@scaled@Rlen}
         \pgf@circ@res@step = \ctikzvalof{bipoles/tline/width} \pgf@circ@Rlen
         \pgf@x=1.625\pgf@circ@res@step
         \pgf@circ@res@step = \ctikzvalof{bipoles/tline/width} \pgf@circ@Rlen
@@ -361,7 +369,8 @@
     \behindforegroundpath{
         \pgfstartlinewidth=\pgflinewidth
 
-        \pgf@circ@res@step=\ctikzvalof{bipoles/tline/width} \pgf@circ@Rlen
+        \pgf@circ@scaled@Rlen=\scaledRlen
+        \pgf@circ@res@step=\ctikzvalof{bipoles/tline/width} \pgf@circ@scaled@Rlen
 
         \pgfscope\begin{pgftransparencygroup}
             \pgfpathellipse{\pgfpoint{0.5\pgf@circ@res@step}{0\pgf@circ@res@step}}{\pgfpoint{0.125\pgf@circ@res@step}{0\pgf@circ@res@step}}{\pgfpoint{0\pgf@circ@res@step}{0.25\pgf@circ@res@step}}
@@ -383,11 +392,12 @@
 
 %% New antennas without tails
 
-% main body
+% main body of antennas
 \def\pgf@circ@antennabody{%
     \pgfstartlinewidth=\pgflinewidth
+    \pgf@circ@scaled@Rlen=\scaledRlen
     \pgfsetcolor{\pgfkeysvalueof{/tikz/circuitikz/color}}
-    \pgf@circ@res@step=\ctikzvalof{monopoles/bareantenna/width}\pgf@circ@Rlen
+    \pgf@circ@res@step=\ctikzvalof{monopoles/bareantenna/width}\pgf@circ@scaled@Rlen
     \pgfscope
         \pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}\pgfstartlinewidth}
         \pgfpathmoveto{\pgfpointorigin}
@@ -423,12 +433,14 @@
     \endpgfscope
 }
 
-
 % additional shape with the waves
 \pgfdeclareshape{waves}{
+    \savedmacro{\ctikzclass}{\edef\ctikzclass{RF}}
+    \saveddimen{\scaledRlen}{\pgfmathsetlength{\pgf@x}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}}
     \anchor{center}{\pgfpointorigin}
     \savedanchor{\northeast}{
-        \pgf@circ@res@step=\ctikzvalof{monopoles/waves/width}\pgf@circ@Rlen
+        \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
+        \pgf@circ@res@step=\ctikzvalof{monopoles/waves/width}\pgf@circ@scaled@Rlen
         \pgf@x=\pgf@circ@res@step
         \pgf@y=\pgf@circ@res@step
     }
@@ -449,7 +461,8 @@
     \anchor{west}{\northeast\pgf@x=-\pgf@x\pgf@y=0pt}
     \anchor{north west}{\northeast\pgf@x=-\pgf@x}
     \behindforegroundpath{
-        \pgf@circ@res@step=\ctikzvalof{monopoles/waves/width}\pgf@circ@Rlen
+        \pgf@circ@scaled@Rlen=\scaledRlen
+        \pgf@circ@res@step=\ctikzvalof{monopoles/waves/width}\pgf@circ@scaled@Rlen
         \pgf@circ@res@step=0.5\pgf@circ@res@step
         \pgfsetcolor{\pgfkeysvalueof{/tikz/circuitikz/color}}
         \pgfscope
@@ -474,9 +487,12 @@
 % the three types of antennas: simple, TX, RX. Notice that you can flip them...
 
 \pgfdeclareshape{bareantenna}{
+    \savedmacro{\ctikzclass}{\edef\ctikzclass{RF}}
+    \saveddimen{\scaledRlen}{\pgfmathsetlength{\pgf@x}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}}
     \anchor{center}{\pgfpointorigin}
     \savedanchor{\northeast}{
-        \pgf@circ@res@step=\ctikzvalof{monopoles/bareantenna/width}\pgf@circ@Rlen
+        \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
+        \pgf@circ@res@step=\ctikzvalof{monopoles/bareantenna/width}\pgf@circ@scaled@Rlen
         \pgf@x=\pgf@circ@res@step
         \pgf@y=2\pgf@circ@res@step
     }
@@ -504,11 +520,20 @@
 }
 
 \pgfdeclareshape{bareTXantenna}{
+    \savedmacro{\ctikzclass}{\edef\ctikzclass{RF}}
+    \saveddimen{\scaledRlen}{\pgfmathsetlength{\pgf@x}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}}
     \anchor{center}{\pgfpointorigin}
     \savedanchor{\northeast}{
-        \pgf@circ@res@step=\ctikzvalof{monopoles/bareantenna/width}\pgf@circ@Rlen
+        \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
+        \pgf@circ@res@step=\ctikzvalof{monopoles/bareantenna/width}\pgf@circ@scaled@Rlen
         \pgf@x=\pgf@circ@res@step
         \pgf@y=2\pgf@circ@res@step
+    }
+    \savedanchor{\savedwaves}{
+        \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
+        \pgf@circ@res@step=\ctikzvalof{monopoles/bareantenna/width}\pgf@circ@scaled@Rlen
+        \pgf@x=4.2\pgf@circ@res@step
+        \pgf@y=\pgf@circ@res@step
     }
     \anchor{text}{
         \northeast
@@ -517,12 +542,7 @@
         \pgf@x=\dimexpr-\pgf@x-\wd\pgfnodeparttextbox\relax
         \pgf@y=\dimexpr\pgf@y+.5\dp\pgfnodeparttextbox-.5\ht\pgfnodeparttextbox\relax
     }
-    \anchor{waves}{
-        \northeast
-        \pgf@circ@res@step=\ctikzvalof{monopoles/bareantenna/width}\pgf@circ@Rlen
-        \pgf@x=4.2\pgf@circ@res@step
-        \pgf@y=\pgf@circ@res@step
-    }
+    \anchor{waves}{\savedwaves}
     \anchor{top}{\northeast\pgf@x=0pt}
     \anchor{right}{\northeast\pgf@y=0.5\pgf@y}
     \anchor{left}{\northeast\pgf@x=-\pgf@x\pgf@y=0.5\pgf@y}
@@ -542,11 +562,20 @@
 }
 
 \pgfdeclareshape{bareRXantenna}{
+    \savedmacro{\ctikzclass}{\edef\ctikzclass{RF}}
+    \saveddimen{\scaledRlen}{\pgfmathsetlength{\pgf@x}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}}
     \anchor{center}{\pgfpointorigin}
     \savedanchor{\northeast}{
-        \pgf@circ@res@step=\ctikzvalof{monopoles/bareantenna/width}\pgf@circ@Rlen
+        \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
+        \pgf@circ@res@step=\ctikzvalof{monopoles/bareantenna/width}\pgf@circ@scaled@Rlen
         \pgf@x=\pgf@circ@res@step
         \pgf@y=2\pgf@circ@res@step
+    }
+    \savedanchor{\savedwaves}{
+        \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
+        \pgf@circ@res@step=\ctikzvalof{monopoles/bareantenna/width}\pgf@circ@scaled@Rlen
+        \pgf@x=-4.2\pgf@circ@res@step
+        \pgf@y=\pgf@circ@res@step
     }
     \anchor{text}{
         \northeast
@@ -554,12 +583,7 @@
         \pgf@y=\ctikzvalof{monopoles/bareantenna/label/yanchor}\pgf@y
         \pgf@y=\dimexpr\pgf@y+.5\dp\pgfnodeparttextbox-.5\ht\pgfnodeparttextbox\relax
     }
-    \anchor{waves}{
-        \northeast
-        \pgf@circ@res@step=\ctikzvalof{monopoles/bareantenna/width}\pgf@circ@Rlen
-        \pgf@x=-4.2\pgf@circ@res@step
-        \pgf@y=\pgf@circ@res@step
-    }
+    \anchor{waves}{\savedwaves}
     \anchor{top}{\northeast\pgf@x=0pt}
     \anchor{right}{\northeast\pgf@y=0.5\pgf@y}
     \anchor{left}{\northeast\pgf@x=-\pgf@x\pgf@y=0.5\pgf@y}
@@ -582,16 +606,20 @@
 % Microstrip monopoles
 
 \pgfdeclareshape{mslstub}{
+    \savedmacro{\ctikzclass}{\edef\ctikzclass{RF}}
+    \saveddimen{\scaledRlen}{\pgfmathsetlength{\pgf@x}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}}
     \savedanchor{\southeast}{
-        \pgf@x=\ctikzvalof{bipoles/mstline/width}\pgf@circ@Rlen
+        \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
+        \pgf@x=\ctikzvalof{bipoles/mstline/width}\pgf@circ@scaled@Rlen
         \pgf@x=.5\pgf@x
-        \pgf@y=\ctikzvalof{bipoles/mstline/height}\pgf@circ@Rlen
+        \pgf@y=\ctikzvalof{bipoles/mstline/height}\pgf@circ@scaled@Rlen
         \pgf@y=-.5\pgf@y
     }
     \savedanchor{\northwest}{
-        \pgf@x=\ctikzvalof{bipoles/mstline/width}\pgf@circ@Rlen
+        \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
+        \pgf@x=\ctikzvalof{bipoles/mstline/width}\pgf@circ@scaled@Rlen
         \pgf@x=-.5\pgf@x
-        \pgf@y=\ctikzvalof{bipoles/mstline/height}\pgf@circ@Rlen
+        \pgf@y=\ctikzvalof{bipoles/mstline/height}\pgf@circ@scaled@Rlen
         \pgf@y=.5\pgf@y
     }
     \anchor{north}{\northwest\pgf@x=0pt\relax}
@@ -628,15 +656,19 @@
 }
 
 \pgfdeclareshape{msrstub}{
+    \savedmacro{\ctikzclass}{\edef\ctikzclass{RF}}
+    \saveddimen{\scaledRlen}{\pgfmathsetlength{\pgf@x}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}}
     \savedanchor{\southeast}{
-        \pgf@x=\ctikzvalof{monopoles/msrstub/width}\pgf@circ@Rlen
+        \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
+        \pgf@x=\ctikzvalof{monopoles/msrstub/width}\pgf@circ@scaled@Rlen
         \pgf@x=.5\pgf@x
         \pgf@y=0pt\relax
     }
     \savedanchor{\northwest}{
-        \pgf@x=\ctikzvalof{monopoles/msrstub/width}\pgf@circ@Rlen
+        \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
+        \pgf@x=\ctikzvalof{monopoles/msrstub/width}\pgf@circ@scaled@Rlen
         \pgf@x=-.5\pgf@x
-        \pgf@y=\ctikzvalof{monopoles/msrstub/height}\pgf@circ@Rlen
+        \pgf@y=\ctikzvalof{monopoles/msrstub/height}\pgf@circ@scaled@Rlen
         \pgf@y=.5\pgf@y
     }
     \anchor{north}{\northwest\pgf@x=0pt\relax}
@@ -674,23 +706,26 @@
             \pgfpathlineto{\pgfpointpolar{45}{\pgf@circ@res@up}}
             \pgfpatharc{45}{135}{\pgf@circ@res@up}
             \pgfclosepath
-            % \pgfpathrectanglecorners{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@up}}{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@down}}
             \pgf@circ@draworfill
         \endpgfscope
     }
 }
 
 \pgfdeclareshape{msport}{
+    \savedmacro{\ctikzclass}{\edef\ctikzclass{RF}}
+    \saveddimen{\scaledRlen}{\pgfmathsetlength{\pgf@x}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}}
     \savedanchor{\southeast}{
-        \pgf@x=\ctikzvalof{monopoles/msport/width}\pgf@circ@Rlen
+        \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
+        \pgf@x=\ctikzvalof{monopoles/msport/width}\pgf@circ@scaled@Rlen
         \pgf@x=.5\pgf@x
-        \pgf@y=\ctikzvalof{bipoles/mstline/height}\pgf@circ@Rlen
+        \pgf@y=\ctikzvalof{bipoles/mstline/height}\pgf@circ@scaled@Rlen
         \pgf@y=-.5\pgf@y
     }
     \savedanchor{\northwest}{
-        \pgf@x=\ctikzvalof{monopoles/msport/width}\pgf@circ@Rlen
+        \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
+        \pgf@x=\ctikzvalof{monopoles/msport/width}\pgf@circ@scaled@Rlen
         \pgf@x=-.5\pgf@x
-        \pgf@y=\ctikzvalof{bipoles/mstline/height}\pgf@circ@Rlen
+        \pgf@y=\ctikzvalof{bipoles/mstline/height}\pgf@circ@scaled@Rlen
         \pgf@y=.5\pgf@y
     }
     \anchor{north}{\northwest\pgf@x=0pt\relax}
@@ -730,29 +765,32 @@
         \endpgfscope
     }
 }
-% Legacy antennas (with tails)
 
+% Legacy antennas (with tails)
 \def\pgf@circ@shift@antenna@xy#1#2{%
-    \pgf@circ@res@step=\ctikzvalof{monopoles/antenna/width}\pgf@circ@Rlen
     \pgf@y=\dimexpr\pgf@y+#2\pgf@circ@res@step
     \pgf@x=\dimexpr\pgf@x+#1\pgf@circ@res@step
 \relax}
 
+% Legacy antenna
 \pgfdeclareshape{antenna}{
+    \savedmacro{\ctikzclass}{\edef\ctikzclass{RF}}
+    \saveddimen{\scaledRlen}{\pgfmathsetlength{\pgf@x}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}}
     \anchor{center}{\pgfpointorigin}
     \savedanchor{\northeast}{
-        \pgf@circ@res@step=\ctikzvalof{monopoles/antenna/width}\pgf@circ@Rlen
+        \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
+        \pgf@circ@res@step=\ctikzvalof{monopoles/antenna/width}\pgf@circ@scaled@Rlen
         \pgf@x=\pgf@circ@res@step%-0.5\pgflinewidth
         \pgf@y=4\pgf@circ@res@step
     }
-    \anchor{north}{\northeast\pgf@x=0cm\pgf@circ@shift@antenna@xy{0}{2}}
-    \anchor{east}{\northeast\pgf@y=0cm\pgf@circ@shift@antenna@xy{0}{3}\relax}
-    \anchor{south}{\northeast\pgf@y=-\pgf@y \pgf@x=0cm\pgf@circ@shift@antenna@xy{0}{4}\relax}
-    \anchor{west}{\northeast\pgf@y=0cm\pgf@x=-\pgf@x\pgf@circ@shift@antenna@xy{0}{3}}
-    \anchor{north east}{\northeast\pgf@circ@shift@antenna@xy{0}{2}}
-    \anchor{north west}{\northeast\pgf@x=-\pgf@x\pgf@circ@shift@antenna@xy{0}{2}}
-    \anchor{south east}{\northeast\pgf@y=-\pgf@y\pgf@circ@shift@antenna@xy{0}{4}}
-    \anchor{south west}{\northeast\pgf@y=-\pgf@y\pgf@x=-\pgf@x\pgf@circ@shift@antenna@xy{0}{4}}
+    \anchor{north}{\northeast\pgf@circ@res@step=\pgf@x\pgf@x=0cm\pgf@circ@shift@antenna@xy{0}{2}}
+    \anchor{east}{\northeast\pgf@circ@res@step=\pgf@x\pgf@y=0cm\pgf@circ@shift@antenna@xy{0}{3}\relax}
+    \anchor{south}{\northeast\pgf@circ@res@step=\pgf@x\pgf@y=-\pgf@y \pgf@x=0cm\pgf@circ@shift@antenna@xy{0}{4}\relax}
+    \anchor{west}{\northeast\pgf@circ@res@step=\pgf@x\pgf@y=0cm\pgf@x=-\pgf@x\pgf@circ@shift@antenna@xy{0}{3}}
+    \anchor{north east}{\northeast\pgf@circ@res@step=\pgf@x\pgf@circ@shift@antenna@xy{0}{2}}
+    \anchor{north west}{\northeast\pgf@circ@res@step=\pgf@x\pgf@x=-\pgf@x\pgf@circ@shift@antenna@xy{0}{2}}
+    \anchor{south east}{\northeast\pgf@circ@res@step=\pgf@x\pgf@y=-\pgf@y\pgf@circ@shift@antenna@xy{0}{4}}
+    \anchor{south west}{\northeast\pgf@circ@res@step=\pgf@x\pgf@y=-\pgf@y\pgf@x=-\pgf@x\pgf@circ@shift@antenna@xy{0}{4}}
     \anchor{text}{
         \northeast
         \pgf@x=\ctikzvalof{monopoles/antenna/label/xanchor}\pgf@x
@@ -760,7 +798,8 @@
     }
     \behindforegroundpath{
         \pgfstartlinewidth=\pgflinewidth
-        \pgf@circ@res@step=\ctikzvalof{monopoles/antenna/width}\pgf@circ@Rlen
+        \pgf@circ@scaled@Rlen=\scaledRlen
+        \pgf@circ@res@step=\ctikzvalof{monopoles/antenna/width}\pgf@circ@scaled@Rlen
 
         \pgftransformxshift{ -4\pgf@circ@res@step }
 
@@ -784,22 +823,25 @@
     }
 }
 
-
+% Legacy TX antenna
 \pgfdeclareshape{txantenna}{
+    \savedmacro{\ctikzclass}{\edef\ctikzclass{RF}}
+    \saveddimen{\scaledRlen}{\pgfmathsetlength{\pgf@x}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}}
     \anchor{center}{\pgfpointorigin}
     \savedanchor{\northeast}{
-        \pgf@circ@res@step=\ctikzvalof{monopoles/antenna/width}\pgf@circ@Rlen
+        \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
+        \pgf@circ@res@step=\ctikzvalof{monopoles/antenna/width}\pgf@circ@scaled@Rlen
         \pgf@x=\pgf@circ@res@step%-0.5\pgflinewidth
         \pgf@y=4\pgf@circ@res@step
     }
-    \anchor{north}{\northeast\pgf@x=0cm\pgf@circ@shift@antenna@xy{2}{2}}
-    \anchor{east}{\northeast\pgf@y=0cm\pgf@circ@shift@antenna@xy{4}{3}\relax}
-    \anchor{south}{\northeast\pgf@y=-\pgf@y \pgf@x=0cm\pgf@circ@shift@antenna@xy{2}{4}\relax}
-    \anchor{west}{\northeast\pgf@y=0cm\pgf@x=-\pgf@x\pgf@circ@shift@antenna@xy{1}{3}}
-    \anchor{north east}{\northeast\pgf@circ@shift@antenna@xy{4}{2}}
-    \anchor{north west}{\northeast\pgf@x=-\pgf@x\pgf@circ@shift@antenna@xy{1}{2}}
-    \anchor{south east}{\northeast\pgf@y=-\pgf@y\pgf@circ@shift@antenna@xy{4}{4}}
-    \anchor{south west}{\northeast\pgf@y=-\pgf@y\pgf@x=-\pgf@x\pgf@circ@shift@antenna@xy{1}{4}}
+    \anchor{north}{\northeast\pgf@circ@res@step=\pgf@x\pgf@x=0cm\pgf@circ@shift@antenna@xy{2}{2}}
+    \anchor{east}{\northeast\pgf@circ@res@step=\pgf@x\pgf@y=0cm\pgf@circ@shift@antenna@xy{4}{3}\relax}
+    \anchor{south}{\northeast\pgf@circ@res@step=\pgf@x\pgf@y=-\pgf@y \pgf@x=0cm\pgf@circ@shift@antenna@xy{2}{4}\relax}
+    \anchor{west}{\northeast\pgf@circ@res@step=\pgf@x\pgf@y=0cm\pgf@x=-\pgf@x\pgf@circ@shift@antenna@xy{1}{3}}
+    \anchor{north east}{\northeast\pgf@circ@res@step=\pgf@x\pgf@circ@shift@antenna@xy{4}{2}}
+    \anchor{north west}{\northeast\pgf@circ@res@step=\pgf@x\pgf@x=-\pgf@x\pgf@circ@shift@antenna@xy{1}{2}}
+    \anchor{south east}{\northeast\pgf@circ@res@step=\pgf@x\pgf@y=-\pgf@y\pgf@circ@shift@antenna@xy{4}{4}}
+    \anchor{south west}{\northeast\pgf@circ@res@step=\pgf@x\pgf@y=-\pgf@y\pgf@x=-\pgf@x\pgf@circ@shift@antenna@xy{1}{4}}
     \anchor{text}{
         \northeast
         \pgf@x=\ctikzvalof{monopoles/txantenna/label/xanchor}\pgf@x
@@ -807,7 +849,8 @@
     }
     \behindforegroundpath{
         \pgfstartlinewidth=\pgflinewidth
-        \pgf@circ@res@step=\ctikzvalof{monopoles/txantenna/width}\pgf@circ@Rlen
+        \pgf@circ@scaled@Rlen=\scaledRlen
+        \pgf@circ@res@step=\ctikzvalof{monopoles/txantenna/width}\pgf@circ@scaled@Rlen
 
         \pgfpathmoveto{\pgfpointorigin}
         \pgfpathlineto{\pgfpoint{4\pgf@circ@res@step}{0pt}}
@@ -842,22 +885,25 @@
     }
 }
 
-
+% Legacy RX antenna
 \pgfdeclareshape{rxantenna}{
+    \savedmacro{\ctikzclass}{\edef\ctikzclass{RF}}
+    \saveddimen{\scaledRlen}{\pgfmathsetlength{\pgf@x}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}}
     \anchor{center}{\pgfpointorigin}
     \savedanchor{\northeast}{
-        \pgf@circ@res@step=\ctikzvalof{monopoles/antenna/width}\pgf@circ@Rlen
+        \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
+        \pgf@circ@res@step=\ctikzvalof{monopoles/antenna/width}\pgf@circ@scaled@Rlen
         \pgf@x=\pgf@circ@res@step%-0.5\pgflinewidth
         \pgf@y=4\pgf@circ@res@step
     }
-    \anchor{north}{\northeast\pgf@x=0cm\pgf@circ@shift@antenna@xy{2}{2}}
-    \anchor{east}{\northeast\pgf@y=0cm\pgf@circ@shift@antenna@xy{4}{3}\relax}
-    \anchor{south}{\northeast\pgf@y=-\pgf@y \pgf@x=0cm\pgf@circ@shift@antenna@xy{2}{4}\relax}
-    \anchor{west}{\northeast\pgf@y=0cm\pgf@x=-\pgf@x\pgf@circ@shift@antenna@xy{1}{3}}
-    \anchor{north east}{\northeast\pgf@circ@shift@antenna@xy{4}{2}}
-    \anchor{north west}{\northeast\pgf@x=-\pgf@x\pgf@circ@shift@antenna@xy{1}{2}}
-    \anchor{south east}{\northeast\pgf@y=-\pgf@y\pgf@circ@shift@antenna@xy{4}{4}}
-    \anchor{south west}{\northeast\pgf@y=-\pgf@y\pgf@x=-\pgf@x\pgf@circ@shift@antenna@xy{1}{4}}
+    \anchor{north}{\northeast\pgf@circ@res@step=\pgf@x\pgf@x=0cm\pgf@circ@shift@antenna@xy{2}{2}}
+    \anchor{east}{\northeast\pgf@circ@res@step=\pgf@x\pgf@y=0cm\pgf@circ@shift@antenna@xy{4}{3}\relax}
+    \anchor{south}{\northeast\pgf@circ@res@step=\pgf@x\pgf@y=-\pgf@y \pgf@x=0cm\pgf@circ@shift@antenna@xy{2}{4}\relax}
+    \anchor{west}{\northeast\pgf@circ@res@step=\pgf@x\pgf@y=0cm\pgf@x=-\pgf@x\pgf@circ@shift@antenna@xy{1}{3}}
+    \anchor{north east}{\northeast\pgf@circ@res@step=\pgf@x\pgf@circ@shift@antenna@xy{4}{2}}
+    \anchor{north west}{\northeast\pgf@circ@res@step=\pgf@x\pgf@x=-\pgf@x\pgf@circ@shift@antenna@xy{1}{2}}
+    \anchor{south east}{\northeast\pgf@circ@res@step=\pgf@x\pgf@y=-\pgf@y\pgf@circ@shift@antenna@xy{4}{4}}
+    \anchor{south west}{\northeast\pgf@circ@res@step=\pgf@x\pgf@y=-\pgf@y\pgf@x=-\pgf@x\pgf@circ@shift@antenna@xy{1}{4}}
     \anchor{text}{
         \northeast
         \pgf@x=\ctikzvalof{monopoles/rxantenna/label/xanchor}\pgf@x
@@ -865,7 +911,8 @@
     }
     \behindforegroundpath{
         \pgfstartlinewidth=\pgflinewidth
-        \pgf@circ@res@step=\ctikzvalof{monopoles/rxantenna/width}\pgf@circ@Rlen
+        \pgf@circ@scaled@Rlen=\scaledRlen
+        \pgf@circ@res@step=\ctikzvalof{monopoles/rxantenna/width}\pgf@circ@scaled@Rlen
 
         \pgfpathmoveto{\pgfpointorigin}
         \pgfpathlineto{\pgfpoint{4\pgf@circ@res@step}{0pt}}
@@ -897,16 +944,18 @@
         \pgfpatharc{150}{210}{2\pgf@circ@res@step}
         \pgfusepath{draw}
         \pgfsetlinewidth{\pgfstartlinewidth}
-
     }
 }
 
-% match
+% Legacy match
 \pgfdeclareshape{match}{
+    \savedmacro{\ctikzclass}{\edef\ctikzclass{RF}}
+    \saveddimen{\scaledRlen}{\pgfmathsetlength{\pgf@x}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}}
     \savedanchor{\northeast}{%
-        \pgf@circ@res@step = \ctikzvalof{monopoles/match/width} \pgf@circ@Rlen
+        \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
+        \pgf@circ@res@step = \ctikzvalof{monopoles/match/width} \pgf@circ@scaled@Rlen
         \pgf@x=2\pgf@circ@res@step
-        \pgf@circ@res@step = \ctikzvalof{monopoles/match/width} \pgf@circ@Rlen
+        \pgf@circ@res@step = \ctikzvalof{monopoles/match/width} \pgf@circ@scaled@Rlen
         \pgf@y=.5\pgf@circ@res@step%
     }
     % the center is on the left side of the shape for facility of usage
@@ -922,13 +971,15 @@
         \pgfpointorigin
     }
     \anchor{text}{
-        \pgf@x=\ctikzvalof{monopoles/match/width}\pgf@circ@Rlen
+        \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
+        \pgf@x=\ctikzvalof{monopoles/match/width}\pgf@circ@scaled@Rlen
         \pgf@x=1.5\pgf@x
         \advance \pgf@x by -.5\wd\pgfnodeparttextbox
         \pgf@y=-1.5\ht\pgfnodeparttextbox
     }
     \behindforegroundpath{
-        \pgf@circ@res@step=\ctikzvalof{monopoles/match/width}\pgf@circ@Rlen
+        \pgf@circ@scaled@Rlen=\scaledRlen
+        \pgf@circ@res@step=\ctikzvalof{monopoles/match/width}\pgf@circ@scaled@Rlen
 
         \pgfscope
             \pgfpathmoveto{\pgfpointorigin}
@@ -941,7 +992,6 @@
             \pgfusepath{fill}
 
             \pgfsetlinewidth{\pgfstartlinewidth}
-
         \endpgfscope
     }
 }
