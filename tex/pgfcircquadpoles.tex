@@ -13,6 +13,8 @@
 \long\def\pgfcircdeclarequadpole#1#2#3{
     \pgfdeclareshape{#1}
     {
+        \savedmacro{\ctikzclass}{\edef\ctikzclass{inductors}}
+        \saveddimen{\scaledRlen}{\pgfmathsetlength{\pgf@x}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}}
         \anchor{center}{
             \northwest
             \pgf@x=0pt
@@ -20,10 +22,50 @@
         }
         \savedmacro{\stretto}{\def\stretto{\ctikzvalof{quadpoles/#1/inner}}}
         \savedanchor\northwest{%
-            \pgf@y=\pgfkeysvalueof{/tikz/circuitikz/quadpoles/#1/height}\pgf@circ@Rlen
+            \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
+            \pgf@y=\pgfkeysvalueof{/tikz/circuitikz/quadpoles/#1/height}\pgf@circ@scaled@Rlen
             \pgf@y=.5\pgf@y
-            \pgf@x=.5\pgf@circ@Rlen
+            \pgf@x=.5\pgf@circ@scaled@Rlen
             \pgf@x=-\pgfkeysvalueof{/tikz/circuitikz/quadpoles/#1/width}\pgf@x
+        }
+        %% we define the upper right (positive coord) dot (which is B1)
+        \savedanchor{\innerdot}{%
+            \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
+            \pgf@xa=.5\pgf@circ@scaled@Rlen
+            \pgf@xa=-\pgfkeysvalueof{/tikz/circuitikz/quadpoles/#1/width}\pgf@xa
+            % by default use the cute inductor size
+            \pgfmathsetlength\pgf@x{-\stretto*\pgf@xa-\ctikzvalof{bipoles/cuteinductor/height}*\pgf@circ@scaled@Rlen/2}
+            % check if it's american
+            \edef\pgf@circ@temp{\ctikzvalof{inductor}}
+            \edef\pgf@temp{american}
+            \ifx\pgf@circ@temp\pgf@temp
+                \pgfmathsetlength\pgf@x{-\stretto*\pgf@xa-\ctikzvalof{bipoles/americaninductor/height}*\pgf@circ@scaled@Rlen/2}
+            \fi
+            % check if it's european
+            \edef\pgf@temp{european}
+            \ifx\pgf@circ@temp\pgf@temp
+                \pgfmathsetlength\pgf@x{-\stretto*\pgf@xa-\ctikzvalof{bipoles/fullgeneric/height}*\pgf@circ@scaled@Rlen/2}
+            \fi
+            \pgfmathsetlength\pgf@y{0.5*\pgf@circ@scaled@Rlen}
+        }
+        \savedanchor{\outerdot}{%
+            \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
+            \pgf@xa=.5\pgf@circ@scaled@Rlen
+            \pgf@xa=-\pgfkeysvalueof{/tikz/circuitikz/quadpoles/#1/width}\pgf@xa
+            % by default use the cute inductor size
+            \pgfmathsetlength\pgf@x{-\stretto*\pgf@xa+\ctikzvalof{bipoles/cuteinductor/height}*\pgf@circ@scaled@Rlen/2}
+            % check if it's american
+            \edef\pgf@circ@temp{\ctikzvalof{inductor}}
+            \edef\pgf@temp{american}
+            \ifx\pgf@circ@temp\pgf@temp
+                \pgfmathsetlength\pgf@x{-\stretto*\pgf@xa+\ctikzvalof{bipoles/americaninductor/height}*\pgf@circ@scaled@Rlen/2}
+            \fi
+            % check if it's european
+            \edef\pgf@temp{european}
+            \ifx\pgf@circ@temp\pgf@temp
+                \pgfmathsetlength\pgf@x{-\stretto*\pgf@xa+\ctikzvalof{bipoles/fullgeneric/height}*\pgf@circ@scaled@Rlen/2}
+            \fi
+            \pgfmathsetlength\pgf@y{0.5*\pgf@circ@scaled@Rlen}
         }
         \anchor{A2}{
             \northwest
@@ -41,56 +83,16 @@
             \pgf@x=-\pgf@x
             \pgf@y=-\pgf@y
         }
-        %% notice for the dot anchors: I use the cute inductors as reference
-        %% size; if you change one you have to change all of them.
-        \anchor{inner dot A1}{
-            \northwest
-            \pgfmathsetlength\pgf@x{\stretto*\pgf@x +
-            \ctikzvalof{bipoles/cuteinductor/height}*\pgf@circ@Rlen/2}
-            \pgfmathsetlength\pgf@y{0.5*\pgf@circ@Rlen}
-        }
-        \anchor{outer dot A1}{
-            \northwest
-            \pgfmathsetlength\pgf@x{\stretto*\pgf@x -
-            \ctikzvalof{bipoles/cuteinductor/height}*\pgf@circ@Rlen/2}
-            \pgfmathsetlength\pgf@y{0.5*\pgf@circ@Rlen}
-        }
-        \anchor{inner dot A2}{
-            \northwest
-            \pgfmathsetlength\pgf@x{\stretto*\pgf@x +
-            \ctikzvalof{bipoles/cuteinductor/height}*\pgf@circ@Rlen/2}
-            \pgfmathsetlength\pgf@y{-0.5*\pgf@circ@Rlen}
-        }
-        \anchor{outer dot A2}{
-            \northwest
-            \pgfmathsetlength\pgf@x{\stretto*\pgf@x -
-            \ctikzvalof{bipoles/cuteinductor/height}*\pgf@circ@Rlen/2}
-            \pgfmathsetlength\pgf@y{-0.5*\pgf@circ@Rlen}
-        }
-        \anchor{inner dot B1}{
-            \northwest
-            \pgfmathsetlength\pgf@x{-\stretto*\pgf@x -
-            \ctikzvalof{bipoles/cuteinductor/height}*\pgf@circ@Rlen/2}
-            \pgfmathsetlength\pgf@y{0.5*\pgf@circ@Rlen}
-        }
-        \anchor{outer dot B1}{
-            \northwest
-            \pgfmathsetlength\pgf@x{-\stretto*\pgf@x +
-            \ctikzvalof{bipoles/cuteinductor/height}*\pgf@circ@Rlen/2}
-            \pgfmathsetlength\pgf@y{0.5*\pgf@circ@Rlen}
-        }
-        \anchor{inner dot B2}{
-            \northwest
-            \pgfmathsetlength\pgf@x{-\stretto*\pgf@x -
-            \ctikzvalof{bipoles/cuteinductor/height}*\pgf@circ@Rlen/2}
-            \pgfmathsetlength\pgf@y{-0.5*\pgf@circ@Rlen}
-        }
-        \anchor{outer dot B2}{
-            \northwest
-            \pgfmathsetlength\pgf@x{-\stretto*\pgf@x +
-            \ctikzvalof{bipoles/cuteinductor/height}*\pgf@circ@Rlen/2}
-            \pgfmathsetlength\pgf@y{-0.5*\pgf@circ@Rlen}
-        }
+        %% dot's anchors
+        \anchor{inner dot A1}{\innerdot\pgf@x=-\pgf@x}
+        \anchor{outer dot A1}{\outerdot\pgf@x=-\pgf@x}
+        \anchor{inner dot A2}{\innerdot\pgf@x=-\pgf@x\pgf@y=-\pgf@y}
+        \anchor{outer dot A2}{\outerdot\pgf@x=-\pgf@x\pgf@y=-\pgf@y}
+        \anchor{inner dot B1}{\innerdot}
+        \anchor{outer dot B1}{\outerdot}
+        \anchor{inner dot B2}{\innerdot\pgf@y=-\pgf@y}
+        \anchor{outer dot B2}{\outerdot\pgf@y=-\pgf@y}
+        % geographical
         \anchor{north}{
             \northwest
             \pgf@x=0pt
