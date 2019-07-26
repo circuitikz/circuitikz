@@ -2179,15 +2179,20 @@
     \pgfsetdash{}{0cm}
 }
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% operational and instrumentation amplifiers
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \pgfdeclareshape{op amp}
 {
+    \savedmacro{\ctikzclass}{\edef\ctikzclass{amplifiers}}
+    \saveddimen{\scaledRlen}{\pgfmathsetlength{\pgf@x}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}}
     \anchor{center}{\pgfpointorigin}
     \savedanchor\northwest{%
-        \pgf@y=\pgfkeysvalueof{/tikz/circuitikz/tripoles/op amp/height}\pgf@circ@Rlen
+        \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
+        \pgf@y=\pgfkeysvalueof{/tikz/circuitikz/tripoles/op amp/height}\pgf@circ@scaled@Rlen
         \pgf@y=.5\pgf@y
-        \pgf@x=-\pgfkeysvalueof{/tikz/circuitikz/tripoles/op amp/width}\pgf@circ@Rlen
+        \pgf@x=-\pgfkeysvalueof{/tikz/circuitikz/tripoles/op amp/width}\pgf@circ@scaled@Rlen
         \pgf@x=.5\pgf@x
     }
     \anchor{south}{
@@ -2207,10 +2212,11 @@
         \pgf@x = \pgfkeysvalueof{/tikz/circuitikz/tripoles/op amp/port width}\pgf@x
     }
     \savedanchor\inOneFixed{%
-        \pgf@y=\pgfkeysvalueof{/tikz/circuitikz/tripoles/op amp/height}\pgf@circ@Rlen
+        \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
+        \pgf@y=\pgfkeysvalueof{/tikz/circuitikz/tripoles/op amp/height}\pgf@circ@scaled@Rlen
         \pgf@y=.5\pgf@y
         \pgf@y=\pgfkeysvalueof{/tikz/circuitikz/tripoles/op amp/input height}\pgf@y
-        \pgf@x=-\pgfkeysvalueof{/tikz/circuitikz/tripoles/op amp/width}\pgf@circ@Rlen
+        \pgf@x=-\pgfkeysvalueof{/tikz/circuitikz/tripoles/op amp/width}\pgf@circ@scaled@Rlen
         \pgf@x=.5\pgf@x
     }
     \anchor{in up}{
@@ -2220,12 +2226,12 @@
         \inOneFixed
         \pgf@y=-\pgf@y
     }
-
     \savedanchor\inOne{%
-        \pgf@y=\pgfkeysvalueof{/tikz/circuitikz/tripoles/op amp/height}\pgf@circ@Rlen
+        \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
+        \pgf@y=\pgfkeysvalueof{/tikz/circuitikz/tripoles/op amp/height}\pgf@circ@scaled@Rlen
         \pgf@y=.5\pgf@y
         \pgf@y=\pgfkeysvalueof{/tikz/circuitikz/tripoles/op amp/input height}\pgf@y
-        \pgf@x=-\pgfkeysvalueof{/tikz/circuitikz/tripoles/op amp/width}\pgf@circ@Rlen
+        \pgf@x=-\pgfkeysvalueof{/tikz/circuitikz/tripoles/op amp/width}\pgf@circ@scaled@Rlen
         \pgf@x=.5\pgf@x
     \ifpgf@circuit@oa@iplusup\pgf@y=-\pgf@y\fi
     }
@@ -2237,9 +2243,10 @@
         \pgf@y=-\pgf@y
     }
     \savedanchor\up{%
-        \pgf@y=\pgfkeysvalueof{/tikz/circuitikz/tripoles/op amp/height}\pgf@circ@Rlen
+        \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
+        \pgf@y=\pgfkeysvalueof{/tikz/circuitikz/tripoles/op amp/height}\pgf@circ@scaled@Rlen
         \pgf@y=.5\pgf@y
-        \pgf@x=-\pgfkeysvalueof{/tikz/circuitikz/tripoles/op amp/width}\pgf@circ@Rlen
+        \pgf@x=-\pgfkeysvalueof{/tikz/circuitikz/tripoles/op amp/width}\pgf@circ@scaled@Rlen
         \pgf@x=.5\pgf@x
         \pgf@circ@res@up = \pgf@y
         \pgf@circ@res@right = -\pgf@x
@@ -2281,12 +2288,12 @@
     \backgroundpath{
         \pgfsetcolor{\pgfkeysvalueof{/tikz/circuitikz/color}}
 
-
         \northwest
         \pgf@circ@res@up = \pgf@y
         \pgf@circ@res@down = -\pgf@y
         \pgf@circ@res@right = -\pgf@x
         \pgf@circ@res@left = \pgf@x
+        \pgf@circ@scaled@Rlen=\scaledRlen
 
         \pgfscope
             \pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/tripoles/thickness}\pgflinewidth}
@@ -2310,7 +2317,6 @@
             {\pgfkeysvalueof{/tikz/circuitikz/tripoles/op amp/input height}\pgf@circ@res@up}}
         \pgftext[left, at=\pgfpoint{\pgfkeysvalueof{/tikz/circuitikz/tripoles/op amp/port width}\pgf@circ@res@left}{\pgfkeysvalueof{/tikz/circuitikz/tripoles/op amp/input height}\pgf@circ@res@up}]{\pgfkeysvalueof{/tikz/circuitikz/tripoles/op amp/font} \ifpgf@circuit@oa@iplusup$+$\else$-$\fi}
 
-
         \pgfpathmoveto{\pgfpoint
             {\pgf@circ@res@left}
             {\pgfkeysvalueof{/tikz/circuitikz/tripoles/op amp/input height}\pgf@circ@res@down}}
@@ -2323,19 +2329,20 @@
         \pgfpathlineto{\pgfpoint{.7\pgf@circ@res@right}{0pt}}
         \pgfsetrectcap
         \pgfusepath{draw}
-
-
     }
 }
 
 %op amp shape as in european standard en 60617
 \pgfdeclareshape{en amp}
 {
+    \savedmacro{\ctikzclass}{\edef\ctikzclass{amplifiers}}
+    \saveddimen{\scaledRlen}{\pgfmathsetlength{\pgf@x}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}}
     \anchor{center}{\pgfpointorigin}
     \savedanchor\northwest{%
-        \pgf@y=\ctikzvalof{tripoles/en amp/height}\pgf@circ@Rlen
+        \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
+        \pgf@y=\ctikzvalof{tripoles/en amp/height}\pgf@circ@scaled@Rlen
         \pgf@y=.5\pgf@y
-        \pgf@x=-\ctikzvalof{tripoles/en amp/width}\pgf@circ@Rlen
+        \pgf@x=-\ctikzvalof{tripoles/en amp/width}\pgf@circ@scaled@Rlen
         \pgf@x=.5\pgf@x
     }
     \anchor{south}{
@@ -2356,10 +2363,11 @@
         \pgf@x = \ctikzvalof{tripoles/en amp/port width}\pgf@x
     }
     \savedanchor\inOneFixed{%
-        \pgf@y=\ctikzvalof{tripoles/op amp/height}\pgf@circ@Rlen
+        \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
+        \pgf@y=\ctikzvalof{tripoles/en amp/height}\pgf@circ@scaled@Rlen
         \pgf@y=.5\pgf@y
-        \pgf@y=\ctikzvalof{tripoles/op amp/input height}\pgf@y
-        \pgf@x=-\ctikzvalof{tripoles/op amp/width}\pgf@circ@Rlen
+        \pgf@y=\ctikzvalof{tripoles/en amp/input height}\pgf@y
+        \pgf@x=-\ctikzvalof{tripoles/en amp/width}\pgf@circ@scaled@Rlen
         \pgf@x=.5\pgf@x
     }
     \anchor{in up}{
@@ -2370,10 +2378,11 @@
         \pgf@y=-\pgf@y
     }
     \savedanchor\inOne{%
-        \pgf@y=\ctikzvalof{tripoles/en amp/height}\pgf@circ@Rlen
+        \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
+        \pgf@y=\ctikzvalof{tripoles/en amp/height}\pgf@circ@scaled@Rlen
         \pgf@y=.5\pgf@y
         \pgf@y=\ctikzvalof{tripoles/en amp/input height}\pgf@y
-        \pgf@x=-\ctikzvalof{tripoles/en amp/width}\pgf@circ@Rlen
+        \pgf@x=-\ctikzvalof{tripoles/en amp/width}\pgf@circ@scaled@Rlen
         \pgf@x=.5\pgf@x
     \ifpgf@circuit@oa@iplusup\pgf@y=-\pgf@y\fi
     }
@@ -2418,6 +2427,7 @@
         \pgf@circ@res@down = -\pgf@y
         \pgf@circ@res@right = -\pgf@x
         \pgf@circ@res@left = \pgf@x
+        \pgf@circ@scaled@Rlen=\scaledRlen
 
         \pgfscope
             \pgfsetlinewidth{\ctikzvalof{tripoles/thickness}\pgflinewidth}
@@ -2456,14 +2466,434 @@
     }
 }
 
-%%Transkonduktanzverstärker
-\pgfdeclareshape{gm amp}
+% contrib Kristofer M. Monisit
+% full differential output op amp
+\pgfdeclareshape{fd op amp}
 {
+    \savedmacro{\ctikzclass}{\edef\ctikzclass{amplifiers}}
+    \saveddimen{\scaledRlen}{\pgfmathsetlength{\pgf@x}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}}
     \anchor{center}{\pgfpointorigin}
     \savedanchor\northwest{%
-        \pgf@y=\pgfkeysvalueof{/tikz/circuitikz/tripoles/gm amp/height}\pgf@circ@Rlen
+        \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
+        \pgf@y=\pgfkeysvalueof{/tikz/circuitikz/tripoles/op amp/height}\pgf@circ@scaled@Rlen
         \pgf@y=.5\pgf@y
-        \pgf@x=-\pgfkeysvalueof{/tikz/circuitikz/tripoles/gm amp/width}\pgf@circ@Rlen
+        \pgf@x=-\pgfkeysvalueof{/tikz/circuitikz/tripoles/op amp/width}\pgf@circ@scaled@Rlen
+        \pgf@x=.5\pgf@x
+    }
+    \savedanchor\outline{%
+        \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
+        \pgf@y=\pgfkeysvalueof{/tikz/circuitikz/tripoles/op amp/height}\pgf@circ@scaled@Rlen
+        \pgf@y=.5\pgf@y
+        \pgf@x=-\pgfkeysvalueof{/tikz/circuitikz/tripoles/op amp/width}\pgf@circ@scaled@Rlen
+        \pgf@x=.5\pgf@x
+    \ifpgf@circuit@oa@oplusup\else\pgf@y=-\pgf@y\fi
+    }
+    \anchor{south}{
+        \northwest
+        \pgf@y=-\pgf@y\pgf@x=0pt\relax
+    }
+    \anchor{north}{
+        \northwest\pgf@x=0pt\relax
+    }
+    \savedanchor\left{%
+        \pgf@y=0pt
+    }
+    \savedanchor\inOneFixed{%
+        \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
+        \pgf@y=\pgfkeysvalueof{/tikz/circuitikz/tripoles/op amp/height}\pgf@circ@scaled@Rlen
+        \pgf@y=.5\pgf@y
+        \pgf@y=\pgfkeysvalueof{/tikz/circuitikz/tripoles/op amp/input height}\pgf@y
+        \pgf@x=-\pgfkeysvalueof{/tikz/circuitikz/tripoles/op amp/width}\pgf@circ@scaled@Rlen
+        \pgf@x=.5\pgf@x
+    }
+    \anchor{in up}{
+        \inOneFixed
+    }
+    \anchor{in down}{
+        \inOneFixed
+        \pgf@y=-\pgf@y
+    }
+    \savedanchor\inOne{%
+        \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
+        \pgf@y=\pgfkeysvalueof{/tikz/circuitikz/tripoles/op amp/height}\pgf@circ@scaled@Rlen
+        \pgf@y=.5\pgf@y
+        \pgf@y=\pgfkeysvalueof{/tikz/circuitikz/tripoles/op amp/input height}\pgf@y
+        \pgf@x=-\pgfkeysvalueof{/tikz/circuitikz/tripoles/op amp/width}\pgf@circ@scaled@Rlen
+        \pgf@x=.5\pgf@x
+    \ifpgf@circuit@oa@iplusup\pgf@y=-\pgf@y\fi
+    }
+    \anchor{-}{
+        \inOne
+    }
+    \anchor{+}{
+        \inOne
+        \pgf@y=-\pgf@y
+    }
+    \savedanchor\up{%
+        \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
+        \pgf@y=\pgfkeysvalueof{/tikz/circuitikz/tripoles/op amp/height}\pgf@circ@scaled@Rlen
+        \pgf@y=.5\pgf@y
+        \pgf@x=-\pgfkeysvalueof{/tikz/circuitikz/tripoles/op amp/width}\pgf@circ@scaled@Rlen
+        \pgf@x=.5\pgf@x
+        \pgf@circ@res@up = \pgf@y
+        \pgf@circ@res@right = -\pgf@x
+        \pgf@circ@res@left = \pgf@x
+        \pgfpointlineattime{
+            \pgfkeysvalueof{/tikz/circuitikz/tripoles/op amp/up pos}}{
+            \pgfpoint{
+            \pgfkeysvalueof{/tikz/circuitikz/tripoles/op amp/port width}\pgf@circ@res@left}
+        {\pgf@circ@res@up}}
+        {\pgfpoint{.7\pgf@circ@res@right}{0pt}}
+    }
+    \anchor{up}{
+        \up
+    }
+    \anchor{down}{
+        \up
+        \pgf@y=-\pgf@y
+    }
+    \anchor{out up}{
+        \northwest
+        \pgf@y=.5\pgf@y
+        \pgf@x=-.7\pgf@x
+    }
+    \anchor{out down}{
+        \northwest
+        \pgf@y=-.5\pgf@y
+        \pgf@x=-.7\pgf@x
+    }
+    \anchor{out +}{
+        \outline
+        \pgf@y=.5\pgf@y
+        \pgf@x=-.7\pgf@x
+    }
+    \anchor{out -}{
+        \outline
+        \pgf@y=-.5\pgf@y
+        \pgf@x=-.7\pgf@x
+    }
+    \anchor{west}{
+        \left
+    }
+    \anchor{east}{
+        \left
+        \pgf@x=-.7\pgf@x
+    }
+    \anchor{out}{% should not be used
+        \left
+        \pgf@x=-.7\pgf@x
+    }
+    \anchor{south west}{ \northwest \pgf@y=-\pgf@y }
+    \anchor{north east}{ \northwest \pgf@x=-.7\pgf@x }
+    \anchor{north west}{ \northwest }
+    \anchor{south east}{ \northwest \pgf@x=-.7\pgf@x \pgf@y=-\pgf@y }
+    \backgroundpath{
+        \pgfsetcolor{\pgfkeysvalueof{/tikz/circuitikz/color}}
+
+        \northwest
+        \pgf@circ@res@up = \pgf@y
+        \pgf@circ@res@down = -\pgf@y
+        \pgf@circ@res@right = -\pgf@x
+        \pgf@circ@res@left = \pgf@x
+        \pgf@circ@scaled@Rlen=\scaledRlen
+
+        % Triangle
+        \pgfscope
+            \pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/quadpoles/thickness}\pgflinewidth}
+            \pgftransformxshift{.7\pgf@circ@res@left}
+            \pgf@circ@res@step=\pgf@circ@res@right
+            \advance\pgf@circ@res@step by -\pgf@circ@res@left
+            \pgf@circ@res@step=.7\pgf@circ@res@step
+            \pgfpathmoveto{\pgfpoint{\pgf@circ@res@step}{0pt}}
+            \pgfpathlineto{\pgfpoint{0pt}{\pgf@circ@res@up}}
+            \pgfpathlineto{\pgfpoint{0pt}{\pgf@circ@res@down}}
+            \pgfpathlineto{\pgfpoint{\pgf@circ@res@step}{0pt}}
+            \pgfpathclose
+            \pgf@circ@draworfill
+        \endpgfscope
+        % Negative input terminal
+        \pgfpathmoveto{\pgfpoint
+            {\pgf@circ@res@left}
+            {\pgfkeysvalueof{/tikz/circuitikz/tripoles/op amp/input height}\pgf@circ@res@up}}
+        \pgfpathlineto{\pgfpoint
+            {\pgfkeysvalueof{/tikz/circuitikz/tripoles/op amp/port width}\pgf@circ@res@left}
+            {\pgfkeysvalueof{/tikz/circuitikz/tripoles/op amp/input height}\pgf@circ@res@up}}
+        \pgftext[left, at=\pgfpoint{\pgfkeysvalueof{/tikz/circuitikz/tripoles/op amp/port width}\pgf@circ@res@left}{\pgfkeysvalueof{/tikz/circuitikz/tripoles/op amp/input height}\pgf@circ@res@up}]{\pgfkeysvalueof{/tikz/circuitikz/tripoles/op amp/font} \ifpgf@circuit@oa@iplusup$+$\else$-$\fi}
+
+        % Positive input terminal
+        \pgfpathmoveto{\pgfpoint
+            {\pgf@circ@res@left}
+            {\pgfkeysvalueof{/tikz/circuitikz/tripoles/op amp/input height}\pgf@circ@res@down}}
+        \pgfpathlineto{\pgfpoint
+            {\pgfkeysvalueof{/tikz/circuitikz/tripoles/op amp/port width}\pgf@circ@res@left}
+            {\pgfkeysvalueof{/tikz/circuitikz/tripoles/op amp/input height}\pgf@circ@res@down}}
+        \pgftext[left, at=\pgfpoint{\pgfkeysvalueof{/tikz/circuitikz/tripoles/op amp/port width}\pgf@circ@res@left}{\pgfkeysvalueof{/tikz/circuitikz/tripoles/op amp/input height}\pgf@circ@res@down}]{\pgfkeysvalueof{/tikz/circuitikz/tripoles/op amp/font} \ifpgf@circuit@oa@iplusup$-$\else$+$\fi}
+
+        % Negative output terminal
+        \pgfpathmoveto{\pgfpoint
+            {0.7\pgf@circ@res@right}
+            {\pgfkeysvalueof{/tikz/circuitikz/tripoles/op amp/input height}\pgf@circ@res@down}}
+        \pgfpathlineto{\pgfpoint
+            {\pgfkeysvalueof{/tikz/circuitikz/tripoles/op amp/port width}}
+            {\pgfkeysvalueof{/tikz/circuitikz/tripoles/op amp/input height}\pgf@circ@res@down}}
+        \pgftext[left, at=\pgfpoint{0.3\pgf@circ@res@left}{.3\pgf@circ@res@down}]{\pgfkeysvalueof{/tikz/circuitikz/tripoles/op amp/font} \ifpgf@circuit@oa@oplusup$-$\else$+$\fi}
+
+        % Positive output terminal
+        \pgfpathmoveto{\pgfpoint
+            {0.7\pgf@circ@res@right}
+            {\pgfkeysvalueof{/tikz/circuitikz/tripoles/op amp/input height}\pgf@circ@res@up}}
+        \pgfpathlineto{\pgfpoint
+            {\pgfkeysvalueof{/tikz/circuitikz/tripoles/op amp/port width}}
+            {\pgfkeysvalueof{/tikz/circuitikz/tripoles/op amp/input height}\pgf@circ@res@up}}
+        \pgftext[left, at=\pgfpoint{0.3\pgf@circ@res@left}{.3\pgf@circ@res@up}]{\pgfkeysvalueof{/tikz/circuitikz/tripoles/op amp/font} \ifpgf@circuit@oa@oplusup$+$\else$-$\fi}
+
+        \pgfsetrectcap
+        % Draw them all!
+        \pgfusepath{draw}
+
+    }
+}
+
+
+%% instrumentation amplifier diff output
+\pgfdeclareshape{fd inst amp}
+{
+    \savedmacro{\ctikzclass}{\edef\ctikzclass{amplifiers}}
+    \saveddimen{\scaledRlen}{\pgfmathsetlength{\pgf@x}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}}
+    % when tikz calls the anchor it wants the relative position in the lengths
+    % \pgf@x  \pgf@y
+    % \pgfpoint* functions set that variables
+    % anchors are visible outside and run on use
+    \anchor{center}{\pgfpointorigin}
+    % savedanchors are internals and run on node creation (not use)
+    % bounding-box top left
+    \savedanchor\northwest{%
+        \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
+        \pgf@y=\pgfkeysvalueof{/tikz/circuitikz/tripoles/fd inst amp/height}\pgf@circ@scaled@Rlen
+        \pgf@y=.5\pgf@y
+        \pgf@x=-\pgfkeysvalueof{/tikz/circuitikz/tripoles/fd inst amp/width}\pgf@circ@scaled@Rlen
+        \pgf@x=.5\pgf@x
+    }
+    \anchor{nw}{
+        \northwest
+    }
+    \anchor{south}{
+        \northwest
+        \pgf@y=-\pgf@y\pgf@x=0pt\relax
+    }
+    \anchor{north}{
+        \northwest\pgf@x=0pt\relax
+    }
+    \savedanchor\left{%
+        \pgf@y=0pt
+    }
+    \anchor{leftedge}
+    {\left
+        \pgf@x = \pgfkeysvalueof{/tikz/circuitikz/tripoles/fd inst amp/port width}\pgf@x
+    }
+    \savedanchor\inOneFixed{%
+        \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
+          \pgf@y=\pgfkeysvalueof{/tikz/circuitikz/tripoles/fd inst amp/height}\pgf@circ@scaled@Rlen
+          \pgf@y=.5\pgf@y
+          \pgf@y=\pgfkeysvalueof{/tikz/circuitikz/tripoles/fd inst amp/input height}\pgf@y
+          \pgf@x=-\pgfkeysvalueof{/tikz/circuitikz/tripoles/fd inst amp/width}\pgf@circ@scaled@Rlen
+          \pgf@x=.5\pgf@x
+    }
+    \anchor{in up}{
+        \inOneFixed
+    }
+    \anchor{in down}{
+        \inOneFixed
+        \pgf@y=-\pgf@y
+    }
+    \savedanchor\inOne{%
+        \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
+        \pgf@y=\pgfkeysvalueof{/tikz/circuitikz/tripoles/fd inst amp/height}\pgf@circ@scaled@Rlen
+        \pgf@y=.5\pgf@y
+        \pgf@y=\pgfkeysvalueof{/tikz/circuitikz/tripoles/fd inst amp/input height}\pgf@y
+        \pgf@x=-\pgfkeysvalueof{/tikz/circuitikz/tripoles/fd inst amp/width}\pgf@circ@scaled@Rlen
+        \pgf@x=.5\pgf@x
+        \ifpgf@circuit@oa@iplusup\pgf@y=-\pgf@y\fi
+    }
+    \anchor{-}{
+        \inOne
+    }
+    \anchor{+}{
+        \inOne
+        \pgf@y=-\pgf@y
+    }
+    \savedanchor\up{%
+        \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
+        \pgf@y=\pgfkeysvalueof{/tikz/circuitikz/tripoles/fd inst amp/height}\pgf@circ@scaled@Rlen
+        \pgf@y=.5\pgf@y
+        \pgf@x=-\pgfkeysvalueof{/tikz/circuitikz/tripoles/fd inst amp/width}\pgf@circ@scaled@Rlen
+        \pgf@x=.5\pgf@x
+        \pgf@circ@res@up = \pgf@y
+        \pgf@circ@res@right = -\pgf@x
+        \pgf@circ@res@left = \pgf@x
+        \pgfpointlineattime{
+            \pgfkeysvalueof{/tikz/circuitikz/tripoles/fd inst amp/up pos}}{
+            \pgfpoint{
+            \pgfkeysvalueof{/tikz/circuitikz/tripoles/fd inst amp/port width}\pgf@circ@res@left}
+        {\pgf@circ@res@up}}
+        {\pgfpoint{.7\pgf@circ@res@right}{.6\pgf@circ@res@up}}
+    }
+    \anchor{up}{
+        \up
+    }
+    \anchor{down}{
+        \up
+        \pgf@y=-\pgf@y
+    }
+    % reference voltage input anchors.
+    \savedanchor\refv{%
+        \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
+        \pgf@y=\pgfkeysvalueof{/tikz/circuitikz/tripoles/fd inst amp/height}\pgf@circ@scaled@Rlen
+        \pgf@y=.5\pgf@y
+        \pgf@x=-\pgfkeysvalueof{/tikz/circuitikz/tripoles/fd inst amp/width}\pgf@circ@scaled@Rlen
+        \pgf@x=.5\pgf@x
+        \pgf@circ@res@up = \pgf@y
+        \pgf@circ@res@right = -\pgf@x
+        \pgf@circ@res@left = \pgf@x
+        \pgfpointlineattime{
+            \pgfkeysvalueof{/tikz/circuitikz/tripoles/fd inst amp/refv pos}}{
+            \pgfpoint{
+            \pgfkeysvalueof{/tikz/circuitikz/tripoles/fd inst amp/port width}\pgf@circ@res@left}
+        {\pgf@circ@res@up}}
+        {\pgfpoint{.7\pgf@circ@res@right}{.6\pgf@circ@res@up}}
+    }
+    % we need both because they are normally drawn under the amp, and if you
+    % mirror it vertically you need them
+    \anchor{refv up}{
+        \refv
+    }
+    \anchor{refv down}{
+        \refv
+        \pgf@y=-\pgf@y
+    }
+    \savedanchor\outport{
+        \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
+        \pgf@y=\pgfkeysvalueof{/tikz/circuitikz/tripoles/fd inst amp/height}\pgf@circ@scaled@Rlen
+        \pgf@y=.5\pgf@y
+        \pgf@y=\pgfkeysvalueof{/tikz/circuitikz/tripoles/fd inst amp/input height}\pgf@y
+        \pgf@x=-\pgfkeysvalueof{/tikz/circuitikz/tripoles/fd inst amp/width}\pgf@circ@scaled@Rlen
+        \pgf@x=-.5\pgf@x
+        \ifpgf@circuit@oa@oplusup\else\pgf@y=-\pgf@y\fi
+    }
+    \anchor{out}{
+        \outport
+        \pgf@y=0pt
+    }
+    \anchor{out +}{
+        \outport
+    }
+    \anchor{out -}{
+        \outport
+        \pgf@y=-\pgf@y
+    }
+    \savedanchor\outportfixed{
+        \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
+        \pgf@y=\pgfkeysvalueof{/tikz/circuitikz/tripoles/fd inst amp/height}\pgf@circ@scaled@Rlen
+        \pgf@y=.5\pgf@y
+        \pgf@y=\pgfkeysvalueof{/tikz/circuitikz/tripoles/fd inst amp/input height}\pgf@y
+        \pgf@x=-\pgfkeysvalueof{/tikz/circuitikz/tripoles/fd inst amp/width}\pgf@circ@scaled@Rlen
+        \pgf@x=-.5\pgf@x
+    }
+    \anchor{out up}{
+        \outportfixed
+    }
+    \anchor{out down}{
+        \outportfixed
+        \pgf@y=-\pgf@y
+    }
+    %
+    \anchor{west}{
+        \left
+    }
+    \anchor{east}{
+        \left
+        \pgf@x=-\pgf@x
+    }
+    \anchor{south west}{ \northwest \pgf@y=-\pgf@y }
+    \anchor{north east}{ \northwest \pgf@x=-\pgf@x }
+    \anchor{north west}{ \northwest }
+    \anchor{south east}{ \northwest \pgf@x=-\pgf@x \pgf@y=-\pgf@y }
+    \anchor{text}{\pgfpoint{-.5\wd\pgfnodeparttextbox}{\dimexpr.5\dp\pgfnodeparttextbox-.5\ht\pgfnodeparttextbox}}
+
+    % let's start drawing the component
+    \backgroundpath{
+        \pgfsetcolor{\pgfkeysvalueof{/tikz/circuitikz/color}}
+        %
+        \northwest
+        \pgf@circ@res@up = \pgf@y
+        \pgf@circ@res@down = -\pgf@y
+        \pgf@circ@res@right = -\pgf@x
+        \pgf@circ@res@left = \pgf@x
+        \pgf@circ@scaled@Rlen=\scaledRlen
+        % main component, normally in thicker lines
+        \pgfscope
+            \pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/tripoles/thickness}\pgflinewidth}
+            \pgftransformxshift{.7\pgf@circ@res@left}
+            \pgf@circ@res@step=\pgf@circ@res@right
+            \advance\pgf@circ@res@step by -\pgf@circ@res@left
+            \pgf@circ@res@step=.7\pgf@circ@res@step
+            %first point (near output)
+            \pgfpathmoveto{\pgfpoint{1.4\pgf@circ@res@right}{0}}
+            %from the exit to the top (short side)... (note that the .6 must be copied in \up and \refv anchors
+            \pgfpathlineto{\pgfpoint{1.4\pgf@circ@res@right}{.6\pgf@circ@res@up}}
+            % and then to the input "front up", "down", to the output short side "down"
+            \pgfpathlineto{\pgfpoint{0pt}{\pgf@circ@res@up}}
+            \pgfpathlineto{\pgfpoint{0pt}{\pgf@circ@res@down}}
+            \pgfpathlineto{\pgfpoint{1.4\pgf@circ@res@right}{.6\pgf@circ@res@down}}
+            % ...and close
+            \pgfpathclose
+            \pgf@circ@draworfill
+        \endpgfscope
+        % input terminal up
+        \pgfpathmoveto{\pgfpoint
+            {\pgf@circ@res@left}
+        {\pgfkeysvalueof{/tikz/circuitikz/tripoles/fd inst amp/input height}\pgf@circ@res@up}}
+        %
+        \pgfpathlineto{\pgfpoint
+            {\pgfkeysvalueof{/tikz/circuitikz/tripoles/fd inst amp/port width}\pgf@circ@res@left}
+        {\pgfkeysvalueof{/tikz/circuitikz/tripoles/fd inst amp/input height}\pgf@circ@res@up}}
+        %
+        \pgftext[left, at=\pgfpoint{\pgfkeysvalueof{/tikz/circuitikz/tripoles/fd inst amp/port width}\pgf@circ@res@left}{\pgfkeysvalueof{/tikz/circuitikz/tripoles/fd inst amp/input height}\pgf@circ@res@up}]{\pgfkeysvalueof{/tikz/circuitikz/tripoles/fd inst amp/font} \ifpgf@circuit@oa@iplusup$+$\else$-$\fi}
+
+        % input terminal down
+        \pgfpathmoveto{\pgfpoint
+            {\pgf@circ@res@left}
+        {\pgfkeysvalueof{/tikz/circuitikz/tripoles/fd inst amp/input height}\pgf@circ@res@down}}
+        %
+        \pgfpathlineto{\pgfpoint
+            {\pgfkeysvalueof{/tikz/circuitikz/tripoles/fd inst amp/port width}\pgf@circ@res@left}
+        {\pgfkeysvalueof{/tikz/circuitikz/tripoles/fd inst amp/input height}\pgf@circ@res@down}}
+        \pgftext[left, at=\pgfpoint{\pgfkeysvalueof{/tikz/circuitikz/tripoles/fd inst amp/port width}\pgf@circ@res@left}{\pgfkeysvalueof{/tikz/circuitikz/tripoles/fd inst amp/input height}\pgf@circ@res@down}]{\pgfkeysvalueof{/tikz/circuitikz/tripoles/fd inst amp/font} \ifpgf@circuit@oa@iplusup$-$\else$+$\fi}
+        % output leads down and up
+        \pgfpathmoveto{\pgfpoint{\pgf@circ@res@right}{\pgfkeysvalueof{/tikz/circuitikz/tripoles/fd inst amp/input height}\pgf@circ@res@down}}
+        \pgfpathlineto{\pgfpoint{.7\pgf@circ@res@right}{\pgfkeysvalueof{/tikz/circuitikz/tripoles/fd inst amp/input height}\pgf@circ@res@down}} %
+        \pgftext[right, at=\pgfpoint{\pgfkeysvalueof{/tikz/circuitikz/tripoles/fd inst amp/port width}\pgf@circ@res@right}{\pgfkeysvalueof{/tikz/circuitikz/tripoles/fd inst amp/input height}\pgf@circ@res@down}]{\pgfkeysvalueof{/tikz/circuitikz/tripoles/fd inst amp/font}\ifpgf@circuit@oa@oplusup$-\;$\else$+\;$\fi}
+        \pgfpathmoveto{\pgfpoint{\pgf@circ@res@right}{\pgfkeysvalueof{/tikz/circuitikz/tripoles/fd inst amp/input height}\pgf@circ@res@up}}
+        \pgfpathlineto{\pgfpoint{.7\pgf@circ@res@right}{\pgfkeysvalueof{/tikz/circuitikz/tripoles/fd inst amp/input height}\pgf@circ@res@up}} %
+        \pgftext[right, at=\pgfpoint{\pgfkeysvalueof{/tikz/circuitikz/tripoles/fd inst amp/port width}\pgf@circ@res@right}{\pgfkeysvalueof{/tikz/circuitikz/tripoles/fd inst amp/input height}\pgf@circ@res@up}]{\pgfkeysvalueof{/tikz/circuitikz/tripoles/fd inst amp/font}\ifpgf@circuit@oa@oplusup$+\;$\else$-\;$\fi}
+        %
+        \pgfsetrectcap
+        \pgfusepath{draw}
+    }
+}
+
+%%Transkonduktanzverstärker
+%% Trans-conductance amplifer
+\pgfdeclareshape{gm amp}
+{
+    \savedmacro{\ctikzclass}{\edef\ctikzclass{amplifiers}}
+    \saveddimen{\scaledRlen}{\pgfmathsetlength{\pgf@x}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}}
+    \anchor{center}{\pgfpointorigin}
+    \savedanchor\northwest{%
+        \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
+        \pgf@y=\pgfkeysvalueof{/tikz/circuitikz/tripoles/gm amp/height}\pgf@circ@scaled@Rlen
+        \pgf@y=.5\pgf@y
+        \pgf@x=-\pgfkeysvalueof{/tikz/circuitikz/tripoles/gm amp/width}\pgf@circ@scaled@Rlen
         \pgf@x=.5\pgf@x
     }
     \anchor{south}{
@@ -2481,10 +2911,11 @@
         \pgf@x = \pgfkeysvalueof{/tikz/circuitikz/tripoles/op amp/port width}\pgf@x
     }
     \savedanchor\inOneFixed{%
-        \pgf@y=\pgfkeysvalueof{/tikz/circuitikz/tripoles/op amp/height}\pgf@circ@Rlen
+        \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
+        \pgf@y=\pgfkeysvalueof{/tikz/circuitikz/tripoles/gm amp/height}\pgf@circ@scaled@Rlen
         \pgf@y=.5\pgf@y
-        \pgf@y=\pgfkeysvalueof{/tikz/circuitikz/tripoles/op amp/input height}\pgf@y
-        \pgf@x=-\pgfkeysvalueof{/tikz/circuitikz/tripoles/op amp/width}\pgf@circ@Rlen
+        \pgf@y=\pgfkeysvalueof{/tikz/circuitikz/tripoles/gm amp/input height}\pgf@y
+        \pgf@x=-\pgfkeysvalueof{/tikz/circuitikz/tripoles/gm amp/width}\pgf@circ@scaled@Rlen
         \pgf@x=.5\pgf@x
     }
     \anchor{in up}{
@@ -2495,12 +2926,13 @@
         \pgf@y=-\pgf@y
     }
     \savedanchor\inOne{%
-        \pgf@y=\pgfkeysvalueof{/tikz/circuitikz/tripoles/gm amp/height}\pgf@circ@Rlen
+        \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
+        \pgf@y=\pgfkeysvalueof{/tikz/circuitikz/tripoles/gm amp/height}\pgf@circ@scaled@Rlen
         \pgf@y=.5\pgf@y
         \pgf@y=\pgfkeysvalueof{/tikz/circuitikz/tripoles/gm amp/input height}\pgf@y
-        \pgf@x=-\pgfkeysvalueof{/tikz/circuitikz/tripoles/gm amp/width}\pgf@circ@Rlen
+        \pgf@x=-\pgfkeysvalueof{/tikz/circuitikz/tripoles/gm amp/width}\pgf@circ@scaled@Rlen
         \pgf@x=.5\pgf@x
-    \ifpgf@circuit@oa@iplusup\pgf@y=-\pgf@y\fi
+        \ifpgf@circuit@oa@iplusup\pgf@y=-\pgf@y\fi
     }
     \anchor{-}{
         \inOne
@@ -2510,9 +2942,10 @@
         \pgf@y=-\pgf@y
     }
     \savedanchor\up{%
-        \pgf@y=\pgfkeysvalueof{/tikz/circuitikz/tripoles/gm amp/height}\pgf@circ@Rlen
+        \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
+        \pgf@y=\pgfkeysvalueof{/tikz/circuitikz/tripoles/gm amp/height}\pgf@circ@scaled@Rlen
         \pgf@y=.5\pgf@y
-        \pgf@x=-\pgfkeysvalueof{/tikz/circuitikz/tripoles/gm amp/width}\pgf@circ@Rlen
+        \pgf@x=-\pgfkeysvalueof{/tikz/circuitikz/tripoles/gm amp/width}\pgf@circ@scaled@Rlen
         \pgf@x=.5\pgf@x
         \pgf@circ@res@up = \pgf@y
         \pgf@circ@res@right = -\pgf@x
@@ -2560,6 +2993,7 @@
         \pgf@circ@res@down = -\pgf@y
         \pgf@circ@res@right = -\pgf@x
         \pgf@circ@res@left = \pgf@x
+        \pgf@circ@scaled@Rlen=\scaledRlen
 
         \pgfscope
             \pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/tripoles/thickness}\pgflinewidth}
@@ -2603,9 +3037,10 @@
 }
 
 %% instrumentation amplifier
-
 \pgfdeclareshape{inst amp}
 {
+    \savedmacro{\ctikzclass}{\edef\ctikzclass{amplifiers}}
+    \saveddimen{\scaledRlen}{\pgfmathsetlength{\pgf@x}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}}
     % when tikz calls the anchor it wants the relative position in the lengths
     % \pgf@x  \pgf@y
     % \pgfpoint* functions set that variables
@@ -2614,9 +3049,10 @@
     % savedanchors are internals and run on node creation (not use)
     % bounding-box top left
     \savedanchor\northwest{%
-        \pgf@y=\pgfkeysvalueof{/tikz/circuitikz/tripoles/inst amp/height}\pgf@circ@Rlen
+        \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
+        \pgf@y=\pgfkeysvalueof{/tikz/circuitikz/tripoles/inst amp/height}\pgf@circ@scaled@Rlen
         \pgf@y=.5\pgf@y
-        \pgf@x=-\pgfkeysvalueof{/tikz/circuitikz/tripoles/inst amp/width}\pgf@circ@Rlen
+        \pgf@x=-\pgfkeysvalueof{/tikz/circuitikz/tripoles/inst amp/width}\pgf@circ@scaled@Rlen
         \pgf@x=.5\pgf@x
     }
     \anchor{nw}{
@@ -2637,10 +3073,11 @@
         \pgf@x = \pgfkeysvalueof{/tikz/circuitikz/tripoles/op amp/port width}\pgf@x
     }
     \savedanchor\inOneFixed{%
-          \pgf@y=\pgfkeysvalueof{/tikz/circuitikz/tripoles/op amp/height}\pgf@circ@Rlen
+        \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
+          \pgf@y=\pgfkeysvalueof{/tikz/circuitikz/tripoles/inst amp/height}\pgf@circ@scaled@Rlen
           \pgf@y=.5\pgf@y
-          \pgf@y=\pgfkeysvalueof{/tikz/circuitikz/tripoles/op amp/input height}\pgf@y
-          \pgf@x=-\pgfkeysvalueof{/tikz/circuitikz/tripoles/op amp/width}\pgf@circ@Rlen
+          \pgf@y=\pgfkeysvalueof{/tikz/circuitikz/tripoles/inst amp/input height}\pgf@y
+          \pgf@x=-\pgfkeysvalueof{/tikz/circuitikz/tripoles/inst amp/width}\pgf@circ@scaled@Rlen
           \pgf@x=.5\pgf@x
     }
     \anchor{in up}{
@@ -2651,10 +3088,11 @@
         \pgf@y=-\pgf@y
     }
     \savedanchor\inOne{%
-        \pgf@y=\pgfkeysvalueof{/tikz/circuitikz/tripoles/inst amp/height}\pgf@circ@Rlen
+        \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
+        \pgf@y=\pgfkeysvalueof{/tikz/circuitikz/tripoles/inst amp/height}\pgf@circ@scaled@Rlen
         \pgf@y=.5\pgf@y
         \pgf@y=\pgfkeysvalueof{/tikz/circuitikz/tripoles/inst amp/input height}\pgf@y
-        \pgf@x=-\pgfkeysvalueof{/tikz/circuitikz/tripoles/inst amp/width}\pgf@circ@Rlen
+        \pgf@x=-\pgfkeysvalueof{/tikz/circuitikz/tripoles/inst amp/width}\pgf@circ@scaled@Rlen
         \pgf@x=.5\pgf@x
         \ifpgf@circuit@oa@iplusup\pgf@y=-\pgf@y\fi
     }
@@ -2666,9 +3104,10 @@
         \pgf@y=-\pgf@y
     }
     \savedanchor\up{%
-        \pgf@y=\pgfkeysvalueof{/tikz/circuitikz/tripoles/inst amp/height}\pgf@circ@Rlen
+        \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
+        \pgf@y=\pgfkeysvalueof{/tikz/circuitikz/tripoles/inst amp/height}\pgf@circ@scaled@Rlen
         \pgf@y=.5\pgf@y
-        \pgf@x=-\pgfkeysvalueof{/tikz/circuitikz/tripoles/inst amp/width}\pgf@circ@Rlen
+        \pgf@x=-\pgfkeysvalueof{/tikz/circuitikz/tripoles/inst amp/width}\pgf@circ@scaled@Rlen
         \pgf@x=.5\pgf@x
         \pgf@circ@res@up = \pgf@y
         \pgf@circ@res@right = -\pgf@x
@@ -2689,9 +3128,10 @@
     }
     % reference voltage input anchors.
     \savedanchor\refv{%
-        \pgf@y=\pgfkeysvalueof{/tikz/circuitikz/tripoles/inst amp/height}\pgf@circ@Rlen
+        \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
+        \pgf@y=\pgfkeysvalueof{/tikz/circuitikz/tripoles/inst amp/height}\pgf@circ@scaled@Rlen
         \pgf@y=.5\pgf@y
-        \pgf@x=-\pgfkeysvalueof{/tikz/circuitikz/tripoles/inst amp/width}\pgf@circ@Rlen
+        \pgf@x=-\pgfkeysvalueof{/tikz/circuitikz/tripoles/inst amp/width}\pgf@circ@scaled@Rlen
         \pgf@x=.5\pgf@x
         \pgf@circ@res@up = \pgf@y
         \pgf@circ@res@right = -\pgf@x
@@ -2740,6 +3180,8 @@
         \pgf@circ@res@down = -\pgf@y
         \pgf@circ@res@right = -\pgf@x
         \pgf@circ@res@left = \pgf@x
+        \pgf@circ@scaled@Rlen=\scaledRlen
+
         % main component, normally in thicker lines
         \pgfscope
             \pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/tripoles/thickness}\pgflinewidth}
@@ -2791,12 +3233,15 @@
 % instrumentation amplifier, with terminals for gain resistance between inputs
 \pgfdeclareshape{inst amp ra}
 {
+    \savedmacro{\ctikzclass}{\edef\ctikzclass{amplifiers}}
+    \saveddimen{\scaledRlen}{\pgfmathsetlength{\pgf@x}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}}
     \anchor{center}{\pgfpointorigin}
     % bounding-box top left
     \savedanchor\northwest{%
-        \pgf@y=\pgfkeysvalueof{/tikz/circuitikz/tripoles/inst amp ra/height}\pgf@circ@Rlen
+        \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
+        \pgf@y=\pgfkeysvalueof{/tikz/circuitikz/tripoles/inst amp ra/height}\pgf@circ@scaled@Rlen
         \pgf@y=.5\pgf@y
-        \pgf@x=-\pgfkeysvalueof{/tikz/circuitikz/tripoles/inst amp ra/width}\pgf@circ@Rlen
+        \pgf@x=-\pgfkeysvalueof{/tikz/circuitikz/tripoles/inst amp ra/width}\pgf@circ@scaled@Rlen
         \pgf@x=.5\pgf@x
     }
     \anchor{nw}{
@@ -2818,10 +3263,11 @@
     }
     % inputs (+-)
     \savedanchor\inOneFixed{%
-          \pgf@y=\pgfkeysvalueof{/tikz/circuitikz/tripoles/op amp/height}\pgf@circ@Rlen
+        \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
+          \pgf@y=\pgfkeysvalueof{/tikz/circuitikz/tripoles/inst amp ra/height}\pgf@circ@scaled@Rlen
           \pgf@y=.5\pgf@y
-          \pgf@y=\pgfkeysvalueof{/tikz/circuitikz/tripoles/op amp/input height}\pgf@y
-          \pgf@x=-\pgfkeysvalueof{/tikz/circuitikz/tripoles/op amp/width}\pgf@circ@Rlen
+          \pgf@y=\pgfkeysvalueof{/tikz/circuitikz/tripoles/inst amp ra/input height}\pgf@y
+          \pgf@x=-\pgfkeysvalueof{/tikz/circuitikz/tripoles/inst amp ra/width}\pgf@circ@scaled@Rlen
           \pgf@x=.5\pgf@x
     }
     \anchor{in up}{
@@ -2832,10 +3278,11 @@
         \pgf@y=-\pgf@y
     }
     \savedanchor\inOne{%
-        \pgf@y=\pgfkeysvalueof{/tikz/circuitikz/tripoles/inst amp ra/height}\pgf@circ@Rlen
+        \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
+        \pgf@y=\pgfkeysvalueof{/tikz/circuitikz/tripoles/inst amp ra/height}\pgf@circ@scaled@Rlen
         \pgf@y=.5\pgf@y
         \pgf@y=\pgfkeysvalueof{/tikz/circuitikz/tripoles/inst amp ra/input height}\pgf@y
-        \pgf@x=-\pgfkeysvalueof{/tikz/circuitikz/tripoles/inst amp ra/width}\pgf@circ@Rlen
+        \pgf@x=-\pgfkeysvalueof{/tikz/circuitikz/tripoles/inst amp ra/width}\pgf@circ@scaled@Rlen
         \pgf@x=.5\pgf@x
         \ifpgf@circuit@oa@iplusup\pgf@y=-\pgf@y\fi
     }
@@ -2849,10 +3296,11 @@
     % R ampli anchors. They are by default at 20% more than R-length distance
     % you can change that with the `ra pos` key (use 0.5 for one-R).
     \savedanchor\raOneFixed{%
-          \pgf@y=\pgfkeysvalueof{/tikz/circuitikz/tripoles/op amp/height}\pgf@circ@Rlen
+        \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
+          \pgf@y=\pgfkeysvalueof{/tikz/circuitikz/tripoles/inst amp ra/height}\pgf@circ@scaled@Rlen
           \pgf@y=.5\pgf@y
-          \pgf@y=\pgfkeysvalueof{/tikz/circuitikz/tripoles/op amp/input height}\pgf@y
-          \pgf@x=-\pgfkeysvalueof{/tikz/circuitikz/tripoles/op amp/width}\pgf@circ@Rlen
+          \pgf@y=\pgfkeysvalueof{/tikz/circuitikz/tripoles/inst amp ra/input height}\pgf@y
+          \pgf@x=-\pgfkeysvalueof{/tikz/circuitikz/tripoles/inst amp ra/width}\pgf@circ@scaled@Rlen
           \pgf@x=.5\pgf@x
     }
     \anchor{ra up}{
@@ -2863,9 +3311,10 @@
         \pgf@y=-\pgf@y
     }
     \savedanchor\raOne{%
-        \pgf@y=\pgf@circ@Rlen
+        \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
+        \pgf@y=\pgf@circ@scaled@Rlen
         \pgf@y=\pgfkeysvalueof{/tikz/circuitikz/tripoles/inst amp ra/ra pos}\pgf@y
-        \pgf@x=-\pgfkeysvalueof{/tikz/circuitikz/tripoles/inst amp ra/width}\pgf@circ@Rlen
+        \pgf@x=-\pgfkeysvalueof{/tikz/circuitikz/tripoles/inst amp ra/width}\pgf@circ@scaled@Rlen
         \pgf@x=.5\pgf@x
         \ifpgf@circuit@oa@iplusup\pgf@y=-\pgf@y\fi
     }
@@ -2878,9 +3327,10 @@
     }
     % power supplies
     \savedanchor\up{%
-        \pgf@y=\pgfkeysvalueof{/tikz/circuitikz/tripoles/inst amp ra/height}\pgf@circ@Rlen
+        \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
+        \pgf@y=\pgfkeysvalueof{/tikz/circuitikz/tripoles/inst amp ra/height}\pgf@circ@scaled@Rlen
         \pgf@y=.5\pgf@y
-        \pgf@x=-\pgfkeysvalueof{/tikz/circuitikz/tripoles/inst amp ra/width}\pgf@circ@Rlen
+        \pgf@x=-\pgfkeysvalueof{/tikz/circuitikz/tripoles/inst amp ra/width}\pgf@circ@scaled@Rlen
         \pgf@x=.5\pgf@x
         \pgf@circ@res@up = \pgf@y
         \pgf@circ@res@right = -\pgf@x
@@ -2901,9 +3351,10 @@
     }
     % reference voltage input anchors.
     \savedanchor\refv{%
-        \pgf@y=\pgfkeysvalueof{/tikz/circuitikz/tripoles/inst amp ra/height}\pgf@circ@Rlen
+        \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
+        \pgf@y=\pgfkeysvalueof{/tikz/circuitikz/tripoles/inst amp ra/height}\pgf@circ@scaled@Rlen
         \pgf@y=0.5\pgf@y
-        \pgf@x=-\pgfkeysvalueof{/tikz/circuitikz/tripoles/inst amp ra/width}\pgf@circ@Rlen
+        \pgf@x=-\pgfkeysvalueof{/tikz/circuitikz/tripoles/inst amp ra/width}\pgf@circ@scaled@Rlen
         \pgf@x=0.5\pgf@x
         \pgf@circ@res@up = \pgf@y
         \pgf@circ@res@right = -\pgf@x
@@ -2952,6 +3403,7 @@
         \pgf@circ@res@down = -\pgf@y
         \pgf@circ@res@right = -\pgf@x
         \pgf@circ@res@left = \pgf@x
+        \pgf@circ@scaled@Rlen=\scaledRlen
 
         % main component, normally in thicker lines
         \pgfscope
@@ -3015,6 +3467,203 @@
         %
         \pgfsetrectcap
         \pgfusepath{draw}
+    }
+}
+
+% Contributed by Danilo Piazzalunga
+% buffer
+
+\pgfdeclareshape{buffer}
+{
+    \savedmacro{\ctikzclass}{\edef\ctikzclass{amplifiers}}
+    \saveddimen{\scaledRlen}{\pgfmathsetlength{\pgf@x}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}}
+    \anchor{center}{\pgfpointorigin}
+    \savedanchor\northwest{%
+        \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
+        \pgf@y=\pgfkeysvalueof{/tikz/circuitikz/bipoles/buffer/height}\pgf@circ@scaled@Rlen
+        \pgf@y=.5\pgf@y
+        \pgf@x=-\pgfkeysvalueof{/tikz/circuitikz/bipoles/buffer/width}\pgf@circ@scaled@Rlen
+        \pgf@x=.5\pgf@x
+    }
+    \anchor{east}{ \northwest \pgf@y=0pt \pgf@x=-\pgf@x  }
+    \anchor{west}{ \northwest \pgf@y=0pt }
+    \anchor{south}{ \northwest \pgf@x=0pt \pgf@y=-\pgf@y }
+    \anchor{north}{ \northwest \pgf@x=0pt }
+    \anchor{south west}{ \northwest \pgf@y=-\pgf@y }
+    \anchor{north east}{ \northwest \pgf@x=-\pgf@x }
+    \anchor{north west}{ \northwest }
+    \anchor{south east}{ \northwest \pgf@x=-\pgf@x \pgf@y=-\pgf@y }
+    \savedanchor\left{%
+        \pgf@y=0pt
+    }
+    \anchor{in}{
+        \northwest
+        \pgf@y=0pt
+    }
+    \anchor{out}{
+        \northwest
+        \pgf@y=0pt
+        \pgf@x=-\pgf@x
+    }
+
+    \anchor{text}{\pgfpoint{-.5\wd\pgfnodeparttextbox}{\dimexpr.5\dp\pgfnodeparttextbox-.5\ht\pgfnodeparttextbox}}
+
+    \backgroundpath{
+        \pgfsetcolor{\pgfkeysvalueof{/tikz/circuitikz/color}}
+
+        \northwest
+        \pgf@circ@res@up = \pgf@y
+        \pgf@circ@res@down = -\pgf@y
+        \pgf@circ@res@right = -\pgf@x
+        \pgf@circ@res@left = \pgf@x
+        \pgf@circ@scaled@Rlen=\scaledRlen
+        \pgfscope
+            \pgfsetlinewidth{2\pgflinewidth}
+            \pgftransformxshift{.7\pgf@circ@res@left}
+            \pgf@circ@res@step=\pgf@circ@res@right
+            \advance\pgf@circ@res@step by -\pgf@circ@res@left
+            \pgf@circ@res@step=.7\pgf@circ@res@step
+
+            \pgfpathmoveto{\pgfpoint{\pgf@circ@res@step}{0pt}}
+            \pgfpathlineto{\pgfpoint{0pt}{\pgf@circ@res@up}}
+            \pgfpathlineto{\pgfpoint{0pt}{\pgf@circ@res@down}}
+            \pgfpathclose
+            \pgf@circ@draworfill
+        \endpgfscope
+
+        \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{0pt}}
+        \pgfpathlineto{\pgfpoint{.7\pgf@circ@res@left}{0pt}}
+
+        \pgfpathmoveto{\pgfpoint{\pgf@circ@res@right}{0pt}}
+        \pgfpathlineto{\pgfpoint{.7\pgf@circ@res@right}{0pt}}
+
+        \pgfusepath{draw}
+    }
+}
+
+% plain amplifier, no symbols
+\pgfdeclareshape{plain amp}
+{
+    \savedmacro{\ctikzclass}{\edef\ctikzclass{amplifiers}}
+    \saveddimen{\scaledRlen}{\pgfmathsetlength{\pgf@x}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}}
+    \anchor{center}{\pgfpointorigin}
+    \savedanchor\northwest{%
+        \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
+        \pgf@y=\pgfkeysvalueof{/tikz/circuitikz/tripoles/plain amp/height}\pgf@circ@scaled@Rlen
+        \pgf@y=.5\pgf@y
+        \pgf@x=-\pgfkeysvalueof{/tikz/circuitikz/tripoles/plain amp/width}\pgf@circ@scaled@Rlen
+        \pgf@x=.5\pgf@x
+    }
+    \anchor{east}{ \northwest \pgf@y=0pt \pgf@x=-\pgf@x  }
+    \anchor{west}{ \northwest \pgf@y=0pt }
+    \anchor{south}{ \northwest \pgf@x=0pt \pgf@y=-\pgf@y }
+    \anchor{north}{ \northwest \pgf@x=0pt }
+    \anchor{south west}{ \northwest \pgf@y=-\pgf@y }
+    \anchor{north east}{ \northwest \pgf@x=-\pgf@x }
+    \anchor{north west}{ \northwest }
+    \anchor{south east}{ \northwest \pgf@x=-\pgf@x \pgf@y=-\pgf@y }
+    \savedanchor\left{%
+        \pgf@y=0pt
+    }
+    \savedanchor\inOne{%
+        \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
+        \pgf@y=\pgfkeysvalueof{/tikz/circuitikz/tripoles/plain amp/height}\pgf@circ@scaled@Rlen
+        \pgf@y=.5\pgf@y
+        \pgf@y=\pgfkeysvalueof{/tikz/circuitikz/tripoles/plain amp/input height}\pgf@y
+        \pgf@x=-\pgfkeysvalueof{/tikz/circuitikz/tripoles/plain amp/width}\pgf@circ@scaled@Rlen
+        \pgf@x=.5\pgf@x
+    }
+    \anchor{-}{
+        \inOne
+    }
+    \anchor{+}{
+        \inOne
+        \pgf@y=-\pgf@y
+    }
+    \anchor{in up}{
+        \inOne
+    }
+    \anchor{in down}{
+        \inOne
+        \pgf@y=-\pgf@y
+    }
+    \savedanchor\up{%
+        \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
+        \pgf@y=\pgfkeysvalueof{/tikz/circuitikz/tripoles/plain amp/height}\pgf@circ@scaled@Rlen
+        \pgf@y=.5\pgf@y
+        \pgf@x=-\pgfkeysvalueof{/tikz/circuitikz/tripoles/plain amp/width}\pgf@circ@scaled@Rlen
+        \pgf@x=.5\pgf@x
+        \pgf@circ@res@up = \pgf@y
+        \pgf@circ@res@right = -\pgf@x
+        \pgf@circ@res@left = \pgf@x
+        \pgfpointlineattime{
+            \pgfkeysvalueof{/tikz/circuitikz/tripoles/plain amp/up pos}}{
+            \pgfpoint{
+            \pgfkeysvalueof{/tikz/circuitikz/tripoles/plain amp/port width}\pgf@circ@res@left}
+        {\pgf@circ@res@up}}
+        {\pgfpoint{.7\pgf@circ@res@right}{0pt}}
+    }
+    \anchor{up}{
+        \up
+    }
+    \anchor{down}{
+        \up
+        \pgf@y=-\pgf@y
+    }
+    \anchor{out}{
+        \northwest
+        \pgf@y=0pt
+        \pgf@x=-\pgf@x
+    }
+
+    \anchor{text}{\pgfpoint{-.5\wd\pgfnodeparttextbox}{\dimexpr.5\dp\pgfnodeparttextbox-.5\ht\pgfnodeparttextbox}}
+
+    \backgroundpath{
+        \pgfsetcolor{\pgfkeysvalueof{/tikz/circuitikz/color}}
+
+        \northwest
+        \pgf@circ@res@up = \pgf@y
+        \pgf@circ@res@down = -\pgf@y
+        \pgf@circ@res@right = -\pgf@x
+        \pgf@circ@res@left = \pgf@x
+
+        \pgfscope
+            \pgfsetlinewidth{2\pgflinewidth}
+            \pgftransformxshift{.7\pgf@circ@res@left}
+            \pgf@circ@res@step=\pgf@circ@res@right
+            \advance\pgf@circ@res@step by -\pgf@circ@res@left
+            \pgf@circ@res@step=.7\pgf@circ@res@step
+
+            \pgfpathmoveto{\pgfpoint{\pgf@circ@res@step}{0pt}}
+            \pgfpathlineto{\pgfpoint{0pt}{\pgf@circ@res@up}}
+            \pgfpathlineto{\pgfpoint{0pt}{\pgf@circ@res@down}}
+            \pgfpathclose
+            \pgf@circ@draworfill
+        \endpgfscope
+        \pgfpathmoveto{\pgfpoint
+            {\pgf@circ@res@left}
+        {\pgfkeysvalueof{/tikz/circuitikz/tripoles/plain amp/input height}\pgf@circ@res@up}}
+        \pgfpathlineto{\pgfpoint
+            {\pgfkeysvalueof{/tikz/circuitikz/tripoles/plain amp/port width}\pgf@circ@res@left}
+        {\pgfkeysvalueof{/tikz/circuitikz/tripoles/plain amp/input height}\pgf@circ@res@up}}
+
+
+        \pgfpathmoveto{\pgfpoint
+            {\pgf@circ@res@left}
+        {\pgfkeysvalueof{/tikz/circuitikz/tripoles/plain amp/input height}\pgf@circ@res@down}}
+        \pgfpathlineto{\pgfpoint
+            {\pgfkeysvalueof{/tikz/circuitikz/tripoles/plain amp/port width}\pgf@circ@res@left}
+        {\pgfkeysvalueof{/tikz/circuitikz/tripoles/plain amp/input height}\pgf@circ@res@down}}
+
+        \pgfpathmoveto{\pgfpoint{\pgf@circ@res@right}{0pt}}
+        \pgfpathlineto{\pgfpoint{.7\pgf@circ@res@right}{0pt}}
+
+        \pgfusepath{draw}
+
+
+
+
+
     }
 }
 
