@@ -1,5 +1,5 @@
 \NeedsTeXFormat{LaTeX2e}
-\ProvidesPackage{ctikzmanutils}[2019/04/14 utilities for formatting circuitikz manual]
+\ProvidesPackage{ctikzmanutils}[2019/07/26 utilities for formatting circuitikz manual]
 \RequirePackage{ifthen}
 \RequirePackage{xparse}
 \RequirePackage{showexpl}
@@ -27,6 +27,16 @@
 }
 % filling color for filled-enabled component
 \colorlet{fillcol}{cyan!30!white}
+% find the class for the element. Thanks to Symbol 1
+% https://tex.stackexchange.com/a/501389/38080
+\def\checkclass#1{%
+    \csname pgf@sh@ma@#1\endcsname
+    \ifdefined\ctikzclass
+        Class: \texttt{\ctikzclass}.%
+    \else
+        No class.%
+    \fi
+}
 % description of a node component:
 % optional star for fillable
 % optional: scale of the component in the entry
@@ -51,7 +61,9 @@
         \end{circuitikz}%
         }{\sloppy%
         {#4, type: node\IfBooleanT{#1}{, fillable}%
-    } (\texttt{node[#3]\IfValueT{#7}{(N)}\{#5\}}) \index{#3} }
+    } (\texttt{node[#3]\IfValueT{#7}{(N)}\{#5\}}). \index{#3}%
+        \checkclass{N}%
+    }%
 }
 % description of a path-style component:
 % optional: main name, if different from above
@@ -80,13 +92,12 @@
             \IfValueT{#7}{, \texttt{name=B}}%
             \IfValueTF{#2}{, nodename: #2shape.%\drawphantomshape{#2shape}%
             }{, nodename: #3shape.%\drawphantomshape{#3shape}%
-            }
+            }%
         }%
-        \ifthenelse{\equal{#5}{}}{}{%
-        Aliases: \texttt{#5}.}%
-    }
+        \ifthenelse{\equal{#5}{}}{ }{%
+        Aliases: \texttt{#5}. }\checkclass{B}%
+    }%
 }
-
 
 %new environment for grouping descriptions
 \newenvironment{groupdesc}{\medskip\begingroup}{\endgroup\par\medskip\par\noindent}
