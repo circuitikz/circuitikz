@@ -1677,7 +1677,7 @@ If otherwise \texttt{americangfsurgearrester} option is active (or the style \te
     )
 \end{groupdesc}
 
-You can use microphones and loudspeakers with \texttt{waves} (see section~\ref{sec:support}) too:
+You can use microphones and loudspeakers with \texttt{waves} (see section~\ref{sec:RF}) too:
 
 \begin{LTXexample}[varwidth=true]
     \begin{circuitikz}
@@ -1695,6 +1695,144 @@ You can use microphones and loudspeakers with \texttt{waves} (see section~\ref{s
 \subsubsection{Miscellanous element customization}\label{sec:tweak-misc}
 
 You can change the scale of all the miscellaneous elements by setting the key \texttt{misc/scale} to something different from the default \texttt{1.0}.
+
+\subsection{Crossings}
+
+Path style:
+\begin{groupdesc}
+\circuitdescbip{crossing}{Jumper style non-contact crossing}{xing}
+\end{groupdesc}
+
+Node style:
+\begin{groupdesc}
+    \circuitdesc{jump crossing}{Jumper-style crossing node}{}
+    \circuitdesc{plain crossing}{Plain style crossing node}{}
+\end{groupdesc}
+
+All circuit-drawing standards agree that to show a crossing without electric contact, a simple crossing of the wires suffices; the electrical contact must be explicitly marked with a filled dot.
+
+\begin{LTXexample}[varwidth=true]
+\begin{circuitikz}[]
+\draw(1,-1) to[short] (1,1)
+    (0,0) to[short] (2,0);
+\draw(4,-1) to[short] (4,1)
+    (3,0) to[short] (5,0)
+    (4,0) node[circ]{};
+\end{circuitikz}
+\end{LTXexample}
+
+However, sometime it is advisable to mark the non-contact situation more explicitly. To this end, you can use a path-style component called \texttt{crossing}:
+
+\begin{LTXexample}[varwidth=true]
+\begin{circuitikz}[]
+\draw(1,-1) to[short] (1,1) (0,0) to[crossing] (2,0);
+\draw(4,-1) to[short] (4,1) (3,0) to[short] (5,0)
+    (4,0) node[circ]{};
+\end{circuitikz}
+\end{LTXexample}
+
+That should suffice most of the time; the only problem is that the crossing jumper will be put in the center of the subpath where the \texttt{to[crossing]} is issued, so sometime a bit of trial and error is needed to position it.
+
+For a more powerful (and elegant) way you can use the crossing nodes:
+
+\begin{LTXexample}[varwidth=true]
+\begin{circuitikz}[]
+    \node at (1,1)[jump crossing](X){};
+    \draw (X.west) -- ++(-1,0);
+    \draw (X.east) to[R] ++(2,0);
+    \draw (X.north) node[vcc]{};
+    \draw (X.south) to[C] ++(0,-1.5);
+\end{circuitikz}
+\end{LTXexample}
+
+Notice that the \texttt{plain crossing} and the \texttt{jump crossing} have a small gap in the straight wire, to enhance the effect of crossing (as a kind of shadow).
+
+The size of the crossing elements can be changed with the key \texttt{bipoles/crossing/size} (default 0.2).
+
+\subsection{Arrows}\label{sec:arrows}
+
+These are pseudo-arrows used in lot of places in the packages (for transistors, flows, currents, and so on).
+
+\begin{groupdesc}
+    \circuitdesc{currarrow}{Arrows (current and voltage)}{}(center/0/0.2)
+    \circuitdesc{inputarrow}{Arrow to draw at its tip, useful for block diagrams.}{}(center/0/0.2)
+    \circuitdesc*{bnc}{BNC connector}{}(left/135/0.6, right/45/0.6, center/-90/0.6, hot/0/0.6, zero/-135/0.6)
+\end{groupdesc}
+
+\subsubsection{Arrows size}\label{sec:currarrow-size}
+
+You can use the parameter  \texttt{current arrow scale} to change the size of the arrows in various components and indicators; the normal value is 16, higher numbers give smaller arrows and so on.  You need to use  \texttt{circuitikz/current arrow scale} if you use it into a node.
+
+\begin{LTXexample}[varwidth=true]
+\begin{circuitikz}
+    \draw (0,0) to[R, i=f] ++(2,0) node[npn, anchor=B]{};
+    \draw (0,-2) to[R, f=f, current arrow scale=8] ++(2,0)
+            node[pnp, anchor=B, circuitikz/current arrow scale=8]{};
+    \draw (0,-4) to[R, f=f, current arrow scale=24] ++(2,0)
+            node[nigbt, anchor=B]{};
+\end{circuitikz}
+\end{LTXexample}
+
+Moreover, you have the arrow tip \texttt{latexslim} which is an arrow similar to the old (in deprecated \texttt{arrows} library) \texttt{latex'} element:
+
+\begin{LTXexample}[varwidth=true]
+\begin{circuitikz}[american,]
+    \draw [latexslim-latexslim] (0,0) -- (1,0);
+\end{circuitikz}
+\end{LTXexample}
+
+\subsection{Terminal shapes}\label{sec:terminals}
+
+These are the so-called ``bipole nodes'' shapes, or poles (see section~\ref{sec:bipole-nodes}). These nodes are always filled; the ``open'' versions (starting with an \texttt{o}) are by default filled white, but you can override it with the \texttt{fill} parameter.
+
+\begin{groupdesc}
+    \circuitdesc{circ}{Connected terminal}{}
+    \circuitdesc{ocirc}{Unconnected terminal}{}
+    \circuitdesc{diamondpole}{Diamond-square terminal}{}
+    \circuitdesc{odiamondpole}{Open diamond-square terminal}{}
+    \circuitdesc{squarepole}{Square-shape terminal}{}
+    \circuitdesc{osquarepole}{Open square-shape terminal}{}
+\end{groupdesc}
+
+Since version 0.9.0, ``bipole nodes'' shapes have all the standard geographical anchors, so you can do things like these:
+
+\begin{LTXexample}[varwidth=true]
+\begin{circuitikz}[american,]
+    \draw (0,-1) node[draw](R){R};
+    \draw (R.east) node[ocirc, right]{};
+\end{circuitikz}
+\end{LTXexample}
+
+The size of the poles is controlled by the key \texttt{nodes width} (default \texttt{0.04}, relative to the basic length).
+Be sure to see section~\ref{sec:bipole-nodes} for more usage and configurability.
+
+\subsubsection{BNC connector/terminal}
+
+\begin{groupdesc}
+    \circuitdesc*{bnc}{BNC connector}{}(left/135/0.6, right/45/0.6, center/-90/0.6, hot/0/0.6, zero/-135/0.6)
+\end{groupdesc}
+The BNC connector is defined so that you can easily connect it as input or output (but remember that you need to flip the text if you flip the component):
+
+\begin{LTXexample}[varwidth, ]
+\begin{circuitikz}
+    \draw (0,0)
+    node[bnc](B1){$v_i$} to[R=\SI{50}{\ohm}] ++(3,0)
+    node[bnc, xscale=-1](B2){\scalebox{-1}[1]{$v_o$}};
+    \node [ground] at (B1.shield) {};
+    \node [eground] at (B2.shield){};
+\end{circuitikz}
+\end{LTXexample}
+
+It also has a \texttt{zero} anchor if you need to rotate it about its real center.
+
+\begin{LTXexample}[varwidth, ]
+\begin{circuitikz}
+    \draw[thin, red] (0,0) -- ++(1,0) (0,-1) -- ++(1,0);
+    \path (0,0) node[bnc]{} ++(1,0) node[bnc, rotate=-90]{};
+    \path (0,-1) node[bnc, anchor=zero]{} ++(1,0) node[bnc, anchor=zero, rotate=-90]{};
+\end{circuitikz}
+\end{LTXexample}
+
 
 \subsection{Block diagram components}
 \noindent Contributed by Stefan Erhardt.
@@ -2228,7 +2366,7 @@ The \texttt{magnetron} shape will also scale with \texttt{tubes/scale}.
 \end{circuitikz}
 \end{LTXexample}
 
-\subsection{RF components}
+\subsection{RF components}\label{sec:RF}
 
 For the RF components, similarly to the grounds and supply rails, the \texttt{center} anchor is put on the connecting point of the symbol, so that you can use them directly in a \texttt{path} specification.
 
@@ -2674,135 +2812,6 @@ But notice that the ``A'' is also flipped by the \texttt{xscale} parameter. So t
 \end{circuitikz}
 \end{LTXexample}
 
-
-\subsection{Support shapes and bipoles}\label{sec:support}
-
-Path style:
-\begin{groupdesc}
-\circuitdescbip{crossing}{Jumper style non-contact crossing}{xing}
-\end{groupdesc}
-
-\noindent Node style:
-
-\begin{groupdesc}
-    \circuitdesc{currarrow}{Arrows (current and voltage)}{}(center/0/0.2)
-    \circuitdesc{inputarrow}{Arrow to draw at its tip, useful for block diagrams.}{}(center/0/0.2)
-    \circuitdesc{jump crossing}{Jumper-style crossing node}{}
-    \circuitdesc{plain crossing}{Plain style crossing node}{}
-    \circuitdesc*{bnc}{BNC connector}{}(left/135/0.6, right/45/0.6, center/-90/0.6, hot/0/0.6, zero/-135/0.6)
-\end{groupdesc}
-
-These are the so-called ``bipole nodes'' shapes, or poles (see section~\ref{sec:bipole-nodes}). These nodes are always filled; the ``open'' versions (starting with an \texttt{o}) are by default filled white, but you can override it with the \texttt{fill} parameter.
-
-\begin{groupdesc}
-    \circuitdesc{circ}{Connected terminal}{}
-    \circuitdesc{ocirc}{Unconnected terminal}{}
-    \circuitdesc{diamondpole}{Diamond-square terminal}{}
-    \circuitdesc{odiamondpole}{Open diamond-square terminal}{}
-    \circuitdesc{squarepole}{Square-shape terminal}{}
-    \circuitdesc{osquarepole}{Open square-shape terminal}{}
-\end{groupdesc}
-
-
-Moreover, you have the arrow tip \texttt{latexslim} which is an arrow similar to the old (in deprecated \texttt{arrows} library) \texttt{latex'} element:
-
-\begin{LTXexample}[varwidth=true]
-\begin{circuitikz}[american,]
-    \draw [latexslim-latexslim] (0,0) -- (1,0);
-\end{circuitikz}
-\end{LTXexample}
-
-\subsubsection{Terminal shapes}
-Since version 0.9.0, ``bipole nodes'' shapes have all the standard geographical anchors, so you can do things like these:
-
-\begin{LTXexample}[varwidth=true]
-\begin{circuitikz}[american,]
-    \draw (0,-1) node[draw](R){R};
-    \draw (R.east) node[ocirc, right]{};
-\end{circuitikz}
-\end{LTXexample}
-
-The size of the poles is controlled by the key \texttt{nodes width} (default \texttt{0.04}, relative to the basic length).
-Be sure to see section~\ref{sec:bipole-nodes} for more usage and configurability.
-
-The BNC connector is defined so that you can easily connect it as input or output (but remember that you need to flip the text if you flip the component):
-
-\begin{LTXexample}[varwidth, ]
-\begin{circuitikz}
-    \draw (0,0)
-    node[bnc](B1){$v_i$} to[R=\SI{50}{\ohm}] ++(3,0)
-    node[bnc, xscale=-1](B2){\scalebox{-1}[1]{$v_o$}};
-    \node [ground] at (B1.shield) {};
-    \node [eground] at (B2.shield){};
-\end{circuitikz}
-\end{LTXexample}
-
-It also has a \texttt{zero} anchor if you need to rotate it about its real center.
-
-\begin{LTXexample}[varwidth, ]
-\begin{circuitikz}
-    \draw[thin, red] (0,0) -- ++(1,0) (0,-1) -- ++(1,0);
-    \path (0,0) node[bnc]{} ++(1,0) node[bnc, rotate=-90]{};
-    \path (0,-1) node[bnc, anchor=zero]{} ++(1,0) node[bnc, anchor=zero, rotate=-90]{};
-\end{circuitikz}
-\end{LTXexample}
-
-\subsubsection{Crossings}
-
-All circuit-drawing standards agree that to show a crossing without electric contact, a simple crossing of the wires suffices; the electrical contact must be explicitly marked with a filled dot.
-
-\begin{LTXexample}[varwidth=true]
-\begin{circuitikz}[]
-\draw(1,-1) to[short] (1,1)
-    (0,0) to[short] (2,0);
-\draw(4,-1) to[short] (4,1)
-    (3,0) to[short] (5,0)
-    (4,0) node[circ]{};
-\end{circuitikz}
-\end{LTXexample}
-
-However, sometime it is advisable to mark the non-contact situation more explicitly. To this end, you can use a path-style component called \texttt{crossing}:
-
-\begin{LTXexample}[varwidth=true]
-\begin{circuitikz}[]
-\draw(1,-1) to[short] (1,1) (0,0) to[crossing] (2,0);
-\draw(4,-1) to[short] (4,1) (3,0) to[short] (5,0)
-    (4,0) node[circ]{};
-\end{circuitikz}
-\end{LTXexample}
-
-That should suffice most of the time; the only problem is that the crossing jumper will be put in the center of the subpath where the \texttt{to[crossing]} is issued, so sometime a bit of trial and error is needed to position it.
-
-For a more powerful (and elegant) way you can use the crossing nodes:
-
-\begin{LTXexample}[varwidth=true]
-\begin{circuitikz}[]
-    \node at (1,1)[jump crossing](X){};
-    \draw (X.west) -- ++(-1,0);
-    \draw (X.east) to[R] ++(2,0);
-    \draw (X.north) node[vcc]{};
-    \draw (X.south) to[C] ++(0,-1.5);
-\end{circuitikz}
-\end{LTXexample}
-
-Notice that the \texttt{plain crossing} and the \texttt{jump crossing} have a small gap in the straight wire, to enhance the effect of crossing (as a kind of shadow).
-
-The size of the crossing elements can be changed with the key \texttt{bipoles/crossing/size} (default 0.2).
-
-
-\subsubsection{Arrows size}\label{sec:currarrow-size}
-
-You can use the parameter  \texttt{current arrow scale} to change the size of the arrows in various components and indicators; the normal value is 16, higher numbers give smaller arrows and so on.  You need to use  \texttt{circuitikz/current arrow scale} if you use it into a node.
-
-\begin{LTXexample}[varwidth=true]
-\begin{circuitikz}
-    \draw (0,0) to[R, i=f] ++(2,0) node[npn, anchor=B]{};
-    \draw (0,-2) to[R, f=f, current arrow scale=8] ++(2,0)
-            node[pnp, anchor=B, circuitikz/current arrow scale=8]{};
-    \draw (0,-4) to[R, f=f, current arrow scale=24] ++(2,0)
-            node[nigbt, anchor=B]{};
-\end{circuitikz}
-\end{LTXexample}
 
 \subsection{Switches and buttons}
 
@@ -4066,7 +4075,7 @@ This could be especially useful if you define a style, to use like this:
 
 \subsection{Nodes (also called poles)}\label{sec:bipole-nodes}
 
-You can add nodes to the bipoles, positioned at the coordinates surrounding the component. The general style to use is \texttt{bipole nodes=\{start\}\{stop\}}, where \texttt{start} and \texttt{stop} are the nodes --- to be chosen between \texttt{none}, \texttt{circ}, \texttt{ocirc}, \texttt{squarepole}, \texttt{osquarepole}, \texttt{diamondpole},  \texttt{odiamondpole} and \texttt{rectfill}\footnote{You can use other shapes too, but at your own risk\dots Moreover, notice that \texttt{none} is not really a node, just a special word used to say ``do not put any node here''.} (see section~\ref{sec:support}).
+You can add nodes to the bipoles, positioned at the coordinates surrounding the component. The general style to use is \texttt{bipole nodes=\{start\}\{stop\}}, where \texttt{start} and \texttt{stop} are the nodes --- to be chosen between \texttt{none}, \texttt{circ}, \texttt{ocirc}, \texttt{squarepole}, \texttt{osquarepole}, \texttt{diamondpole},  \texttt{odiamondpole} and \texttt{rectfill}\footnote{You can use other shapes too, but at your own risk\dots Moreover, notice that \texttt{none} is not really a node, just a special word used to say ``do not put any node here''.} (see section~\ref{sec:terminals}).
 
 
 \begin{LTXexample}[varwidth=true,
@@ -4830,9 +4839,25 @@ Adding a node-style component is much more straightforward. Just define it by fo
 
 To have a scalable component, for example in the \texttt{transistors} class, you should use something like
 \begin{lstlisting}
-    \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{transistors/scale}\pgf@circ@Rlen}
+        \savedmacro{\ctikzclass}{\edef\ctikzclass{transistors}}
+        \saveddimen{\scaledRlen}{\pgfmathsetlength{\pgf@x}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}}
 \end{lstlisting}
-and then use \verb|\pgf@circ@scaled@Rlen| (or the anchors) as default lengths.
+at the start of anchors and macros definition, and use (for example, the exact code will change greatly depending on your component):
+\begin{lstlisting}
+        \savedanchor\northeast{% upper right
+            \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
+            \pgf@y=\pgf@circ@scaled@Rlen
+            \pgf@y=0.5\pgf@y
+            \pgf@x=0.3\pgf@y
+        }
+\end{lstlisting}
+in all the \texttt{savedanchors}.
+
+Then, in the drawing part, you should start with:
+\begin{lstlisting}
+    \pgf@circ@scaled@Rlen=\scaledRlen
+\end{lstlisting}
+and then use \verb|\pgf@circ@scaled@Rlen| (or the anchors) as default lengths while you draw it.
 
 \subsubsection{Finishing your work}
 
