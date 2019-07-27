@@ -2528,7 +2528,7 @@
 %%%%%%%%%%%%%
 
 %% (Closing) SPST
-\pgfcircdeclarebipole
+\pgfcircdeclarebipolescaled{switches}
 {}
 {\ctikzvalof{bipoles/spst/depth}}
 {cspst}
@@ -2551,7 +2551,7 @@
 }
 
 %% Opening SPST
-\pgfcircdeclarebipole
+\pgfcircdeclarebipolescaled{switches}
 {}
 {\ctikzvalof{bipoles/spst/depth}}
 {ospst}
@@ -2575,7 +2575,7 @@
 }
 
 %% Normal open Switch
-\pgfcircdeclarebipole
+\pgfcircdeclarebipolescaled{switches}
 {}
 {\ctikzvalof{bipoles/nos/depth}}
 {nos}
@@ -2591,7 +2591,7 @@
 }
 
 %% Normal closed Switch
-\pgfcircdeclarebipole
+\pgfcircdeclarebipolescaled{switches}
 {}
 {\ctikzvalof{bipoles/ncs/depth}}
 {ncs}
@@ -2610,7 +2610,7 @@
 }
 
 %% Push Button
-\pgfcircdeclarebipole
+\pgfcircdeclarebipolescaled{switches}
 {}
 {\ctikzvalof{bipoles/pushbutton/height 2}}
 {pushbutton}
@@ -2631,7 +2631,7 @@
 }
 
 %% Normally closed Push Button
-\pgfcircdeclarebipole
+\pgfcircdeclarebipolescaled{switches}
 {}
 {\ctikzvalof{bipoles/pushbutton/height 2}}
 {ncpushbutton}
@@ -2640,6 +2640,7 @@
 {
     \pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}\pgfstartlinewidth}
     % This is the radius of the "ocirc" shape (see pgfcircshapes.tex)
+    % Warning, if the nodes will have a class, we have to touch this.
     \pgf@circ@res@temp=\pgfkeysvalueof{/tikz/circuitikz/nodes width}\pgf@circ@Rlen
     \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{-\pgf@circ@res@temp}}
     \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{-\pgf@circ@res@temp}}
@@ -2657,12 +2658,13 @@
 % #2 -> barposition
 % #3 -> arrowcode
 \long\def\pgfcircdeclarecutesw#1#2#3{
-    \pgfcircdeclarebipole
+    \pgfcircdeclarebipolescaled{switches}
     {
         \savedanchor\midlever{
             % these values are calculated when we create the definition of the shape.
-            \pgf@y=\pgfkeysvalueof{/tikz/circuitikz/bipoles/cuteswitch/height}\pgf@circ@Rlen
-            \pgf@circ@res@temp=\pgfkeysvalueof{/tikz/circuitikz/nodes width}\pgf@circ@Rlen
+            \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
+            \pgf@y=\pgfkeysvalueof{/tikz/circuitikz/bipoles/cuteswitch/height}\pgf@circ@scaled@Rlen
+            \pgf@circ@res@temp=\pgfkeysvalueof{/tikz/circuitikz/nodes width}\pgf@circ@scaled@Rlen
             \pgf@circ@res@temp=\ctikzvalof{bipoles/cuteswitch/thickness}\pgf@circ@res@temp
             \pgf@circ@res@down = -.5\pgf@y
             \pgf@circ@res@up = .5\pgf@y
@@ -2672,6 +2674,7 @@
         }
         % radius of the connector
         % This is the radius of the "ocirc" shape (see pgfcircshapes.tex)
+        % If cnnecting nodes are scaled, we have to modify this
         \saveddimen{\radius}{\pgfmathsetlength\pgf@x{\pgf@circ@Rlen*\ctikzvalof{nodes width}}}
         % shapename
         \savedmacro{\thisshape}{\def\thisshape{\tikz@fig@name}}
@@ -2690,6 +2693,7 @@
     {\ctikzvalof{bipoles/cuteswitch/width}}{
         \pgfscope
         % This is the radius of the "ocirc" shape (see pgfcircshapes.tex)
+        % If cnnecting nodes are scaled, we have to modify this
         \pgf@circ@res@temp=\pgfkeysvalueof{/tikz/circuitikz/nodes width}\pgf@circ@Rlen
         \pgf@circ@res@temp=\ctikzvalof{bipoles/cuteswitch/thickness}\pgf@circ@res@temp
         \pgfsetlinewidth{2\pgf@circ@res@temp}
