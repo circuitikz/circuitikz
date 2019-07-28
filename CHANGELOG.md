@@ -2,8 +2,11 @@
 The major changes among the different circuitikz versions are listed here. See <https://github.com/circuitikz/circuitikz/commits> for a full list of changes.
 
 * Version 0.9.4 (unreleased)
-    - Bumped the release number to avoid problems
     - Fixed a bug with "inline" gyrators, now the circle will not overlap
+    - Fixed a bug in input anchors of european not ports
+    - Fixed tlinestub so that it has the same default size than tline (TL)
+    - The styling addition are quite big --- they should be backward compatible, but to be on the safe side, add the 0.9.3 version snapshots.
+    - Added styling of relative size of components (at a global or local level)
 
 * Version 0.9.3 (2019-07-13)
     - Added the option to have "dotless" P-MOS (to use with arrowmos option)
