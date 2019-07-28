@@ -713,9 +713,13 @@
     \advance\pgf@x by -\pgf@circ@res@temp
 }
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Seven segments displays
+%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \pgfdeclareshape{bare7seg}{
+    \savedmacro{\ctikzclass}{\edef\ctikzclass{displays}}
+    \saveddimen{\scaledRlen}{\pgfmathsetlength{\pgf@x}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}}
     \savedmacro{\dotstatus}{\edef\dotstatus{\pgf@circ@sevenseg@dotstate}}
     \saveddimen{\dotspace}{% the dot is on the right, and occupy the same as the thickness
         \ifpgf@circ@sevenseg@dot
@@ -726,29 +730,34 @@
     }
     % The object extension is more or less (-width/2,-width) to (width/2,width)
     % and adjusted for line thickness (both sides) and eventually the dot
-    \saveddimen{\width}{\pgfmathsetlength{\pgf@x}{\ctikzvalof{seven seg/width}*\pgf@circ@Rlen}}
+    \saveddimen{\width}{
+        \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
+        \pgfmathsetlength{\pgf@x}{\ctikzvalof{seven seg/width}*\pgf@circ@scaled@Rlen}}
     \saveddimen{\gap}{\pgfmathsetlength{\pgf@x}{\ctikzvalof{seven seg/segment sep}}}
     \saveddimen{\boxgap}{\pgfmathsetlength{\pgf@x}{\ctikzvalof{seven seg/box sep}}}
     \savedanchor{\southwest}{% both negative
-        \pgfmathsetlength{\pgf@x}{-0.5*\ctikzvalof{seven seg/width}*\pgf@circ@Rlen
+        \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
+        \pgfmathsetlength{\pgf@x}{-0.5*\ctikzvalof{seven seg/width}*\pgf@circ@scaled@Rlen
         -0.5*\ctikzvalof{seven seg/thickness}-\ctikzvalof{seven seg/box sep}}
-        \pgfmathsetlength{\pgf@y}{-\ctikzvalof{seven seg/width}*\pgf@circ@Rlen
+        \pgfmathsetlength{\pgf@y}{-\ctikzvalof{seven seg/width}*\pgf@circ@scaled@Rlen
         -0.5*\ctikzvalof{seven seg/thickness}-\ctikzvalof{seven seg/box sep}}
     }
     \savedanchor{\northeast}{% both positive
+        \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
         \ifpgf@circ@sevenseg@dot
             \pgfmathsetlength{\pgf@circ@res@other}{\ctikzvalof{seven seg/thickness}}
         \else
             \pgf@circ@res@other=0pt
         \fi
-        \pgfmathsetlength{\pgf@x}{0.5*\ctikzvalof{seven seg/width}*\pgf@circ@Rlen
+        \pgfmathsetlength{\pgf@x}{0.5*\ctikzvalof{seven seg/width}*\pgf@circ@scaled@Rlen
         +0.5*\ctikzvalof{seven seg/thickness}+\pgf@circ@res@other+\ctikzvalof{seven seg/box sep}}
-        \pgfmathsetlength{\pgf@y}{\ctikzvalof{seven seg/width}*\pgf@circ@Rlen
+        \pgfmathsetlength{\pgf@y}{\ctikzvalof{seven seg/width}*\pgf@circ@scaled@Rlen
         +0.5*\ctikzvalof{seven seg/thickness}+\ctikzvalof{seven seg/box sep}}
     }
     \savedanchor{\topright}{% anchor without the box sep and the thickness
-        \pgfmathsetlength{\pgf@x}{0.5*\ctikzvalof{seven seg/width}*\pgf@circ@Rlen}
-        \pgfmathsetlength{\pgf@y}{\ctikzvalof{seven seg/width}*\pgf@circ@Rlen}
+        \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
+        \pgfmathsetlength{\pgf@x}{0.5*\ctikzvalof{seven seg/width}*\pgf@circ@scaled@Rlen}
+        \pgfmathsetlength{\pgf@y}{\ctikzvalof{seven seg/width}*\pgf@circ@scaled@Rlen}
     }
     \anchor{center}{\pgfpointorigin}
     \anchor{north west}{\southwest\pgf@y=-\pgf@y}

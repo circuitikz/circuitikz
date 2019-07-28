@@ -8,6 +8,8 @@
 \documentclass[a4paper, titlepage]{article}
 \usepackage{a4wide}	% smaller borders
 \usepackage{titling}
+\usepackage{titlesec}
+\newcommand{\sectionbreak}{\clearpage}
 
 \def\modern{
 	\usepackage{fontspec}
@@ -1289,7 +1291,7 @@ When inserting a thrystor, a triac or a potentiometer, one needs to refer to the
 
 \subsubsection{Diode customizations}\label{sec:tweak-d}
 
-You can change the scale of the diodes by setting the key \texttt{diodes/scale}  to something different from the default \texttt{1.0}. Diodes are somewhat big in this package, so a setting like \verb|\ctikzset{diode/scale=0.6}| is recommended.
+You can change the scale of the diodes by setting the key \texttt{diodes/scale}  to something different from the default \texttt{1.0}. In Romano's opinion, diodes are somewhat big with the default style of the package, so a setting like \verb|\ctikzset{diode/scale=0.6}| is recommended.
 
 \begin{LTXexample}[varwidth=true]
 \begin{circuitikz}
@@ -1667,14 +1669,8 @@ If otherwise \texttt{americangfsurgearrester} option is active (or the style \te
 \begin{groupdesc}
     \circuitdescbip*{lamp}{Lamp}{}
     \circuitdescbip*{bulb}{Bulb}{}
-    \circuitdescbip*{loudspeaker}{loudspeaker}{}( north/90/0.4, north east/45/0.4, east/0/0.4, south east/-45/0.4,
-    south/-90/0.4, south west/-135/0.4, west/180/0.4, north west/135/0.4,
-    left/135/0.2, right/45/0.2, center/-135/0.2
-    )
-   \circuitdescbip*{mic}{mic}{}( north/90/0.4, north east/45/0.4, east/0/0.4, south east/-45/0.4,
-    south/-90/0.4, south west/-135/0.4, west/180/0.4, north west/135/0.4,
-    left/135/0.2, right/45/0.2, center/-135/0.2
-    )
+    \circuitdescbip*{loudspeaker}{loudspeaker}{}( north/90/0.4, north east/45/0.4, east/0/0.4, south east/-45/0.4, south/-90/0.4, south west/-135/0.4, west/180/0.4, north west/135/0.4, left/135/0.2, right/45/0.2, center/-135/0.2)
+   \circuitdescbip*{mic}{mic}{}( north/90/0.4, north east/45/0.4, east/0/0.4, south east/-45/0.4, south/-90/0.4, south west/-135/0.4, west/180/0.4, north west/135/0.4, left/135/0.2, right/45/0.2, center/-135/0.2)
 \end{groupdesc}
 
 You can use microphones and loudspeakers with \texttt{waves} (see section~\ref{sec:RF}) too:
@@ -2398,7 +2394,7 @@ The RF elements can be scaled using the key \texttt{RF/scale}, default \texttt{1
 
 \subsubsection{Microstrip customization}
 
-The microstrip linear components' (\texttt{mstline}, \texttt{mslstub}, \texttt{msport}) heights depend on the parameters \texttt{bipoles/mstline/height} (for the three of them, default 0.3). The widths are specified in \texttt{bipoles/mstline/width} for the first two and by \texttt{monopoles/msport/width} for the port (defaults: 1.2, 0.5).
+The microstrip linear components' (\texttt{mstline}, \texttt{mslstub}, \texttt{msport}) heights can be changed by setting the parameter \texttt{bipoles/mstline/height} (for the three of them, default 0.3). The widths are specified in \texttt{bipoles/mstline/width} for the first two and by \texttt{monopoles/msport/width} for the port (defaults: 1.2, 0.5).
 
 For the length parameter of the transmission line there is a shortcut in the form of the direct parameter \texttt{mstlinelen}.
 
@@ -2973,7 +2969,7 @@ cout 1/180/0.2)[out 1.n/90/0.2, out 4.w/0/0.3]
 Notice that the name of the shape is \texttt{rotaryswitch}, no spaces.
 The default rotary switch component has 5 channels (this is set in the parameter \texttt{multipoles/rotary/channels}), spanning form \SI{-60}{\degree}  to \SI{60}{\degree} (parameter \texttt{multipoles/rotary/angle}) and with the wiper at \SI{20}{\degree} (parameter \texttt{multipoles/rotary/wiper}).
 
-Moreover, there are by default no arrows on the wiper; you can set this with the parameter \texttt{multipoles/rotary/arrow} which can assume the values \texttt{none}, \texttt{cw} (clockwise), \texttt{ccw} (counterclockwise) or \texttt{both}.
+Moreover, there are by default no arrows on the wiper; if needed, you can change this default setting the parameter \texttt{multipoles/rotary/arrow} which can assume the values \texttt{none}, \texttt{cw} (clockwise), \texttt{ccw} (counterclockwise) or \texttt{both}.
 
 To simplify the usage of the component, a series of styles are defined: \texttt{rotary switch=\textsl{<channels>} in \textsl{<angle>} wiper \textsl{<wiper angle>}} (notice the space in the name of the style!). Using \texttt{rotary switch} without parameters will generate a default switch.
 
@@ -3286,12 +3282,13 @@ In the case of \textsc{not}, there are only \texttt{in} and \texttt{out} (althou
 
 You can scale chips with the key \texttt{chips/scale}. As ever, that will \textbf{not} scale text size of the labels, when they are printed.
 
-You can customize the DIP chip with the keys \texttt{multipoles/dipchip/width} (default 1.2) and  \texttt{multipoles/dipchip/pin spacing} (default 0.4) that are expressed in fraction of basic lengths (see section~\ref{sec:components-size}).
+You can customize the DIP chip with the key \texttt{multipoles/dipchip/width} (with a default of \texttt{1.2}) and  the key \texttt{multipoles/dipchip/pin spacing} (default \texttt{0.4}) that are expressed in fraction of basic lengths (see section~\ref{sec:components-size}).
 The height of the chip will be equal to half the numbers of pins multiplied by the spacing, plus one spacing for the borders.
+
 For the QFP chips, you can only chose the pin spacing with \texttt{multipoles/qfpchip/pin spacing} key.
 
-The pins of the chip can be ``hidden'' (that is, just a spot in the border, optionally marked with a number) or ``stick out'' with a thin lead by setting \texttt{multipoles/external pins width} greater than 0 (default value is 0.2, so you'll have leads as shown above).
-Moreover, you can transform the thin lead into a pad by setting the key \texttt{multipoles/external pad fraction} to something different form 0 (default is 0); the value expresses the fraction of the pin spacing space that the pad will use on both sides of the pin.
+The pins of the chip can be ``hidden'' (that is, just a spot in the border, optionally marked with a number) or ``stick out'' with a thin lead by setting \texttt{multipoles/external pins width} greater than 0 (default value is \texttt{0.2}, so you'll have leads as shown above).
+Moreover, you can transform the thin lead into a pad by setting the key \texttt{multipoles/external pad fraction} to something different form 0 (default is \texttt{0}); the value expresses the fraction of the pin spacing space that the pad will use on both sides of the pin.
 
 The number of pins is settable with the key \texttt{num pins}.
 \textbf{Please notice} that the number of pins \textbf{must} be \emph{even} for \texttt{dipchip}s and \emph{multiple of 4} for \texttt{qfpchip}s, otherwise havoc will ensue.
@@ -3466,17 +3463,19 @@ e/-129/0.4, f/145/0.4, g/190/0.4, dot/-45/0.2)
 
 \subsubsection{Seven segments customization}
 
+You can scale the seven segment  display with the key \texttt{displays/scale}. This will scale the size of the digit, but not the absolute sizes shown below --- if you want them to scale, yo have to do it manually.
+
 You can change several parameters to adjust the displays:
 \begin{lstlisting}[basicstyle=\small\ttfamily]
-\ctikzset{seven seg/width/.initial=0.4}% relative to \pgf@circ@Rlen
-\ctikzset{seven seg/thickness/.initial=4pt}% segment thickness
-\ctikzset{seven seg/segment sep/.initial=0.2pt}% gap between segments
-\ctikzset{seven seg/box sep/.initial=1pt}% external box gap
+\ctikzset{seven seg/width/.initial=0.4}% relative to \pgf@circ@Rlen (scalable)
+\ctikzset{seven seg/thickness/.initial=4pt}% segment thickness (not scaled)
+\ctikzset{seven seg/segment sep/.initial=0.2pt}% gap between segments (not scaled)
+\ctikzset{seven seg/box sep/.initial=1pt}% external box gap (not scaled)
 \ctikzset{seven seg/color on/.initial=red}% color for segment "on"
 \ctikzset{seven seg/color off/.initial=gray!20!white} % ...and "off"
 \end{lstlisting}
 
-A couple of examples following:
+A couple of examples are shown below.
 
 \begin{LTXexample}[varwidth=true, pos=b, basicstyle=\small\ttfamily]
 \begin{circuitikz}[scale=0.5]
@@ -4067,7 +4066,8 @@ This could be especially useful if you define a style, to use like this:
 \tikz \draw (0,0) to[C, i=$\imath$] (2,0);
 \end{LTXexample}
 
-\noindent However, you can override the properties \texttt{voltage/distance from node}\footnote{That is, how distant from the initial and final points of the path the arrow starts and ends.}, \texttt{voltage/bump b}\footnote{Controlling how high the bump of the arrow is --- how curved it is.} and \texttt{voltage/european label distance}\footnote{Controlling how distant from the bipole the voltage label will be.} on a per-component basis, in order to fine-tune the voltages:
+However, you can override the properties \texttt{voltage/distance from node} (how distant from the initial and final points of the path the arrow starts and ends), \texttt{voltage/bump b} (how high the bump of the arrow is --- how curved it is) and \texttt{voltage/european label distance} (how distant from the bipole the voltage label will be) on a per-component basis, in order to fine-tune the voltages:
+
 
 \begin{LTXexample}[varwidth=true]
 \tikz \draw (0,0) to[R, v=1<\volt>] (1.5,0)
