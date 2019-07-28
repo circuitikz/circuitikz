@@ -360,11 +360,14 @@
 \long\def\pgfcircdeclarelogicport#1#2#3{%
     \pgfdeclareshape{american #1 port}%
     {%
+        \savedmacro{\ctikzclass}{\edef\ctikzclass{logic ports}}
+        \saveddimen{\scaledRlen}{\pgfmathsetlength{\pgf@x}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}}
         \savedmacro\resize{% automatic
-            \pgf@circ@res@up = \pgfkeysvalueof{/tikz/circuitikz/tripoles/american #1 port/height}\pgf@circ@Rlen
+            \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
+            \pgf@circ@res@up = \pgfkeysvalueof{/tikz/circuitikz/tripoles/american #1 port/height}\pgf@circ@scaled@Rlen
             \pgf@circ@res@up = .5\pgf@circ@res@up
             \pgf@circ@res@down = -\pgf@circ@res@up
-            \pgf@circ@res@right = \pgfkeysvalueof{/tikz/circuitikz/tripoles/american #1 port/width}\pgf@circ@Rlen
+            \pgf@circ@res@right = \pgfkeysvalueof{/tikz/circuitikz/tripoles/american #1 port/width}\pgf@circ@scaled@Rlen
             \pgf@circ@res@right = .5\pgf@circ@res@right
             \pgf@circ@res@left = -\pgf@circ@res@right
     }%
@@ -378,7 +381,8 @@
         \def\inputs{\the\pgf@circ@res@count}%
     }%
     \savedanchor\step{% 1/2 gap at edges
-        \pgf@circ@res@step = \pgfkeysvalueof{/tikz/circuitikz/tripoles/american #1 port/height}\pgf@circ@Rlen
+        \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
+        \pgf@circ@res@step = \pgfkeysvalueof{/tikz/circuitikz/tripoles/american #1 port/height}\pgf@circ@scaled@Rlen
         \divide\pgf@circ@res@step by \pgf@circ@res@count
         \pgfpoint{\pgf@circ@res@left}{\dimexpr\pgf@circ@res@up+0.5\pgf@circ@res@step}%
     }%
@@ -705,34 +709,54 @@
 %%% Original one-input ports
 
 \pgfdeclareshape{american not port}{
+    \savedmacro{\ctikzclass}{\edef\ctikzclass{logic ports}}
+    \saveddimen{\scaledRlen}{\pgfmathsetlength{\pgf@x}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}}
     \anchor{center}{\pgfpointorigin}
     \savedanchor\northwest{%
-        \pgf@y=\pgfkeysvalueof{/tikz/circuitikz/bipoles/not port/height}\pgf@circ@Rlen
+        \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
+        \pgf@y=\pgfkeysvalueof{/tikz/circuitikz/bipoles/not port/height}\pgf@circ@scaled@Rlen
         \pgf@y=.5\pgf@y
-        \pgf@x=-\pgfkeysvalueof{/tikz/circuitikz/bipoles/not port/width}\pgf@circ@Rlen
+        \pgf@x=-\pgfkeysvalueof{/tikz/circuitikz/bipoles/not port/width}\pgf@circ@scaled@Rlen
         \pgf@x=.5\pgf@x
-    }
-    \savedanchor\left{%
-        \pgf@y=0pt
     }
     \anchor{in}{
         \northwest
         \pgf@y=0pt
+    }
+    \anchor{in 1}{
+        \northwest
+        \pgf@y=0pt
+    }
+    \anchor{bin}{
+        \northwest
+        \pgf@y=0pt
+    }
+    \anchor{bin 1}{
+        \northwest
+        \pgf@y=0pt
+        \pgf@x=0.7\pgf@x
     }
     \anchor{out}{
         \northwest
         \pgf@y=0pt
         \pgf@x=-\pgf@x
     }
+    \anchor{bout}{
+        \northwest
+        \pgf@y=0pt
+        \pgf@x=-0.7\pgf@x
+    }
     \anchor{center}{
         \pgfpointorigin
     }
     \anchor{east}{
-        \left
-        \pgf@x=-.8\pgf@x
+        \northwest
+        \pgf@y=0pt
+        \pgf@x=-\pgf@x
     }
     \anchor{west}{
-        \left
+        \northwest
+        \pgf@y=0pt
     }
     \anchor{south}{
         \northwest
@@ -761,7 +785,6 @@
     }
     \backgroundpath{
         \pgfsetcolor{\pgfkeysvalueof{/tikz/circuitikz/color}}
-
 
         \northwest
         \pgf@circ@res@up = \pgf@y
@@ -797,39 +820,161 @@
         \pgfpathlineto{\pgfpoint{.7\pgf@circ@res@right}{0pt}}
 
         \pgfusepath{draw}
-
     }
 }
 
-\pgfdeclareshape{invschmitt}{
+\pgfdeclareshape{american buffer port}{
+    \savedmacro{\ctikzclass}{\edef\ctikzclass{logic ports}}
+    \saveddimen{\scaledRlen}{\pgfmathsetlength{\pgf@x}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}}
     \anchor{center}{\pgfpointorigin}
     \savedanchor\northwest{%
-        \pgf@y=\pgfkeysvalueof{/tikz/circuitikz/bipoles/not port/height}\pgf@circ@Rlen
+        \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
+        \pgf@y=\pgfkeysvalueof{/tikz/circuitikz/bipoles/not port/height}\pgf@circ@scaled@Rlen
         \pgf@y=.5\pgf@y
-        \pgf@x=-\pgfkeysvalueof{/tikz/circuitikz/bipoles/not port/width}\pgf@circ@Rlen
+        \pgf@x=-\pgfkeysvalueof{/tikz/circuitikz/bipoles/not port/width}\pgf@circ@scaled@Rlen
         \pgf@x=.5\pgf@x
-    }
-    \savedanchor\left{%
-        \pgf@y=0pt
     }
     \anchor{in}{
         \northwest
         \pgf@y=0pt
+    }
+    \anchor{in 1}{
+        \northwest
+        \pgf@y=0pt
+    }
+    \anchor{bin}{
+        \northwest
+        \pgf@y=0pt
+    }
+    \anchor{bin 1}{
+        \northwest
+        \pgf@y=0pt
+        \pgf@x=0.7\pgf@x
     }
     \anchor{out}{
         \northwest
         \pgf@y=0pt
         \pgf@x=-\pgf@x
     }
+    \anchor{bout}{
+        \northwest
+        \pgf@y=0pt
+        \pgf@x=-0.7\pgf@x
+    }
     \anchor{center}{
         \pgfpointorigin
     }
     \anchor{east}{
-        \left
-        \pgf@x=-.8\pgf@x
+        \northwest
+        \pgf@y=0pt
+        \pgf@x=-\pgf@x
     }
     \anchor{west}{
-        \left
+        \northwest
+        \pgf@y=0pt
+    }
+    \anchor{south}{
+        \northwest
+        \pgf@x=0pt
+        \pgf@y=-\pgf@y
+    }
+    \anchor{north}{
+        \northwest
+        \pgf@x=0pt
+    }
+    \anchor{south west}{
+        \northwest
+        \pgf@y=-\pgf@y
+    }
+    \anchor{north east}{
+        \northwest
+        \pgf@x=-\pgf@x
+    }
+    \anchor{north west}{
+        \northwest
+    }
+    \anchor{south east}{
+        \northwest
+        \pgf@x=-\pgf@x
+        \pgf@y=-\pgf@y
+    }
+    \backgroundpath{
+        \pgfsetcolor{\pgfkeysvalueof{/tikz/circuitikz/color}}
+
+        \northwest
+        \pgf@circ@res@up = \pgf@y
+        \pgf@circ@res@down = -\pgf@y
+        \pgf@circ@res@right = -\pgf@x
+        \pgf@circ@res@left = \pgf@x
+
+        \pgfscope
+            \pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/tripoles/thickness}\pgflinewidth}
+            \pgftransformxshift{.7\pgf@circ@res@left}
+            \pgf@circ@res@step=\pgf@circ@res@right
+            \advance\pgf@circ@res@step by -\pgf@circ@res@left
+            \pgf@circ@res@step=.7\pgf@circ@res@step
+
+            \pgfpathmoveto{\pgfpoint{\pgf@circ@res@step}{0pt}}
+            \pgfpathlineto{\pgfpoint{0pt}{\pgf@circ@res@up}}
+            \pgfpathlineto{\pgfpoint{0pt}{\pgf@circ@res@down}}
+            \pgfpathlineto{\pgfpoint{\pgf@circ@res@step}{0pt}}
+            \pgf@circ@draworfill
+        \endpgfscope
+
+        \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{0pt}}
+        \pgfpathlineto{\pgfpoint{.7\pgf@circ@res@left}{0pt}}
+
+        \pgfpathmoveto{\pgfpoint{\pgf@circ@res@right}{0pt}}
+        \pgfpathlineto{\pgfpoint{.7\pgf@circ@res@right}{0pt}}
+
+        \pgfusepath{draw}
+    }
+}
+\pgfdeclareshape{invschmitt}{
+    \savedmacro{\ctikzclass}{\edef\ctikzclass{logic ports}}
+    \saveddimen{\scaledRlen}{\pgfmathsetlength{\pgf@x}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}}
+    \anchor{center}{\pgfpointorigin}
+    \savedanchor\northwest{%
+        \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
+        \pgf@y=\pgfkeysvalueof{/tikz/circuitikz/bipoles/not port/height}\pgf@circ@scaled@Rlen
+        \pgf@y=.5\pgf@y
+        \pgf@x=-\pgfkeysvalueof{/tikz/circuitikz/bipoles/not port/width}\pgf@circ@scaled@Rlen
+        \pgf@x=.5\pgf@x
+    }
+    \anchor{in}{
+        \northwest
+        \pgf@y=0pt
+    }
+    \anchor{in 1}{
+        \northwest
+        \pgf@y=0pt
+    }
+    \anchor{bin 1}{
+        \northwest
+        \pgf@y=0pt
+        \pgf@x=0.7\pgf@x
+    }
+    \anchor{out}{
+        \northwest
+        \pgf@y=0pt
+        \pgf@x=-\pgf@x
+    }
+    \anchor{bout}{
+        \northwest
+        \pgf@y=0pt
+        \pgf@x=-0.7\pgf@x
+    }
+    \anchor{center}{
+        \pgfpointorigin
+    }
+    \anchor{east}{
+        \northwest
+        \pgf@y=0pt
+        \pgf@x=-\pgf@x
+    }
+    \anchor{west}{
+        \northwest
+        \pgf@y=0pt
     }
     \anchor{south}{
         \northwest
@@ -909,34 +1054,50 @@
 }
 
 \pgfdeclareshape{schmitt}{
+    \savedmacro{\ctikzclass}{\edef\ctikzclass{logic ports}}
+    \saveddimen{\scaledRlen}{\pgfmathsetlength{\pgf@x}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}}
     \anchor{center}{\pgfpointorigin}
     \savedanchor\northwest{%
-        \pgf@y=\pgfkeysvalueof{/tikz/circuitikz/bipoles/not port/height}\pgf@circ@Rlen
+        \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
+        \pgf@y=\pgfkeysvalueof{/tikz/circuitikz/bipoles/not port/height}\pgf@circ@scaled@Rlen
         \pgf@y=.5\pgf@y
-        \pgf@x=-\pgfkeysvalueof{/tikz/circuitikz/bipoles/not port/width}\pgf@circ@Rlen
+        \pgf@x=-\pgfkeysvalueof{/tikz/circuitikz/bipoles/not port/width}\pgf@circ@scaled@Rlen
         \pgf@x=.5\pgf@x
-    }
-    \savedanchor\left{%
-        \pgf@y=0pt
     }
     \anchor{in}{
         \northwest
         \pgf@y=0pt
+    }
+    \anchor{in 1}{
+        \northwest
+        \pgf@y=0pt
+    }
+    \anchor{bin 1}{
+        \northwest
+        \pgf@y=0pt
+        \pgf@x=0.7\pgf@x
     }
     \anchor{out}{
         \northwest
         \pgf@y=0pt
         \pgf@x=-\pgf@x
     }
+    \anchor{bout}{
+        \northwest
+        \pgf@y=0pt
+        \pgf@x=-.7\pgf@x
+    }
     \anchor{center}{
         \pgfpointorigin
     }
     \anchor{east}{
-        \left
-        \pgf@x=-.8\pgf@x
+        \northwest
+        \pgf@y=0pt
+        \pgf@x=-\pgf@x
     }
     \anchor{west}{
-        \left
+        \northwest
+        \pgf@y=0pt
     }
     \anchor{south}{
         \northwest
@@ -973,8 +1134,6 @@
         \pgf@circ@res@right = -\pgf@x
         \pgf@circ@res@left = \pgf@x
 
-        \pgf@circ@res@other = \pgfkeysvalueof{/tikz/circuitikz/bipoles/not port/circle width}\pgf@circ@res@right
-
         \pgfscope
             \pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/tripoles/thickness}\pgflinewidth}
             \pgftransformxshift{.7\pgf@circ@res@left}
@@ -982,7 +1141,7 @@
             \advance\pgf@circ@res@step by -\pgf@circ@res@left
             \pgf@circ@res@step=.7\pgf@circ@res@step
 
-            \pgfpathmoveto{\pgfpoint{\pgf@circ@res@step-\pgf@circ@res@other}{0pt}}
+            \pgfpathmoveto{\pgfpoint{\pgf@circ@res@step}{0pt}}
             \pgfpathlineto{\pgfpoint{0pt}{\pgf@circ@res@up}}
             \pgfpathlineto{\pgfpoint{0pt}{\pgf@circ@res@down}}
             \pgfpathclose
@@ -1024,11 +1183,14 @@
 \long\def\pgfcircdeclareeurologicport#1#2#3#4{
     \pgfdeclareshape{european #1 port}
     {
+        \savedmacro{\ctikzclass}{\edef\ctikzclass{logic ports}}
+        \saveddimen{\scaledRlen}{\pgfmathsetlength{\pgf@x}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}}
         \savedmacro\resize{% automatic
-            \pgf@circ@res@up = \pgfkeysvalueof{/tikz/circuitikz/tripoles/european #1 port/height}\pgf@circ@Rlen
+            \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
+            \pgf@circ@res@up = \pgfkeysvalueof{/tikz/circuitikz/tripoles/european #1 port/height}\pgf@circ@scaled@Rlen
             \pgf@circ@res@up = .5\pgf@circ@res@up
             \pgf@circ@res@down = -\pgf@circ@res@up
-            \pgf@circ@res@right = \pgfkeysvalueof{/tikz/circuitikz/tripoles/european #1 port/width}\pgf@circ@Rlen
+            \pgf@circ@res@right = \pgfkeysvalueof{/tikz/circuitikz/tripoles/european #1 port/width}\pgf@circ@scaled@Rlen
             \pgf@circ@res@right = .5\pgf@circ@res@right
             \pgf@circ@res@left = -\pgf@circ@res@right
         }%
@@ -1042,7 +1204,8 @@
         \def\inputs{\the\pgf@circ@res@count}%
     }%
     \savedanchor\step{% 1/2 gap at edges
-        \pgf@circ@res@step = \pgfkeysvalueof{/tikz/circuitikz/tripoles/european #1 port/height}\pgf@circ@Rlen
+        \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
+        \pgf@circ@res@step = \pgfkeysvalueof{/tikz/circuitikz/tripoles/european #1 port/height}\pgf@circ@scaled@Rlen
         \divide\pgf@circ@res@step by #3
         \pgfpoint{\pgf@circ@res@left}{\dimexpr\pgf@circ@res@up+0.5\pgf@circ@res@step}%
     }%
@@ -1058,6 +1221,9 @@
     % create input anchors
     \ifnum#3=1\relax
         \anchor{in}{\southwest\pgfpoint{\pgf@x}{0pt}}% or \step
+        \anchor{in 1}{\southwest\pgfpoint{\pgf@x}{0pt}}% or \step
+        \anchor{bin}{\left\pgfpoint{\pgf@x}{0pt}}% or \step
+        \anchor{bin 1}{\left\pgfpoint{\pgf@x}{0pt}}% or \step
     \else
         \expandafter\pgfutil@g@addto@macro\csname pgf@sh@s@european #1 port\endcsname{%
             \pgfmathloop%
@@ -1139,9 +1305,6 @@
             %
             \pgfpathmoveto{\pgfpointorigin}
             \pgftext{#2}
-            %
-            %
-            %
         }
     }
 }
@@ -1149,6 +1312,7 @@
 \pgfcircdeclareeurologicport{or}{$\ge 1$}{\pgf@circ@res@count}{}
 \pgfcircdeclareeurologicport{xor}{$=1$}{\pgf@circ@res@count}{}
 \pgfcircdeclareeurologicport{not}{$1$}{1}{not}
+\pgfcircdeclareeurologicport{buffer}{$1$}{1}{}
 \pgfcircdeclareeurologicport{nand}{\&}{\pgf@circ@res@count}{not}
 \pgfcircdeclareeurologicport{nor}{$\ge 1$}{\pgf@circ@res@count}{not}
 \pgfcircdeclareeurologicport{xnor}{$=1$}{\pgf@circ@res@count}{not}
