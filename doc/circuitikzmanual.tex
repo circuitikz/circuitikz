@@ -2417,10 +2417,31 @@ For the length parameter of the transmission line there is a shortcut in the for
 The internal part of the motor and generator are, by default, filled white (to avoid compatibility problems with older versions of the package).
 
 \begin{groupdesc}
-    \circuitdesc*{elmech}{Motor}{M}( bottom/-90/0.2,
-    left/180/0.2, right/0/0.2, top/90/0.4 )
-	\circuitdesc*{elmech}{Generator}{G}
+    \circuitdesc*{elmech}{Motor}{M}(bottom/-90/0.2, left/180/0.2, right/0/0.2, top/90/0.4, 45/45/0.2)
+    \circuitdesc*{elmech}{Generator}{G}(block down right/0/0.2, block north east/0/0.2)
 \end{groupdesc}
+
+\subsubsection{Electro-Mechanical Devices anchors}
+
+Apart from the standard geographical anchors, \texttt{elmech} has the border anchors (situated on the inner circle) and the following anchors on the ``block'':
+
+\begin{quote}
+\begin{circuitikz}
+    \def\coordx(#1)[#2:#3]#4{node[circle, #4, draw, inner sep=1pt,pin={[#4, inner sep=0.5pt, font=\scriptsize, pin distance=#2cm, pin edge={#4, }]#3:#1}](#1){}}
+    \node [elmech](T) at(0,0) {A};
+    \foreach \a/\d/\t in {block north east/0.2/45, block south east/0.2/-45,
+        block south west/0.2/-135, block north west/0.1/135, 150/0.1/150,
+        180/0.1/180, 210/0.1/210, 60/0.4/-15, -60/0.4/15}
+    \path (T.\a) \coordx(\a)[\d:\t]{red};
+    \node [elmech](T) at(6,0) {B};
+    \foreach \a/\d/\t in {block up right/0.2/45, block down right/0.2/-45,
+        block down left/0.2/-135, block up left/0.1/135, north/0.3/90,
+        south/0.3/-90, east/0.3/0, west/0.3/180}
+    \path (T.\a) \coordx(\a)[\d:\t]{red};
+\end{circuitikz}
+\end{quote}
+
+
 \begin{LTXexample}[varwidth=true]
 \begin{circuitikz}
 \draw (2,0) node[elmech](motor){M};
@@ -2435,7 +2456,9 @@ The internal part of the motor and generator are, by default, filled white (to a
 \draw[thick,->>](motor.center)--++(1.5,0)node[midway,above]{$\omega$};
 \end{circuitikz}
 \end{LTXexample}
-The symbols can also be used along a path, using the transistor-path-syntax(T in front of the shape name, see section \ref{sec:transasbip}). Don´t forget to use parameter $n$ to name the node and get access to the anchors:
+
+The symbols can also be used along a path, using the transistor-path-syntax(\texttt{T} in front of the shape name, see section \ref{sec:transasbip}). Don't forget to use parameter $n$ to name the node and get access to the anchors:
+
 \begin{LTXexample}[varwidth=true]
 \begin{circuitikz}
 \draw (0,0) to [Telmech=M,n=motor] ++(0,-3) to [Telmech=M] ++(3,0) to [Telmech=G,n=generator] ++(0,3) to [R] (0,0);
