@@ -5,6 +5,7 @@ The major changes among the different circuitikz versions are listed here. See <
     - Fixed a bug with "inline" gyrators, now the circle will not overlap
     - Fixed a bug in input anchors of european not ports
     - Fixed tlinestub so that it has the same default size than tline (TL)
+    - More anchors for "elmech" element
     - The styling addition are quite big --- they should be backward compatible, but to be on the safe side, add the 0.9.3 version snapshots.
     - Added styling of relative size of components (at a global or local level)
 
