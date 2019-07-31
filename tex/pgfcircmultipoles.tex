@@ -12,7 +12,11 @@
 %% Multipoles
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-% counters for pin accounting...
+%%%%%%%%%
+%% Chips
+%%%%%%%%%
+
+% let's use the same shifts everywhere, no magic numbers
 \def\pgf@circ@dip@pin@shift{0.5}
 \def\pgf@circ@qfp@pin@shift{0.25}
 
@@ -25,8 +29,10 @@
 % DIP (dual in line package) chips
 
 \pgfdeclareshape{dipchip}{
+    \savedmacro{\ctikzclass}{\edef\ctikzclass{chips}}
+    \saveddimen{\scaledRlen}{\pgfmathsetlength{\pgf@x}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}}
     \savedmacro\numpins{%
-            \pgf@circ@count@a=\pgfkeysvalueof{/tikz/circuitikz/multipoles/dipchip/num pins}%
+            \pgf@circ@count@a=\ctikzvalof{multipoles/dipchip/num pins}%
             \def\numpins{\the\pgf@circ@count@a}
     }
     \savedanchor\centerpoint{%
@@ -38,17 +44,25 @@
     \anchor{center}{\origin}
     \anchor{text}{\centerpoint}% to adjust text
     \saveddimen\height{%
+        \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
         \pgfmathsetlength\pgf@x{((\numpins)
-        *\pgfkeysvalueof{/tikz/circuitikz/multipoles/dipchip/pin spacing})*\pgf@circ@Rlen/2}%
+        *\ctikzvalof{multipoles/dipchip/pin spacing})*\pgf@circ@scaled@Rlen/2}%
     }%
-    \saveddimen{\chipspacing}{\pgfmathsetlength\pgf@x{\pgf@circ@Rlen*\pgfkeysvalueof{/tikz/circuitikz/multipoles/dipchip/pin spacing}}}
-    \saveddimen{\width}{\pgfmathsetlength\pgf@x{\pgf@circ@Rlen*\pgfkeysvalueof{/tikz/circuitikz/multipoles/dipchip/width}}}
-    \saveddimen{\extshift}{\pgfmathsetlength\pgf@x{\pgf@circ@Rlen*\pgfkeysvalueof{/tikz/circuitikz/multipoles/external pins width}}}
+    \saveddimen{\chipspacing}{
+        \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
+        \pgfmathsetlength\pgf@x{\pgf@circ@scaled@Rlen*\ctikzvalof{multipoles/dipchip/pin spacing}}}
+    \saveddimen{\width}{
+        \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
+        \pgfmathsetlength\pgf@x{\pgf@circ@scaled@Rlen*\ctikzvalof{multipoles/dipchip/width}}}
+    \saveddimen{\extshift}{
+        \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
+        \pgfmathsetlength\pgf@x{\pgf@circ@scaled@Rlen*\ctikzvalof{multipoles/external pins width}}}
     % standard anchors
     \savedanchor\northwest{%
+        \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
         \pgfmathsetlength\pgf@y{0.5*((\numpins)
-        *\pgfkeysvalueof{/tikz/circuitikz/multipoles/dipchip/pin spacing})*\pgf@circ@Rlen/2}%
-        \pgfmathsetlength\pgf@x{-0.5*\pgf@circ@Rlen*\pgfkeysvalueof{/tikz/circuitikz/multipoles/dipchip/width}}
+        *\ctikzvalof{multipoles/dipchip/pin spacing})*\pgf@circ@scaled@Rlen/2}%
+        \pgfmathsetlength\pgf@x{-0.5*\pgf@circ@scaled@Rlen*\ctikzvalof{multipoles/dipchip/width}}
     }
     \anchor{dot}{\northwest
         \pgfmathsetlength\pgf@x{\pgf@x + 0.3*\chipspacing}
@@ -77,10 +91,11 @@
         \pgf@circ@res@down = -\pgf@y
         \pgf@circ@res@right = -\pgf@x
         \pgf@circ@res@left = \pgf@x
-        \pgf@circ@res@step = \pgfkeysvalueof{/tikz/circuitikz/multipoles/dipchip/pin spacing}\pgf@circ@Rlen
-        \pgf@circ@res@other = \pgfkeysvalueof{/tikz/circuitikz/multipoles/external pins width}\pgf@circ@Rlen
+        \pgf@circ@scaled@Rlen=\scaledRlen
+        \pgf@circ@res@step = \ctikzvalof{multipoles/dipchip/pin spacing}\pgf@circ@scaled@Rlen
+        \pgf@circ@res@other = \ctikzvalof{multipoles/external pins width}\pgf@circ@scaled@Rlen
         \pgfscope% (for the line width)
-        \pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/multipoles/thickness}\pgflinewidth}
+        \pgfsetlinewidth{\ctikzvalof{multipoles/thickness}\pgflinewidth}
         \pgfpathrectanglecorners{\pgfpoint{-\width/2}{-\height/2}}{\pgfpoint{\width/2}{\height/2}}%
         \pgf@circ@draworfill
         %% upside mark
@@ -89,7 +104,7 @@
             \pgfpatharc{0}{180}{0.2*\pgf@circ@res@left}
         \fi
         \pgfusepath{stroke}%
-        \pgfsetcolor{\pgfkeysvalueof{/tikz/circuitikz/color}}
+        \pgfsetcolor{\ctikzvalof{color}}
         % Adding the pin number
         \ifpgf@circuit@chip@shownumbers
             \pgf@circ@count@a=\numpins\relax
@@ -104,7 +119,7 @@
                 \pgfmathsetmacro{\quadrant}{0}
             \fi
             \def\pgf@circ@strut{\vrule width 0pt height 1em depth 0.4em\relax}
-            \def\mytext{\pgfkeysvalueof{/tikz/circuitikz/multipoles/font}\space\pgf@circ@strut\the\pgf@circ@count@c\space}
+            \def\mytext{\ctikzvalof{multipoles/font}\space\pgf@circ@strut\the\pgf@circ@count@c\space}
             \pgfmathloop%
             \ifnum\pgf@circ@count@a>0
                 \ifcase\quadrant % rotation 0
@@ -158,12 +173,12 @@
             \endpgfscope
             \ifdim\pgf@circ@res@other>0pt
             \pgfscope
-                \pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/multipoles/external pins thickness}\pgflinewidth}
+                \pgfsetlinewidth{\ctikzvalof{multipoles/external pins thickness}\pgflinewidth}
                 \pgf@circ@count@a=\numpins\relax
                 \divide\pgf@circ@count@a by 2 \pgf@circ@count@b=\pgf@circ@count@a
                 \pgfmathloop%
                 \ifnum\pgf@circ@count@a>0
-                    \edef\padfrac{\pgfkeysvalueof{/tikz/circuitikz/multipoles/external pad fraction}}
+                    \edef\padfrac{\ctikzvalof{multipoles/external pad fraction}}
                     \ifnum\padfrac>0
                         \pgf@circ@res@temp=\pgf@circ@res@step\divide\pgf@circ@res@temp by \padfrac
                         % left side pads
@@ -214,8 +229,10 @@
 % QFP (quad flat package) chips
 
 \pgfdeclareshape{qfpchip}{
+    \savedmacro{\ctikzclass}{\edef\ctikzclass{chips}}
+    \saveddimen{\scaledRlen}{\pgfmathsetlength{\pgf@x}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}}
     \savedmacro\numpins{%
-            \pgf@circ@count@a=\pgfkeysvalueof{/tikz/circuitikz/multipoles/qfpchip/num pins}%
+            \pgf@circ@count@a=\ctikzvalof{multipoles/qfpchip/num pins}%
             \def\numpins{\the\pgf@circ@count@a}
     }
     \savedanchor\centerpoint{%
@@ -227,19 +244,26 @@
     \anchor{center}{\origin}
     \anchor{text}{\centerpoint}% to adjust text
     \saveddimen\height{%
+        \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
         \pgfmathsetlength\pgf@x{((\numpins+2)
-        *\pgfkeysvalueof{/tikz/circuitikz/multipoles/qfpchip/pin spacing})*\pgf@circ@Rlen/4}%
+        *\ctikzvalof{multipoles/qfpchip/pin spacing})*\pgf@circ@scaled@Rlen/4}%
     }%
     \saveddimen\width{%
+        \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
         \pgfmathsetlength\pgf@x{((\numpins+2)
-        *\pgfkeysvalueof{/tikz/circuitikz/multipoles/qfpchip/pin spacing})*\pgf@circ@Rlen/4}%
+        *\ctikzvalof{multipoles/qfpchip/pin spacing})*\pgf@circ@scaled@Rlen/4}%
     }%
-    \saveddimen{\chipspacing}{\pgfmathsetlength\pgf@x{\pgf@circ@Rlen*\pgfkeysvalueof{/tikz/circuitikz/multipoles/qfpchip/pin spacing}}}
-    \saveddimen{\extshift}{\pgfmathsetlength\pgf@x{\pgf@circ@Rlen*\pgfkeysvalueof{/tikz/circuitikz/multipoles/external pins width}}}
+    \saveddimen{\chipspacing}{
+        \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
+        \pgfmathsetlength\pgf@x{\pgf@circ@scaled@Rlen*\ctikzvalof{multipoles/qfpchip/pin spacing}}}
+    \saveddimen{\extshift}{
+        \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
+        \pgfmathsetlength\pgf@x{\pgf@circ@scaled@Rlen*\ctikzvalof{multipoles/external pins width}}}
     % standard anchors
     \savedanchor\northwest{%
+        \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
         \pgfmathsetlength\pgf@y{0.5*((\numpins+2)
-        *\pgfkeysvalueof{/tikz/circuitikz/multipoles/qfpchip/pin spacing})*\pgf@circ@Rlen/4}%
+        *\ctikzvalof{multipoles/qfpchip/pin spacing})*\pgf@circ@scaled@Rlen/4}%
         \pgf@x=-\pgf@y
     }
     \anchor{dot}{\northwest
@@ -269,10 +293,11 @@
         \pgf@circ@res@down = -\pgf@y
         \pgf@circ@res@right = -\pgf@x
         \pgf@circ@res@left = \pgf@x
-        \pgf@circ@res@step = \pgfkeysvalueof{/tikz/circuitikz/multipoles/qfpchip/pin spacing}\pgf@circ@Rlen
-        \pgf@circ@res@other = \pgfkeysvalueof{/tikz/circuitikz/multipoles/external pins width}\pgf@circ@Rlen
+        \pgf@circ@scaled@Rlen=\scaledRlen
+        \pgf@circ@res@step = \ctikzvalof{multipoles/qfpchip/pin spacing}\pgf@circ@scaled@Rlen
+        \pgf@circ@res@other = \ctikzvalof{multipoles/external pins width}\pgf@circ@scaled@Rlen
         \pgfscope% (for the line width)
-        \pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/multipoles/thickness}\pgflinewidth}
+        \pgfsetlinewidth{\ctikzvalof{multipoles/thickness}\pgflinewidth}
         %% upside mark
         \ifpgf@circuit@chip@topmark
             \pgfpathmoveto{\pgfpoint{-\width/2}{\height/2-\pgf@circ@res@step/2}}
@@ -287,7 +312,7 @@
         \pgfpathclose
         \pgf@circ@draworfill
         % Adding the pin number
-        \pgfsetcolor{\pgfkeysvalueof{/tikz/circuitikz/color}}
+        \pgfsetcolor{\ctikzvalof{color}}
         \ifpgf@circuit@chip@shownumbers
             \pgf@circ@count@a=\numpins%
             \divide\pgf@circ@count@a by 4 \pgf@circ@count@b=\pgf@circ@count@a
@@ -301,7 +326,7 @@
                 \pgfmathsetmacro{\quadrant}{0}
             \fi
             \def\pgf@circ@strut{\vrule width 0pt height 1em depth 0.4em\relax}
-            \def\mytext{\pgfkeysvalueof{/tikz/circuitikz/multipoles/font}\space\pgf@circ@strut\the\pgf@circ@count@c\space}
+            \def\mytext{\ctikzvalof{multipoles/font}\space\pgf@circ@strut\the\pgf@circ@count@c\space}
             \pgfmathloop%
             \ifnum\pgf@circ@count@a>0
                 \ifcase\quadrant % rotation 0
@@ -395,12 +420,12 @@
             \endpgfscope
             \ifdim\pgf@circ@res@other>0pt
             \pgfscope
-                \pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/multipoles/external pins thickness}\pgflinewidth}
+                \pgfsetlinewidth{\ctikzvalof{multipoles/external pins thickness}\pgflinewidth}
                 \pgf@circ@count@a=\numpins%
                 \divide\pgf@circ@count@a by 4 \pgf@circ@count@b=\pgf@circ@count@a
                 \pgfmathloop%
                 \ifnum\pgf@circ@count@a>0
-                    \edef\padfrac{\pgfkeysvalueof{/tikz/circuitikz/multipoles/external pad fraction}}
+                    \edef\padfrac{\ctikzvalof{multipoles/external pad fraction}}
                     \ifnum\padfrac>0
                         \pgf@circ@res@temp=\pgf@circ@res@step\divide\pgf@circ@res@temp by \padfrac
                         % left side pads
@@ -498,53 +523,62 @@
     \fi
 }
 
-
+%%%%%%%%%%%%%%%%%
 %% Rotary Switch
+%%%%%%%%%%%%%%%%%
 
 \pgfdeclareshape{rotaryswitch}
 {
+    \savedmacro{\ctikzclass}{\edef\ctikzclass{switches}}
+    \saveddimen{\scaledRlen}{\pgfmathsetlength{\pgf@x}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}}
     \savedanchor\northeast{%
+        \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
         % this strange value makes the 2-pole rotary switch equal to the 2 poles cute spdt
         % the magic number is 0.25/cos(35)
         % try to recalculate it for the actual switch
-        \pgf@circ@res@temp=\ctikzvalof{tripoles/spdt/width}\pgf@circ@Rlen
+        \pgf@circ@res@temp=\ctikzvalof{tripoles/spdt/width}\pgf@circ@scaled@Rlen
         \pgf@circ@res@temp=.3052\pgf@circ@res@temp
         \edef\a{\ctikzvalof{multipoles/rotary/angle}}
         \edef\r{\ctikzvalof{nodes width}}
-        \pgfmathsetlength{\pgf@y}{\r*\pgf@circ@Rlen +(\a>90 ? 2 : 2*sin(\a))*\pgf@circ@res@temp}
-        \pgfmathsetlength{\pgf@x}{\r*\pgf@circ@Rlen + \pgf@circ@res@temp}
+        \pgfmathsetlength{\pgf@y}{\r*\pgf@circ@scaled@Rlen +(\a>90 ? 2 : 2*sin(\a))*\pgf@circ@res@temp}
+        \pgfmathsetlength{\pgf@x}{\r*\pgf@circ@scaled@Rlen + \pgf@circ@res@temp}
     }
     \savedanchor\northwest{%
+        \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
         % this strange value makes the 2-pole rotary switch equal to the 2 poles cute spdt
         % the magic number is 0.25/cos(35)
         % try to recalculate it for the actual switch
-        \pgf@circ@res@temp=\ctikzvalof{tripoles/spdt/width}\pgf@circ@Rlen
+        \pgf@circ@res@temp=\ctikzvalof{tripoles/spdt/width}\pgf@circ@scaled@Rlen
         \pgf@circ@res@temp=.3052\pgf@circ@res@temp
         \edef\a{\ctikzvalof{multipoles/rotary/angle}}
         \edef\r{\ctikzvalof{nodes width}}
-        \pgfmathsetlength{\pgf@y}{\r*\pgf@circ@Rlen +(\a>90 ? 2 : 2*sin(\a))*\pgf@circ@res@temp}
-        \pgfmathsetlength{\pgf@x}{-\r*\pgf@circ@Rlen - (\a<90 ? 1 : 1-2*cos(\a))*\pgf@circ@res@temp}
+        \pgfmathsetlength{\pgf@y}{\r*\pgf@circ@scaled@Rlen +(\a>90 ? 2 : 2*sin(\a))*\pgf@circ@res@temp}
+        \pgfmathsetlength{\pgf@x}{-\r*\pgf@circ@scaled@Rlen - (\a<90 ? 1 : 1-2*cos(\a))*\pgf@circ@res@temp}
     }
     \savedanchor\central{%
+        \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
         % this strange value makes the 2-pole rotary switch equal to the 2 poles cute spdt
         % the magic number is 0.25/cos(35)
         % try to recalculate it for the actual switch
-        \pgf@circ@res@temp=\ctikzvalof{tripoles/spdt/width}\pgf@circ@Rlen
+        \pgf@circ@res@temp=\ctikzvalof{tripoles/spdt/width}\pgf@circ@scaled@Rlen
         \pgf@circ@res@temp=.3052\pgf@circ@res@temp
         \edef\a{\ctikzvalof{multipoles/rotary/angle}}
         \edef\r{\ctikzvalof{nodes width}}
-        \pgfmathsetlength{\pgf@y}{\r*\pgf@circ@Rlen +(\a>90 ? 2 : 2*sin(\a))*\pgf@circ@res@temp}
+        \pgfmathsetlength{\pgf@y}{\r*\pgf@circ@scaled@Rlen +(\a>90 ? 2 : 2*sin(\a))*\pgf@circ@res@temp}
         \pgfmathsetlength{\pgf@x}{(\a<90 ? 0 : cos(\a))*\pgf@circ@res@temp}
     }
     % external square limits
     \savedanchor\extnorthwest{%
-        \pgf@x=-\ctikzvalof{tripoles/spdt/width}\pgf@circ@Rlen
+        \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
+        \pgf@x=-\ctikzvalof{tripoles/spdt/width}\pgf@circ@scaled@Rlen
         % this strange value makes the 2-pole rotary switch equal to the 2 poles cute spdt
         \pgf@x=.3052\pgf@x % the magic number is 0.25/cos(35)
         \pgf@x=2.5\pgf@x % external square size
         \pgf@y=-\pgf@x %square thing when angle=180?
     }
-    \saveddimen{\width}{\pgfmathsetlength\pgf@x{0.3052*\pgf@circ@Rlen*\ctikzvalof{tripoles/spdt/width}}}
+    \saveddimen{\width}{
+        \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
+        \pgfmathsetlength\pgf@x{0.3052*\pgf@circ@scaled@Rlen*\ctikzvalof{tripoles/spdt/width}}}
     % radius of the connector
     % This is the radius of the "ocirc" shape (see pgfcircshapes.tex)
     \saveddimen{\radius}{\pgfmathsetlength\pgf@x{\pgf@circ@Rlen*\ctikzvalof{nodes width}}}
@@ -679,9 +713,13 @@
     \advance\pgf@x by -\pgf@circ@res@temp
 }
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Seven segments displays
+%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \pgfdeclareshape{bare7seg}{
+    \savedmacro{\ctikzclass}{\edef\ctikzclass{displays}}
+    \saveddimen{\scaledRlen}{\pgfmathsetlength{\pgf@x}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}}
     \savedmacro{\dotstatus}{\edef\dotstatus{\pgf@circ@sevenseg@dotstate}}
     \saveddimen{\dotspace}{% the dot is on the right, and occupy the same as the thickness
         \ifpgf@circ@sevenseg@dot
@@ -692,29 +730,34 @@
     }
     % The object extension is more or less (-width/2,-width) to (width/2,width)
     % and adjusted for line thickness (both sides) and eventually the dot
-    \saveddimen{\width}{\pgfmathsetlength{\pgf@x}{\ctikzvalof{seven seg/width}*\pgf@circ@Rlen}}
+    \saveddimen{\width}{
+        \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
+        \pgfmathsetlength{\pgf@x}{\ctikzvalof{seven seg/width}*\pgf@circ@scaled@Rlen}}
     \saveddimen{\gap}{\pgfmathsetlength{\pgf@x}{\ctikzvalof{seven seg/segment sep}}}
     \saveddimen{\boxgap}{\pgfmathsetlength{\pgf@x}{\ctikzvalof{seven seg/box sep}}}
     \savedanchor{\southwest}{% both negative
-        \pgfmathsetlength{\pgf@x}{-0.5*\ctikzvalof{seven seg/width}*\pgf@circ@Rlen
+        \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
+        \pgfmathsetlength{\pgf@x}{-0.5*\ctikzvalof{seven seg/width}*\pgf@circ@scaled@Rlen
         -0.5*\ctikzvalof{seven seg/thickness}-\ctikzvalof{seven seg/box sep}}
-        \pgfmathsetlength{\pgf@y}{-\ctikzvalof{seven seg/width}*\pgf@circ@Rlen
+        \pgfmathsetlength{\pgf@y}{-\ctikzvalof{seven seg/width}*\pgf@circ@scaled@Rlen
         -0.5*\ctikzvalof{seven seg/thickness}-\ctikzvalof{seven seg/box sep}}
     }
     \savedanchor{\northeast}{% both positive
+        \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
         \ifpgf@circ@sevenseg@dot
             \pgfmathsetlength{\pgf@circ@res@other}{\ctikzvalof{seven seg/thickness}}
         \else
             \pgf@circ@res@other=0pt
         \fi
-        \pgfmathsetlength{\pgf@x}{0.5*\ctikzvalof{seven seg/width}*\pgf@circ@Rlen
+        \pgfmathsetlength{\pgf@x}{0.5*\ctikzvalof{seven seg/width}*\pgf@circ@scaled@Rlen
         +0.5*\ctikzvalof{seven seg/thickness}+\pgf@circ@res@other+\ctikzvalof{seven seg/box sep}}
-        \pgfmathsetlength{\pgf@y}{\ctikzvalof{seven seg/width}*\pgf@circ@Rlen
+        \pgfmathsetlength{\pgf@y}{\ctikzvalof{seven seg/width}*\pgf@circ@scaled@Rlen
         +0.5*\ctikzvalof{seven seg/thickness}+\ctikzvalof{seven seg/box sep}}
     }
     \savedanchor{\topright}{% anchor without the box sep and the thickness
-        \pgfmathsetlength{\pgf@x}{0.5*\ctikzvalof{seven seg/width}*\pgf@circ@Rlen}
-        \pgfmathsetlength{\pgf@y}{\ctikzvalof{seven seg/width}*\pgf@circ@Rlen}
+        \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
+        \pgfmathsetlength{\pgf@x}{0.5*\ctikzvalof{seven seg/width}*\pgf@circ@scaled@Rlen}
+        \pgfmathsetlength{\pgf@y}{\ctikzvalof{seven seg/width}*\pgf@circ@scaled@Rlen}
     }
     \anchor{center}{\pgfpointorigin}
     \anchor{north west}{\southwest\pgf@y=-\pgf@y}

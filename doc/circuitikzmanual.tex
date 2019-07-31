@@ -8,6 +8,8 @@
 \documentclass[a4paper, titlepage]{article}
 \usepackage{a4wide}	% smaller borders
 \usepackage{titling}
+\usepackage{titlesec}
+\newcommand{\sectionbreak}{\clearpage}
 
 \def\modern{
 	\usepackage{fontspec}
@@ -221,6 +223,7 @@ This same issue create a lot of problem of compatibility between \Circuitikz{} a
 Here, we will provide a list of incompabilitys between different version of circuitikz. We will try to hold this list short, but sometimes it is easier to break with old syntax than including a lot of switches and compatibility layers.
 You can check the used version at your local installation using the macro \verb!\pgfcircversion{}!.
 \begin{itemize}
+    \item After v0.9.4: added the concept of styling of circuits. It should be backward compatible, but it's a big change, so be ready to use the \texttt{0.9.3} snapshot (see below for details).
     \item After v0.9.0: the parameters \texttt{tripoles/american or port/aaa}, \texttt{...bbb}, \texttt{...ccc} and \texttt{...ddd} are no longer used and are silently ignored; the same stands for \texttt{nor}, \texttt{xor}, and \texttt{xnor} ports.
     \item After v0.9.0: voltage and current directions/sign (plus and minus signs in case of \texttt{american voltages} and arrows in case of \texttt{european voltages} have been rationalized with a couple of new options (see details in section~\ref{curr-and-volt}. The default case is still the same as v0.8.3.
     \item Since v0.8.2: voltage and current label directions(v<= / i<=) do NOT change the orientation of the drawn source shape anymore. Use the "invert" option to rotate the shape of the source. Furthermore, from this version on, the current label(i=) at current sources can be used independent of the regular label(l=).
@@ -232,12 +235,12 @@ You can check the used version at your local installation using the macro \verb!
 If you have older projects that show compatibility problems, you have two options:
 \begin{itemize}
     \item you can use an older version locally using the git-version and picking the correct commit from the repository (branch gh-pages) or the main GitHub site directly;
-    \item if you are using \LaTeX, the distribution has embedded several important old versions: \texttt{0.4}, \texttt{0.6}, \texttt{0.7} and \texttt{0.8.3}. To switch to use them, you simply change your \verb|\usepackage| invocation like
+    \item if you are using \LaTeX, the distribution has embedded several important old versions: \texttt{0.4}, \texttt{0.6}, \texttt{0.7}, \texttt{0.8.3} and \texttt{0.9.3}. To switch to use them, you simply change your \verb|\usepackage| invocation like
         \begin{lstlisting}
             \usepackage[]{circuitik-0.8.3} % or circuitikz-0.4, 0.6...
         \end{lstlisting}
     You have to take care of the options that may have changed between versions;
-    \item   if you are using  \ConTeXt, only version \texttt{0.8.3} is packaged for now; if can use it with
+    \item   if you are using  \ConTeXt, only versions \texttt{0.8.3} and \texttt{0.9.3} are packaged for now; if can use it with
         \begin{lstlisting}
             \usemodule[circuitik-0.8.3]
         \end{lstlisting}
@@ -245,7 +248,7 @@ If you have older projects that show compatibility problems, you have two option
 
 
 \subsection{Feedback}
-The easiest way to contact the authors is via the official Github repository: \url{https://github.com/circuitikz/circuitikz/issues}
+The easiest way to contact the authors is via the official Github repository: \url{https://github.com/circuitikz/circuitikz/issues}. For general help question, a lot of nice people is quite active on \url{https://tex.stackexchange.com/questions/tagged/circuitikz} --- be sure to read the help pages for the site and ask!
 
 \subsection{Package options}
 \label{sec:package-options}
@@ -637,6 +640,50 @@ This is the final circuit, with the nodes still marked:
 
 \end{circuitikz}
 
+Finally, if you like a more compact drawing, you can add the options (for example):
+\begin{lstlisting}
+\begin{circuitikz}[american, scale=0.8] % this will scale only the coordinates
+    \ctikzset{resistors/scale=0.7, capacitors/scale=0.6}
+    ...
+\end{circuitikz}
+\end{lstlisting}
+
+and you will obtain the following diagram with the exact same code (I just removed the second \verb|\coord| definition to hide the coordinates markings).
+
+\ctikzset{resistors/scale=0.7, capacitors/scale=0.6}
+\def\coord(#1){coordinate(#1)}
+\begin{circuitikz}[american, scale=0.8]
+    \draw (0,0) node[nmos,](Q1){};
+    \draw (Q1.center) node[right]{\killdepth{Q1}};
+    \draw (Q1.S) to[R, l2^=$R_S$ and \SI{5}{k\ohm}] ++(0,-3) node[vee](VEE){$V_{EE}=\SI{-10}{V}$}; %define VEE level
+    \draw (Q1.S) to[short] ++(2,0) to[C=$C_1$] ++(0,-1.5) node[ground](GND){};
+    \draw (Q1.G) to[short] ++(-1,0) \coord (in) to[R, l2^=$R_G$ and \SI{1}{M\ohm}] (in |- GND) node[ground]{};
+    \draw (in) to[C, l_=$C_2$,*-o] ++(-1.5,0) node[left](vi1){$v_i=v_{i1}$};
+    \draw (Q1.D) to[R, l2_=$R_D$ and \SI{10}{k\ohm}] ++(0,3) node[vcc](VCC){$V_{CC}=\SI{10}{V}$};
+    \draw (Q1.D) to[short, -o] ++(1,0) node[right](vo1){$v_{o1}$};
+    %
+    \path (vo1) -- ++(3,0) \coord(bjt);
+    %
+    \draw (bjt) node[npn, ](Q2){};
+    \draw (Q2.center) node[right]{\killdepth{Q2}};
+    \draw (Q2.B) to[short, -o] ++(-0.5,0) node[left](vi2){$v_{12}$};
+    \draw (Q2.E) to[R,l2^=$R_E$ and \SI{9.3}{k\ohm}] (Q2.E |- VEE) node[vee]{};
+    \draw (Q2.E) to[short, -o] ++(1,0) node[right](vo2){$v_{o2}$};
+    \draw (Q2.C) to[short] (Q2.C |- VCC) node[vcc]{};
+    %
+    \path (vo2) ++(1.5,0) \coord(load);
+    \draw (load) to[C=$C_3$] ++(1,0) \coord(tmp) to[R=$R_L$] (tmp |- GND) node[ground]{};
+    \draw [densely dashed] (vo2) -- (load);
+    %
+    \draw [densely dashed] (vo1) -- (vi2);
+    %
+    \draw [blockdef](vi1|-VEE) ++(0,-2) \coord(tmp)
+          -- node[midway, fill=white]{bloque 1} (vo1|- tmp);
+          \draw [blockdef] (vi2|-VEE) ++(0,-2) \coord(tmp)
+          -- node[midway, fill=white]{bloque 2} (vo2|- tmp);
+
+\end{circuitikz}
+
 
 \endgroup
 
@@ -708,7 +755,9 @@ Pretty much all Circui\TikZ\ relies heavily on \texttt{pgfkeys} for value handli
 
 All can be varied using the \verb!\ctikzset! command, anywhere in the code.
 
-\paragraph{Components size}
+Note that the details of the parameters that are not described in the manual can change in the future, so be ready to use a fixed version of the package (the ones with the specific number, like \verb|circuitikz-0.9.3|) if you dig into them.
+
+\paragraph{Components size}\label{sec:pgfcircRlen}
 Perhaps the most important parameter is \texttt{bipoles/length}  (default \SI{1.4}{cm}), which
 can be interpreted as the length of a resistor (including reasonable connections): all other lengths are relative to this value. For instance:
 
@@ -740,6 +789,32 @@ can be interpreted as the length of a resistor (including reasonable connections
 ;\end{circuitikz}
 \end{LTXexample}
 
+The changes on \texttt{bipoles/length} should, however, be globally applied to every path, because they affect every element --- including the poles. So you can have artifacts like these:
+
+\begin{LTXexample}[varwidth=true]
+\begin{circuitikz}[
+    bigR/.style={R, bipoles/length=3cm}
+    ]
+    \draw (0,3) to [bigR, o-o] ++(4,0);
+    \draw (0,1.5) to [bigR, o-o] ++(4,0)
+      to[R, o-o] ++(2,0); % will fail here
+    \draw (0,0) to [R, o-o] ++(4,0);
+\end{circuitikz}
+\end{LTXexample}
+
+Several groups of components, on the other hand, have a special \texttt{scale} parameter that can be used safely in this case (starting with 0.9.4 --- more groups of components will be added going forward); the key to use will be explained in the specific description of the components. For example, in the case of resistors you have \texttt{resistors/scale} available:
+
+\begin{LTXexample}[varwidth=true]
+\begin{circuitikz}[
+    bigR/.style={R, resistors/scale=1.8}
+    ]
+    \draw (0,3) to [bigR, o-o] ++(4,0);
+    \draw (0,1.5) to [bigR, o-o] ++(4,0)
+      to[R, o-o] ++(2,0); % ok now
+    \draw (0,0) to [R, o-o] ++(4,0);
+\end{circuitikz}
+\end{LTXexample}
+
 \paragraph{Thickness of the lines} (globally)
 
 You can change the thickness of the components lines with the parameter \texttt{bipoles/thickness} (default 2). The number is relative to the thickness of the normal lines leading to the component.
@@ -760,6 +835,7 @@ The shape of the components are adjustable with a lot of parameters; in this man
     \tikz \draw (0,0) to[R=1<\ohm>] (2,0);
 \end{LTXexample}
 
+It is recommended to use the styling parameters to change the shapes; they are not so fine grained (for example, you can change the width of resistor, not the height at the moment), but they are more stable and coherent across your circuit.
 
 \subsubsection{Descriptions}
 
@@ -775,6 +851,8 @@ where you have all the needed information about the bipole, with also no-standar
 \begin{groupdesc}
     \circuitdescbip*{ammeter}{Ammeter}{}
 \end{groupdesc}
+
+The \emph{Class} of the component (see section~\ref{sec:styling}) is printed at the end of the description.
 
 \subsection{Node-style components}
 Node-style components (monopoles, multipoles) can be drawn at a specified point with this syntax, where \verb!#1! is the name of the component:
@@ -808,11 +886,11 @@ Mirroring and flipping of node components is obtained by using the \TikZ\ keys \
 
 \begin{LTXexample}[varwidth=true]
 \begin{circuitikz}
-    \draw (0,2)
-        node[rground, yscale=-1] {%
-        \scalebox{1}[-1]{ GND}}
-        to[R=$R_1$] (0,0)
-        node[sground] {};
+    \draw (0,3) node[op amp]{OA1};
+    \draw (3,3) node[op amp, xscale=-1]{OA2};
+    \draw (0,0) node[op amp]{OA3};
+    \draw (3,0) node[op amp, xscale=-1]{%
+        \scalebox{-1}[1]{OA4}};
 \end{circuitikz}
 \end{LTXexample}
 
@@ -842,8 +920,96 @@ Sometime, components will expose internal (sub-)shapes that can be accessed with
 cout 1/180/0.2)[out 1.n/90/0.2, out 4.w/0/0.3]
 \end{groupdesc}
 
+The \emph{Class} of the component (see section~\ref{sec:styling}) is printed at the end of the description.
+
+\subsection{Styling circuits and components}\label{sec:relative-size}\label{sec:styling}
+
+You can change the visual appearance of a circuit by using a circuit style different from the default. For styling the circuit, the concept of \emph{class} of a component is key: almost every component has a class, and a style change will affect all the components of that class.
+
+\begingroup % protect from style change the rest of the manual
+
+\subsubsection{Relative size}
+
+Component size can be changed globally (see section~\ref{sec:pgfcircRlen}), or you can change their relative size by scaling a family of components by setting the key \texttt{\emph{class}/scale}; for example, you can change the size of all the diodes in your circuit by setting \texttt{diodes/scale} to something different from the default \texttt{1.0}. Let's see the effect over a simple circuit\footnote{This is a just an example, the circuit is not intended to be functional.}.
+
+\def\killdepth#1{{\raisebox{0pt}[\height][0pt]{#1}}}
+\newcommand\bjtname[1]{($(#1.C)!0.5!(#1.E)$) node[anchor=west]{\killdepth{#1}} }
+\begin{lstlisting}[basicstyle=\small\ttfamily]
+\def\killdepth#1{{\raisebox{0pt}[\height][0pt]{#1}}}
+\newcommand\bjtname[1]{($(#1.C)!0.5!(#1.E)$) node[anchor=west]{\killdepth{#1}} }
+\begin{circuitikz}[american, cute inductors]
+    \node [op amp](A1){\texttt{OA1}};
+    \draw (A1.-) to[short] ++(0,1) coordinate(tmp) to[R, l_=$R$] (tmp -| A1.out) to[short] (A1.out);
+    \draw (tmp) to[short] ++(0,1) coordinate(tmp) to[C=$C$] (tmp -| A1.out) to[short] (A1.out);
+    \draw (A1.+) to [short] ++(0,-2.5) node[ground](GND){};
+    \draw (A1.-) to [L=$L$] ++(-2,0) coordinate(tmp) to[sV, l=$v_s$] (tmp |-GND) node[ground]{};
+    \draw (A1.out) to[R=$R_s$] ++(2,0) coordinate(bb) to[I, l_=$I_B$, invert] ++(0,2) node[vcc](VCC){};
+    \draw (bb) to[D*, l=$D$, *-] ++(0,-2) coordinate(bb1) to[R=$R_m$] ++(0,-2) node[vee](VEE){};
+    \draw (bb) --++(1,0) node[npn, anchor=B](Q1){} \bjtname{Q1};
+    \draw (bb1) --++(1,0) node[pnp, anchor=B](Q2){} \bjtname{Q2};
+    \draw (Q1.E) -- (Q2.E) ($(Q1.E)!0.5!(Q2.E)$) to [short, *-o, name=S]  ++(2.5,0)
+    node[right]{$v_{o_Q}$};
+    \draw (S.s) to[R=$R_L$, *-] (S.s|-GND) node[ground]{};
+    \draw (Q1.C) -- (Q1.C|-VCC) node[vcc]{\SI{5}{V}};
+    \draw (Q2.C) -- (Q2.C|-VEE) node[vee]{\SI{-5}{V}};
+\end{circuitikz}
+\end{lstlisting}
+
+This code, with the default parameters, will render like the following image.
+
+\long\def\tmpcirc#1#2{% Define the circuit to reuse it
+\begin{center}
+\begin{circuitikz}[american, cute inductors, #1]
+    #2
+    \node [op amp](A1){\texttt{OA1}};
+    \draw (A1.-) to[short] ++(0,1) coordinate(tmp) to[R, l_=$R$] (tmp -| A1.out) to[short] (A1.out);
+    \draw (tmp) to[short] ++(0,1) coordinate(tmp) to[C=$C$] (tmp -| A1.out) to[short] (A1.out);
+    \draw (A1.+) to [short] ++(0,-2.5) node[ground](GND){};
+    \draw (A1.-) to [L=$L$] ++(-2,0) coordinate(tmp) to[sV, l=$v_s$] (tmp |-GND) node[ground]{};
+    \draw (A1.out) to[R=$R_s$] ++(2,0) coordinate(bb) to[I, l_=$I_B$, invert] ++(0,2) node[vcc](VCC){};
+    \draw (bb) to[D*, l=$D$, *-] ++(0,-2) coordinate(bb1) to[R=$R_m$] ++(0,-2) node[vee](VEE){};
+    \draw (bb) --++(1,0) node[npn, anchor=B](Q1){} \bjtname{Q1};
+    \draw (bb1) --++(1,0) node[pnp, anchor=B](Q2){} \bjtname{Q2};
+    \draw (Q1.E) -- (Q2.E) ($(Q1.E)!0.5!(Q2.E)$) to [short, *-o, name=S]  ++(2.5,0)
+    node[right]{$v_{o_Q}$};
+    \draw (S.s) to[R=$R_L$, *-] (S.s|-GND) node[ground]{};
+    \draw (Q1.C) -- (Q1.C|-VCC) node[vcc]{\SI{5}{V}};
+    \draw (Q2.C) -- (Q2.C|-VEE) node[vee]{\SI{-5}{V}};
+\end{circuitikz}
+\end{center}}
+
+\tmpcirc{}{}
+
+Remember that if you use a global scale (be sure to read section~\ref{sec:bugs}!) you change the coordinate only, so using \texttt{scale=0.8} in the environment options you have:
+
+\tmpcirc{scale=0.8}{}
+
+If you want to scale all the circuit, you have to use also \texttt{transform shape}:
+
+\tmpcirc{scale=0.8, transform shape}{}
+
+Using relative sizes as described in section~\ref{sec:pgfcircRlen} enables your style for the circuit. For example,  setting:
+
+\begin{lstlisting}
+    \ctikzset{resistors/scale=0.8,      % smaller R
+        capacitors/scale=0.7,           % even smaller C
+        diodes/scale=0.6,               % small diodes
+        transistors/scale=1.3}          % bigger BJTs
+\end{lstlisting}
+
+Will result in a (much more readable in Romano's opinion) circuit:
+
+\tmpcirc{}{\ctikzset{resistors/scale=0.8, capacitors/scale=0.7, diodes/scale=0.6, transistors/scale=1.3}}
+
+\textbf{Caveat:} not every component has a ``size class'', so you have to play with the available ones (it's specified in the component description) and the absolute values to have the circuit following your taste. A bit of experimentation will create a kind of \emph{style options} that you could use in all your documents.
+
+\textbf{Warning:} relative scaling is meant to work for a reasonable range of stretching and shortening, so try to  keep your scale parameter in the \texttt{0.5} to~\texttt{2.0} range (more or less). Bigger or smaller value can result in awkward shapes.
+
+\endgroup % restore state before example of sizing
 
 \subsection{Grounds and supply voltages}
+
+\subsubsection{Grounds}
 
 For the grounds, the \texttt{center} anchor is put on the connecting point of the symbol, so that you can use them directly in a \texttt{path} specification.
 
@@ -860,14 +1026,44 @@ For the grounds, the \texttt{center} anchor is put on the connecting point of th
     \circuitdesc{eground}{European style ground}{}
     \circuitdesc{eground2}{European style ground, version 2\footnotemark}{}
     \footnotetext{These last two were contributed by \texttt{@fotesan}}
+\end{groupdesc}
+
+\paragraph{Grounds anchors}
+
+Anchors for grounds are a bit strange, given that they have the \texttt{center} spot at the same location than \texttt{north} and all the ground will develop ``going down'':
+
+\showanchors[baseline]{ground, scale=1.5}{}(north/90/0.4, north east/45/0.4, east/0/0.4, south east/-45/0.4,
+    south/-90/0.4, south west/-135/0.4, west/180/0.4, north west/135/0.4)
+\showanchors[baseline]{ground, scale=1.5}{}(left/135/0.2, right/45/0.2, center/-180/0.2)
+
+\paragraph{Grounds customization}
+
+You can change the scale of these components (all the ground symbols together) by setting the key \texttt{grounds/scale} (default \texttt{1.0}).
+
+\subsubsection{Power supplies}
+
+\begin{groupdesc}
     \circuitdesc{vcc}{VCC/VDD}{}
     \circuitdesc{vee}{VEE/VSS}{}
 \end{groupdesc}
 
-\subsubsection{Power supplies}
-
 The power supplies are normally drawn with the arrows shown in the list above.
-You can change them using all the options of the \texttt{arrows.meta} package (see the Ti\emph{k}Z manual for details) by changing the key \texttt{monopoles/vcc/arrow} and \texttt{monopoles/vee/arrow} (the default for both is \texttt{legacy}, which will use the old code for drawing them). Notes that the anchors are at the start of the connecting lines!
+
+\paragraph{Power supply anchors}
+
+They are similar to grounds anchors, and the geographical anchors are correct only for the default arrow.
+
+\showanchors[baseline]{vcc, scale=1.5}{}(north/90/0.4, north east/45/0.4, east/0/0.4, south east/-45/0.4,
+    south/-90/0.4, south west/-135/0.4, west/180/0.4, north west/135/0.4)
+\showanchors[baseline]{vcc, scale=1.5}{}(left/135/0.2, right/45/0.2, center/-180/0.2)
+
+
+\paragraph{Power supplies customization}
+
+You can change the scale of the power supplies by setting the key \texttt{power supplies/scale} (default \texttt{1.0}).
+
+Given that the power supply symbols are basically arrows, you can change them using all the options of the \texttt{arrows.meta} package (see the Ti\emph{k}Z manual for details) by changing the keys \texttt{monopoles/vcc/arrow} and \texttt{monopoles/vee/arrow} (the default for both is \texttt{legacy}, which will use the old code for drawing them).
+Note that the anchors are at the start of the connecting lines, and that geographical anchors are just approximation if you change the arrow symbol!
 
 \begin{LTXexample}[varwidth=true]
 \begin{circuitikz}
@@ -883,15 +1079,372 @@ You can change them using all the options of the \texttt{arrows.meta} package (s
 \end{circuitikz}
 \end{LTXexample}
 
-\subsubsection{Grounds anchors}
 
-Anchors for grounds are a bit strange, given that they have the \texttt{center} spot at the same location than \texttt{north} and all the ground will develop ``going down'':
+\subsection{Resistive bipoles}
 
-\showanchors[baseline]{ground, scale=2}{}(north/90/0.4, north east/45/0.4, east/0/0.4, south east/-45/0.4,
-    south/-90/0.4, south west/-135/0.4, west/180/0.4, north west/135/0.4)
-\showanchors[baseline]{ground, scale=2}{}(left/135/0.2, right/45/0.2, center/-180/0.2)
+\begin{groupdesc}
+    \circuitdescbip{short}{Short circuit}{}
+    \circuitdescbip{open}{Open circuit}{}
+    \circuitdescbip*{generic}{Generic (symmetric) bipole}{}
+    \circuitdescbip*{tgeneric}{Tunable generic bipole}{}
+    \circuitdescbip*{ageneric}{Generic asymmetric bipole}{}
+    \circuitdescbip*{memristor}{Memristor}{Mr}
+\end{groupdesc}
+
+If \texttt{americanresistors} option is active (or the style \texttt{[american resistors]} is used; this is the default for the package), the resistors are displayed as follows:
+\begin{groupdesc}
+    \ctikzset{resistor=american}
+    \circuitdescbip[resistor]{R}{Resistor}{american resistor}
+    \circuitdescbip[vresistor]{vR}{Variable resistor}{variable american resistor}
+    \circuitdescbip[potentiometer]{pR}{Potentiometer}{american potentiometer}( wiper/0/0.3 )
+    \circuitdescbip[resistivesens]{sR}{Resisitive sensor}{american resisitive sensor}( label/0/0.3 )
+\end{groupdesc}
+
+If  instead \texttt{europeanresistors} option is active (or the style \texttt{[european resistors]} is used), the resistors, variable resistors and potentiometers are displayed as follows:
+\begin{groupdesc}
+    \ctikzset{resistor=european}
+    \circuitdescbip*[generic]{R}{Resistor}{european resistor}
+    \circuitdescbip*[tgeneric]{vR}{Variable resistor}{variable european resistor}
+    \circuitdescbip*[genericpotentiometer]{pR}{Potentiometer}{european potentiometer}( wiper/0/0.3 )
+    \circuitdescbip*[thermistor]{sR}{Resistive sensor}{european resistive sensor}( label/0/0.3 )
+    \ctikzset{resistor=american} % reset default
+\end{groupdesc}
+
+Other miscellaneous resistor-like devices:
+\begin{groupdesc}
+    \circuitdescbip*{varistor}{Varistor}{}
+    \circuitdescbip*[photoresistor]{phR}{Photoresistor}{photoresistor}
+    \circuitdescbip*[thermistor]{thR}{Thermistor}{thermistor}
+    \circuitdescbip*[thermistorptc]{thRp}{PTC thermistor}{thermistor ptc}
+    \circuitdescbip*[thermistorntc]{thRn}{NTC thermistor}{thermistor ntc}
+\end{groupdesc}
+
+\subsubsection{Generic sensors anchors}
+Generic sensors have an extra anchor named \texttt{label}  to help position the type of dependence, if needed:
+
+\begin{LTXexample}[varwidth=true]
+\begin{circuitikz}
+   \draw (0,2) to[sR, l=$R$, name=mySR] ++(3,0);
+   \node [font=\tiny, right] at(mySR.label) {-t\si{\degree}};
+   \draw (0,0) to[sL, l=$L$, name=mySL] ++(3,0);
+   \node [draw, circle, inner sep=2pt] at(mySL.label) {};
+\end{circuitikz}
+\end{LTXexample}
+
+The anchor is positioned just on the corner of the segmented line crossing the component.
+
+\subsubsection{Resistive components customization}
+
+You can change the scale of these components (all the resistive bipoles together) by setting the key \texttt{resistors/scale} (default \texttt{1.0}).  Similarly, you can change the widths by setting \texttt{resistors/width} (default \texttt{0.8}).
+
+You can change the width of these components (all the resistive bipoles together) by setting the key \texttt{resistors/width}  to something different from the default \texttt{0.8}.
+
+For the american style resistors, you can change the number of ``zig-zags'' by setting the key
+\texttt{resistors/zigs} (default value \texttt{3}).
+
+\begin{LTXexample}[varwidth=true]
+\begin{circuitikz}[
+        longpot/.style = {pR, resistors/scale=0.75,
+        resistors/width=1.6, resistors/zigs=6}]
+   \draw (0,1.5) to[R, l=$R$] ++(4,0);
+   \draw (0,0) to[longpot, l=$P$] ++(4,0);
+   \ctikzset{resistors/scale=1.5}
+   \draw (0,-1.5) to[R, l=$R$] ++(4,0);
+\end{circuitikz}
+\end{LTXexample}
+
+\subsection{Capacitors and inductors: dynamical bipoles}
+
+\subsubsection{Capacitors}
+
+\begin{groupdesc}
+    \circuitdescbip{capacitor}{Capacitor}{C}
+    \circuitdescbip[pcapacitor]{polar capacitor}{Polar capacitor}{pC}
+    \circuitdescbip*{ecapacitor}{Electrolytic capacitor}{eC,elko}
+    \circuitdescbip[vcapacitor]{variable capacitor}{Variable capacitor}{vC}
+    \circuitdescbip[capacitivesens]{capacitive sensor}{Capacitive sensor}{sC}( label/0/0.3 )
+    \circuitdescbip*{piezoelectric}{Piezoelectric Element}{PZ}
+\end{groupdesc}
+
+\subsubsection{Capacitors customizations}
+
+You can change the scale of the capacitors by setting the key \texttt{capacitors/scale}  to something different from the default \texttt{1.0}.
+
+\subsubsection{Inductors}
+
+If the \texttt{cuteinductors} option is active (default behaviour), or the style \texttt{[cute inductors]} is used, the inductors are displayed as follows:
+\begin{groupdesc}
+    \ctikzset{inductor=cute}
+    \circuitdescbip[cuteinductor]{L}{Inductor}{cute inductor}
+    \circuitdescbip[cutechoke]{cute choke}{Choke}{}
+    \circuitdescbip[vcuteinductor]{vL}{Variable inductor}{variable cute inductor}
+    \circuitdescbip[scuteinductor]{sL}{Inductive sensor}{cute inductive sensor}( label/0/0.3 )
+\end{groupdesc}
+
+If the \texttt{americaninductors} option is active (or the style \texttt{[american inductors]} is used), the inductors are displayed as follows:
+\begin{groupdesc}
+    \ctikzset{inductor=american}
+    \circuitdescbip[americaninductor]{L}{Inductor}{american inductor}
+    \circuitdescbip[vamericaninductor]{vL}{Variable inductor}{variable american inductor}
+    \circuitdescbip[samericaninductor]{sL}{Inductive sensor}{american inductive sensor}( label/0/0.3 )
+\end{groupdesc}
+
+Finally, if the \texttt{europeaninductors} option is active (or the style \texttt{[european inductors]} is used), the inductors are displayed as follows:
+\begin{groupdesc}
+    \ctikzset{inductor=european}
+    \circuitdescbip[fullgeneric]{L}{Inductor}{european inductor}
+    \circuitdescbip[tfullgeneric]{vL}{Variable inductor}{variable european inductor}
+    \circuitdescbip[sfullgeneric]{sL}{Inductive sensor}{european inductive sensor}( label/0/0.3 )
+    \ctikzset{inductor=cute} % back to default
+\end{groupdesc}
+
+\subsubsection{Inductors customizations}\label{sec:tweak-l}
+
+You can change the scale of the inductors by setting the key \texttt{inductors/scale}  to something different from the default \texttt{1.0}.
+
+You can change the width of these components (all the inductors together, unless you use style or scoping) by setting the key \texttt{inductors/width}  to something different from the default, which is  \texttt{0.8} for american and european inductors, and \texttt{0.6} for cute inductors.
+
+Moreover, you can change the number of ``coils'' drawn by setting the key
+\texttt{inductors/coils} (default value \texttt{5} for cute inductors and \texttt{4} for american ones).
+
+\begin{LTXexample}[varwidth=true]
+\begin{circuitikz}[
+        longL/.style = {cute choke, inductors/scale=0.75,
+        inductors/width=1.6, inductors/coils=9}]
+   \draw (0,1.5) to[L, l=$L$] ++(4,0);
+   \draw (0,0) to[longL, l=$L$] ++(4,0);
+   \ctikzset{inductors/scale=1.5, inductor=american}
+   \draw (0,-1.5) to[L, l=$L$] ++(4,0);
+\end{circuitikz}
+\end{LTXexample}
+
+\subsection{Diodes and such}
+
+There are three basic styles for diodes: \texttt{empty} (fillable in color), \texttt{full} (completely filled with the draw color) and \texttt{stroke} (empty, but with a line across them).
+
+You can switch between the styles setting the key \texttt{diode} (for example \verb|\ctikzset{diode=full}|  or \texttt{empty} or \texttt{stroke}, or with the styles \texttt{full diodes}, \texttt{empty diodes} and \texttt{stroke diodes}.
 
 
+To use the default element, simply use the name shown for the empty diodes without the final ``o'' --- that is \texttt{D}, \texttt{sD}, and so on. The names shown in the following tables will draw the specified diode independently on the style chosen (that is, \texttt{leD*} is always a full LED diode).
+
+\begin{framed}
+The package options \texttt{fulldiode}, \texttt{strokediode}, and \texttt{emptydiode} (and the styles \texttt{[full diodes]}, \texttt{[stroke diodes]}, and \texttt{[empty diodes]}) define which shape will be used by abbreviated commands such that \texttt{D}, \texttt{sD}, \texttt{zD}, \texttt{zzD}, \texttt{tD}, \texttt{pD}, \texttt{leD}, \texttt{VC}, \texttt{Ty},\texttt{Tr} (no stroke symbol available!).
+\end{framed}
+
+\begin{groupdesc}
+    \circuitdescbip*[emptydiode] {empty diode}{Empty diode}{Do}
+    \circuitdescbip*[emptysdiode]{empty Schottky diode}{Empty Schottky diode}{sDo}
+    \circuitdescbip*[emptyzdiode]{empty Zener diode}{Empty Zener diode}{zDo}
+    \circuitdescbip*[emptyzzdiode]{empty ZZener diode}{Empty ZZener diode}{zzDo}
+    \circuitdescbip*[emptytdiode]{empty tunnel diode}{Empty tunnel diode}{tDo}
+    \circuitdescbip*[emptypdiode]{empty photodiode}{Empty photodiode}{pDo}
+    \circuitdescbip*[emptylediode]{empty led}{Empty led}{leDo}
+    \circuitdescbip*[emptyvarcap]{empty varcap}{Empty varcap}{VCo}
+    \circuitdescbip*[emptybidirectionaldiode]{empty bidirectionaldiode}{Empty bidirectionaldiode}{biDo}
+    \circuitdescbip[fulldiode] {full diode}{Full diode}{D*}
+    \circuitdescbip[fullsdiode]{full Schottky diode}{Full Schottky diode}{sD*}
+    \circuitdescbip[fullzdiode]{full Zener diode}{Full Zener diode}{zD*}
+    \circuitdescbip[fullzzdiode]{full ZZener diode}{Full ZZener diode}{zzD*}
+    \circuitdescbip[fulltdiode]{full tunnel diode}{Full tunnel diode}{tD*}
+    \circuitdescbip[fullpdiode]{full photodiode}{Full photodiode}{pD*}
+    \circuitdescbip[fulllediode]{full led}{Full led}{leD*}
+    \circuitdescbip[fullvarcap]{full varcap}{Full varcap}{VC*}
+    \circuitdescbip[fullbidirectionaldiode]{full bidirectionaldiode}{Full bidirectionaldiode}{biD*}
+\end{groupdesc}
+
+These shapes have no exact node-style counterpart, because the stroke line is built upon the empty variants:
+
+\begin{groupdesc}
+    \circuitdescbip*[emptydiode] {stroke diode}{Stroke diode}{D-}
+    \circuitdescbip*[emptysdiode]{stroke Schottky diode}{Stroke Schottky diode}{sD-}
+    \circuitdescbip*[emptyzdiode]{stroke Zener diode}{Stroke Zener diode}{zD-}
+    \circuitdescbip*[emptyzzdiode]{stroke ZZener diode}{Stroke ZZener diode}{zzD-}
+    \circuitdescbip*[emptytdiode]{stroke tunnel diode}{Stroke tunnel diode}{tD-}
+    \circuitdescbip*[emptypdiode]{stroke photodiode}{Stroke photodiode}{pD-}
+    \circuitdescbip*[emptylediode]{stroke led}{Stroke led}{leD-}
+    \circuitdescbip*[emptyvarcap]{stroke varcap}{Stroke varcap}{VC-}
+\end{groupdesc}
+
+\subsubsection{Tripole-like diodes}\label{sec:othertrip} The following tripoles are entered with the usual command, of the form \texttt{to[Tr, \dots]}.
+
+
+\begin{groupdesc}
+    \circuitdescbip*[emptytriac]{triac}{Standard triac (shape depends on package option)}{Tr}( G/0/0.3, anode/-90/0.2, cathode/-90/0.2)
+    \circuitdescbip*[emptytriac]{empty triac}{Empty triac}{Tro}( gate/0/0.3 )
+    \circuitdescbip[fulltriac]{full triac}{Full triac}{Tr*}
+    \circuitdescbip*[emptythyristor]{thyristor}{Standard thyristor (shape depends on package option)}{Ty}( G/0/0.3, anode/-90/0.2, cathode/-90/0.2)
+    \circuitdescbip*[emptythyristor]{empty thyristor}{Empty thyristor}{Tyo}
+    \circuitdescbip[fullthyristor]{full thyristor}{Full thyristor}{Ty*}
+    \circuitdescbip*[emptythyristor]{stroke thyristor}{Stroke thyristor}{Ty-}
+\end{groupdesc}
+
+\subsubsection{Triacs anchors}
+
+When inserting a thrystor, a triac or a potentiometer, one needs to refer to the third node-gate (\texttt{gate} or \texttt{G}) for the former two; wiper (\texttt{wiper} or \texttt{W}) for the latter one. This is done by giving a name to the bipole:
+\label{bipole-naming}
+\begin{LTXexample}[varwidth=true]
+\begin{circuitikz} \draw
+  (0,0) to[Tr, n=TRI] (2,0)
+        to[pR, n=POT] (4,0);
+  \draw[dashed] (TRI.G) -| (POT.wiper)
+;\end{circuitikz}
+\end{LTXexample}
+
+\subsubsection{Diode customizations}\label{sec:tweak-d}
+
+You can change the scale of the diodes by setting the key \texttt{diodes/scale}  to something different from the default \texttt{1.0}. In Romano's opinion, diodes are somewhat big with the default style of the package, so a setting like \verb|\ctikzset{diode/scale=0.6}| is recommended.
+
+\begin{LTXexample}[varwidth=true]
+\begin{circuitikz}
+   \draw (0,1) to[D, l=$D$] ++(2,0)
+      node[npn, anchor=B]{};
+   \ctikzset{diodes/scale=0.6}
+   \draw (0,-1) to[D, l=$D$] ++(2,0)
+      node[npn, anchor=B]{};
+\end{circuitikz}
+\end{LTXexample}
+
+\subsection{Sources and generators}
+
+\subsubsection{Batteries}
+\begin{groupdesc}
+    \circuitdescbip{battery}{Battery}{}
+    \circuitdescbip{battery1}{Single battery cell}{}
+    \circuitdescbip{battery2}{Single battery cell}{}
+\end{groupdesc}
+
+\subsubsection{Stationary sources}
+\begin{groupdesc}
+    \circuitdescbip*[vsource]{european voltage source}{Voltage source (european style)}{}
+    \circuitdescbip*[vsourceC]{cute european voltage source}{Voltage source (cute european style)}{vsourceC, ceV}
+    \circuitdescbip*[vsourceAM]{american voltage source}{Voltage source (american style)}{}
+    \circuitdescbip*[isource]{european current source}{Current source (european style)}{}
+    \circuitdescbip*[isourceC]{cute european current source}{Current source (cute european style)}{isourceC, ceI}
+    \circuitdescbip*[isourceAM]{american current source}{Current source (american style)}{}
+\end{groupdesc}
+
+\begin{framed}
+If (default behaviour) \texttt{europeancurrents} option is active (or the style \texttt{[european currents]} is used), the shorthands \texttt{current source}, \texttt{isource}, and \texttt{I} are equivalent to \texttt{european current source}. Otherwise, if \texttt{americancurrents} option is active (or the style \texttt{[american currents]} is used) they are equivalent to \texttt{american current source}.
+
+Similarly, if (default behaviour) \texttt{europeanvoltages} option is active (or the style \texttt{[european voltages]} is used), the shorthands \texttt{voltage source}, \texttt{vsource}, and \texttt{V} are equivalent to \texttt{european voltage source}. Otherwise, if \texttt{americanvoltages} option is active (or the style \texttt{[american voltages]} is used) they are equivalent to \texttt{american voltage source}.
+\end{framed}
+
+
+\subsubsection{Sinusoidal sources}\label{sec:sinusoidal-vi} These two are basically the same symbol; to distinguish among them, you have to add a label, which will be a voltage or a current.
+
+\begin{groupdesc}
+    \circuitdescbip*[vsourcesin]{sinusoidal voltage source}{Sinusoidal voltage source}{vsourcesin, sV}
+    \circuitdescbip*[isourcesin]{sinusoidal current source}{Sinusoidal current source}{isourcesin, sI}
+\end{groupdesc}
+
+\begin{LTXexample}[varwidth=true]
+\begin{circuitikz}[american]
+   \draw (0,1) to[sV=$V$] ++(3,0);
+   \draw (0,0) to[sI=$I$] ++(3,0);
+\end{circuitikz}
+\end{LTXexample}
+
+\subsubsection{Controlled sources}
+\begin{groupdesc}
+    \circuitdescbip*[cvsource]{european controlled voltage source}{Controlled voltage source (european style)}{}
+    \circuitdescbip*[cvsourceC]{cute european controlled voltage source}{Voltage source (cute european style)}{cvsourceC, cceV}
+    \circuitdescbip*[cvsourceAM]{american controlled voltage source}{Controlled voltage source (american style)}{}
+    \circuitdescbip*[cisource]{european controlled current source}{Controlled current source (european style)}{}
+    \circuitdescbip*[cisourceC]{cute european controlled current source}{Current source (cute european style)}{cisourceC, cceI}
+    \circuitdescbip*[cisourceAM]{american controlled current source}{Controlled current source (american style)}{}
+\end{groupdesc}
+
+\begin{framed}
+If (default behaviour) \texttt{europeancurrents} option is active (or the style \texttt{[european currents]} is used), the shorthands \texttt{controlled current source}, \texttt{cisource}, and \texttt{cI} are equivalent to \texttt{european controlled current source}. Otherwise, if \texttt{americancurrents} option is active (or the style \texttt{[american currents]} is used) they are equivalent to \texttt{american controlled current source}.
+
+Similarly, if (default behaviour) \texttt{europeanvoltages} option is active (or the style \texttt{[european voltages]} is used), the shorthands \texttt{controlled voltage source}, \texttt{cvsource}, and \texttt{cV} are equivalent to \texttt{european controlled voltage source}. Otherwise, if \texttt{americanvoltages} option is active (or the style \texttt{[american voltages]} is used) they are equivalent to \texttt{american controlled voltage source}.
+\end{framed}
+
+The following two behave like the corresponding independent sources, see section~\ref{sec:sinusoidal-vi}.
+
+\begin{groupdesc}
+    \circuitdescbip*[cvsourcesin]{controlled sinusoidal voltage source}{Controlled sinusoidal voltage source}{controlled vsourcesin, cvsourcesin, csV}
+    \circuitdescbip*[cisourcesin]{controlled sinusoidal current source}{Controlled sinusoidal current source}{controlled isourcesin, cisourcesin, csI}
+\end{groupdesc}
+
+
+
+\subsubsection{Noise sources}
+
+In this case, the ``direction''  of the source is undefined. Noise sources are filled in gray by default, but if you choose the dashed style, they become fillable.
+
+\begin{groupdesc}
+    \circuitdescbip[vsourceN]{noise voltage source}{Sinusoidal voltage source}{vsourceN, nV}
+    \circuitdescbip[isourceN]{noise current source}{Sinusoidal current source}{isourceN, nI}
+\end{groupdesc}
+
+You can change the fill color with the key \texttt{circuitikz/bipoles/noise sources/fillcolor}:
+\begin{LTXexample}[varwidth=true]
+\begin{circuitikz}
+    \draw(0,0) to [nV, l=$e_n$] ++(2,0);
+    \draw(0,-2) to [nI, l=$i_n$] ++(2,0);
+    \begin{scope}[circuitikz/bipoles/noise sources/fillcolor=red!50]
+        \draw(3,0) to [nV, l=$e_n$] ++(2,0);
+        \draw(3,-2) to [nI, l=$i_n$] ++(2,0);
+    \end{scope}
+\end{circuitikz}
+\end{LTXexample}
+
+If you prefer a patterned noise generator (similar to the one you draw by hand) you can use the fake color \texttt{dashed}:
+\begin{LTXexample}[varwidth=true]
+\begin{circuitikz}
+    \draw(0,0) to [nV, l=$e_n$] ++(2,0);
+    \draw(0,-2) to [nI, l=$i_n$] ++(2,0);
+    \begin{scope}[circuitikz/bipoles/noise sources/fillcolor=dashed]
+        \draw(3,0) to [nV, l=$e_n$] ++(2,0);
+        \draw(3,-2) to [nI, l=$i_n$] ++(2,0);
+    \end{scope}
+\end{circuitikz}
+\end{LTXexample}
+
+Notice that if you choose the dashed style, the noise sources are fillable:
+\begin{LTXexample}[varwidth=true]
+\begin{circuitikz}
+    \ctikzset{bipoles/noise sources/fillcolor=dashed}
+    \draw(0,0) to [nV, l=$e_n$] ++(2,0);
+    \draw(0,-2) to [nI, l=$i_n$] ++(2,0);
+    \begin{scope}
+        \draw(3,0) to [nV, l=$e_n$, fill=yellow!50!red] ++(2,0);
+        \draw(3,-2) to [nI, l=$i_n$, fill=blue!50!white] ++(2,0);
+    \end{scope}
+\end{circuitikz}
+\end{LTXexample}
+
+\subsubsection{Special sources}
+\begin{groupdesc}
+    \circuitdescbip*[vsourcesquare]{square voltage source}{Square voltage source}{vsourcesquare, sqV}
+    \circuitdescbip*{vsourcetri}{Triangle voltage source}{tV}
+    \circuitdescbip*{esource}{Empty voltage source}{}
+    \circuitdescbip*{pvsource}{Photovoltaic-voltage source}{}
+    \circuitdescbip*[oosource]{ioosource}{Double Zero style current source}{}
+    \circuitdescbip*[oosource]{voosource}{Double Zero style voltage source}{}
+\end{groupdesc}
+
+\subsubsection{DC sources}
+\begin{groupdesc}
+    \circuitdescbip*{dcvsource}{DC voltage source}{}
+    \circuitdescbip*{dcisource}{DC current source}{}
+\end{groupdesc}
+
+The size of the broken part of the DC current source is configurable by changing the value of \texttt{bipoles/dcisource/angle} (default \texttt{80}); values must be between 0 (no circle at all, probably not useful) and 90 (full circle, again not useful).
+\begin{LTXexample}[varwidth=true]
+\begin{circuitikz}
+    \draw (0,0) to[dcvsource] ++(2,0)
+    to [dcisource, fill=yellow] ++(2,0) ;
+    \ctikzset{bipoles/dcisource/angle=45}
+    \draw (0,-2) to[dcvsource] ++(2,0)
+    to [dcisource, fill=yellow] ++(2,0) ;
+\end{circuitikz}
+\end{LTXexample}
+
+\subsubsection{Sources customizations}\label{sec:tweak-sources}
+
+You can change the scale of the batteries by setting the key \texttt{batteries/scale}, and for all the other sources and generators with \texttt{sources/scale}, to something different from the default \texttt{1.0}.
 
 \subsection{Instruments}
 \begin{groupdesc}
@@ -911,6 +1464,10 @@ Anchors for grounds are a bit strange, given that they have the \texttt{center} 
     \circuitdescbip{iloop2}{Current loop (real)}{}(left/135/0.2, right/-45/0.2, center/-90/0.3, i+/135/0.4, i-/45/0.4)
 \end{groupdesc}
 
+\subsubsection{Instruments customizations}\label{sec:tweak-instruments}
+
+You can change the scale of all the instruments (including the current loops) by setting the key \texttt{instruments/scale} to something different from the default \texttt{1.0}.
+
 \subsubsection{Rotation-invariant elements}
 
 The \texttt{oscope} element will not rotate the ``graph'' shown with the component:
@@ -928,7 +1485,7 @@ The \texttt{rmeter}, \texttt{rmaterwa}, and \texttt{smeter} have the same behavi
 \subsubsection{Instruments as node elements}
 
 The node-style usage of the \texttt{oscope} is also interesting, using the additional \texttt{in 1} and \texttt{in 2} anchors; notice that in this case you can use the text content of the node to put labels above it.
-Moreover, you can change the size of the oscilloscope by changing \texttt{bipoles/oscope/width} and \texttt{bipoles/oscope/height} keys (which both default at 0.6).
+Moreover, you can change the size of the oscilloscope by changing \texttt{bipoles/oscope/width} and \texttt{bipoles/oscope/height} keys (which both default to 0.6).
 
 \begin{LTXexample}[varwidth=true]
 \begin{circuitikz}
@@ -947,7 +1504,7 @@ Moreover, you can change the size of the oscilloscope by changing \texttt{bipole
 
 \subsubsection{Measuring voltage and currents, multiple ways}
 
-This is the classical (legacy) option, with the \texttt{voltmeter} and \texttt{ammeter}. The problem is that elements are intrinsically horizontal and so they looks funny if put in vertical way.
+This is the classical (legacy) option, with the \texttt{voltmeter} and \texttt{ammeter}. The problem is that elements are intrinsically horizontal, so they look funny if put in vertically.
 
 \begin{LTXexample}[varwidth=true]
 \begin{circuitikz}
@@ -1070,287 +1627,6 @@ Or, if you want a more physical structure for the measurement setup:
 \end{circuitikz}
 \end{LTXexample}
 
-\subsection{Resistive bipoles}
-
-\begin{groupdesc}
-    \circuitdescbip{short}{Short circuit}{}
-    \circuitdescbip{open}{Open circuit}{}
-    \circuitdescbip*{generic}{Generic (symmetric) bipole}{}
-    \circuitdescbip*{tgeneric}{Tunable generic bipole}{}
-    \circuitdescbip*{ageneric}{Generic asymmetric bipole}{}
-    \circuitdescbip{fullgeneric}{Generic asymmetric bipole (full)}{}
-    \circuitdescbip{tfullgeneric}{Tunable generic  bipole (full)}{}
-    \circuitdescbip*{memristor}{Memristor}{Mr}
-\end{groupdesc}
-
-If \texttt{americanresistors} option is active (or the style \texttt{[american resistors]} is used; this is the default for the package), the resistors are displayed as follows:
-\begin{groupdesc}
-    \ctikzset{resistor=american}
-    \circuitdescbip[resistor]{R}{Resistor}{american resistor}
-    \circuitdescbip[vresistor]{vR}{Variable resistor}{variable american resistor}
-    \circuitdescbip[potentiometer]{pR}{Potentiometer}{american potentiometer}( wiper/0/0.3 )
-    \circuitdescbip[resistivesens]{sR}{Resisitive sensor}{american resisitive sensor}( label/0/0.3 )
-\end{groupdesc}
-
-If  instead \texttt{europeanresistors} option is active (or the style \texttt{[european resistors]} is used), the resistors, variable resistors and potentiometers are displayed as follows:
-\begin{groupdesc}
-    \ctikzset{resistor=european}
-    \circuitdescbip*[generic]{R}{Resistor}{european resistor}
-    \circuitdescbip*[tgeneric]{vR}{Variable resistor}{variable european resistor}
-    \circuitdescbip*[genericpotentiometer]{pR}{Potentiometer}{european potentiometer}( wiper/0/0.3 )
-    \circuitdescbip*[thermistor]{sR}{Resistive sensor}{european resistive sensor}( label/0/0.3 )
-    \ctikzset{resistor=american} % reset default
-\end{groupdesc}
-
-Other miscellaneous resistor-like devices:
-\begin{groupdesc}
-    \circuitdescbip*{varistor}{Varistor}{}
-    \circuitdescbip*[photoresistor]{phR}{Photoresistor}{photoresistor}
-    \circuitdescbip{thermocouple}{Thermocouple}{}
-    \circuitdescbip*[thermistor]{thR}{Thermistor}{thermistor}
-    \circuitdescbip*[thermistorptc]{thRp}{PTC thermistor}{thermistor ptc}
-    \circuitdescbip*[thermistorntc]{thRn}{NTC thermistor}{thermistor ntc}
-    \circuitdescbip*{fuse}{Fuse}{}
-    \circuitdescbip*{afuse}{Asymmetric fuse}{asymmetric fuse}
-\end{groupdesc}
-
-\subsubsection{Generic sensors anchors}
-Generic sensors have an extra label to help positioning the type of dependence, if needed:
-
-\begin{LTXexample}[varwidth=true]
-\begin{circuitikz}
-   \draw (0,2) to[sR, l=$R$, name=mySR] ++(3,0);
-   \node [font=\tiny, right] at(mySR.label) {-t\si{\degree}};
-   \draw (0,0) to[sL, l=$L$, name=mySL] ++(3,0);
-   \node [draw, circle, inner sep=2pt] at(mySL.label) {};
-\end{circuitikz}
-\end{LTXexample}
-
-The anchor is positioned just on the corner of the segmented line crossing the component.
-
-\subsection{Diodes and such}
-\begin{groupdesc}
-    \circuitdescbip*[emptydiode] {empty diode}{Empty diode}{Do}
-    \circuitdescbip*[emptysdiode]{empty Schottky diode}{Empty Schottky diode}{sDo}
-    \circuitdescbip*[emptyzdiode]{empty Zener diode}{Empty Zener diode}{zDo}
-    \circuitdescbip*[emptyzzdiode]{empty ZZener diode}{Empty ZZener diode}{zzDo}
-    \circuitdescbip*[emptytdiode]{empty tunnel diode}{Empty tunnel diode}{tDo}
-    \circuitdescbip*[emptypdiode]{empty photodiode}{Empty photodiode}{pDo}
-    \circuitdescbip*[emptylediode]{empty led}{Empty led}{leDo}
-    \circuitdescbip*[emptyvarcap]{empty varcap}{Empty varcap}{VCo}
-    \circuitdescbip*[emptybidirectionaldiode]{empty bidirectionaldiode}{Empty bidirectionaldiode}{biDo}
-    \circuitdescbip[fulldiode] {full diode}{Full diode}{D*}
-    \circuitdescbip[fullsdiode]{full Schottky diode}{Full Schottky diode}{sD*}
-    \circuitdescbip[fullzdiode]{full Zener diode}{Full Zener diode}{zD*}
-    \circuitdescbip[fullzzdiode]{full ZZener diode}{Full ZZener diode}{zzD*}
-    \circuitdescbip[fulltdiode]{full tunnel diode}{Full tunnel diode}{tD*}
-    \circuitdescbip[fullpdiode]{full photodiode}{Full photodiode}{pD*}
-    \circuitdescbip[fulllediode]{full led}{Full led}{leD*}
-    \circuitdescbip[fullvarcap]{full varcap}{Full varcap}{VC*}
-    \circuitdescbip[fullbidirectionaldiode]{full bidirectionaldiode}{Full bidirectionaldiode}{biD*}
-\end{groupdesc}
-
-These shapes have no exact node-style counterpart, because the stroke line is built upon the empty variants:
-
-\begin{groupdesc}
-    \circuitdescbip*[emptydiode] {stroke diode}{Stroke diode}{D-}
-    \circuitdescbip*[emptysdiode]{stroke Schottky diode}{Stroke Schottky diode}{sD-}
-    \circuitdescbip*[emptyzdiode]{stroke Zener diode}{Stroke Zener diode}{zD-}
-    \circuitdescbip*[emptyzzdiode]{stroke ZZener diode}{Stroke ZZener diode}{zzD-}
-    \circuitdescbip*[emptytdiode]{stroke tunnel diode}{Stroke tunnel diode}{tD-}
-    \circuitdescbip*[emptypdiode]{stroke photodiode}{Stroke photodiode}{pD-}
-    \circuitdescbip*[emptylediode]{stroke led}{Stroke led}{leD-}
-    \circuitdescbip*[emptyvarcap]{stroke varcap}{Stroke varcap}{VC-}
-\end{groupdesc}
-
-\subsection{Tripole-like diodes}\label{sec:othertrip} The following tripoles are entered with the usual command, of the form
-\begin{groupdesc}
-    \circuitdescbip*[emptytriac]{triac}{Standard triac (shape depends on package option)}{Tr}( G/0/0.3 )
-    \circuitdescbip*[emptytriac]{empty triac}{Empty triac}{Tro}( gate/0/0.3 )
-    \circuitdescbip[fulltriac]{full triac}{Full triac}{Tr*}
-    \circuitdescbip*[emptythyristor]{thyristor}{Standard thyristor (shape depends on package option)}{Ty}
-    \circuitdescbip*[emptythyristor]{empty thyristor}{Empty thyristor}{Tyo}
-    \circuitdescbip[fullthyristor]{full thyristor}{Full thyristor}{Ty*}
-    \circuitdescbip*[emptythyristor]{stroke thyristor}{Stroke thyristor}{Ty-}
-\end{groupdesc}
-
-\subsubsection{Triacs anchors}
-
-When inserting a thrystor, a triac or a potentiometer, one needs to refer to the third node-gate (\texttt{gate} or \texttt{G}) for the former two; wiper (\texttt{wiper} or \texttt{W}) for the latter one. This is done by giving a name to the bipole:
-\label{bipole-naming}
-\begin{LTXexample}[varwidth=true]
-\begin{circuitikz} \draw
-  (0,0) to[Tr, n=TRI] (2,0)
-        to[pR, n=POT] (4,0);
-  \draw[dashed] (TRI.G) -| (POT.wiper)
-;\end{circuitikz}
-\end{LTXexample}
-
-
-\begin{framed}
-The package options \texttt{fulldiode}, \texttt{strokediode}, and \texttt{emptydiode} (and the styles \texttt{[full diodes]}, \texttt{[stroke diodes]}, and \texttt{[empty diodes]}) define which shape will be used by abbreviated commands such that \texttt{D}, \texttt{sD}, \texttt{zD}, \texttt{zzD}, \texttt{tD}, \texttt{pD}, \texttt{leD}, \texttt{VC}, \texttt{Ty},\texttt{Tr} (no stroke symbol available!).
-\end{framed}
-
-
-\subsection{Capacitors and inductors: dynamical bipoles}
-\begin{groupdesc}
-    \circuitdescbip{capacitor}{Capacitor}{C}
-    \circuitdescbip[polarcapacitor]{polar capacitor}{Polar capacitor}{pC}
-    \circuitdescbip*{ecapacitor}{Electrolytic capacitor}{eC,elko}
-    \circuitdescbip[vcapacitor]{variable capacitor}{Variable capacitor}{vC}
-    \circuitdescbip[capacitivesens]{capacitive sensor}{Capacitive sensor}{sC}( label/0/0.3 )
-    \circuitdescbip*{piezoelectric}{Piezoelectric Element}{PZ}
-\end{groupdesc}
-
-If (default behaviour) \texttt{cuteinductors} option is active (or the style \texttt{[cute inductors]} is used), the inductors are displayed as follows:
-\begin{groupdesc}
-    \ctikzset{inductor=cute}
-    \circuitdescbip[cuteinductor]{L}{Inductor}{cute inductor}
-    \circuitdescbip[cutechoke]{cute choke}{Choke}{}
-    \circuitdescbip[vcuteinductor]{vL}{Variable inductor}{variable cute inductor}
-    \circuitdescbip[scuteinductor]{sL}{Inductive sensor}{cute inductive sensor}( label/0/0.3 )
-\end{groupdesc}
-
-If \texttt{americaninductors} option is active (or the style \texttt{[american inductors]} is used), the inductors are displayed as follows:
-\begin{groupdesc}
-    \ctikzset{inductor=american}
-    \circuitdescbip[americaninductor]{L}{Inductor}{american inductor}
-    \circuitdescbip[vamericaninductor]{vL}{Variable inductor}{variable american inductor}
-    \circuitdescbip[samericaninductor]{sL}{Inductive sensor}{american inductive sensor}( label/0/0.3 )
-\end{groupdesc}
-
-Finally, if \texttt{europeaninductors} option is active (or the style \texttt{[european inductors]} is used), the inductors are displayed as follows:
-\begin{groupdesc}
-    \ctikzset{inductor=european}
-    \circuitdescbip[fullgeneric]{L}{Inductor}{european inductor}
-    \circuitdescbip[tfullgeneric]{vL}{Variable inductor}{variable european inductor}
-    \circuitdescbip[sfullgeneric]{sL}{Inductive sensor}{european inductive sensor}( label/0/0.3 )
-    \ctikzset{inductor=cute} % back to default
-\end{groupdesc}
-
-
-\subsection{Stationary sources}
-\begin{groupdesc}
-    \circuitdescbip{battery}{Battery}{}
-    \circuitdescbip{battery1}{Single battery cell}{}
-    \circuitdescbip{battery2}{Single battery cell}{}
-    \circuitdescbip*[vsource]{european voltage source}{Voltage source (european style)}{}
-    \circuitdescbip*[vsourceC]{cute european voltage source}{Voltage source (cute european style)}{vsourceC, ceV}
-    \circuitdescbip*[vsourceAM]{american voltage source}{Voltage source (american style)}{}
-    \circuitdescbip*[isource]{european current source}{Current source (european style)}{}
-    \circuitdescbip*[isourceC]{cute european current source}{Current source (cute european style)}{isourceC, ceI}
-    \circuitdescbip*[isourceAM]{american current source}{Current source (american style)}{}
-\end{groupdesc}
-
-\begin{framed}
-If (default behaviour) \texttt{europeancurrents} option is active (or the style \texttt{[european currents]} is used), the shorthands \texttt{current source}, \texttt{isource}, and \texttt{I} are equivalent to \texttt{european current source}. Otherwise, if \texttt{americancurrents} option is active (or the style \texttt{[american currents]} is used) they are equivalent to \texttt{american current source}.
-
-Similarly, if (default behaviour) \texttt{europeanvoltages} option is active (or the style \texttt{[european voltages]} is used), the shorthands \texttt{voltage source}, \texttt{vsource}, and \texttt{V} are equivalent to \texttt{european voltage source}. Otherwise, if \texttt{americanvoltages} option is active (or the style \texttt{[american voltages]} is used) they are equivalent to \texttt{american voltage source}.
-\end{framed}
-
-
-\subsection{Sinusoidal sources} Here because I was asked for them. But how do you distinguish one from the other?!
-\begin{groupdesc}
-    \circuitdescbip*[vsourcesin]{sinusoidal voltage source}{Sinusoidal voltage source}{vsourcesin, sV}
-    \circuitdescbip*[isourcesin]{sinusoidal current source}{Sinusoidal current source}{isourcesin, sI}
-\end{groupdesc}
-
-\subsection{Controlled sources}
-\begin{groupdesc}
-    \circuitdescbip*[cvsource]{european controlled voltage source}{Controlled voltage source (european style)}{}
-    \circuitdescbip*[cvsourceC]{cute european controlled voltage source}{Voltage source (cute european style)}{cvsourceC, cceV}
-    \circuitdescbip*[cvsourceAM]{american controlled voltage source}{Controlled voltage source (american style)}{}
-    \circuitdescbip*[cisource]{european controlled current source}{Controlled current source (european style)}{}
-    \circuitdescbip*[cisourceC]{cute european controlled current source}{Current source (cute european style)}{cisourceC, cceI}
-    \circuitdescbip*[cisourceAM]{american controlled current source}{Controlled current source (american style)}{}
-\end{groupdesc}
-
-\begin{framed}
-If (default behaviour) \texttt{europeancurrents} option is active (or the style \texttt{[european currents]} is used), the shorthands \texttt{controlled current source}, \texttt{cisource}, and \texttt{cI} are equivalent to \texttt{european controlled current source}. Otherwise, if \texttt{americancurrents} option is active (or the style \texttt{[american currents]} is used) they are equivalent to \texttt{american controlled current source}.
-
-Similarly, if (default behaviour) \texttt{europeanvoltages} option is active (or the style \texttt{[european voltages]} is used), the shorthands \texttt{controlled voltage source}, \texttt{cvsource}, and \texttt{cV} are equivalent to \texttt{european controlled voltage source}. Otherwise, if \texttt{americanvoltages} option is active (or the style \texttt{[american voltages]} is used) they are equivalent to \texttt{american controlled voltage source}.
-\end{framed}
-
-\begin{groupdesc}
-    \circuitdescbip*[cvsourcesin]{controlled sinusoidal voltage source}{Controlled sinusoidal voltage source}{controlled vsourcesin, cvsourcesin, csV}
-    \circuitdescbip*[cisourcesin]{controlled sinusoidal current source}{Controlled sinusoidal current source}{controlled isourcesin, cisourcesin, csI}
-\end{groupdesc}
-
-
-
-\subsection{Noise sources}
-
-In this case, the ``direction''  of the source is undefined. Noise sources are filled in gray by default, but if you choose the dashed style, they become fillable.
-
-\begin{groupdesc}
-    \circuitdescbip[vsourceN]{noise voltage source}{Sinusoidal voltage source}{vsourceN, nV}
-    \circuitdescbip[isourceN]{noise current source}{Sinusoidal current source}{isourceN, nI}
-\end{groupdesc}
-
-You can change the fill color with the key \texttt{circuitikz/bipoles/noise sources/fillcolor}:
-\begin{LTXexample}[varwidth=true]
-\begin{circuitikz}
-    \draw(0,0) to [nV, l=$e_n$] ++(2,0);
-    \draw(0,-2) to [nI, l=$i_n$] ++(2,0);
-    \begin{scope}[circuitikz/bipoles/noise sources/fillcolor=red!50]
-        \draw(3,0) to [nV, l=$e_n$] ++(2,0);
-        \draw(3,-2) to [nI, l=$i_n$] ++(2,0);
-    \end{scope}
-\end{circuitikz}
-\end{LTXexample}
-
-If you prefer a patterned noise generator (similar to the one you draw by hand) you can use the fake color \texttt{dashed}:
-\begin{LTXexample}[varwidth=true]
-\begin{circuitikz}
-    \draw(0,0) to [nV, l=$e_n$] ++(2,0);
-    \draw(0,-2) to [nI, l=$i_n$] ++(2,0);
-    \begin{scope}[circuitikz/bipoles/noise sources/fillcolor=dashed]
-        \draw(3,0) to [nV, l=$e_n$] ++(2,0);
-        \draw(3,-2) to [nI, l=$i_n$] ++(2,0);
-    \end{scope}
-\end{circuitikz}
-\end{LTXexample}
-
-Notice that if you choose the dashed style, the noise sources are fillable:
-\begin{LTXexample}[varwidth=true]
-\begin{circuitikz}
-    \ctikzset{bipoles/noise sources/fillcolor=dashed}
-    \draw(0,0) to [nV, l=$e_n$] ++(2,0);
-    \draw(0,-2) to [nI, l=$i_n$] ++(2,0);
-    \begin{scope}
-        \draw(3,0) to [nV, l=$e_n$, fill=yellow!50!red] ++(2,0);
-        \draw(3,-2) to [nI, l=$i_n$, fill=blue!50!white] ++(2,0);
-    \end{scope}
-\end{circuitikz}
-\end{LTXexample}
-
-\subsection{Special sources}
-\begin{groupdesc}
-    \circuitdescbip*[vsourcesquare]{square voltage source}{Square voltage source}{vsourcesquare, sqV}
-    \circuitdescbip*{vsourcetri}{Triangle voltage source}{tV}
-    \circuitdescbip*{esource}{Empty voltage source}{}
-    \circuitdescbip*{pvsource}{Photovoltaic-voltage source}{}
-    \circuitdescbip*[oosource]{ioosource}{Double Zero style current source}{}
-    \circuitdescbip*[oosource]{voosource}{Double Zero style voltage source}{}
-\end{groupdesc}
-
-\subsection{DC sources}
-\begin{groupdesc}
-    \circuitdescbip*{dcvsource}{DC voltage source}{}
-    \circuitdescbip*{dcisource}{DC current source}{}
-\end{groupdesc}
-
-The size of the broken part of the DC current source is configurable by changing the value of \texttt{bipoles/dcisource/angle} (default \texttt{80}); values must be between 0 (no circle at all, probably not useful) and 90 (full circle, again not useful).
-\begin{LTXexample}[varwidth=true]
-\begin{circuitikz}
-    \draw (0,0) to[dcvsource] ++(2,0)
-    to [dcisource, fill=yellow] ++(2,0) ;
-    \ctikzset{bipoles/dcisource/angle=45}
-    \draw (0,-2) to[dcvsource] ++(2,0)
-    to [dcisource, fill=yellow] ++(2,0) ;
-\end{circuitikz}
-\end{LTXexample}
-
 
 \subsection{Mechanical Analogy}
 \begin{groupdesc}
@@ -1361,11 +1637,19 @@ The size of the broken part of the DC current source is configurable by changing
     \circuitdescbip*{mass}{Mechanical Mass}{}
 \end{groupdesc}
 
-\subsection{Other bipoles}
+\subsubsection{Mechanical elements customizations}\label{sec:tweak-mechanicals}
+
+You can change the scale of all the mechanical elements by setting the key \texttt{mechanicals/scale} to something different from the default \texttt{1.0}.
+
+
+\subsection{Miscellaneous bipoles}
 
 Here you'll find bipoles that are not easily grouped in the categories above.
 
 \begin{groupdesc}
+    \circuitdescbip{thermocouple}{Thermocouple}{}
+    \circuitdescbip*{fuse}{Fuse}{}
+    \circuitdescbip*{afuse}{Asymmetric fuse}{asymmetric fuse}
     \circuitdescbip{squid}{Squid}{}
     \circuitdescbip{barrier}{Barrier}{}
 \end{groupdesc}
@@ -1386,17 +1670,11 @@ If otherwise \texttt{americangfsurgearrester} option is active (or the style \te
 \begin{groupdesc}
     \circuitdescbip*{lamp}{Lamp}{}
     \circuitdescbip*{bulb}{Bulb}{}
-    \circuitdescbip*{loudspeaker}{loudspeaker}{}( north/90/0.4, north east/45/0.4, east/0/0.4, south east/-45/0.4,
-    south/-90/0.4, south west/-135/0.4, west/180/0.4, north west/135/0.4,
-    left/135/0.2, right/45/0.2, center/-135/0.2
-    )
-   \circuitdescbip*{mic}{mic}{}( north/90/0.4, north east/45/0.4, east/0/0.4, south east/-45/0.4,
-    south/-90/0.4, south west/-135/0.4, west/180/0.4, north west/135/0.4,
-    left/135/0.2, right/45/0.2, center/-135/0.2
-    )
+    \circuitdescbip*{loudspeaker}{loudspeaker}{}( north/90/0.4, north east/45/0.4, east/0/0.4, south east/-45/0.4, south/-90/0.4, south west/-135/0.4, west/180/0.4, north west/135/0.4, left/135/0.2, right/45/0.2, center/-135/0.2)
+   \circuitdescbip*{mic}{mic}{}( north/90/0.4, north east/45/0.4, east/0/0.4, south east/-45/0.4, south/-90/0.4, south west/-135/0.4, west/180/0.4, north west/135/0.4, left/135/0.2, right/45/0.2, center/-135/0.2)
 \end{groupdesc}
 
-You can use microphones and loudspeakers with \texttt{waves} (see section~\ref{sec:support}) too:
+You can use microphones and loudspeakers with \texttt{waves} (see section~\ref{sec:RF}) too:
 
 \begin{LTXexample}[varwidth=true]
     \begin{circuitikz}
@@ -1409,6 +1687,147 @@ You can use microphones and loudspeakers with \texttt{waves} (see section~\ref{s
         \node [waves, scale=0.7, right]
             at(L.north) {};
     \end{circuitikz}
+\end{LTXexample}
+
+\subsubsection{Miscellanous element customization}\label{sec:tweak-misc}
+
+You can change the scale of all the miscellaneous elements by setting the key \texttt{misc/scale} to something different from the default \texttt{1.0}.
+
+\subsection{Crossings}
+
+Path style:
+\begin{groupdesc}
+\circuitdescbip{crossing}{Jumper style non-contact crossing}{xing}
+\end{groupdesc}
+
+Node style:
+\begin{groupdesc}
+    \circuitdesc{jump crossing}{Jumper-style crossing node}{}
+    \circuitdesc{plain crossing}{Plain style crossing node}{}
+\end{groupdesc}
+
+All circuit-drawing standards agree that to show a crossing without electric contact, a simple crossing of the wires suffices; the electrical contact must be explicitly marked with a filled dot.
+
+\begin{LTXexample}[varwidth=true]
+\begin{circuitikz}[]
+\draw(1,-1) to[short] (1,1)
+    (0,0) to[short] (2,0);
+\draw(4,-1) to[short] (4,1)
+    (3,0) to[short] (5,0)
+    (4,0) node[circ]{};
+\end{circuitikz}
+\end{LTXexample}
+
+However, sometime it is advisable to mark the non-contact situation more explicitly. To this end, you can use a path-style component called \texttt{crossing}:
+
+\begin{LTXexample}[varwidth=true]
+\begin{circuitikz}[]
+\draw(1,-1) to[short] (1,1) (0,0) to[crossing] (2,0);
+\draw(4,-1) to[short] (4,1) (3,0) to[short] (5,0)
+    (4,0) node[circ]{};
+\end{circuitikz}
+\end{LTXexample}
+
+That should suffice most of the time; the only problem is that the crossing jumper will be put in the center of the subpath where the \texttt{to[crossing]} is issued, so sometime a bit of trial and error is needed to position it.
+
+For a more powerful (and elegant) way you can use the crossing nodes:
+
+\begin{LTXexample}[varwidth=true]
+\begin{circuitikz}[]
+    \node at (1,1)[jump crossing](X){};
+    \draw (X.west) -- ++(-1,0);
+    \draw (X.east) to[R] ++(2,0);
+    \draw (X.north) node[vcc]{};
+    \draw (X.south) to[C] ++(0,-1.5);
+\end{circuitikz}
+\end{LTXexample}
+
+Notice that the \texttt{plain crossing} and the \texttt{jump crossing} have a small gap in the straight wire, to enhance the effect of crossing (as a kind of shadow).
+
+The size of the crossing elements can be changed with the key \texttt{bipoles/crossing/size} (default 0.2).
+
+\subsection{Arrows}\label{sec:arrows}
+
+These are pseudo-arrows used in lot of places in the packages (for transistors, flows, currents, and so on).
+
+\begin{groupdesc}
+    \circuitdesc{currarrow}{Arrows (current and voltage)}{}(center/0/0.2)
+    \circuitdesc{inputarrow}{Arrow to draw at its tip, useful for block diagrams.}{}(center/0/0.2)
+    \circuitdesc*{bnc}{BNC connector}{}(left/135/0.6, right/45/0.6, center/-90/0.6, hot/0/0.6, zero/-135/0.6)
+\end{groupdesc}
+
+\subsubsection{Arrows size}\label{sec:currarrow-size}
+
+You can use the parameter  \texttt{current arrow scale} to change the size of the arrows in various components and indicators; the normal value is 16, higher numbers give smaller arrows and so on.  You need to use  \texttt{circuitikz/current arrow scale} if you use it into a node.
+
+\begin{LTXexample}[varwidth=true]
+\begin{circuitikz}
+    \draw (0,0) to[R, i=f] ++(2,0) node[npn, anchor=B]{};
+    \draw (0,-2) to[R, f=f, current arrow scale=8] ++(2,0)
+            node[pnp, anchor=B, circuitikz/current arrow scale=8]{};
+    \draw (0,-4) to[R, f=f, current arrow scale=24] ++(2,0)
+            node[nigbt, anchor=B]{};
+\end{circuitikz}
+\end{LTXexample}
+
+Moreover, you have the arrow tip \texttt{latexslim} which is an arrow similar to the old (in deprecated \texttt{arrows} library) \texttt{latex'} element:
+
+\begin{LTXexample}[varwidth=true]
+\begin{circuitikz}[american,]
+    \draw [latexslim-latexslim] (0,0) -- (1,0);
+\end{circuitikz}
+\end{LTXexample}
+
+\subsection{Terminal shapes}\label{sec:terminals}
+
+These are the so-called ``bipole nodes'' shapes, or poles (see section~\ref{sec:bipole-nodes}). These nodes are always filled; the ``open'' versions (starting with an \texttt{o}) are by default filled white, but you can override it with the \texttt{fill} parameter.
+
+\begin{groupdesc}
+    \circuitdesc{circ}{Connected terminal}{}
+    \circuitdesc{ocirc}{Unconnected terminal}{}
+    \circuitdesc{diamondpole}{Diamond-square terminal}{}
+    \circuitdesc{odiamondpole}{Open diamond-square terminal}{}
+    \circuitdesc{squarepole}{Square-shape terminal}{}
+    \circuitdesc{osquarepole}{Open square-shape terminal}{}
+\end{groupdesc}
+
+Since version 0.9.0, ``bipole nodes'' shapes have all the standard geographical anchors, so you can do things like these:
+
+\begin{LTXexample}[varwidth=true]
+\begin{circuitikz}[american,]
+    \draw (0,-1) node[draw](R){R};
+    \draw (R.east) node[ocirc, right]{};
+\end{circuitikz}
+\end{LTXexample}
+
+The size of the poles is controlled by the key \texttt{nodes width} (default \texttt{0.04}, relative to the basic length).
+Be sure to see section~\ref{sec:bipole-nodes} for more usage and configurability.
+
+\subsubsection{BNC connector/terminal}
+
+\begin{groupdesc}
+    \circuitdesc*{bnc}{BNC connector}{}(left/135/0.6, right/45/0.6, center/-90/0.6, hot/0/0.6, zero/-135/0.6)
+\end{groupdesc}
+The BNC connector is defined so that you can easily connect it as input or output (but remember that you need to flip the text if you flip the component):
+
+\begin{LTXexample}[varwidth, ]
+\begin{circuitikz}
+    \draw (0,0)
+    node[bnc](B1){$v_i$} to[R=\SI{50}{\ohm}] ++(3,0)
+    node[bnc, xscale=-1](B2){\scalebox{-1}[1]{$v_o$}};
+    \node [ground] at (B1.shield) {};
+    \node [eground] at (B2.shield){};
+\end{circuitikz}
+\end{LTXexample}
+
+It also has a \texttt{zero} anchor if you need to rotate it about its real center.
+
+\begin{LTXexample}[varwidth, ]
+\begin{circuitikz}
+    \draw[thin, red] (0,0) -- ++(1,0) (0,-1) -- ++(1,0);
+    \path (0,0) node[bnc]{} ++(1,0) node[bnc, rotate=-90]{};
+    \path (0,-1) node[bnc, anchor=zero]{} ++(1,0) node[bnc, anchor=zero, rotate=-90]{};
+\end{circuitikz}
 \end{LTXexample}
 
 
@@ -1515,6 +1934,8 @@ The couplers have:
 
 
 \subsubsection{Blocks customization}
+
+You can change the scale of all the block elements by setting the key \texttt{blocks/scale} to something different from the default \texttt{1.0}.
 
 With the option \texttt{>} you can draw an arrow to the input of the block diagram symbols.
 \begin{LTXexample}[varwidth=true]
@@ -1797,6 +2218,10 @@ Access to the gate and/or base nodes can be gained by naming the transistors wit
 
 The \texttt{name} property is available also for bipoles, although this is useful mostly for triac, potentiometer and thyristor (see~\ref{sec:othertrip}).
 
+\subsubsection{Transistors customization}
+
+You can change the scale of all the transistors by setting the key \texttt{transistors/scale} (default \texttt{1.0}).
+The size of the arrows (if any) is controlled by the same parameters as \texttt{currarrow} (see section~\ref{sec:currarrow-size}) and the dots on P-type transistors (if any) are the same as the nodes/poles (see section~\ref{sec:bipole-nodes}).
 
 \subsection{Electronic Tubes}
 
@@ -1835,12 +2260,16 @@ If you want a full cathode to be drawn, use the \verb|fullcathode| option in the
 	\circuitdesc*{diodetube,fullcathode}{Tube Diode}{}(anode/90/0.2, cathode 1/-135/0.2, cathode 2/-45/0.2 )
 \end{groupdesc}
 
-These circuit elements are fully configurable, and the attributes are described below:
+\subsubsection{Tubes customization}
+
+The tubes can be scaled using the key \texttt{tubes/scale}, default \texttt{1.0}. In addition, they are
+fully configurable, and the attributes are described below:
 
 \begin{tabular}{l | l | l}
 
   Key & Default value & Description\\
   \hline
+  \verb|tubes/scale| & \verb|1|                    & scale factor                 \\
   \verb|tubes/width| & \verb|1|                    & relative width               \\
   \verb|tubes/height| & \verb|1.4|                 & relative height              \\
   \verb|tubes/tube radius| & \verb|0.40|           & radius of tube circle        \\
@@ -1914,6 +2343,8 @@ Example triode amplifier:
 \draw (Tri.east) node[right] {12AX7};
 \end{circuitikz}
 
+The \texttt{magnetron} shape will also scale with \texttt{tubes/scale}.
+
 \begin{groupdesc}
     \circuitdesc*{magnetron}{Magnetron}{}( anode/-90/0.2, cathode1/135/0.2,
     cathode2/45/0.2, left/180/0.2, right/0/0.2, top/90/0.4 )
@@ -1932,7 +2363,7 @@ Example triode amplifier:
 \end{circuitikz}
 \end{LTXexample}
 
-\subsection{RF components}
+\subsection{RF components}\label{sec:RF}
 
 For the RF components, similarly to the grounds and supply rails, the \texttt{center} anchor is put on the connecting point of the symbol, so that you can use them directly in a \texttt{path} specification.
 
@@ -1942,23 +2373,29 @@ Notes that in the transmission and receiving antennas, the ``waves'' are outside
     \circuitdesc*{bareantenna}{Bare Antenna}{A}( top/90/0.1, bottom/180/0.3, left/180/0.3, right/45/0.3, center/0/0.3 )
     \circuitdesc*{bareTXantenna}{Bare TX Antenna}{Tx}( top/90/0.1, center/180/0.3, waves/90/0.3 )
     \circuitdesc*{bareRXantenna}{Bare RX Antenna}{Rx}( top/90/0.1, center/0/0.3, waves/90/0.3 )
+    \circuitdesc{waves}{Waves}{}( north/90/0.4, north east/45/0.4, east/-45/0.4, south east/-45/0.4,
+    south/-90/0.4, south west/-135/0.4, west/180/0.4, north west/135/0.4,
+    left/135/0.2, top/45/0.2, right/45/0.2, bottom/-45/0.2 )
     \circuitdescbip*{mstline}{Microstrip transmission line\footnotemark}{}(left/135/0.2, right/45/0.2, center/-90/0.3)
-    \circuitdesc*{mslstub}{Microstrip stub}{text}(left/135/0.2, right/45/0.2, center/-45/0.3)
+    \circuitdesc*{mslstub}{Microstrip linear stub}{text}(left/135/0.2, right/45/0.2, center/-45/0.3)
     \circuitdesc*{msport}{Microstrip port}{T}(left/135/0.2, right/45/0.2, center/-45/0.3)
     \circuitdesc*{msrstub}{Microstrip radial stub}{}(left/135/0.2, right/45/0.2, center/-45/0.3)
     \footnotetext{This four components were suggested by \texttt{@tcpluess} on GitHub}
-    \circuitdesc{antenna}{Antenna}{}( center/0/0.3 )
-    \circuitdesc{rxantenna}{Receiving antenna}{}
-    \circuitdesc{txantenna}{Transmitting antenna}{}
+    \circuitdesc{antenna}{Legacy antenna (with tails)}{}( center/0/0.3 )
+    \circuitdesc{rxantenna}{Legacy receiving antenna (with tails)}{}
+    \circuitdesc{txantenna}{Legacy transmitting antenna (with tails)}{}
     \circuitdesc*{tlinestub}{Transmission line stub}{}
     \circuitdescbip*[tline]{TL}{Transmission line}{transmission line, tline}
     \circuitdesc{match}{match}{}
 \end{groupdesc}
 
+\subsubsection{RF elements customization}
+
+The RF elements can be scaled using the key \texttt{RF/scale}, default \texttt{1.0}.
 
 \subsubsection{Microstrip customization}
 
-The microstrip linear components' (\texttt{mstline}, \texttt{mslstub}, \texttt{msport}) heights depend on the parameters \texttt{bipoles/mstline/height} (for the three of them, default 0.3). The widths are specified in \texttt{bipoles/mstline/width} for the first two and by \texttt{monopoles/msport/width} for the port (defaults: 1.2, 0.5).
+The microstrip linear components' (\texttt{mstline}, \texttt{mslstub}, \texttt{msport}) heights can be changed by setting the parameter \texttt{bipoles/mstline/height} (for the three of them, default 0.3). The widths are specified in \texttt{bipoles/mstline/width} for the first two and by \texttt{monopoles/msport/width} for the port (defaults: 1.2, 0.5).
 
 For the length parameter of the transmission line there is a shortcut in the form of the direct parameter \texttt{mstlinelen}.
 
@@ -2099,6 +2536,8 @@ A couple of examples follow:
 
 \subsubsection{Double dipoles customization}
 
+Transformers are in the \texttt{inductors} class (also the gyrator\dots), so they scale with the key \texttt{inductors/scale}.
+
 You can change the aspect of a quadpole using the corresponding parameters \texttt{quadpoles/*/width} and  \texttt{quadpoles/*/heigth} (substitute the star for \texttt{transformer}, \texttt{transformer core} or \texttt{gyrator}; default value is \texttt{1.5} for all). You have to be careful to not choose value that overlaps the components!
 
 \begin{LTXexample}[varwidth=true]
@@ -2111,6 +2550,8 @@ You can change the aspect of a quadpole using the corresponding parameters \text
     (T.inner dot B2) node[circ]{};
 \end{circuitikz}
 \end{LTXexample}
+
+Transformers also inherits the \texttt{inductors/scale} (see~\ref{sec:tweak-l}) and similar parameters. It's your responsibility to set the aforementioned parameters if you change the scale or width of inductors.
 
 Another very useful parameter is \texttt{quadpoles/*/inner} (default \texttt{0.4}) that determine which part of the component is the ``vertical'' one. So, setting that parameter to 1 will eliminate the horizontal part of the component (obviously, to maintain the general aspect ratio you need to change the width also):
 
@@ -2159,8 +2600,8 @@ This can be useful if you want to put seamlessly something in series with either
     \circuitdesc*{inst amp}{plain instrumentation amplifier}{}( up/90/0.2, down/-90/0.2, refv up/45/0.2, refv down/-45/0.2 )
     \circuitdesc*{fd inst amp}{Fully differential instrumentation amplifier}{}
     \circuitdesc*{inst amp ra}{instrumentation amplifier with amplification resistance terminals}{}( ra+/180/0.1, ra-/180/0.1 )
-    \circuitdesc*{plain amp}{Plain amplifier}{}
-    \circuitdesc*{buffer}{Buffer}{}
+    \circuitdesc*{plain amp}{Plain amplifier}{}(+/180/0.2, -/180/0.2, out/0/0.2, up/90/0.2)
+    \circuitdesc*{buffer}{Buffer}{}(in/180/0.2, out/0/0.2)
 \end{groupdesc}
 
 \subsubsection{Amplifiers anchors}
@@ -2248,6 +2689,8 @@ The instrumentation amplifier with resistance terminals (\texttt{inst amp ra}) d
 \end{LTXexample}
 
 \subsubsection{Amplifiers customization}
+
+You can scale the amplifiers using the key \texttt{amplifiers/scale} and setting it to something different from \texttt{1.0}. The font used for symbols will not scale, so it's your responsibility to change it if the need arises.
 
 All these amplifier have the possibility to flip input and output (if needed) polarity. You can change polarity of the input with the
 \texttt{noinv input down} (default) or \texttt{noinv input up} key; and the output with \texttt{noinv output up} (default) or \texttt{noinv output down} key:
@@ -2367,138 +2810,11 @@ But notice that the ``A'' is also flipped by the \texttt{xscale} parameter. So t
 \end{LTXexample}
 
 
-\subsection{Support shapes and bipoles}\label{sec:support}
-
-Path style:
-\begin{groupdesc}
-\circuitdescbip{crossing}{Jumper style non-contact crossing}{xing}
-\end{groupdesc}
-
-\noindent Node style:
-
-\begin{groupdesc}
-    \circuitdesc{currarrow}{Arrows (current and voltage)}{}
-    \circuitdesc{inputarrow}{Arrow to draw at its tip, useful for block diagrams.}{}
-    \circuitdesc{jump crossing}{Jumper-style crossing node}{}
-    \circuitdesc{plain crossing}{Plain style crossing node}{}
-    \circuitdesc{waves}{Waves}{}( north/90/0.4, north east/45/0.4, east/-45/0.4, south east/-45/0.4,
-    south/-90/0.4, south west/-135/0.4, west/180/0.4, north west/135/0.4,
-    left/135/0.2, top/45/0.2, right/45/0.2, bottom/-45/0.2 )
-    \circuitdesc*{bnc}{BNC connector}{}(left/135/0.6, right/45/0.6, center/-90/0.6, hot/0/0.6, zero/-135/0.6)
-\end{groupdesc}
-
-These are the so-called ``bipole nodes'' shapes, or poles (see section~\ref{sec:bipole-nodes}). These nodes are always filled; the ``open'' versions (starting with an \texttt{o}) are by default filled white, but you can override it with the \texttt{fill} parameter.
-
-\begin{groupdesc}
-    \circuitdesc{circ}{Connected terminal}{}
-    \circuitdesc{ocirc}{Unconnected terminal}{}
-    \circuitdesc{diamondpole}{Diamond-square terminal}{}
-    \circuitdesc{odiamondpole}{Open diamond-square terminal}{}
-    \circuitdesc{squarepole}{Square-shape terminal}{}
-    \circuitdesc{osquarepole}{Open square-shape terminal}{}
-\end{groupdesc}
-
-
-Moreover, you have the arrow tip \texttt{latexslim} which is an arrow similar to the old (in deprecated \texttt{arrows} library) \texttt{latex'} element:
-
-\begin{LTXexample}[varwidth=true]
-\begin{circuitikz}[american,]
-    \draw [latexslim-latexslim] (0,0) -- (1,0);
-\end{circuitikz}
-\end{LTXexample}
-
-\subsubsection{Terminal shapes}
-Since version 0.9.0, ``bipole nodes'' shapes have all the standard geographical anchors, so you can do things like these:
-
-\begin{LTXexample}[varwidth=true]
-\begin{circuitikz}[american,]
-    \draw (0,-1) node[draw](R){R};
-    \draw (R.east) node[ocirc, right]{};
-\end{circuitikz}
-\end{LTXexample}
-
-The BNC connector is defined so that you can easily connect it as input or output (but remember that you need to flip the text if you flip the component):
-
-\begin{LTXexample}[varwidth, ]
-\begin{circuitikz}
-    \draw (0,0)
-    node[bnc](B1){$v_i$} to[R=\SI{50}{\ohm}] ++(3,0)
-    node[bnc, xscale=-1](B2){\scalebox{-1}[1]{$v_o$}};
-    \node [ground] at (B1.shield) {};
-    \node [eground] at (B2.shield){};
-\end{circuitikz}
-\end{LTXexample}
-
-It also has a \texttt{zero} anchor if you need to rotate it about its real center.
-
-\begin{LTXexample}[varwidth, ]
-\begin{circuitikz}
-    \draw[thin, red] (0,0) -- ++(1,0) (0,-1) -- ++(1,0);
-    \path (0,0) node[bnc]{} ++(1,0) node[bnc, rotate=-90]{};
-    \path (0,-1) node[bnc, anchor=zero]{} ++(1,0) node[bnc, anchor=zero, rotate=-90]{};
-\end{circuitikz}
-\end{LTXexample}
-
-\subsubsection{Crossings}
-
-All circuit-drawing standards agree that to show a crossing without electric contact, a simple crossing of the wires suffices; the electrical contact must be explicitly marked with a filled dot.
-
-\begin{LTXexample}[varwidth=true]
-\begin{circuitikz}[]
-\draw(1,-1) to[short] (1,1)
-    (0,0) to[short] (2,0);
-\draw(4,-1) to[short] (4,1)
-    (3,0) to[short] (5,0)
-    (4,0) node[circ]{};
-\end{circuitikz}
-\end{LTXexample}
-
-However, sometime it is advisable to mark the non-contact situation more explicitly. To this end, you can use a path-style component called \texttt{crossing}:
-
-\begin{LTXexample}[varwidth=true]
-\begin{circuitikz}[]
-\draw(1,-1) to[short] (1,1) (0,0) to[crossing] (2,0);
-\draw(4,-1) to[short] (4,1) (3,0) to[short] (5,0)
-    (4,0) node[circ]{};
-\end{circuitikz}
-\end{LTXexample}
-
-That should suffice most of the time; the only problem is that the crossing jumper will be put in the center of the subpath where the \texttt{to[crossing]} is issued, so sometime a bit of trial and error is needed to position it.
-
-For a more powerful (and elegant) way you can use the crossing nodes:
-
-\begin{LTXexample}[varwidth=true]
-\begin{circuitikz}[]
-    \node at (1,1)[jump crossing](X){};
-    \draw (X.west) -- ++(-1,0);
-    \draw (X.east) to[R] ++(2,0);
-    \draw (X.north) node[vcc]{};
-    \draw (X.south) to[C] ++(0,-1.5);
-\end{circuitikz}
-\end{LTXexample}
-
-Notice that the \texttt{plain crossing} and the \texttt{jump crossing} have a small gap in the straight wire, to enhance the effect of crossing (as a kind of shadow).
-
-The size of the crossing elements can be changed with the key \texttt{bipoles/crossing/size} (default 0.2).
-
-
-\subsubsection{Arrows size}
-
-You can use the parameter  \texttt{current arrow scale} to change the size of the arrows in various components and indicators; the normal value is 16, higher numbers give smaller arrows and so on.  You need to use  \texttt{circuitikz/current arrow scale} if you use it into a node.
-
-\begin{LTXexample}[varwidth=true]
-\begin{circuitikz}
-    \draw (0,0) to[R, i=f] ++(2,0) node[npn, anchor=B]{};
-    \draw (0,-2) to[R, f=f, current arrow scale=8] ++(2,0)
-            node[pnp, anchor=B, circuitikz/current arrow scale=8]{};
-    \draw (0,-4) to[R, f=f, current arrow scale=24] ++(2,0)
-            node[nigbt, anchor=B]{};
-\end{circuitikz}
-\end{LTXexample}
-
 \subsection{Switches and buttons}
 
 Switches and button come in to-style (the simple ones and the pushbuttons), and as nodes.
+
+The switches can be scaled with the key \texttt{switches/scale} (default \texttt{1.0}). Notice that scaling the switches will not scale the poles, which are controlled with their own parameters (see section~\ref{sec:terminals}).
 
 \subsubsection{Traditional switches}
 These are all of the to-style type:
@@ -2595,8 +2911,6 @@ For more complex situations, the contact nodes are available\footnote{Thanks to 
 \end{circuitikz}
 \end{LTXexample}
 
-
-
 The \texttt{mid} anchor in the cute switches (both path- and node-style) can be used to combine switches to get more complex configurations:
 
 \begin{LTXexample}[varwidth=true]
@@ -2656,7 +2970,7 @@ cout 1/180/0.2)[out 1.n/90/0.2, out 4.w/0/0.3]
 Notice that the name of the shape is \texttt{rotaryswitch}, no spaces.
 The default rotary switch component has 5 channels (this is set in the parameter \texttt{multipoles/rotary/channels}), spanning form \SI{-60}{\degree}  to \SI{60}{\degree} (parameter \texttt{multipoles/rotary/angle}) and with the wiper at \SI{20}{\degree} (parameter \texttt{multipoles/rotary/wiper}).
 
-Moreover, there are by default no arrows on the wiper; you can set this with the parameter \texttt{multipoles/rotary/arrow} which can assume the values \texttt{none}, \texttt{cw} (clockwise), \texttt{ccw} (counterclockwise) or \texttt{both}.
+Moreover, there are by default no arrows on the wiper; if needed, you can change this default setting the parameter \texttt{multipoles/rotary/arrow} which can assume the values \texttt{none}, \texttt{cw} (clockwise), \texttt{ccw} (counterclockwise) or \texttt{both}.
 
 To simplify the usage of the component, a series of styles are defined: \texttt{rotary switch=\textsl{<channels>} in \textsl{<angle>} wiper \textsl{<wiper angle>}} (notice the space in the name of the style!). Using \texttt{rotary switch} without parameters will generate a default switch.
 
@@ -2781,21 +3095,23 @@ Logic gates, with two or more input, are supported. Albeit in principle these co
 \begin{groupdesc}
     \circuitdesc*{american and port}{American \textsc{and} port}{}( in 1/180/0.2, in 2/180/0.2, out/0/0.2 )
     \circuitdesc*{american or port}{American \textsc{or} port}{}( bin 1/135/0.2, bin 2/-135/0.2, bout/-45/0.2 )
-    \circuitdesc*{american not port}{American \textsc{not} port}{}
     \circuitdesc*{american nand port}{American \textsc{nand} port}{}
     \circuitdesc*{american nor port}{American \textsc{nor} port}{}
     \circuitdesc*{american xor port}{American \textsc{xor} port}{}
     \circuitdesc*{american xnor port}{American \textsc{xnor} port}{}
+    \circuitdesc*{american buffer port}{American \textsc{buffer} port}{}
+    \circuitdesc*{american not port}{American \textsc{not} port}{}
 \end{groupdesc}
 \subsubsection{European Logic gates}
 \begin{groupdesc}
     \circuitdesc*{european and port}{European \textsc{and} port}{}( in 1/180/0.2, in 2/180/0.2, out/0/0.2 )
-    \circuitdesc*{european or port}{European \textsc{or} port}{}
-    \circuitdesc*{european not port}{European \textsc{not} port}{}
+    \circuitdesc*{european or port}{European \textsc{or} port}{}( bin 1/135/0.2, bin 2/-135/0.2, bout/-45/0.2 )
     \circuitdesc*{european nand port}{European \textsc{nand} port}{}
     \circuitdesc*{european nor port}{European \textsc{nor} port}{}
     \circuitdesc*{european xor port}{European \textsc{xor} port}{}
     \circuitdesc*{european xnor port}{European \textsc{xnor} port}{}
+    \circuitdesc*{european buffer port}{European \textsc{buffer} port}{}
+    \circuitdesc*{european not port}{European \textsc{not} port}{}
 \end{groupdesc}
 
 \begin{framed}
@@ -2814,6 +3130,8 @@ There is no ``european''  version of these symbols.
 \end{groupdesc}
 
 \subsubsection{Logic port customization}
+
+Logic port class is called \texttt{logic ports}, so you can scale them all with \texttt{logic ports/scale} (default \texttt{1.0}).
 
 As for most components, you can change the width and height of the ports; the thickness is given by the parameter \texttt{tripoles/thickness} (default 2):
 
@@ -2963,12 +3281,15 @@ In the case of \textsc{not}, there are only \texttt{in} and \texttt{out} (althou
 
 \subsubsection{DIP and QFP chips customization}
 
-You can customize the DIP chip with the keys \texttt{multipoles/dipchip/width} (default 1.2) and  \texttt{multipoles/dipchip/pin spacing} (default 0.4) that are expressed in fraction of basic lengths (see section~\ref{sec:components-size}).
+You can scale chips with the key \texttt{chips/scale}. As ever, that will \textbf{not} scale text size of the labels, when they are printed.
+
+You can customize the DIP chip with the key \texttt{multipoles/dipchip/width} (with a default of \texttt{1.2}) and  the key \texttt{multipoles/dipchip/pin spacing} (default \texttt{0.4}) that are expressed in fraction of basic lengths (see section~\ref{sec:components-size}).
 The height of the chip will be equal to half the numbers of pins multiplied by the spacing, plus one spacing for the borders.
+
 For the QFP chips, you can only chose the pin spacing with \texttt{multipoles/qfpchip/pin spacing} key.
 
-The pins of the chip can be ``hidden'' (that is, just a spot in the border, optionally marked with a number) or ``stick out'' with a thin lead by setting \texttt{multipoles/external pins width} greater than 0 (default value is 0.2, so you'll have leads as shown above).
-Moreover, you can transform the thin lead into a pad by setting the key \texttt{multipoles/external pad fraction} to something different form 0 (default is 0); the value expresses the fraction of the pin spacing space that the pad will use on both sides of the pin.
+The pins of the chip can be ``hidden'' (that is, just a spot in the border, optionally marked with a number) or ``stick out'' with a thin lead by setting \texttt{multipoles/external pins width} greater than 0 (default value is \texttt{0.2}, so you'll have leads as shown above).
+Moreover, you can transform the thin lead into a pad by setting the key \texttt{multipoles/external pad fraction} to something different form 0 (default is \texttt{0}); the value expresses the fraction of the pin spacing space that the pad will use on both sides of the pin.
 
 The number of pins is settable with the key \texttt{num pins}.
 \textbf{Please notice} that the number of pins \textbf{must} be \emph{even} for \texttt{dipchip}s and \emph{multiple of 4} for \texttt{qfpchip}s, otherwise havoc will ensue.
@@ -3143,17 +3464,19 @@ e/-129/0.4, f/145/0.4, g/190/0.4, dot/-45/0.2)
 
 \subsubsection{Seven segments customization}
 
+You can scale the seven segment  display with the key \texttt{displays/scale}. This will scale the size of the digit, but not the absolute sizes shown below --- if you want them to scale, yo have to do it manually.
+
 You can change several parameters to adjust the displays:
 \begin{lstlisting}[basicstyle=\small\ttfamily]
-\ctikzset{seven seg/width/.initial=0.4}% relative to \pgf@circ@Rlen
-\ctikzset{seven seg/thickness/.initial=4pt}% segment thickness
-\ctikzset{seven seg/segment sep/.initial=0.2pt}% gap between segments
-\ctikzset{seven seg/box sep/.initial=1pt}% external box gap
+\ctikzset{seven seg/width/.initial=0.4}% relative to \pgf@circ@Rlen (scalable)
+\ctikzset{seven seg/thickness/.initial=4pt}% segment thickness (not scaled)
+\ctikzset{seven seg/segment sep/.initial=0.2pt}% gap between segments (not scaled)
+\ctikzset{seven seg/box sep/.initial=1pt}% external box gap (not scaled)
 \ctikzset{seven seg/color on/.initial=red}% color for segment "on"
 \ctikzset{seven seg/color off/.initial=gray!20!white} % ...and "off"
 \end{lstlisting}
 
-A couple of examples following:
+A couple of examples are shown below.
 
 \begin{LTXexample}[varwidth=true, pos=b, basicstyle=\small\ttfamily]
 \begin{circuitikz}[scale=0.5]
@@ -3744,7 +4067,8 @@ This could be especially useful if you define a style, to use like this:
 \tikz \draw (0,0) to[C, i=$\imath$] (2,0);
 \end{LTXexample}
 
-\noindent However, you can override the properties \texttt{voltage/distance from node}\footnote{That is, how distant from the initial and final points of the path the arrow starts and ends.}, \texttt{voltage/bump b}\footnote{Controlling how high the bump of the arrow is --- how curved it is.} and \texttt{voltage/european label distance}\footnote{Controlling how distant from the bipole the voltage label will be.} on a per-component basis, in order to fine-tune the voltages:
+However, you can override the properties \texttt{voltage/distance from node} (how distant from the initial and final points of the path the arrow starts and ends), \texttt{voltage/bump b} (how high the bump of the arrow is --- how curved it is) and \texttt{voltage/european label distance} (how distant from the bipole the voltage label will be) on a per-component basis, in order to fine-tune the voltages:
+
 
 \begin{LTXexample}[varwidth=true]
 \tikz \draw (0,0) to[R, v=1<\volt>] (1.5,0)
@@ -3758,7 +4082,7 @@ This could be especially useful if you define a style, to use like this:
 
 \subsection{Nodes (also called poles)}\label{sec:bipole-nodes}
 
-You can add nodes to the bipoles, positioned at the coordinates surrounding the component. The general style to use is \texttt{bipole nodes=\{start\}\{stop\}}, where \texttt{start} and \texttt{stop} are the nodes --- to be chosen between \texttt{none}, \texttt{circ}, \texttt{ocirc}, \texttt{squarepole}, \texttt{osquarepole}, \texttt{diamondpole},  \texttt{odiamondpole} and \texttt{rectfill}\footnote{You can use other shapes too, but at your own risk\dots Moreover, notice that \texttt{none} is not really a node, just a special word used to say ``do not put any node here''.} (see section~\ref{sec:support}).
+You can add nodes to the bipoles, positioned at the coordinates surrounding the component. The general style to use is \texttt{bipole nodes=\{start\}\{stop\}}, where \texttt{start} and \texttt{stop} are the nodes --- to be chosen between \texttt{none}, \texttt{circ}, \texttt{ocirc}, \texttt{squarepole}, \texttt{osquarepole}, \texttt{diamondpole},  \texttt{odiamondpole} and \texttt{rectfill}\footnote{You can use other shapes too, but at your own risk\dots Moreover, notice that \texttt{none} is not really a node, just a special word used to say ``do not put any node here''.} (see section~\ref{sec:terminals}).
 
 
 \begin{LTXexample}[varwidth=true,
@@ -3771,8 +4095,6 @@ You can add nodes to the bipoles, positioned at the coordinates surrounding the 
         \draw (0,0) to[R, bipole nodes={none}{\p}] ++(\a:1.5)  node[font=\tiny, anchor=\b]{\p};
 \end{circuitikz}
 \end{LTXexample}
-
-
 
 These bipole nodes are added after the path is drawn, as every node in Ti\emph{k}Z --- this is the reason why they are always filled (with the main color the normal nodes, with white the open ones), in order to ``hide'' the wire below. You can override the fill color if you want; but notice that if you draw things in two different paths, you will have ``strange'' results; notice that in the second line of resistors the second wire is starting from the center of the white \texttt{ocirc} of the previous path.
 
@@ -4510,12 +4832,39 @@ which leads to:
 \end{circuitikz}
 \end{LTXexample}
 
-
 As a final note, notice that the \texttt{viscoe} element is already added to the standard package.
+
+Using \verb|\pgfcircdeclarebipole| will set up a component which is not globally scalable; if you want such a thing, you should use the command
+
+\verb|\pgfcircdeclarebipolescaled{resistors}|
+
+(for example), to put the new component in the ``resistors'' scale class, and then use \verb|\pgf@circ@scaled@Rlen|  as the default length in your code.
 
 \subsection{Node-style component}
 
 Adding a node-style component is much more straightforward. Just define it by following examples in, for example, \texttt{pgfcirctripoles.tex} or the other files; be careful that you should define all the geographical anchors of the shape if you want that the \TikZ{} positioning options (like \texttt{left}, \texttt{above}, etc.) behave correctly with your component.
+
+To have a scalable component, for example in the \texttt{transistors} class, you should use something like
+\begin{lstlisting}
+        \savedmacro{\ctikzclass}{\edef\ctikzclass{transistors}}
+        \saveddimen{\scaledRlen}{\pgfmathsetlength{\pgf@x}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}}
+\end{lstlisting}
+at the start of anchors and macros definition, and use (for example, the exact code will change greatly depending on your component):
+\begin{lstlisting}
+        \savedanchor\northeast{% upper right
+            \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
+            \pgf@y=\pgf@circ@scaled@Rlen
+            \pgf@y=0.5\pgf@y
+            \pgf@x=0.3\pgf@y
+        }
+\end{lstlisting}
+in all the \texttt{savedanchors}.
+
+Then, in the drawing part, you should start with:
+\begin{lstlisting}
+    \pgf@circ@scaled@Rlen=\scaledRlen
+\end{lstlisting}
+and then use \verb|\pgf@circ@scaled@Rlen| (or the anchors) as default lengths while you draw it.
 
 \subsubsection{Finishing your work}
 

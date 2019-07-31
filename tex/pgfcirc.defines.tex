@@ -142,6 +142,45 @@
 \ctikzset{bipoles/length/.code={\pgf@circ@Rlen = #1}}
 \pgf@circ@Rlen = 1.4cm
 
+% scaled length for internal use in shape
+\newlength{\pgf@circ@scaled@Rlen}
+
+% global scale parameters
+\ctikzset{default/scale/.initial=1.0}   % do not touch
+% default is use as the generic default scale for bipoles
+% commented out globals scale are not (or still not) implemented
+
+% mostly bipoles:
+
+\ctikzset{resistors/scale/.initial=1.0}
+\ctikzset{capacitors/scale/.initial=1.0}
+\ctikzset{inductors/scale/.initial=1.0}
+\ctikzset{diodes/scale/.initial=1.0}
+\ctikzset{batteries/scale/.initial=1.0}
+\ctikzset{sources/scale/.initial=1.0}
+\ctikzset{instruments/scale/.initial=1.0}
+\ctikzset{mechanicals/scale/.initial=1.0}
+\ctikzset{misc/scale/.initial=1.0}
+% connectors, arrows and crossings: probably no need, they are specials anyways
+\ctikzset{blocks/scale/.initial=1.0}
+
+% mostly nodes
+
+\ctikzset{grounds/scale/.initial=1.0}
+\ctikzset{power supplies/scale/.initial=1.0}
+\ctikzset{transistors/scale/.initial=1.0}
+\ctikzset{tubes/scale/.initial=1.0}
+\ctikzset{RF/scale/.initial=1.0}
+\ctikzset{electromechanicals/scale/.initial=1.0}
+% transformers go with inductors
+\ctikzset{amplifiers/scale/.initial=1.0}
+\ctikzset{switches/scale/.initial=1.0}
+\ctikzset{logic ports/scale/.initial=1.0}
+\ctikzset{chips/scale/.initial=1.0}
+\ctikzset{displays/scale/.initial=1.0}
+
+% grounds and power supplies
+
 \ctikzset{monopoles/.is family}
 \ctikzset{monopoles/ground/width/.initial=.25}
 \ctikzset{monopoles/ground/connectionthickness/.initial=1}
@@ -155,7 +194,6 @@
 \ctikzset{monopoles/chassis/width/.initial=.25}
 \ctikzset{monopoles/alternative chassis/width/.initial=.25}
 \ctikzset{monopoles/equipotentiality/width/.initial=.25}
-\ctikzset{monopoles/tlinestub/width/.initial=.25}
 \ctikzset{monopoles/antenna/width/.initial=.25}
 \ctikzset{monopoles/antenna/label/xanchor/.initial=.4}
 \ctikzset{monopoles/antenna/label/yanchor/.initial=.75}
@@ -169,6 +207,7 @@
 \ctikzset{monopoles/bareantenna/label/xanchor/.initial=1}
 \ctikzset{monopoles/bareantenna/label/yanchor/.initial=0.5}
 \ctikzset{monopoles/waves/width/.initial=0.5}
+
 % microstrips
 \ctikzset{bipoles/mstline/height/.initial=0.3}
 \ctikzset{bipoles/mstline/width/.initial=1.2}
@@ -185,11 +224,34 @@
 \ctikzset{bipoles/mic/depth/.initial=.0}
 \ctikzset{bipoles/mic/width/.initial=.8}
 
+% Zig Zag resistors
+\ctikzset{resistors/zigs/.initial=3}
+\ctikzset{resistors/width/.code={%
+    \ctikzset{bipoles/resistor/width=#1}
+    \ctikzset{bipoles/vresistor/width=#1}
+    \ctikzset{bipoles/potentiometer/width=#1}
+    \ctikzset{bipoles/resistivesens/width=#1}
+    \ctikzset{bipoles/photoresistor/width=#1}
+    \ctikzset{bipoles/thermistor/width=#1}
+    \ctikzset{bipoles/thermistorntc/width=#1}
+    \ctikzset{bipoles/thermistorptc/width=#1}
+    \ctikzset{bipoles/varistor/width=#1}
+    \ctikzset{bipoles/generic/width=#1}
+    \ctikzset{bipoles/generic potentiometer/width=#1}
+    \ctikzset{bipoles/ageneric/width=#1}
+    \ctikzset{bipoles/tgeneric/width=#1}
+}}
+% zigzag resistor
 \ctikzset{bipoles/resistor/height/.initial=.3}
 \ctikzset{bipoles/resistor/width/.initial=.8}
 \ctikzset{bipoles/potentiometer/height/.initial=.8}
 \ctikzset{bipoles/potentiometer/height 2/.initial=.3}
 \ctikzset{bipoles/potentiometer/width/.initial=.8}
+\ctikzset{bipoles/vresistor/height/.initial=.6}
+\ctikzset{bipoles/vresistor/width/.initial=.8}
+\ctikzset{bipoles/resistivesens/height/.initial=.6}
+\ctikzset{bipoles/resistivesens/width/.initial=.8}
+% square resistors
 \ctikzset{bipoles/photoresistor/height/.initial=.6}
 \ctikzset{bipoles/photoresistor/height 2/.initial=.3}
 \ctikzset{bipoles/photoresistor/width/.initial=.8}
@@ -207,8 +269,48 @@
 \ctikzset{bipoles/varistor/main/.initial=.7}
 \ctikzset{bipoles/varistor/height/.initial=.428}%.3/.7
 \ctikzset{bipoles/varistor/width/.initial=.8}
-\ctikzset{bipoles/vresistor/height/.initial=.6}
-\ctikzset{bipoles/vresistor/width/.initial=.8}
+\ctikzset{bipoles/generic/height/.initial=.30}
+\ctikzset{bipoles/generic/width/.initial=.80}
+\ctikzset{bipoles/generic potentiometer/height/.initial=.80}
+\ctikzset{bipoles/generic potentiometer/height 2/.initial=.30}
+\ctikzset{bipoles/generic potentiometer/width/.initial=.80}
+\ctikzset{bipoles/ageneric/height/.initial=.30}
+\ctikzset{bipoles/tgeneric/height/.initial=.70}
+\ctikzset{bipoles/tgeneric/width/.initial=.80}
+\ctikzset{bipoles/ageneric/width/.initial=.80}
+
+%% Capacitors
+\ctikzset{bipoles/capacitor/height/.initial=.6}
+\ctikzset{bipoles/capacitor/width/.initial=.2}
+\ctikzset{bipoles/ecapacitor/height/.initial=.5}
+\ctikzset{bipoles/ecapacitor/width/.initial=.2}
+\ctikzset{bipoles/ecapacitor/font/.initial= \fontsize{6}{0}\selectfont\boldmath}
+\ctikzset{bipoles/pcapacitor/height/.initial=.6}
+\ctikzset{bipoles/pcapacitor/width/.initial=.2}
+\ctikzset{bipoles/pcapacitor/bend width/.initial=1.1}
+\ctikzset{bipoles/vcapacitor/height/.initial=.6}
+\ctikzset{bipoles/vcapacitor/width/.initial=.5}
+\ctikzset{bipoles/vcapacitor/capacitor width/.initial=.4}
+\ctikzset{bipoles/piezoelectric/height/.initial=.7}
+\ctikzset{bipoles/piezoelectric/width/.initial=.5}
+
+% Inductors
+\ctikzset{inductors/coils/.code={
+    \ctikzset{bipoles/cuteinductor/coils=#1}
+    \ctikzset{bipoles/cutechoke/coils=#1}
+    \ctikzset{bipoles/americaninductor/coils=#1}
+    \ctikzset{bipoles/vcuteinductor/coils=#1}
+    \ctikzset{bipoles/vamericaninductor/coils=#1}
+}}
+\ctikzset{inductors/width/.code={
+    \ctikzset{bipoles/cuteinductor/width=#1}
+    \ctikzset{bipoles/cutechoke/width=#1}
+    \ctikzset{bipoles/americaninductor/width=#1}
+    \ctikzset{bipoles/vcuteinductor/width=#1}
+    \ctikzset{bipoles/vamericaninductor/width=#1}
+    \ctikzset{bipoles/fullgeneric/width=#1}
+    \ctikzset{bipoles/tfullgeneric/width=#1}
+}}
 \ctikzset{bipoles/cuteinductor/height/.initial=.3}
 \ctikzset{bipoles/cuteinductor/lower coil height/.initial=.15}
 \ctikzset{bipoles/cuteinductor/width/.initial=.6}
@@ -241,6 +343,13 @@
 \ctikzset{bipoles/vamericaninductor/width/.initial=.8}
 \ctikzset{bipoles/vamericaninductor/coils/.initial=4}
 \ctikzset{bipoles/vamericaninductor/coil height/.initial=.15}
+\ctikzset{bipoles/tfullgeneric/height/.initial=.70}
+\ctikzset{bipoles/tfullgeneric/width/.initial=.80}
+\ctikzset{bipoles/fullgeneric/height/.initial=.30}
+\ctikzset{bipoles/fullgeneric/width/.initial=.80}
+
+% Sources
+
 \ctikzset{bipoles/esource/height/.initial=.60}
 \ctikzset{bipoles/esource/width/.initial=.60}
 \ctikzset{bipoles/pvsource/height/.initial=.60}
@@ -284,25 +393,15 @@
 \ctikzset{bipoles/cisourcesin/width/.initial=.7}
 \ctikzset{bipoles/cvsourcesin/height/.initial=.7}
 \ctikzset{bipoles/cvsourcesin/width/.initial=.7}
-\ctikzset{bipoles/capacitor/height/.initial=.6}
-\ctikzset{bipoles/capacitor/width/.initial=.2}
-\ctikzset{bipoles/ecapacitor/height/.initial=.5}
-\ctikzset{bipoles/ecapacitor/width/.initial=.2}
-\ctikzset{bipoles/ecapacitor/font/.initial= \fontsize{6}{0}\selectfont\boldmath}
-\ctikzset{bipoles/pcapacitor/height/.initial=.6}
-\ctikzset{bipoles/pcapacitor/width/.initial=.2}
-\ctikzset{bipoles/pcapacitor/bend width/.initial=1.1}
-\ctikzset{bipoles/vcapacitor/height/.initial=.6}
-\ctikzset{bipoles/vcapacitor/width/.initial=.5}
-\ctikzset{bipoles/vcapacitor/capacitor width/.initial=.4}
-\ctikzset{bipoles/piezoelectric/height/.initial=.7}
-\ctikzset{bipoles/piezoelectric/width/.initial=.5}
 \ctikzset{bipoles/battery/height/.initial=.6}
 \ctikzset{bipoles/battery/width/.initial=.3}
 \ctikzset{bipoles/battery1/height/.initial=.6}
 \ctikzset{bipoles/battery1/width/.initial=.3}
 \ctikzset{bipoles/battery2/height/.initial=.6}
 \ctikzset{bipoles/battery2/width/.initial=.3}
+
+% diodes
+
 \ctikzset{bipoles/diode/height/.initial=.50}
 \ctikzset{bipoles/diode/width/.initial=.40}
 \ctikzset{bipoles/bidirectionaldiode/height/.initial=1.1}
@@ -311,6 +410,9 @@
 \ctikzset{bipoles/bidirectionaldiode/diode width right/.initial=.3}
 \ctikzset{bipoles/varcap/height/.initial=.50}
 \ctikzset{bipoles/varcap/width/.initial=.45}
+
+
+
 \ctikzset{bipoles/spst/height/.initial=.35}
 \ctikzset{bipoles/spst/width/.initial=.35}
 \ctikzset{bipoles/spst/depth/.initial=.2}
@@ -320,8 +422,6 @@
 \ctikzset{bipoles/ncs/height/.initial=.35}
 \ctikzset{bipoles/ncs/width/.initial=.35}
 \ctikzset{bipoles/ncs/depth/.initial=.2}
-\ctikzset{bipoles/generic/height/.initial=.30}
-\ctikzset{bipoles/generic/width/.initial=.80}
 \ctikzset{bipoles/european gas filled surge arrester/height/.initial=.30}
 \ctikzset{bipoles/european gas filled surge arrester/width/.initial=.80}
 \ctikzset{bipoles/european gas filled surge arrester/inside/.initial=.30}
@@ -335,20 +435,9 @@
 \ctikzset{bipoles/fuse/width/.initial=.50}
 \ctikzset{bipoles/afuse/height/.initial=.20}
 \ctikzset{bipoles/afuse/width/.initial=.50}
-\ctikzset{bipoles/generic potentiometer/height/.initial=.80}
-\ctikzset{bipoles/generic potentiometer/height 2/.initial=.30}
-\ctikzset{bipoles/generic potentiometer/width/.initial=.80}
-\ctikzset{bipoles/ageneric/height/.initial=.30}
-\ctikzset{bipoles/ageneric/width/.initial=.80}
 \ctikzset{bipoles/memristor/height/.initial=.30}
 \ctikzset{bipoles/memristor/wave height/.initial=.5}
 \ctikzset{bipoles/memristor/width/.initial=.80}
-\ctikzset{bipoles/tgeneric/height/.initial=.70}
-\ctikzset{bipoles/tgeneric/width/.initial=.80}
-\ctikzset{bipoles/tfullgeneric/height/.initial=.70}
-\ctikzset{bipoles/tfullgeneric/width/.initial=.80}
-\ctikzset{bipoles/fullgeneric/height/.initial=.30}
-\ctikzset{bipoles/fullgeneric/width/.initial=.80}
 \ctikzset{bipoles/open/height/.initial=.3} %necessary for curly voltages
 \ctikzset{bipoles/open/width/.initial=.3} %necessary for curly voltages
 \ctikzset{bipoles/open/voltage/straight label distance/.initial=0}
@@ -415,12 +504,11 @@
 \ctikzset{bipoles/phaseshifter/width/.initial=.7}
 \ctikzset{bipoles/vphaseshifter/width/.initial=.7}
 \ctikzset{bipoles/detector/width/.initial=.7}
-% resistive sensor american style
-\ctikzset{bipoles/resistivesens/height/.initial=.6}
-\ctikzset{bipoles/resistivesens/width/.initial=.8}
 
 % crossing wires
 \ctikzset{bipoles/crossing/size/.initial=.2}
+
+% Transistors starts here
 
 \newif\ifpgf@circuit@trans@depletiontype
 \pgf@circuit@trans@depletiontypefalse
@@ -745,6 +833,7 @@
     \tikzset{and port/.style={shape=european and port}}
     \tikzset{or port/.style={shape=european or port}}
     \tikzset{xor port/.style={shape=european xor port}}
+    \tikzset{buffer port/.style={shape=european buffer port}}
     \tikzset{not port/.style={shape=european not port}}
     \tikzset{nand port/.style={shape=european nand port}}
     \tikzset{nor port/.style={shape=european nor port}}
@@ -754,6 +843,7 @@
     \tikzset{and port/.style={shape=american and port}}
     \tikzset{or port/.style={shape=american or port}}
     \tikzset{xor port/.style={shape=american xor port}}
+    \tikzset{buffer port/.style={shape=american buffer port}}
     \tikzset{not port/.style={shape=american not port}}
     \tikzset{nand port/.style={shape=american nand port}}
     \tikzset{nor port/.style={shape=american nor port}}
@@ -774,6 +864,7 @@
     \ctikzset{tripoles/european nor port/origin/.initial=0.8}
     \ctikzset{tripoles/european xor port/origin/.initial=0.8}
     \ctikzset{tripoles/european xnor port/origin/.initial=0.8}
+    \ctikzset{tripoles/european buffer port/origin/.initial=0.8}
     \ctikzset{tripoles/european not port/origin/.initial=0.8}
     }
 }
@@ -790,6 +881,7 @@
     \ctikzset{tripoles/european nor port/origin/.initial=0}
     \ctikzset{tripoles/european xor port/origin/.initial=0}
     \ctikzset{tripoles/european xnor port/origin/.initial=0}
+    \ctikzset{tripoles/european buffer port/origin/.initial=0}
     \ctikzset{tripoles/european not port/origin/.initial=0}
     }
 }
@@ -876,6 +968,12 @@
 \ctikzset{tripoles/european nand port/height/.initial=.65}
 \ctikzset{tripoles/european nand port/reserved/.initial=.6}
 \ctikzset{tripoles/european nand port/input height/.initial=.6}
+\ctikzset{tripoles/european buffer port/width/.initial=1.4}
+\ctikzset{tripoles/european buffer port/not height/.initial=.3}
+\ctikzset{tripoles/european buffer port/not width/.initial=.8}
+\ctikzset{tripoles/european buffer port/height/.initial=.65}
+\ctikzset{tripoles/european buffer port/reserved/.initial=.6}
+\ctikzset{tripoles/european buffer port/input height/.initial=0}
 \ctikzset{tripoles/european not port/width/.initial=1.4}
 \ctikzset{tripoles/european not port/not height/.initial=.3}
 \ctikzset{tripoles/european not port/not width/.initial=.8}
@@ -907,6 +1005,8 @@
 \ctikzset{tripoles/european xor port/inputs/.initial=2}
 \ctikzset{tripoles/european xnor port/origin/.initial=0.8}
 \ctikzset{tripoles/european xnor port/inputs/.initial=2}
+\ctikzset{tripoles/european buffer port/origin/.initial=0.8}
+\ctikzset{tripoles/european buffer port/inputs/.initial=1}%
 \ctikzset{tripoles/european not port/origin/.initial=0.8}
 \ctikzset{tripoles/european not port/inputs/.initial=1}%
 %%% parameters that are not used anymore after multi-input
@@ -1069,11 +1169,10 @@
         \ctikzset{quadpoles/transformer/width=0.6}
         \ctikzset{quadpoles/transformer core/inner=1}
         \ctikzset{quadpoles/transformer core/width=0.6}
-        \ctikzset{quadpoles/gyrator/inner=1}
+        \ctikzset{quadpoles/gyrator/inner=1} % FIXME
         \ctikzset{quadpoles/gyrator/width=0.6}
     }
 }
-
 
 %
 % multipoles
