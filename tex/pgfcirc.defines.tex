@@ -51,11 +51,33 @@
 
 \pgfarrowsdeclarereversed{latexslim reversed}{latexslim reversed}{latexslim}{latexslim}
 
+\def\pgf@circ@setifdefinedfill#1#2{%
+    % if \ctikzclass is defined and \ctikzclass/fill is defined and is not none:
+    % set the fill color and execute \pgfusepath{#1}, else execute \pgfusepath{#2}
+    \ifdefined\ctikzclass
+        \pgfkeysifdefined{\circuitikzbasekey/\ctikzclass/fill}%
+        {% yes, it's defined
+            \edef\@@tmp{\ctikzvalof{\ctikzclass/fill}}\edef\@@none{none}%
+            \ifx\@@tmp\@@none % but it's none
+                \pgfusepath{#2}%
+            \else
+                \pgfsetfillcolor{\@@tmp}%
+                \pgfusepath{#1}%
+            \fi
+        }{% the class is defined but the fill key not; use  #2
+            \pgfusepath{#2}%
+        }
+    \else
+    \pgfusepath{#2}%
+    \fi
+}
+
+
 %% Macro to fill or draw
 
 \def\pgf@circ@draworfill{%
     \ifx\tikz@fillcolor\pgfutil@empty
-        \pgfusepath{draw}
+        \pgf@circ@setifdefinedfill{draw,fill}{draw}
     \else
         \pgfsetfillcolor{\tikz@fillcolor}
         \pgfusepath{draw, fill}
@@ -64,6 +86,7 @@
 
 \def\pgf@circ@draworfillandclip{%
     \ifx\tikz@fillcolor\pgfutil@empty
+        \pgf@circ@setifdefinedfill{draw, clip, fill}{draw, clip}
         \pgfusepath{draw, clip}
     \else
         \pgfsetfillcolor{\tikz@fillcolor}
@@ -73,7 +96,7 @@
 
 \def\pgf@circ@maybefill{%
     \ifx\tikz@fillcolor\pgfutil@empty
-        \pgfusepath{discard}
+        \pgf@circ@setifdefinedfill{fill}{discard}
     \else
         \pgfsetfillcolor{\tikz@fillcolor}
         \pgfusepath{fill}
@@ -104,7 +127,6 @@
 \ctikzset{voltage dir/RP/.code={\pgf@circ@oldvoltagedirectiontrue\pgf@circ@fixbatteriestrue}}
 \ctikzset{voltage dir/EF/.code={\pgf@circ@oldvoltagedirectionfalse\pgf@circ@fixbatteriestrue}}
 \tikzset{voltage dir/.style={circuitikz/voltage dir=#1}}
-
 
 % Option ">" for twoports
 \newif\ifpgf@circuit@inputarrow
@@ -142,42 +164,87 @@
 \ctikzset{bipoles/length/.code={\pgf@circ@Rlen = #1}}
 \pgf@circ@Rlen = 1.4cm
 
-% scaled length for internal use in shape
+% scaled length for internal use in scalable shapes
 \newdimen\pgf@circ@scaled@Rlen
 
-% global scale parameters
+% load a style file: search ctikzstyle-NAME.tex in path
+\def\ctikzloadstyle#1{%
+    \pgfutil@InputIfFileExists{ctikzstyle-#1}{}{%
+    \tikzerror{I did not find the circuitikz style #1}}%
+}
+
+% global style parameters
 \ctikzset{default/scale/.initial=1.0}   % do not touch
-% default is use as the generic default scale for bipoles
-% commented out globals scale are not (or still not) implemented
+\ctikzset{default/fill/.initial=none}   % do not touch
+% default is use as the generic default style for bipoles
 
 % mostly bipoles:
 
 \ctikzset{resistors/scale/.initial=1.0}
+\ctikzset{resistors/fill/.initial=none}
+
 \ctikzset{capacitors/scale/.initial=1.0}
+\ctikzset{capacitors/fill/.initial=none}
+
 \ctikzset{inductors/scale/.initial=1.0}
+\ctikzset{inductors/fill/.initial=none}
+
 \ctikzset{diodes/scale/.initial=1.0}
+\ctikzset{diodes/fill/.initial=none}
+
 \ctikzset{batteries/scale/.initial=1.0}
+\ctikzset{batteries/fill/.initial=none}
+
 \ctikzset{sources/scale/.initial=1.0}
+\ctikzset{sources/fill/.initial=none}
+
 \ctikzset{instruments/scale/.initial=1.0}
+\ctikzset{instruments/fill/.initial=none}
+
 \ctikzset{mechanicals/scale/.initial=1.0}
+\ctikzset{mechanicals/fill/.initial=none}
+
 \ctikzset{misc/scale/.initial=1.0}
-% connectors, arrows and crossings: probably no need, they are specials anyways
+\ctikzset{misc/fill/.initial=none}
+
 \ctikzset{blocks/scale/.initial=1.0}
+\ctikzset{blocks/fill/.initial=none}
 
 % mostly nodes
 
 \ctikzset{grounds/scale/.initial=1.0}
+\ctikzset{grounds/fill/.initial=none}
+
 \ctikzset{power supplies/scale/.initial=1.0}
+\ctikzset{power supplies/fill/.initial=none}
+
 \ctikzset{transistors/scale/.initial=1.0}
+\ctikzset{transistors/fill/.initial=none}
+
 \ctikzset{tubes/scale/.initial=1.0}
+\ctikzset{tubes/fill/.initial=none}
+
 \ctikzset{RF/scale/.initial=1.0}
+\ctikzset{RF/fill/.initial=none}
+
 \ctikzset{electromechanicals/scale/.initial=1.0}
+\ctikzset{electromechanicals/fill/.initial=none}
+
 % transformers go with inductors
 \ctikzset{amplifiers/scale/.initial=1.0}
+\ctikzset{amplifiers/fill/.initial=none}
+
 \ctikzset{switches/scale/.initial=1.0}
+\ctikzset{switches/fill/.initial=none}
+
 \ctikzset{logic ports/scale/.initial=1.0}
+\ctikzset{logic ports/fill/.initial=none}
+
 \ctikzset{chips/scale/.initial=1.0}
+\ctikzset{chips/fill/.initial=none}
+
 \ctikzset{displays/scale/.initial=1.0}
+\ctikzset{displays/fill/.initial=none}
 
 % grounds and power supplies
 
