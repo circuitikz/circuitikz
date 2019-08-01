@@ -1477,6 +1477,7 @@
         \pgf@circ@res@right = \pgf@x
         \left
         \pgf@circ@res@left = \pgf@x
+        \pgf@circ@scaled@Rlen=\scaledRlen
         %
         #3
         % BODY DIODE
@@ -1568,25 +1569,49 @@
             \pgfslopedattimetrue
             \pgfallowupsidedownattimetrue
             \pgfresetnontranslationattimefalse
+            \edef\@@anchor{center}
             \ifpgf@circuit@trans@ntype
-                \pgftransformlineattime{\ctikzvalof{tripoles/#1/arrow pos}}{%
-                    \pgfpoint%
-                    {\ctikzvalof{tripoles/#1/base width}\pgf@circ@res@left}%
-                    {\ctikzvalof{tripoles/#1/base height 2}\pgf@circ@res@down}%
-                    }{%
-                    \pgfpoint{\pgf@circ@res@right}%
-                    {\ctikzvalof{tripoles/#1/base height}\pgf@circ@res@down}%
-                }
+                \ifpgf@circuit@trans@arrowatend
+                    \edef\@@anchor{tip}
+                    \pgftransformlineattime{1.0}{%
+                        \pgfpoint%
+                        {\ctikzvalof{tripoles/#1/base width}\pgf@circ@res@left}%
+                        {\ctikzvalof{tripoles/#1/base height 2}\pgf@circ@res@down}%
+                        }{%
+                        \pgfpoint{\pgf@circ@res@right}%
+                        {\ctikzvalof{tripoles/#1/base height}\pgf@circ@res@down}%
+                    }
+                \else
+                    \pgftransformlineattime{\ctikzvalof{tripoles/#1/arrow pos}}{%
+                        \pgfpoint%
+                        {\ctikzvalof{tripoles/#1/base width}\pgf@circ@res@left}%
+                        {\ctikzvalof{tripoles/#1/base height 2}\pgf@circ@res@down}%
+                        }{%
+                        \pgfpoint{\pgf@circ@res@right}%
+                        {\ctikzvalof{tripoles/#1/base height}\pgf@circ@res@down}%
+                    }
+                \fi
             \else
-                \pgftransformlineattime{\ctikzvalof{tripoles/#1/arrow pos}}{%
-                    \pgfpoint{\pgf@circ@res@right}%
-                    {\ctikzvalof{tripoles/#1/base height}\pgf@circ@res@up}%
-                    }{%
-                    \pgfpoint{\ctikzvalof{tripoles/#1/base width}\pgf@circ@res@left}%
-                    {\ctikzvalof{tripoles/#1/base height 2}\pgf@circ@res@up}%
-                }
+                \ifpgf@circuit@trans@arrowatend
+                    \edef\@@anchor{tip}
+                    \pgftransformlineattime{1.0}{%
+                        \pgfpoint{\pgf@circ@res@right}%
+                        {\ctikzvalof{tripoles/#1/base height}\pgf@circ@res@up}%
+                        }{%
+                        \pgfpoint{\ctikzvalof{tripoles/#1/base width}\pgf@circ@res@left}%
+                        {\ctikzvalof{tripoles/#1/base height 2}\pgf@circ@res@up}%
+                    }
+                \else
+                    \pgftransformlineattime{\ctikzvalof{tripoles/#1/arrow pos}}{%
+                        \pgfpoint{\pgf@circ@res@right}%
+                        {\ctikzvalof{tripoles/#1/base height}\pgf@circ@res@up}%
+                        }{%
+                        \pgfpoint{\ctikzvalof{tripoles/#1/base width}\pgf@circ@res@left}%
+                        {\ctikzvalof{tripoles/#1/base height 2}\pgf@circ@res@up}%
+                    }
+                \fi
             \fi
-            \pgfnode{currarrow}{center}{}{}{\pgfusepath{stroke}}
+            \pgfnode{currarrow}{\@@anchor}{}{}{\pgfusepath{stroke}}
         \endpgfscope
 
         \ifpgf@circuit@bpt@drawphoto
@@ -1663,13 +1688,18 @@
         {\ctikzvalof{tripoles/#1/gate height}\pgf@circ@res@down}}
         \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@down-\pgfverticaltransformationadjustment*.5*\pgflinewidth}}
         \pgfusepath{draw}
-        %draw arrow depending on type of transiytor
+        %draw arrow depending on type of transistor
         \pgfscope
             \pgfslopedattimetrue
             \pgfallowupsidedownattimetrue
             \pgfresetnontranslationattimefalse
+            \ifpgf@circuit@trans@arrowatend
+                \edef\@@anchor{tip}\edef\@@pos{1.0}
+            \else
+                \edef\@@anchor{center}\edef\@@pos{0.5}
+            \fi
             \ifpgf@circuit@trans@ntype
-                \pgftransformlineattime{.5}{%
+                \pgftransformlineattime{\@@pos}{%
                     \pgfpoint%
                     {\ctikzvalof{tripoles/#1/base width}\pgf@circ@res@left}%
                     {\ctikzvalof{tripoles/#1/gate height 2}\pgf@circ@res@down}%
@@ -1678,7 +1708,7 @@
                     {\ctikzvalof{tripoles/#1/gate height}\pgf@circ@res@down}%
                 }
             \else
-                \pgftransformlineattime{.5}{%
+                \pgftransformlineattime{\@@pos}{%
                     \pgfpoint{\pgf@circ@res@right}%
                     {\ctikzvalof{tripoles/#1/gate height}\pgf@circ@res@up}%
                     }{%
@@ -1686,7 +1716,7 @@
                     {\ctikzvalof{tripoles/#1/gate height 2}\pgf@circ@res@up}%
                 }
             \fi
-            \pgfnode{currarrow}{center}{}{}{\pgfusepath{stroke}}
+            \pgfnode{currarrow}{\@@anchor}{}{}{\pgfusepath{stroke}}
         \endpgfscope
         %draw gate
         \ifpgf@circuit@trans@ntype
@@ -1745,19 +1775,27 @@
     \endpgfscope
     \ifpgf@circuit@mos@arrows
         \pgfscope
-            \pgfslopedattimetrue
-            \pgfallowupsidedownattimetrue
-            \pgfresetnontranslationattimefalse
-            \pgftransformlineattime{\ctikzvalof{tripoles/nmos/arrow pos}}{%
-                \pgfpoint%
-                {\ctikzvalof{tripoles/nmos/gate width}\pgf@circ@res@left}%
-                {\ctikzvalof{tripoles/nmos/gate height}\pgf@circ@res@down}%
-                }{%
-                \pgfpoint
-                {\pgf@circ@res@right}%
-                {\ctikzvalof{tripoles/nmos/gate height}\pgf@circ@res@down}%
-            }
-            \pgfnode{currarrow}{center}{}{}{\pgfusepath{stroke}}
+            \ifpgf@circuit@trans@arrowatend
+                \pgftransformshift{\pgfpoint
+                    {\pgf@circ@res@right}%
+                    {\ctikzvalof{tripoles/pmos/gate height}\pgf@circ@res@down}%
+                }
+                \pgfnode{currarrow}{tip}{}{}{\pgfusepath{stroke}}
+            \else
+                \pgfslopedattimetrue
+                \pgfallowupsidedownattimetrue
+                \pgfresetnontranslationattimefalse
+                \pgftransformlineattime{\ctikzvalof{tripoles/nmos/arrow pos}}{%
+                    \pgfpoint%
+                    {\ctikzvalof{tripoles/nmos/gate width}\pgf@circ@res@left}%
+                    {\ctikzvalof{tripoles/nmos/gate height}\pgf@circ@res@down}%
+                    }{%
+                    \pgfpoint
+                    {\pgf@circ@res@right}%
+                    {\ctikzvalof{tripoles/nmos/gate height}\pgf@circ@res@down}%
+                }
+                \pgfnode{currarrow}{center}{}{}{\pgfusepath{stroke}}
+            \fi
         \endpgfscope
     \fi
 
@@ -1781,19 +1819,28 @@
 
     \ifpgf@circuit@mos@arrows
         \pgfscope
-            \pgfslopedattimetrue
-            \pgfallowupsidedownattimetrue
-            \pgfresetnontranslationattimefalse
-            \pgftransformlineattime{\ctikzvalof{tripoles/pmos/arrow pos}}{%
-                \pgfpoint%
-                {\pgf@circ@res@right}%
-                {\ctikzvalof{tripoles/pmos/gate height}\pgf@circ@res@up}%
-                }{%
-                \pgfpoint
-                {\ctikzvalof{tripoles/pmos/gate width}\pgf@circ@res@left}%
-                {\ctikzvalof{tripoles/pmos/gate height}\pgf@circ@res@up}%
-            }
-            \pgfnode{currarrow}{center}{}{}{\pgfusepath{stroke}}
+            \ifpgf@circuit@trans@arrowatend
+                \pgftransformshift{\pgfpoint
+                    {\ctikzvalof{tripoles/pmos/base width}\pgf@circ@res@left}%
+                    {\ctikzvalof{tripoles/pmos/gate height}\pgf@circ@res@up}%
+                }
+                \pgftransformrotate{180}
+                \pgfnode{currarrow}{tip}{}{}{\pgfusepath{stroke}}
+            \else
+                \pgfslopedattimetrue
+                \pgfallowupsidedownattimetrue
+                \pgfresetnontranslationattimefalse
+                \pgftransformlineattime{\ctikzvalof{tripoles/pmos/arrow pos}}{%
+                    \pgfpoint%
+                    {\pgf@circ@res@right}%
+                    {\ctikzvalof{tripoles/pmos/gate height}\pgf@circ@res@up}%
+                    }{%
+                    \pgfpoint
+                    {\ctikzvalof{tripoles/pmos/gate width}\pgf@circ@res@left}%
+                    {\ctikzvalof{tripoles/pmos/gate height}\pgf@circ@res@up}%
+                }
+                \pgfnode{currarrow}{center}{}{}{\pgfusepath{stroke}}
+            \fi
         \endpgfscope
     \fi
 
@@ -1945,12 +1992,22 @@
         \pgfusepath{draw}
     \endpgfscope
 
+    % arrows
     \pgfscope
         \pgfslopedattimetrue
         \pgfallowupsidedownattimetrue
         \pgfresetnontranslationattimefalse
-
-        \pgftransformlineattime{.6}{%
+        \ifpgf@circuit@trans@arrowatend
+            \edef\@@anchor{tip}
+                \ifpgf@circuit@trans@ntype
+                    \edef\@@pos{1.0}
+                \else
+                    \edef\@@pos{0.0}
+                \fi
+        \else
+            \edef\@@anchor{center}\edef\@@pos{0.6}
+        \fi
+        \pgftransformlineattime{\@@pos}{%
             \pgfpoint
             {\pgf@circ@res@right}%
             {\pgf@circ@res@up+\pgf@circ@res@down}%
@@ -1960,11 +2017,11 @@
             {\pgf@circ@res@up+\pgf@circ@res@down}%
         }
         \ifpgf@circuit@trans@ntype
-    \else
-        \pgftransformrotate{180}
-    \fi
-    \pgfnode{currarrow}{center}{}{}{\pgfusepath{stroke}}
-\endpgfscope
+        \else
+            \pgftransformrotate{180}
+        \fi
+        \pgfnode{currarrow}{\@@anchor}{}{}{\pgfusepath{stroke}}
+    \endpgfscope
 
 % GATE CONNECTION
 \ifpgf@circuit@bpt@drawgate
@@ -2133,11 +2190,17 @@
         \pgfusepath{draw}
     \endpgfscope
 
+    % arrow
     \pgfscope
         \pgfslopedattimetrue
         \pgfallowupsidedownattimetrue
         \pgfresetnontranslationattimefalse
-        \pgftransformlineattime{.6}{%
+        \ifpgf@circuit@trans@arrowatend
+            \edef\@@anchor{tip}\edef\@@pos{1.0}
+        \else
+            \edef\@@anchor{center}\edef\@@pos{0.6}
+        \fi
+        \pgftransformlineattime{\@@pos}{%
             \pgfpoint{\pgf@circ@res@left}%
             {\ctikzvalof{tripoles/njfet/gate height 2}\pgf@circ@res@down}%
             }{%
@@ -2145,7 +2208,7 @@
             {\ctikzvalof{tripoles/njfet/gate width}\pgf@circ@res@left}%
             {\ctikzvalof{tripoles/njfet/gate height 2}\pgf@circ@res@down}%
         }
-        \pgfnode{currarrow}{center}{}{}{\pgfusepath{stroke}}
+        \pgfnode{currarrow}{\@@anchor}{}{}{\pgfusepath{stroke}}
     \endpgfscope
 
     \pgfpathmoveto{\pgfpoint
@@ -2187,7 +2250,12 @@
         \pgfslopedattimetrue
         \pgfallowupsidedownattimetrue
         \pgfresetnontranslationattimefalse
-        \pgftransformlineattime{.4}{%
+        \ifpgf@circuit@trans@arrowatend
+            \edef\@@anchor{tip}\edef\@@pos{1.0}
+        \else
+            \edef\@@anchor{center}\edef\@@pos{0.4}
+        \fi
+        \pgftransformlineattime{\@@pos}{%
             \pgfpoint%
             {\ctikzvalof{tripoles/pjfet/gate width}\pgf@circ@res@left}%
             {\ctikzvalof{tripoles/pjfet/gate height 2}\pgf@circ@res@up}%
@@ -2195,7 +2263,7 @@
             \pgfpoint{\pgf@circ@res@left}%
             {\ctikzvalof{tripoles/pjfet/gate height 2}\pgf@circ@res@up}%
         }
-        \pgfnode{currarrow}{center}{}{}{\pgfusepath{stroke}}
+        \pgfnode{currarrow}{\@@anchor}{}{}{\pgfusepath{stroke}}
     \endpgfscope
 
     \pgfpathmoveto{\pgfpoint
@@ -2260,7 +2328,12 @@
         \pgfslopedattimetrue
         \pgfallowupsidedownattimetrue
         \pgfresetnontranslationattimefalse
-        \pgftransformlineattime{.6}{%
+        \ifpgf@circuit@trans@arrowatend
+            \edef\@@anchor{tip}\edef\@@pos{1.0}
+        \else
+            \edef\@@anchor{center}\edef\@@pos{0.6}
+        \fi
+        \pgftransformlineattime{\@@pos}{%
             \pgfpoint
             {\pgf@circ@res@right}%
             {\pgf@circ@res@up+\pgf@circ@res@down}%
@@ -2269,7 +2342,7 @@
             {\ctikzvalof{tripoles/isfet/base width}\pgf@circ@res@left}%
             {\pgf@circ@res@up+\pgf@circ@res@down}%
         }
-        \pgfnode{currarrow}{center}{}{}{\pgfusepath{stroke}}
+        \pgfnode{currarrow}{\@@anchor}{}{}{\pgfusepath{stroke}}
     \endpgfscope
     \pgfusepath{draw}
 

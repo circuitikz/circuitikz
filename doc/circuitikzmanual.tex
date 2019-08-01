@@ -491,19 +491,11 @@ So let's start with the first stage transistor; given that my preferred way of d
 \end{circuitikz}
 \end{LTXexample}
 
-Another thing I like to modify with respect to the standard is the position of the arrows in transistors, which are normally in the middle the symbol. Using the following settings will move the arrows to the start or end of the corresponding pin.
+Another thing I like to modify with respect to the standard is the position of the arrows in transistors, which are normally in the middle the symbol. Using the following setting (see section~\ref{sec:styling-transistors}) will move the arrows to the start or end of the corresponding pin.
 
-\ctikzset{tripoles/mos style/arrows,
-tripoles/npn/arrow pos=0.8,
-tripoles/pnp/arrow pos=0.8,
-tripoles/nmos/arrow pos=0.8,
-tripoles/pmos/arrow pos=0.6, }
+\ctikzset{transistors/arrow pos=end}
 \begin{lstlisting}
-\ctikzset{tripoles/mos style/arrows,
-tripoles/npn/arrow pos=0.8,
-tripoles/pnp/arrow pos=0.8,
-tripoles/nmos/arrow pos=0.8,
-tripoles/pmos/arrow pos=0.6, }
+\ctikzset{transistors/arrow pos=end}
 \end{lstlisting}
 
 The tricky thing about \verb|\killdepth{}| macro is finnicky details; I do not like the standard position of labels on transistors (which is near the collector/drain) so I plot the label at the right of the \texttt{center} anchor. Without the \verb|\killdepth| macro, the labels of different transistor will be adjusted so that the center of the box is at the \texttt{center} anchor, and as an effect, labels with descenders (like Q) will have a different baseline than labels without. You can see this here (it's really subtle):
@@ -2082,7 +2074,7 @@ You can go back to the no-arrows mos with \texttt{noarrowmos} locally or with
 \texttt{\textbackslash ctikzset\{tripoles/mos style/no arrows\}}.
 
 To draw the PMOS circle non-solid, use the option \texttt{emptycircle} or the command
-\\\verb!\ctikzset{tripoles/pmos style/emptycircle}!. To remove the dot completely (only useful if you have \texttt{arrowmos} enabled, otherwise ther ewill be no difference between P-MOS and N-MOS), you can use the option \texttt{nocircle} or \verb|\ctikzset{tripoles/pmos style/nocircle}|.
+\\\verb!\ctikzset{tripoles/pmos style/emptycircle}!. To remove the dot completely (only useful if you have \texttt{arrowmos} enabled, otherwise there will be no difference between P-MOS and N-MOS), you can use the option \texttt{nocircle} or \verb|\ctikzset{tripoles/pmos style/nocircle}|.
 
 \begin{groupdesc}
     \circuitdesc{pmos,emptycircle}{pmos}{}
@@ -2105,24 +2097,9 @@ To draw the PMOS circle non-solid, use the option \texttt{emptycircle} or the co
           node[pmos]{} (2,-8) node[nmos]{};
 \end{circuitikz}\end{LTXexample}
 
-If you prefer a different position of the arrows in transistors and FETs, you can adjust them like this (it works for the other BJT-based transistors, too):
-\begin{LTXexample}[varwidth=true]
-\begin{circuitikz}
-    \ctikzset{tripoles/mos style/arrows,
-    tripoles/npn/arrow pos=0.8,
-    tripoles/pnp/arrow pos=0.8,
-    tripoles/nmos/arrow pos=0.8,
-    tripoles/pmos/arrow pos=0.6, }
-   \draw (0,0) node[npn, ](npn){};
-   \draw (2,0) node[pnp, ](npn){};
-   \draw (0,-2) node[nmos, ](npn){};
-   \draw (2,-2) node[pmos, ](npn){};
-\end{circuitikz}
-\end{LTXexample}
 
 \textsc{nfet}s and \textsc{pfet}s have been incorporated based on code provided by Clemens Helfmeier and Theodor
 Borsche. Use the package options \texttt{fetsolderdot}/\texttt{nofetsolderdot} to enable/disable solderdot at some fet-transistors. Additionally, the solderdot option can be enabled/disabled for single transistors with the option "solderdot" and "nosolderdot", respectively.
-
 
 \begin{groupdesc}
     \circuitdesc{nfet}{nfet}{}
@@ -2255,7 +2232,19 @@ Access to the gate and/or base nodes can be gained by naming the transistors wit
 
 The \texttt{name} property is available also for bipoles, although this is useful mostly for triac, potentiometer and thyristor (see~\ref{sec:othertrip}).
 
-\subsubsection{Transistors customization}
+\subsubsection{Transistors customization}\label{sec:styling-transistors}
+
+The default position of the arrows in transistors is somewhat in the middle of the terminal; if you prefer you can move them to the end with the style key \texttt{transistors/arrow pos=end} (the default value is \texttt{legacy}).
+
+\begin{LTXexample}[varwidth=true]
+\begin{circuitikz}
+   \ctikzset{transistors/arrow pos=end}
+   \draw (0,0) node[npn, ](npn){};
+   \draw (2,0) node[pnp, ](npn){};
+   \draw (0,-2) node[nmos, ](npn){};
+   \draw (2,-2) node[pmos, ](npn){};
+\end{circuitikz}
+\end{LTXexample}
 
 You can change the scale of all the transistors by setting the key \texttt{transistors/scale} (default \texttt{1.0}).
 The size of the arrows (if any) is controlled by the same parameters as \texttt{currarrow} (see section~\ref{sec:currarrow-size}) and the dots on P-type transistors (if any) are the same as the nodes/poles (see section~\ref{sec:bipole-nodes}).
