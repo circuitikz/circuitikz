@@ -1,4 +1,17 @@
-%% Counters
+%% Key managements
+
+\long\def\pgf@circ@comment#1{}
+
+\def\circuitikzbasekey{/tikz/circuitikz}
+
+\pgfkeys{\circuitikzbasekey/.is family}
+
+\def\circuitikzset#1{\pgfkeys{\circuitikzbasekey,#1}}
+\let\ctikzset\circuitikzset
+\def\ctikzvalof#1{\pgfkeysvalueof{\circuitikzbasekey/#1}}
+\def\ctikzsetvalof#1#2{\pgfkeyssetvalue{\circuitikzbasekey/#1}{#2}}
+
+%% Temporary Counters
 
 \newcount\pgf@circ@count@a
 \newcount\pgf@circ@count@b
@@ -124,22 +137,26 @@
 % #1 is the legacy class (bipoles, tripoles) etc
 % #2 is the reference linewidth
 \def\pgf@circ@setlinewidth#1#2{%
-    \pgfsetlinewidth{\ctikzvalof{#1/thickness}#2}%
+    \ifdefined\ctikzclass
+        \pgfkeysifdefined{\circuitikzbasekey/\ctikzclass/thickness}%
+        {% yes, it's defined
+        \edef\@@tmp{\ctikzvalof{\ctikzclass/thickness}}\edef\@@none{none}%
+        \ifx\@@tmp\@@none % but it's none
+            \pgfsetlinewidth{\ctikzvalof{#1/thickness}#2}% passthrough legacy class
+        \else
+            \pgfsetlinewidth{\@@tmp #2}%
+        \fi
+        }{ % key not defined, do the legacy thing
+            \pgfsetlinewidth{\ctikzvalof{#1/thickness}#2}%
+        }% Ok, do nothing
+    \else % no class
+        \pgfsetlinewidth{\ctikzvalof{#1/thickness}#2}%
+    \fi
 }
+% use \pgf@circ@setlinewidth{one}{\pgflinewidth} if there is no legacy case
+\ctikzset{one/thickness/.initial=1.0} % do not touch
 
-
-%% Keys
-
-\long\def\pgf@circ@comment#1{}
-
-\def\circuitikzbasekey{/tikz/circuitikz}
-
-\pgfkeys{\circuitikzbasekey/.is family}
-
-\def\circuitikzset#1{\pgfkeys{\circuitikzbasekey,#1}}
-\let\ctikzset\circuitikzset
-\def\ctikzvalof#1{\pgfkeysvalueof{\circuitikzbasekey/#1}}
-\def\ctikzsetvalof#1#2{\pgfkeyssetvalue{\circuitikzbasekey/#1}{#2}}
+% voltage options
 
 \newif\ifpgf@circ@siunitx
 \newif\ifpgf@circuit@compat
@@ -202,75 +219,97 @@
 % global style parameters
 \ctikzset{default/scale/.initial=1.0}   % do not touch
 \ctikzset{default/fill/.initial=none}   % do not touch
+\ctikzset{default/thickness/.initial=none}   % do not touch
 % default is use as the generic default style for bipoles
 
 % mostly bipoles:
 
 \ctikzset{resistors/scale/.initial=1.0}
 \ctikzset{resistors/fill/.initial=none}
+\ctikzset{resistors/thickness/.initial=none}
 
 \ctikzset{capacitors/scale/.initial=1.0}
 \ctikzset{capacitors/fill/.initial=none}
+\ctikzset{capacitors/thickness/.initial=none}
 
 \ctikzset{inductors/scale/.initial=1.0}
 \ctikzset{inductors/fill/.initial=none}
+\ctikzset{inductors/thickness/.initial=none}
 
 \ctikzset{diodes/scale/.initial=1.0}
 \ctikzset{diodes/fill/.initial=none}
+\ctikzset{diodes/thickness/.initial=none}
 
 \ctikzset{batteries/scale/.initial=1.0}
 \ctikzset{batteries/fill/.initial=none}
+\ctikzset{batteries/thickness/.initial=none}
 
 \ctikzset{sources/scale/.initial=1.0}
 \ctikzset{sources/fill/.initial=none}
+\ctikzset{sources/thickness/.initial=none}
 
 \ctikzset{instruments/scale/.initial=1.0}
 \ctikzset{instruments/fill/.initial=none}
+\ctikzset{instruments/thickness/.initial=none}
 
 \ctikzset{mechanicals/scale/.initial=1.0}
 \ctikzset{mechanicals/fill/.initial=none}
+\ctikzset{mechanicals/thickness/.initial=none}
 
 \ctikzset{misc/scale/.initial=1.0}
 \ctikzset{misc/fill/.initial=none}
+\ctikzset{misc/thickness/.initial=none}
 
 \ctikzset{blocks/scale/.initial=1.0}
 \ctikzset{blocks/fill/.initial=none}
+\ctikzset{blocks/thickness/.initial=none}
 
 % mostly nodes
 
 \ctikzset{grounds/scale/.initial=1.0}
 \ctikzset{grounds/fill/.initial=none}
+\ctikzset{grounds/thickness/.initial=none}
 
 \ctikzset{power supplies/scale/.initial=1.0}
 \ctikzset{power supplies/fill/.initial=none}
+\ctikzset{power supplies/thickness/.initial=none}
 
 \ctikzset{transistors/scale/.initial=1.0}
 \ctikzset{transistors/fill/.initial=none}
+\ctikzset{transistors/thickness/.initial=none}
 
 \ctikzset{tubes/scale/.initial=1.0}
 \ctikzset{tubes/fill/.initial=none}
+\ctikzset{tubes/thickness/.initial=none}
 
 \ctikzset{RF/scale/.initial=1.0}
 \ctikzset{RF/fill/.initial=none}
+\ctikzset{RF/thickness/.initial=none}
 
 \ctikzset{electromechanicals/scale/.initial=1.0}
 \ctikzset{electromechanicals/fill/.initial=none}
+\ctikzset{electromechanicals/thickness/.initial=none}
 
 % transformers go with inductors
 \ctikzset{amplifiers/scale/.initial=1.0}
 \ctikzset{amplifiers/fill/.initial=none}
+\ctikzset{amplifiers/thickness/.initial=none}
 
 \ctikzset{switches/scale/.initial=1.0}
 \ctikzset{switches/fill/.initial=none}
+\ctikzset{switches/thickness/.initial=none}
 
 \ctikzset{logic ports/scale/.initial=1.0}
 \ctikzset{logic ports/fill/.initial=none}
+\ctikzset{logic ports/thickness/.initial=none}
 
 \ctikzset{chips/scale/.initial=1.0}
 \ctikzset{chips/fill/.initial=none}
+\ctikzset{chips/thickness/.initial=none}
 
 \ctikzset{displays/scale/.initial=1.0}
 \ctikzset{displays/fill/.initial=none}
+\ctikzset{displays/thickness/.initial=none}
 
 % grounds and power supplies
 
