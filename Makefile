@@ -81,6 +81,7 @@ ctan: manual clean
 	#common files
 	mkdir -p ctan_tmp/circuitikz/tex/generic/circuitikz
 	cp tex/pgfcirc* ctan_tmp/circuitikz/tex/generic/circuitikz
+	cp tex/ctikzstyle-* ctan_tmp/circuitikz/tex/generic/circuitikz
 	#create tds-zip
 	cd ctan_tmp/circuitikz; zip --from-crlf circuitikz.tds.zip -r *
 	mv ctan_tmp/circuitikz/circuitikz.tds.zip ctan_tmp

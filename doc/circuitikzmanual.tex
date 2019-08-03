@@ -931,7 +931,7 @@ Let's see the effect over a simple circuit\footnote{This is a just an example, t
     \node [op amp](A1){\texttt{OA1}};
     \draw (A1.-) to[short] ++(0,1) coordinate(tmp) to[R, l_=$R$] (tmp -| A1.out) to[short] (A1.out);
     \draw (tmp) to[short] ++(0,1) coordinate(tmp) to[C=$C$] (tmp -| A1.out) to[short] (A1.out);
-    \draw (A1.+) to [short] ++(0,-2.5) node[ground](GND){};
+    \draw (A1.+) to [battery2, invert] ++(0,-2.5) node[ground](GND){};
     \draw (A1.-) to [L=$L$] ++(-2,0) coordinate(tmp) to[sV, l=$v_s$, fill=yellow] (tmp |-GND) node[ground]{};
     \draw (A1.out) to[R=$R_s$] ++(2,0) coordinate(bb) to[I, l_=$I_B$, invert] ++(0,2) node[vcc](VCC){};
     \draw (bb) to[D, l=$D$, *-] ++(0,-2) coordinate(bb1) to[R=$R_m$] ++(0,-2) node[vee](VEE){};
@@ -948,13 +948,13 @@ Let's see the effect over a simple circuit\footnote{This is a just an example, t
 This code, with the default parameters, will render like the following image.
 
 \long\def\tmpcirc#1#2{% Define the circuit to reuse it
-\begin{center}
+% \begin{center}
 \begin{circuitikz}[american, cute inductors, #1]
     #2
     \node [op amp](A1){\texttt{OA1}};
     \draw (A1.-) to[short] ++(0,1) coordinate(tmp) to[R, l_=$R$] (tmp -| A1.out) to[short] (A1.out);
     \draw (tmp) to[short] ++(0,1) coordinate(tmp) to[C=$C$] (tmp -| A1.out) to[short] (A1.out);
-    \draw (A1.+) to [short] ++(0,-2.5) node[ground](GND){};
+    \draw (A1.+) to [battery2, invert, l=$v_{io}$] ++(0,-2.5) node[ground](GND){};
     \draw (A1.-) to [L=$L$] ++(-2,0) coordinate(tmp) to[sV, l=$v_s$, fill=yellow] (tmp |-GND) node[ground]{};
     \draw (A1.out) to[R=$R_s$] ++(2,0) coordinate(bb) to[I, l_=$I_B$, invert] ++(0,2) node[vcc](VCC){};
     \draw (bb) to[D, l=$D$, *-] ++(0,-2) coordinate(bb1) to[R=$R_m$] ++(0,-2) node[vee](VEE){};
@@ -965,8 +965,9 @@ This code, with the default parameters, will render like the following image.
     \draw (S.s) to[european resistor, l=$Z_L$, *-] (S.s|-GND) node[ground]{};
     \draw (Q1.C) -- (Q1.C|-VCC) node[vcc]{\SI{5}{V}};
     \draw (Q2.C) -- (Q2.C|-VEE) node[vee]{\SI{-5}{V}};
-\end{circuitikz}
-\end{center}}
+\end{circuitikz}%
+% \end{center}
+}
 
 \tmpcirc{}{}
 
@@ -1023,7 +1024,7 @@ Old textbooks used the two-color style quite extensively, filling with a kind of
 
 \subsubsection{Line thickness}\label{sec:styling-thickness}
 
-You can change the line thickness for any class of component in an independent way. The default standard thickness of components is defined on a loose ``legacy'' category (like \texttt{bipoles}, +\texttt{tripoles} and so on, see section~\ref{sec:legacy-thickness}); to override that you set the key \texttt{\emph{class}/thickness} to any number. The default is \texttt{none}, which means that the old way of selecting thickness is used. 
+You can change the line thickness for any class of component in an independent way. The default standard thickness of components is defined on a loose ``legacy'' category (like \texttt{bipoles}, +\texttt{tripoles} and so on, see section~\ref{sec:legacy-thickness}); to override that you set the key \texttt{\emph{class}/thickness} to any number. The default is \texttt{none}, which means that the old way of selecting thickness is used.
 
 For example, \emph{amplifiers} have the legacy class of \texttt{tripoles}, as well as transistors and tubes.By default they are drawn with thickness 2 (relative to the base linewidth). To change them to be thicker, you can for example add to the previous style
 
@@ -1037,7 +1038,52 @@ For example, \emph{amplifiers} have the legacy class of \texttt{tripoles}, as we
 
 \textbf{Caveat:} not every component has a ``class'', so you have to play with the available ones (it's specified in the component description) and with the absolute values to have the circuit following your taste. A bit of experimentation will create a kind of \emph{style options} that you could use in all your documents.
 
+\subsubsection{Style files}
+
+When using styles, it is possible to use \emph{style files} (see section~\ref{sec:writingstylefiles}), that then you can load with the command \verb|\ctikzloadstyle|. For example, in the distribution you have a number of style files: \texttt{legacy}, \texttt{romano}, \texttt{example}.When you load a style name \texttt{\emph{name}}, you will have available a style called \texttt{\emph{name} circuit style} that you can apply to your circuits.
+The last style loaded is also enacted --- will be used in the following circuits in scope. Style files are loaded only once, so it is a good idea to load them in the preamble\dots
+
+The \texttt{example} style file will simply make the amplifiers filled with light blue:
+
+\begin{LTXexample}[varwidth=true]
+\begin{circuitikz}
+    \draw (0,0) node[op amp]{OA1};
+\end{circuitikz}
+\ctikzloadstyle{example}
+\begin{circuitikz}[example circuit style]
+    \draw (0,0) node[op amp]{OA1};
+\end{circuitikz}
+\end{LTXexample}
+\ctikzloadstyle{legacy}
+\ctikzloadstyle{romano}
+
+The stiles \texttt{legacy} is a style that set (most) of the style parameters to the default, and \texttt{romano} is a style used by one of the authors; you can use these styles as is or you can use them to learn to how to write new file style following the instructions in section~\ref{sec:writingstylefiles}. In the next diagrams, the left hand one is using the \texttt{romano circuit style} and the rigth hand one the legacy style.
+
+\fbox{\tmpcirc{scale=0.6, transform shape, romano circuit style}{}}
+\fbox{\tmpcirc{scale=0.6, transform shape, legacy circuit style}{}}
+
 \endgroup % restore state before example of sizing
+
+\subsubsection{Style files: how to write them}\label{sec:writingstylefiles}
+
+The best option is to start from \texttt{ctikzstyle-legacy.tex} and edit your style file from it. Then you just put it in your input path and that's all. If you want, you can contribute your style file to the project.
+
+Basically, to write the style \texttt{example}, you edit a file named \texttt{ctikzstyle-romano.tex} with will define and enact Ti\emph{k}Z style with name \texttt{example circuit style}; basically it has to be something along this:
+
+\lstinputlisting[frame=single, framesep=10pt, basicstyle=\small\ttfamily]{ctikzstyle-example.tex}
+
+This kind of style will \emph{add} to the existing style.  If you want to have a style that \emph{substitute} the current style, you should do like this:
+
+\begin{lstlisting}[frame=single, framesep=10pt, basicstyle=\small\ttfamily]
+\ctikzloadstyle{legacy}% start from a know state
+% beware, you have to change the name of the style at the end too
+\tikzset{romano circuit style/.style={%
+legacy circuit style, % load the legacy style
+\circuitikzbasekey/.cd,%
+% Resistors
+resistors/scale=0.8,
+[...]
+\end{lstlisting}
 
 
 \subsection{Grounds and supply voltages}

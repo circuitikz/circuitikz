@@ -85,24 +85,6 @@
     \fi
 }
 
-\def\pgf@circ@set@stylefill{%
-    % if fill is not set, check if we have to set it per style
-    \ifx\tikz@fillcolor\pgfutil@empty
-        % no explicit fill
-        \ifdefined\ctikzclass
-            \pgfkeysifdefined{\circuitikzbasekey/\ctikzclass/fill}%
-            {% yes, it's defined
-            \edef\@@tmp{\ctikzvalof{\ctikzclass/fill}}\edef\@@none{none}%
-            \ifx\@@tmp\@@none % but it's none
-                \relax % so do nothing
-            \else
-                \pgfsetfillcolor{\@@tmp}%
-            \fi
-            }{}% Ok, do nothing
-        \fi
-    \fi
-}
-
 %% Macro to fill or draw
 
 \def\pgf@circ@draworfill{%
@@ -207,13 +189,23 @@
 \ctikzset{bipoles/length/.code={\pgf@circ@Rlen = #1}}
 \pgf@circ@Rlen = 1.4cm
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% main style definitions
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
 % scaled length for internal use in scalable shapes
 \newdimen\pgf@circ@scaled@Rlen
 
 % load a style file: search ctikzstyle-NAME.tex in path
 \def\ctikzloadstyle#1{%
+    \edef\pgf@temp{#1}%
+    % guard against re-loading
+    \expandafter\ifx\csname pgf@circ@style@\pgf@temp @loaded\endcsname\relax%
+    \expandafter\global\expandafter\let\csname pgf@circ@style@\pgf@temp @loaded\endcsname=\pgfutil@empty
     \pgfutil@InputIfFileExists{ctikzstyle-#1}{}{%
-    \tikzerror{I did not find the circuitikz style #1}}%
+        \tikzerror{I did not find the circuitikz style #1}}%
+    \fi
 }
 
 % global style parameters
@@ -359,19 +351,19 @@
 % Zig Zag resistors
 \ctikzset{resistors/zigs/.initial=3}
 \ctikzset{resistors/width/.code={%
-    \ctikzset{bipoles/resistor/width=#1}
-    \ctikzset{bipoles/vresistor/width=#1}
-    \ctikzset{bipoles/potentiometer/width=#1}
-    \ctikzset{bipoles/resistivesens/width=#1}
-    \ctikzset{bipoles/photoresistor/width=#1}
-    \ctikzset{bipoles/thermistor/width=#1}
-    \ctikzset{bipoles/thermistorntc/width=#1}
-    \ctikzset{bipoles/thermistorptc/width=#1}
-    \ctikzset{bipoles/varistor/width=#1}
-    \ctikzset{bipoles/generic/width=#1}
-    \ctikzset{bipoles/generic potentiometer/width=#1}
-    \ctikzset{bipoles/ageneric/width=#1}
-    \ctikzset{bipoles/tgeneric/width=#1}
+    \ctikzset{bipoles/resistor/width=#1}%
+    \ctikzset{bipoles/vresistor/width=#1}%
+    \ctikzset{bipoles/potentiometer/width=#1}%
+    \ctikzset{bipoles/resistivesens/width=#1}%
+    \ctikzset{bipoles/photoresistor/width=#1}%
+    \ctikzset{bipoles/thermistor/width=#1}%
+    \ctikzset{bipoles/thermistorntc/width=#1}%
+    \ctikzset{bipoles/thermistorptc/width=#1}%
+    \ctikzset{bipoles/varistor/width=#1}%
+    \ctikzset{bipoles/generic/width=#1}%
+    \ctikzset{bipoles/generic potentiometer/width=#1}%
+    \ctikzset{bipoles/ageneric/width=#1}%
+    \ctikzset{bipoles/tgeneric/width=#1}%
 }}
 % zigzag resistor
 \ctikzset{bipoles/resistor/height/.initial=.3}
@@ -427,21 +419,21 @@
 \ctikzset{bipoles/piezoelectric/width/.initial=.5}
 
 % Inductors
-\ctikzset{inductors/coils/.code={
-    \ctikzset{bipoles/cuteinductor/coils=#1}
-    \ctikzset{bipoles/cutechoke/coils=#1}
-    \ctikzset{bipoles/americaninductor/coils=#1}
-    \ctikzset{bipoles/vcuteinductor/coils=#1}
-    \ctikzset{bipoles/vamericaninductor/coils=#1}
+\ctikzset{inductors/coils/.code={%
+    \ctikzset{bipoles/cuteinductor/coils=#1}%
+    \ctikzset{bipoles/cutechoke/coils=#1}%
+    \ctikzset{bipoles/americaninductor/coils=#1}%
+    \ctikzset{bipoles/vcuteinductor/coils=#1}%
+    \ctikzset{bipoles/vamericaninductor/coils=#1}%
 }}
-\ctikzset{inductors/width/.code={
-    \ctikzset{bipoles/cuteinductor/width=#1}
-    \ctikzset{bipoles/cutechoke/width=#1}
-    \ctikzset{bipoles/americaninductor/width=#1}
-    \ctikzset{bipoles/vcuteinductor/width=#1}
-    \ctikzset{bipoles/vamericaninductor/width=#1}
-    \ctikzset{bipoles/fullgeneric/width=#1}
-    \ctikzset{bipoles/tfullgeneric/width=#1}
+\ctikzset{inductors/width/.code={%
+    \ctikzset{bipoles/cuteinductor/width=#1}%
+    \ctikzset{bipoles/cutechoke/width=#1}%
+    \ctikzset{bipoles/americaninductor/width=#1}%
+    \ctikzset{bipoles/vcuteinductor/width=#1}%
+    \ctikzset{bipoles/vamericaninductor/width=#1}%
+    \ctikzset{bipoles/fullgeneric/width=#1}%
+    \ctikzset{bipoles/tfullgeneric/width=#1}%
 }}
 \ctikzset{bipoles/cuteinductor/height/.initial=.3}
 \ctikzset{bipoles/cuteinductor/lower coil height/.initial=.15}
@@ -547,7 +539,7 @@
 \ctikzset{bipoles/varcap/height/.initial=.50}
 \ctikzset{bipoles/varcap/width/.initial=.45}
 
-
+% switches
 
 \ctikzset{bipoles/spst/height/.initial=.35}
 \ctikzset{bipoles/spst/width/.initial=.35}
@@ -558,6 +550,9 @@
 \ctikzset{bipoles/ncs/height/.initial=.35}
 \ctikzset{bipoles/ncs/width/.initial=.35}
 \ctikzset{bipoles/ncs/depth/.initial=.2}
+
+% misc
+
 \ctikzset{bipoles/european gas filled surge arrester/height/.initial=.30}
 \ctikzset{bipoles/european gas filled surge arrester/width/.initial=.80}
 \ctikzset{bipoles/european gas filled surge arrester/inside/.initial=.30}
@@ -697,6 +692,7 @@
 % Option draw pmos with empty circle
 \newif\ifpgf@circuit@pmos@emptycircle
 \pgf@circuit@pmos@emptycirclefalse
+\ctikzset{tripoles/pmos style/.is choice}
 \pgfkeys{/tikz/emptycircle/.add code={}{\pgf@circuit@pmos@emptycircletrue}}
 \ctikzset{tripoles/pmos style/emptycircle/.add code={}{\pgf@circuit@pmos@emptycircletrue}}
 % Option draw pmos with no circle
@@ -971,60 +967,60 @@
 \newif\ifpgf@circuit@europeanlogicport
 \ctikzset{logic ports/.is choice}
 \ctikzset{logic ports/european/.code= {\pgf@circuit@europeanlogicporttrue
-    \tikzset{and port/.style={shape=european and port}}
-    \tikzset{or port/.style={shape=european or port}}
-    \tikzset{xor port/.style={shape=european xor port}}
-    \tikzset{buffer port/.style={shape=european buffer port}}
-    \tikzset{not port/.style={shape=european not port}}
-    \tikzset{nand port/.style={shape=european nand port}}
-    \tikzset{nor port/.style={shape=european nor port}}
-    \tikzset{xnor port/.style={shape=european xnor port}}
-    } }
+    \tikzset{and port/.style={shape=european and port}}%
+    \tikzset{or port/.style={shape=european or port}}%
+    \tikzset{xor port/.style={shape=european xor port}}%
+    \tikzset{buffer port/.style={shape=european buffer port}}%
+    \tikzset{not port/.style={shape=european not port}}%
+    \tikzset{nand port/.style={shape=european nand port}}%
+    \tikzset{nor port/.style={shape=european nor port}}%
+    \tikzset{xnor port/.style={shape=european xnor port}}%
+}}
 \ctikzset{logic ports/american/.code= {\pgf@circuit@europeanlogicportfalse
-    \tikzset{and port/.style={shape=american and port}}
-    \tikzset{or port/.style={shape=american or port}}
-    \tikzset{xor port/.style={shape=american xor port}}
-    \tikzset{buffer port/.style={shape=american buffer port}}
-    \tikzset{not port/.style={shape=american not port}}
-    \tikzset{nand port/.style={shape=american nand port}}
-    \tikzset{nor port/.style={shape=american nor port}}
-    \tikzset{xnor port/.style={shape=american xnor port}}
-    } }
+    \tikzset{and port/.style={shape=american and port}}%
+    \tikzset{or port/.style={shape=american or port}}%
+    \tikzset{xor port/.style={shape=american xor port}}%
+    \tikzset{buffer port/.style={shape=american buffer port}}%
+    \tikzset{not port/.style={shape=american not port}}%
+    \tikzset{nand port/.style={shape=american nand port}}%
+    \tikzset{nor port/.style={shape=american nor port}}%
+    \tikzset{xnor port/.style={shape=american xnor port}}%
+}}
 
 \ctikzset{logic ports origin/.is choice}
-\ctikzset{logic ports origin/legacy/.code= {
-    \ctikzset{tripoles/american and port/origin/.initial=0.8}
-    \ctikzset{tripoles/american nand port/origin/.initial=0.8}
-    \ctikzset{tripoles/american nor port/origin/.initial=0.8}
-    \ctikzset{tripoles/american or port/origin/.initial=0.8}
-    \ctikzset{tripoles/american xor port/origin/.initial=0.8}
-    \ctikzset{tripoles/american xnor port/origin/.initial=0.8}
-    \ctikzset{tripoles/european and port/origin/.initial=0.8}
-    \ctikzset{tripoles/european nand port/origin/.initial=0.8}
-    \ctikzset{tripoles/european or port/origin/.initial=0.8}
-    \ctikzset{tripoles/european nor port/origin/.initial=0.8}
-    \ctikzset{tripoles/european xor port/origin/.initial=0.8}
-    \ctikzset{tripoles/european xnor port/origin/.initial=0.8}
-    \ctikzset{tripoles/european buffer port/origin/.initial=0.8}
-    \ctikzset{tripoles/european not port/origin/.initial=0.8}
-    }
+\ctikzset{logic ports origin/legacy/.code={
+    \ctikzset{tripoles/american and port/origin/.initial=0.8}%
+    \ctikzset{tripoles/american nand port/origin/.initial=0.8}%
+    \ctikzset{tripoles/american nor port/origin/.initial=0.8}%
+    \ctikzset{tripoles/american or port/origin/.initial=0.8}%
+    \ctikzset{tripoles/american xor port/origin/.initial=0.8}%
+    \ctikzset{tripoles/american xnor port/origin/.initial=0.8}%
+    \ctikzset{tripoles/european and port/origin/.initial=0.8}%
+    \ctikzset{tripoles/european nand port/origin/.initial=0.8}%
+    \ctikzset{tripoles/european or port/origin/.initial=0.8}%
+    \ctikzset{tripoles/european nor port/origin/.initial=0.8}%
+    \ctikzset{tripoles/european xor port/origin/.initial=0.8}%
+    \ctikzset{tripoles/european xnor port/origin/.initial=0.8}%
+    \ctikzset{tripoles/european buffer port/origin/.initial=0.8}%
+    \ctikzset{tripoles/european not port/origin/.initial=0.8}%
+    }%
 }
-\ctikzset{logic ports origin/center/.code= {
-    \ctikzset{tripoles/american and port/origin/.initial=0}
-    \ctikzset{tripoles/american nand port/origin/.initial=0}
-    \ctikzset{tripoles/american nor port/origin/.initial=0}
-    \ctikzset{tripoles/american or port/origin/.initial=0}
-    \ctikzset{tripoles/american xor port/origin/.initial=0}
-    \ctikzset{tripoles/american xnor port/origin/.initial=0}
-    \ctikzset{tripoles/european and port/origin/.initial=0}
-    \ctikzset{tripoles/european nand port/origin/.initial=0}
-    \ctikzset{tripoles/european or port/origin/.initial=0}
-    \ctikzset{tripoles/european nor port/origin/.initial=0}
-    \ctikzset{tripoles/european xor port/origin/.initial=0}
-    \ctikzset{tripoles/european xnor port/origin/.initial=0}
-    \ctikzset{tripoles/european buffer port/origin/.initial=0}
-    \ctikzset{tripoles/european not port/origin/.initial=0}
-    }
+\ctikzset{logic ports origin/center/.code={%
+    \ctikzset{tripoles/american and port/origin/.initial=0}%
+    \ctikzset{tripoles/american nand port/origin/.initial=0}%
+    \ctikzset{tripoles/american nor port/origin/.initial=0}%
+    \ctikzset{tripoles/american or port/origin/.initial=0}%
+    \ctikzset{tripoles/american xor port/origin/.initial=0}%
+    \ctikzset{tripoles/american xnor port/origin/.initial=0}%
+    \ctikzset{tripoles/european and port/origin/.initial=0}%
+    \ctikzset{tripoles/european nand port/origin/.initial=0}%
+    \ctikzset{tripoles/european or port/origin/.initial=0}%
+    \ctikzset{tripoles/european nor port/origin/.initial=0}%
+    \ctikzset{tripoles/european xor port/origin/.initial=0}%
+    \ctikzset{tripoles/european xnor port/origin/.initial=0}%
+    \ctikzset{tripoles/european buffer port/origin/.initial=0}%
+    \ctikzset{tripoles/european not port/origin/.initial=0}%
+    }%
 }
 
 
@@ -1197,11 +1193,11 @@
 \ctikzset{tripoles/en amp/font2/.initial= \fontsize{12}{14}\selectfont}%absolute font size needed!
 \ctikzset{tripoles/en amp/text/.initial={$\mathstrut{\triangleright}\,{\infty}$}}
 \tikzset{
-    en amp text/.code = {
-        \ctikzsetvalof{tripoles/en amp/text}{#1}
+    en amp text/.code = {%
+        \ctikzsetvalof{tripoles/en amp/text}{#1}%
     },
-    en amp text A/.code = {
-        \ctikzsetvalof{tripoles/en amp/text}{$\mathstrut{\triangleright}\,\mathrm{A}$}
+    en amp text A/.code = {%
+        \ctikzsetvalof{tripoles/en amp/text}{$\mathstrut{\triangleright}\,\mathrm{A}$}%
     },
 }
 \ctikzset{tripoles/gm amp/width/.initial=1.7}
@@ -1296,23 +1292,23 @@
 \ctikzset{/tikz/circuitikz/tripoles/magnetron/width/.initial=1}
 
 \ctikzset{quadpoles style/.is choice}
-\ctikzset{quadpoles style/inward/.code={ % default value
-        \ctikzset{quadpoles/transformer/inner=0.4}
-        \ctikzset{quadpoles/transformer/width=1.5}
-        \ctikzset{quadpoles/transformer core/inner=0.4}
-        \ctikzset{quadpoles/transformer core/width=1.5}
-        \ctikzset{quadpoles/gyrator/inner=0.4}
-        \ctikzset{quadpoles/gyrator/width=1.5}
-    }
+\ctikzset{quadpoles style/inward/.code={% default value
+        \ctikzset{quadpoles/transformer/inner=0.4}%
+        \ctikzset{quadpoles/transformer/width=1.5}%
+        \ctikzset{quadpoles/transformer core/inner=0.4}%
+        \ctikzset{quadpoles/transformer core/width=1.5}%
+        \ctikzset{quadpoles/gyrator/inner=0.4}%
+        \ctikzset{quadpoles/gyrator/width=1.5}%
+    }%
 }
-\ctikzset{quadpoles style/inline/.code={ % now horizontal baffle
-        \ctikzset{quadpoles/transformer/inner=1}
-        \ctikzset{quadpoles/transformer/width=0.6}
-        \ctikzset{quadpoles/transformer core/inner=1}
-        \ctikzset{quadpoles/transformer core/width=0.6}
+\ctikzset{quadpoles style/inline/.code={% now horizontal baffle
+        \ctikzset{quadpoles/transformer/inner=1}%
+        \ctikzset{quadpoles/transformer/width=0.6}%
+        \ctikzset{quadpoles/transformer core/inner=1}%
+        \ctikzset{quadpoles/transformer core/width=0.6}%
         \ctikzset{quadpoles/gyrator/inner=1} % FIXME
-        \ctikzset{quadpoles/gyrator/width=0.6}
-    }
+        \ctikzset{quadpoles/gyrator/width=0.6}%
+    }%
 }
 
 %
@@ -1369,7 +1365,7 @@
 \ctikzset{multipoles/rotary/arrow/ccw/.code={\pgf@circ@rotaryarrowtrue\pgf@circ@rotaryarrow@cwfalse\pgf@circ@rotaryarrow@ccwtrue}}
 
 \tikzset{%
-    rotary switch/.style args={#1in#2wiper#3}{
+    rotary switch/.style args={#1in#2wiper#3}{%
         shape=rotaryswitch,
         /tikz/circuitikz/multipoles/rotary/channels=#1,
         /tikz/circuitikz/multipoles/rotary/angle=#2,
@@ -1392,11 +1388,11 @@
         /tikz/circuitikz/multipoles/rotary/arrow=both,
     },
     % Notice that these should be the same as the initial values of the keys
-    rotary switch/.default={5 in 60 wiper 20 },
-    rotary switch -/.default={5 in 60 wiper 20 },
-    rotary switch <-/.default={5 in 60 wiper 20 },
-    rotary switch ->/.default={5 in 60 wiper 20 },
-    rotary switch <->/.default={5 in 60 wiper 20 },
+    rotary switch/.default={5 in 60 wiper 20},
+    rotary switch -/.default={5 in 60 wiper 20},
+    rotary switch <-/.default={5 in 60 wiper 20},
+    rotary switch ->/.default={5 in 60 wiper 20},
+    rotary switch <->/.default={5 in 60 wiper 20},
 }
 
 % %Mechanical section
@@ -1414,8 +1410,8 @@
 
 
 \ctikzset{bipole/.is family}
-\ctikzset{bipole/kind/.initial = }
-\ctikzset{bipole/name/.initial = }
+\ctikzset{bipole/kind/.initial=}
+\ctikzset{bipole/name/.initial=}
 \newif\ifpgf@circuit@bipole@isvoltage
 \ctikzset{bipole/is voltage/.is if=pgf@circuit@bipole@isvoltage}
 \newif\ifpgf@circuit@bipole@voltageoutsideofsymbol
@@ -1501,9 +1497,9 @@
 \ctikzset{diode/full/.code = \pgf@circuit@fulldiodetrue }
 \ctikzset{diode/stroke/.code = \pgf@circuit@strokediodetrue}
 
-\tikzset{full diodes/.style = { \circuitikzbasekey/diode = full }}
-\tikzset{empty diodes/.style = { \circuitikzbasekey/diode = empty }}
-\tikzset{stroke diodes/.style = { \circuitikzbasekey/diode = stroke }}
+\tikzset{full diodes/.style = { \circuitikzbasekey/diode = full}}
+\tikzset{empty diodes/.style = { \circuitikzbasekey/diode = empty}}
+\tikzset{stroke diodes/.style = { \circuitikzbasekey/diode = stroke}}
 
 \ctikzset{thickness/.initial=2}
 \ctikzset{color/.initial=black}
@@ -1573,40 +1569,40 @@
 \ctikzset{current/distance/.initial = .5}
 
 
-\tikzset{american currents/.style = { \circuitikzbasekey/current = american } }
-\tikzset{european currents/.style = { \circuitikzbasekey/current = european } }
-\tikzset{american voltages/.style = { \circuitikzbasekey/voltage = american } }
-\tikzset{european voltages/.style = { \circuitikzbasekey/voltage = european } }
-\tikzset{american resistors/.style = { \circuitikzbasekey/resistor = american } }
-\tikzset{european resistors/.style = { \circuitikzbasekey/resistor = european } }
+\tikzset{american currents/.style = {\circuitikzbasekey/current = american}}
+\tikzset{european currents/.style = {\circuitikzbasekey/current = european}}
+\tikzset{american voltages/.style = {\circuitikzbasekey/voltage = american}}
+\tikzset{european voltages/.style = {\circuitikzbasekey/voltage = european}}
+\tikzset{american resistors/.style = {\circuitikzbasekey/resistor = american}}
+\tikzset{european resistors/.style = {\circuitikzbasekey/resistor = european}}
 
 \newif\ifpgf@circuit@europeangfsurgearrester
 \ctikzset{gas filled surge arrester choice/.is choice}
-\ctikzset{gas filled surge arrester choice/european/.code= {\pgf@circuit@europeangfsurgearrestertrue } }
-\ctikzset{gas filled surge arrester choice/american/.code= {\pgf@circuit@europeangfsurgearresterfalse } }
+\ctikzset{gas filled surge arrester choice/european/.code= {\pgf@circuit@europeangfsurgearrestertrue}}
+\ctikzset{gas filled surge arrester choice/american/.code= {\pgf@circuit@europeangfsurgearresterfalse}}
 
-\tikzset{american gas filled surge arrester set/.style = { \circuitikzbasekey/gas filled surge arrester choice=american } }
-\tikzset{european gas filled surge arrester set/.style = { \circuitikzbasekey/gas filled surge arrester choice=european } }
-\tikzset{american inductors/.style = { \circuitikzbasekey/inductor = american } }
-\tikzset{european inductors/.style = { \circuitikzbasekey/inductor = european } }
-\tikzset{cute inductors/.style = { \circuitikzbasekey/inductor = cute } }
-\tikzset{american ports/.style = { \circuitikzbasekey/logic ports = american } }
-\tikzset{european ports/.style = { \circuitikzbasekey/logic ports = european } }
-\tikzset{european/.style = { european currents, european voltages, european resistors, european inductors, european ports, european gas filled surge arrester set} }
-\tikzset{american/.style = { american currents, american voltages, american resistors, american inductors, american ports, american gas filled surge arrester set} }
-\tikzset{cute/.style = { european currents, european voltages, american resistors, cute inductors, american ports } }
+\tikzset{american gas filled surge arrester set/.style = {\circuitikzbasekey/gas filled surge arrester choice=american}}
+\tikzset{european gas filled surge arrester set/.style = {\circuitikzbasekey/gas filled surge arrester choice=european}}
+\tikzset{american inductors/.style = {\circuitikzbasekey/inductor = american}}
+\tikzset{european inductors/.style = {\circuitikzbasekey/inductor = european}}
+\tikzset{cute inductors/.style = {\circuitikzbasekey/inductor = cute}}
+\tikzset{american ports/.style = {\circuitikzbasekey/logic ports = american}}
+\tikzset{european ports/.style = {\circuitikzbasekey/logic ports = european}}
+\tikzset{european/.style = {european currents, european voltages, european resistors, european inductors, european ports, european gas filled surge arrester set}}
+\tikzset{american/.style = {american currents, american voltages, american resistors, american inductors, american ports, american gas filled surge arrester set}}
+\tikzset{cute/.style = {european currents, european voltages, american resistors, cute inductors, american ports}}
 
 % I should try to make the tree clearer (this voltage conflicts with the options above)
 
 \newif\ifpgf@circuit@europeanvoltage
 \ctikzset{voltage/.is choice}
-\ctikzset{voltage/american/.code = {\pgf@circuit@europeanvoltagefalse } }
-\ctikzset{voltage/european/.code = {\pgf@circuit@europeanvoltagetrue } }
+\ctikzset{voltage/american/.code = {\pgf@circuit@europeanvoltagefalse}}
+\ctikzset{voltage/european/.code = {\pgf@circuit@europeanvoltagetrue}}
 
 \newif\ifpgf@circuit@europeancurrent
 \ctikzset{current/.is choice}
-\ctikzset{current/american/.code = \pgf@circuit@europeancurrentfalse }
-\ctikzset{current/european/.code = \pgf@circuit@europeancurrenttrue }
+\ctikzset{current/american/.code = \pgf@circuit@europeancurrentfalse}
+\ctikzset{current/european/.code = \pgf@circuit@europeancurrenttrue}
 
 % noise sources
 \ctikzset{bipoles/noise sources/fillcolor/.initial=gray!50}
@@ -1641,8 +1637,8 @@
 
 \ctikzset{seven seg/bits/.initial=0000000}
 
-\ctikzset{seven seg/value/.code={
-    \edef\@@tmp{#1}
+\ctikzset{seven seg/value/.code={%
+    \edef\@@tmp{#1}%
     \edef\@@n{0} \ifx\@@tmp\@@n\relax\ctikzset{seven seg/bits=1111110}\fi
     \edef\@@n{1} \ifx\@@tmp\@@n\relax\ctikzset{seven seg/bits=0110000}\fi
     \edef\@@n{2} \ifx\@@tmp\@@n\relax\ctikzset{seven seg/bits=1101101}\fi
@@ -1675,13 +1671,13 @@
 }}
 
 \tikzset{%
-    seven segment val/.style args={#1dot#2box#3}{
+    seven segment val/.style args={#1dot#2box#3}{%
         shape=bare7seg,
         /tikz/circuitikz/seven seg/value=#1,
         /tikz/circuitikz/seven seg/dot=#2,
         /tikz/circuitikz/seven seg/box=#3,
     },
-    seven segment bits/.style args={#1dot#2box#3}{
+    seven segment bits/.style args={#1dot#2box#3}{%
         shape=bare7seg,
         /tikz/circuitikz/seven seg/bits=#1,
         /tikz/circuitikz/seven seg/dot=#2,
