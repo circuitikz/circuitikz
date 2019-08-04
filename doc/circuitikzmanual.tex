@@ -491,19 +491,11 @@ So let's start with the first stage transistor; given that my preferred way of d
 \end{circuitikz}
 \end{LTXexample}
 
-Another thing I like to modify with respect to the standard is the position of the arrows in transistors, which are normally in the middle the symbol. Using the following settings will move the arrows to the start or end of the corresponding pin.
+Another thing I like to modify with respect to the standard is the position of the arrows in transistors, which are normally in the middle the symbol. Using the following setting (see section~\ref{sec:styling-transistors}) will move the arrows to the start or end of the corresponding pin.
 
-\ctikzset{tripoles/mos style/arrows,
-tripoles/npn/arrow pos=0.8,
-tripoles/pnp/arrow pos=0.8,
-tripoles/nmos/arrow pos=0.8,
-tripoles/pmos/arrow pos=0.6, }
+\ctikzset{transistors/arrow pos=end}
 \begin{lstlisting}
-\ctikzset{tripoles/mos style/arrows,
-tripoles/npn/arrow pos=0.8,
-tripoles/pnp/arrow pos=0.8,
-tripoles/nmos/arrow pos=0.8,
-tripoles/pmos/arrow pos=0.6, }
+\ctikzset{transistors/arrow pos=end}
 \end{lstlisting}
 
 The tricky thing about \verb|\killdepth{}| macro is finnicky details; I do not like the standard position of labels on transistors (which is near the collector/drain) so I plot the label at the right of the \texttt{center} anchor. Without the \verb|\killdepth| macro, the labels of different transistor will be adjusted so that the center of the box is at the \texttt{center} anchor, and as an effect, labels with descenders (like Q) will have a different baseline than labels without. You can see this here (it's really subtle):
@@ -815,7 +807,7 @@ Several groups of components, on the other hand, have a special \texttt{scale} p
 \end{circuitikz}
 \end{LTXexample}
 
-\paragraph{Thickness of the lines} (globally)
+\paragraph{Thickness of the lines}\label{sec:legacy-thickness} (globally)
 
 You can change the thickness of the components lines with the parameter \texttt{bipoles/thickness} (default 2). The number is relative to the thickness of the normal lines leading to the component.
 
@@ -928,28 +920,26 @@ You can change the visual appearance of a circuit by using a circuit style diffe
 
 \begingroup % protect from style change the rest of the manual
 
-\subsubsection{Relative size}
-
-Component size can be changed globally (see section~\ref{sec:pgfcircRlen}), or you can change their relative size by scaling a family of components by setting the key \texttt{\emph{class}/scale}; for example, you can change the size of all the diodes in your circuit by setting \texttt{diodes/scale} to something different from the default \texttt{1.0}. Let's see the effect over a simple circuit\footnote{This is a just an example, the circuit is not intended to be functional.}.
+Let's see the effect over a simple circuit\footnote{This is a just an example, the circuit is not intended to be functional.}.
 
 \def\killdepth#1{{\raisebox{0pt}[\height][0pt]{#1}}}
 \newcommand\bjtname[1]{($(#1.C)!0.5!(#1.E)$) node[anchor=west]{\killdepth{#1}} }
-\begin{lstlisting}[basicstyle=\small\ttfamily]
+\begin{lstlisting}[basicstyle=\scriptsize\ttfamily]
 \def\killdepth#1{{\raisebox{0pt}[\height][0pt]{#1}}}
 \newcommand\bjtname[1]{($(#1.C)!0.5!(#1.E)$) node[anchor=west]{\killdepth{#1}} }
 \begin{circuitikz}[american, cute inductors]
     \node [op amp](A1){\texttt{OA1}};
     \draw (A1.-) to[short] ++(0,1) coordinate(tmp) to[R, l_=$R$] (tmp -| A1.out) to[short] (A1.out);
     \draw (tmp) to[short] ++(0,1) coordinate(tmp) to[C=$C$] (tmp -| A1.out) to[short] (A1.out);
-    \draw (A1.+) to [short] ++(0,-2.5) node[ground](GND){};
-    \draw (A1.-) to [L=$L$] ++(-2,0) coordinate(tmp) to[sV, l=$v_s$] (tmp |-GND) node[ground]{};
+    \draw (A1.+) to [battery2, invert] ++(0,-2.5) node[ground](GND){};
+    \draw (A1.-) to [L=$L$] ++(-2,0) coordinate(tmp) to[sV, l=$v_s$, fill=yellow] (tmp |-GND) node[ground]{};
     \draw (A1.out) to[R=$R_s$] ++(2,0) coordinate(bb) to[I, l_=$I_B$, invert] ++(0,2) node[vcc](VCC){};
-    \draw (bb) to[D*, l=$D$, *-] ++(0,-2) coordinate(bb1) to[R=$R_m$] ++(0,-2) node[vee](VEE){};
+    \draw (bb) to[D, l=$D$, *-] ++(0,-2) coordinate(bb1) to[R=$R_m$] ++(0,-2) node[vee](VEE){};
     \draw (bb) --++(1,0) node[npn, anchor=B](Q1){} \bjtname{Q1};
     \draw (bb1) --++(1,0) node[pnp, anchor=B](Q2){} \bjtname{Q2};
     \draw (Q1.E) -- (Q2.E) ($(Q1.E)!0.5!(Q2.E)$) to [short, *-o, name=S]  ++(2.5,0)
     node[right]{$v_{o_Q}$};
-    \draw (S.s) to[R=$R_L$, *-] (S.s|-GND) node[ground]{};
+    \draw (S.s) to[european resistor, l=$Z_L$, *-] (S.s|-GND) node[ground]{};
     \draw (Q1.C) -- (Q1.C|-VCC) node[vcc]{\SI{5}{V}};
     \draw (Q2.C) -- (Q2.C|-VEE) node[vee]{\SI{-5}{V}};
 \end{circuitikz}
@@ -958,27 +948,32 @@ Component size can be changed globally (see section~\ref{sec:pgfcircRlen}), or y
 This code, with the default parameters, will render like the following image.
 
 \long\def\tmpcirc#1#2{% Define the circuit to reuse it
-\begin{center}
+% \begin{center}
 \begin{circuitikz}[american, cute inductors, #1]
     #2
     \node [op amp](A1){\texttt{OA1}};
     \draw (A1.-) to[short] ++(0,1) coordinate(tmp) to[R, l_=$R$] (tmp -| A1.out) to[short] (A1.out);
     \draw (tmp) to[short] ++(0,1) coordinate(tmp) to[C=$C$] (tmp -| A1.out) to[short] (A1.out);
-    \draw (A1.+) to [short] ++(0,-2.5) node[ground](GND){};
-    \draw (A1.-) to [L=$L$] ++(-2,0) coordinate(tmp) to[sV, l=$v_s$] (tmp |-GND) node[ground]{};
+    \draw (A1.+) to [battery2, invert, l=$v_{io}$] ++(0,-2.5) node[ground](GND){};
+    \draw (A1.-) to [L=$L$] ++(-2,0) coordinate(tmp) to[sV, l=$v_s$, fill=yellow] (tmp |-GND) node[ground]{};
     \draw (A1.out) to[R=$R_s$] ++(2,0) coordinate(bb) to[I, l_=$I_B$, invert] ++(0,2) node[vcc](VCC){};
-    \draw (bb) to[D*, l=$D$, *-] ++(0,-2) coordinate(bb1) to[R=$R_m$] ++(0,-2) node[vee](VEE){};
+    \draw (bb) to[D, l=$D$, *-] ++(0,-2) coordinate(bb1) to[R=$R_m$] ++(0,-2) node[vee](VEE){};
     \draw (bb) --++(1,0) node[npn, anchor=B](Q1){} \bjtname{Q1};
     \draw (bb1) --++(1,0) node[pnp, anchor=B](Q2){} \bjtname{Q2};
     \draw (Q1.E) -- (Q2.E) ($(Q1.E)!0.5!(Q2.E)$) to [short, *-o, name=S]  ++(2.5,0)
     node[right]{$v_{o_Q}$};
-    \draw (S.s) to[R=$R_L$, *-] (S.s|-GND) node[ground]{};
+    \draw (S.s) to[european resistor, l=$Z_L$, *-] (S.s|-GND) node[ground]{};
     \draw (Q1.C) -- (Q1.C|-VCC) node[vcc]{\SI{5}{V}};
     \draw (Q2.C) -- (Q2.C|-VEE) node[vee]{\SI{-5}{V}};
-\end{circuitikz}
-\end{center}}
+\end{circuitikz}%
+% \end{center}
+}
 
 \tmpcirc{}{}
+
+\subsubsection{Relative size}\label{sec:styling-scale}
+
+Component size can be changed globally (see section~\ref{sec:pgfcircRlen}), or you can change their relative size by scaling a family of components by setting the key \texttt{\emph{class}/scale}; for example, you can change the size of all the diodes in your circuit by setting \texttt{diodes/scale} to something different from the default \texttt{1.0}.
 
 Remember that if you use a global scale (be sure to read section~\ref{sec:bugs}!) you change the coordinate only, so using \texttt{scale=0.8} in the environment options you have:
 
@@ -999,13 +994,97 @@ Using relative sizes as described in section~\ref{sec:pgfcircRlen} enables your 
 
 Will result in a (much more readable in Romano's opinion) circuit:
 
-\tmpcirc{}{\ctikzset{resistors/scale=0.8, capacitors/scale=0.7, diodes/scale=0.6, transistors/scale=1.3}}
-
-\textbf{Caveat:} not every component has a ``size class'', so you have to play with the available ones (it's specified in the component description) and the absolute values to have the circuit following your taste. A bit of experimentation will create a kind of \emph{style options} that you could use in all your documents.
+\tmpcirc{scale=0.8, transform shape}{\ctikzset{resistors/scale=0.8, capacitors/scale=0.7, diodes/scale=0.6, transistors/scale=1.3}}
 
 \textbf{Warning:} relative scaling is meant to work for a reasonable range of stretching and shortening, so try to  keep your scale parameter in the \texttt{0.5} to~\texttt{2.0} range (more or less). Bigger or smaller value can result in awkward shapes.
 
+\subsubsection{Fill color}\label{sec:styling-fillcolor}
+
+You can also set a default fill color for the  components. You can use the keys \texttt{\emph{class}/fill} (which defaults to \texttt{none}, no fill, i.e. transparent component) for all fillable components in the library.
+
+If you add to the previous styles the following commands:
+
+\begin{lstlisting}
+\ctikzset{
+    amplifiers/fill=cyan,
+    sources/fill=green,
+    diodes/fill=red,
+    resistors/fill=violet,
+}
+\end{lstlisting}
+
+you will have the following circuit (note that the first generator is \emph{explicitly} set to be yellow,
+so if will not be colored green!):
+
+\tmpcirc{scale=0.8, transform shape}{\ctikzset{resistors/scale=0.8, capacitors/scale=0.7, diodes/scale=0.6, transistors/scale=1.3,%
+             amplifiers/fill=cyan, sources/fill=green, diodes/fill=red, resistors/fill=violet,}}
+
+Please use this option with caution. Although two-color circuits can be nice, using more than that can become rapidly unbearable.
+Old textbooks used the two-color style quite extensively, filling with a kind of light blue like \texttt{blue!30!white} ``closed'' components, but that was largely to hinder black-and-white photocopying\dots
+
+\subsubsection{Line thickness}\label{sec:styling-thickness}
+
+You can change the line thickness for any class of component in an independent way. The default standard thickness of components is defined on a loose ``legacy'' category (like \texttt{bipoles}, +\texttt{tripoles} and so on, see section~\ref{sec:legacy-thickness}); to override that you set the key \texttt{\emph{class}/thickness} to any number. The default is \texttt{none}, which means that the old way of selecting thickness is used.
+
+For example, \emph{amplifiers} have the legacy class of \texttt{tripoles}, as well as transistors and tubes.By default they are drawn with thickness 2 (relative to the base linewidth). To change them to be thicker, you can for example add to the previous style
+
+\begin{lstlisting}
+    \ctikzset{amplifier/thickness=4}
+\end{lstlisting}
+
+\tmpcirc{scale=0.8, transform shape}{\ctikzset{resistors/scale=0.8, capacitors/scale=0.7, diodes/scale=0.6, transistors/scale=1.3,%
+             amplifiers/fill=cyan, sources/fill=green, diodes/fill=red, resistors/fill=violet,
+            amplifiers/thickness=4}}
+
+\textbf{Caveat:} not every component has a ``class'', so you have to play with the available ones (it's specified in the component description) and with the absolute values to have the circuit following your taste. A bit of experimentation will create a kind of \emph{style options} that you could use in all your documents.
+
+\subsubsection{Style files}
+
+When using styles, it is possible to use \emph{style files} (see section~\ref{sec:writingstylefiles}), that then you can load with the command \verb|\ctikzloadstyle|. For example, in the distribution you have a number of style files: \texttt{legacy}, \texttt{romano}, \texttt{example}.When you load a style name \texttt{\emph{name}}, you will have available a style called \texttt{\emph{name} circuit style} that you can apply to your circuits.
+The last style loaded is also enacted --- will be used in the following circuits in scope. Style files are loaded only once, so it is a good idea to load them in the preamble\dots
+
+The \texttt{example} style file will simply make the amplifiers filled with light blue:
+
+\begin{LTXexample}[varwidth=true]
+\begin{circuitikz}
+    \draw (0,0) node[op amp]{OA1};
+\end{circuitikz}
+\ctikzloadstyle{example}
+\begin{circuitikz}[example circuit style]
+    \draw (0,0) node[op amp]{OA1};
+\end{circuitikz}
+\end{LTXexample}
+\ctikzloadstyle{legacy}
+\ctikzloadstyle{romano}
+
+The stiles \texttt{legacy} is a style that set (most) of the style parameters to the default, and \texttt{romano} is a style used by one of the authors; you can use these styles as is or you can use them to learn to how to write new file style following the instructions in section~\ref{sec:writingstylefiles}. In the next diagrams, the left hand one is using the \texttt{romano circuit style} and the rigth hand one the legacy style.
+
+\fbox{\tmpcirc{scale=0.6, transform shape, romano circuit style}{}}
+\fbox{\tmpcirc{scale=0.6, transform shape, legacy circuit style}{}}
+
 \endgroup % restore state before example of sizing
+
+\subsubsection{Style files: how to write them}\label{sec:writingstylefiles}
+
+The best option is to start from \texttt{ctikzstyle-legacy.tex} and edit your style file from it. Then you just put it in your input path and that's all. If you want, you can contribute your style file to the project.
+
+Basically, to write the style \texttt{example}, you edit a file named \texttt{ctikzstyle-romano.tex} with will define and enact Ti\emph{k}Z style with name \texttt{example circuit style}; basically it has to be something along this:
+
+\lstinputlisting[frame=single, framesep=10pt, basicstyle=\small\ttfamily]{ctikzstyle-example.tex}
+
+This kind of style will \emph{add} to the existing style.  If you want to have a style that \emph{substitute} the current style, you should do like this:
+
+\begin{lstlisting}[frame=single, framesep=10pt, basicstyle=\small\ttfamily]
+\ctikzloadstyle{legacy}% start from a know state
+% beware, you have to change the name of the style at the end too
+\tikzset{romano circuit style/.style={%
+legacy circuit style, % load the legacy style
+\circuitikzbasekey/.cd,%
+% Resistors
+resistors/scale=0.8,
+[...]
+\end{lstlisting}
+
 
 \subsection{Grounds and supply voltages}
 
@@ -1020,7 +1099,7 @@ For the grounds, the \texttt{center} anchor is put on the connecting point of th
     \circuitdesc*{sground}{Signal ground}{}
     \circuitdesc{tground}{Thicker tailless reference ground}{}
     \circuitdesc{nground}{Noiseless ground}{}
-    \circuitdesc{pground}{Protective ground}{}
+    \circuitdesc*{pground}{Protective ground}{}
     \circuitdesc{cground}{Chassis ground\footnotemark}{}
     \footnotetext{These last three were contributed by Luigi «Liverpool»}
     \circuitdesc{eground}{European style ground}{}
@@ -1119,7 +1198,7 @@ Other miscellaneous resistor-like devices:
     \circuitdescbip*[thermistorntc]{thRn}{NTC thermistor}{thermistor ntc}
 \end{groupdesc}
 
-\subsubsection{Generic sensors anchors}
+\subsubsection{Generic sensors anchors}\label{sec:sensors-anchors}
 Generic sensors have an extra anchor named \texttt{label}  to help position the type of dependence, if needed:
 
 \begin{LTXexample}[varwidth=true]
@@ -1128,6 +1207,8 @@ Generic sensors have an extra anchor named \texttt{label}  to help position the 
    \node [font=\tiny, right] at(mySR.label) {-t\si{\degree}};
    \draw (0,0) to[sL, l=$L$, name=mySL] ++(3,0);
    \node [draw, circle, inner sep=2pt] at(mySL.label) {};
+   \draw (0,-2) to[sC, l=$C$, name=mySC] ++(3,0);
+   \node [font=\tiny, below right, inner sep=0pt] at(mySC.label) {+H\si{\%}};
 \end{circuitikz}
 \end{LTXexample}
 
@@ -1162,9 +1243,13 @@ For the american style resistors, you can change the number of ``zig-zags'' by s
     \circuitdescbip[pcapacitor]{polar capacitor}{Polar capacitor}{pC}
     \circuitdescbip*{ecapacitor}{Electrolytic capacitor}{eC,elko}
     \circuitdescbip[vcapacitor]{variable capacitor}{Variable capacitor}{vC}
-    \circuitdescbip[capacitivesens]{capacitive sensor}{Capacitive sensor}{sC}( label/0/0.3 )
+    \circuitdescbip[capacitivesens]{capacitive sensor}{Capacitive sensor}{sC}(label/0/0.3)
     \circuitdescbip*{piezoelectric}{Piezoelectric Element}{PZ}
 \end{groupdesc}
+
+\subsubsection{Capacitive sensors anchors}
+
+For capacitive sensors, see section~\ref{sec:sensors-anchors}.
 
 \subsubsection{Capacitors customizations}
 
@@ -1198,6 +1283,10 @@ Finally, if the \texttt{europeaninductors} option is active (or the style \textt
     \ctikzset{inductor=cute} % back to default
 \end{groupdesc}
 
+\subsubsection{Inductive sensors anchors}
+
+For inductive sensors, see section~\ref{sec:sensors-anchors}.
+
 \subsubsection{Inductors customizations}\label{sec:tweak-l}
 
 You can change the scale of the inductors by setting the key \texttt{inductors/scale}  to something different from the default \texttt{1.0}.
@@ -1215,6 +1304,20 @@ Moreover, you can change the number of ``coils'' drawn by setting the key
    \draw (0,0) to[longL, l=$L$] ++(4,0);
    \ctikzset{inductors/scale=1.5, inductor=american}
    \draw (0,-1.5) to[L, l=$L$] ++(4,0);
+\end{circuitikz}
+\end{LTXexample}
+
+Chokes (which comes only in the \texttt{cute} style) can have single and double lines, and can have the line thickness adjust (the value is relative to the thickness of the inductor).
+
+\begin{LTXexample}[varwidth=true]
+\begin{circuitikz}[american]
+    \draw (0,0) to[cute choke] ++(3,0);
+    \draw (0,-1) to[cute choke, twolineschoke] ++(3,0);
+
+    \ctikzset{bipoles/cutechoke/cthick=2, twolineschoke}
+
+    \draw (0,-2) to[cute choke] ++(3,0);
+    \draw (0,-3) to[cute choke, onelinechoke] ++(3,0);
 \end{circuitikz}
 \end{LTXexample}
 
@@ -1866,8 +1969,9 @@ It also has a \texttt{zero} anchor if you need to rotate it about its real cente
 \end{groupdesc}
 
 \begin{groupdesc}
-    \circuitdesc{coupler}{Coupler}{}
-    \circuitdesc{coupler2}{Coupler, 2}{}
+    \circuitdesc*{fourport}{Generic fourport}{}
+    \circuitdesc*{coupler}{Coupler}{}
+    \circuitdesc*{coupler2}{Coupler with rounded arrows}{}
 \end{groupdesc}
 
 \subsubsection{Blocks anchors}
@@ -2045,7 +2149,7 @@ You can go back to the no-arrows mos with \texttt{noarrowmos} locally or with
 \texttt{\textbackslash ctikzset\{tripoles/mos style/no arrows\}}.
 
 To draw the PMOS circle non-solid, use the option \texttt{emptycircle} or the command
-\\\verb!\ctikzset{tripoles/pmos style/emptycircle}!. To remove the dot completely (only useful if you have \texttt{arrowmos} enabled, otherwise ther ewill be no difference between P-MOS and N-MOS), you can use the option \texttt{nocircle} or \verb|\ctikzset{tripoles/pmos style/nocircle}|.
+\\\verb!\ctikzset{tripoles/pmos style/emptycircle}!. To remove the dot completely (only useful if you have \texttt{arrowmos} enabled, otherwise there will be no difference between P-MOS and N-MOS), you can use the option \texttt{nocircle} or \verb|\ctikzset{tripoles/pmos style/nocircle}|.
 
 \begin{groupdesc}
     \circuitdesc{pmos,emptycircle}{pmos}{}
@@ -2068,24 +2172,7 @@ To draw the PMOS circle non-solid, use the option \texttt{emptycircle} or the co
           node[pmos]{} (2,-8) node[nmos]{};
 \end{circuitikz}\end{LTXexample}
 
-If you prefer a different position of the arrows in transistors and FETs, you can adjust them like this (it works for the other BJT-based transistors, too):
-\begin{LTXexample}[varwidth=true]
-\begin{circuitikz}
-    \ctikzset{tripoles/mos style/arrows,
-    tripoles/npn/arrow pos=0.8,
-    tripoles/pnp/arrow pos=0.8,
-    tripoles/nmos/arrow pos=0.8,
-    tripoles/pmos/arrow pos=0.6, }
-   \draw (0,0) node[npn, ](npn){};
-   \draw (2,0) node[pnp, ](npn){};
-   \draw (0,-2) node[nmos, ](npn){};
-   \draw (2,-2) node[pmos, ](npn){};
-\end{circuitikz}
-\end{LTXexample}
-
-\textsc{nfet}s and \textsc{pfet}s have been incorporated based on code provided by Clemens Helfmeier and Theodor
-Borsche. Use the package options \texttt{fetsolderdot}/\texttt{nofetsolderdot} to enable/disable solderdot at some fet-transistors. Additionally, the solderdot option can be enabled/disabled for single transistors with the option "solderdot" and "nosolderdot", respectively.
-
+\textsc{nfet}s and \textsc{pfet}s have been incorporated based on code provided by Clemens Helfmeier and Theodor Borsche. Use the package options \texttt{fetsolderdot}/\texttt{nofetsolderdot} to enable/disable solderdot at some fet-transistors. Additionally, the solderdot option can be enabled/disabled for single transistors with the option "solderdot" and "nosolderdot", respectm ively.
 
 \begin{groupdesc}
     \circuitdesc{nfet}{nfet}{}
@@ -2218,7 +2305,19 @@ Access to the gate and/or base nodes can be gained by naming the transistors wit
 
 The \texttt{name} property is available also for bipoles, although this is useful mostly for triac, potentiometer and thyristor (see~\ref{sec:othertrip}).
 
-\subsubsection{Transistors customization}
+\subsubsection{Transistors customization}\label{sec:styling-transistors}
+
+The default position of the arrows in transistors is somewhat in the middle of the terminal; if you prefer you can move them to the end with the style key \texttt{transistors/arrow pos=end} (the default value is \texttt{legacy}).
+
+\begin{LTXexample}[varwidth=true]
+\begin{circuitikz}
+   \ctikzset{transistors/arrow pos=end}
+   \draw (0,0) node[npn, ](npn){};
+   \draw (2,0) node[pnp, ](npn){};
+   \draw (0,-2) node[nmos, ](npn){};
+   \draw (2,-2) node[pmos, ](npn){};
+\end{circuitikz}
+\end{LTXexample}
 
 You can change the scale of all the transistors by setting the key \texttt{transistors/scale} (default \texttt{1.0}).
 The size of the arrows (if any) is controlled by the same parameters as \texttt{currarrow} (see section~\ref{sec:currarrow-size}) and the dots on P-type transistors (if any) are the same as the nodes/poles (see section~\ref{sec:bipole-nodes}).
@@ -2483,7 +2582,7 @@ Transformers automatically use the inductor shape currently selected. These are 
     outer dot B1/0/0.2, outer dot B2/0/0.2 )
     \ctikzset{inductor=european}
     \circuitdesc{transformer}{Transformer (european inductor)}{}
-    \circuitdesc{gyrator}{Gyrator}{}
+    \circuitdesc*{gyrator}{Gyrator}{}
 \end{groupdesc}
 
 
@@ -4581,6 +4680,22 @@ Since version 0.9.0, you can also fill most shapes with a color (the manual spec
 ;\end{circuitikz}
 \end{LTXexample}
 
+
+This fill color will override any color defined by the style (see section~\ref{sec:styling-fillcolor}). If you want to override a style fill color with no-fill for a specific component, you need to override the style --- it's a bit unfortunate but it should be an exceptional thing anyway:
+
+\begin{LTXexample}[varwidth=true, basicstyle=\small\ttfamily]
+\begin{circuitikz}
+    \ctikzset{logic ports/fill=cyan!30!white}
+    \draw[red] (-0.5,3) -- (-0.5, -1);
+    \draw[red] (1.5,3) -- (1.5, -1);
+    \draw
+    (0,2) node[and port, ] (myand1)  {}
+    (0,0) node[and port, fill=cyan] (myand2)  {}
+    (2,1) node[xnor port, circuitikz/logic ports/fill=none] (myxnor)  {}
+  (myand1.out) -| (myxnor.in 1)
+  (myand2.out) -| (myxnor.in 2)
+;\end{circuitikz}
+\end{LTXexample}
 You can combine shape colors with fill colors, too, but you should use the \texttt{draw} color option style for this:
 
 \begin{LTXexample}[varwidth=true]
@@ -4593,8 +4708,8 @@ You can combine shape colors with fill colors, too, but you should use the \text
 ;\end{circuitikz}
 \end{LTXexample}
 
-This is because, as you can see from the following example in port \texttt{2}, you can't specify both a fill and a color in the node (yes, it's a bug too, but it's quite complex to solve given the current circuit\TikZ{} architecture).  a workaround is shown in port \texttt{3}:
-
+This is because, as you can see from the following example in port \texttt{2}, you can't specify both a fill and a color in the node (yes, it's a bug too, but it's quite complex to solve given the current circuit\TikZ{} architecture).
+A workaround is shown in port \texttt{3}:
 
 \begin{LTXexample}[varwidth=true]
 \begin{circuitikz} \draw

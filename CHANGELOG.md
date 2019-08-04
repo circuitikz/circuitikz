@@ -4,10 +4,14 @@ The major changes among the different circuitikz versions are listed here. See <
 * Version 0.9.4 (unreleased)
     - Fixed a bug with "inline" gyrators, now the circle will not overlap
     - Fixed a bug in input anchors of european not ports
-    - Fixed tlinestub so that it has the same default size than tline (TL)
-    - More anchors for "elmech" element
-    - The styling addition are quite big --- they should be backward compatible, but to be on the safe side, add the 0.9.3 version snapshots.
+    - Fixed "tlinestub" so that it has the same default size than "tline" (TL)
+    - Fixed the "transistor arrows at end" feature, added to styling
+    - Added several new anchors for "elmech" element
+    - Several minor fixes in some component drawings to allow fill and thickness styles
+    - Add 0.9.3 version snapshots. The styling addition are quite big; they should be backward compatible, but better safe than sorry.
     - Added styling of relative size of components (at a global or local level)
+    - Added styling for fill color and thickeness
+    - Added style files
 
 * Version 0.9.3 (2019-07-13)
     - Added the option to have "dotless" P-MOS (to use with arrowmos option)
