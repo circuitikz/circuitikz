@@ -21,7 +21,7 @@ manual-git: flat
 	sed -i '0,/^\(\\usepackage.*\){circuitikzgit}\(.*\)/s//\1{circuitikz}\2/' doc/compatibility.tex
 	rm -f doc/$(CTIKZ_GIT_FILENAME)
 	mv doc/circuitikzmanual.pdf circuitikzmanualgit.pdf
-	zip --from-crlf ctikzstylesgit.zip tex/ctikzstyle*.tex
+	zip -j --from-crlf ctikzstylesgit.zip tex/ctikzstyle*.tex
 
 manual: manual-latex manual-context clean
 
