@@ -1,4 +1,4 @@
-\def\pgfcircversion{git:6681ada}
+\def\pgfcircversion{git:0e6d769}
 \def\pgfcircversiondate{2019/08/26}
 \writestatus{loading}{\pgfcircversiondate{} The CircuiTikz circuit drawing package version \pgfcircversion}
 
@@ -263,6 +263,10 @@
 \ctikzset{sources/scale/.initial=1.0}
 \ctikzset{sources/fill/.initial=none}
 \ctikzset{sources/thickness/.initial=none}
+
+\ctikzset{csources/scale/.initial=1.0}
+\ctikzset{csources/fill/.initial=none}
+\ctikzset{csources/thickness/.initial=none}
 
 \ctikzset{instruments/scale/.initial=1.0}
 \ctikzset{instruments/fill/.initial=none}
@@ -536,6 +540,8 @@
 \ctikzset{bipoles/cisource/width/.initial=.7}
 \ctikzset{bipoles/cisourceam/height/.initial=.7}
 \ctikzset{bipoles/cisourceam/width/.initial=.7}
+\ctikzset{bipoles/ecsource/height/.initial=.7}
+\ctikzset{bipoles/ecsource/width/.initial=.7}
 \ctikzset{bipoles/cvsource/height/.initial=.7}
 \ctikzset{bipoles/cvsource/width/.initial=.7}
 \ctikzset{bipoles/cvsourceam/height/.initial=.7}
@@ -4998,8 +5004,27 @@
     \endpgfscope
 }
 
+%% Empty controlled source
+\pgfcircdeclarebipolescaled{csources}
+{}
+{\ctikzvalof{bipoles/ecsource/height}}
+{ecsource}
+{\ctikzvalof{bipoles/ecsource/height}}
+{\ctikzvalof{bipoles/ecsource/width}}
+{
+
+    \pgf@circ@setlinewidth{bipoles}{\pgfstartlinewidth}
+
+    \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@zero}}
+    \pgfpathlineto{\pgfpoint{\pgf@circ@res@zero}{\pgf@circ@res@up}}
+    \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@zero}}
+    \pgfpathlineto{\pgfpoint{\pgf@circ@res@zero}{\pgf@circ@res@down}}
+    \pgfpathclose
+    \pgf@circ@draworfill
+}
+
 %% Controlled voltage source
-\pgfcircdeclarebipolescaled{sources}
+\pgfcircdeclarebipolescaled{csources}
 {}
 {\ctikzvalof{bipoles/cvsource/height}}
 {cvsource}
@@ -5022,7 +5047,7 @@
 }
 
 %% Controlled voltage source - American
-\pgfcircdeclarebipolescaled{sources}
+\pgfcircdeclarebipolescaled{csources}
 {}
 {\ctikzvalof{bipoles/cvsourceam/height}}
 {cvsourceAM}
@@ -5048,7 +5073,7 @@
 }
 
 %% Controlled sinusoidal voltage source
-\pgfcircdeclarebipolescaled{sources}
+\pgfcircdeclarebipolescaled{csources}
 {}
 {\ctikzvalof{bipoles/cvsourcesin/height}}
 {cvsourcesin}
@@ -5080,7 +5105,7 @@
 }
 
 %% Controlled sinusoidal current source
-\pgfcircdeclarebipolescaled{sources}
+\pgfcircdeclarebipolescaled{csources}
 {}
 {\ctikzvalof{bipoles/cvsourcesin/height}}
 {cisourcesin}
@@ -5112,7 +5137,7 @@
 }
 
 %% Controlled current source
-\pgfcircdeclarebipolescaled{sources}
+\pgfcircdeclarebipolescaled{csources}
 {}
 {\ctikzvalof{bipoles/cisource/height}}
 {cisource}
@@ -5135,7 +5160,7 @@
 }
 
 %% Controlled current source - American
-\pgfcircdeclarebipolescaled{sources}
+\pgfcircdeclarebipolescaled{csources}
 {}
 {\ctikzvalof{bipoles/cisourceam/height}}
 {cisourceAM}
@@ -5197,7 +5222,7 @@
 }
 
 %% Cute Controlled voltage source
-\pgfcircdeclarebipolescaled{sources}
+\pgfcircdeclarebipolescaled{csources}
 {}
 {\ctikzvalof{bipoles/cvsource/height}}
 {cvsourceC}
@@ -5219,7 +5244,7 @@
 }
 
 %% Cute Controlled current source
-\pgfcircdeclarebipolescaled{sources}
+\pgfcircdeclarebipolescaled{csources}
 {}
 {\ctikzvalof{bipoles/cisource/height}}
 {cisourceC}
@@ -16587,6 +16612,7 @@
 \def\pgf@circ@vsourcesquare@path#1{\pgf@circ@bipole@path{vsourcesquare}{#1}}
 \def\pgf@circ@vsourcetri@path#1{\pgf@circ@bipole@path{vsourcetri}{#1}}
 \def\pgf@circ@isourceam@path#1{\pgf@circ@bipole@path{isourceAM}{#1}}
+\def\pgf@circ@ecsource@path#1{\pgf@circ@bipole@path{ecsource}{#1}}
 \def\pgf@circ@cvsource@path#1{\pgf@circ@bipole@path{cvsource}{#1}}
 \def\pgf@circ@cvsourceam@path#1{\pgf@circ@bipole@path{cvsourceAM}{#1}}
 \def\pgf@circ@cvsourcesin@path#1{\pgf@circ@bipole@path{cvsourcesin}{#1}}
@@ -16713,6 +16739,7 @@
 \compattikzset{american voltage source/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@vsourceam@path, \circuitikzbasekey/bipole/is voltage=true, v=#1}}
 \compattikzset{european current source/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@isource@path, \circuitikzbasekey/bipole/is current=true, i=#1}}
 \compattikzset{american current source/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@isourceam@path, \circuitikzbasekey/bipole/is current=true, i=#1}}
+\compattikzset{empty controlled source/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@ecsource@path, \circuitikzbasekey/bipole/is voltage=true, \circuitikzbasekey/bipole/is voltageoutsideofsymbol=true, v=#1}}
 \compattikzset{european controlled voltage source/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@cvsource@path, \circuitikzbasekey/bipole/is voltage=true, \circuitikzbasekey/bipole/is voltageoutsideofsymbol=true, v=#1}}
 \compattikzset{american controlled voltage source/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@cvsourceam@path, \circuitikzbasekey/bipole/is voltage=true, v=#1}}
 \compattikzset{european controlled current source/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@cisource@path, \circuitikzbasekey/bipole/is current=true, i=#1}}
@@ -16947,6 +16974,7 @@
 \compattikzset{vsource/.style = {\comnpatname voltage source = #1}}
 \compattikzset{isource/.style = {\comnpatname current source = #1}}
 \compattikzset{cisource/.style = {\comnpatname controlled current source = #1}}
+\compattikzset{ecsource/.style = {\comnpatname empty controlled source = #1}}
 \compattikzset{cvsource/.style = {\comnpatname controlled voltage source = #1}}
 \compattikzset{vsourcesin/.style = {\comnpatname sinusoidal voltage source = #1}}
 \compattikzset{vsourcesquare/.style = {\comnpatname square voltage source = #1}}
