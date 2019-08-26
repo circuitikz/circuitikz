@@ -20,9 +20,9 @@ The stable version is available on ctan and is included within the major latex d
 ### Stable version
 Just place
 ```latex
-  \usepackage{circuitikz}
+  \usepackage[siunitx, RPvoltages]{circuitikz}
 ```
-or, for ConTeXt, 
+or other opions, for ConTeXt, 
 ```latex
   \usemodule[circuitikz]
 ```
@@ -32,7 +32,7 @@ in the preamble and compile away, both with PS and PDF target output.
 
 If you want to use the git version, just append a git to the package name:
 ```latex
-  \usepackage{circuitikzgit}
+  \usepackage[siunitx, RPvoltages]{circuitikzgit}
 ```
 or, for ConTeXt,
 ```latex
@@ -52,6 +52,7 @@ In ConTeXt, only the 0.8.3 version is available for the time being; you can use 
   \usemodule[circuitikz-0.8.3]
 ```
 
+Be aware that options can (and do) change between versions, so you have to check them manually.
 
 ## More Information
 More Information can be found in the manual and (maybe) at the wiki of the project located at https://github.com/circuitikz/circuitikz/wiki.
