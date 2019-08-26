@@ -57,20 +57,27 @@
 }
 }
 
-
+%% the generic bipole path use the name followed by shape and the "left" and "right" anchors
+\def\pgf@circ@bipole@path{\pgf@circ@bipole@path@gen{shape}{left}{right}{0}}
 %% Generic bipole path
-\def\pgf@circ@bipole@path#1#2{
+%% #1 -> text to add to the "to" name to find the bipole shape
+%% #2 -> first (left) anchor name
+%% #3 -> second (right) anchor name
+%% #4 -> Additional rotation of the shape
+%% #5 -> name of the shape (we will add #1 to find it)
+%% #6 -> name of the node
+\def\pgf@circ@bipole@path@gen#1#2#3#4#5#6{
 
     \pgfextra{
         \set@explicit@center@anchor{\tikztostart}
         \set@explicit@center@anchor{\tikztotarget}
         \pgfsyssoftpath@getcurrentpath{\myp@th}%% save current path to extend after calculation of correct start/end coordinates
-        \ctikzset{bipole/kind = #1}
+        \ctikzset{bipole/kind = #5}
         \edef\pgf@temp{\ctikzvalof{bipole/name}}
         \def\pgf@circ@temp{}
         \ifx\pgf@temp\pgf@circ@temp % if it has not a name
             \pgfmathrandominteger{\pgf@circ@rand}{1000}{9999}
-            \ctikzset{bipole/name = #2\pgf@circ@rand} % create it
+            \ctikzset{bipole/name = #6\pgf@circ@rand} % create it
         \fi
     }
 
@@ -79,36 +86,37 @@
     \pgfextra{
         \pgfmathanglebetweenpoints{\pgfpointanchor{\ctikzvalof{bipole/name}start}{center}}
         {\pgfpointanchor{\ctikzvalof{bipole/name}end}{center}}
+        \pgfmathadd{\pgfmathresult}{#4}
         \pgfmathround{\pgfmathresult}
         \edef\pgf@circ@direction{\pgfmathresult}%Calculate direction(angle) of path
         \pgfsyssoftpath@setcurrentpath{\myp@th}
     }
-    \pgfextra{\def\pgf@temp{open}\def\pgf@circ@temp{#1}}
+    \pgfextra{\def\pgf@temp{open}\def\pgf@circ@temp{#5}}
     \ifx\pgf@temp\pgf@circ@temp  % if it is an open
         \else
             --($(\ctikzvalof{bipole/name}start) ! .5\pgflinewidth ! (\ctikzvalof{bipole/name}end)$) %ugly workaround to get correct linejoins(node breaks path?)
         \fi
         ($(\tikztostart) ! .5 ! (\tikztotarget)$)%%positio of middle node
-        node[#1shape, rotate=\pgf@circ@direction, yscale=\ctikzvalof{mirror value}, xscale=\ctikzvalof{invert value}]
+        node[#5#1, rotate=\pgf@circ@direction, yscale=\ctikzvalof{mirror value}, xscale=\ctikzvalof{invert value}]
         (\ctikzvalof{bipole/name}) {}
         \ifpgf@circuit@bipole@inverted
-            \ifcsname pgf@anchor@#1shape@pathstart\endcsname%if special path-anchors are defined, use them!
+            \ifcsname pgf@anchor@#5#1@pathstart\endcsname%if special path-anchors are defined, use them!
                 coordinate	(anchorstartnode) at (\ctikzvalof{bipole/name}.pathend)
                 coordinate	(anchorendnode) at (\ctikzvalof{bipole/name}.pathstart)
             \else
-                coordinate	(anchorstartnode) at (\ctikzvalof{bipole/name}.right)
-                coordinate	(anchorendnode) at (\ctikzvalof{bipole/name}.left)
+                coordinate	(anchorstartnode) at (\ctikzvalof{bipole/name}.#3)
+                coordinate	(anchorendnode) at (\ctikzvalof{bipole/name}.#2)
             \fi
             \else
-            \ifcsname pgf@anchor@#1shape@pathstart\endcsname%if special path-anchors are defined, use them!
+            \ifcsname pgf@anchor@#5#1@pathstart\endcsname%if special path-anchors are defined, use them!
                 coordinate	(anchorstartnode) at (\ctikzvalof{bipole/name}.pathstart)
                 coordinate	(anchorendnode) at (\ctikzvalof{bipole/name}.pathend)
             \else
-                coordinate	(anchorstartnode) at (\ctikzvalof{bipole/name}.left)
-                coordinate	(anchorendnode) at (\ctikzvalof{bipole/name}.right)
+                coordinate	(anchorstartnode) at (\ctikzvalof{bipole/name}.#2)
+                coordinate	(anchorendnode) at (\ctikzvalof{bipole/name}.#3)
             \fi
         \fi
-        \pgfextra{\def\pgf@temp{open}\def\pgf@circ@temp{#1}}
+        \pgfextra{\def\pgf@temp{open}\def\pgf@circ@temp{#5}}
         \ifx\pgf@temp\pgf@circ@temp  % if it is an open
         \else
             (\ctikzvalof{bipole/name}start.center) -- (anchorstartnode)
@@ -121,7 +129,7 @@
         \pgf@circ@ifkeyempty{bipole/voltage/label/name}\else\pgf@circ@drawvoltage\fi
         \pgf@circ@ifkeyempty{bipole/current/label/name}\else\pgf@circ@drawcurrent\fi
         \pgf@circ@ifkeyempty{bipole/flow/label/name}\else\pgf@circ@drawflow\fi
-        \pgfextra{\def\pgf@temp{open}\def\pgf@circ@temp{#1}}
+        \pgfextra{\def\pgf@temp{open}\def\pgf@circ@temp{#5}}
         \ifx\pgf@temp\pgf@circ@temp  % if it is an open
             (\ctikzvalof{bipole/name}end)%Move to end of path
         \else
@@ -791,50 +799,50 @@
 \compattikzset{qpprobe/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@qpprobe@path, l=#1}}
 
 
-% Transistor like bipoles
+% % Transistor like bipoles
 
-\def\pgf@circ@trans@path#1#2{
-    \pgfextra{
-        \edef\pgf@temp{\ctikzvalof{bipole/name}}
-        \def\pgf@circ@temp{#2}
-        \ifx\pgf@temp\pgf@circ@temp % if it has not a name
-            \pgfmathrandominteger{\pgf@circ@rand}{1000}{9999}
-            \ctikzset{bipole/name = trans\pgf@circ@rand} % create it
-        \fi
-    }
-    \ifpgf@circuit@bipole@inverted
-        (\tikztostart) node[coordinate] (\ctikzvalof{bipole/name}end) {}
-        (\tikztotarget) node[coordinate] (\ctikzvalof{bipole/name}start) {}
-    \else
-        (\tikztostart) node[coordinate] (\ctikzvalof{bipole/name}start) {}
-        (\tikztotarget) node[coordinate] (\ctikzvalof{bipole/name}end) {}
-    \fi
-    \pgfextra{
-        \pgfmathanglebetweenpoints{\pgfpointanchor{\ctikzvalof{bipole/name}start}{center}}
-        {\pgfpointanchor{\ctikzvalof{bipole/name}end}{center}}
-        \pgfmathadd{\pgfmathresult}{-90}
-        \pgfmathround{\pgfmathresult}
-        \edef\pgf@circ@direction{\pgfmathresult}
-    }
-    ($(\tikztostart) ! .5 ! (\tikztotarget)$)
-    node[#1, /tikz/rotate=\pgf@circ@direction, xscale=\ctikzvalof{mirror value}]
-    (\ctikzvalof{bipole/name}) {} node {\ctikzvalof{bipole/label/name}}
-    \ifcsname pgf@anchor@#1@pathstart\endcsname%if special path-anchors are defined, use them!
-        (\ctikzvalof{bipole/name}start.center) --(\ctikzvalof{bipole/name}.pathstart)
-        (\ctikzvalof{bipole/name}.pathend)  -- (\ctikzvalof{bipole/name}end.center)
-    \else
-        (\ctikzvalof{bipole/name}start.center) --(\ctikzvalof{bipole/name}.left)
-        (\ctikzvalof{bipole/name}.right)  -- (\ctikzvalof{bipole/name}end.center)
-    \fi
-    \pgfextra{
-        \pgfcircresetpath
-    }
-    (\tikztotarget) 	\tikztonodes  % e si continua
-}
+% \def\pgf@circ@trans@path#1#2{
+%     \pgfextra{
+%         \edef\pgf@temp{\ctikzvalof{bipole/name}}
+%         \def\pgf@circ@temp{#2}
+%         \ifx\pgf@temp\pgf@circ@temp % if it has not a name
+%             \pgfmathrandominteger{\pgf@circ@rand}{1000}{9999}
+%             \ctikzset{bipole/name = trans\pgf@circ@rand} % create it
+%         \fi
+%     }
+%     \ifpgf@circuit@bipole@inverted
+%         (\tikztostart) node[coordinate] (\ctikzvalof{bipole/name}end) {}
+%         (\tikztotarget) node[coordinate] (\ctikzvalof{bipole/name}start) {}
+%     \else
+%         (\tikztostart) node[coordinate] (\ctikzvalof{bipole/name}start) {}
+%         (\tikztotarget) node[coordinate] (\ctikzvalof{bipole/name}end) {}
+%     \fi
+%     \pgfextra{
+%         \pgfmathanglebetweenpoints{\pgfpointanchor{\ctikzvalof{bipole/name}start}{center}}
+%         {\pgfpointanchor{\ctikzvalof{bipole/name}end}{center}}
+%         \pgfmathadd{\pgfmathresult}{-90}
+%         \pgfmathround{\pgfmathresult}
+%         \edef\pgf@circ@direction{\pgfmathresult}
+%     }
+%     ($(\tikztostart) ! .5 ! (\tikztotarget)$)
+%     node[#1, /tikz/rotate=\pgf@circ@direction, xscale=\ctikzvalof{mirror value}]
+%     (\ctikzvalof{bipole/name}) {} node {\ctikzvalof{bipole/label/name}}
+%     \ifcsname pgf@anchor@#1@pathstart\endcsname%if special path-anchors are defined, use them!
+%         (\ctikzvalof{bipole/name}start.center) --(\ctikzvalof{bipole/name}.pathstart)
+%         (\ctikzvalof{bipole/name}.pathend)  -- (\ctikzvalof{bipole/name}end.center)
+%     \else
+%         (\ctikzvalof{bipole/name}start.center) --(\ctikzvalof{bipole/name}.left)
+%         (\ctikzvalof{bipole/name}.right)  -- (\ctikzvalof{bipole/name}end.center)
+%     \fi
+%     \pgfextra{
+%         \pgfcircresetpath
+%     }
+%     (\tikztotarget) 	\tikztonodes  % e si continua
+% }
 
 
 \def\pgf@circ@definetranspath#1{
-	\compattikzset{T#1/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@trans@path{#1}{}, l=##1}}
+    \compattikzset{T#1/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@bipole@path@gen{}{start}{end}{-90}{#1}{}, l=##1}}
 }
 
 \pgf@circ@definetranspath{elmech}
