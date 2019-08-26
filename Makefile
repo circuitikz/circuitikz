@@ -21,6 +21,7 @@ manual-git: flat
 	sed -i '0,/^\(\\usepackage.*\){circuitikzgit}\(.*\)/s//\1{circuitikz}\2/' doc/compatibility.tex
 	rm -f doc/$(CTIKZ_GIT_FILENAME)
 	mv doc/circuitikzmanual.pdf circuitikzmanualgit.pdf
+	zip --from-crlf ctikzstylesgit.zip tex/ctikzstyle*.tex
 
 manual: manual-latex manual-context clean
 
@@ -37,7 +38,8 @@ manual-latex: changelog
 	rm -f doc/tmp.pdf
 	#cd doc;pdflatex compatibility.tex; pdflatex circuitikzmanual.tex; pdflatex circuitikzmanual.tex
 	#compile with xelatex for smaller filesize!
-	cd doc; TEXINPUTS=.:../tex/: xelatex $(XELATEXOPTIONS) compatibility.tex;  TEXINPUTS=.:../tex/: xelatex $(XELATEXOPTIONS) circuitikzmanual.tex;  TEXINPUTS=.:../tex/: xelatex $(XELATEXOPTIONS) circuitikzmanual.tex
+	# sometime you need three compilation to get pages correctly
+	cd doc; TEXINPUTS=.:../tex/: xelatex $(XELATEXOPTIONS) compatibility.tex;  TEXINPUTS=.:../tex/: xelatex $(XELATEXOPTIONS) circuitikzmanual.tex;  TEXINPUTS=.:../tex/: xelatex $(XELATEXOPTIONS) circuitikzmanual.tex; TEXINPUTS=.:../tex/: xelatex $(XELATEXOPTIONS) circuitikzmanual.tex
 	#optimize for smaller filesize(faktor 2!)--> only useful if using pdflatex
 	#gs -sDEVICE=pdfwrite -dCompatibilityLevel=1.4 -dPDFSETTINGS=/screen -dNOPAUSE -dQUIET -dBATCH -sOutputFile=doc/tmp.pdf doc/circuitikzmanual.pdf
 	#mv doc/tmp.pdf doc/circuitikzmanual.pdf
@@ -51,7 +53,7 @@ clean:
 	find tex -name "*circ*" -not -name "*.sty" -not -name "*.tex" -type f -delete
 
 fullclean: clean
-	rm -f circuitikz.zip circuitikzmanualgit.pdf  t-circuitikzgit.tex circuitikzgit.sty
+	rm -f circuitikz.zip circuitikzmanualgit.pdf  t-circuitikzgit.tex circuitikzgit.sty ctikzstylesgit.zip
 
 ctan: manual clean
 	rm -rf ctan_tmp
