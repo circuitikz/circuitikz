@@ -6,6 +6,7 @@ The major changes among the different circuitikz versions are listed here. See <
     - Fixed a bug in input anchors of european not ports
     - Fixed "tlinestub" so that it has the same default size than "tline" (TL)
     - Fixed the "transistor arrows at end" feature, added to styling
+    - Changed the behavior of "voltage shift" and voltage label positioning to be more robust
     - Added several new anchors for "elmech" element
     - Several minor fixes in some component drawings to allow fill and thickness styles
     - Add 0.9.3 version snapshots. The styling addition are quite big; they should be backward compatible, but better safe than sorry.
