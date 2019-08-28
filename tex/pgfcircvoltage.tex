@@ -100,46 +100,61 @@
 \def\pgf@circ@avplus{\ctikzvalof{voltage/american plus}}
 \def\pgf@circ@avminus{\ctikzvalof{voltage/american minus}}
 
+%%
+\def\setscaledRlenforclass{%
+    \csname pgf@sh@ma@\ctikzvalof{bipole/name}\endcsname
+    \ifdefined\ctikzclass
+        \edef\pgf@temp{/tikz/circuitikz/\ctikzclass/scale}
+        \pgfkeysifdefined{\pgf@temp}
+            {\pgf@circ@scaled@Rlen=\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
+            {\pgf@circ@scaled@Rlen=\pgf@circ@Rlen}
+    \else
+        \pgf@circ@scaled@Rlen=\pgf@circ@Rlen
+    \fi
+}
+
 %% Output routine for generic bipoles
 
 \def\pgf@circ@drawvoltagegeneric{
     \pgfextra{
+        % \typeout{NAME:\ctikzvalof{bipole/name}}
         \edef\pgf@temp{/tikz/circuitikz/bipoles/\ctikzvalof{bipole/kind}/voltage/straight label distance}
         \pgfkeysifdefined{\pgf@temp}
         {
             \edef\partheight{\ctikzvalof{bipoles/\ctikzvalof{bipole/kind}/voltage/straight label distance}}
-            \edef\tmpdistfromline{(\partheight\pgf@circ@Rlen)}
+            \edef\tmpdistfromline{(\partheight\pgf@circ@scaled@Rlen)}
         }
         {
             \pgfkeysifdefined{/tikz/circuitikz/bipoles/voltage/straight label distance}
             {
                 \edef\partheight{\ctikzvalof{bipoles/voltage/straight label distance}}
-                \edef\tmpdistfromline{(\partheight\pgf@circ@Rlen)}
+                \edef\tmpdistfromline{(\partheight\pgf@circ@scaled@Rlen)}
             }
             {%calculate default value from part height
                 \edef\pgf@temp{/tikz/circuitikz/bipoles/\ctikzvalof{bipole/kind}/height}
                 \pgfkeysifdefined{\pgf@temp}
                 {
                     \edef\partheight{0.5*\ctikzvalof{bipoles/\ctikzvalof{bipole/kind}/height}}
-                    \edef\tmpdistfromline{(\partheight\pgf@circ@Rlen+0.2\pgf@circ@Rlen)}
+                    \edef\tmpdistfromline{(\partheight\pgf@circ@scaled@Rlen+0.2\pgf@circ@scaled@Rlen)}
                 }
                 {
-                    \edef\tmpdistfromline{(.5\pgf@circ@Rlen)} %fallback to fixed value
+                    \edef\tmpdistfromline{(.5\pgf@circ@scaled@Rlen)} %fallback to fixed value
                 }
             }
         }
+        % \typeout{KIND:\ctikzvalof{bipole/kind}\space RLEN:\the\pgf@circ@Rlen\space SCALED:\the\pgf@circ@scaled@Rlen}
         \ifnum \ctikzvalof{mirror value}=-1
         \ifpgf@circuit@bipole@inverted
             \ifpgf@circuit@bipole@voltage@straight
                 \def\distfromline{\tmpdistfromline}
             \else
-                \def\distfromline{\ctikzvalof{voltage/distance from line}\pgf@circ@Rlen}
+                \def\distfromline{\ctikzvalof{voltage/distance from line}\pgf@circ@scaled@Rlen}
             \fi
             \else
             \ifpgf@circuit@bipole@voltage@straight
                 \def\distfromline{-\tmpdistfromline}
             \else
-                \def\distfromline{-\ctikzvalof{voltage/distance from line}\pgf@circ@Rlen}
+                \def\distfromline{-\ctikzvalof{voltage/distance from line}\pgf@circ@scaled@Rlen}
             \fi
         \fi
         \else
@@ -147,13 +162,13 @@
                 \ifpgf@circuit@bipole@voltage@straight
                     \def\distfromline{-\tmpdistfromline}
                 \else
-                    \def\distfromline{-\ctikzvalof{voltage/distance from line}\pgf@circ@Rlen}
+                    \def\distfromline{-\ctikzvalof{voltage/distance from line}\pgf@circ@scaled@Rlen}
                 \fi
                 \else
                 \ifpgf@circuit@bipole@voltage@straight
                     \def\distfromline{\tmpdistfromline}
                 \else
-                    \def\distfromline{\ctikzvalof{voltage/distance from line}\pgf@circ@Rlen}
+                    \def\distfromline{\ctikzvalof{voltage/distance from line}\pgf@circ@scaled@Rlen}
                 \fi
             \fi
         \fi
@@ -171,13 +186,6 @@
             { \edef\bumpb{\ctikzvalof{bipoles/\ctikzvalof{bipole/kind}/voltage/bump b}} }
             { \edef\bumpb{\ctikzvalof{voltage/bump b}} }
         \edef\shiftv{\ctikzvalof{voltage/shift}}
-        % \pgfmathsetmacro{\bumpb}{\bumpb + \shiftv} %% adjust the bump for shift
-        % \ifpgf@circuit@bipole@inverted
-        %     \pgfmathsetmacro{\shiftv}{-\shiftv}
-        % \fi
-        % \ifnum \ctikzvalof{mirror value} = -1
-        %     \pgfmathsetmacro{\shiftv}{-\shiftv}
-        % \fi
         \newdimen{\absvshift}
         \pgfmathsetlength{\absvshift}{\shiftv*\distfromline+\distfromline}
         % put this to true to see the voltage label coordinate anchors
@@ -421,6 +429,9 @@
             \fi
         \fi
 
+        % take into account scaling
+        \setscaledRlenforclass
+
         \edef\pgf@temp{/tikz/circuitikz/bipoles/\ctikzvalof{bipole/kind}/voltage/european label distance}
         \pgfkeysifdefined{\pgf@temp}
             { \edef\eudist{\ctikzvalof{bipoles/\ctikzvalof{bipole/kind}/voltage/european label distance}} }
@@ -429,8 +440,8 @@
         \edef\pgf@temp{/tikz/circuitikz/bipoles/\ctikzvalof{bipole/kind}/height}
         \pgfkeysifdefined{\pgf@temp}
             {\pgfmathsetmacro{\partheightf}{0.5*\ctikzvalof{bipoles/\ctikzvalof{bipole/kind}/height}}
-             \edef\partheight{\partheightf\pgf@circ@Rlen}}
-            {\edef\partheight{(.5\pgf@circ@Rlen)}} %fallback to fixed value
+             \edef\partheight{\partheightf\pgf@circ@scaled@Rlen}}
+            {\edef\partheight{(.5\pgf@circ@scaled@Rlen)}} %fallback to fixed value
         \newdimen{\alshift}
         % this is more or less the same of the legacy code; we shift the american label a bit
         % outside the (+) -- (-) line

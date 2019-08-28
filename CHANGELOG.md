@@ -2,6 +2,9 @@
 The major changes among the different circuitikz versions are listed here. See <https://github.com/circuitikz/circuitikz/commits> for a full list of changes.
 
 * Version 0.9.4 (unreleased)
+
+    This release introduces two changes: a big one, which is the styling of the components (please look at the manual for details) and a change to how voltage labels and arrows are positioned. This one should be backward compatible *unless* you used `voltage shift` introduced in 0.9.0, which was broken when using the global `scale` parameter.
+
     - Fixed a bug with "inline" gyrators, now the circle will not overlap
     - Fixed a bug in input anchors of european not ports
     - Fixed "tlinestub" so that it has the same default size than "tline" (TL)
