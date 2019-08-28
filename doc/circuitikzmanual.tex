@@ -809,7 +809,8 @@ Several groups of components, on the other hand, have a special \texttt{scale} p
 
 \paragraph{Thickness of the lines}\label{sec:legacy-thickness} (globally)
 
-You can change the thickness of the components lines with the parameter \texttt{bipoles/thickness} (default 2). The number is relative to the thickness of the normal lines leading to the component.
+The best way to alter the thickness of components is using styling, see section~\ref{sec:styling-thickness}. Alternatively, you can use ``legacy'' classes like \texttt{bipole}, \texttt{tripoles} and so on ---
+for example changing the parameter \texttt{bipoles/thickness} (default 2). The number is relative to the thickness of the normal lines leading to the component.
 
 \begin{LTXexample}[varwidth=true]
     \ctikzset{bipoles/thickness=1}
@@ -1024,7 +1025,7 @@ Old textbooks used the two-color style quite extensively, filling with a kind of
 
 \subsubsection{Line thickness}\label{sec:styling-thickness}
 
-You can change the line thickness for any class of component in an independent way. The default standard thickness of components is defined on a loose ``legacy'' category (like \texttt{bipoles}, +\texttt{tripoles} and so on, see section~\ref{sec:legacy-thickness}); to override that you set the key \texttt{\emph{class}/thickness} to any number. The default is \texttt{none}, which means that the old way of selecting thickness is used.
+You can change the line thickness for any class of component in an independent way. The default standard thickness of components is defined on a loose ``legacy'' category (like \texttt{bipoles}, \texttt{tripoles} and so on, see section~\ref{sec:legacy-thickness}); to override that you set the key \texttt{\emph{class}/thickness} to any number. The default is \texttt{none}, which means that the old way of selecting thickness is used.
 
 For example, \emph{amplifiers} have the legacy class of \texttt{tripoles}, as well as transistors and tubes.By default they are drawn with thickness 2 (relative to the base linewidth). To change them to be thicker, you can for example add to the previous style
 
@@ -4873,18 +4874,17 @@ The first step is to check if we can use the definition already existing for sim
 
 We will use them; at this stage you can decide to add other parameters if you need them. (Notice, however, than although flexibility is good, these parameters should be described in the manual, otherwise they're as good as a fixed number in the code).
 
-
 To define the new component we will look into \texttt{pgfcircbipoles.tex} and we will copy, for example, the definition of the damper into our code, just changing the name:
 
 \begin{lstlisting}
 %% mechanical resistor - damper
-\pgfcircdeclarebipole
+\pgfcircdeclarebipolescaled{mechanicals}
 {}                                   % extra anchors
 {\ctikzvalof{bipoles/damper/height}} % depth (under the path line)
 {viscoe}                             % name
 {\ctikzvalof{bipoles/damper/height}} % height (above the path line)
 {\ctikzvalof{bipoles/damper/width}}  % width
-{ % draw the bipole
+{
     \pgfpathrectanglecorners{\pgfpoint{\ctikzvalof{bipoles/damper/length}\pgf@circ@res@right}{\pgf@circ@res@down}}{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@up}}
     \pgf@circ@maybefill
 
@@ -4895,7 +4895,7 @@ To define the new component we will look into \texttt{pgfcircbipoles.tex} and we
     \pgfusepath{stroke}
 
     % damper box
-    \pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}\pgfstartlinewidth}
+    \pgf@circ@setlinewidth{bipoles}{\pgfstartlinewidth}
     \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@down}}
     \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@down}}
     \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@up}}
@@ -4912,10 +4912,17 @@ To define the new component we will look into \texttt{pgfcircbipoles.tex} and we
         {.8\pgf@circ@res@up}}
     \pgfsetbuttcap
     \pgfusepath{stroke}
+
 }
 \end{lstlisting}
 
-This command will define a shape that is named \texttt{viscoeshape}, with all the correct geographical anchors based on the depth, height and width defined in the parameters of \verb|\pgfcircdeclarebipole|. This is not sufficient for using the element in a \texttt{to[]} path command; you need to ``activate'' it with (this commands are normally in \texttt{pgfcircpath.tex}):
+This command will define a shape that is named \texttt{viscoeshape}, with all the correct geographical anchors based on the depth, height and width defined in the parameters of \verb|\pgfcircdeclarebipole|. Moreover, the element is assigned to the class \texttt{mechanicals} for styling.
+
+To be coherent with the styling, you should use (when needed) the length \verb|\pgf@circ@scaled@Rlen| as the ``basic'' length for drawing, using the fill functions defined at the start of \texttt{pgfcirc.defines.tex} to fill and stroke --- so that the operation will follow the style parameters and, finally, use the macro \verb|\pgf@circ@setlinewidth| to set the line thickness /the first argument is the ``legacy'' class, if you do not want to assign one you can use the pseudo-legacy class \texttt{none}.
+
+The anchors for the bipole (which then set the lengths \verb|\pgf@circ@res@left|) are already scaled for your use. You can use these lenghts (which defines, normally, the geographical anchors of the element) to draw your shapes.
+
+This is not sufficient for using the element in a \texttt{to[]} path command; you need to ``activate'' it with (this commands are normally in \texttt{pgfcircpath.tex}):
 
 \begin{lstlisting}
 \def\pgf@circ@viscoe@path#1{\pgf@circ@bipole@path{viscoe}{#1}}
@@ -4926,7 +4933,7 @@ This command will define a shape that is named \texttt{viscoeshape}, with all th
 And now you can show it with:
 
 \begin{lstlisting}
-\circuitdescbip*{viscoe}{Mechanical viscoelastic element\footnotemark}{}(left/135/0.2, right/45/0.2, center/-90/0.3)
+\circuitdescbip*{viscoe}{Mechanical viscoelastic element}{}(left/135/0.2, right/45/0.2, center/-90/0.3)
 
 \geolrcoord{viscoeshape, fill=yellow}
 
@@ -4950,7 +4957,7 @@ Looking at the implementation of the \texttt{spring} element, a possible impleme
     % spring into the damper
     \pgfscope
         \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@zero}}
-        \pgfsetlinewidth{\pgfkeysvalueof{/tikz/circuitikz/bipoles/thickness}\pgfstartlinewidth}
+        \pgf@circ@setlinewidth{bipoles}{\pgfstartlinewidth}
         \pgfsetcornersarced{\pgfpoint{.25\pgf@circ@res@up}{.25\pgf@circ@res@up}}
         \pgfpathlineto{\pgfpoint{.75\pgf@circ@res@left}{.75\pgf@circ@res@up}}
         \pgfpathlineto{\pgfpoint{.5\pgf@circ@res@left}{-.75\pgf@circ@res@up}}
@@ -4975,12 +4982,6 @@ which leads to:
 \end{LTXexample}
 
 As a final note, notice that the \texttt{viscoe} element is already added to the standard package.
-
-Using \verb|\pgfcircdeclarebipole| will set up a component which is not globally scalable; if you want such a thing, you should use the command
-
-\verb|\pgfcircdeclarebipolescaled{resistors}|
-
-(for example), to put the new component in the ``resistors'' scale class, and then use \verb|\pgf@circ@scaled@Rlen|  as the default length in your code.
 
 \subsection{Node-style component}
 
@@ -5030,7 +5031,7 @@ The best way of contributing is forking the project, adding your component in th
         to[L, l=12<\milli\henry>, i=$i_1$,v=b] (4,0) -- (0,0)
   (4,2) { to[D*, *-*, color=red] (2,0) }
   (0,2) to[R, l=1<\kilo\ohm>, *-] (2,2)
-        to[cV, i=1,v=$\SI{.3}{\kilo\ohm} i_1$] (4,2)
+        to[cV, i=1,v=$\SI{.3}{\kilo\ohm}\, i_1$] (4,2)
   (2,0) to[I, i=1<\milli\ampere>, -*] (2,2)
 ;\end{circuitikz}
 \end{LTXexample}
@@ -5166,7 +5167,7 @@ The best way of contributing is forking the project, adding your component in th
 \end{tabular}
 
 % % changelog.tex will be updated by makefile from CHANGELOG.md
-\section{Changelog}
+\section{Changelog and Release Notes}
 \IfFileExists{changelog.tex}
 {\sloppy\input{changelog.tex}}
 {The file changelog.tex was not found, run 'make changelog' at toplevel to generate it with pandoc from CHANGELOG.md}
