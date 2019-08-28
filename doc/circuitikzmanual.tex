@@ -1042,7 +1042,22 @@ For example, \emph{amplifiers} have the legacy class of \texttt{tripoles}, as we
 \subsubsection{Style files}
 
 When using styles, it is possible to use \emph{style files} (see section~\ref{sec:writingstylefiles}), that then you can load with the command \verb|\ctikzloadstyle|. For example, in the distribution you have a number of style files: \texttt{legacy}, \texttt{romano}, \texttt{example}.When you load a style name \texttt{\emph{name}}, you will have available a style called \texttt{\emph{name} circuit style} that you can apply to your circuits.
-The last style loaded is also enacted --- will be used in the following circuits in scope. Style files are loaded only once, so it is a good idea to load them in the preamble\dots
+The last style loaded is not enacted --- you have to explicitly do it if you want the style used by default, by putting for example in the preamble:
+
+\begin{lstlisting}
+    \ctikzloadstyle{romano}
+    \tikzset{romano circuit style}
+\end{lstlisting}
+
+Please notice that the style is at \TikZ{} level, not \Circuitikz --- that let's you use it in the top option of the circuit, like:
+
+\begin{lstlisting}
+    \begin{circuitikz}[legacy circuit style,
+    ..., ]
+    ...
+    \end{circuitikz}
+\end{lstlisting}
+
 
 The \texttt{example} style file will simply make the amplifiers filled with light blue:
 
@@ -1058,7 +1073,7 @@ The \texttt{example} style file will simply make the amplifiers filled with ligh
 \ctikzloadstyle{legacy}
 \ctikzloadstyle{romano}
 
-The stiles \texttt{legacy} is a style that set (most) of the style parameters to the default, and \texttt{romano} is a style used by one of the authors; you can use these styles as is or you can use them to learn to how to write new file style following the instructions in section~\ref{sec:writingstylefiles}. In the next diagrams, the left hand one is using the \texttt{romano circuit style} and the rigth hand one the legacy style.
+The styles \texttt{legacy} is a style that set (most) of the style parameters to the default, and \texttt{romano} is a style used by one of the authors; you can use these styles as is or you can use them to learn to how to write new file style following the instructions in section~\ref{sec:writingstylefiles}. In the next diagrams, the left hand one is using the \texttt{romano circuit style} and the rigth hand one the legacy style.
 
 \fbox{\tmpcirc{scale=0.6, transform shape, romano circuit style}{}}
 \fbox{\tmpcirc{scale=0.6, transform shape, legacy circuit style}{}}
@@ -1077,7 +1092,6 @@ This kind of style will \emph{add} to the existing style.  If you want to have a
 
 \begin{lstlisting}[frame=single, framesep=10pt, basicstyle=\small\ttfamily]
 \ctikzloadstyle{legacy}% start from a know state
-% beware, you have to change the name of the style at the end too
 \tikzset{romano circuit style/.style={%
 legacy circuit style, % load the legacy style
 \circuitikzbasekey/.cd,%
