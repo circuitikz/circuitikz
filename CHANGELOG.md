@@ -2,13 +2,19 @@
 The major changes among the different circuitikz versions are listed here. See <https://github.com/circuitikz/circuitikz/commits> for a full list of changes.
 
 * Version 0.9.4 (unreleased)
+
+    This release introduces two changes: a big one, which is the styling of the components (please look at the manual for details) and a change to how voltage labels and arrows are positioned. This one should be backward compatible *unless* you used `voltage shift` introduced in 0.9.0, which was broken when using the global `scale` parameter.
+
+    The styling additions are quite big, and, although in principle they are backward compatible, you can find corner cases where they are not, especially if you used to change parameters for `pgfcirc.defines.tex`; so a snapshot for the 0.9.3 version is available.
+
     - Fixed a bug with "inline" gyrators, now the circle will not overlap
     - Fixed a bug in input anchors of european not ports
     - Fixed "tlinestub" so that it has the same default size than "tline" (TL)
     - Fixed the "transistor arrows at end" feature, added to styling
+    - Changed the behavior of "voltage shift" and voltage label positioning to be more robust
     - Added several new anchors for "elmech" element
     - Several minor fixes in some component drawings to allow fill and thickness styles
-    - Add 0.9.3 version snapshots. The styling addition are quite big; they should be backward compatible, but better safe than sorry.
+    - Add 0.9.3 version snapshots.
     - Added styling of relative size of components (at a global or local level)
     - Added styling for fill color and thickeness
     - Added style files
@@ -29,7 +35,7 @@ The major changes among the different circuitikz versions are listed here. See <
     - Added rotary switches
     - Added more configurable bipole nodes (connectors) and more shapes
     - Added 7-segment displays
-    - Added vacuum tubes by J. op den Brouw 
+    - Added vacuum tubes by J. op den Brouw
     - Made the open shape of dcisources configurable
     - Made the arrows on vcc and vee configurable
     - Fixed anchors of diamondpole nodes
