@@ -1173,6 +1173,33 @@ Note that the anchors are at the start of the connecting lines, and that geograp
 \end{circuitikz}
 \end{LTXexample}
 
+However, arrows in \TikZ{} are in the same class with the line thickness, so they do not scale with neither the class \texttt{power supplies} scale nor the global scale parameter (you should use \texttt{transform canvas={scale\dots}} for this).
+
+If you want that the arrows behave like the legacy symbols (which are shapes), \emph{only in the arrow definitions}, you can use the special length parameter \verb|\scaledwidth|\footnote{Thanks to @Schrödinger's cat on \href{https://tex.stackexchange.com/a/506249/38080}{\TeX{} stackexchange site}} in the arrow definition, which correspond to the width of the legacy \texttt{vcc} or \texttt{vee}. Compare the effects on the following circuit.
+
+\begin{LTXexample}[pos=t, basicstyle=\small\ttfamily]
+\ctikzset{%
+    monopoles/vcc/arrow={Triangle[width=0.8*\scaledwidth, length=\scaledwidth]},
+    monopoles/vee/arrow={Triangle[width=6pt, length=8pt]},
+}
+\begin{circuitikz}[baseline=(vo.center)]
+    \node [ocirc](TW) at (0,0) {};
+    \draw (TW.east) -- ++(1,0) node[midway, above]{$v_i$} node[op amp, anchor=-](A1){};
+    \draw (A1.up)   -- ++(0, 0.3) node[vcc]{\SI{+10}{V}};
+    \draw (A1.down) -- ++(0,-0.3) node[vee]{\SI{-10}{V}};
+    \draw (A1.+) -- ++(-0.5,0) to[battery2, invert, l_=\SI{2}{V}] ++(0,-1) node[ground]{};
+    \draw (A1.out) to[short, -o] ++(0.5,0) node[above](vo){$v_o$};
+\end{circuitikz} \qquad
+\begin{circuitikz}[baseline=(vo.center), scale=0.6, transform shape]
+    \node [ocirc](TW) at (0,0) {};
+    \draw (TW.east) -- ++(1,0) node[midway, above]{$v_i$} node[op amp, anchor=-](A1){};
+    \draw (A1.up)   -- ++(0, 0.3) node[vcc]{\SI{+10}{V}};
+    \draw (A1.down) -- ++(0,-0.3) node[vee]{\SI{-10}{V}};
+    \draw (A1.+) -- ++(-0.5,0) to[battery2, invert, l_=\SI{2}{V}] ++(0,-1) node[ground]{};
+    \draw (A1.out) to[short, -o] ++(0.5,0) node[above](vo){$v_o$};
+\end{circuitikz}
+\end{LTXexample}
+
 
 \subsection{Resistive bipoles}
 
@@ -4876,7 +4903,7 @@ From now on, you can add the new commands for the component between the \verb|\m
 
 \subsection{Path-style component}
 
-Let's define for example a path style component, like the one suggested by the user \texttt{@alex} on \href{https://tex.stackexchange.com/questions/484268/combined-spring-damper-in-circuitikz}{tex.stackexchange.com}. The component will be a mix of the \texttt{damper} and the \texttt{spring} components already present.
+Let's define for example a path style component, like the one suggested by the user \texttt{@alex} on \href{https://tex.stackexchange.com/questions/484268/combined-spring-damper-in-circuitikz}{\TeX{} stackexchange site}. The component will be a mix of the \texttt{damper} and the \texttt{spring} components already present.
 
 The first step is to check if we can use the definition already existing for similar elements (for coherence of size) or if we need to define new ones; for this you have to check the file \texttt{pgfcirc.defines.tex}: we find
 
@@ -4932,7 +4959,7 @@ To define the new component we will look into \texttt{pgfcircbipoles.tex} and we
 }
 \end{lstlisting}
 
-This command will define a shape that is named \texttt{viscoeshape}, with all the correct geographical anchors based on the depth, height and width defined in the parameters of \verb|\pgfcircdeclarebipole|. Moreover, the element is assigned to the class \texttt{mechanicals} for styling.
+This command will define a shape that is named \texttt{viscoeshape}, with all the correct geographical anchors based on the depth, height and width defined in the parameters of \verb|\pgfcircdeclarebipolescaled|. Moreover, the element is assigned to the class \texttt{mechanicals} for styling.
 
 To be coherent with the styling, you should use (when needed) the length \verb|\pgf@circ@scaled@Rlen| as the ``basic'' length for drawing, using the fill functions defined at the start of \texttt{pgfcirc.defines.tex} to fill and stroke --- so that the operation will follow the style parameters and, finally, use the macro \verb|\pgf@circ@setlinewidth| to set the line thickness /the first argument is the ``legacy'' class, if you do not want to assign one you can use the pseudo-legacy class \texttt{none}.
 
