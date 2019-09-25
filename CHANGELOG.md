@@ -5,6 +5,7 @@ The major changes among the different circuitikz versions are listed here. See <
 
     - Bumped version number
     - Added a "midtap" anchor for coils and exposed the inner coils shapes in the transformers.
+    - Added a "curved capacitor" with polarity coherent with "ecapacitor"
 
 * Version 0.9.4 (2019-08-30)
 
