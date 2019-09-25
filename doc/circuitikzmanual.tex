@@ -1302,7 +1302,7 @@ You can change the scale of the capacitors by setting the key \texttt{capacitors
 If the \texttt{cuteinductors} option is active (default behaviour), or the style \texttt{[cute inductors]} is used, the inductors are displayed as follows:
 \begin{groupdesc}
     \ctikzset{inductor=cute}
-    \circuitdescbip[cuteinductor]{L}{Inductor}{cute inductor}
+    \circuitdescbip[cuteinductor]{L}{Inductor}{cute inductor}(midtap/90/0.1)
     \circuitdescbip[cutechoke]{cute choke}{Choke}{}
     \circuitdescbip[vcuteinductor]{vL}{Variable inductor}{variable cute inductor}
     \circuitdescbip[scuteinductor]{sL}{Inductive sensor}{cute inductive sensor}( label/0/0.3 )
@@ -1311,7 +1311,7 @@ If the \texttt{cuteinductors} option is active (default behaviour), or the style
 If the \texttt{americaninductors} option is active (or the style \texttt{[american inductors]} is used), the inductors are displayed as follows:
 \begin{groupdesc}
     \ctikzset{inductor=american}
-    \circuitdescbip[americaninductor]{L}{Inductor}{american inductor}
+    \circuitdescbip[americaninductor]{L}{Inductor}{american inductor}(midtap/90/0.3)
     \circuitdescbip[vamericaninductor]{vL}{Variable inductor}{variable american inductor}
     \circuitdescbip[samericaninductor]{sL}{Inductive sensor}{american inductive sensor}( label/0/0.3 )
 \end{groupdesc}
@@ -1319,15 +1319,12 @@ If the \texttt{americaninductors} option is active (or the style \texttt{[americ
 Finally, if the \texttt{europeaninductors} option is active (or the style \texttt{[european inductors]} is used), the inductors are displayed as follows:
 \begin{groupdesc}
     \ctikzset{inductor=european}
-    \circuitdescbip[fullgeneric]{L}{Inductor}{european inductor}
+    \circuitdescbip[fullgeneric]{L}{Inductor}{european inductor}(midtap/90/0.1)
     \circuitdescbip[tfullgeneric]{vL}{Variable inductor}{variable european inductor}
     \circuitdescbip[sfullgeneric]{sL}{Inductive sensor}{european inductive sensor}( label/0/0.3 )
     \ctikzset{inductor=cute} % back to default
 \end{groupdesc}
 
-\subsubsection{Inductive sensors anchors}
-
-For inductive sensors, see section~\ref{sec:sensors-anchors}.
 
 \subsubsection{Inductors customizations}\label{sec:tweak-l}
 
@@ -1360,6 +1357,26 @@ Chokes (which comes only in the \texttt{cute} style) can have single and double 
 
     \draw (0,-2) to[cute choke] ++(3,0);
     \draw (0,-3) to[cute choke, onelinechoke] ++(3,0);
+\end{circuitikz}
+\end{LTXexample}
+
+\subsubsection{Inductors anchors}
+
+For inductive sensors, see section~\ref{sec:sensors-anchors}.
+
+Inductors have an additional anchor, called \texttt{midtap}, that connects to the center of the coil ``wire''. Notice that this anchor could be on one side or the other of the component, depending on the number of loops of the element; if you need a fixed position, you can use the geographical anchors.
+
+\begin{LTXexample}[varwidth=true, basicstyle=\small\ttfamily]
+\begin{circuitikz}[
+    loops/.style={circuitikz/inductors/coils=#1}]
+\ctikzset{cute inductors}
+\draw (0,2) to[L, loops=5, name=A] ++(2,0)
+to[L, loops=6, name=B] ++(2,0);
+\ctikzset{american inductors}
+\draw (0,0) to[L, loops=5, name=C] ++(2,0)
+to[L, loops=6, name=D] ++(2,0);
+\foreach \i in {A, B, C, D}
+  \node[circle, fill=red, inner sep=1pt] at (\i.midtap){};
 \end{circuitikz}
 \end{LTXexample}
 
@@ -2703,6 +2720,40 @@ A couple of examples follow:
 ;\end{circuitikz}
 \end{LTXexample}
 
+Moreover, you can access the two internal coils (inductances); if your transformer node is called \texttt{T}, they are named \texttt{T-L1} and \texttt{T-L2}. Notice that the two inductors are rotated (by -90 degrees the first, +90 degrees the second) so you have to be careful with the anchors. Also, the \texttt{midtap} anchor of the inductors can be on the external or internal side depending on the numbers of coils. Finally, the anchors \texttt{L1.a} and \texttt{L1.b} are marking the start and end of the coils.
+
+\begin{quote}
+\begin{circuitikz}[american inductors,
+    ]
+    \def\coordx(#1)[#2:#3]#4{node[circle, #4, draw, inner sep=1pt,pin={[#4, overlay, inner sep=0.5pt, font=\scriptsize, pin distance=#2cm, pin edge={#4, overlay,}]#3:#1}](){}}
+    \draw (-2,0) (0, 0) node[transformer](T){};
+            \foreach \a/\d/\t in {L1.midtap/0.2/180, L1.south west/0.2/180, L1.south east/0.2/180,
+            L2.south/0.2/0, L2.south west/0.2/0, L2.south east/0.2/0}
+            \path (T-\a) \coordx(T-\a)[\d:\t]{red};
+    \ctikzset{cute inductors}
+        \draw (4, 0) node[transformer](T){};
+            \foreach \a/\d/\t in {L1.a/0.2/-120, L1.b/0.2/120,
+            L2.midtap/0.5/0, L2.south west/0.2/0, L2.south east/0.2/0}
+            \path (T-\a) \coordx(T-\a)[\d:\t]{blue};
+        \node[font=\small\ttfamily,above] at (T.north) {inductors/coils=5};
+        \draw (8, 0) node[transformer, circuitikz/inductors/coils=6](T){};
+            \foreach \a/\d/\t in {L2.a/0.2/120, L2.b/0.2/-120,
+            L2.midtap/0.2/0, L2.south west/0.2/0, L2.south east/0.2/0}
+            \path (T-\a) \coordx(T-\a)[\d:\t]{red};
+        \node[font=\small\ttfamily,above] at (T.north) {inductors/coils=6};
+\end{circuitikz}
+\end{quote}
+
+\begin{LTXexample}[varwidth=true, basicstyle=\small\ttfamily]
+\begin{circuitikz}
+\draw (0,0) node[ground](GND){} to [sV] ++(0,2) -- ++(1,0)
+    node[transformer, circuitikz/inductors/coils=6,
+         anchor=A1](T){};
+\draw (T.A2) to[short, -*] (T.A2-|GND);
+\draw (T-L2.midtap) to[short, *-o] (T.B1 |- T-L2.midtap);
+\node [ocirc] at (T.B1){}; \node [ocirc] at (T.B2){};
+\end{circuitikz}
+\end{LTXexample}
 \subsubsection{Double dipoles customization}
 
 Transformers are in the \texttt{inductors} class (also the gyrator\dots), so they scale with the key \texttt{inductors/scale}.
