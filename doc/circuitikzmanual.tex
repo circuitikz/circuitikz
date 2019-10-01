@@ -1924,7 +1924,6 @@ These are pseudo-arrows used in lot of places in the packages (for transistors, 
 \begin{groupdesc}
     \circuitdesc{currarrow}{Arrows (current and voltage)}{}(center/0/0.2)
     \circuitdesc{inputarrow}{Arrow to draw at its tip, useful for block diagrams.}{}(center/0/0.2)
-    \circuitdesc*{bnc}{BNC connector}{}(left/135/0.6, right/45/0.6, center/-90/0.6, hot/0/0.6, zero/-135/0.6)
 \end{groupdesc}
 
 \subsubsection{Arrows size}\label{sec:currarrow-size}
@@ -3719,6 +3718,7 @@ A couple of examples are shown below.
 \end{LTXexample}
 
 
+
 \section{Labels and similar annotations}
 
 \begin{LTXexample}[varwidth=true]
@@ -4279,7 +4279,9 @@ This could be especially useful if you define a style, to use like this:
     \draw (0,-2) to[R,v_<=$V_S$] ++(2,0);
 \end{circuitikz}
 \end{LTXexample}
-\subsubsection{Global properties of voltages and currents}
+
+
+\subsection{Global properties of voltages and currents}
 
 \begin{LTXexample}[varwidth=true]
 \tikz \draw (0,0) to[R, v=1<\volt>] (2,0); \par
@@ -4307,140 +4309,8 @@ However, you can override the properties \texttt{voltage/distance from node} (ho
 Note the \texttt{.initial}; you have to create such key the first time you use it.
 
 
-\subsection{Nodes (also called poles)}\label{sec:bipole-nodes}
 
-You can add nodes to the bipoles, positioned at the coordinates surrounding the component. The general style to use is \texttt{bipole nodes=\{start\}\{stop\}}, where \texttt{start} and \texttt{stop} are the nodes --- to be chosen between \texttt{none}, \texttt{circ}, \texttt{ocirc}, \texttt{squarepole}, \texttt{osquarepole}, \texttt{diamondpole},  \texttt{odiamondpole} and \texttt{rectfill}\footnote{You can use other shapes too, but at your own risk\dots Moreover, notice that \texttt{none} is not really a node, just a special word used to say ``do not put any node here''.} (see section~\ref{sec:terminals}).
-
-
-\begin{LTXexample}[varwidth=true,
-        basicstyle=\small\ttfamily
-    ]
-\begin{circuitikz}
-    \ctikzset{bipoles/length=.5cm, nodes width=0.1}%small components, big nodes
-    \foreach \a/\p [evaluate=\a as \b using (\a+180)] in
-    {-90/none, -60/circ, -30/ocirc, 0/diamondpole, 30/odiamondpole, 60/squarepole, 90/osquarepole}
-        \draw (0,0) to[R, bipole nodes={none}{\p}] ++(\a:1.5)  node[font=\tiny, anchor=\b]{\p};
-\end{circuitikz}
-\end{LTXexample}
-
-These bipole nodes are added after the path is drawn, as every node in Ti\emph{k}Z --- this is the reason why they are always filled (with the main color the normal nodes, with white the open ones), in order to ``hide'' the wire below. You can override the fill color if you want; but notice that if you draw things in two different paths, you will have ``strange'' results; notice that in the second line of resistors the second wire is starting from the center of the white \texttt{ocirc} of the previous path.
-
-\begin{LTXexample}[varwidth=true,
-        pos=t, basicstyle=\small\ttfamily
-    ]
-\begin{circuitikz}
-    \draw (0,0) to[R, *-o] ++(2,0) to[R, -d] ++(2,0)
-        to[R, bipole nodes={diamondpole}{odiamondpole, fill=red}] ++(2,0);
-    \draw (0,-1) to[R, *-o] ++(2,0) ;
-    \draw (2,-1) to[R, -d] ++(2,0) to[R, bipole nodes={none}{squarepole}] ++(2,0);
-\end{circuitikz}
-\end{LTXexample}
-
-You can define shortcuts for the \texttt{bipole nodes} you use most; for example if you want a shortcut for a bipole with open square node in red in the right side you can:
-
-\begin{LTXexample}[varwidth=true,
-        basicstyle=\small\ttfamily
-    ]
-\begin{circuitikz}
-    \ctikzset{-s/.style = {bipole nodes={none}{osquarepole, fill=red}}}
-    \draw (0,0) to[R, -s] ++(2,0);
-\end{circuitikz}
-\end{LTXexample}
-
-There are several predefined shorthand as the above; in the following pages you can see all of them.
-
-\begin{LTXexample}[varwidth=true]
-\begin{circuitikz}
-   \draw (0,0) to[R, o-o] (2,0);
-\end{circuitikz}
-\end{LTXexample}
-
-\begin{LTXexample}[varwidth=true]
-\begin{circuitikz}
-   \draw (0,0) to[R, -o] (2,0);
-\end{circuitikz}
-\end{LTXexample}
-
-\begin{LTXexample}[varwidth=true]
-\begin{circuitikz}
-   \draw (0,0) to[R, o-] (2,0);
-\end{circuitikz}
-\end{LTXexample}
-
-\begin{LTXexample}[varwidth=true]
-\begin{circuitikz}
-   \draw (0,0) to[R, *-*] (2,0);
-\end{circuitikz}
-\end{LTXexample}
-
-\begin{LTXexample}[varwidth=true]
-\begin{circuitikz}
-   \draw (0,0) to[R, -*] (2,0);
-\end{circuitikz}
-\end{LTXexample}
-
-\begin{LTXexample}[varwidth=true]
-\begin{circuitikz}
-   \draw (0,0) to[R, *-] (2,0);
-\end{circuitikz}
-\end{LTXexample}
-
-\begin{LTXexample}[varwidth=true]
-\begin{circuitikz}
-   \draw (0,0) to[R, d-d] (2,0);
-\end{circuitikz}
-\end{LTXexample}
-
-\begin{LTXexample}[varwidth=true]
-\begin{circuitikz}
-   \draw (0,0) to[R, -d] (2,0);
-\end{circuitikz}
-\end{LTXexample}
-
-\begin{LTXexample}[varwidth=true]
-\begin{circuitikz}
-   \draw (0,0) to[R, d-] (2,0);
-\end{circuitikz}
-\end{LTXexample}
-
-\begin{LTXexample}[varwidth=true]
-\begin{circuitikz}
-   \draw (0,0) to[R, o-*] (2,0);
-\end{circuitikz}
-\end{LTXexample}
-
-\begin{LTXexample}[varwidth=true]
-\begin{circuitikz}
-   \draw (0,0) to[R, *-o] (2,0);
-\end{circuitikz}
-\end{LTXexample}
-
-\begin{LTXexample}[varwidth=true]
-\begin{circuitikz}
-   \draw (0,0) to[R, o-d] (2,0);
-\end{circuitikz}
-\end{LTXexample}
-
-\begin{LTXexample}[varwidth=true]
-\begin{circuitikz}
-   \draw (0,0) to[R, d-o] (2,0);
-\end{circuitikz}
-\end{LTXexample}
-
-\begin{LTXexample}[varwidth=true]
-\begin{circuitikz}
-   \draw (0,0) to[R, *-d] (2,0);
-\end{circuitikz}
-\end{LTXexample}
-
-\begin{LTXexample}[varwidth=true]
-\begin{circuitikz}
-   \draw (0,0) to[R, d-*] (2,0);
-\end{circuitikz}
-\end{LTXexample}
-
-
-\subsection{Special components}
+\subsection{Labels in pecial components}
 
 For some components label, current and voltage behave as one would expect:
 
@@ -4618,8 +4488,164 @@ If the option {\ttfamily siunitx} is active (and \emph{not} in \ConTeXt), then t
 \end{circuitikz}
 \end{LTXexample}
 
+\subsection{Accessing labels text nodes}
+
+Since 0.9.5, you can access all the labels nodes\footnote{The access to \texttt{label}s and \texttt{annotation}s was present before, but not documented.} using special node names. So, if you use \texttt{name} to give a name to the bipole node, you can access also the following nodes: \texttt{namelabel} (notice: no space nor any other symbol between \texttt{name} and \texttt{label}!), \texttt{nameannotation}, \texttt{namevoltage}, \texttt{namecurrent} and \texttt{nameflow}.
+
+\begin{LTXexample}[varwidth=true,
+            pos=t, basicstyle=\small\ttfamily
+    ]
+\newcommand{\marknode}[2][45]{%
+    \node[circle, draw, red, inner sep=1pt,
+    pin={[red, font=\tiny]#1:#2}] at (#2.center) {};
+}
+\begin{circuitikz}[ american]
+    \draw (0,0) to [R=L1, a=A1, name=L1] ++(3,0)
+    to [R, l2_=L2 and 2L, a^=A2, name=L2] ++(3,0);
+    \marknode{L1} \marknode{L1label} \marknode[0]{L1annotation}
+    \marknode{L2} \marknode[0]{L2label} \marknode{L2annotation}
+    \draw[blue] (L2label.south west) rectangle (L2label.north east);
+    \draw (6.1,0) to [R=R1, v=V1, i=I1, f>^=F1, name=R1] ++(3,0)
+    to [R, v<=V2, i^=I2, f>^=F2, name=R2] ++(3,0);
+    \marknode[0]{R1voltage} \marknode[0]{R2voltage} \marknode[90]{R1current}
+    \marknode[90]{R2current} \marknode{R1flow} \marknode{R2flow}
+\end{circuitikz}
+\end{LTXexample}
 
 
+\section{Using bipoles in circuits}
+
+\subsection{Nodes (also called poles)}\label{sec:bipole-nodes}
+
+You can add nodes to the bipoles, positioned at the coordinates surrounding the component. The general style to use is \texttt{bipole nodes=\{start\}\{stop\}}, where \texttt{start} and \texttt{stop} are the nodes --- to be chosen between \texttt{none}, \texttt{circ}, \texttt{ocirc}, \texttt{squarepole}, \texttt{osquarepole}, \texttt{diamondpole},  \texttt{odiamondpole} and \texttt{rectfill}\footnote{You can use other shapes too, but at your own risk\dots Moreover, notice that \texttt{none} is not really a node, just a special word used to say ``do not put any node here''.} (see section~\ref{sec:terminals}).
+
+
+\begin{LTXexample}[varwidth=true,
+        basicstyle=\small\ttfamily
+    ]
+\begin{circuitikz}
+    \ctikzset{bipoles/length=.5cm, nodes width=0.1}%small components, big nodes
+    \foreach \a/\p [evaluate=\a as \b using (\a+180)] in
+    {-90/none, -60/circ, -30/ocirc, 0/diamondpole, 30/odiamondpole, 60/squarepole, 90/osquarepole}
+        \draw (0,0) to[R, bipole nodes={none}{\p}] ++(\a:1.5)  node[font=\tiny, anchor=\b]{\p};
+\end{circuitikz}
+\end{LTXexample}
+
+These bipole nodes are added after the path is drawn, as every node in Ti\emph{k}Z --- this is the reason why they are always filled (with the main color the normal nodes, with white the open ones), in order to ``hide'' the wire below. You can override the fill color if you want; but notice that if you draw things in two different paths, you will have ``strange'' results; notice that in the second line of resistors the second wire is starting from the center of the white \texttt{ocirc} of the previous path.
+
+\begin{LTXexample}[varwidth=true,
+        pos=t, basicstyle=\small\ttfamily
+    ]
+\begin{circuitikz}
+    \draw (0,0) to[R, *-o] ++(2,0) to[R, -d] ++(2,0)
+        to[R, bipole nodes={diamondpole}{odiamondpole, fill=red}] ++(2,0);
+    \draw (0,-1) to[R, *-o] ++(2,0) ;
+    \draw (2,-1) to[R, -d] ++(2,0) to[R, bipole nodes={none}{squarepole}] ++(2,0);
+\end{circuitikz}
+\end{LTXexample}
+
+You can define shortcuts for the \texttt{bipole nodes} you use most; for example if you want a shortcut for a bipole with open square node in red in the right side you can:
+
+\begin{LTXexample}[varwidth=true,
+        basicstyle=\small\ttfamily
+    ]
+\begin{circuitikz}
+    \ctikzset{-s/.style = {bipole nodes={none}{osquarepole, fill=red}}}
+    \draw (0,0) to[R, -s] ++(2,0);
+\end{circuitikz}
+\end{LTXexample}
+
+There are several predefined shorthand as the above; in the following pages you can see all of them.
+
+\begin{LTXexample}[varwidth=true]
+\begin{circuitikz}
+   \draw (0,0) to[R, o-o] (2,0);
+\end{circuitikz}
+\end{LTXexample}
+
+\begin{LTXexample}[varwidth=true]
+\begin{circuitikz}
+   \draw (0,0) to[R, -o] (2,0);
+\end{circuitikz}
+\end{LTXexample}
+
+\begin{LTXexample}[varwidth=true]
+\begin{circuitikz}
+   \draw (0,0) to[R, o-] (2,0);
+\end{circuitikz}
+\end{LTXexample}
+
+\begin{LTXexample}[varwidth=true]
+\begin{circuitikz}
+   \draw (0,0) to[R, *-*] (2,0);
+\end{circuitikz}
+\end{LTXexample}
+
+\begin{LTXexample}[varwidth=true]
+\begin{circuitikz}
+   \draw (0,0) to[R, -*] (2,0);
+\end{circuitikz}
+\end{LTXexample}
+
+\begin{LTXexample}[varwidth=true]
+\begin{circuitikz}
+   \draw (0,0) to[R, *-] (2,0);
+\end{circuitikz}
+\end{LTXexample}
+
+\begin{LTXexample}[varwidth=true]
+\begin{circuitikz}
+   \draw (0,0) to[R, d-d] (2,0);
+\end{circuitikz}
+\end{LTXexample}
+
+\begin{LTXexample}[varwidth=true]
+\begin{circuitikz}
+   \draw (0,0) to[R, -d] (2,0);
+\end{circuitikz}
+\end{LTXexample}
+
+\begin{LTXexample}[varwidth=true]
+\begin{circuitikz}
+   \draw (0,0) to[R, d-] (2,0);
+\end{circuitikz}
+\end{LTXexample}
+
+\begin{LTXexample}[varwidth=true]
+\begin{circuitikz}
+   \draw (0,0) to[R, o-*] (2,0);
+\end{circuitikz}
+\end{LTXexample}
+
+\begin{LTXexample}[varwidth=true]
+\begin{circuitikz}
+   \draw (0,0) to[R, *-o] (2,0);
+\end{circuitikz}
+\end{LTXexample}
+
+\begin{LTXexample}[varwidth=true]
+\begin{circuitikz}
+   \draw (0,0) to[R, o-d] (2,0);
+\end{circuitikz}
+\end{LTXexample}
+
+\begin{LTXexample}[varwidth=true]
+\begin{circuitikz}
+   \draw (0,0) to[R, d-o] (2,0);
+\end{circuitikz}
+\end{LTXexample}
+
+\begin{LTXexample}[varwidth=true]
+\begin{circuitikz}
+   \draw (0,0) to[R, *-d] (2,0);
+\end{circuitikz}
+\end{LTXexample}
+
+\begin{LTXexample}[varwidth=true]
+\begin{circuitikz}
+   \draw (0,0) to[R, d-*] (2,0);
+\end{circuitikz}
+\end{LTXexample}
 \subsection{Mirroring and Inverting}
 Bipole paths can also mirrored and inverted (or reverted) to change the drawing direction.
 
