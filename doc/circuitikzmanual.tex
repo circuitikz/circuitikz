@@ -4308,9 +4308,48 @@ However, you can override the properties \texttt{voltage/distance from node} (ho
 
 Note the \texttt{.initial}; you have to create such key the first time you use it.
 
+\subsection{Changing the style of labels and text ornaments}
+
+You can change the style of bipole text ornaments (labels, annotations, voltages etc) by using the appropriate styles or keys.
+The basic style applied to the text are defined in the \texttt{/tikz/circuitikz} key directory and applied to every node that contains the text; you can also change them locally by using the \texttt{tikz} direct keys in local scopes.
+
+For example, you can make all annotations small by using:
+
+\begin{lstlisting}[numbers=none]
+\ctikzset{bipole annotation style/.style={font=\small}}
+\end{lstlisting}
+
+And the change (override) the setting in one specific bipole using:
+
+\begin{lstlisting}[numbers=none]
+...to[bipole annotation style={color=red}, R, a={Red note}]...
+\end{lstlisting}
+
+where the annotation will be in normal font (it has been reset!) and red, or append to the style:
+
+\begin{lstlisting}[numbers=none]
+...to[bipole annotation append style={color=red}, R, a={Red small note}]...
+\end{lstlisting}
+
+\textbf{Caveat:} you have to put the style changing key at the start of the \texttt{to} arguments to have any effect\footnote{No, I do not know why. Hints and fixes are welcome.}.
+
+The available styles and commands are \texttt{bipole label style}, \texttt{bipole annotation style}, \texttt{bipole voltage style}, \texttt{bipole current style}, and \texttt{bipole flow style}. The following example shows a bit of everything.
 
 
-\subsection{Labels in pecial components}
+\begin{LTXexample}[pos=t, basicstyle=\small\ttfamily ]
+\begin{circuitikz}[american]
+    \ctikzset{bipole annotation style/.style={font=\tiny}}
+    \ctikzset{bipole current style/.style={font=\small\sffamily}}
+    \draw (0,0) to [bipole annotation append style={fill=yellow}, R=L1, a=A1] ++(3,0)
+        to [bipole label style={fill=cyan}, R, l2_=L2 and 2L, a^=A2] ++(3,0);
+    \draw (7,0) to [bipole voltage style={color=blue},
+        bipole flow style={fill=green, outer sep=5pt},
+        R=R1, v=V1, i=I1, f>^=F1] ++(3,0)
+    to [bipole current append style={color=red}, R, v<=V2, i^=I2, f>^=F2] ++(3,0);
+\end{circuitikz}
+\end{LTXexample}
+
+\subsection{Labels in special components}
 
 For some components label, current and voltage behave as one would expect:
 
