@@ -6,6 +6,7 @@ The major changes among the different circuitikz versions are listed here. See <
     - Bumped version number
     - Added a "midtap" anchor for coils and exposed the inner coils shapes in the transformers
     - Added a "curved capacitor" with polarity coherent with "ecapacitor"
+    - Added the possibility to apply style and access the nodes of bipole's text ornaments (labels, annotations, voltages, currents and flows).
     - Fixed internal font changing commands for compatibility with ConTeXt
 
 * Version 0.9.4 (2019-08-30)
