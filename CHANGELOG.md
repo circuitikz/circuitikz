@@ -7,6 +7,7 @@ The major changes among the different circuitikz versions are listed here. See <
     - Added a "midtap" anchor for coils and exposed the inner coils shapes in the transformers
     - Added a "curved capacitor" with polarity coherent with "ecapacitor"
     - Added the possibility to apply style and access the nodes of bipole's text ornaments (labels, annotations, voltages, currents and flows)
+    - Added a command to load and set a style in one go
     - Fixed internal font changing commands for compatibility with ConTeXt
     - Fixed hardcoded black color in "elko" and "elmech"
 
