@@ -1,5 +1,5 @@
-\def\pgfcircversion{git:8db9880}
-\def\pgfcircversiondate{2019/09/26}
+\def\pgfcircversion{git:5661e3a}
+\def\pgfcircversiondate{2019/10/03}
 \writestatus{loading}{\pgfcircversiondate{} The CircuiTikz circuit drawing package version \pgfcircversion}
 
 \usemodule[tikz]
@@ -16,9 +16,6 @@
 \catcode`\@=11
 \catcode`\|=12
 \catcode`\!=12
-
-\let\tiny=\tfxx
-\let\small=\tfx
 
 %%%%%%%%%%% Springe nach tex/pgfcirc.defines
 %%%---------- open: tex/pgfcirc.defines.tex
@@ -161,6 +158,36 @@
 }
 % use \pgf@circ@setlinewidth{none}{\pgflinewidth} if there is no legacy case
 \ctikzset{none/thickness/.initial=1.0} % do not touch
+
+%% font changes compatible with plain/LaTeX/ConTeXt
+%% thanks to Henri Menke https://github.com/circuitikz/circuitikz/issues/285#issuecomment-537224605
+
+\ifpgfutil@format@is@latex
+    \long\def\pgf@circ@font@tiny{\tiny}
+    \long\def\pgf@circ@font@small{\small}
+    \long\def\pgf@circ@font@bold{\textbf}
+    \long\def\pgf@circ@font@boldmath{\boldmath}
+    \long\def\pgf@circ@font@sixbm{\fontsize{6}{7}\selectfont\boldmath}
+    \long\def\pgf@circ@font@tenbm{\fontsize{10}{12}\selectfont\boldmath}
+    \long\def\pgf@circ@font@twelve{\fontsize{12}{14}\selectfont}
+\else\ifpgfutil@format@is@plain
+    \long\def\pgf@circ@font@tiny{\fiverm}
+    \long\def\pgf@circ@font@small{\sevenrm}
+    \long\def\pgf@circ@font@bold#1{{\bf#1}}
+    \long\def\pgf@circ@font@boldmath{\bf}       % to be tested
+    \long\def\pgf@circ@font@sixbm{\sevenrm\bf}  %
+    \long\def\pgf@circ@font@tenbm{\tenrm\bf}    %
+    \long\def\pgf@circ@font@twelve{\twelverm}   %
+\else\ifpgfutil@format@is@context
+    \long\def\pgf@circ@font@tiny{\tfxx}
+    \long\def\pgf@circ@font@small{\tfx}
+    \long\def\pgf@circ@font@bold{\bold}
+    \long\def\pgf@circ@font@boldmath{\bold}    % to be tested
+    \long\def\pgf@circ@font@sixbm{\tfx\bold}   %
+    \long\def\pgf@circ@font@tenbm{\normal\bold}%
+    \long\def\pgf@circ@font@twelve{\tfa}       %
+\fi\fi\fi
+
 
 % voltage options
 
@@ -438,7 +465,7 @@
 \ctikzset{bipoles/capacitor/width/.initial=.2}
 \ctikzset{bipoles/ecapacitor/height/.initial=.5}
 \ctikzset{bipoles/ecapacitor/width/.initial=.2}
-\ctikzset{bipoles/ecapacitor/font/.initial= \fontsize{6}{0}\selectfont\boldmath}
+\ctikzset{bipoles/ecapacitor/font/.initial=\pgf@circ@font@sixbm}
 %%% pcapacitor is deprecated
 \ctikzset{bipoles/pcapacitor/height/.initial=.6}
 \ctikzset{bipoles/pcapacitor/width/.initial=.2}
@@ -1220,7 +1247,7 @@
 \ctikzset{tripoles/op amp/height/.initial=1.4}             % Total height
 \ctikzset{tripoles/op amp/input height/.initial=.5}        % Input port vertical separation
 \ctikzset{tripoles/op amp/up pos/.initial=.45}             % Top and bottom anchor position
-\ctikzset{tripoles/op amp/font/.initial= \fontsize{10}{12}\selectfont\boldmath}  % Absolute font size needed!
+\ctikzset{tripoles/op amp/font/.initial=\pgf@circ@font@tenbm}  % Absolute font size needed!
 
 % Fully differential operational amplifier
 \ctikzset{tripoles/fd op amp/width/.initial=1.7}           % Total width
@@ -1229,15 +1256,15 @@
 \ctikzset{tripoles/fd op amp/input height/.initial=.5}     % Input port vertical separation
 \ctikzset{tripoles/fd op amp/output height/.initial=.5}    % Output port vertical separation
 \ctikzset{tripoles/fd op amp/up pos/.initial=.45}          % Top and bottom anchor position
-\ctikzset{tripoles/fd op amp/font/.initial= \fontsize{10}{12}\selectfont\boldmath}  % Absolute font size needed!
+\ctikzset{tripoles/fd op amp/font/.initial=\pgf@circ@font@tenbm}  % Absolute font size needed!
 
 \ctikzset{tripoles/en amp/width/.initial=1.7}
 \ctikzset{tripoles/en amp/port width/.initial=.7}
 \ctikzset{tripoles/en amp/height/.initial=1.6}
 \ctikzset{tripoles/en amp/input height/.initial=.3}
 \ctikzset{tripoles/en amp/up pos/.initial=.45}
-\ctikzset{tripoles/en amp/font/.initial= \fontsize{10}{12}\selectfont}   % Absolute font size needed!
-\ctikzset{tripoles/en amp/font2/.initial= \fontsize{12}{14}\selectfont}  % Absolute font size needed!
+\ctikzset{tripoles/en amp/font/.initial=\pgf@circ@font@tenbm}   % Absolute font size needed!
+\ctikzset{tripoles/en amp/font2/.initial=\pgf@circ@font@twelve}  % Absolute font size needed!
 \ctikzset{tripoles/en amp/text/.initial={$\mathstrut{\triangleright}\,{\infty}$}}
 \tikzset{
     en amp text/.code = {%
@@ -1255,7 +1282,7 @@
 \ctikzset{tripoles/gm amp/height 2/.initial=0.5}           % Right side of the trapezoid
 \ctikzset{tripoles/gm amp/input height/.initial=.5}        % Input port vertical separation
 \ctikzset{tripoles/gm amp/up pos/.initial=.45}             % Top and bottom anchor position
-\ctikzset{tripoles/gm amp/font/.initial= \fontsize{10}{12}\selectfont\boldmath}  % Absolute font size needed!
+\ctikzset{tripoles/gm amp/font/.initial=\pgf@circ@font@tenbm}  % Absolute font size needed!
 
 % Instrumentation amplifier
 \ctikzset{tripoles/inst amp/width/.initial=1.7}            % Total width
@@ -1265,7 +1292,7 @@
 \ctikzset{tripoles/inst amp/input height/.initial=.5}      % Input ports vertical separation
 \ctikzset{tripoles/inst amp/up pos/.initial=.4}            % Top and bottom anchor position
 \ctikzset{tripoles/inst amp/refv pos/.initial=.7}          % Top and bottom voltage reference position
-\ctikzset{tripoles/inst amp/font/.initial= \fontsize{10}{0}\selectfont\boldmath}  % Absolute font size needed!
+\ctikzset{tripoles/inst amp/font/.initial=\pgf@circ@font@tenbm}  % Absolute font size needed!
 
 % Instrumentation amplifier with differential output
 \ctikzset{tripoles/fd inst amp/width/.initial=1.7}         % Total width
@@ -1276,7 +1303,7 @@
 \ctikzset{tripoles/fd inst amp/output height/.initial=.5}  % Output ports vertical separation
 \ctikzset{tripoles/fd inst amp/up pos/.initial=.4}         % Top and bottom anchor position
 \ctikzset{tripoles/fd inst amp/refv pos/.initial=.7}       % Top and bottom voltage reference position
-\ctikzset{tripoles/fd inst amp/font/.initial= \fontsize{10}{0}\selectfont\boldmath}  % Absolute font size needed!
+\ctikzset{tripoles/fd inst amp/font/.initial=\pgf@circ@font@tenbm}  % Absolute font size needed!
 
 % Instrumentation amplifier with gain resistor terminals
 \ctikzset{tripoles/inst amp ra/width/.initial=2.4}         % Total width
@@ -1287,7 +1314,7 @@
 \ctikzset{tripoles/inst amp ra/up pos/.initial=.4}         % Top and bottom anchor position
 \ctikzset{tripoles/inst amp ra/refv pos/.initial=.7}       % Top and bottom voltage reference position
 \ctikzset{tripoles/inst amp ra/ra pos/.initial=.6}         % Gain resistor terminals vertical separation
-\ctikzset{tripoles/inst amp ra/font/.initial= \fontsize{10}{0}\selectfont\boldmath}  % Absolute font size needed!
+\ctikzset{tripoles/inst amp ra/font/.initial=\pgf@circ@font@tenbm}  % Absolute font size needed!
 
 % Plain amplifier
 \ctikzset{tripoles/plain amp/width/.initial=1.7}           % Total width
@@ -1378,7 +1405,7 @@
 % multipoles
 %
 \ctikzset{multipoles/thickness/.initial=2}
-\ctikzset{multipoles/font/.initial=\tiny}
+\ctikzset{multipoles/font/.initial=\pgf@circ@font@tiny}
 % DIP (dual in line package) chips
 \ctikzset{multipoles/dipchip/width/.initial=1.2}
 \ctikzset{multipoles/dipchip/num pins/.initial=8}
@@ -3944,7 +3971,7 @@
     \pgfusepath{draw}
 
     \pgfsetlinewidth{\pgfstartlinewidth}
-    \pgftext[top,x=.85\pgf@circ@res@left,y=.75\pgf@circ@res@down]{\tiny$\vartheta$}
+    \pgftext[top,x=.85\pgf@circ@res@left,y=.75\pgf@circ@res@down]{\pgf@circ@font@tiny$\vartheta$}
     \pgfsetarrowsend{latexslim}
     \pgfpathmoveto{\pgfpoint{.62\pgf@circ@res@left}{\pgf@circ@res@down}}
     \pgfpathlineto{\pgfpoint{.62\pgf@circ@res@left}{.7\pgf@circ@res@down}}
@@ -3974,7 +4001,7 @@
     \pgfusepath{draw}
 
     \pgfsetlinewidth{\pgfstartlinewidth}
-    \pgftext[top,x=.85\pgf@circ@res@left,y=.75\pgf@circ@res@down]{\tiny$\vartheta$}
+    \pgftext[top,x=.85\pgf@circ@res@left,y=.75\pgf@circ@res@down]{\pgf@circ@font@tiny$\vartheta$}
     \pgfsetarrowsend{latexslim}
     \pgfpathmoveto{\pgfpoint{.62\pgf@circ@res@left}{\pgf@circ@res@down}}
     \pgfpathlineto{\pgfpoint{.62\pgf@circ@res@left}{.7\pgf@circ@res@down}}
@@ -6482,7 +6509,7 @@
 {\ctikzvalof{bipoles/ammeter/width}}
 {
     \drawmeteringcircle
-    \pgfnode{circle}{center}{\textbf{A}}{}{}
+    \pgfnode{circle}{center}{\pgf@circ@font@bold{A}}{}{}
 }
 %OHMMETER
 \pgfcircdeclarebipolescaled{instruments}
@@ -6504,7 +6531,7 @@
 {\ctikzvalof{bipoles/voltmeter/width}}
 {
     \drawmeteringcircle
-    \pgfnode{circle}{center}{\textbf{V}}{}{}
+    \pgfnode{circle}{center}{\pgf@circ@font@bold{V}}{}{}
 
 }
 
@@ -6943,7 +6970,7 @@
     \pgfpathlineto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@down}}
     \pgfusepath{draw}
 
-    \pgftext[top,x=.65\pgf@circ@res@left,y=1.2\pgf@circ@res@down]{{\tiny\textsf{U}}}
+    \pgftext[top,x=.65\pgf@circ@res@left,y=1.2\pgf@circ@res@down]{{\pgf@circ@font@tiny\textsf{U}}}
 }
 
 %%%%%%%%%%%%%%
@@ -15653,8 +15680,6 @@
 \def\pgf@circ@avfont{\ctikzvalof{voltage/american font}}
 %
 % plus and minus symbols (default is $+$ and $-$, see pgfcirc.defines.tex)
-% notice that the double braces are needed  to be able
-% to use \boldmath in the font (although it is semi-deprecated...)
 %
 \def\pgf@circ@avplus{\ctikzvalof{voltage/american plus}}
 \def\pgf@circ@avminus{\ctikzvalof{voltage/american minus}}
