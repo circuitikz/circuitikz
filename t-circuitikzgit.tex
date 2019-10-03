@@ -1,4 +1,4 @@
-\def\pgfcircversion{git:5661e3a}
+\def\pgfcircversion{git:cf77cad}
 \def\pgfcircversiondate{2019/10/03}
 \writestatus{loading}{\pgfcircversiondate{} The CircuiTikz circuit drawing package version \pgfcircversion}
 
@@ -15252,6 +15252,23 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Bipole label positioning
 
+%% bipole labels and annotation extra style
+
+\ctikzset{bipole label style/.style={}}
+\tikzset{bipole label style/.code={
+        \ctikzset{bipole label style/.style={#1}}
+}}
+\tikzset{bipole label append style/.code={
+        \ctikzset{bipole label style/.append style={#1}}
+}}
+\ctikzset{bipole annotation style/.style={}}
+\tikzset{bipole annotation style/.code={
+        \ctikzset{bipole annotation style/.style={#1}}
+}}
+\tikzset{bipole annotation append style/.code={
+        \ctikzset{bipole annotation style/.append style={#1}}
+}}
+
 %% Options
 \ctikzset{label/.style = { l=#1 } }
 \ctikzset{l/.code = {
@@ -15430,7 +15447,8 @@
     }
     % reset cm is not working correctly here
     (labelcoor)++(\pgf@circ@labposangle:\the\pgf@circ@res@temp) coordinate(labelcoor)
-    node[anchor=mid, rotate=\pgfcirclabrot](\ctikzvalof{bipole/name}#1){\pgf@circ@finallabels{#1}}
+    node[anchor=mid, rotate=\pgfcirclabrot, \circuitikzbasekey/bipole #1 style]
+    (\ctikzvalof{bipole/name}#1){\pgf@circ@finallabels{#1}}
 }
 
 \def\pgf@circ@drawreglabels#1{
@@ -15499,7 +15517,7 @@
             \fi
         \fi\fi
     (labelcoor) node[anchor=\pgf@circ@labanctext,
-        inner sep=0.5\pgf@circ@res@temp, outer sep=0pt,
+    inner sep=0.5\pgf@circ@res@temp, outer sep=0pt, \circuitikzbasekey/bipole #1 style,
         ](\ctikzvalof{bipole/name}#1){\strut\pgf@circ@finallabels{#1}%
     }
 }
@@ -15596,6 +15614,14 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%  Voltage management
 
+%% styles
+\ctikzset{bipole voltage style/.style={}}
+\tikzset{bipole voltage style/.code={
+        \ctikzset{bipole voltage style/.style={#1}}
+}}
+\tikzset{bipole voltage append style/.code={
+        \ctikzset{bipole voltage style/.append style={#1}}
+}}
 
 \ctikzset{v^>/.style = {
         v = #1,
@@ -16041,8 +16067,9 @@
 
     \ifpgf@circuit@bipole@voltage@straight
         coordinate (Vlab) at ($(pgfcirc@Vto)!0.5!(pgfcirc@Vfrom) $)
-        node [anchor=\pgf@circ@bipole@voltage@label@anchor, inner sep=2pt]
-        at (Vlab) { \pgf@circ@finallabels{voltage/label} }
+        node [anchor=\pgf@circ@bipole@voltage@label@anchor, inner sep=2pt,
+        \circuitikzbasekey/bipole voltage style](\ctikzvalof{bipole/name}voltage)
+        at (Vlab) {\pgf@circ@finallabels{voltage/label}}
     \else
         \ifpgf@circuit@europeanvoltage
             coordinate (Vlab) at ($(pgfcirc@Vcont1)!0.5!(pgfcirc@Vcont2)$)
@@ -16054,7 +16081,9 @@
                 coordinate (Vlab) at ($(Vlab) ! \alshift ! \pgf@circ@bipole@voltage@label@where :(pgfcirc@Vto)$)
             \fi
         \fi
-        node [anchor=\pgf@circ@bipole@voltage@label@anchor, inner sep=2pt] at (Vlab) { \pgf@circ@finallabels{voltage/label} }
+        node [anchor=\pgf@circ@bipole@voltage@label@anchor, inner sep=2pt,
+        \circuitikzbasekey/bipole voltage style](\ctikzvalof{bipole/name}voltage)
+        at (Vlab) {\pgf@circ@finallabels{voltage/label}}
     \fi
 }%end drawvoltages
 %%%---------- close: tex/pgfcircvoltage
@@ -16071,6 +16100,15 @@
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Current handling
+
+%% styles
+\ctikzset{bipole current style/.style={}}
+\tikzset{bipole current style/.code={
+        \ctikzset{bipole current style/.style={#1}}
+}}
+\tikzset{bipole current append style/.code={
+        \ctikzset{bipole current style/.append style={#1}}
+}}
 
 %% Options
 \ctikzset{i^>/.style = {
@@ -16254,7 +16292,9 @@
         }
     \fi
     coordinate[currarrow,pos=\ctikzvalof{current/distance},rotate=\pgf@circ@ffffff](Iarrow)
-    (Iarrow.\pgf@circ@bipole@current@label@where) node[anchor=\pgf@circ@dir]{\pgf@circ@finallabels{current/label}}
+    (Iarrow.\pgf@circ@bipole@current@label@where)
+    node[anchor=\pgf@circ@dir, \circuitikzbasekey/bipole current style]
+    (\ctikzvalof{bipole/name}current){\pgf@circ@finallabels{current/label}}
 }
 
 %%%---------- close: tex/pgfcirccurrent
@@ -16271,6 +16311,15 @@
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% flow handling
+
+%% styles
+\ctikzset{bipole flow style/.style={}}
+\tikzset{bipole flow style/.code={
+        \ctikzset{bipole flow style/.style={#1}}
+}}
+\tikzset{bipole flow append style/.code={
+        \ctikzset{bipole flow style/.append style={#1}}
+}}
 
 %% Options
 \ctikzset{f^>/.style = {
@@ -16449,7 +16498,8 @@
         \fi
     }
     coordinate[flowarrow,pos=\ctikzvalof{flow/distance},rotate=\pgf@circ@ffffff,yshift=\flow@offset](Farrowpos)
-    (Farrowpos.\pgf@circ@bipole@flow@label@where) node[anchor=\pgf@circ@dir]{ \pgf@circ@finallabels{flow/label}}
+    (Farrowpos.\pgf@circ@bipole@flow@label@where) node[anchor=\pgf@circ@dir, \circuitikzbasekey/bipole flow style]
+    (\ctikzvalof{bipole/name}flow){\pgf@circ@finallabels{flow/label}}
 }
 
 %%%---------- close: tex/pgfcircflow
