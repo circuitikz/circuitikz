@@ -45,9 +45,9 @@ If you want to use older versions of `circuitikz` in LaTeX, just append the vers
 ```latex
   \usepackage{circuitikz-0.8.3}
 ```
-The available versions are  0.8.3, 0.7, 0.6 and 0.4.
+The available versions are  specified in the manual.
 
-In ConTeXt, only the 0.8.3 version is available for the time being; you can use it with 
+In ConTeXt, you can use older version with 
 ```latex
   \usemodule[circuitikz-0.8.3]
 ```
@@ -58,6 +58,12 @@ Be aware that options can (and do) change between versions, so you have to check
 More Information can be found in the manual and (maybe) at the wiki of the project located at https://github.com/circuitikz/circuitikz/wiki.
 
 ## Contact the authors
+
+For bug reports and enhacement suggestions, the preferred way is to use the issue page on the project  https://github.com/circuitikz/circuitikz/issues . Please be ready to provide an example code showing the bug, if any.
+
+Please do not use the issue page for generic help on how to use the package. The manual has a (growing) set of examples; 
+also the quetoin tagged `circuitikz` on  https://tex.stackexchange.com/ are often answered promptly.
+
 * git: https://github.com/circuitikz/circuitikz
 * Massimo Redaelli (m.redaelli@gmail.com)
 * Stefan Lindner (stefan.lindner@fau.de)
