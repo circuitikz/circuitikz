@@ -62,7 +62,7 @@ More Information can be found in the manual and (maybe) at the wiki of the proje
 For bug reports and enhacement suggestions, the preferred way is to use the issue page on the project  https://github.com/circuitikz/circuitikz/issues . Please be ready to provide an example code showing the bug, if any.
 
 Please do not use the issue page for generic help on how to use the package. The manual has a (growing) set of examples; 
-also the quetoin tagged `circuitikz` on  https://tex.stackexchange.com/ are often answered promptly.
+also the questions tagged `circuitikz` on  https://tex.stackexchange.com/ are often answered promptly.
 
 * git: https://github.com/circuitikz/circuitikz
 * Massimo Redaelli (m.redaelli@gmail.com)
