@@ -9,8 +9,8 @@
 
 \NeedsTeXFormat{LaTeX2e}
 
-\def\pgfcircversion{git:1d6bd68}
-\def\pgfcircversiondate{2019/10/03}
+\def\pgfcircversion{git:0c3fe94}
+\def\pgfcircversiondate{2019/10/11}
 
 \ProvidesPackage{circuitikzgit}
 [\pgfcircversiondate{} The CircuiTikz circuit drawing package version \pgfcircversion]
@@ -740,12 +740,17 @@
     \ctikzset{bipoles/ageneric/width=#1}%
     \ctikzset{bipoles/tgeneric/width=#1}%
 }}
+\ctikzset{wiper pos/.code={%
+    \ctikzset{bipoles/potentiometer/wiper pos=#1}%
+    \ctikzset{bipoles/generic potentiometer/wiper pos=#1}%
+}}
 % zigzag resistor
 \ctikzset{bipoles/resistor/height/.initial=.3}
 \ctikzset{bipoles/resistor/width/.initial=.8}
 \ctikzset{bipoles/potentiometer/height/.initial=.8}
 \ctikzset{bipoles/potentiometer/height 2/.initial=.3}
 \ctikzset{bipoles/potentiometer/width/.initial=.8}
+\ctikzset{bipoles/potentiometer/wiper pos/.initial=.5}
 \ctikzset{bipoles/vresistor/height/.initial=.6}
 \ctikzset{bipoles/vresistor/width/.initial=.8}
 \ctikzset{bipoles/resistivesens/height/.initial=.6}
@@ -773,6 +778,7 @@
 \ctikzset{bipoles/generic potentiometer/height/.initial=.80}
 \ctikzset{bipoles/generic potentiometer/height 2/.initial=.30}
 \ctikzset{bipoles/generic potentiometer/width/.initial=.80}
+\ctikzset{bipoles/generic potentiometer/wiper pos/.initial=.5}
 \ctikzset{bipoles/ageneric/height/.initial=.30}
 \ctikzset{bipoles/tgeneric/height/.initial=.70}
 \ctikzset{bipoles/tgeneric/width/.initial=.80}
@@ -4330,11 +4336,17 @@
 }
 
 %% Generic tunable
-\pgfcircdeclarebipolescaled{resistors}{
-	\anchor{wiper}{
-		\northeast
-		\pgfpoint{0pt}{\pgf@y}
-	}
+\pgfcircdeclarebipolescaled{resistors}
+{
+    \savedanchor{\wiper}{
+            \pgf@circ@scaled@Rlen=\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen
+            \pgf@ya=\ctikzvalof{bipoles/generic potentiometer/height}\pgf@circ@scaled@Rlen
+            \pgf@y=.5\pgf@ya
+            \pgf@xa=\ctikzvalof{bipoles/generic potentiometer/width}\pgf@circ@scaled@Rlen
+            \pgfmathsetlength{\pgf@x}{(\ctikzvalof{bipoles/generic potentiometer/wiper pos}-0.5)*\pgf@xa}
+        }
+    \anchor{wiper}{\wiper}
+    \anchor{W}{\wiper}
 }
 {\ctikzvalof{bipoles/generic potentiometer/height 2}}
 {genericpotentiometer}
@@ -4353,8 +4365,9 @@
     \pgfscope
         %\pgfsetlinewidth{\pgfstartlinewidth}
         \pgfsetarrowsend{latexslim}
-        \pgfpathmoveto{\pgfpoint{0pt}{\pgf@circ@res@up}}
-        \pgfpathlineto{\pgfpoint{0pt}{-\pgf@circ@res@down}}
+        \pgfextractx{\pgf@circ@res@other}{\wiper}
+        \pgfpathmoveto{\pgfpoint{\pgf@circ@res@other}{\pgf@circ@res@up}}
+        \pgfpathlineto{\pgfpoint{\pgf@circ@res@other}{-\pgf@circ@res@down}}
         \pgfusepath{draw}
     \endpgfscope
 }
@@ -4429,12 +4442,20 @@
 %% Potentiometer
 \pgfcircdeclarebipolescaled{resistors}
 {
-    \anchor{wiper}{\northeast\pgfpoint{0pt}{\pgf@y}}
-    \anchor{W}{\northeast\pgfpoint{0pt}{\pgf@y}}
+    \savedanchor{\wiper}{
+            \pgf@circ@scaled@Rlen=\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen
+            \pgf@ya=\ctikzvalof{bipoles/potentiometer/height}\pgf@circ@scaled@Rlen
+            \pgf@y=.5\pgf@ya
+            \pgf@xa=\ctikzvalof{bipoles/potentiometer/width}\pgf@circ@scaled@Rlen
+            \pgfmathsetlength{\pgf@x}{(\ctikzvalof{bipoles/potentiometer/wiper pos}-0.5)*\pgf@xa}
+        }
+    \anchor{wiper}{\wiper}
+    \anchor{W}{\wiper}
     \savedmacro{\zigs}{\edef\zigs{\ctikzvalof{resistors/zigs}}}
 }
 {\ctikzvalof{bipoles/potentiometer/height 2}}
-{potentiometer}{\ctikzvalof{bipoles/potentiometer/height}}
+{potentiometer}
+{\ctikzvalof{bipoles/potentiometer/height}}
 {\ctikzvalof{bipoles/potentiometer/width}}
 {
     \pgf@circ@setlinewidth{bipoles}{\pgfstartlinewidth}
@@ -4445,8 +4466,9 @@
     \pgfscope
         %\pgfsetlinewidth{\pgfstartlinewidth}
         \pgfsetarrowsend{latexslim}
-        \pgfpathmoveto{\pgfpoint{0pt}{\pgf@circ@res@up}}
-        \pgfpathlineto{\pgfpoint{0pt}{-\pgf@circ@res@down}}
+        \pgfextractx{\pgf@circ@res@other}{\wiper}
+        \pgfpathmoveto{\pgfpoint{\pgf@circ@res@other}{\pgf@circ@res@up}}
+        \pgfpathlineto{\pgfpoint{\pgf@circ@res@other}{-\pgf@circ@res@down}}
         \pgfusepath{draw}
     \endpgfscope
 }
