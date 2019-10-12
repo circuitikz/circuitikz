@@ -1,9 +1,12 @@
 <!--- CircuiTikz - Changelog --->
 The major changes among the different circuitikz versions are listed here. See <https://github.com/circuitikz/circuitikz/commits> for a full list of changes.
 
-* Version 0.9.5 (unreleased)
+* Version 0.9.5 (2019-10-12)
 
-    - Bumped version number
+    This release basically add features to better control labels, voltages and similar text "ornaments" on bipoles, plus some other minor things.
+
+    On the bug fixes side, a big incompatibility with ConTeXt has been fixed, thanks to help from `@TheTeXnician` and `@hmenke` on `github.com`.
+
     - Added a "midtap" anchor for coils and exposed the inner coils shapes in the transformers
     - Added a "curved capacitor" with polarity coherent with "ecapacitor"
     - Added the possibility to apply style and access the nodes of bipole's text ornaments (labels, annotations, voltages, currents and flows)
