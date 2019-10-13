@@ -1,6 +1,10 @@
 <!--- CircuiTikz - Changelog --->
 The major changes among the different circuitikz versions are listed here. See <https://github.com/circuitikz/circuitikz/commits> for a full list of changes.
 
+* Version 0.9.6 (unreleased)
+
+    - Bumped version number
+
 * Version 0.9.5 (2019-10-12)
 
     This release basically add features to better control labels, voltages and similar text "ornaments" on bipoles, plus some other minor things.
