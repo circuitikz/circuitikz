@@ -4,6 +4,8 @@ The major changes among the different circuitikz versions are listed here. See <
 * Version 0.9.6 (unreleased)
 
     - Bumped version number
+    - Added the possibility to style the two coils in a transformer independently
+    - Fixed a problem with "quadpoles style=inner" and "transformer core" having the core lines too narrow
 
 * Version 0.9.5 (2019-10-12)
 

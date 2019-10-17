@@ -1362,7 +1362,7 @@ You can change the scale of the inductors by setting the key \texttt{inductors/s
 You can change the width of these components (all the inductors together, unless you use style or scoping) by setting the key \texttt{inductors/width}  to something different from the default, which is  \texttt{0.8} for american and european inductors, and \texttt{0.6} for cute inductors.
 
 Moreover, you can change the number of ``coils'' drawn by setting the key
-\texttt{inductors/coils} (default value \texttt{5} for cute inductors and \texttt{4} for american ones).
+\texttt{inductors/coils} (default value \texttt{5} for cute inductors and \texttt{4} for american ones). \textbf{Notice} that the minimum number of \texttt{coils} is \texttt{1} for american inductors, and \texttt{2} for cute ones.
 
 \begin{LTXexample}[varwidth=true]
 \begin{circuitikz}[
@@ -2838,6 +2838,66 @@ This can be useful if you want to put seamlessly something in series with either
 \end{circuitikz}
 \end{LTXexample}
 
+
+\subsubsection{Styling transformer's coils independently}
+
+Since \texttt{0.9.6}, you can tweak the style of each of the coils of the transformers by
+changing the value of the two styles \texttt{transformer L1} and \texttt{transformer L2};
+the default for both are \texttt{\{\}}, that means inherit the inductors style in force.
+
+\begin{LTXexample}[pos=t, basicstyle=\small\ttfamily]
+\begin{circuitikz}[american]
+    \begin{scope}
+        \ctikzset{transformer L1/.style={inductors/coils=1, inductors/width=0.2}}
+        \draw (0,0) node[transformer core](T1){};
+    \end{scope}
+    \draw (3,0) node[transformer](T2){};
+    \ctikzset{cute inductors, quadpoles style=inline}
+    \ctikzset{transformer L1/.style={inductors/coils=2, inductors/width=0.2}}
+    \draw (6,0) node[transformer core](T3){};
+    \ctikzset{transformer L1/.style={american inductors, inductors/coils=1, inductors/width=0.2}}
+    \ctikzset{transformer L2/.style={inductors/coils=7, inductors/width=1.0}}
+    \draw (9,0) node[transformer ](T4){};
+    \foreach \t in {T1, T2, T3, T4} {
+        \foreach \l in {L1, L2} {
+            \foreach \a/\c in {a/blue, b/red}
+            \node [circle, fill=\c, inner sep=1pt] at (\t-\l.\a) {};
+        }
+    }
+\end{circuitikz}
+\end{LTXexample}
+
+\textbf{Caveat:} the size of the transformer is independent from the styles for \texttt{L1} and \texttt{L2}, so they follow whatever the parameters for the inductances were before applying  them. In other words, the size of the transformer  could result too small if you are not careful.
+
+\begin{LTXexample}[varwidth, basicstyle=\small\ttfamily]
+\begin{circuitikz}
+    \ctikzset{transformer L1/.style={inductors/width=1.8, inductors/coils=13}}
+    % too small!
+    \draw (0,0) node[transformer core](T1){};
+    % adjust it
+    \ctikzset{quadpoles/transformer core/height=2.4}
+    \draw (2.5,0) node[transformer core](T1){};
+\end{circuitikz}
+\end{LTXexample}
+
+You can obviously define a style for a ``non-standard'' transformer. For example, you can have a current transformer\footnote{Suggested by Alex Pacini on \href{https://github.com/circuitikz/circuitikz/issues/297}{GitHub}} defined like this:
+
+\begin{LTXexample}[varwidth, basicstyle=\small\ttfamily]
+\begin{circuitikz}[
+    TA core/.style={transformer core,
+        % at tikz level, you have to use circuitikz/ explicitly
+        circuitikz/quadpoles style=inline,
+        circuitikz/transformer L1/.style={
+            american inductors, inductors/coils=1,
+            inductors/width=0.3},
+    } ]
+    \draw (0,0) node[TA core](T1){};
+    % changes are local
+    \draw (0,-3) node[transformer]{};
+\end{circuitikz}
+\end{LTXexample}
+
+Remember that the default \texttt{pgfkeys} directory is \texttt{/tikz} for nodes and for the options of the environment, so you \emph{have} to use the full path (with \texttt{circuitikz/}) there.
 
 \subsection{Amplifiers}
 
