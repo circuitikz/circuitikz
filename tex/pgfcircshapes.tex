@@ -453,6 +453,25 @@
         \pgf@x=.5\pgf@circ@res@step
         \pgf@y=\pgf@x%
     }
+    \savedanchor{\otip}{% Optical tip of the arrow
+        \pgfpointorigin
+        \pgf@circ@res@step = \pgf@circ@Rlen
+        \divide \pgf@circ@res@step by \ctikzvalof{current arrow scale}
+        \pgfmathsetmacro{\factor}{1.174} % this is 1/(2*sin*atan(0.8/1.7)) which is the arrow semi-angle
+        \iftikz@fullytransformed % this is true if `transform shape` is active
+            % from @Circumscribe https://tex.stackexchange.com/a/474035/38080
+            \pgfgettransformentries{\scaleA}{\scaleB}{\scaleC}{\scaleD}{\whatevs}{\whatevs}%
+            \pgfmathsetmacro{\factor}{\factor/sqrt(abs(\scaleA*\scaleD-\scaleB*\scaleC))}%
+        \fi
+        \advance \pgf@circ@res@step by \factor\pgflinewidth
+        \pgf@x	=\pgf@circ@res@step
+    }
+    \savedanchor{\tip}{%
+        \pgfpointorigin
+        \pgf@circ@res@step = \pgf@circ@Rlen
+        \divide \pgf@circ@res@step by \ctikzvalof{current arrow scale}
+        \pgf@x	=\pgf@circ@res@step
+    }
     \anchor{north}{\northeast\pgf@x=0cm\relax}
     \anchor{east}{\northeast\pgf@y=0cm\relax}
     \anchor{south}{\northeast\pgf@y=-\pgf@y \pgf@x=0cm\relax}
@@ -465,10 +484,10 @@
         \pgfpointorigin
     }
     \anchor{tip}{
-        \pgfpointorigin
-        \pgf@circ@res@step = \pgf@circ@Rlen
-        \divide \pgf@circ@res@step by \ctikzvalof{current arrow scale}
-        \pgf@x	=\pgf@circ@res@step
+       \tip
+    }
+    \anchor{otip}{
+       \otip
     }
     \behindforegroundpath{
         \pgfscope
@@ -477,10 +496,11 @@
 
             \pgfpathmoveto{\pgfpoint{-.7\pgf@circ@res@step}{0pt}}
             \pgfpathlineto{\pgfpoint{-.7\pgf@circ@res@step}{-.8\pgf@circ@res@step}}
-            \pgfpathlineto{\pgfpoint{1\pgf@circ@res@step}{0pt}}
+            \pgfpathlineto{\pgfpoint{\pgf@circ@res@step}{0pt}}
             \pgfpathlineto{\pgfpoint{-.7\pgf@circ@res@step}{.8\pgf@circ@res@step}}
             \pgfpathlineto{\pgfpoint{-.7\pgf@circ@res@step}{0pt}}
             \pgfsetcolor{\ctikzvalof{color}}
+            \pgfsetcolor{red}
             \pgfusepath{draw,fill}
 
         \endpgfscope
