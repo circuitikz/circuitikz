@@ -1552,14 +1552,36 @@
 
 \long\def\declarebpt#1{
     \pgfcircdeclaretransistor{#1}{}{
+        % let's calculate retractions lengths for the arrow-at-end optical tip solution
+        \pgf@circ@res@temp=0pt % default case
+        \ifpgf@circuit@trans@arrowatend
+            % the currarrow center is the best place; this is the position with respect to the geometrical tip:
+            \pgf@circ@res@temp = \pgf@circ@Rlen
+            \divide \pgf@circ@res@temp by \ctikzvalof{current arrow scale}
+        \fi
+        % Find the angle of the connections (it's a bjt!)
+        \pgfmathsetmacro{\angle}{atan(
+            (\ctikzvalof{tripoles/#1/base height}*\pgf@circ@res@up - \ctikzvalof{tripoles/#1/base height 2}*\pgf@circ@res@up)/
+            (-\ctikzvalof{tripoles/#1/base width}*\pgf@circ@res@left + \pgf@circ@res@right)
+        )}
+        \pgfmathsetlength{\pgf@circ@res@x}{cos(\angle)*\pgf@circ@res@temp}
+        \pgfmathsetlength{\pgf@circ@res@y}{sin(\angle)*\pgf@circ@res@temp}
+        % upper connection
         \pgfpathmoveto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@up+\pgfverticaltransformationadjustment*.5*\pgflinewidth}}
         \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}
         {\ctikzvalof{tripoles/#1/base height}\pgf@circ@res@up}}
-        \pgfpathlineto{\pgfpoint
+        \ifpgf@circuit@trans@ntype
+            \pgfpathlineto{\pgfpoint
             {\ctikzvalof{tripoles/#1/base width}\pgf@circ@res@left}
-        {\ctikzvalof{tripoles/#1/base height 2}\pgf@circ@res@up}}
+            {\ctikzvalof{tripoles/#1/base height 2}\pgf@circ@res@up}}
+        \else
+            % PNP, this is the emitter, retract the line in the arrow on end
+            \pgfpathlineto{\pgfpoint
+            {\ctikzvalof{tripoles/#1/base width}\pgf@circ@res@left+\pgf@circ@res@x}
+            {\ctikzvalof{tripoles/#1/base height 2}\pgf@circ@res@up+\pgf@circ@res@y}}
+        \fi
         \pgfusepath{draw}
-
+        % base
         \pgfscope
             \pgfpathmoveto{\pgfpoint
                 {\ctikzvalof{tripoles/#1/base width}\pgf@circ@res@left}
@@ -1570,13 +1592,22 @@
             \pgf@circ@setlinewidth{tripoles}{\pgflinewidth}
             \pgfusepath{draw}
         \endpgfscope
-
+        % lower connection
         \pgfpathmoveto{\pgfpoint
             {\ctikzvalof{tripoles/#1/base width}\pgf@circ@res@left}
-        {\ctikzvalof{tripoles/#1/base height 2}\pgf@circ@res@down}}
+            {\ctikzvalof{tripoles/#1/base height 2}\pgf@circ@res@down}}
+        \ifpgf@circuit@trans@ntype
+            % this is the emitter, retract if arrows are at end
+            \pgfpathlineto{\pgfpoint{\pgf@circ@res@right-\pgf@circ@res@x}
+            {\ctikzvalof{tripoles/#1/base height}\pgf@circ@res@down+\pgf@circ@res@y}}
+            \pgfpathmoveto{\pgfpoint{\pgf@circ@res@right}
+            {\ctikzvalof{tripoles/#1/base height}\pgf@circ@res@down+0.5\pgflinewidth}}
+        \else
+            \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}
+            {\ctikzvalof{tripoles/#1/base height}\pgf@circ@res@down}}
+        \fi
         \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}
-        {\ctikzvalof{tripoles/#1/base height}\pgf@circ@res@down}}
-        \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@down-\pgfverticaltransformationadjustment*.5*\pgflinewidth}}
+            {\pgf@circ@res@down-\pgfverticaltransformationadjustment*0.5*\pgflinewidth}}
         \pgfusepath{draw}
         %draw arrow depending on type of transistor
         \pgfscope
@@ -1605,7 +1636,7 @@
                         {\ctikzvalof{tripoles/#1/base height}\pgf@circ@res@down}%
                     }
                 \fi
-            \else
+            \else %PNP
                 \ifpgf@circuit@trans@arrowatend
                     \edef\@@anchor{otip}
                     \pgftransformlineattime{1.0}{%
