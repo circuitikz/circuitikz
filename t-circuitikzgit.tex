@@ -1,5 +1,5 @@
-\def\pgfcircversion{git:d3b7caa}
-\def\pgfcircversiondate{2019/10/12}
+\def\pgfcircversion{git:688b212}
+\def\pgfcircversiondate{2019/10/28}
 \writestatus{loading}{\pgfcircversiondate{} The CircuiTikz circuit drawing package version \pgfcircversion}
 
 \usemodule[tikz]
@@ -763,6 +763,13 @@
 \ctikzset{photo/.add code={}{\pgf@circuit@bpt@drawphototrue}}
 \pgfkeys{/tikz/photo/.add code={}{\pgf@circuit@bpt@drawphototrue}}
 \ctikzset{photo/.add code={}{\pgf@circuit@bpt@drawphototrue}}
+
+% Option draw fet without bulk connection -- Added by Burak Kelleci
+\newif\ifpgf@circuit@bpt@drawbulk
+\pgfkeys{/tikz/bulk/.add code={}{\pgf@circuit@bpt@drawbulktrue}}
+\ctikzset{bulk/.add code={}{\pgf@circuit@bpt@drawbulktrue}}
+\pgfkeys{/tikz/nobulk/.add code={}{\pgf@circuit@bpt@drawbulkfalse}}
+\ctikzset{nobulk/.add code={}{\pgf@circuit@bpt@drawbulkfalse}}
 
 % Option draw pmos with empty circle
 \newif\ifpgf@circuit@pmos@emptycircle
@@ -9959,6 +9966,10 @@
             \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
             \pgf@x=-\ctikzvalof{tripoles/#1/width}\pgf@circ@scaled@Rlen
         }
+        \savedanchor\right{%center right -- added by Burak Kelleci % this is really 0,0
+            \pgf@y=0pt
+            \pgf@x=0pt
+        }
         \anchor{text}{
             \northeast
             \pgf@y=.7\pgf@y
@@ -10024,6 +10035,16 @@
             \pgf@circ@res@step=\ctikzvalof{tripoles/#1/conn height}\pgf@y
             \left
             \pgf@y=-\ctikzvalof{tripoles/#1/curr direction}\pgf@circ@res@step
+        }
+        \anchor{bulk}{ %added by Burak Kelleci
+            \northeast
+            \pgf@circ@res@step=\ctikzvalof{tripoles/#1/conn height}\pgf@y
+            \right
+            \pgf@y=-\ctikzvalof{tripoles/#1/curr direction}\pgf@circ@res@step
+        }
+        \anchor{nobulk}{ %added by Burak Kelleci
+            \left
+            \pgf@x=\ctikzvalof{tripoles/#1/base width}\pgf@x
         }
         \anchor{G}{
             \northeast
@@ -10422,6 +10443,14 @@
         \pgfpathlineto{\pgfpoint{\pgf@circ@res@left-\pgfhorizontaltransformationadjustment*.5*\pgflinewidth}{\pgf@circ@res@up+\pgf@circ@res@down}}
         \pgfusepath{draw}
     \fi
+
+    \ifpgf@circuit@bpt@drawbulk % added by Burak Kelleci
+        \pgfpathmoveto{\pgfpoint{\ctikzvalof{tripoles/nmos/base width}\pgf@circ@res@left}
+                {\pgf@circ@res@up+\pgf@circ@res@down}}
+        \pgfpathlineto{\pgfpoint{\pgf@circ@res@right+\pgfhorizontaltransformationadjustment*.5*\pgflinewidth}
+                {\pgf@circ@res@up+\pgf@circ@res@down}}
+        \pgfusepath{draw}
+    \fi
 }
 
 \pgfcircdeclaretransistor{pmos}{}{%
@@ -10493,7 +10522,16 @@
         \pgfpathlineto{\pgfpoint{\pgf@circ@res@left-\pgfhorizontaltransformationadjustment*.5*\pgflinewidth}{\pgf@circ@res@up+\pgf@circ@res@down}}
         \pgfusepath{draw}
     \fi
-        \ifpgf@circuit@pmos@nocircle\else
+
+    \ifpgf@circuit@bpt@drawbulk % added by Burak Kelleci
+        \pgfpathmoveto{\pgfpoint{\ctikzvalof{tripoles/pmos/base width}\pgf@circ@res@left}
+                {\pgf@circ@res@up+\pgf@circ@res@down}}
+        \pgfpathlineto{\pgfpoint{\pgf@circ@res@right+\pgfhorizontaltransformationadjustment*.5*\pgflinewidth}
+                {\pgf@circ@res@up+\pgf@circ@res@down}}
+        \pgfusepath{draw}
+    \fi
+
+    \ifpgf@circuit@pmos@nocircle\else
         % we are not scaling the circle with the MOS --- I think it's better to have it
         % coherent with the poles/nodes of the rest of the circuit.
         \pgfpathcircle{\pgfpoint
@@ -11472,33 +11510,33 @@
             \pgf@circ@res@step=\pgf@circ@res@right
             \advance\pgf@circ@res@step by -\pgf@circ@res@left
             \pgf@circ@res@step=\ctikzvalof{tripoles/fd op amp/port width}\pgf@circ@res@step
-            
+
             % Initial point (right vertex)
             \pgfpathmoveto{\pgfpoint{\pgf@circ@res@step}{0pt}}
-            
+
             % Negative output terminal
             \pgfpathlineto{\pgfpointlineattime{\ctikzvalof{tripoles/fd op amp/output height}}{\pgfpoint{\pgf@circ@res@step}{0pt}}{\pgfpoint{0pt}{\pgf@circ@res@up}}}
             \pgfpathlineto{\pgfpoint{\pgf@circ@res@step}{\ctikzvalof{tripoles/fd op amp/output height}\pgf@circ@res@up}}
             \pgfpathlineto{\pgfpointlineattime{\ctikzvalof{tripoles/fd op amp/output height}}{\pgfpoint{\pgf@circ@res@step}{0pt}}{\pgfpoint{0pt}{\pgf@circ@res@up}}}
-            
+
             % Top vertex
             \pgfpathlineto{\pgfpoint{0pt}{\pgf@circ@res@up}}
-            
+
             % Bottom vertex
             \pgfpathlineto{\pgfpoint{0pt}{\pgf@circ@res@down}}
-            
+
             % Positive output terminal
             \pgfpathlineto{\pgfpointlineattime{\ctikzvalof{tripoles/fd op amp/output height}}{\pgfpoint{\pgf@circ@res@step}{0pt}}{\pgfpoint{0pt}{\pgf@circ@res@down}}}
             \pgfpathlineto{\pgfpoint{\pgf@circ@res@step}{\ctikzvalof{tripoles/fd op amp/output height}\pgf@circ@res@down}}
             \pgfpathlineto{\pgfpointlineattime{\ctikzvalof{tripoles/fd op amp/output height}}{\pgfpoint{\pgf@circ@res@step}{0pt}}{\pgfpoint{0pt}{\pgf@circ@res@down}}}
-            
+
             % Right vertex
             \pgfpathlineto{\pgfpoint{\pgf@circ@res@step}{0pt}}
-            
+
             \pgfpathclose
             \pgf@circ@draworfill
         \endpgfscope
-        
+
         % Negative input terminal
         \pgfpathmoveto{\pgfpoint
             {\pgf@circ@res@left}
@@ -11708,7 +11746,7 @@
         \pgfscope
             \newdimen\pgf@circ@res@right@double
 						\pgf@circ@res@right@double=2\pgf@circ@res@right
-        
+
             \pgf@circ@setlinewidth{tripoles}{\pgflinewidth}
             \pgftransformxshift{\ctikzvalof{tripoles/fd inst amp/port width}\pgf@circ@res@left}
             \pgf@circ@res@step=\pgf@circ@res@right
@@ -11726,7 +11764,7 @@
             \pgfpathclose
             \pgf@circ@draworfill
         \endpgfscope
-        
+
         % input terminal up
         \pgfpathmoveto{\pgfpoint
             {\pgf@circ@res@left}
@@ -11747,12 +11785,12 @@
             {\ctikzvalof{tripoles/fd inst amp/port width}\pgf@circ@res@left}
         {\ctikzvalof{tripoles/fd inst amp/input height}\pgf@circ@res@down}}
         \pgftext[left, at=\pgfpoint{\ctikzvalof{tripoles/fd inst amp/port width}\pgf@circ@res@left}{\ctikzvalof{tripoles/fd inst amp/input height}\pgf@circ@res@down}]{\ctikzvalof{tripoles/fd inst amp/font} \ifpgf@circuit@oa@iplusup$-$\else$+$\fi}
-        
+
         % output leads down and up
         \pgfpathmoveto{\pgfpoint{\pgf@circ@res@right}{\ctikzvalof{tripoles/fd inst amp/output height}\pgf@circ@res@down}}
         \pgfpathlineto{\pgfpoint{\ctikzvalof{tripoles/fd inst amp/port width}\pgf@circ@res@right}{\ctikzvalof{tripoles/fd inst amp/output height}\pgf@circ@res@down}} %
         \pgftext[right, at=\pgfpoint{\ctikzvalof{tripoles/fd inst amp/port width}\pgf@circ@res@right}{\ctikzvalof{tripoles/fd inst amp/output height}\pgf@circ@res@down}]{\ctikzvalof{tripoles/fd inst amp/font}\ifpgf@circuit@oa@oplusup$-\;$\else$+\;$\fi}
-        
+
         \pgfpathmoveto{\pgfpoint{\pgf@circ@res@right}{\ctikzvalof{tripoles/fd inst amp/output height}\pgf@circ@res@up}}
         \pgfpathlineto{\pgfpoint{\ctikzvalof{tripoles/fd inst amp/port width}\pgf@circ@res@right}{\ctikzvalof{tripoles/fd inst amp/output height}\pgf@circ@res@up}} %
         \pgftext[right, at=\pgfpoint{\ctikzvalof{tripoles/fd inst amp/port width}\pgf@circ@res@right}{\ctikzvalof{tripoles/fd inst amp/output height}\pgf@circ@res@up}]{\ctikzvalof{tripoles/fd inst amp/font}\ifpgf@circuit@oa@oplusup$+\;$\else$-\;$\fi}
@@ -11876,8 +11914,8 @@
 
         \pgfscope
             \newdimen\pgf@circ@res@right@double
-						\pgf@circ@res@right@double=2\pgf@circ@res@right        
-        
+						\pgf@circ@res@right@double=2\pgf@circ@res@right
+
             \pgf@circ@setlinewidth{tripoles}{\pgflinewidth}
             \pgftransformxshift{\ctikzvalof{tripoles/gm amp/port width}\pgf@circ@res@left}
             \pgf@circ@res@step=\pgf@circ@res@right
@@ -12068,7 +12106,7 @@
         \pgfscope
             \newdimen\pgf@circ@res@right@double
 						\pgf@circ@res@right@double=2\pgf@circ@res@right
-						
+
             \pgf@circ@setlinewidth{tripoles}{\pgflinewidth}
             \pgftransformxshift{\ctikzvalof{tripoles/inst amp/port width}\pgf@circ@res@left}
             \pgf@circ@res@step=\pgf@circ@res@right
@@ -12086,7 +12124,7 @@
             \pgfpathclose
             \pgf@circ@draworfill
         \endpgfscope
-        
+
         % Negative input terminal
         \pgfpathmoveto{\pgfpoint
             {\pgf@circ@res@left}
@@ -12107,7 +12145,7 @@
             {\ctikzvalof{tripoles/inst amp/port width}\pgf@circ@res@left}
         {\ctikzvalof{tripoles/inst amp/input height}\pgf@circ@res@down}}
     \pgftext[left, at=\pgfpoint{\ctikzvalof{tripoles/inst amp/port width}\pgf@circ@res@left}{\ctikzvalof{tripoles/inst amp/input height}\pgf@circ@res@down}]{\ctikzvalof{tripoles/inst amp/font} \ifpgf@circuit@oa@iplusup$-$\else$+$\fi}
-        
+
         % Output terminal
         \pgfpathmoveto{\pgfpoint{\pgf@circ@res@right}{0pt}}
         \pgfpathlineto{\pgfpoint{\ctikzvalof{tripoles/inst amp/port width}\pgf@circ@res@right}{0pt}} %
@@ -12291,7 +12329,7 @@
         \pgf@circ@res@right = -\pgf@x
         \pgf@circ@res@left = \pgf@x
         \pgf@circ@scaled@Rlen=\scaledRlen
-        
+
         \newdimen\pgf@circ@res@right@double
 				\pgf@circ@res@right@double=2\pgf@circ@res@right
 
@@ -12331,8 +12369,8 @@
         \pgfpathlineto{\pgfpoint
             {\ctikzvalof{tripoles/inst amp ra/port width}\pgf@circ@res@left}
         {-\ctikzvalof{tripoles/inst amp ra/ra pos}\pgf@circ@Rlen}}
-        
-        % Negative input terminal 
+
+        % Negative input terminal
         \pgfpathmoveto{\pgfpoint
             {\pgf@circ@res@left}
         {\ctikzvalof{tripoles/inst amp ra/input height}\pgf@circ@res@up}}
@@ -12352,7 +12390,7 @@
             {\ctikzvalof{tripoles/inst amp ra/port width}\pgf@circ@res@left}
         {\ctikzvalof{tripoles/inst amp ra/input height}\pgf@circ@res@down}}
         \pgftext[left, at=\pgfpoint{\ctikzvalof{tripoles/inst amp ra/port width}\pgf@circ@res@left}{\ctikzvalof{tripoles/inst amp ra/input height}\pgf@circ@res@down}]{\ctikzvalof{tripoles/inst amp ra/font} \ifpgf@circuit@oa@iplusup$-$\else$+$\fi}
-        
+
         % Output terminal
         \pgfpathmoveto{\pgfpoint{\pgf@circ@res@right}{0pt}}
         \pgfpathlineto{\pgfpoint{\ctikzvalof{tripoles/inst amp ra/port width}\pgf@circ@res@right}{0pt}} %
@@ -13460,6 +13498,12 @@
     }
 }
 
+%% Null styles that can be used to change individually the L1 and L2
+%% inductors of the transformer.
+
+\ctikzset{transformer L1/.style={}}
+\ctikzset{transformer L2/.style={}}
+
 \def\pgf@circ@drawtransformerbasicbody{
     \pgfscope
         \pgfslopedattimetrue
@@ -13474,6 +13518,7 @@
             {\pgf@circ@res@down}%
         }
 
+        \pgfkeys{\circuitikzbasekey/.cd, transformer L1}
         \edef\pgf@circ@temp{\ctikzvalof{inductor}}%
         \def\pgf@temp{european}%
         \ifx\pgf@temp\pgf@circ@temp%
@@ -13502,6 +13547,7 @@
             {\pgf@circ@res@up}%
         }
 
+        \pgfkeys{\circuitikzbasekey/.cd, transformer L2}
         \edef\pgf@circ@temp{\ctikzvalof{inductor}}%
         \def\pgf@temp{european}%
         \ifx\pgf@temp\pgf@circ@temp%
@@ -13546,23 +13592,34 @@
 
     \pgf@circ@drawtransformerbasicbody
 
+    % use the chocke line thickness
+    \pgfsetlinewidth{\ctikzvalof{bipoles/cutechoke/cthick}\pgflinewidth}
+
+    % Find the distance from center for the lines representing the core
+    % the 2.5 is for backward compatibility --- the distance was calculated as a fraction
+    % of the whole component, now as a fraction of the distance between coils, to be
+    % compatible with the quadpoles "inner" style.
+    \pgfmathsetlength{\pgf@circ@res@other}{2.5*\stretto*\ctikzvalof{quadpoles/transformer core/core width}*\pgf@circ@res@right}
+
     \pgfmoveto{\pgfpoint%
-        {\ctikzvalof{quadpoles/transformer core/core width}\pgf@circ@res@right}%
+        {\pgf@circ@res@other}%
         {\ctikzvalof{quadpoles/transformer core/core height}\pgf@circ@res@down}%
     }
     \pgflineto{
-        \pgfpoint
-        {\ctikzvalof{quadpoles/transformer core/core width}\pgf@circ@res@right}%
+        \pgfpoint%
+        {\pgf@circ@res@other}%
         {\ctikzvalof{quadpoles/transformer core/core height}\pgf@circ@res@up}%
     }
 
+    %% this should be just -\pgf@circ@res@other, but in case someone define an asymmetric trafo someday...
+    \pgfmathsetlength{\pgf@circ@res@other}{2.5*\stretto*\ctikzvalof{quadpoles/transformer core/core width}*\pgf@circ@res@left}
     \pgfmoveto{\pgfpoint%
-        {\ctikzvalof{quadpoles/transformer core/core width}\pgf@circ@res@left}%
+        {\pgf@circ@res@other}%
         {\ctikzvalof{quadpoles/transformer core/core height}\pgf@circ@res@down}%
     }
     \pgflineto{
-        \pgfpoint
-        {\ctikzvalof{quadpoles/transformer core/core width}\pgf@circ@res@left}%
+        \pgfpoint%
+        {\pgf@circ@res@other}%
         {\ctikzvalof{quadpoles/transformer core/core height}\pgf@circ@res@up}%
     }
 
