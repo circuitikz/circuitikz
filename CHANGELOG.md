@@ -7,6 +7,7 @@ The major changes among the different circuitikz versions are listed here. See <
     - Added the possibility to style the two coils in a transformer independently
     - Added bulk connection to normal MOSFETs and the respective anchors
     - Fixed a problem with "quadpoles style=inner" and "transformer core" having the core lines running too near
+    - Fixed flow, voltage and current arrow positioning when "auto" is active on the path
 
 * Version 0.9.5 (2019-10-12)
 
