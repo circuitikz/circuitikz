@@ -1,4 +1,4 @@
-\def\pgfcircversion{git:2ffaa57}
+\def\pgfcircversion{git:0712f37}
 \def\pgfcircversiondate{2019/10/31}
 \writestatus{loading}{\pgfcircversiondate{} The CircuiTikz circuit drawing package version \pgfcircversion}
 
@@ -2336,6 +2336,96 @@
     }
 }
 
+%% transistor arrow
+
+\def\pgf@circ@find@linescale{
+    % find the scale inverse of the scale factor: line width do not scale
+    % with scale=..., transform shape so we have to counteract it.
+    \iftikz@fullytransformed % this is true if `transform shape` is active
+        % from @Circumscribe https://tex.stackexchange.com/a/474035/38080
+        % Note that this trick is not working inside a `spy` environment...
+        \pgfgettransformentries{\scaleA}{\scaleB}{\scaleC}{\scaleD}{\whatevs}{\whatevs}%
+        \pgfmathsetmacro{\@@factor}{1.0/sqrt(abs(\scaleA*\scaleD-\scaleB*\scaleC))}%
+    \else
+        \pgfmathsetmacro{\@@factor}{1.0}
+    \fi
+}
+
+\pgfdeclareshape{trarrow}{%
+    % this arrow is only filled but grows with the linewidth, more or less
+    % like currarrow do
+    \savedanchor{\northeast}{%
+        \pgf@circ@res@step = \pgf@circ@Rlen
+        \pgf@circ@find@linescale
+        \divide \pgf@circ@res@step by \ctikzvalof{current arrow scale}
+        \pgfpoint{0.7*\pgf@circ@res@step +0.5*\@@factor*\pgflinewidth}
+            {0.8*\pgf@circ@res@step+0.7593*\@@factor*\pgflinewidth}
+    }
+    % The arrow size should be more or less the same of a currarrow, which is
+    % both filled and stroke, for backward output compatibility (more or less)
+    %
+    %      angle \beta       W is \pgf@circ@Rlen/\ctikzvalof{current arrow scale}
+    %    |-\__               currarrow as the tip at (W,0)
+    %    |    |              and the upper tail at (-0.7*W, 0.8*W)
+    %    |    \__            it then "overshoot" do to the linew width L
+    %    |       \__ xangle \alpha
+    %    ---0------->
+    %
+    %   \beta = atan(0.7/0.8)  \alpha=atan(0.8/1.7)
+    %   tip overshoot is (L/2)/sin(\alpha) = 1.743*L only in x direction
+    %   tail overshoot is -(L/2) in x, and (L/2)/sin(\beta) = 0.7539*L in y
+    %
+    \savedanchor{\northwest}{%
+        \pgf@circ@res@step = \pgf@circ@Rlen
+        \divide \pgf@circ@res@step by \ctikzvalof{current arrow scale}
+        \pgf@circ@find@linescale
+        \pgfpoint{-0.7*\pgf@circ@res@step -0.5*\@@factor*\pgflinewidth}
+            {0.8*\pgf@circ@res@step+0.7593*\@@factor*\pgflinewidth}
+    }
+    \savedanchor{\tip}{%
+        \pgf@circ@res@step = \pgf@circ@Rlen
+        \divide \pgf@circ@res@step by \ctikzvalof{current arrow scale}
+        \pgf@circ@find@linescale
+        \pgfpoint{\pgf@circ@res@step + 1.743*\@@factor*\pgflinewidth}{0pt}
+    }
+    \anchor{north}{\northeast\pgf@x=0cm\relax}
+    \anchor{east}{\northeast\pgf@y=0cm\relax}
+    \anchor{south}{\northeast\pgf@y=-\pgf@y \pgf@x=0cm\relax}
+    \anchor{west}{\northeast\pgf@y=0cm\pgf@x=-\pgf@x}
+    \anchor{north east}{\northeast}
+    \anchor{north west}{\northeast\pgf@x=-\pgf@x}
+    \anchor{south east}{\northeast\pgf@y=-\pgf@y}
+    \anchor{south west}{\northeast\pgf@y=-\pgf@y\pgf@x=-\pgf@x}
+    \anchor{center}{
+        \pgfpointorigin
+    }
+    \anchor{tip}{
+        \tip
+    }
+    \anchor{btip}{% this anchor is behind the tip of half a linewidth
+        \tip
+        \pgf@circ@find@linescale
+        \pgf@circ@res@temp=\@@factor\pgflinewidth
+        \advance\pgf@x by -.5\pgf@circ@res@temp
+    }
+    \behindforegroundpath{
+        \pgfscope
+            \northwest
+            \pgf@circ@res@up=\pgf@y
+            \pgf@circ@res@left=\pgf@x
+            \tip
+            \pgf@circ@res@step = \pgf@x
+            %
+            \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{0pt}}
+            \pgfpathlineto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@up}}
+            \pgfpathlineto{\pgfpoint{1\pgf@circ@res@step}{0pt}}
+            \pgfpathlineto{\pgfpoint{\pgf@circ@res@left}{-\pgf@circ@res@up}}
+            \pgfpathclose
+            \pgfsetcolor{\ctikzvalof{color}}
+            \pgfusepath{fill} % just fill
+        \endpgfscope
+    }
+}
 
 %% Current arrow
 
@@ -10174,7 +10264,16 @@
 }
 
 \long\def\declarebpt#1{
-    \pgfcircdeclaretransistor{#1}{}{
+    \pgfcircdeclaretransistor{#1}{
+        \anchor{inner up}{
+            \northeast
+            \pgf@y=\ctikzvalof{tripoles/#1/base height}\pgf@y
+        }
+        \anchor{inner down}{
+            \northeast
+            \pgf@y=-\ctikzvalof{tripoles/#1/base height}\pgf@y
+        }
+        }{
         \pgfpathmoveto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@up+\pgfverticaltransformationadjustment*.5*\pgflinewidth}}
         \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}
         {\ctikzvalof{tripoles/#1/base height}\pgf@circ@res@up}}
@@ -10209,7 +10308,7 @@
             \edef\@@anchor{center}
             \ifpgf@circuit@trans@ntype
                 \ifpgf@circuit@trans@arrowatend
-                    \edef\@@anchor{tip}
+                    \edef\@@anchor{btip}
                     \pgftransformlineattime{1.0}{%
                         \pgfpoint%
                         {\ctikzvalof{tripoles/#1/base width}\pgf@circ@res@left}%
@@ -10228,7 +10327,7 @@
                         {\ctikzvalof{tripoles/#1/base height}\pgf@circ@res@down}%
                     }
                 \fi
-            \else
+            \else % p-type
                 \ifpgf@circuit@trans@arrowatend
                     \edef\@@anchor{tip}
                     \pgftransformlineattime{1.0}{%
@@ -10248,7 +10347,7 @@
                     }
                 \fi
             \fi
-            \pgfnode{currarrow}{\@@anchor}{}{}{\pgfusepath{stroke}}
+            \pgfnode{trarrow}{\@@anchor}{}{}{\pgfusepath{stroke}}
         \endpgfscope
 
         \ifpgf@circuit@bpt@drawphoto
@@ -10289,7 +10388,16 @@
 \declarebpt{pnp}
 
 \long\def\declareigbt#1{
-    \pgfcircdeclaretransistor{#1}{}
+    \pgfcircdeclaretransistor{#1}{
+        \anchor{inner up}{
+            \northeast
+            \pgf@y=\ctikzvalof{tripoles/#1/gate height}\pgf@y
+        }
+        \anchor{inner down}{
+            \northeast
+            \pgf@y=-\ctikzvalof{tripoles/#1/gate height}\pgf@y
+        }
+    }
     {
         %draw upper connection
         \pgfpathmoveto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@up+\pgfverticaltransformationadjustment*.5*\pgflinewidth}}
@@ -10331,7 +10439,11 @@
             \pgfallowupsidedownattimetrue
             \pgfresetnontranslationattimefalse
             \ifpgf@circuit@trans@arrowatend
-                \edef\@@anchor{tip}\edef\@@pos{1.0}
+                \ifpgf@circuit@trans@ntype
+                    \edef\@@anchor{btip}\edef\@@pos{1.0}
+                \else
+                    \edef\@@anchor{tip}\edef\@@pos{1.0}
+                \fi
             \else
                 \edef\@@anchor{center}\edef\@@pos{0.5}
             \fi
@@ -10353,7 +10465,7 @@
                     {\ctikzvalof{tripoles/#1/gate height 2}\pgf@circ@res@up}%
                 }
             \fi
-            \pgfnode{currarrow}{\@@anchor}{}{}{\pgfusepath{stroke}}
+            \pgfnode{trarrow}{\@@anchor}{}{}{\pgfusepath{stroke}}
         \endpgfscope
         %draw gate
         \ifpgf@circuit@trans@ntype
@@ -10378,7 +10490,16 @@
 \declareigbt{Lnigbt}
 \declareigbt{Lpigbt}
 
-\pgfcircdeclaretransistor{nmos}{}{%
+\pgfcircdeclaretransistor{nmos}{
+        \anchor{inner up}{
+            \northeast
+            \pgf@y=\ctikzvalof{tripoles/nmos/gate height}\pgf@y
+        }
+        \anchor{inner down}{
+            \northeast
+            \pgf@y=-\ctikzvalof{tripoles/nmos/gate height}\pgf@y
+        }
+    }{%
     \pgfpathmoveto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@up+\pgfverticaltransformationadjustment*.5*\pgflinewidth}}
     \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}
     {\ctikzvalof{tripoles/nmos/gate height}\pgf@circ@res@up}}
@@ -10417,7 +10538,7 @@
                     {\pgf@circ@res@right}%
                     {\ctikzvalof{tripoles/pmos/gate height}\pgf@circ@res@down}%
                 }
-                \pgfnode{currarrow}{tip}{}{}{\pgfusepath{stroke}}
+                \pgfnode{trarrow}{btip}{}{}{\pgfusepath{stroke}}
             \else
                 \pgfslopedattimetrue
                 \pgfallowupsidedownattimetrue
@@ -10453,7 +10574,16 @@
     \fi
 }
 
-\pgfcircdeclaretransistor{pmos}{}{%
+\pgfcircdeclaretransistor{pmos}{
+        \anchor{inner up}{
+            \northeast
+            \pgf@y=\ctikzvalof{tripoles/pmos/gate height}\pgf@y
+        }
+        \anchor{inner down}{
+            \northeast
+            \pgf@y=-\ctikzvalof{tripoles/pmos/gate height}\pgf@y
+        }
+    }{%
     \pgfpathmoveto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@up+\pgfverticaltransformationadjustment*.5*\pgflinewidth}}
     \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}
     {\ctikzvalof{tripoles/pmos/gate height}\pgf@circ@res@up}}
@@ -10470,7 +10600,7 @@
                     {\ctikzvalof{tripoles/pmos/gate height}\pgf@circ@res@up}%
                 }
                 \pgftransformrotate{180}
-                \pgfnode{currarrow}{tip}{}{}{\pgfusepath{stroke}}
+                \pgfnode{trarrow}{tip}{}{}{\pgfusepath{stroke}}
             \else
                 \pgfslopedattimetrue
                 \pgfallowupsidedownattimetrue
@@ -10545,7 +10675,16 @@
 }
 
 %% HEMT FET Transistor
-\pgfcircdeclaretransistor{hemt}{}{%
+\pgfcircdeclaretransistor{hemt}{
+        \anchor{inner up}{
+            \northeast
+            \pgf@y=\ctikzvalof{tripoles/hemt/gate height}\pgf@y
+        }
+        \anchor{inner down}{
+            \northeast
+            \pgf@y=-\ctikzvalof{tripoles/hemt/gate height}\pgf@y
+        }
+    }{%
     \pgfpathmoveto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@up+\pgfverticaltransformationadjustment*.5*\pgflinewidth}}
     \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}
     {\ctikzvalof{tripoles/hemt/gate height}\pgf@circ@res@up}}
@@ -10652,10 +10791,11 @@
         \pgfallowupsidedownattimetrue
         \pgfresetnontranslationattimefalse
         \ifpgf@circuit@trans@arrowatend
-            \edef\@@anchor{tip}
                 \ifpgf@circuit@trans@ntype
+                    \edef\@@anchor{tip}
                     \edef\@@pos{1.0}
                 \else
+                    \edef\@@anchor{btip}
                     \edef\@@pos{0.0}
                 \fi
         \else
@@ -10674,7 +10814,7 @@
         \else
             \pgftransformrotate{180}
         \fi
-        \pgfnode{currarrow}{\@@anchor}{}{}{\pgfusepath{stroke}}
+        \pgfnode{trarrow}{\@@anchor}{}{}{\pgfusepath{stroke}}
     \endpgfscope
 
 % GATE CONNECTION
@@ -10699,6 +10839,14 @@
 {\pgfcircdeclaretransistor{#1}{
         \anchor{bulk}{\left\pgf@x=0pt}
         \anchor{B}{\left\pgf@x=0pt}%override Base anchor from npn&igbt
+        \anchor{inner up}{
+            \northeast
+            \pgf@y=\ctikzvalof{tripoles/#1/gate height}\pgf@y
+        }
+        \anchor{inner down}{
+            \northeast
+            \pgf@y=-\ctikzvalof{tripoles/#1/gate height}\pgf@y
+        }
         #2
     }
     {#3}
@@ -10817,7 +10965,16 @@
     \fi
 }
 
-\pgfcircdeclaretransistor{njfet}{}{%
+\pgfcircdeclaretransistor{njfet}{
+        \anchor{inner up}{
+            \northeast
+            \pgf@y=\ctikzvalof{tripoles/njfet/gate height 2}\pgf@y
+        }
+        \anchor{inner down}{
+            \northeast
+            \pgf@y=-\ctikzvalof{tripoles/njfet/gate height 2}\pgf@y
+        }
+    }{%
     \pgfpathmoveto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@up+\pgfverticaltransformationadjustment*.5*\pgflinewidth}}
     \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}
     {\ctikzvalof{tripoles/njfet/gate height 2}\pgf@circ@res@up}}
@@ -10862,7 +11019,7 @@
             {\ctikzvalof{tripoles/njfet/gate width}\pgf@circ@res@left}%
             {\ctikzvalof{tripoles/njfet/gate height 2}\pgf@circ@res@down}%
         }
-        \pgfnode{currarrow}{\@@anchor}{}{}{\pgfusepath{stroke}}
+        \pgfnode{trarrow}{\@@anchor}{}{}{\pgfusepath{stroke}}
     \endpgfscope
 
     \pgfpathmoveto{\pgfpoint
@@ -10873,7 +11030,16 @@
     \pgfusepath{draw}
 }
 
-\pgfcircdeclaretransistor{pjfet}{}{%
+\pgfcircdeclaretransistor{pjfet}{
+        \anchor{inner up}{
+            \northeast
+            \pgf@y=\ctikzvalof{tripoles/pjfet/gate height 2}\pgf@y
+        }
+        \anchor{inner down}{
+            \northeast
+            \pgf@y=-\ctikzvalof{tripoles/pjfet/gate height 2}\pgf@y
+        }
+    }{%
     \pgfpathmoveto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@up+\pgfverticaltransformationadjustment*.5*\pgflinewidth}}
     \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}
     {\ctikzvalof{tripoles/pjfet/gate height 2}\pgf@circ@res@up}}
@@ -10905,7 +11071,7 @@
         \pgfallowupsidedownattimetrue
         \pgfresetnontranslationattimefalse
         \ifpgf@circuit@trans@arrowatend
-            \edef\@@anchor{tip}\edef\@@pos{1.0}
+            \edef\@@anchor{btip}\edef\@@pos{1.0}
         \else
             \edef\@@anchor{center}\edef\@@pos{0.4}
         \fi
@@ -10917,7 +11083,7 @@
             \pgfpoint{\pgf@circ@res@left}%
             {\ctikzvalof{tripoles/pjfet/gate height 2}\pgf@circ@res@up}%
         }
-        \pgfnode{currarrow}{\@@anchor}{}{}{\pgfusepath{stroke}}
+        \pgfnode{trarrow}{\@@anchor}{}{}{\pgfusepath{stroke}}
     \endpgfscope
 
     \pgfpathmoveto{\pgfpoint
@@ -10996,7 +11162,7 @@
             {\ctikzvalof{tripoles/isfet/base width}\pgf@circ@res@left}%
             {\pgf@circ@res@up+\pgf@circ@res@down}%
         }
-        \pgfnode{currarrow}{\@@anchor}{}{}{\pgfusepath{stroke}}
+        \pgfnode{trarrow}{\@@anchor}{}{}{\pgfusepath{stroke}}
     \endpgfscope
     \pgfusepath{draw}
 
