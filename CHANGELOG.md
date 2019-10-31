@@ -8,6 +8,7 @@ The major changes among the different circuitikz versions are listed here. See <
     - Added bulk connection to normal MOSFETs and the respective anchors
     - Fixed a problem with "quadpoles style=inner" and "transformer core" having the core lines running too near
     - Fixed flow, voltage and current arrow positioning when "auto" is active on the path
+    - Fixed transistors arrows overshooting the connection point, added a couple of anchors
 
 * Version 0.9.5 (2019-10-12)
 
