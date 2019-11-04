@@ -358,7 +358,7 @@ somewhere in your document preamble. It will load automatically the needed packa
 
 Let's say we want to prepare a circuit to teach how a current shunt works; the idea is to draw a current generator, a couple of resistors in parallel, and the indication of currents and voltages for the discussion.
 
-A circuit in \Circuitikz is drawn into a \texttt{circuitikz} environment (which is really an alias for \texttt{tikzpicture}). In this first example we will use absolute coordinates.
+A circuit in \Circuitikz{} is drawn into a \texttt{circuitikz} environment (which is really an alias for \texttt{tikzpicture}). In this first example we will use absolute coordinates.
 The electrical components can be divided in two main categories: the one that are bipoles and are placed along a path (also known as \texttt{to}-style component, for their usage), and components that are nodes and can have any number of poles or connections.
 
 Let's start with the first type of component, and build a basic mesh:
@@ -1942,12 +1942,13 @@ The size of the crossing elements can be changed with the key \texttt{bipoles/cr
 
 \subsection{Arrows}\label{sec:arrows}
 
-These are pseudo-arrows used in lot of places in the packages (for transistors, flows, currents, and so on).
+These are pseudo-arrows used in lot of places in the packages (for transistors, flows, currents, and so on). The first three arrows are magnified by a factor~3 in the boxes below; for the \texttt{trarrow}, the anchor \texttt{tip} is exactly on the tip and \texttt{btip} is slightly receded.
 
 \begin{groupdesc}
-    \circuitdesc{currarrow}{Arrows (current and voltage)}{}(center/0/0.2)
-    \circuitdesc{inputarrow}{Arrow to draw at its tip, useful for block diagrams.}{}(center/0/0.2)
-    \circuitdesc{flowarrow}{Arrow used for the flows}{$I_p$}(center/-90/0.2, east/0/0.2, west/180/0.2, text/45/0.2)
+    \circuitdesc[3]{currarrow}{Arrow for current and voltage}{}(center/0/0.2)
+    \circuitdesc[3]{inputarrow}{Arrow that is anchored at its tip, useful for block diagrams.}{}(center/0/0.2)
+    \circuitdesc[3]{trarrow}{Arrow the same size of \texttt{currarrow} but only filled.}{}(center/90/0.2, tip/0/0.2, btip/-90/0.2)
+    \circuitdesc{flowarrow}{Arrow used for the flows, with a \texttt{text} anchor}{$I_p$}(center/-90/0.2, east/0/0.2, west/180/0.2, text/45/0.2)
 \end{groupdesc}
 
 \subsubsection{Arrows size}\label{sec:currarrow-size}
@@ -2194,10 +2195,9 @@ To show that a device is optional, you can dash it. The inner symbol will be kep
 
 \subsection{Transistors}
 
+\subsubsection{Standard bipolar transistors}
+
 \begin{groupdesc}
-    \circuitdesc{nmos}{nmos}{}( G/180/0.2,D/0/0.2,S/0/0.2 )
-    \circuitdesc{pmos}{pmos}{}
-    \circuitdesc{hemt}{hemt}{}
     \circuitdesc{npn}{npn}{}( B/180/0.2,C/0/0.2,E/0/0.2 )
     \circuitdesc{pnp}{pnp}{}
     \circuitdesc{npn,photo}{npn}{}( nobase/0/0.4 )
@@ -2208,7 +2208,69 @@ To show that a device is optional, you can dash it. The inner symbol will be kep
     \circuitdesc{Lpigbt}{Lpigbt}{}
 \end{groupdesc}
 
-For all transistors a body diode (or freewheeling diode) can automatically be drawn. Just use the global option bodydiode, or for single transistors, the tikz-option bodydiode:
+\subsubsection{Multi-terminal bipolar transistors}
+
+In addition to the standard BJTs transistors, since version~\texttt{0.9.6} the \texttt{bjtnpn} and \texttt{bjtpnp} are also available; these are devices where you can have more collectors and emitters (on the other hand, they have no \texttt{photo} nor \texttt{bodydiode} options --- they are silently ignored).
+
+Basically they are the same as the normal \texttt{npn} and \texttt{pnp}, and they (by default) have similar sizes; the options \texttt{collectors} and \texttt{emitters} will change the number of the relative terminals. The base terminal is connected midway from the collector and the emitter, \emph{not} on the center of the base; a \texttt{cbase} anchor is available if you prefer to use it. The label of the component (the text) is set on the right side, vertically centered around the base terminal.
+
+\begin{groupdesc}
+    \circuitdesc{bjtnpn, collectors=1, emitters=2}{bjt npn}{Q}(B/180/0.2, C/45/0.2, E/-45/0.2, C1/0/0.4, E1/0/0.4, E2/0/0.4, nobase/135/0.4, cbase/-135/0.4, center/0/0.6)
+    \circuitdesc{bjtpnp, collectors=3, emitters=2}{bjt pnp}{Q}(B/180/0.2, C/-45/0.2, E/45/0.2, C1/0/0.4, C2/0/0.4, C3/0/0.4, E1/0/0.4, E2/0/0.4, nobase/135/0.4, cbase/-135/0.4)
+\end{groupdesc}
+
+\subsubsection{Field-effect transistors}
+
+\begin{groupdesc}
+    \circuitdesc{nmos}{nmos}{}( G/180/0.2,D/0/0.2,S/0/0.2 )
+    \circuitdesc{pmos}{pmos}{}
+    \circuitdesc{hemt}{hemt}{}
+\end{groupdesc}
+
+\textsc{nfet}s and \textsc{pfet}s have been incorporated based on code provided by Clemens Helfmeier and Theodor Borsche. Use the package options \texttt{fetsolderdot}/\texttt{nofetsolderdot} to enable/disable solderdot at some fet-transistors. Additionally, the solderdot option can be enabled/disabled for single transistors with the option "solderdot" and "nosolderdot", respectm ively.
+
+\begin{groupdesc}
+    \circuitdesc{nfet}{nfet}{}
+    \circuitdesc{nigfete}{nigfete}{}
+    \circuitdesc{nigfete,solderdot}{nigfete}{}
+    \circuitdesc{nigfetebulk}{nigfetebulk}{}
+    \circuitdesc{nigfetd}{nigfetd}{}
+    \circuitdesc{pfet}{pfet}{}
+    \circuitdesc{pigfete}{pigfete}{}
+    \circuitdesc{pigfetebulk}{pigfetebulk}{}
+    \circuitdesc{pigfetd}{pigfetd}{}
+\end{groupdesc}
+
+\textsc{njfet} and \textsc{pjfet} have been incorporated based on code provided by Danilo Piazzalunga:
+\begin{groupdesc}
+    \circuitdesc{njfet}{njfet}{}
+    \circuitdesc{pjfet}{pjfet}{}
+\end{groupdesc}
+
+\textsc{isfet}
+\begin{groupdesc}
+    \circuitdesc{isfet}{isfet}{}
+\end{groupdesc}
+
+\subsubsection{Transistors customization}\label{sec:styling-transistors}
+
+The default position of the arrows in transistors is somewhat in the middle of the terminal; if you prefer you can move them to the end with the style key \texttt{transistors/arrow pos=end} (the default value is \texttt{legacy}).
+
+\begin{LTXexample}[varwidth=true]
+\begin{circuitikz}
+   \ctikzset{tripoles/mos style=arrows}
+   \ctikzset{transistors/arrow pos=end}
+   \draw (0,0) node[npn, ](npn){};
+   \draw (2,0) node[pnp, ](npn){};
+   \draw (0,-2) node[nmos, ](npn){};
+   \draw (2,-2) node[pmos, ](npn){};
+\end{circuitikz}
+\end{LTXexample}
+
+You can change the scale of all the transistors by setting the key \texttt{transistors/scale} (default \texttt{1.0}).
+The size of the arrows (if any) is controlled by the same parameters as \texttt{currarrow} (see section~\ref{sec:currarrow-size}) and the dots on P-type transistors (if any) are the same as the nodes/poles (see section~\ref{sec:bipole-nodes}).
+
+For all transistors (minus \texttt{bjtnpn} and \texttt{bjtpnp})  a body diode (or freewheeling diode) can automatically be drawn. Just use the global option bodydiode, or for single transistors, the tikz-option bodydiode:
 
 \begin{LTXexample}[varwidth=true]
 \begin{circuitikz}
@@ -2271,30 +2333,14 @@ You can add a bulk terminal\footnote{Thanks to Burak Kelleci <kellecib@hotmail.c
           node[pmos]{} (2,-8) node[nmos]{};
 \end{circuitikz}\end{LTXexample}
 
-\textsc{nfet}s and \textsc{pfet}s have been incorporated based on code provided by Clemens Helfmeier and Theodor Borsche. Use the package options \texttt{fetsolderdot}/\texttt{nofetsolderdot} to enable/disable solderdot at some fet-transistors. Additionally, the solderdot option can be enabled/disabled for single transistors with the option "solderdot" and "nosolderdot", respectm ively.
+\subsubsection{Multiple terminal transistors customization}
+
+You can create completely ``bare'' transistors (without the connection leads to the \texttt{B}, \texttt{C} y \texttt{E} terminals), by changing the parameter \texttt{tripoles/bjt/external pins width} (default \texttt{0.3}; it is expressed as a fraction of the basic (scaled) length) or using the style \texttt{external pins width}; and you can change the distance between multiple collectors/emitters setting with \verb|\ctikzset{}|  the parameter \texttt{tripoles/bjt/multi height/}  (default \texttt{0.5}) or the style \texttt{bjt multi height}.
 
 \begin{groupdesc}
-    \circuitdesc{nfet}{nfet}{}
-    \circuitdesc{nigfete}{nigfete}{}
-    \circuitdesc{nigfete,solderdot}{nigfete}{}
-    \circuitdesc{nigfetebulk}{nigfetebulk}{}
-    \circuitdesc{nigfetd}{nigfetd}{}
-    \circuitdesc{pfet}{pfet}{}
-    \circuitdesc{pigfete}{pigfete}{}
-    \circuitdesc{pigfetebulk}{pigfetebulk}{}
-    \circuitdesc{pigfetd}{pigfetd}{}
+    \circuitdesc{bjtnpn, collectors=2, emitters=2, external pins width=0, bjt multi height=0.8}{bjt npn with parameters}{Q}(B/180/0.2, C/45/0.2, E/-45/0.2, C1/0/0.4, C2/0/0.4, E1/0/0.4, E2/0/0.4, nobase/-135/0.4, cbase/135/0.4)
 \end{groupdesc}
 
-\textsc{njfet} and \textsc{pjfet} have been incorporated based on code provided by Danilo Piazzalunga:
-\begin{groupdesc}
-    \circuitdesc{njfet}{njfet}{}
-    \circuitdesc{pjfet}{pjfet}{}
-\end{groupdesc}
-
-\textsc{isfet}
-\begin{groupdesc}
-    \circuitdesc{isfet}{isfet}{}
-\end{groupdesc}
 
 \subsubsection{Transistors anchors}
 
@@ -2350,7 +2396,7 @@ For \textsc{npn}, \textsc{pnp}, \textsc{nigbt} and \textsc{pigbt} transistors, t
 ;\end{circuitikz}
 \end{LTXexample}
 
-Finally, all transistors (since \texttt{0.9.6}) have internal nodes on the terminal corners, called \texttt{inner up}  and \texttt{inner down}; you do not normally need them, but they are here for special applications:
+Finally, all transistors, except the multi-terminal \texttt{bjtnpn} and \texttt{bjtpnp}, (since \texttt{0.9.6}) have internal nodes on the terminal corners, called \texttt{inner up}  and \texttt{inner down}; you do not normally need them, but they are here for special applications:
 
 \begin{LTXexample}[varwidth=true]
 \begin{circuitikz}
@@ -2365,6 +2411,39 @@ Finally, all transistors (since \texttt{0.9.6}) have internal nodes on the termi
         }
 \end{circuitikz}
 \end{LTXexample}
+
+
+The multi-terminal transistors have all the geographical anchors; note though that the \texttt{center} anchor is not the geometrical center of the component, but the logical one (at the same height than the base).
+The additional anchors \texttt{vcenter} (vertical geometric center of the collector--emitter zone) and \texttt{gcenter} (graphical center) are provided, as shown in the following picture.
+
+\begin{quote}
+\geocoord{bjtnpn, collectors=1, emitters=2}
+\showanchors{bjtpnp, collectors=4, emitters=1, external pins width=0.6}{}(north/90/0.4,  east/0/0.4, south/-90/0.4, west/180/0.4, center/120/0.3, vcenter/0/0.4, gcenter/-120/0.4, cbase/-60/0.6)
+\end{quote}
+
+A complete example of multiple terminal transistor application is the following PNP double current mirror circuit.
+
+\begin{LTXexample}[varwidth=true, basicstyle=\small\ttfamily]
+\begin{circuitikz}
+    \ctikzset{transistors/arrow pos=end}
+    \draw (0,0) node[bjtpnp, xscale=-1](Q1){%
+        \scalebox{-1}[1]{Q1}};
+    \draw (Q1.B) node[bjtpnp, anchor=B, collectors=2]
+        (Q2){Q2} (Q1.B) node[circ]{};
+    \draw (Q1.E) node[circ]{} node[vcc]{} (Q2.E)
+        node[vcc]{} (Q1.E) -| (Q1.B);
+    \draw (Q1.C) to[R, l_=$R_0$, f=$I_0$] ++(0,-3.5)
+        node[ground](GND){};
+    \draw (Q2.C) -- ++(0,-0.5) coordinate(a);
+    \draw (Q2.C1) -- ++(1,0) coordinate(b) -- (b|-a);
+    \draw (a) ++(0,-0.1) node[flowarrow, rotate=-90,
+        anchor=west]{\rotatebox{90}{$I_0$}};
+    \draw (b|-a) ++(0,-0.1) node[flowarrow, rotate=-90,
+        anchor=west]{\rotatebox{90}{$I_0$}};
+    \path (b) ++(0.5,0); % bounding box adjust
+\end{circuitikz}
+\end{LTXexample}
+
 
 Here is one composite example (please notice that the \texttt{xscale=-1} style would also reflect the label of the transistors, so here a new node is added and its text is used, instead of that of \texttt{pnp1}):
 
@@ -2422,23 +2501,6 @@ Transistor paths have the possibility to use the poles syntax (see section~\ref{
 
 The \texttt{name} property is available also for bipoles; this is useful mostly for triac, potentiometer and thyristor (see~\ref{sec:othertrip}).
 
-\subsubsection{Transistors customization}\label{sec:styling-transistors}
-
-The default position of the arrows in transistors is somewhat in the middle of the terminal; if you prefer you can move them to the end with the style key \texttt{transistors/arrow pos=end} (the default value is \texttt{legacy}).
-
-\begin{LTXexample}[varwidth=true]
-\begin{circuitikz}
-   \ctikzset{tripoles/mos style=arrows}
-   \ctikzset{transistors/arrow pos=end}
-   \draw (0,0) node[npn, ](npn){};
-   \draw (2,0) node[pnp, ](npn){};
-   \draw (0,-2) node[nmos, ](npn){};
-   \draw (2,-2) node[pmos, ](npn){};
-\end{circuitikz}
-\end{LTXexample}
-
-You can change the scale of all the transistors by setting the key \texttt{transistors/scale} (default \texttt{1.0}).
-The size of the arrows (if any) is controlled by the same parameters as \texttt{currarrow} (see section~\ref{sec:currarrow-size}) and the dots on P-type transistors (if any) are the same as the nodes/poles (see section~\ref{sec:bipole-nodes}).
 
 \subsection{Electronic Tubes}
 
@@ -3461,8 +3523,8 @@ If otherwise \texttt{europeanports} option is active (or the style \texttt{[euro
 There is no ``european''  version of these symbols.
 
 \begin{groupdesc}
-    \circuitdesc*{schmitt}{Non-Inverting \textsc{Schmitttrigger}}{}
-    \circuitdesc*{invschmitt}{Inverting \textsc{Schmitttrigger}}{}
+    \circuitdesc*{schmitt}{Non-Inverting Schmitt trigger}{}
+    \circuitdesc*{invschmitt}{Inverting Schmitt trigger}{}
 \end{groupdesc}
 
 \subsubsection{Logic port customization}
