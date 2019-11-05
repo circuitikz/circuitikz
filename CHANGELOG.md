@@ -4,7 +4,8 @@ The major changes among the different circuitikz versions are listed here. See <
 * Version 0.9.6 (unreleased)
 
     - Bumped version number
-    - Added the possibility to style the two coils in a transformer independently
+    - Added multi-collectors and multi-emitter bipolar transisitors
+    - Added the possibility to style each one of the two coils in a transformer independently
     - Added bulk connection to normal MOSFETs and the respective anchors
     - Added "text" anchor to the flow arrows, to use them alone in a consistent way
     - Fixed a problem with "quadpoles style=inner" and "transformer core" having the core lines running too near
