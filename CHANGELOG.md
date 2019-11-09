@@ -1,16 +1,20 @@
 <!--- CircuiTikz - Changelog --->
 The major changes among the different circuitikz versions are listed here. See <https://github.com/circuitikz/circuitikz/commits> for a full list of changes.
 
-* Version 0.9.6 (unreleased)
+* Version 0.9.6 (2019-11-09)
 
-    - Bumped version number
-    - Added multi-collectors and multi-emitter bipolar transisitors
+    The highlights of this release are the new multiple terminals BJTs and several stylistic addition and fixes; if you like to pixel-peep, you will like the fixed transistors arrows. Additionally, the transforms are much more configurable now, the "pmos" and "nmos" elements have grown an optional bulk connection, and you can use the "flow" arrows outside of a path.
+
+    Several small and less small bugs have been fixed.
+
+    - Added multi-collectors and multi-emitter bipolar transistors
     - Added the possibility to style each one of the two coils in a transformer independently
     - Added bulk connection to normal MOSFETs and the respective anchors
     - Added "text" anchor to the flow arrows, to use them alone in a consistent way
-    - Fixed a problem with "quadpoles style=inner" and "transformer core" having the core lines running too near
-    - Fixed flow, voltage and current arrow positioning when "auto" is active on the path
+    - Fixed flow, voltage, and current arrow positioning when "auto" is active on the path
     - Fixed transistors arrows overshooting the connection point, added a couple of anchors
+    - Fixed a spelling error on op-amp key "noinv input down"
+    - Fixed a problem with "quadpoles style=inner" and "transformer core" having the core lines running too near
 
 * Version 0.9.5 (2019-10-12)
 
