@@ -1,11 +1,14 @@
+### notice
+This package is in a kind of **feature-freeze state** until v1.0 is released, possibly around 2020 New Year.
+
 circuitikz
 ==========
 
-This package provides a set of macros for naturally typesetting electrical and (somewhat less naturally, perhaps) electronical networks.
+This package provides a set of macros for naturally typesetting electrical and electronic networks.
 
-It was born mainly for writing my own exercise book and exams sheets for the Elettrotecnica courses at Politecnico di Milano, Italy. I wanted a tool that was easy to use, with a lean syntax, native to LaTeX, and supporting directly PDF output format.
+It was born mainly for writing Massimo Redaelli's exercise book and exams sheets for the Elettrotecnica courses at Politecnico di Milano, Italy. He wanted a tool that was easy to use, with a lean syntax, native to LaTeX, and supporting directly PDF output format.
 
-So I based everything with the very impressive (if somewhat verbose at times) TikZ package.
+So it was based on the very impressive TikZ package.
 
 --------------
 
@@ -14,7 +17,7 @@ So I based everything with the very impressive (if somewhat verbose at times) Ti
 * xstrings not older than 2009/03/13
 
 ## Installation
-The stable version is available on ctan and is included within the major latex distributions(Texlive, Miktex). If you want to test the latest version, have a look at http://circuitikz.github.io/circuitikz/. There you can find the latest git-version as a single file, just copy it to your project or to your local tex tree. 
+The stable version is available on [CTAN](https://ctan.org/pkg/circuitikz?lang=en) and is included within the major latex distributions(Texlive, Miktex). If you want to test the latest version, have a look at http://circuitikz.github.io/circuitikz/. There you can find the latest git-version as a single file, just copy it to your project or to your local tex tree.
 
 ## Usage
 ### Stable version
@@ -22,7 +25,7 @@ Just place
 ```latex
   \usepackage[siunitx, RPvoltages]{circuitikz}
 ```
-or other opions, for ConTeXt, 
+or other opions; for ConTeXt,
 ```latex
   \usemodule[circuitikz]
 ```
@@ -47,21 +50,23 @@ If you want to use older versions of `circuitikz` in LaTeX, just append the vers
 ```
 The available versions are  specified in the manual.
 
-In ConTeXt, you can use older version with 
+In ConTeXt, you can use older version with
 ```latex
   \usemodule[circuitikz-0.8.3]
 ```
 
 Be aware that options can (and do) change between versions, so you have to check them manually.
 
-## More Information
-More Information can be found in the manual and (maybe) at the wiki of the project located at https://github.com/circuitikz/circuitikz/wiki.
+## More Information and documentation
+More Information can be found in the manual; you can find a compiled version for the "bleeding edge" version
+[in the github page](http://circuitikz.github.io/circuitikz/circuitikzmanualgit.pdf) and for the various releases in the [GitHub releases](https://github.com/circuitikz/circuitikz/releases), where you can find the manual in the assets of each release (since 0.8.3, anyways).
 
 ## Contact the authors
 
-For bug reports and enhacement suggestions, the preferred way is to use the issue page on the project  https://github.com/circuitikz/circuitikz/issues . Please be ready to provide an example code showing the bug, if any.
+For bug reports and enhacement suggestions, the preferred way is to use [the issue page on the project](https://github.com/circuitikz/circuitikz/issues). Please be ready to provide an example code showing the bug, if any.
 
-Please do not use the issue page for generic help on how to use the package. The manual has a (growing) set of examples; 
+Please do not use the issue page for generic help on how to use the package.
+The manual has a (growing) set of examples;
 also the questions tagged `circuitikz` on  https://tex.stackexchange.com/ are often answered promptly.
 
 * git: https://github.com/circuitikz/circuitikz
@@ -71,9 +76,10 @@ also the questions tagged `circuitikz` on  https://tex.stackexchange.com/ are of
 * Romano Giannetti (romano.giannetti@gmail.com)
 
 -------------
-Copyright 2007-18 by Massimo Redaelli
+Copyright 2007-19 by Massimo Redaelli
 
 This file may be distributed and/or modified
 
 1. under the LaTeX Project Public License and/or
 2. under the GNU Public License.
+
