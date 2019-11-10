@@ -1,6 +1,10 @@
 <!--- CircuiTikz - Changelog --->
 The major changes among the different circuitikz versions are listed here. See <https://github.com/circuitikz/circuitikz/commits> for a full list of changes.
 
+* Version 0.9.7 (unreleased)
+
+    - bumped the version number
+
 * Version 0.9.6 (2019-11-09)
 
     The highlights of this release are the new multiple terminals BJTs and several stylistic addition and fixes; if you like to pixel-peep, you will like the fixed transistors arrows. Additionally, the transforms are much more configurable now, the "pmos" and "nmos" elements have grown an optional bulk connection, and you can use the "flow" arrows outside of a path.
