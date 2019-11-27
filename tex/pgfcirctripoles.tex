@@ -1349,10 +1349,26 @@
         }
         \anchor{text}{
             \northeast
-            \pgf@y=.7\pgf@y
             \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
-            \pgf@x= \pgf@circ@scaled@Rlen
-            \pgf@x=0.1\pgf@x
+            \ifpgf@circuit@transisors@fixlabels
+                \ifpgf@circuit@fet@bodydiode
+                    % try to put the text to the right of the flyback diode
+                    \pgfmathsetlength{\pgf@circ@res@other}{(
+                        \ctikzvalof{tripoles/#1/bodydiode distance}*
+                        \ctikzvalof{tripoles/#1/width} +
+                        \ctikzvalof{tripoles/#1/bodydiode scale}*
+                        \ctikzvalof{bipoles/diode/height}/2
+                        )*\pgf@circ@scaled@Rlen}
+                    \advance\pgf@x by \pgf@circ@res@other
+                \fi
+                % add a bit of space to avoid central (substrate) terminal if drawn
+                \advance\pgf@x by 0.05\pgf@circ@scaled@Rlen\relax
+                \pgf@y=\dimexpr.5\dp\pgfnodeparttextbox-.5\ht\pgfnodeparttextbox\relax
+            \else
+                \pgf@y=.7\pgf@y
+                \pgf@x= \pgf@circ@scaled@Rlen
+                \pgf@x=0.1\pgf@x
+            \fi
         }
         \anchor{pathstart}{ % south
             \northeast
