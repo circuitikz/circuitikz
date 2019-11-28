@@ -1,5 +1,5 @@
-\def\pgfcircversion{git:045e23d}
-\def\pgfcircversiondate{2019/11/27}
+\def\pgfcircversion{git:f2f3128}
+\def\pgfcircversiondate{2019/11/28}
 \writestatus{loading}{\pgfcircversiondate{} The CircuiTikz circuit drawing package version \pgfcircversion}
 
 \usemodule[tikz]
@@ -725,6 +725,14 @@
 \ctikzset{tripoles/mos style/arrows/.code={\pgf@circuit@mos@arrowstrue}}
 \pgfkeys{/tikz/arrowmos/.add code={}{\pgf@circuit@mos@arrowstrue}}
 \pgfkeys{/tikz/noarrowmos/.add code={}{\pgf@circuit@mos@arrowsfalse}}
+
+% Fixed label positions
+\newif\ifpgf@circuit@transisors@fixlabels
+\pgf@circuit@transisors@fixlabelstrue
+\pgfkeys{/tikz/center transistors text/.add code={}{\pgf@circuit@transisors@fixlabelstrue}}
+\ctikzset{fix transistors text/.add code={}{\pgf@circuit@transisors@fixlabelstrue}}
+\pgfkeys{/tikz/legacy transistors text/.add code={}{\pgf@circuit@transisors@fixlabelsfalse}}
+\ctikzset{legacy transistors text/.add code={}{\pgf@circuit@transisors@fixlabelsfalse}}
 
 % Option solderdot for fet
 \newif\ifpgf@circuit@fet@solderdot
@@ -1911,6 +1919,13 @@
 %%    Math routines
 
 \def\pgf@circ@stripdecimals#1.#2\pgf@nil{#1}
+
+%%%%%%%
+%% flipping text
+
+\def\ctikzflipx#1{\scalebox{-1}[1]{#1}}
+\def\ctikzflipy#1{\scalebox{1}[-1]{#1}}
+\def\ctikzflipxy#1{\scalebox{-1}[-1]{#1}}
 
 %%%---------- close: tex/pgfcircutils
 
@@ -10091,10 +10106,26 @@
         }
         \anchor{text}{
             \northeast
-            \pgf@y=.7\pgf@y
             \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
-            \pgf@x= \pgf@circ@scaled@Rlen
-            \pgf@x=0.1\pgf@x
+            \ifpgf@circuit@transisors@fixlabels
+                \ifpgf@circuit@fet@bodydiode
+                    % try to put the text to the right of the flyback diode
+                    \pgfmathsetlength{\pgf@circ@res@other}{(
+                        \ctikzvalof{tripoles/#1/bodydiode distance}*
+                        \ctikzvalof{tripoles/#1/width} +
+                        \ctikzvalof{tripoles/#1/bodydiode scale}*
+                        \ctikzvalof{bipoles/diode/height}/2
+                        )*\pgf@circ@scaled@Rlen}
+                    \advance\pgf@x by \pgf@circ@res@other
+                \fi
+                % add a bit of space to avoid central (substrate) terminal if drawn
+                \advance\pgf@x by 0.05\pgf@circ@scaled@Rlen\relax
+                \pgf@y=\dimexpr.5\dp\pgfnodeparttextbox-.5\ht\pgfnodeparttextbox\relax
+            \else
+                \pgf@y=.7\pgf@y
+                \pgf@x= \pgf@circ@scaled@Rlen
+                \pgf@x=0.1\pgf@x
+            \fi
         }
         \anchor{pathstart}{ % south
             \northeast
@@ -18011,7 +18042,8 @@
     }
     ($(\tikztostart) ! .5 ! (\tikztotarget)$)
     node[#1, /tikz/rotate=\pgf@circ@direction, xscale=\ctikzvalof{mirror value}]
-    (\ctikzvalof{bipole/name}) {} node {\ctikzvalof{bipole/label/name}}
+    (\ctikzvalof{bipole/name}) {}
+    node {\ctikzvalof{bipole/label/name}}
     \ifcsname pgf@anchor@#1@pathstart\endcsname%if special path-anchors are defined, use them!
         (\ctikzvalof{bipole/name}start.center) --(\ctikzvalof{bipole/name}.pathstart)
         (\ctikzvalof{bipole/name}.pathend)  -- (\ctikzvalof{bipole/name}end.center)
