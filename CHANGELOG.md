@@ -3,7 +3,10 @@ The major changes among the different circuitikz versions are listed here. See <
 
 * Version 0.9.7 (unreleased)
 
+    The important thing in this release is the new position of transistor's labels; see the manual for details. 
+
     - bumped the version number
+    - Fix the position of transistor's text. There is an option to revert to the old behavior.
 
 * Version 0.9.6 (2019-11-09)
 

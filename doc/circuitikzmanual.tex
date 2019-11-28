@@ -223,6 +223,7 @@ This same issue create a lot of problem of compatibility between \Circuitikz{} a
 Here, we will provide a list of incompabilitys between different version of circuitikz. We will try to hold this list short, but sometimes it is easier to break with old syntax than including a lot of switches and compatibility layers.
 You can check the used version at your local installation using the macro \verb!\pgfcircversion{}!.
 \begin{itemize}
+    \item After v0.9.7: the position of the text of transistor nodes has changed; see section~\ref{sec:transistors-labels}.
     \item After v0.9.4: added the concept of styling of circuits. It should be backward compatible, but it's a big change, so be ready to use the \texttt{0.9.3} snapshot (see below for details).
     \item After v0.9.0: the parameters \texttt{tripoles/american or port/aaa}, \texttt{...bbb}, \texttt{...ccc} and \texttt{...ddd} are no longer used and are silently ignored; the same stands for \texttt{nor}, \texttt{xor}, and \texttt{xnor} ports.
     \item After v0.9.0: voltage and current directions/sign (plus and minus signs in case of \texttt{american voltages} and arrows in case of \texttt{european voltages} have been rationalized with a couple of new options (see details in section~\ref{curr-and-volt}. The default case is still the same as v0.8.3.
@@ -272,6 +273,8 @@ Feel free to load the package with your own cultural options:
     \end{tabular}
 \end{center}
 
+\textbf{However}, most of the global package options are not available in \ConTeXt; in that case you can always use the appropriate \verb|\tikzset{}| or \verb|\ctikzset{}| command after loading the package.
+
 \begin{LTXexample}[varwidth=true,linerange={1-1,3-6}]
     \begin{circuitikz}
         [circuitikz/voltage=american, circuitikz/resistor=american] % line not printed
@@ -315,6 +318,8 @@ Feel free to load the package with your own cultural options:
         \item \texttt{nofetsolderdot}: do not draw solderdot at bulk-source junction of some transistors;
         \item \texttt{emptypmoscircle}: the circle at the gate of a pmos transistor gets not filled;
         \item \texttt{lazymos}: draws lazy nmos and pmos transistors. Chip designers with huge circuits prefer this notation;
+        \item \texttt{legacytransistorstext}: the text of transistor nodes is typeset near the collector;
+        \item \texttt{nolegacytransistorstext} or \texttt{centertransistorstext}: the text of transistor nodes is typeset near the center of the component;
         \item \texttt{straightlabels}: labels on bipoles are always printed straight up, i.e.~with horizontal baseline;
         \item \texttt{rotatelabels}: labels on bipoles are always printed aligned along the bipole;
         \item \texttt{smartlabels}: labels on bipoles are rotated along the bipoles, unless the rotation is very close to multiples of 90°;
@@ -338,7 +343,7 @@ Feel free to load the package with your own cultural options:
     Loading the package with no options is equivalent to the following options:
     \texttt{[nofetsolderdot, europeancurrents, europeanvoltages, americanports,
         americanresistors, cuteinductors, europeangfsurgearrester, nosiunitx, noarrowmos,
-    smartlabels, nocompatibility]}.
+    smartlabels, nocompatibility, centertransistorstext]}.
 
     \medskip
 
@@ -452,18 +457,28 @@ And finally, this is still \TikZ, so that you can freely mix other graphics elem
 \begingroup % do not propagate to the rest of the manual
 
 The idea is to draw a two-stage amplifier for a lesson, or exercise, on the different qualities of BJT and MOSFET transistors.
-Notice that this is a more ``personal'' tutorial, showing a way to draw circuits that is, in the author's opinion, highly reusable and easy to do.
+
+Please Notice that this section uses the ``new'' position for transistors labels, enabled since version \texttt{0.9.7}. You should refer to older manuals to see how to do the same with older versios; basically the transistor's names where put with a different \verb|node{}| command.
+
+Also notice that this is a more ``personal'' tutorial, showing a way to draw circuits that is, in the author's opinion, highly reusable and easy to do.
 The idea is using relative coordinates and named nodes as much as possible, so that changes in the circuit are easily done by changing keys numbers of position, and crucially, each block is reusable in other diagrams.
 
 First of all, let's define a handy function to show the position of nodes:
 
-\def\coord(#1){node[circle, red, draw, inner sep=1pt,pin={[red, overlay, inner sep=0.5pt, font=\tiny, pin distance=0.1cm, pin edge={red, overlay,}]45:#1}](#1){}}
+\def\normalcoord(#1){coordinate(#1)}
+\def\showcoord(#1){node[circle, red, draw, inner sep=1pt,
+    pin={[red, overlay, inner sep=0.5pt, font=\tiny, pin distance=0.1cm,
+    pin edge={red, overlay}]45:#1}](#1){}}
+\let\coord=\normalcoord
+\let\coord=\showcoord
 \begin{lstlisting}
-\def\coord(#1){coordinate(#1)}
-\def\coord(#1){node[circle, red, draw, inner sep=1pt,pin={[red, overlay, inner sep=0.5pt, font=\tiny, pin distance=0.1cm, pin edge={red, overlay,}]45:#1}](#1){}}
+\def\normalcoord(#1){coordinate(#1)}
+\def\showcoord(#1){node[circle, red, draw, inner sep=1pt,
+    pin={[red, overlay, inner sep=0.5pt, font=\tiny, pin distance=0.1cm,
+    pin edge={red, overlay}]45:#1}](#1){}}
+\let\coord=\normalcoord
+\let\coord=\showcoord
 \end{lstlisting}
-
-
 
 The idea is that you can use \verb|\coord()| instead of \verb|coordinate()| in paths, and that will draw sort of \emph{markers} showing them. For example:
 
@@ -476,7 +491,7 @@ The idea is that you can use \verb|\coord()| instead of \verb|coordinate()| in p
 \end{circuitikz}
 \end{LTXexample}
 
-After the circuit is drawn, simply commenting out the second definition of \verb|\coord| will hide all the markers.
+After the circuit is drawn, simply commenting out the second \verb|\let| command will hide all the markers.
 
 So let's start with the first stage transistor; given that my preferred way of drawing a MOSFET is with arrows, I'll start with the command \verb|\ctikzset{tripoles/mos style/arrows}|:
 
@@ -486,10 +501,12 @@ So let's start with the first stage transistor; given that my preferred way of d
 \begin{circuitikz}[american,]
 \ctikzset{tripoles/mos style/arrows}
 \def\killdepth#1{{\raisebox{0pt}[\height][0pt]{#1}}}
-    \draw (0,0) node[nmos](Q1){};
-    \draw (Q1.center) node[right]{\killdepth{Q1}};
+\path (0,0) -- (2,0); % bounding box
+\draw (0,0) node[nmos](Q1){\killdepth{Q1}};
 \end{circuitikz}
 \end{LTXexample}
+
+I had to do draw an invisible line to take into account the text for Q1 --- the text is not taken into account in calculating the bounding box. This is because the ``geographical'' anchors (\texttt{north}, \texttt{north west}, \dots) are defined for the symbol only. In a complex circuit, this is rarely a problem.
 
 Another thing I like to modify with respect to the standard is the position of the arrows in transistors, which are normally in the middle the symbol. Using the following setting (see section~\ref{sec:styling-transistors}) will move the arrows to the start or end of the corresponding pin.
 
@@ -498,18 +515,15 @@ Another thing I like to modify with respect to the standard is the position of t
 \ctikzset{transistors/arrow pos=end}
 \end{lstlisting}
 
-The tricky thing about \verb|\killdepth{}| macro is finnicky details; I do not like the standard position of labels on transistors (which is near the collector/drain) so I plot the label at the right of the \texttt{center} anchor. Without the \verb|\killdepth| macro, the labels of different transistor will be adjusted so that the center of the box is at the \texttt{center} anchor, and as an effect, labels with descenders (like Q) will have a different baseline than labels without. You can see this here (it's really subtle):
-
+The tricky thing about \verb|\killdepth{}| macro is finicky details. Without the \verb|\killdepth| macro, the labels of different transistor will be adjusted so that the vertical center of the box is at the \texttt{center} anchor, and as an effect, labels with descenders (like Q) will have a different baseline than labels without. You can see this here (it's really subtle):
 
 \begin{LTXexample}[varwidth=true]
 \begin{circuitikz}[american,]
-\draw (0,0) node[nmos](Q1){} ++(2,0) node[nmos](M1){};
-\draw (Q1.center) node[right]{q1};
-\draw (M1.center) node[right]{m1};
+\draw (0,0) node[nmos](Q1){q1} ++(2,0)
+    node[nmos](M1){m1};
 \draw [red] (Q1.center) ++(0,-0.7ex) -- ++(3,0);
-\draw (0,-2)node[nmos](Q1){} ++(2,0) node[nmos](M1){};
-\draw (Q1.center) node[right]{\killdepth{q1}};
-\draw (M1.center) node[right]{\killdepth{m1}};
+\draw (0,-2)node[nmos](Q1){\killdepth{q1}} ++(2,0)
+   node[nmos](M1){\killdepth{m1}};
 \draw [red] (Q1.center) ++(0,-0.7ex) -- ++(3,0);
 \end{circuitikz}
 \end{LTXexample}
@@ -518,51 +532,53 @@ We will start connecting the first transistor with the power supply with a coupl
 
 \begin{LTXexample}[varwidth=true]
 \begin{circuitikz}[american,]
-    \draw (0,0) node[nmos,](Q1){};
-    \draw (Q1.center) node[right]{\killdepth{Q1}};
-    \draw (Q1.S) to[R, l2^=$R_S$ and \SI{5}{k\ohm}] ++(0,-3)
-        node[vee](VEE){$V_{EE}=\SI{-10}{V}$};
-    \draw (Q1.D) to[R, l2_=$R_D$ and \SI{10}{k\ohm}] ++(0,3)
-        node[vcc](VCC){$V_{CC}=\SI{10}{V}$};
-    \draw (Q1.S) to[short] ++(2,0) to[C=$C_1$] ++(0,-1.5) node[ground](GND){};
-    \path (GND) \coord(GND) (VCC) \coord(VCC)
+    \draw (0,0) node[nmos,](Q1){\killdepth{Q1}};
+    \draw (Q1.S) to[R, l2^=$R_S$ and \SI{5}{k\ohm}]
+        ++(0,-3) node[vee](VEE){$V_{EE}=\SI{-10}{V}$};
+    \draw (Q1.D) to[R, l2_=$R_D$ and \SI{10}{k\ohm}]
+        ++(0,3) node[vcc](VCC){$V_{CC}=\SI{10}{V}$};
+    \draw (Q1.S) to[short] ++(2,0) to[C=$C_1$]
+    ++(0,-1.5) node[ground](GND){};
+    % show the named coordinates!
+    \path (GND) \coord(GND)
+        (VCC) \coord(VCC)
         (VEE) \coord(VEE);
 \end{circuitikz}
 \end{LTXexample}
 
 After that, let's add the input part. I will use a named node here, to refer to it to add the input source. Notice how the ground node is positioned: the coordinate \texttt{(in |- GND)} is the point with the horizontal coordinate of \texttt{(in)}  and the vertical one of \texttt{(GND)}, lining it up with the ground of the capacitor $C_1$ (you can think it as ``the point on the vertical of \texttt{in} and the horizontal of \texttt{GND}'').
 
-\begin{LTXexample}[varwidth=true]
-\begin{circuitikz}[american, scale=0.7]
-    \draw (0,0) node[nmos,](Q1){};
-    \draw (Q1.center) node[right]
-        {\killdepth{Q1}};
-    \draw (Q1.S) to[R, l2^=$R_S$ and \SI{5}{k\ohm}] ++(0,-3)
-        node[vee](VEE){$V_{EE}=\SI{-10}{V}$};
-    \draw (Q1.D) to[R, l2_=$R_D$ and \SI{10}{k\ohm}] ++(0,3)
-        node[vcc](VCC){$V_{CC}=\SI{10}{V}$};
-    \draw (Q1.S) to[short] ++(2,0) to[C=$C_1$] ++(0,-1.5) node[ground](GND){};
-    \draw (Q1.G) to[short] ++(-1,0)
-        \coord (in) to[R, l2^=$R_G$ and \SI{1}{M\ohm}]
-        (in |- GND) node[ground]{};
-    \draw (in) to[C, l_=$C_2$,*-o] ++(-1.5,0) node[left](vi1){$v_i=v_{i1}$};
+\begin{LTXexample}[varwidth=true, basicstyle=\small\ttfamily]
+\begin{circuitikz}[american, scale=0.7, transform shape]
+\draw (0,0) node[nmos,](Q1){\killdepth{Q1}};
+\draw (Q1.S) to[R, l2^=$R_S$ and \SI{5}{k\ohm}]
+    ++(0,-3) node[vee](VEE){$V_{EE}=\SI{-10}{V}$};
+\draw (Q1.D) to[R, l2_=$R_D$ and \SI{10}{k\ohm}]
+    ++(0,3) node[vcc](VCC){$V_{CC}=\SI{10}{V}$};
+\draw (Q1.S) to[short] ++(2,0) to[C=$C_1$]
+    ++(0,-1.5) node[ground](GND){};
+\draw (Q1.G) to[short] ++(-1,0)
+    \coord (in) to[R, l2^=$R_G$ and \SI{1}{M\ohm}]
+    (in |- GND) node[ground]{};
+\draw (in) to[C, l_=$C_2$,*-o]
+    ++(-1.5,0) node[left](vi1){$v_i=v_{i1}$};
 \end{circuitikz}
 \end{LTXexample}
 
 Notice that the only absolute coordinate here is the first one, \texttt{(0,0)}; so the elements are connected with relative movements and can be moved by just changing one number (for example, changing the \verb| to[C=$C_1$] ++(0,-1.5) | will move \emph{all} the grounds down).
 
 This is the final circuit, with the nodes still marked:
-\begin{lstlisting}
+\begin{lstlisting}[basicstyle=\small\ttfamily, escapechar=@]
+% this is for the blue brackets under the circuit
 \tikzset{blockdef/.style={%
     {Straight Barb[harpoon, reversed, right, length=0.2cm]}-{Straight Barb[harpoon, reversed, left, length=0.2cm]},
-    blue, %densely dotted,
+    blue,
 }}
 \def\killdepth#1{{\raisebox{0pt}[\height][0pt]{#1}}}
 \def\coord(#1){coordinate(#1)}
 \def\coord(#1){node[circle, red, draw, inner sep=1pt,pin={[red, overlay, inner sep=0.5pt, font=\tiny, pin distance=0.1cm, pin edge={red, overlay,}]45:#1}](#1){}}
 \begin{circuitikz}[american, ]
-    \draw (0,0) node[nmos,](Q1){};
-    \draw (Q1.center) node[right]{\killdepth{Q1}};
+    \draw (0,0) node[nmos,](Q1){\killdepth{Q1}};
     \draw (Q1.S) to[R, l2^=$R_S$ and \SI{5}{k\ohm}] ++(0,-3) node[vee](VEE){$V_{EE}=\SI{-10}{V}$}; %define VEE level
     \draw (Q1.S) to[short] ++(2,0) to[C=$C_1$] ++(0,-1.5) node[ground](GND){};
     \draw (Q1.G) to[short] ++(-1,0) \coord (in) to[R, l2^=$R_G$ and \SI{1}{M\ohm}] (in |- GND) node[ground]{};
@@ -570,10 +586,9 @@ This is the final circuit, with the nodes still marked:
     \draw (Q1.D) to[R, l2_=$R_D$ and \SI{10}{k\ohm}] ++(0,3) node[vcc](VCC){$V_{CC}=\SI{10}{V}$};
     \draw (Q1.D) to[short, -o] ++(1,0) node[right](vo1){$v_{o1}$};
     %
-    \path (vo1) -- ++(3,0) \coord(bjt);
+    \path (vo1) -- ++(2,0) \coord(bjt); @\label{codeline:position-bjt}@
     %
-    \draw (bjt) node[npn, ](Q2){};
-    \draw (Q2.center) node[right]{\killdepth{Q2}};
+    \draw (bjt) node[npn, anchor=B](Q2){\killdepth{Q2}};
     \draw (Q2.B) to[short, -o] ++(-0.5,0) node[left](vi2){$v_{12}$};
     \draw (Q2.E) to[R,l2^=$R_E$ and \SI{9.3}{k\ohm}] (Q2.E |- VEE) node[vee]{};
     \draw (Q2.E) to[short, -o] ++(1,0) node[right](vo2){$v_{o2}$};
@@ -601,8 +616,7 @@ This is the final circuit, with the nodes still marked:
 \def\coord(#1){coordinate(#1)}
 \def\coord(#1){node[circle, red, draw, inner sep=1pt,pin={[red, overlay, inner sep=0.5pt, font=\tiny, pin distance=0.1cm, pin edge={red, overlay,}]45:#1}](#1){}}
 \begin{circuitikz}[american, ]
-    \draw (0,0) node[nmos,](Q1){};
-    \draw (Q1.center) node[right]{\killdepth{Q1}};
+    \draw (0,0) node[nmos,](Q1){\killdepth{Q1}};
     \draw (Q1.S) to[R, l2^=$R_S$ and \SI{5}{k\ohm}] ++(0,-3) node[vee](VEE){$V_{EE}=\SI{-10}{V}$}; %define VEE level
     \draw (Q1.S) to[short] ++(2,0) to[C=$C_1$] ++(0,-1.5) node[ground](GND){};
     \draw (Q1.G) to[short] ++(-1,0) \coord (in) to[R, l2^=$R_G$ and \SI{1}{M\ohm}] (in |- GND) node[ground]{};
@@ -610,10 +624,9 @@ This is the final circuit, with the nodes still marked:
     \draw (Q1.D) to[R, l2_=$R_D$ and \SI{10}{k\ohm}] ++(0,3) node[vcc](VCC){$V_{CC}=\SI{10}{V}$};
     \draw (Q1.D) to[short, -o] ++(1,0) node[right](vo1){$v_{o1}$};
     %
-    \path (vo1) -- ++(3,0) \coord(bjt);
+    \path (vo1) -- ++(2,0) \coord(bjt);
     %
-    \draw (bjt) node[npn, ](Q2){};
-    \draw (Q2.center) node[right]{\killdepth{Q2}};
+    \draw (bjt) node[npn, anchor=B](Q2){\killdepth{Q2}};
     \draw (Q2.B) to[short, -o] ++(-0.5,0) node[left](vi2){$v_{12}$};
     \draw (Q2.E) to[R,l2^=$R_E$ and \SI{9.3}{k\ohm}] (Q2.E |- VEE) node[vee]{};
     \draw (Q2.E) to[short, -o] ++(1,0) node[right](vo2){$v_{o2}$};
@@ -629,8 +642,9 @@ This is the final circuit, with the nodes still marked:
           -- node[midway, fill=white]{bloque 1} (vo1|- tmp);
           \draw [blockdef] (vi2|-VEE) ++(0,-2) \coord(tmp)
           -- node[midway, fill=white]{bloque 2} (vo2|- tmp);
-
 \end{circuitikz}
+
+You can see that after having found the place where we want to put the BJT transistor (line~\ref{codeline:position-bjt}), we use the option \texttt{anchor=B} so that the base anchor will be put at the coordinate \texttt{bjt}.
 
 Finally, if you like a more compact drawing, you can add the options (for example):
 \begin{lstlisting}
@@ -644,9 +658,8 @@ and you will obtain the following diagram with the exact same code (I just remov
 
 \ctikzset{resistors/scale=0.7, capacitors/scale=0.6}
 \def\coord(#1){coordinate(#1)}
-\begin{circuitikz}[american, scale=0.8]
-    \draw (0,0) node[nmos,](Q1){};
-    \draw (Q1.center) node[right]{\killdepth{Q1}};
+\begin{circuitikz}[american, ]
+    \draw (0,0) node[nmos,](Q1){\killdepth{Q1}};
     \draw (Q1.S) to[R, l2^=$R_S$ and \SI{5}{k\ohm}] ++(0,-3) node[vee](VEE){$V_{EE}=\SI{-10}{V}$}; %define VEE level
     \draw (Q1.S) to[short] ++(2,0) to[C=$C_1$] ++(0,-1.5) node[ground](GND){};
     \draw (Q1.G) to[short] ++(-1,0) \coord (in) to[R, l2^=$R_G$ and \SI{1}{M\ohm}] (in |- GND) node[ground]{};
@@ -654,10 +667,9 @@ and you will obtain the following diagram with the exact same code (I just remov
     \draw (Q1.D) to[R, l2_=$R_D$ and \SI{10}{k\ohm}] ++(0,3) node[vcc](VCC){$V_{CC}=\SI{10}{V}$};
     \draw (Q1.D) to[short, -o] ++(1,0) node[right](vo1){$v_{o1}$};
     %
-    \path (vo1) -- ++(3,0) \coord(bjt);
+    \path (vo1) -- ++(2,0) \coord(bjt);
     %
-    \draw (bjt) node[npn, ](Q2){};
-    \draw (Q2.center) node[right]{\killdepth{Q2}};
+    \draw (bjt) node[npn, anchor=B](Q2){\killdepth{Q2}};
     \draw (Q2.B) to[short, -o] ++(-0.5,0) node[left](vi2){$v_{12}$};
     \draw (Q2.E) to[R,l2^=$R_E$ and \SI{9.3}{k\ohm}] (Q2.E |- VEE) node[vee]{};
     \draw (Q2.E) to[short, -o] ++(1,0) node[right](vo2){$v_{o2}$};
@@ -673,9 +685,7 @@ and you will obtain the following diagram with the exact same code (I just remov
           -- node[midway, fill=white]{bloque 1} (vo1|- tmp);
           \draw [blockdef] (vi2|-VEE) ++(0,-2) \coord(tmp)
           -- node[midway, fill=white]{bloque 2} (vo2|- tmp);
-
 \end{circuitikz}
-
 
 \endgroup
 
@@ -873,12 +883,12 @@ Most path-style components can be used as a node-style components; to access the
 	\noindent Which is ok: just use the environment \verb!tikzpicture!: everything will work there just fine.
 \end{framed}
 
-\subsubsection{Mirroring and flipping}
+\subsubsection{Mirroring and flipping}\label{sec:mirroring-and-flipping}
 
 Mirroring and flipping of node components is obtained by using the \TikZ\ keys \texttt{xscale} and \texttt{yscale}. Notice that this parameters affect also text labels, so they need to be un-scaled by hand.
 
-\begin{LTXexample}[varwidth=true]
-\begin{circuitikz}
+\begin{LTXexample}[varwidth=true, basicstyle=\small\ttfamily]
+\begin{circuitikz}[scale=0.7, transform shape]
     \draw (0,3) node[op amp]{OA1};
     \draw (3,3) node[op amp, xscale=-1]{OA2};
     \draw (0,0) node[op amp]{OA3};
@@ -886,6 +896,21 @@ Mirroring and flipping of node components is obtained by using the \TikZ\ keys \
         \scalebox{-1}[1]{OA4}};
 \end{circuitikz}
 \end{LTXexample}
+
+To simplify this task, \Circuitikz{} has three helper macros --- \verb|\ctikzflipx{}|, \verb|\ctikzflipy{}|,
+and \verb|\ctikzflipxy{}|, that can be used to ``un-rotate'' the text of nodes drawn with, respectively,
+\texttt{xscale=-1}, \texttt{yscale=-1}, and \texttt{scale=-1} (which is equivalent to
+\texttt{xscale=-1, yscale=-1}).
+
+\begin{LTXexample}[varwidth=true, basicstyle=\small\ttfamily]
+\begin{circuitikz}[scale=0.7, transform shape]
+    \draw (0,3) node[op amp]{OA1};
+    \draw (3,3) node[op amp, xscale=-1]{\ctikzflipx{OA2}};
+    \draw (0,0) node[op amp, yscale=-1]{\ctikzflipy{OA3}};
+    \draw (3,0) node[op amp,  scale=-1]{\ctikzflipxy{OA4}};
+\end{circuitikz}
+\end{LTXexample}
+
 
 \subsubsection{Anchors}
 
@@ -2198,13 +2223,13 @@ To show that a device is optional, you can dash it. The inner symbol will be kep
 \subsubsection{Standard bipolar transistors}
 
 \begin{groupdesc}
-    \circuitdesc{npn}{npn}{}( B/180/0.2,C/0/0.2,E/0/0.2 )
+    \circuitdesc{npn}{npn}{Q}( B/180/0.2,C/0/0.2,E/0/0.2 )
     \circuitdesc{pnp}{pnp}{}
     \circuitdesc{npn,photo}{npn}{}( nobase/0/0.4 )
     \circuitdesc{pnp,photo}{pnp}{}
-    \circuitdesc{nigbt}{nigbt}{}
+    \circuitdesc{nigbt}{nigbt}{Q}
     \circuitdesc{pigbt}{pigbt}{}
-    \circuitdesc{Lnigbt}{Lnigbt}{}
+    \circuitdesc{Lnigbt}{Lnigbt}{Q}
     \circuitdesc{Lpigbt}{Lpigbt}{}
 \end{groupdesc}
 
@@ -2222,7 +2247,7 @@ Basically they are the same as the normal \texttt{npn} and \texttt{pnp}, and the
 \subsubsection{Field-effect transistors}
 
 \begin{groupdesc}
-    \circuitdesc{nmos}{nmos}{}( G/180/0.2,D/0/0.2,S/0/0.2 )
+    \circuitdesc{nmos}{nmos}{Q}( G/180/0.2,D/0/0.2,S/0/0.2 )
     \circuitdesc{pmos}{pmos}{}
     \circuitdesc{hemt}{hemt}{}
 \end{groupdesc}
@@ -2230,12 +2255,12 @@ Basically they are the same as the normal \texttt{npn} and \texttt{pnp}, and the
 \textsc{nfet}s and \textsc{pfet}s have been incorporated based on code provided by Clemens Helfmeier and Theodor Borsche. Use the package options \texttt{fetsolderdot}/\texttt{nofetsolderdot} to enable/disable solderdot at some fet-transistors. Additionally, the solderdot option can be enabled/disabled for single transistors with the option "solderdot" and "nosolderdot", respectm ively.
 
 \begin{groupdesc}
-    \circuitdesc{nfet}{nfet}{}
-    \circuitdesc{nigfete}{nigfete}{}
+    \circuitdesc{nfet}{nfet}{Q}
+    \circuitdesc{nigfete}{nigfete}{Q}
     \circuitdesc{nigfete,solderdot}{nigfete}{}
     \circuitdesc{nigfetebulk}{nigfetebulk}{}
     \circuitdesc{nigfetd}{nigfetd}{}
-    \circuitdesc{pfet}{pfet}{}
+    \circuitdesc{pfet}{pfet}{Q}
     \circuitdesc{pigfete}{pigfete}{}
     \circuitdesc{pigfetebulk}{pigfetebulk}{}
     \circuitdesc{pigfetd}{pigfetd}{}
@@ -2243,14 +2268,34 @@ Basically they are the same as the normal \texttt{npn} and \texttt{pnp}, and the
 
 \textsc{njfet} and \textsc{pjfet} have been incorporated based on code provided by Danilo Piazzalunga:
 \begin{groupdesc}
-    \circuitdesc{njfet}{njfet}{}
+    \circuitdesc{njfet}{njfet}{Q}
     \circuitdesc{pjfet}{pjfet}{}
 \end{groupdesc}
 
 \textsc{isfet}
 \begin{groupdesc}
-    \circuitdesc{isfet}{isfet}{}
+    \circuitdesc{isfet}{isfet}{Q}
 \end{groupdesc}
+
+\subsubsection{Transistor texts (labels)}\label{sec:transistors-labels}
+
+In versions before \texttt{0.9.7}, transistors text (the node text) was positioned near the collector terminal; since version \texttt{0.9.7} the default has been changed to a more natural position near the center of the device, similar to the multi-teminal transistors. You can revert to the old behavior locally with the key \texttt{legacy transistors text}, or globally by setting the package option \texttt{legacytransistorstext}.
+
+Notice the use of the utility functions \verb|\ctikzflip{|\texttt{\textsl{x,y,xy}}\verb|}| as explained in section~\ref{sec:mirroring-and-flipping}.
+
+\begin{LTXexample}[varwidth=true, basicstyle=\small\ttfamily]
+\begin{circuitikz}[scale=0.8, transform shape]
+    \draw (0,0) node [npn]{T1}
+    ++(1.2,0) node [npn, xscale=-1]{\ctikzflipx{T1}}
+    ++(2,0) node [npn, yscale=-1]{\ctikzflipy{T1}}
+    ++(1.2,0) node [npn, scale=-1]{\ctikzflipxy{T1}};
+    \ctikzset{legacy transistors text}
+    \draw (0,-2) node [npn]{T1}
+    ++(1.2,0) node [npn, xscale=-1]{\ctikzflipx{T1}}
+    ++(2,0) node [npn, yscale=-1]{\ctikzflipy{T1}}
+    ++(1.2,0) node [npn, scale=-1]{\ctikzflipxy{T1}};
+\end{circuitikz}
+\end{LTXexample}
 
 \subsubsection{Transistors customization}\label{sec:styling-transistors}
 
@@ -2270,13 +2315,17 @@ The default position of the arrows in transistors is somewhat in the middle of t
 You can change the scale of all the transistors by setting the key \texttt{transistors/scale} (default \texttt{1.0}).
 The size of the arrows (if any) is controlled by the same parameters as \texttt{currarrow} (see section~\ref{sec:currarrow-size}) and the dots on P-type transistors (if any) are the same as the nodes/poles (see section~\ref{sec:bipole-nodes}).
 
-For all transistors (minus \texttt{bjtnpn} and \texttt{bjtpnp})  a body diode (or freewheeling diode) can automatically be drawn. Just use the global option bodydiode, or for single transistors, the tikz-option bodydiode:
+For all transistors (minus \texttt{bjtnpn} and \texttt{bjtpnp})  a body diode (or freewheeling or flyback diode) can automatically be drawn. Just use the global option \texttt{bodydiode}, or for single transistors, the tikz-option \texttt{bodydiode}.
+As you can see in the next example, the text for the diode is moved if a bodydiode is present (but beware, if you change a lot the relative dimension of components, it may become misplaced):
 
 \begin{LTXexample}[varwidth=true]
 \begin{circuitikz}
-   \draw (0,0) node[npn,bodydiode](npn){}++(2,0)node[pnp,bodydiode](npn){};
-   \draw (0,-2) node[nigbt,bodydiode](npn){}++(2,0)node[pigbt,bodydiode](npn){};
-   \draw (0,-4) node[nfet,bodydiode](npn){}++(2,0)node[pfet,bodydiode](npn){};
+   \draw (0,0) node[npn,bodydiode](npn){1}
+       ++(2,0)node[pnp,bodydiode](npn){};
+   \draw (0,-2) node[nigbt,bodydiode](npn){2}
+       ++(2,0)node[pigbt,bodydiode](npn){};
+   \draw (0,-4) node[nfet,bodydiode](npn){3}
+       ++(2,0)node[pfet,bodydiode](npn){};
 \end{circuitikz}
 \end{LTXexample}
 
@@ -2448,12 +2497,14 @@ A complete example of multiple terminal transistor application is the following 
 Here is one composite example (please notice that the \texttt{xscale=-1} style would also reflect the label of the transistors, so here a new node is added and its text is used, instead of that of \texttt{pnp1}):
 
 \begin{LTXexample}[varwidth=true]
-\begin{circuitikz} \draw
-  (0,0) node[pnp] (pnp2) {2}
+  % \begin{circuitikz} [legacy transistors label]\draw
+  \begin{circuitikz} []\draw
+  (0,0) node[pnp] (pnp2) {Q2}
   (pnp2.B) node[pnp, xscale=-1, anchor=B] (pnp1) {}
-    (pnp1) node {1}
-  (pnp1.C) node[npn, anchor=C] (npn1) {}
-  (pnp2.C) node[npn, xscale=-1, anchor=C] (npn2) {}
+  (pnp1) node[left, inner sep=0pt] {Q1}
+  (pnp1.C) node[npn, anchor=C] (npn1) {Q3}
+  (pnp2.C) node[npn, xscale=-1, anchor=C] (npn2)
+    {\scalebox{-1}[1]{Q4}}
   (pnp1.E) -- (pnp2.E)  (npn1.E) -- (npn2.E)
   (pnp1.B) node[circ] {} |- (pnp2.C) node[circ] {}
 ;\end{circuitikz}
@@ -2474,7 +2525,8 @@ Similarly, transistors like other components can be reflected vertically:
 
 \subsubsection{Transistor paths}\label{sec:transasbip}
 
-For syntactical convenience transistors can be placed using the normal path notation used for bipoles. The transitor type can be specified by  simply adding a ``T'' (for transistor) in front of the node name of the transistor. It will be placed with the base/gate orthogonal to the direction of the path:
+For syntactical convenience standard transistors (not multi-terminal ones) can be placed using the normal path notation used for bipoles. The transitor type can be specified by  simply adding a ``T'' (for transistor) in front of the node name of the transistor. It will be placed with the base/gate orthogonal to the direction of the path:
+
 \begin{LTXexample}[varwidth=true]
 \begin{circuitikz} \draw
   (0,0) node[njfet] {1}
@@ -2486,10 +2538,10 @@ For syntactical convenience transistors can be placed using the normal path nota
 Access to the gate and/or base nodes can be gained by naming the transistors with the \texttt{n} or \texttt{name} path style:
 \begin{LTXexample}[varwidth=true]
 \begin{circuitikz} \draw[yscale=1.1, xscale=.8]
-  (2,4.5) -- (0,4.5) to[Tpmos, n=p1] (0,3)
-     to[Tnmos, n=n1] (0,1.5)
-     to[Tnmos, n=n2] (0,0) node[ground] {}
-  (2,4.5) to[Tpmos,n=p2] (2,3) to[short, -*] (0,3)
+  (2,4.5) -- (0,4.5) to[Tpmos=p1, n=p1] (0,3)
+     to[Tnmos=n1, n=n1] (0,1.5)
+     to[Tnmos=n2, n=n2] (0,0) node[ground] {}
+  (2,4.5) to[Tpmos=p2,n=p2] (2,3) to[short, -*] (0,3)
   (p1.G) -- (n1.G) to[short, *-o] ($(n1.G)+(3,0)$)
   (n2.G) ++(2,0) node[circ] {} -| (p2.G)
   (n2.G) to[short, -o] ($(n2.G)+(3,0)$)
@@ -2498,9 +2550,9 @@ Access to the gate and/or base nodes can be gained by naming the transistors wit
 \end{LTXexample}
 
 Transistor paths have the possibility to use the poles syntax (see section~\ref{sec:bipole-nodes}) but they have \textbf{no} voltage, current, flow, annotation options.
+Also, the positioning of the labels is very simple and is not foolproof for all rotations; if you need to control them more please name the node and position them by hand, or use the more natural node style for transistors.
 
 The \texttt{name} property is available also for bipoles; this is useful mostly for triac, potentiometer and thyristor (see~\ref{sec:othertrip}).
-
 
 \subsection{Electronic Tubes}
 
@@ -5153,7 +5205,7 @@ The suggested way to start working on a new component is to use the utilities of
 \usepackage[T1]{fontenc}
 \parindent=0pt
 \parskip=4pt plus 6pt minus 2pt
-\usepackage[siunitx, RPvoltages]{circuitikz}
+\usepackage[siunitx, RPvoltages]{circuitikzgit}
 \usepackage{ctikzmanutils}
 \makeatletter
 %%  Test things here
