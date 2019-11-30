@@ -1,12 +1,12 @@
 <!--- CircuiTikz - Changelog --->
 The major changes among the different circuitikz versions are listed here. See <https://github.com/circuitikz/circuitikz/commits> for a full list of changes.
 
-* Version 0.9.7 (unreleased)
+* Version 0.9.7 (2019-12-01)
 
     The important thing in this release is the new position of transistor's labels; see the manual for details. 
 
-    - bumped the version number
     - Fix the position of transistor's text. There is an option to revert to the old behavior.
+    - Added anchors for adding circuits (like snubbers) to the flyback diodes in transistors (after a suggestion from @EdAlvesSilva on GitHub).
 
 * Version 0.9.6 (2019-11-09)
 
