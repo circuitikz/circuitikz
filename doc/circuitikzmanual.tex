@@ -2225,12 +2225,14 @@ To show that a device is optional, you can dash it. The inner symbol will be kep
 \begin{groupdesc}
     \circuitdesc{npn}{npn}{Q}( B/180/0.2,C/0/0.2,E/0/0.2 )
     \circuitdesc{pnp}{pnp}{}
+    \circuitdesc{npn, bodydiode}{npn}{}(body C in/60/0.2, body E in/-60/0.2,body C out/0/0.3, body E out/-0/0.3)
     \circuitdesc{npn,photo}{npn}{}( nobase/0/0.4 )
     \circuitdesc{pnp,photo}{pnp}{}
     \circuitdesc{nigbt}{nigbt}{Q}
     \circuitdesc{pigbt}{pigbt}{}
     \circuitdesc{Lnigbt}{Lnigbt}{Q}
     \circuitdesc{Lpigbt}{Lpigbt}{}
+    \circuitdesc{Lpigbt, bodydiode}{Lpigbt}{Q}(body C in/-60/0.2, body E in/60/0.2,body C out/0/0.3, body E out/-0/0.3)
 \end{groupdesc}
 
 \subsubsection{Multi-terminal bipolar transistors}
@@ -2299,7 +2301,10 @@ Notice the use of the utility functions \verb|\ctikzflip{|\texttt{\textsl{x,y,xy
 
 \subsubsection{Transistors customization}\label{sec:styling-transistors}
 
-The default position of the arrows in transistors is somewhat in the middle of the terminal; if you prefer you can move them to the end with the style key \texttt{transistors/arrow pos=end} (the default value is \texttt{legacy}).
+\paragraph{Size.} You can change the scale of all the transistors by setting the key \texttt{transistors/scale} (default \texttt{1.0}).
+The size of the arrows (if any) is controlled by the same parameters as \texttt{currarrow} (see section~\ref{sec:currarrow-size}) and the dots on P-type transistors (if any) are the same as the nodes/poles (see section~\ref{sec:bipole-nodes}).
+
+\paragraph{Arrows.} The default position of the arrows in transistors is somewhat in the middle of the terminal; if you prefer you can move them to the end with the style key \texttt{transistors/arrow pos=end} (the default value is \texttt{legacy}).
 
 \begin{LTXexample}[varwidth=true]
 \begin{circuitikz}
@@ -2309,34 +2314,6 @@ The default position of the arrows in transistors is somewhat in the middle of t
    \draw (2,0) node[pnp, ](npn){};
    \draw (0,-2) node[nmos, ](npn){};
    \draw (2,-2) node[pmos, ](npn){};
-\end{circuitikz}
-\end{LTXexample}
-
-You can change the scale of all the transistors by setting the key \texttt{transistors/scale} (default \texttt{1.0}).
-The size of the arrows (if any) is controlled by the same parameters as \texttt{currarrow} (see section~\ref{sec:currarrow-size}) and the dots on P-type transistors (if any) are the same as the nodes/poles (see section~\ref{sec:bipole-nodes}).
-
-For all transistors (minus \texttt{bjtnpn} and \texttt{bjtpnp})  a body diode (or freewheeling or flyback diode) can automatically be drawn. Just use the global option \texttt{bodydiode}, or for single transistors, the tikz-option \texttt{bodydiode}.
-As you can see in the next example, the text for the diode is moved if a bodydiode is present (but beware, if you change a lot the relative dimension of components, it may become misplaced):
-
-\begin{LTXexample}[varwidth=true]
-\begin{circuitikz}
-   \draw (0,0) node[npn,bodydiode](npn){1}
-       ++(2,0)node[pnp,bodydiode](npn){};
-   \draw (0,-2) node[nigbt,bodydiode](npn){2}
-       ++(2,0)node[pigbt,bodydiode](npn){};
-   \draw (0,-4) node[nfet,bodydiode](npn){3}
-       ++(2,0)node[pfet,bodydiode](npn){};
-\end{circuitikz}
-\end{LTXexample}
-
-The Base/Gate connection of all transistors can be disabled by the options \textit{nogate} or \textit{nobase}, respectively. The Base/Gate anchors are floating, but there is an additional anchor "nogate"/"nobase", which can be used to point to the unconnected base:
-\begin{LTXexample}[varwidth=true]
-\begin{circuitikz}
-   \draw (2,0) node[npn,nobase](npn){};
-   \draw (npn.E) node[below]{E};
-   \draw (npn.C) node[above]{C};
-   \draw (npn.B) node[circ]{} node[left]{B};
-   \draw[dashed,red,-latex] (1,0.5)--(npn.nobase);
 \end{circuitikz}
 \end{LTXexample}
 
@@ -2350,6 +2327,52 @@ If the option \texttt{arrowmos} is used (or after the command \verb!\ctikzset{tr
 You can go back to the no-arrows mos with \texttt{noarrowmos} locally or with
 \texttt{\textbackslash ctikzset\{tripoles/mos style/no arrows\}}.
 
+\paragraph{Body diodes and similar things.}\label{sec:bodydiodes-anchor} For all transistors (minus \texttt{bjtnpn} and \texttt{bjtpnp})  a body diode (or freewheeling or flyback diode) can automatically be drawn. Just use the global option \texttt{bodydiode}, or for single transistors, the tikz-option \texttt{bodydiode}.
+As you can see in the next example, the text for the diode is moved if a bodydiode is present (but beware, if you change a lot the relative dimension of components, it may become misplaced):
+
+\begin{LTXexample}[varwidth=true]
+\begin{circuitikz}
+   \draw (0,0) node[npn,bodydiode](npn){1}
+       ++(2,0)node[pnp,bodydiode](npn){};
+   \draw (0,-2) node[nigbt,bodydiode](npn){2}
+       ++(2,0)node[pigbt,bodydiode](npn){};
+   \draw (0,-4) node[nfet,bodydiode](npn){3}
+       ++(2,0)node[pfet,bodydiode](npn){};
+\end{circuitikz}
+\end{LTXexample}
+
+You can use the \texttt{body ...} anchors to add more or different things to the transistors in addition (or instead) of the flyback diode.
+
+\begin{LTXexample}[varwidth=true, basicstyle=\small\ttfamily]
+\def\snubb#1#2{% add a snubber to a transistor
+    \draw (#1.body C #2) to[short, *-, nodes width=0.02]
+    ++(0.3,0) coordinate(tmp) to [R, resistors/scale=0.3]
+    % 2/3 space for R, 1/3 for C
+    ($(tmp)!0.66!(tmp|-#1.body E #2)$)
+    to [C, capacitors/scale=0.3] (tmp|-#1.body E #2)
+    to [short, -*, nodes width=0.02] (#1.body E #2);
+}
+\begin{circuitikz}
+    \node[npn](Q1) at(0,0) {};
+    \node[pnp](Q2) at(2,0) {};
+    \node[pnp, bodydiode](Q3) at(0,-3) {};
+    \node[npn, bodydiode](Q4) at(2,-3) {};
+    \snubb{Q1}{in} \snubb{Q2}{in}
+    \snubb{Q3}{out} \snubb{Q4}{out}
+\end{circuitikz}
+\end{LTXexample}
+
+\paragraph{Base/Gate terminal.} The Base/Gate connection of all transistors can be disabled by the options \textit{nogate} or \textit{nobase}, respectively. The Base/Gate anchors are floating, but there is an additional anchor "nogate"/"nobase", which can be used to point to the unconnected base:
+\begin{LTXexample}[varwidth=true]
+\begin{circuitikz}
+   \draw (2,0) node[npn,nobase](npn){};
+   \draw (npn.E) node[below]{E};
+   \draw (npn.C) node[above]{C};
+   \draw (npn.B) node[circ]{} node[left]{B};
+   \draw[dashed,red,-latex] (1,0.5)--(npn.nobase);
+\end{circuitikz}
+\end{LTXexample}
+
 To draw the PMOS circle non-solid, use the option \texttt{emptycircle} or the command
 \\\verb!\ctikzset{tripoles/pmos style/emptycircle}!. To remove the dot completely (only useful if you have \texttt{arrowmos} enabled, otherwise there will be no difference between P-MOS and N-MOS), you can use the option \texttt{nocircle} or \verb|\ctikzset{tripoles/pmos style/nocircle}|.
 
@@ -2358,7 +2381,7 @@ To draw the PMOS circle non-solid, use the option \texttt{emptycircle} or the co
     \circuitdesc{pmos,nocircle,arrowmos}{pmos}{}
 \end{groupdesc}
 
-You can add a bulk terminal\footnote{Thanks to Burak Kelleci <kellecib@hotmail.com>.} to \texttt{nmos} and \texttt{pmos} using the key \texttt{bulk} in the node (and \texttt{nobulk} if you set the bulk terminal by default); additional anchors \texttt{bulk} and \texttt{nobulk} are added (in the next example, \texttt{tripoles/mos style/arrows} is enacted, too):
+\paragraph{Bulk terminals.} You can add a bulk terminal\footnote{Thanks to Burak Kelleci <kellecib@hotmail.com>.} to \texttt{nmos} and \texttt{pmos} using the key \texttt{bulk} in the node (and \texttt{nobulk} if you set the bulk terminal by default); additional anchors \texttt{bulk} and \texttt{nobulk} are added (in the next example, \texttt{tripoles/mos style/arrows} is enacted, too):
 
 \begin{groupdesc}
     \ctikzset{tripoles/mos style/arrows}
@@ -2461,9 +2484,16 @@ Finally, all transistors, except the multi-terminal \texttt{bjtnpn} and \texttt{
 \end{circuitikz}
 \end{LTXexample}
 
+Additionally, you can access the position for the flyback diodes and possibly snubbers as shown in~\ref{sec:bodydiodes-anchor}.
+
+\begin{quote}
+\showanchors{npn}{}(body C in/45/0.4,  body E in/-45/0.4, body C out/0/0.4, body E out/0/0.4)
+\showanchors{npn, bodydiode}{}(body C in/45/0.4,  body E in/-45/0.4, body C out/0/0.4, body E out/0/0.4)
+\showanchors{pnp}{}(body C in/-45/0.4,  body E in/45/0.4, body C out/0/0.4, body E out/0/0.4)
+\end{quote}
 
 The multi-terminal transistors have all the geographical anchors; note though that the \texttt{center} anchor is not the geometrical center of the component, but the logical one (at the same height than the base).
-The additional anchors \texttt{vcenter} (vertical geometric center of the collector--emitter zone) and \texttt{gcenter} (graphical center) are provided, as shown in the following picture.
+The additional anchors \texttt{vcenter} (vertical geometric center of the collector--emitter zone) and \texttt{gcenter} (graphical center) are provided, as shown in the following picture. They have no bodydiode anchors nor \texttt{inner \emph{up/down}} ones.
 
 \begin{quote}
 \geocoord{bjtnpn, collectors=1, emitters=2}
