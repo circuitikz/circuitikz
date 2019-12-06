@@ -7,6 +7,7 @@ The major changes among the different circuitikz versions are listed here. See <
 
     - Bumped version number.
     - Added a single-input generic amplifier with the same dimension as "plain amp".
+    - Fixed "plain amp" not respecting "noinv input up"
 
 
 * Version 0.9.7 (2019-12-01)
