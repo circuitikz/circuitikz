@@ -1,16 +1,23 @@
 <!--- CircuiTikz - Changelog --->
 The major changes among the different circuitikz versions are listed here. See <https://github.com/circuitikz/circuitikz/commits> for a full list of changes.
 
+* Version 1.0.0-pre1 (unreleased)
+
+    Minimal changes for a pre-release of 1.0.0, due early 2020.
+
+    - Bumped version number
+
+
 * Version 0.9.7 (2019-12-01)
 
-    The important thing in this release is the new position of transistor's labels; see the manual for details. 
+    The important thing in this release is the new position of transistor's labels; see the manual for details.
 
     - Fix the position of transistor's text. There is an option to revert to the old behavior.
     - Added anchors for adding circuits (like snubbers) to the flyback diodes in transistors (after a suggestion from @EdAlvesSilva on GitHub).
 
 * Version 0.9.6 (2019-11-09)
 
-    The highlights of this release are the new multiple terminals BJTs and several stylistic addition and fixes; if you like to pixel-peep, you will like the fixed transistors arrows. Additionally, the transforms are much more configurable now, the "pmos" and "nmos" elements have grown an optional bulk connection, and you can use the "flow" arrows outside of a path.
+    The highlights of this release are the new multiple terminals BJTs and several stylistic addition and fixes; if you like to pixel-peep, you will like the fixed transistors arrows. Additionally, the transformers are much more configurable now, the "pmos" and "nmos" elements have grown an optional bulk connection, and you can use the "flow" arrows outside of a path.
 
     Several small and less small bugs have been fixed.
 
