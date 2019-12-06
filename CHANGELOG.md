@@ -5,7 +5,8 @@ The major changes among the different circuitikz versions are listed here. See <
 
     Minimal changes for a pre-release of 1.0.0, due early 2020.
 
-    - Bumped version number
+    - Bumped version number.
+    - Added a single-input generic amplifier with the same dimension as "plain amp".
 
 
 * Version 0.9.7 (2019-12-01)
