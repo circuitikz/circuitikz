@@ -8,6 +8,7 @@ The major changes among the different circuitikz versions are listed here. See <
     - Bumped version number.
     - Added a single-input generic amplifier with the same dimension as "plain amp".
     - Added border anchors to amplifiers
+    - Added the possibility (expert only!) to add transparency to poles (after a suggestion from user @matthuszagh on GitHub)
     - Make plus and minus symbol on amplifiers configurable
     - Fixed "plain amp" not respecting "noinv input up"
 

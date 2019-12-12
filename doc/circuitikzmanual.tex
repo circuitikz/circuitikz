@@ -4993,6 +4993,30 @@ There are several predefined shorthand as the above; in the following pages you 
    \draw (0,0) to[R, d-*] (2,0);
 \end{circuitikz}
 \end{LTXexample}
+
+\subsubsection{Transparent poles}
+
+``Open-poles'' terminals (\texttt{ocirc}, \texttt{odiamondpole}, and \texttt{osquarepole}) are normally filled with the background color at full opacity. This is because, for simplicity of operation, the nodes are placed \emph{after} the wires are drawn and have to ``white-out'' the underlying lines.
+
+Anyway, \emph{if you know what you are doing}, you can change it with the key \texttt{poles/open fill opacity} (with \verb|\ctikzset|) or the style \texttt{open poles opacity}. Notice that you will have artifacts if you don't use the border anchors of the poles to connect wires, and you need to do that by hand.
+
+\begin{LTXexample}[pos=t, basicstyle=\small\ttfamily]
+\begin{circuitikz}[scale=3, transform shape]
+    \fill[cyan] (0,0) rectangle (4.1,-0.6);
+    \tikzset{halfwhite/.style={fill opacity=0.5, fill=white, open poles opacity=0.5}}
+    % automatic positioning  when opacity is not 1.0 creates artifacts
+    \draw[halfwhite] (0,0) to[generic, -o] ++(2,0) --++(0,-0.5);
+    % you have to use manual positioning
+    \draw[halfwhite] (2.2,0) -- ++(0.5,0) node[ocirc, anchor=180]{};
+    \draw[halfwhite] (3,0) node[ocirc](B){}  (B.0) --++(0.5,0) (B.-90) --++(0,-0.5);
+    % maybe really useful only for terminals going out of the circuit...
+    \draw (3.6,0) -- ++(0.2,0) node[ocirc, halfwhite, anchor=180]{};
+\end{circuitikz}
+\end{LTXexample}
+
+You also have the similar keys for the ``full'' poles (albeit they are probably not useful at all).
+
+
 \subsection{Mirroring and Inverting}
 Bipole paths can also mirrored and inverted (or reverted) to change the drawing direction.
 
