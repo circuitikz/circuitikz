@@ -5,11 +5,12 @@ The major changes among the different circuitikz versions are listed here. See <
 
     Minimal changes for a pre-release of 1.0.0, due early 2020, mainly bug fixes apart from addition to the amplifiers to add flexibility.
 
-    - Bumped version number.
-    - Added a single-input generic amplifier with the same dimension as "plain amp".
+    - Bumped version number
+    - Added a single-input generic amplifier with the same dimension as "plain amp"
     - Added border anchors to amplifiers
     - Added the possibility (expert only!) to add transparency to poles (after a suggestion from user @matthuszagh on GitHub)
     - Make plus and minus symbol on amplifiers configurable
+    - Adjusted the position of text in triangular amplifiers
     - Fixed "plain amp" not respecting "noinv input up"
 
 * Version 0.9.7 (2019-12-01)
