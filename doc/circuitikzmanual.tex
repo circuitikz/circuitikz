@@ -209,7 +209,7 @@ instead of \texttt{circuitikz}. This is also advantageous for ``future resilienc
 
 So, if loaded with said option, one must write \verb!(0,0) to[*R] (2,0)! and, for transistors on a path, \verb!(0,0) to[*Tnmos] (2,0)!, and so on (but \verb!(0,0) node[nmos] {}!). See example at page~\pageref{ex:compatibility}.
 
-Another thing to take into account is that any \TikZ{} figure (and \Circuitikz{} ones qualify) \textbf{will} have problems if you use the \texttt{babel} package with a language that changes active characters (most of them). The solution is normally to add the line \verb|\usetikzlibrary{babel}| in your preamble, after loading \TikZ{} or \Circuitikz. This will normally solve the problem; some language also requires using \verb|\deactivatequoting| or the option \texttt{shorthands=off} for \texttt{babel}. Please check the documentation of \TikZ{} or this question \href{ https://tex.stackexchange.com/questions/166772/problem-with-babel-and-tikz-using-draw}{on \TeX{} stackexchange site}.
+Another thing to take into account is that any \TikZ{} figure (and \Circuitikz{} ones qualify) \textbf{will} have problems if you use the \texttt{babel} package with a language that changes active characters (most of them). The solution is normally to add the line \verb|\usetikzlibrary{babel}| in your preamble, after loading \TikZ{} or \Circuitikz. This will normally solve the problem; some language also requires using \verb|\deactivatequoting| or the option \texttt{shorthands=off} for \texttt{babel}. Please check the documentation of \TikZ{} or this question \href{https://tex.stackexchange.com/questions/166772/problem-with-babel-and-tikz-using-draw}{on \TeX{} stackexchange site}.
 
 \subsection{Known bugs and limitation}\label{sec:bugs}
 
@@ -899,10 +899,11 @@ Mirroring and flipping of node components is obtained by using the \TikZ\ keys \
 \end{circuitikz}
 \end{LTXexample}
 
-To simplify this task, \Circuitikz{} has three helper macros --- \verb|\ctikzflipx{}|, \verb|\ctikzflipy{}|,
+To simplify this task, \Circuitikz{} when used in \LaTeX{} has three helper macros --- \verb|\ctikzflipx{}|, \verb|\ctikzflipy{}|,
 and \verb|\ctikzflipxy{}|, that can be used to ``un-rotate'' the text of nodes drawn with, respectively,
 \texttt{xscale=-1}, \texttt{yscale=-1}, and \texttt{scale=-1} (which is equivalent to
 \texttt{xscale=-1, yscale=-1}).
+In other formats they are undefined; contributions to fill the gap are welcome.
 
 \begin{LTXexample}[varwidth=true, basicstyle=\small\ttfamily]
 \begin{circuitikz}[scale=0.7, transform shape]
@@ -3804,7 +3805,170 @@ In the case of \textsc{not}, there are only \texttt{in} and \texttt{out} (althou
 ;\end{circuitikz}
 \end{LTXexample}
 
+\subsection{Flip-flops}\label{sec:flipflops}
 
+Flip-flops are an hybrid between the logic ports and the chips. They have a class by themselves (\texttt{flipflops}) but the default parameters are set at the same values as the logic gates one.
+
+The default flip flop is empty: it is just a rectangular box like a blank \texttt{dipchip}  with 6 pins.
+\begin{groupdesc}
+    \circuitdesc*{flipflop}{Blank (void) flip flop}{FF}(
+    pin 1/180/0.2, pin 2/180/0.2, pin 3/180/0.2,
+    bpin 1/120/0.3, bpin 6/60/0.3, up/90/0.2, down/-90/0.2, bup/30/0.2, bdown/-30/0.2,
+    pin 6/0/0.2, pin 5/0/0.2, pin 4/0/0.2)
+\end{groupdesc}
+
+As you can see, in a void flip flop no external pins are drawn: you have to define the meaning of each of them to see them.
+To define a specific flip-flop, you have to set a series of keys under the \verb|\ctikzset| directory \texttt{multipoles/flipflop/}, corresponding to pins \texttt{1}\dots \texttt{6}, \texttt{u} for ``up'' and \texttt{d} for ``down'':
+\begin{itemize}
+    \item a \emph{text} value \texttt{t0}, \texttt{t1}, \dots \texttt{t6}, and \texttt{tu} and \texttt{td} (the last ones for up and down) which will set a label on the pin;
+    \item a \emph{clock wedge} flag (\texttt{c0}, \dots  \texttt{c6}, \texttt{cu}, \texttt{cd}), with value \texttt{0} or \texttt{1}, which will draw a triangle shape on the border of the correspondig pin;
+    \item a \emph{negation} flag (\texttt{n0}, \dots  \texttt{n6}, \texttt{nu}, \texttt{nd}),  with value \texttt{0} or \texttt{1}, which will put and \texttt{ocirc} shape on the outer border of the correspondig pin.
+\end{itemize}
+
+To set all this keys, an auxiliary style \texttt{flipflop def} is defined, so that you can do the following thing:
+
+\begingroup
+\tikzset{flipflop AB/.style={flipflop,
+    flipflop def={t1=A, t3=B, t6=Q, t4={\ctikztextnot{Q}},
+        td=rst, nd=1, c2=1, n2=1, t2={\texttt{CLK}}},
+}}
+
+\begin{lstlisting}
+\tikzset{flipflop AB/.style={flipflop,
+    flipflop def={t1=A, t3=B, t6=Q, t4={\ctikztextnot{Q}},
+        td=rst, nd=1, c2=1, n2=1, t2={\texttt{CLK}}},
+}}
+\end{lstlisting}
+
+to obtain:
+
+\begin{groupdesc}
+    \circuitdesc*{flipflop AB}{Example custom flip flop}{}(
+    pin 1/180/0.2, pin 2/180/0.2, pin 3/180/0.2,
+    bpin 1/120/0.3, bpin 6/60/0.3, down/-90/0.2, bdown/-30/0.2,
+    pin 6/0/0.2)
+\end{groupdesc}
+\endgroup
+
+\verb|\ctikztextnot{}| is a small utility macro to set a overbar to a text, like \ctikztextnot{RST} (created by \verb|\ctikztextnot{RST}|).
+
+
+By default, the following flip-flops are defined:
+\begin{groupdesc}
+    \circuitdesc*{latch}{D-type latch}{}
+    \circuitdesc*{flipflop SR}{flip-flop SR}{}
+    \circuitdesc*{flipflop D}{Edge-triggered synchronous flip-flop D}{}
+    \circuitdesc*{flipflop T}{Edge-triggered synchronous flip-flop T}{}
+    \circuitdesc*{flipflop JK}{Edge-triggered synchronous flip-flop JK}{}
+\end{groupdesc}
+
+If you prefer that the negated output is labelled \texttt{Q} and a dot indicating negation is shown, you can add the \texttt{dot on notQ} key:
+
+\begin{groupdesc}
+    \circuitdesc*{flipflop JK, dot on notQ}{synchronous flip-flop JK with asynchronous set and reset}{}
+\end{groupdesc}
+
+You can also  add ``vertical'' asynchronous set and reset (active low) adding the style \texttt{add async SR} to all of them:
+
+\begin{groupdesc}
+    \circuitdesc*{flipflop JK, add async SR}{synchronous flip-flop JK with asynchronous set and reset}{}
+\end{groupdesc}
+
+\subsubsection{Custom flip-flops}
+
+If you like different pin distributions, you can easily define different flip-flops to your taste. For example, somebody likes the clock pin on the bottom pin:
+
+\begingroup
+\tikzset{flipflop myJK/.style={flipflop,
+    flipflop def={t1=J, t2=K, t6=Q, t4={\ctikztextnot{Q}}, c3=1}}
+}
+
+\begin{lstlisting}
+\tikzset{flipflop myJK/.style={flipflop,
+    flipflop def={t1=J, t2=K, t6=Q, t4={\ctikztextnot{Q}}, c3=1}}
+}
+\end{lstlisting}
+
+\begin{groupdesc}
+    \circuitdesc*{flipflop myJK}{Example custom flip flop}{}
+\end{groupdesc}
+\endgroup
+
+The standard definition of the default flip-flops are the following (you can find them in the file \texttt{pgfcircmultipoles.tex}):
+
+\begin{lstlisting}[basicstyle=\small\ttfamily]
+\tikzset{
+    % async
+    latch/.style={flipflop, flipflop def={t1=D, t6=Q, t3=CLK, t4=\ctikztextnot{Q}}},
+    flipflop SR/.style={flipflop, flipflop def={t1=S, t3=R, t6=Q, t4=\ctikztextnot{Q}}},
+    % sync
+    flipflop D/.style={flipflop, flipflop def={t1=D, t6=Q, c3=1, t4=\ctikztextnot{Q}}},
+    flipflop T/.style={flipflop, flipflop def={t1=T, t6=Q, c3=1, t4=\ctikztextnot{Q}}},
+    flipflop JK/.style={flipflop,
+                flipflop def={t1=J, t3=K, c2=1, t6=Q, t4=\ctikztextnot{Q}}},
+    % additional features
+    add async SR/.style={flipflop def={%
+                tu={\ctikztextnot{SET}}, td={\ctikztextnot{RST}}}},
+    dot on notQ/.style={flipflop def={t4={Q}, n4=1}},
+}
+\end{lstlisting}
+
+
+\subsubsection{Flip-flops anchors}
+
+Flip-flops have all the standard geometrical anchors, although it should be noticed that the external pin are \emph{outside} them. The pins are accessed by the number \texttt{1} to \texttt{6} for the lateral ones (like in DIP chips), and with the \texttt{up} and \texttt{down} anchors for the top and bottom one. All the pins have the ``border'' variant (add a \texttt{b} in front of them, no spaces).
+
+\begin{quote}
+        \geocoord{flipflop JK}\qquad
+        \showanchors{flipflop JK, add async SR, external pins width=0.5}{}(%
+            pin 1/180/0.5, pin 2/180/0.5, pin 3/180/0.5,
+            up/90/0.2, down/-90/0.2,
+            pin 6/0/0.5, pin 5/0/0.5, pin 4/0/0.5,
+            bpin 1/120/0.3, bpin 2/135/0.3, bpin 3/-120/0.2,
+            bup/30/0.3, bdown/-30/0.3,
+            bpin 6/60/0.3, bpin 5/30/0.3, bpin 4/-30/0.4)
+\end{quote}
+
+If you have negated pins, you can access the \texttt{ocirc} shapes with the name as \texttt{\textsl{<nodename>}-N\textsl{<pin number>}}, and all the respective anchors (for example --- \verb|myFFnode-N4.west|).
+
+\subsubsection{Flip-flops customization}
+
+
+Flip-flop's size is controlled by the class parameters (like \texttt{flipflops/scale})  and the specific \verb|\ctikzset| keys \texttt{multipoles/flipflop/width} and \texttt{multipoles/flipflop/pin spacing}. Class parameters are also used for line thickness and fill color. The default values are matched with the logic ports ones.
+
+The fonts used for the pins \texttt{1}\dots \texttt{6} is set by the key \texttt{multipoles/flipflop/font} (by default \verb|\small| in \LaTeX{} and the equivalent in other formats) and the font used for pins \texttt{u} and \texttt{d} is \texttt{multipoles/flipflop/fontud} (\verb|\tiny| by default).
+You can change it globally or specifically for each flip flop.
+
+As in chips, you can change the length of the external pin with the key \texttt{external pins width}; you can for example have a pinless flip-flop like this:
+
+\begin{groupdesc}
+    \circuitdesc*{flipflop JK, add async SR, external pins width=0}{synchronous flip-flop JK}{}
+\end{groupdesc}
+
+Notice however that negated pins when the pins width is zero has to be handled with care. As explained in the poles sections, the \texttt{ocirc} shape is drawn at the end of the shape to cancel out the wires below; so if you use a pinless flipflop when you do the connection you should take care of connecting the symbol correctly. To this end, the shapes of the negation circles are made available as \texttt{\textsl{<nodename>}-N\textsl{<pin number>}}, as you can see in the next (contrived) example.
+
+
+\begin{LTXexample}[varwidth=true]
+\begin{circuitikz}[scale=3, transform shape]
+    \clip (0.2,0.5) rectangle (1.2,-1.3);
+    \node [flipflop JK,
+           flipflop def={n5=1,n4=1,t5={/c},c5=1},
+           external pins width=0,
+           ](A){};
+    \draw (A-N5.east) -- ++(1,0); % correct
+    \draw (A.pin 4) -- ++(1,0);   % wrong
+\end{circuitikz}
+\end{LTXexample}
+
+Normally the symbols on the flip-flop are un-rotated when you rotate the symbol, but as in case of chips, you can avoid it.
+
+\begin{LTXexample}[pos=t]
+\begin{tikzpicture}
+    \draw (0,0) node[flipflop JK, add async SR]{};
+    \draw (3,0) node[flipflop JK, add async SR, rotate=90]{};
+    \draw (7,0) node[flipflop JK, add async SR, rotate=90, rotated numbers]{};
+\end{tikzpicture}
+\end{LTXexample}
 
 \subsection{Chips (integrated circuits)}
 
