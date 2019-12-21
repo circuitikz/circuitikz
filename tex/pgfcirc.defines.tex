@@ -168,6 +168,29 @@
 \fi\fi\fi
 
 
+%
+% Thanks to Phelype Oleinik https://tex.stackexchange.com/a/520806/38080
+%
+% this is needed to avoid problems with \ConTeXt
+\ifcsname normalunexpanded\endcsname
+  \let\pgfcircutil@unexpanded\normalunexpanded
+\else
+  \let\pgfcircutil@unexpanded\unexpanded
+\fi
+% minimally expand a pgfkey to check if it's {}/undefined or filled.
+\def\unexpandedvalueof#1{%
+  \pgfcircutil@unexpanded\expandafter\expandafter
+    \expandafter\pgf@circ@valueof@chk\pgfkeysvalueof{#1}}
+\def\pgf@circ@valueof@chk#1{%
+  \ifx\relax#1%
+    \expandafter\pgfutil@firstoftwo
+  \else
+    \expandafter\pgfutil@secondoftwo
+  \fi
+    {{}}% #1 is \relax, so consider empty
+    {\expandafter{#1}}% otherwise, leave the key after one more expansion
+}%
+
 % voltage options
 
 \newif\ifpgf@circ@siunitx
@@ -336,6 +359,10 @@
 \ctikzset{logic ports/scale/.initial=1.0}
 \ctikzset{logic ports/fill/.initial=none}
 \ctikzset{logic ports/thickness/.initial=none}
+
+\ctikzset{flipflops/scale/.initial=1.0}
+\ctikzset{flipflops/fill/.initial=none}
+\ctikzset{flipflops/thickness/.initial=none}
 
 \ctikzset{chips/scale/.initial=1.0}
 \ctikzset{chips/fill/.initial=none}
@@ -1254,6 +1281,13 @@
 %
 \pgfkeys{/tikz/number inputs/.initial=0}
 \pgfkeys{/tikz/number inputs/.default=0}
+
+%% flip-flop specific keys (most others are the same as chips)
+\ctikzset{multipoles/flipflop/font/.initial=\pgf@circ@font@small}
+\ctikzset{multipoles/flipflop/fontud/.initial=\pgf@circ@font@tiny}
+\ctikzset{multipoles/flipflop/width/.initial=1.2}
+\ctikzset{multipoles/flipflop/pin spacing/.initial=0.6}
+\ctikzset{multipoles/flipflop/clock wedge size/.initial=0.2}
 %
 % switches for op amps
 % changing input polarity

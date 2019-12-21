@@ -3,15 +3,17 @@ The major changes among the different circuitikz versions are listed here. See <
 
 * Version 1.0.0-pre1 (unreleased)
 
-    Minimal changes for a pre-release of 1.0.0, due early 2020, mainly bug fixes apart from addition to the amplifiers to add flexibility.
+    Last additions before the long promised 1.0! In this pre-release we feature a flip-flop library, a revamped configurability of amplifiers (and a new amplifier as a bonus) and some bug fix around the clock.
 
     - Bumped version number
+    - Added a flip-flop library
     - Added a single-input generic amplifier with the same dimension as "plain amp"
     - Added border anchors to amplifiers
     - Added the possibility (expert only!) to add transparency to poles (after a suggestion from user @matthuszagh on GitHub)
     - Make plus and minus symbol on amplifiers configurable
     - Adjusted the position of text in triangular amplifiers
     - Fixed "plain amp" not respecting "noinv input up"
+    - Fixed minor incompatibility with ConTeXt and Plain TeX
 
 * Version 0.9.7 (2019-12-01)
 
