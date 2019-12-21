@@ -1,11 +1,10 @@
 <!--- CircuiTikz - Changelog --->
 The major changes among the different circuitikz versions are listed here. See <https://github.com/circuitikz/circuitikz/commits> for a full list of changes.
 
-* Version 1.0.0-pre1 (unreleased)
+* Version 1.0.0-pre1 (2019-12-22)
 
     Last additions before the long promised 1.0! In this pre-release we feature a flip-flop library, a revamped configurability of amplifiers (and a new amplifier as a bonus) and some bug fix around the clock.
 
-    - Bumped version number
     - Added a flip-flop library
     - Added a single-input generic amplifier with the same dimension as "plain amp"
     - Added border anchors to amplifiers
