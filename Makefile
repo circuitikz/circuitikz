@@ -38,7 +38,7 @@ manual-latex: changelog
 	rm -f doc/tmp.pdf
 	#cd doc;pdflatex compatibility.tex; pdflatex circuitikzmanual.tex; pdflatex circuitikzmanual.tex
 	#compile with xelatex for smaller filesize!
-	# sometime you need three compilation to get pages correctly
+	# sometime you need three compilation to get index pages correctly
 	cd doc; TEXINPUTS=.:../tex/: xelatex $(XELATEXOPTIONS) compatibility.tex;  TEXINPUTS=.:../tex/: xelatex $(XELATEXOPTIONS) circuitikzmanual.tex;  TEXINPUTS=.:../tex/: xelatex $(XELATEXOPTIONS) circuitikzmanual.tex; TEXINPUTS=.:../tex/: xelatex $(XELATEXOPTIONS) circuitikzmanual.tex
 	#optimize for smaller filesize(faktor 2!)--> only useful if using pdflatex
 	#gs -sDEVICE=pdfwrite -dCompatibilityLevel=1.4 -dPDFSETTINGS=/screen -dNOPAUSE -dQUIET -dBATCH -sOutputFile=doc/tmp.pdf doc/circuitikzmanual.pdf
@@ -104,12 +104,12 @@ flat:
 	perl tools/flatten.pl tex/circuitikz.sty > $(CTIKZ_GIT_FILENAME)
 	perl tools/flatten.pl tex/t-circuitikz.tex > $(CTIKZ_CONTEXT_GIT_FILENAME)
 	#insert git revision latex version:
-	sed -i 's/\\def\\pgfcircversion{.*/\\def\\pgfcircversion\{git:$(GIT_REV)\}/' $(CTIKZ_GIT_FILENAME)
+	sed -i 's/\\def\\pgfcircversion{\(.*\)}/\\def\\pgfcircversion\{\1-$(GIT_REV)\}/' $(CTIKZ_GIT_FILENAME)
 	sed -i 's/\\def\\pgfcircversiondate{.*/\\def\\pgfcircversiondate\{$(GIT_DATE)\}/' $(CTIKZ_GIT_FILENAME)
 	sed -i 's/\\ProvidesPackage{circuitikz}.*/\\ProvidesPackage{circuitikzgit}/' $(CTIKZ_GIT_FILENAME)
 	sed -i 's/\r$$//g' $(CTIKZ_GIT_FILENAME)
 	#insert git revision context version:
-	sed -i 's/\\def\\pgfcircversion{.*/\\def\\pgfcircversion\{git:$(GIT_REV)\}/' $(CTIKZ_CONTEXT_GIT_FILENAME)
+	sed -i 's/\\def\\pgfcircversion{\(.*\)/\\def\\pgfcircversion\{\1-$(GIT_REV)\}/' $(CTIKZ_CONTEXT_GIT_FILENAME)
 	sed -i 's/\\def\\pgfcircversiondate{.*/\\def\\pgfcircversiondate\{$(GIT_DATE)\}/' $(CTIKZ_CONTEXT_GIT_FILENAME)
 	sed -i 's/\\startmodule\[circuitikz\].*/\\startmodule[circuitikzgit]/' $(CTIKZ_CONTEXT_GIT_FILENAME)
 	sed -i 's/\r$$//' $(CTIKZ_CONTEXT_GIT_FILENAME)
