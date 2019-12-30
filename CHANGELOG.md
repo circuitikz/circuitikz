@@ -5,7 +5,8 @@ The major changes among the different circuitikz versions are listed here. See <
 
     Trying to go toward the 1.0.0 version. Minor changes and improvements deemed not too risky only.
 
-    - Changed the shape of the or-type american logic ports (reversible with a flag).
+    - Changed the shape of the or-type american logic ports (reversible with a flag)
+    - Added the possibility to suppress the input leads in logic gates
 
 * Version 1.0.0-pre1 (2019-12-22)
 
