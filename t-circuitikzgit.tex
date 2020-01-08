@@ -1,5 +1,5 @@
-\def\pgfcircversion{1.0.0-pre2}-1f71eff}
-\def\pgfcircversiondate{2019/12/25}
+\def\pgfcircversion{1.0.0-pre2}-9179fd0}
+\def\pgfcircversiondate{2020/01/08}
 \writestatus{loading}{\pgfcircversiondate{} The CircuiTikz circuit drawing package version \pgfcircversion}
 
 \usemodule[tikz]
@@ -679,6 +679,11 @@
 \ctikzset{bipoles/short/width/.initial=0} %dummy width for voltage positioning
 %\ctikzset{bipoles/short/voltage/straight label distance/.initial=.2}
 %\ctikzset{bipoles/short/voltage/distance from node/.initial=.5}
+% multiwire
+\ctikzset{bipoles/multiwire/height/.initial=0.4}
+\ctikzset{bipoles/multiwire/width/.initial=0.2}
+\ctikzset{bipoles/multiwire/spacing/.initial=0.05}
+
 \ctikzset{bipoles/ammeter/height/.initial=.60}
 \ctikzset{bipoles/ammeter/width/.initial=.60}
 \ctikzset{bipoles/ohmmeter/height/.initial=.60}
@@ -1169,6 +1174,13 @@
 \ctikzset{american or shape/.is choice}
 \ctikzset{american or shape/roundy/.code={\pgfcirc@roundy@or@shapestrue}}
 \ctikzset{american or shape/pointy/.code={\pgfcirc@roundy@or@shapesfalse}}
+
+\newif\ifpgfcirc@draw@leads\pgfcirc@draw@leadstrue
+\ctikzset{logic ports draw input leads/.is choice}
+\ctikzset{logic ports draw input leads/true/.code={\pgfcirc@draw@leadstrue}}
+\ctikzset{logic ports draw input leads/false/.code={\pgfcirc@draw@leadsfalse}}
+\tikzset{input leads/.code={\pgfcirc@draw@leadstrue}}
+\tikzset{no input leads/.code={\pgfcirc@draw@leadsfalse}}
 
 \ctikzset{tripoles/american and port/width/.initial=1.1}
 \ctikzset{tripoles/american and port/height/.initial=.8}
@@ -4054,6 +4066,37 @@
 {\ctikzvalof{bipoles/open/width}}
 { }
 
+% multiwire(s)
+\pgfcircdeclarebipole
+{}
+{\ctikzvalof{bipoles/multiwire/height}}
+{multiwire}
+{\ctikzvalof{bipoles/multiwire/height}}
+{\ctikzvalof{bipoles/multiwire/width}}
+{
+    \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@down}}
+    \pgfpathlineto{\pgfpoint{0pt}{\pgf@circ@res@up}}
+    \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{0pt}}
+    \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{0pt}}
+    \pgfusepath{draw}
+}
+
+\pgfcircdeclarebipole
+{}
+{\ctikzvalof{bipoles/multiwire/height}}
+{bmultiwire}
+{\ctikzvalof{bipoles/multiwire/height}}
+{\ctikzvalof{bipoles/multiwire/width}}
+{
+    \pgf@circ@res@other=\ctikzvalof{bipoles/multiwire/spacing}\pgf@circ@Rlen
+    \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@down}}
+    \pgfpathlineto{\pgfpoint{0pt}{\pgf@circ@res@up}}
+    \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left+\pgf@circ@res@other}{\pgf@circ@res@down}}
+    \pgfpathlineto{\pgfpoint{\pgf@circ@res@other}{\pgf@circ@res@up}}
+    \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{0pt}}
+    \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{0pt}}
+    \pgfusepath{draw}
+}
 %% Generic bipole - used as resistor by some (bleah)
 \pgfcircdeclarebipolescaled{resistors}
 {}
@@ -9257,7 +9300,7 @@
     \anchor{bout}{\right\pgf@y=0pt}
 
 
-    \anchor{left}{\left}% edges of component mius leads
+    \anchor{left}{\left}% edges of component minus leads
     \anchor{right}{\right}
 
     \anchor{north east}{\northeast}% see \Compass macro
@@ -9288,21 +9331,24 @@
     \pgfextracty{\pgf@circ@res@temp}{\step}%
     \pgf@circ@res@step = \dimexpr 2\pgf@circ@res@temp -2\pgf@circ@res@up\relax
     \pgf@circ@res@count = \inputs\relax
-    \loop\ifnum\pgf@circ@res@count>0
-        \advance\pgf@circ@res@temp by -\pgf@circ@res@step
-        \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@temp}}%
-        \pgfpathlineto{\pgfpoint
-            {\ctikzvalof{tripoles/american and port/port width}\pgf@circ@res@left}
-        {\pgf@circ@res@temp}}
-        \advance\pgf@circ@res@count by -1
+    \ifpgfcirc@draw@leads
+        %input leads
+        \loop\ifnum\pgf@circ@res@count>0
+            \advance\pgf@circ@res@temp by -\pgf@circ@res@step
+            \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@temp}}%
+            \pgfpathlineto{\pgfpoint
+                {\ctikzvalof{tripoles/american and port/port width}\pgf@circ@res@left}
+            {\pgf@circ@res@temp}}
+            \advance\pgf@circ@res@count by -1
         \repeat
-
+    \fi
+    % output lead
     \pgfpathmoveto{\pgfpoint{\pgf@circ@res@right}{0pt}}
     \pgfpathlineto{\pgfpoint
         {\ctikzvalof{tripoles/american and port/port width}\pgf@circ@res@right}
     {0pt}}
-
     \pgfusepath{draw}
+
 
     \pgf@circ@setlinewidth{tripoles}{\pgflinewidth}
     \pgf@circ@res@other=\ctikzvalof{tripoles/american and port/port width}\pgf@circ@res@left
@@ -9318,21 +9364,23 @@
     \pgfextracty{\pgf@circ@res@temp}{\step}%
     \pgf@circ@res@step = \dimexpr 2\pgf@circ@res@temp -2\pgf@circ@res@up\relax
     \pgf@circ@res@count = \inputs\relax
-    \loop\ifnum\pgf@circ@res@count>0
-        \advance\pgf@circ@res@temp by -\pgf@circ@res@step
-        \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@temp}}%
-        \pgfpathlineto{\pgfpoint
-            {\ctikzvalof{tripoles/american nand port/port width}\pgf@circ@res@left}
-        {\pgf@circ@res@temp}}
-        \advance\pgf@circ@res@count by -1
-    \repeat
+    \ifpgfcirc@draw@leads
+        %input leads
+        \loop\ifnum\pgf@circ@res@count>0
+            \advance\pgf@circ@res@temp by -\pgf@circ@res@step
+            \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@temp}}%
+            \pgfpathlineto{\pgfpoint
+                {\ctikzvalof{tripoles/american nand port/port width}\pgf@circ@res@left}
+            {\pgf@circ@res@temp}}
+            \advance\pgf@circ@res@count by -1
+        \repeat
+    \fi
 
     \pgfpathmoveto{\pgfpoint{\pgf@circ@res@right}{0pt}}
     \pgfpathlineto{\pgfpoint
         {\ctikzvalof{tripoles/american nand port/port width}\pgf@circ@res@right} {0pt}}
 
     \pgfusepath{draw}
-
     \pgf@circ@setlinewidth{tripoles}{\pgflinewidth}
     \pgf@circ@res@step = \ctikzvalof{tripoles/american nand port/circle width}\pgf@circ@res@right
     \pgf@circ@res@other = \ctikzvalof{tripoles/american nand port/port width}\pgf@circ@res@right
@@ -9362,14 +9410,17 @@
     \pgfextracty{\pgf@circ@res@temp}{\step}%
     \pgf@circ@res@step = \dimexpr 2\pgf@circ@res@temp -2\pgf@circ@res@up\relax
     \pgf@circ@res@count = \inputs\relax
-    \loop\ifnum\pgf@circ@res@count>0
-        \advance\pgf@circ@res@temp by -\pgf@circ@res@step
-        \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@temp}}%
-        \pgfmathsetmacro{\pgf@circ@math@angle}{asin(\pgf@circ@res@temp/\pgf@circ@math@yradius)}%
-        \pgfmathsetlength{\pgf@circ@res@other}{\pgf@circ@math@xradius*cos(\pgf@circ@math@angle)-\pgf@circ@math@xorigin}%
-        \pgfpathlineto{\pgfpoint{\pgf@circ@res@other}{\pgf@circ@res@temp}}%
-        \advance\pgf@circ@res@count by -1
-    \repeat
+    \ifpgfcirc@draw@leads
+        %input leads
+        \loop\ifnum\pgf@circ@res@count>0
+            \advance\pgf@circ@res@temp by -\pgf@circ@res@step
+            \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@temp}}%
+            \pgfmathsetmacro{\pgf@circ@math@angle}{asin(\pgf@circ@res@temp/\pgf@circ@math@yradius)}%
+            \pgfmathsetlength{\pgf@circ@res@other}{\pgf@circ@math@xradius*cos(\pgf@circ@math@angle)-\pgf@circ@math@xorigin}%
+            \pgfpathlineto{\pgfpoint{\pgf@circ@res@other}{\pgf@circ@res@temp}}%
+            \advance\pgf@circ@res@count by -1
+        \repeat
+    \fi
 
     \pgf@circ@res@other=\ctikzvalof{tripoles/american nor port/port width}\pgf@circ@res@right
     \pgfpathmoveto{\pgfpoint{\pgf@circ@res@right}{0pt}}
@@ -9420,14 +9471,17 @@
     \pgfextracty{\pgf@circ@res@temp}{\step}%
     \pgf@circ@res@step = \dimexpr 2\pgf@circ@res@temp -2\pgf@circ@res@up\relax
     \pgf@circ@res@count = \inputs\relax
-    \loop\ifnum\pgf@circ@res@count>0
-        \advance\pgf@circ@res@temp by -\pgf@circ@res@step
-        \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@temp}}%
-        \pgfmathsetmacro{\pgf@circ@math@angle}{asin(\pgf@circ@res@temp/\pgf@circ@math@yradius)}%
-        \pgfmathsetlength{\pgf@circ@res@other}{\pgf@circ@math@xradius*cos(\pgf@circ@math@angle)-\pgf@circ@math@xorigin}%
-        \pgfpathlineto{\pgfpoint{\pgf@circ@res@other}{\pgf@circ@res@temp}}%
-        \advance\pgf@circ@res@count by -1
-    \repeat
+    \ifpgfcirc@draw@leads
+        %input leads
+        \loop\ifnum\pgf@circ@res@count>0
+            \advance\pgf@circ@res@temp by -\pgf@circ@res@step
+            \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@temp}}%
+            \pgfmathsetmacro{\pgf@circ@math@angle}{asin(\pgf@circ@res@temp/\pgf@circ@math@yradius)}%
+            \pgfmathsetlength{\pgf@circ@res@other}{\pgf@circ@math@xradius*cos(\pgf@circ@math@angle)-\pgf@circ@math@xorigin}%
+            \pgfpathlineto{\pgfpoint{\pgf@circ@res@other}{\pgf@circ@res@temp}}%
+            \advance\pgf@circ@res@count by -1
+        \repeat
+    \fi
 
     \pgf@circ@res@other=\ctikzvalof{tripoles/american or port/port width}\pgf@circ@res@right
     \pgfpathmoveto{\pgfpoint{\pgf@circ@res@right}{0pt}}
@@ -9474,15 +9528,18 @@
     \pgfextracty{\pgf@circ@res@temp}{\step}%
     \pgf@circ@res@step = \dimexpr 2\pgf@circ@res@temp -2\pgf@circ@res@up\relax
     \pgf@circ@res@count = \inputs\relax
-    \loop\ifnum\pgf@circ@res@count>0
-        \advance\pgf@circ@res@temp by -\pgf@circ@res@step
-        \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@temp}}%
-        \pgfmathsetmacro{\pgf@circ@math@angle}{asin(\pgf@circ@res@temp  / \pgf@circ@math@yradiusA)}%
-        \pgfmathsetlength{\pgf@circ@res@other}{\pgf@circ@math@xradiusA*cos(\pgf@circ@math@angle)-\pgf@circ@math@xorigin}%
-        \advance\pgf@circ@res@other by -\pgf@circ@math@distance
-        \pgfpathlineto{\pgfpoint{\pgf@circ@res@other}{\pgf@circ@res@temp}}%
-        \advance\pgf@circ@res@count by -1
-    \repeat
+    \ifpgfcirc@draw@leads
+        %input leads
+        \loop\ifnum\pgf@circ@res@count>0
+            \advance\pgf@circ@res@temp by -\pgf@circ@res@step
+            \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@temp}}%
+            \pgfmathsetmacro{\pgf@circ@math@angle}{asin(\pgf@circ@res@temp  / \pgf@circ@math@yradiusA)}%
+            \pgfmathsetlength{\pgf@circ@res@other}{\pgf@circ@math@xradiusA*cos(\pgf@circ@math@angle)-\pgf@circ@math@xorigin}%
+            \advance\pgf@circ@res@other by -\pgf@circ@math@distance
+            \pgfpathlineto{\pgfpoint{\pgf@circ@res@other}{\pgf@circ@res@temp}}%
+            \advance\pgf@circ@res@count by -1
+        \repeat
+    \fi
 
     \pgf@circ@res@other=\ctikzvalof{tripoles/american xor port/port width}\pgf@circ@res@right
     \pgfpathmoveto{\pgfpoint{\pgf@circ@res@right}{0pt}}
@@ -9535,15 +9592,18 @@
     \pgfextracty{\pgf@circ@res@temp}{\step}%
     \pgf@circ@res@step = \dimexpr 2\pgf@circ@res@temp -2\pgf@circ@res@up\relax
     \pgf@circ@res@count = \inputs\relax
-    \loop\ifnum\pgf@circ@res@count>0
-        \advance\pgf@circ@res@temp by -\pgf@circ@res@step
-        \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@temp}}%
-        \pgfmathsetmacro{\pgf@circ@math@angle}{asin(\pgf@circ@res@temp  / \pgf@circ@math@yradiusA)}%
-        \pgfmathsetlength{\pgf@circ@res@other}{\pgf@circ@math@xradiusA*cos(\pgf@circ@math@angle)-\pgf@circ@math@xorigin}%
-        \advance\pgf@circ@res@other by -\pgf@circ@math@distance
-        \pgfpathlineto{\pgfpoint{\pgf@circ@res@other}{\pgf@circ@res@temp}}%
-        \advance\pgf@circ@res@count by -1
-    \repeat
+    \ifpgfcirc@draw@leads
+        %input leads
+        \loop\ifnum\pgf@circ@res@count>0
+            \advance\pgf@circ@res@temp by -\pgf@circ@res@step
+            \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@temp}}%
+            \pgfmathsetmacro{\pgf@circ@math@angle}{asin(\pgf@circ@res@temp  / \pgf@circ@math@yradiusA)}%
+            \pgfmathsetlength{\pgf@circ@res@other}{\pgf@circ@math@xradiusA*cos(\pgf@circ@math@angle)-\pgf@circ@math@xorigin}%
+            \advance\pgf@circ@res@other by -\pgf@circ@math@distance
+            \pgfpathlineto{\pgfpoint{\pgf@circ@res@other}{\pgf@circ@res@temp}}%
+            \advance\pgf@circ@res@count by -1
+        \repeat
+    \fi
 
     \pgf@circ@res@other=\ctikzvalof{tripoles/american xnor port/port width}\pgf@circ@res@right
     \pgfpathmoveto{\pgfpoint{\pgf@circ@res@right}{0pt}}
@@ -9696,8 +9756,11 @@
             \pgf@circ@draworfill
         \endpgfscope
 
-        \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{0pt}}
-        \pgfpathlineto{\pgfpoint{.7\pgf@circ@res@left}{0pt}}
+        \ifpgfcirc@draw@leads
+            %input leads
+            \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{0pt}}
+            \pgfpathlineto{\pgfpoint{.7\pgf@circ@res@left}{0pt}}
+        \fi
 
         \pgfpathmoveto{\pgfpoint{\pgf@circ@res@right}{0pt}}
         \pgfpathlineto{\pgfpoint{.7\pgf@circ@res@right}{0pt}}
@@ -9804,8 +9867,11 @@
             \pgf@circ@draworfill
         \endpgfscope
 
-        \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{0pt}}
-        \pgfpathlineto{\pgfpoint{.7\pgf@circ@res@left}{0pt}}
+        \ifpgfcirc@draw@leads
+            %input leads
+            \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{0pt}}
+            \pgfpathlineto{\pgfpoint{.7\pgf@circ@res@left}{0pt}}
+        \fi
 
         \pgfpathmoveto{\pgfpoint{\pgf@circ@res@right}{0pt}}
         \pgfpathlineto{\pgfpoint{.7\pgf@circ@res@right}{0pt}}
@@ -9831,6 +9897,11 @@
     \anchor{in 1}{
         \northwest
         \pgf@y=0pt
+    }
+    \anchor{bin}{
+        \northwest
+        \pgf@y=0pt
+        \pgf@x=0.7\pgf@x
     }
     \anchor{bin 1}{
         \northwest
@@ -9914,8 +9985,11 @@
             \pgf@circ@draworfill
         \endpgfscope
 
-        \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{0pt}}
-        \pgfpathlineto{\pgfpoint{.7\pgf@circ@res@left}{0pt}}
+        \ifpgfcirc@draw@leads
+            %input leads
+            \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{0pt}}
+            \pgfpathlineto{\pgfpoint{.7\pgf@circ@res@left}{0pt}}
+        \fi
 
         \pgfpathmoveto{\pgfpoint{\pgf@circ@res@right}{0pt}}
         \pgfpathlineto{\pgfpoint{.7\pgf@circ@res@right}{0pt}}
@@ -9954,6 +10028,11 @@
     \anchor{in 1}{
         \northwest
         \pgf@y=0pt
+    }
+    \anchor{bin}{
+        \northwest
+        \pgf@y=0pt
+        \pgf@x=0.7\pgf@x
     }
     \anchor{bin 1}{
         \northwest
@@ -10031,8 +10110,11 @@
             \pgf@circ@draworfill
         \endpgfscope
 
-        \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{0pt}}
-        \pgfpathlineto{\pgfpoint{.7\pgf@circ@res@left}{0pt}}
+        \ifpgfcirc@draw@leads
+            %input leads
+            \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{0pt}}
+            \pgfpathlineto{\pgfpoint{.7\pgf@circ@res@left}{0pt}}
+        \fi
 
         \pgfpathmoveto{\pgfpoint{\pgf@circ@res@right}{0pt}}
         \pgfpathlineto{\pgfpoint{.7\pgf@circ@res@right-\pgf@circ@res@other}{0pt}}
@@ -10155,39 +10237,42 @@
             {\pgfpoint{\ctikzvalof{tripoles/european #1 port/reserved}\pgf@circ@res@right}{\pgf@circ@res@down}}
             \pgf@circ@draworfill
         \endpgfscope
-        \ifnum#3=1\relax
-            \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{0pt}}%
-            \pgfpathlineto{\pgfpoint{\ctikzvalof{tripoles/european #1 port/reserved}\pgf@circ@res@left}{0pt}}%
-        \else
-            \pgfextracty{\pgf@circ@res@temp}{\step}%
-            \pgf@circ@res@step = \dimexpr 2\pgf@circ@res@temp -2\pgf@circ@res@up\relax
-            %\pgf@circ@res@count = #3\relax% redundant
-            \loop\ifnum\pgf@circ@res@count>0
-                \advance\pgf@circ@res@temp by -\pgf@circ@res@step
-                \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@temp}}%
-                \pgfpathlineto{\pgfpoint
-                    {\ctikzvalof{tripoles/european #1 port/reserved}\pgf@circ@res@left}
-                {\pgf@circ@res@temp}}
-                \advance\pgf@circ@res@count by -1
+        \ifpgfcirc@draw@leads
+            %input leads
+            \ifnum#3=1\relax
+                \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{0pt}}%
+                \pgfpathlineto{\pgfpoint{\ctikzvalof{tripoles/european #1 port/reserved}\pgf@circ@res@left}{0pt}}%
+            \else
+                \pgfextracty{\pgf@circ@res@temp}{\step}%
+                \pgf@circ@res@step = \dimexpr 2\pgf@circ@res@temp -2\pgf@circ@res@up\relax
+                %\pgf@circ@res@count = #3\relax% redundant
+                \loop\ifnum\pgf@circ@res@count>0
+                    \advance\pgf@circ@res@temp by -\pgf@circ@res@step
+                    \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@temp}}%
+                    \pgfpathlineto{\pgfpoint
+                        {\ctikzvalof{tripoles/european #1 port/reserved}\pgf@circ@res@left}
+                    {\pgf@circ@res@temp}}
+                    \advance\pgf@circ@res@count by -1
                 \repeat
             \fi
-            %
-            \pgfpathmoveto{\pgfpoint{\pgf@circ@res@right}{0pt}}
-            \pgfpathlineto{%
-            \pgfpoint{\ctikzvalof{tripoles/european #1 port/reserved}\pgf@circ@res@right}{0pt}}
-            %
-            \edef\pgf@temp{not}
-            \edef\pgf@circ@temp{#4}
-            \ifx\pgf@temp\pgf@circ@temp % is a not
-                \pgfpathmoveto{\pgfpoint{\ctikzvalof{tripoles/european #1 port/not width}\pgf@circ@res@right}{0pt}}
-                \pgfpathlineto{\pgfpoint{\ctikzvalof{tripoles/european #1 port/reserved}\pgf@circ@res@right}%
-                {\ctikzvalof{tripoles/european #1 port/not height}\pgf@circ@res@up}}
-            \fi
-            %
-            \pgfusepath{draw}
-            %
-            \pgfpathmoveto{\pgfpointorigin}
-            \pgftext{#2}
+        \fi
+        %
+        \pgfpathmoveto{\pgfpoint{\pgf@circ@res@right}{0pt}}
+        \pgfpathlineto{%
+        \pgfpoint{\ctikzvalof{tripoles/european #1 port/reserved}\pgf@circ@res@right}{0pt}}
+        %
+        \edef\pgf@temp{not}
+        \edef\pgf@circ@temp{#4}
+        \ifx\pgf@temp\pgf@circ@temp % is a not
+            \pgfpathmoveto{\pgfpoint{\ctikzvalof{tripoles/european #1 port/not width}\pgf@circ@res@right}{0pt}}
+            \pgfpathlineto{\pgfpoint{\ctikzvalof{tripoles/european #1 port/reserved}\pgf@circ@res@right}%
+            {\ctikzvalof{tripoles/european #1 port/not height}\pgf@circ@res@up}}
+        \fi
+        %
+        \pgfusepath{draw}
+        %
+        \pgfpathmoveto{\pgfpointorigin}
+        \pgftext{#2}
         }
     }
 }
@@ -19073,7 +19158,13 @@
 \compattikzset{qvprobe/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@qvprobe@path, l=#1}}
 \def\pgf@circ@qpprobe@path#1{\pgf@circ@bipole@path{qpprobe}{#1}}
 \compattikzset{qpprobe/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@qpprobe@path, l=#1}}
-
+% multiwire(s)
+\def\pgf@circ@bmultiwire@path#1{\pgf@circ@bipole@path{bmultiwire}{#1}}
+\compattikzset{bmultiwire/.style = {\circuitikzbasekey,
+/tikz/to path=\pgf@circ@bmultiwire@path, l=#1}}
+\def\pgf@circ@multiwire@path#1{\pgf@circ@bipole@path{multiwire}{#1}}
+\compattikzset{multiwire/.style = {\circuitikzbasekey,
+/tikz/to path=\pgf@circ@multiwire@path, l=#1}}
 
 % Transistor like bipoles
 
