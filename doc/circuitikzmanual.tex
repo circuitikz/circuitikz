@@ -1915,6 +1915,24 @@ You can use microphones and loudspeakers with \texttt{waves} (see section~\ref{s
 
 You can change the scale of all the miscellaneous elements by setting the key \texttt{misc/scale} to something different from the default \texttt{1.0}.
 
+\subsection{Multiple wires (buses)}
+
+This are simple drawings to indicate multiple wires.
+\begin{groupdesc}
+\circuitdescbip{multiwire}{Single line multiple wires}{multiwire}
+\circuitdescbip{bmultiwire}{Double line multiple wires}{bmultiwire}
+\end{groupdesc}
+
+\begin{LTXexample}[varwidth=true]
+\begin{circuitikz}
+    \draw (0,0) to[multiwire=4] ++(1,0);
+    \draw (0,-2) to[bmultiwire=6] ++(1,0);
+\end{circuitikz}
+\end{LTXexample}
+
+
+
+
 \subsection{Crossings}
 
 Path style:
@@ -3723,6 +3741,35 @@ with the parameter \texttt{number inputs} :
 \draw (C.out) |- (B.in 2);
 \end{circuitikz}
 \end{LTXexample}
+
+You can suppress the drawing of the logic ports input leads by using the boolean key \texttt{logic ports draw input leads}  (default \texttt{true}) or, locally, with the style \texttt{no inputs leads} (that can be reverted with \texttt{input leads}),  like in the following example. The anchors do not change and you have to take responsibility do do the connection to the ``border''-anchors.
+
+\begin{LTXexample}[varwidth=true]
+\begin{circuitikz}
+    \node [or port](O1) at (0,2) {};
+    \node [or port, no input leads](O1) at (2,2) {};
+    \ctikzset{logic ports draw input leads=false}
+    \node [and port](O1) at (0,0) {};
+    \node [nand port, input leads](O1) at (2,0) {};
+\end{circuitikz}
+\end{LTXexample}
+
+This is useful if you need to draw a generic port, like the one following here:
+
+\begin{LTXexample}[varwidth=true]
+\begin{circuitikz}
+    \ctikzset{tripoles/american nand port/height=1.6}
+    \draw (0,0)
+    node[american nand port,
+    circuitikz/tripoles/american nand port/height=1.1,
+    number inputs=5, no input leads,
+    ] (B) {Pn};
+    \draw (B.in 1) -- (B.bin 1) (B.in 5) -- (B.bin 5);
+    \node[rotate=90] at (B.in 3) {\dots};
+\end{circuitikz}
+\end{LTXexample}
+
+The flag works also for the european-style ports, and it suppress only the input leads because the negated ports in european style are ill-specified if you do not draw the output leads (and moreover, it seems really less useful).
 
 You can tweak the appearance of american ``or'' family (\texttt{or}, \texttt{nor}, \texttt{xor}  and \texttt{xnor}) ports, too, with the parameters \texttt{inner} (how much the base circle go ``into'' the shape, default 0.3) and \texttt{angle} (the angle at which the base starts, default 70).
 
