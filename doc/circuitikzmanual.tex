@@ -3364,6 +3364,23 @@ But notice that the ``A'' is also flipped by the \texttt{xscale} parameter. So t
 \end{LTXexample}
 
 
+\subsubsection{Designing your own amplifier}
+
+If you need a different kind of amplifier, you can use the \texttt{muxdemux}
+(see section~\ref{sec:muxdemuxes}) shape for defining one that suits your needs (you need version \texttt{1.0.0} for this to work).
+
+\begin{LTXexample}[varwidth=true, basicstyle=\small\ttfamily]
+\tikzset{tdax/.style={muxdemux,
+        muxdemux def={NL=2, Lh=3, NR=1, Rh=0,
+        NB=4, NT=5}, font=\scriptsize\ttfamily}}
+\begin{circuitikz}
+    \draw (0,0) node[tdax](A){TDA1};
+    \draw (2.5,0) node[tdax,
+        muxdemux def={Rh=0.5}]{TDA2};
+\end{circuitikz}
+\end{LTXexample}
+
+
 \subsection{Switches and buttons}
 
 Switches and button come in to-style (the simple ones and the pushbuttons), and as nodes.
@@ -4043,6 +4060,184 @@ Normally the symbols on the flip-flop are un-rotated when you rotate the symbol,
     \draw (7,0) node[flipflop JK, add async SR, rotate=90, rotated numbers]{};
 \end{tikzpicture}
 \end{LTXexample}
+
+\subsection{Multiplexer and de-multiplexer}\label{sec:muxdemuxes}
+
+The shape used for muxes and de-muxes is probably the most configurable shape of the package; it has been added by Romano in \texttt{v1.0.0}. The basic shape is a multiplexer with 8 input pin, one output pin, and three control pins ($2^3\to1$ multiplexer). The pins are named in different way (see below for a full description for anchors) for reason that will be clear later.
+
+\begin{groupdesc}
+    \circuitdesc*[0.7]{muxdemux}{mux-demux}{MD1}(lpin 1/180/0.2, lpin 2/180/0.2, bpin 1/-90/0.2, blpin 1/0/0.2, blpin 2/0/0.2, bbpin 1/90/0.2, rpin 1/0/0.1, brpin 1/-110/0.1)
+\end{groupdesc}
+
+You can define a custom shape for the \texttt{muxdemux}es using an interface similar to the one used in flip-flops; for example:
+
+\begin{lstlisting}
+\tikzset{demux/.style={muxdemux, muxdemux def={Lh=4, Rh=8, NL=1, NB=3, NR=8}}}
+\end{lstlisting}
+
+will generate the following shape (the definition above is already defined in the package):
+
+\begin{groupdesc}
+    \circuitdesc*[0.7]{demux}{Demultiplexer $1\to2^3$ with \texttt{Lh=4, Rh=8, NL=1, NB=3, NR=8} }{MD2}
+\end{groupdesc}
+
+The shape can be also defined with an inset. For example it can be used like this to define a 1-bit adder (also already available):
+
+\begin{lstlisting}
+\tikzset{one bit adder/.style={muxdemux,
+         muxdemux def={Lh=4, NL=2, Rh=2, NR=1, NB=1, w=1.5,
+         inset w=0.5, inset Lh=2, inset Rh=1.5}}}
+\end{lstlisting}
+\begin{groupdesc}
+    \circuitdesc*{one bit adder}{One-bit adder}{\Large$\oplus$}
+\end{groupdesc}
+
+Or a Arithmetic Logic Unit (again, already defined by default):
+
+\begin{lstlisting}
+\tikzset{ALU/.style={muxdemux,
+         muxdemux def={Lh=5, NL=2, Rh=2, NR=1, NB=2, NT=1, w=2,
+         inset w=1, inset Lh=2, inset Rh=0, square pins=1}}}
+\end{lstlisting}
+\begin{groupdesc}
+    \circuitdesc*{ALU}{ALU}{\rotatebox{90}{\small\ttfamily ALU}}
+\end{groupdesc}
+
+\subsubsection{Mux-Demux: design your own shape}
+
+\begin{minipage}{0.45\linewidth}
+\RaggedRight
+In designing the shape there are several parameters to be taken into account. In the diagram on the right they are shown in a (hopefully) practical way. The parameter can be set in a node or in a style using the \texttt{muxdemux def} key as shown above, or set with \verb|\ctikzset| as \texttt{multipoles/muxdemux/Lh} keys and so on.
+\end{minipage}%
+\begin{minipage}{0.5\linewidth}
+\centering
+\begin{circuitikz}[quote/.style={thin, blue, <->}, refline/.style={red, dashed}]
+    \def\myquotev#1#2#3#4{%
+        \draw [refline] (A.#1) -- ++(#2,0) coordinate(tmp) --++(#3,0);
+        \draw [quote] (tmp|-A.center) -- (tmp |- A.#1)
+        node [midway, below=4pt, sloped, fill=white]{\texttt{#4}};
+    }
+    \def\myquoteh#1#2#3#4#5{%
+        \draw [refline] (A.#1) -- ++(0,#2) coordinate(tmp) --++(0,#3);
+        \draw [quote] (tmp) -- (tmp -| A.#5)
+        node [right, fill=white]{\texttt{#4}};
+    }
+    \begin{scope}
+        \clip (-4,-0.5) rectangle (2,3);
+        \node [muxdemux, muxdemux def={NL=6, NR=3, NT=3,
+        inset w=1.0, inset Lh=3.0, inset Rh=2.0}, no input leads](A) at(0,0) {};
+        \draw [refline] (-4,0) -- (2,0);
+        \draw [refline] (0,-1) -- (0,3);
+    \end{scope}
+    \myquotev{top left}{-2.8}{-.2}{Lh}
+    \myquotev{inset top left}{-2.0}{-.2}{inset Lh}
+    \myquotev{inset top right}{-1.4}{-.2}{inset Rh}
+    \myquotev{top right}{.5}{.2}{Rh}
+    \myquoteh{top left}{.3}{.2}{w}{center}
+    \myquoteh{inset top left}{-1.5}{-.2}{inset w}{inset top right}
+\end{circuitikz}
+\end{minipage}
+
+\bigskip
+
+In addition, you can set the following parameters:
+\begin{description}
+    \item [NL, NR, NB, NT]: number of pins relatively on the left, right, bottom and top side. When an inset is active (in other words, when $\texttt{Lh}>0$) the pins are positioned on the top and bottom part, not in the inset; the exception is when the number of left pins is odd, in which case you have one pin set on the center of the inset.
+    If you do not want a pin in one side, use \texttt{0} as number of pins.
+    \item [square pins]: set to \texttt{0} (default) if you want the square pins to stick out following the slope of the bottom or top side, \texttt{1} if you want them to stick out in a square way (see the example above for the ALU).
+\end{description}
+All the distances are multiple of \texttt{multipoles/muxdemux/base len} (default \texttt{0.4}, to be set with \verb|\ctikzset|), which is relative to the basic length. That value has been chosen so that, if you have a numbers of pins which is equal to the effective distance where they are spread (which is \texttt{Lh} without inset, $\texttt{Lh}- \texttt{inset Lh}$ with an inset), then the distance is the same as the default pin distance in chips, as shown in the next circuit. In the same drawing you can see the effect of \texttt{square pins} parameters (without it, the rightmost bottom lead of the \texttt{mux 4by2} shape will not connect with the below one).
+
+\begin{LTXexample}[varwidth=true, basicstyle=\small\ttfamily]
+\begin{circuitikz}
+    \tikzset{mux 4by2/.style={muxdemux,
+        muxdemux def={Lh=4, NL=4, Rh=3,
+        NB=2, w=2, square pins=1}}}
+    \node [dipchip, num pins=8](A) at (0,0) {IC1};
+    \node [one bit adder, scale=-1, anchor=lpin 2]
+        at (A.pin 1){};
+    \node [mux 4by2, anchor=lpin 1](B)
+        at (A.pin 8){MUX};
+    \node [qfpchip, num pins=8, anchor=pin 8] at
+        (B.bpin 1) {IC2};
+\end{circuitikz}
+\end{LTXexample}
+
+\subsubsection{Mux-Demux customization}
+
+Mux-demuxes have the normal parameters of their class (\texttt{muxdemuxes}),  like \texttt{muxdemuxs/scale}, \texttt{muxdemuxes/thickness} and \texttt{muxdemuxes/fill} --- they are set, by default, at the same values than \texttt{logic ports}.
+
+External pins' length is controlled by the key \texttt{multipoles/external pins
+width} (default \texttt{0.2}) or by the style \texttt{external pins width}
+like in chips. In addition, like in logic ports, you can suppress the
+drawing of the leads by using the boolean key
+\texttt{logic ports draw input leads} (default \texttt{true}) or, locally,
+with the style \texttt{no inputs leads} (that can be reverted with
+\texttt{input leads}.
+
+The main difference between setting \texttt{external pins width} to \texttt{0} or using \texttt{no inputs lead} is that in the first case the normal pin anchors and the border anchors will coincide, and in the second case they will not move and stay where they should have been if the leads were drawn.
+
+\subsubsection{Mux-Demux anchors}
+
+Mux-demuxes have a plethora of anchors. As in the case of chips, the geographic anchors mark the rectangle occupied by the component, without taking into account the pin leads.
+
+\begin{quote}
+    \scalebox{0.7}{%
+        \geocoord[baseline=(N.center)]{muxdemux}
+        \showanchors[baseline=(N.center)]{muxdemux}{X}(top left/180/0.3, top/90/0.3, top right/0/0.3,
+        bottom left/180/0.3, bottom/-90/0.3, bottom right/0/0.3, left/180/0.3, right/0/0.3,
+        center/45/0.2, center up/0/0.4, center down/0/0.4)
+        \showanchors[baseline=(N.center)]{muxdemux, muxdemux def={NL=6, NR=3, NT=3, inset w=1.0,
+        inset Lh=3.0, inset Rh=2.0}, no input leads}{}(inset top left/180/0.3, inset top/90/0.5,
+        inset top right/0/0.3, inset bottom left/180/0.3, inset bottom/-90/0.5,
+        inset bottom right/-20/0.3, inset left/180/0.3, inset right/-20/0.2, inset center/135/0.2,
+        narrow center/20/0.2, center up/45/0.4, center down/-45/0.4)
+}
+\end{quote}
+
+The pins anchors are named \texttt{lpin}, \texttt{rpin}, \texttt{bpin} and \texttt{tpin} for the left, right, bottom and top pin respectively, and points to the ``external'' pin. The border pins are named the same, with a \texttt{b} added in front: \texttt{blpin}, \texttt{brpin}, \texttt{bbpin} and \texttt{btpin}.
+The following graph will show the numbering and position of the pin anchors.
+
+\begin{quote}
+\begin{circuitikz}
+    \node [muxdemux, muxdemux def={NL=4, NR=3, NT=3, NB=3, w=2, inset w=0.5,
+        Lh=4, inset Lh=2.0, inset Rh=1.0, square pins=1}](C) at (0,0) {X};
+    \node [muxdemux, muxdemux def={NL=7, NR=8, NT=4, inset w=1.0,
+        inset Lh=4.0, inset Rh=0.0}](D) at (4,0) {X};
+    \foreach \myn/\NL/\NR/\NB/\NT in {C/4/3/3/3,D/7/8/3/4} {
+        \foreach \myp in {1,...,\NL} \node[right, font=\tiny] at (\myn.blpin \myp){\myp};
+        \foreach \myp in {1,...,\NR} \node[left, font=\tiny] at(\myn.brpin \myp) {\myp};
+        \foreach \myp in {1,...,\NB} \node[above, font=\tiny] at (\myn.bbpin \myp){\myp};
+        \foreach \myp in {1,...,\NT} \node[below, font=\tiny] at (\myn.btpin \myp){\myp};
+    }
+    \path (C.lpin 1) \showcoord(lpin 1)<180:0.3>;
+    \path (D.blpin 1) \showcoord(blpin 1)<135:0.3>;
+    \path (C.tpin 1) \showcoord(tpin 1)<180:0.3>;
+    \path (D.btpin 1) \showcoord(btpin 1)<45:0.3>;
+    \path (C.rpin 1) \showcoord(rpin 1)<0:0.3>;
+    \path (D.brpin 1) \showcoord(brpin 1)<45:0.3>;
+    \path (C.bpin 2) \showcoord(bpin 2)<-90:0.3>;
+    \path (C.bbpin 2) \showcoord(bbpin 2)<-60:0.3>;
+    \path (D.bbpin 2) \showcoord(bbpin 2)<-45:0.3>;
+\end{circuitikz}
+\end{quote}
+
+
+The code that implemented the printing of the numbers (which in \texttt{muxdemux}es, differently from chips, are never printed automatically) in the last graph is the following one.
+
+\begin{lstlisting}[basicstyle=\small\ttfamily]
+\begin{circuitikz}
+\node [muxdemux, muxdemux def={NL=4, NR=3, NT=3, NB=3, w=2, inset w=0.5,
+    Lh=4, inset Lh=2.0, inset Rh=1.0, square pins=1}](C) at (0,0) {X};
+\node [muxdemux, muxdemux def={NL=7, NR=8, NT=4, inset w=1.0,
+    inset Lh=4.0, inset Rh=0.0}](D) at (4,0) {X};
+\foreach \myn/\NL/\NR/\NB/\NT in {C/4/3/3/3,D/7/8/3/4} {
+    \foreach \myp in {1,...,\NL} \node[right, font=\tiny] at (\myn.blpin \myp){\myp};
+    \foreach \myp in {1,...,\NR} \node[left, font=\tiny] at(\myn.brpin \myp) {\myp};
+    \foreach \myp in {1,...,\NB} \node[above, font=\tiny] at (\myn.bbpin \myp){\myp};
+    \foreach \myp in {1,...,\NT} \node[below, font=\tiny] at (\myn.btpin \myp){\myp};
+}
+\end{lstlisting}
 
 \subsection{Chips (integrated circuits)}
 
