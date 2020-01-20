@@ -3,11 +3,12 @@ The major changes among the different circuitikz versions are listed here. See <
 
 * Version 1.0.0-pre2 (unreleased)
 
-    Trying to go toward the 1.0.0 version. The most important change is the addition of multiplexer and de-multiplexers.
+    **Really** last additions toward the 1.0.0 version. The most important change is the addition of multiplexer and de-multiplexers; also added the multi-wires (bus) markers.
 
     - Added mux-demux shapes
     - Added the possibility to suppress the input leads in logic gates
     - Added multiple wires markers
+    - Added a style to switch off the automatic rotation of instruments
     - Changed the shape of the or-type american logic ports (reversible with a flag)
 
 * Version 1.0.0-pre1 (2019-12-22)
