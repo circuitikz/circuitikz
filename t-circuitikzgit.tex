@@ -1,4 +1,4 @@
-\def\pgfcircversion{1.0.0-pre2}-7132c53}
+\def\pgfcircversion{1.0.0-pre2}-1bebfc4}
 \def\pgfcircversiondate{2020/01/20}
 \writestatus{loading}{\pgfcircversiondate{} The CircuiTikz circuit drawing package version \pgfcircversion}
 
@@ -703,6 +703,15 @@
 \ctikzset{bipoles/iloop/height/.initial=.60}
 \ctikzset{bipoles/oscope/height/.initial=.60}
 \ctikzset{bipoles/oscope/width/.initial=.60}
+
+% option to not rotate the new (Romano's) instruments
+\newif\ifpgf@circuit@straightinstruments\pgf@circuit@straightinstrumentsfalse
+\pgfkeys{/tikz/straight instruments/.add code={}{\pgf@circuit@straightinstrumentstrue}}
+\ctikzset{straight instruments/.add code={}{\pgf@circuit@straightinstrumentstrue}}
+\pgfkeys{/tikz/rotated instruments/.add code={}{\pgf@circuit@straightinstrumentsfalse}}
+\ctikzset{rotated instruments/.add code={}{\pgf@circuit@straightinstrumentsfalse}}
+
+
 \ctikzset{bipoles/buffer/height/.initial=1}
 \ctikzset{bipoles/buffer/width/.initial=1}
 \ctikzset{bipoles/not port/width/.initial=1}
@@ -6883,8 +6892,12 @@
         \pgf@circ@draworfill
     \endpgfscope
     % get the rotation
-    \pgfgettransformentries\a\b\temp\temp\temp\temp
-    \pgfmathsetmacro{\rot}{-atan2(\b,\a)}
+    \ifpgf@circuit@straightinstruments
+        \pgfgettransformentries\a\b\temp\temp\temp\temp
+        \pgfmathsetmacro{\rot}{-atan2(\b,\a)}
+    \else
+        \edef\rot{0}
+    \fi
     % and unrotate the scope
     \pgfscope
         \pgftransformrotate{\rot}
@@ -6923,8 +6936,12 @@
     \pgf@circ@draworfill
     % draw the text label
     % get the rotation
-    \pgfgettransformentries\a\b\temp\temp\temp\temp
-    \pgfmathsetmacro{\rot}{-atan2(\b,\a)}
+    \ifpgf@circuit@straightinstruments
+        \pgfgettransformentries\a\b\temp\temp\temp\temp
+        \pgfmathsetmacro{\rot}{-atan2(\b,\a)}
+    \else
+        \edef\rot{0}
+    \fi
     % and unrotate the scope
     \pgfscope
         \pgfsetcolor{\ctikzvalof{color}}
@@ -6947,8 +6964,12 @@
     \pgf@circ@draworfill
     % draw the text label
     % get the rotation
-    \pgfgettransformentries\a\b\temp\temp\temp\temp
-    \pgfmathsetmacro{\rot}{-atan2(\b,\a)}
+    \ifpgf@circuit@straightinstruments
+        \pgfgettransformentries\a\b\temp\temp\temp\temp
+        \pgfmathsetmacro{\rot}{-atan2(\b,\a)}
+    \else
+        \edef\rot{0}
+    \fi
     % and unrotate the scope
     \pgfscope
         \pgftransformrotate{\rot}
@@ -7004,8 +7025,12 @@
         \pgf@circ@draworfill
     \endpgfscope
     % get the rotation
-    \pgfgettransformentries\a\b\temp\temp\temp\temp
-    \pgfmathsetmacro{\rot}{-atan2(\b,\a)}
+    \ifpgf@circuit@straightinstruments
+        \pgfgettransformentries\a\b\temp\temp\temp\temp
+        \pgfmathsetmacro{\rot}{-atan2(\b,\a)}
+    \else
+        \edef\rot{0}
+    \fi
     % and unrotate the scope
     \pgfscope
         \pgftransformrotate{\rot}
