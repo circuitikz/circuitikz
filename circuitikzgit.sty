@@ -12,7 +12,7 @@
 
 \NeedsTeXFormat{LaTeX2e}
 
-\def\pgfcircversion{1.0.0-pre3-33df93a}
+\def\pgfcircversion{1.0.0-pre3-73a982c}
 \def\pgfcircversiondate{2020/01/31}
 
 \ProvidesPackage{circuitikzgit}
@@ -12799,9 +12799,12 @@
         \pgf@circ@scaled@Rlen=\scaledRlen
 
         % Triangle
-        % Includes output terminals to ensure that diagonal joins are properly displayed
+        % Includes output terminals in the traingular shape
+        % to ensure that diagonal joins are properly displayed
+        % we first draw the main triangle and the leads with normal thickness,
+        % and the redraw the main triangle with the component shape
         \pgfscope
-            \pgf@circ@setlinewidth{quadpoles}{\pgflinewidth}
+            % shift origin a bit to ease calculations
             \pgftransformxshift{\ctikzvalof{tripoles/fd op amp/port width}\pgf@circ@res@left}
             \pgf@circ@res@step=\pgf@circ@res@right
             \advance\pgf@circ@res@step by -\pgf@circ@res@left
@@ -12830,8 +12833,25 @@
             \pgfpathlineto{\pgfpoint{\pgf@circ@res@step}{0pt}}
 
             \pgfpathclose
-            \pgf@circ@draworfill
-        \endpgfscope
+            \pgfusepath{stroke}
+
+            % ok, now we'll redraw the triangle with the class specific
+            % thickness and optionally fill
+
+            \pgfscope
+                \pgf@circ@setlinewidth{quadpoles}{\pgflinewidth}
+
+                % Initial point (right vertex)
+                \pgfpathmoveto{\pgfpoint{\pgf@circ@res@step}{0pt}}
+                % Top vertex
+                \pgfpathlineto{\pgfpoint{0pt}{\pgf@circ@res@up}}
+                % Bottom vertex
+                \pgfpathlineto{\pgfpoint{0pt}{\pgf@circ@res@down}}
+
+                \pgfpathclose
+                \pgf@circ@draworfill
+            \endpgfscope % thick and fill
+        \endpgfscope % shift
 
         % Negative input terminal
         \pgfpathmoveto{\pgfpoint
