@@ -1,6 +1,10 @@
 <!--- CircuiTikz - Changelog --->
 The major changes among the different circuitikz versions are listed here. See <https://github.com/circuitikz/circuitikz/commits> for a full list of changes.
 
+* Version 1.0.0-pre3 (not to be released)
+
+    - Put the copyright and license notices on all files and update them
+
 * Version 1.0.0-pre2 (2020-01-23)
 
     **Really** last additions toward the 1.0.0 version. The most important change is the addition of multiplexer and de-multiplexers; also added the multi-wires (bus) markers.
