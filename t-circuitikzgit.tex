@@ -10,7 +10,7 @@
 %
 % See the files gpl-3.0_license.txt and lppl-1-3c_license.txt for more details.
 
-\def\pgfcircversion{1.0.0-pre3}-39acf7d}
+\def\pgfcircversion{1.0.0-pre3}-0049e2b}
 \def\pgfcircversiondate{2020/02/02}
 \writestatus{loading}{\pgfcircversiondate{} The CircuiTikz circuit drawing package version \pgfcircversion}
 
@@ -681,6 +681,10 @@
 \ctikzset{bipoles/ncs/height/.initial=.35}
 \ctikzset{bipoles/ncs/width/.initial=.35}
 \ctikzset{bipoles/ncs/depth/.initial=.2}
+%%% rheed switch
+\ctikzset{bipoles/rheed/height/.initial=.4}
+\ctikzset{bipoles/rheed/width/.initial=.8}% 0.35 in nos
+\ctikzset{bipoles/rheed/depth/.initial=.4}
 
 % misc
 
@@ -6725,6 +6729,41 @@
     \pgftransformshift{\pgfpoint{2\pgf@circ@res@right}{0pt}}
     \pgfnode{ocirc}{center}{}{}{\pgfusepath{draw}}
 }
+%%% Rheed switches
+\pgfcircdeclarebipolescaled{switches}
+{}
+{\ctikzvalof{bipoles/rheed/depth}}
+{rheed}
+{\ctikzvalof{bipoles/rheed/height}}
+{\ctikzvalof{bipoles/rheed/width}}
+{
+    % this is designed to be the same as a "nos".
+    \pgfmathsetmacro{\@@tmpx}{0.9*\ctikzvalof{bipoles/nos/width}/\ctikzvalof{bipoles/rheed/width}}
+    \pgfmathsetmacro{\@@tmpy}{\ctikzvalof{bipoles/nos/height}/\ctikzvalof{bipoles/rheed/height}}
+    \pgfscope
+        \pgf@circ@setlinewidth{bipoles}{\pgfstartlinewidth}
+        % eclosure
+        \pgfpathmoveto{\pgfpoint{\pgf@circ@res@right-\pgf@circ@res@up}{\pgf@circ@res@up}}
+        \pgfpatharc{90}{-90}{\pgf@circ@res@up}
+        \pgfpathlineto{\pgfpoint{\pgf@circ@res@left+\pgf@circ@res@up}{-\pgf@circ@res@up}}
+        \pgfpatharc{270}{90}{\pgf@circ@res@up}
+        \pgfpathclose
+        \pgf@circ@draworfill
+        % switch
+        \pgfpathmoveto{\pgfpoint{\@@tmpx\pgf@circ@res@left}{0pt}}
+        \pgfpathlineto{\pgfpoint{\@@tmpx\pgf@circ@res@right}{\@@tmpy\pgf@circ@res@up}}
+        % connection lines
+        \pgfsetbuttcap
+        \pgfusepath{draw}
+    \endpgfscope
+    % connection lines
+    \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{0pt}}
+    \pgfpathlineto{\pgfpoint{\@@tmpx\pgf@circ@res@left}{0pt}}
+    \pgfpathmoveto{\pgfpoint{\pgf@circ@res@right}{0pt}}
+    \pgfpathlineto{\pgfpoint{\@@tmpx\pgf@circ@res@right}{0pt}}
+    \pgfusepath{draw}
+}
+
 % cute switch "to" shapes help function
 % #1 -> name
 % #2 -> barposition
@@ -19791,6 +19830,10 @@
 \def\pgf@circ@multiwire@path#1{\pgf@circ@bipole@path{multiwire}{#1}}
 \compattikzset{multiwire/.style = {\circuitikzbasekey,
 /tikz/to path=\pgf@circ@multiwire@path, l=#1}}
+
+% Rheed switches
+\def\pgf@circ@rheed@path#1{\pgf@circ@bipole@path{rheed}{#1}}
+\compattikzset{rheed/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@rheed@path, l=#1}}
 
 % Transistor like bipoles
 
