@@ -10,8 +10,8 @@
 %
 % See the files gpl-3.0_license.txt and lppl-1-3c_license.txt for more details.
 
-\def\pgfcircversion{1.0.0-pre3}-73a982c}
-\def\pgfcircversiondate{2020/01/31}
+\def\pgfcircversion{1.0.0-pre3}-39acf7d}
+\def\pgfcircversiondate{2020/02/02}
 \writestatus{loading}{\pgfcircversiondate{} The CircuiTikz circuit drawing package version \pgfcircversion}
 
 \usemodule[tikz]
@@ -721,13 +721,21 @@
 \ctikzset{bipoles/voltmeter/width/.initial=.60}
 \ctikzset{bipoles/smeter/height/.initial=.60}
 \ctikzset{bipoles/smeter/width/.initial=.60}
+\ctikzset{bipoles/smeter/voltage/additional label shift/.initial=1}
 \ctikzset{bipoles/qmeter/depth/.initial=.40}
 \ctikzset{bipoles/qmeter/height/.initial=.80}
 \ctikzset{bipoles/qmeter/width/.initial=.60}
+% this must be specified for each one
+\ctikzset{bipoles/qvprobe/voltage/additional label shift/.initial=.5}
+\ctikzset{bipoles/qiprobe/voltage/additional label shift/.initial=.5}
+\ctikzset{bipoles/qpprobe/voltage/additional label shift/.initial=.5}
 \ctikzset{bipoles/iloop/width/.initial=.40}
 \ctikzset{bipoles/iloop/height/.initial=.60}
+
 \ctikzset{bipoles/oscope/height/.initial=.60}
 \ctikzset{bipoles/oscope/width/.initial=.60}
+\ctikzset{bipoles/oscope/voltage/additional label shift/.initial=1}
+
 
 % option to not rotate the new (Romano's) instruments
 \newif\ifpgf@circuit@straightinstruments\pgf@circuit@straightinstrumentstrue
@@ -18152,8 +18160,17 @@
             { \edef\bumpb{\ctikzvalof{bipoles/\ctikzvalof{bipole/kind}/voltage/bump b}} }
             { \edef\bumpb{\ctikzvalof{voltage/bump b}} }
         \edef\shiftv{\ctikzvalof{voltage/shift}}
+        % additional per-bipole voltage shift (internal)
+        \edef\pgf@temp{/tikz/circuitikz/bipoles/\ctikzvalof{bipole/kind}/voltage/additional label shift}
+        \pgfkeysifdefined{\pgf@temp}
+        {
+            \edef\addvshift{\ctikzvalof{bipoles/\ctikzvalof{bipole/kind}/voltage/additional label shift}}
+        }
+        {
+            \edef\addvshift{0}
+        }
         \newdimen{\absvshift}
-        \pgfmathsetlength{\absvshift}{\shiftv*\distfromline+\distfromline}
+        \pgfmathsetlength{\absvshift}{(1+\shiftv+\addvshift)*(\distfromline)}
         % put this to true to see the voltage label coordinate anchors
         \newif\ifpgf@circ@debugv\pgf@circ@debugvfalse
     }
