@@ -3,6 +3,7 @@ The major changes among the different circuitikz versions are listed here. See <
 
 * Version 1.0.0-pre3 (not to be released)
 
+    - Added a Rheed switch
     - Put the copyright and license notices on all files and update them
 
 * Version 1.0.0-pre2 (2020-01-23)
