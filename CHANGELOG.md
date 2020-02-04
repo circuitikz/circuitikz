@@ -1,10 +1,30 @@
 <!--- CircuiTikz - Changelog --->
 The major changes among the different circuitikz versions are listed here. See <https://github.com/circuitikz/circuitikz/commits> for a full list of changes.
 
-* Version 1.0.0-pre3 (not to be released)
+* Version 1.0 (2020-02-04)
 
-    - Added a Rheed switch
+And finally... version 1.0 (2020-02-04) of `circuitikz` is released.
+
+The main updates since version 0.8.3, which was the last release before Romano started co-maintaining the project, are the following --- part coded by Romano, part by several collaborators around the internet:
+
+- The manual has been reorganized and extended, with the addition of a tutorial part; tens of examples have been added all over the map.
+
+- Around 74 new shapes where added. Notably, now there are chips, mux-demuxes, multi-terminal transistors, several types of switches, flip-flops, vacuum tubes, 7-segment displays, more amplifiers, and so on.
+
+- Several existing shapes have been enhanced; for example, logic gates have a variable number of inputs, transistors are more configurable, resistors can be shaped more, and more.
+
+- You can style your circuit, changing relative sizes, default thickness and fill color, and more details of how you like your circuit to look; the same you can do with labels (voltages, currents, names of components and so on).
+
+- A lot of bugs have been squashed; especially the (very complex) voltage direction conundrum has been clarified and you can choose your preferred style here too.
+
+A detailed list of changes can be seen below.
+
+
+* Version 1.0.0-pre3 (not released)
+
+    - Added a Reed switch
     - Put the copyright and license notices on all files and update them
+    - Fixed the loading of style; we should not guard against reload
 
 * Version 1.0.0-pre2 (2020-01-23)
 
