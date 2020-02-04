@@ -167,7 +167,17 @@
 
 \tableofcontents
 \cleardoublepage
+
 \section{Introduction}
+
+\hfill\begin{minipage}[t]{0.5\textwidth}
+    \small\slshape\raggedleft
+    Lorenzo and Mirella, 57 years ago, started a trip that eventually lead to a lot of things --- among them, \Circuitikz{} \texttt{v1.0}.
+
+    In loving memory
+    --- R.\@G.\@, 2020-02-04
+\end{minipage}
+
 \subsection{About}
 \Circuitikz\ was initiated by Massimo Redaelli in 2007, who was working as a research assistant at the Polytechnic University of Milan, Italy, and needed a tool for creating exercises and exams.
 After he left University in 2010 the development of \Circuitikz\ slowed down, since \LaTeX\ is mainly established in the academic world. In 2015 Stefan Lindner and Stefan Erhardt, both working as research assistants at the University of Erlangen-Nürnberg, Germany, joined the team and now maintain the project together with the initial author. In 2018 Romano Giannetti, full professor of Electronics at Comillas Pontifical University of Madrid, joined the team.
@@ -175,7 +185,12 @@ After he left University in 2010 the development of \Circuitikz\ slowed down, si
 The use of \Circuitikz\ is, of course, not limited to academic teaching. The package gets widely used by engineers for typesetting electronic circuits for articles and publications all over the world.
 
 \subsection{License}
-Copyright \copyright\ 2007--2019 Massimo Redaelli. This package is author-maintained. Permission is granted to copy, distribute and/or modify this software under the terms of the \LaTeX\ Project Public License, version 1.3.1, or the GNU Public License. This software is provided ‘as is’, without warranty of any kind, either expressed or implied, including, but not limited to, the implied warranties of merchantability and fitness for a particular purpose.
+Copyright \copyright{}
+2007--2020 by Massimo Redaelli,
+2013-2020 by Stefan Erhardt,
+2015-2020 by Stefan Lindner,
+and 2018-2020 by Romano Giannetti.
+This package is author-maintained. Permission is granted to copy, distribute and/or modify this software under the terms of the \LaTeX\ Project Public License, version 1.3.1, or the GNU Public License. This software is provided ‘as is’, without warranty of any kind, either expressed or implied, including, but not limited to, the implied warranties of merchantability and fitness for a particular purpose.
 \subsection{Loading the package}
 
 \begin{table}[h]
@@ -4273,6 +4288,23 @@ The code that implemented the printing of the numbers (which in \texttt{muxdemux
 }
 \end{lstlisting}
 
+You can use these shapes  to draw a lot of symbols that are unavailable; using a bit of \LaTeX{} command trickery you can use them quite naturally too...
+
+\begin{LTXexample}[varwidth=true]
+\def\tgate#1{
+    node[simple triangle, anchor=left, no input leads](#1-LR){}
+    (#1-LR.right) node[simple triangle, xscale=-1,
+    anchor=left](#1-RL){}
+    ([yshift=.5ex]#1-RL.btpin 1) node[ocirc]{}}
+\begin{circuitikz}[
+    simple triangle/.style={muxdemux, muxdemux def={
+            NL=1, NR=1, NB=1, NT=1, w=2, Lh=2, Rh=0,
+    }}]
+    \draw (0,0) \tgate{A} (0,-2) \tgate{B};
+    \draw (A-RL.bpin 1) -- (B-RL.tpin 1);
+\end{circuitikz}
+\end{LTXexample}
+
 \subsection{Chips (integrated circuits)}
 
 \texttt{CircuiTikZ} supports two types of variable-pin chips: DIP (Dual-in-Line Package) and QFP (Quad-Flat Package).
@@ -6128,6 +6160,107 @@ The best way of contributing is forking the project, adding your component in th
     \end{circuitikz}
 \end{LTXexample}
 
+\ctikzloadstyle{romano}
+\scalebox{0.707}{%
+\begin{circuitikz}[american, romano circuit style]
+    \ctikzset{bipoles/cuteswitch/thickness=0.5}
+    \draw (0,0) node[ground](GND0){} to[sV, l=$v_{cm}$] ++(0,1)
+    to [R, l=$R_c$, -*] ++(0,1.5) coordinate(vcm) --++(0,0.5) coordinate(diffc);
+    \draw (diffc) -| ++(-0.5, 0.5) to[sV,l=$v_+$, name=vplus] ++(0,1) --++(0,2)
+    -- ++(2.5,0) coordinate(skin+ a) to[battery2, l=$E_+$, name=eplus] ++(1,0)
+    to[R=$R_+$, name=rplus] ++(2,0) coordinate(skin+ b) -- ++(0.5,0)
+    -- ++(4,0) coordinate(hpin+) to[highpass] ++(2,0)
+    node[inst amp, anchor=+, noinv input up,
+    circuitikz/amplifiers/scale=1.6,
+    circuitikz/tripoles/inst amp/width=1](LNA){LNA}
+    (LNA.out);
+    \coordinate (skin- a) at (LNA.- -| skin+ a);
+    \draw (diffc) -| ++(0.5,0.5) to[sV,l_=$v_-$, name=vminus] ++(0, 1) |- (skin- a);
+    \draw (skin- a) to[battery2, l_=$E_-$, name=eminus] ++(1,0)
+    to[R, l_=$R_-$, name=rminus] ++(2,0) coordinate(skin- b) -- ++(2.5,0)
+    -- (skin- b -| hpin+) to[highpass] (LNA.-);
+    \coordinate (gnd a) at (vcm -| skin+ a);
+    \draw (vcm) -- (gnd a) to[battery2, l_=$E_\mathrm{gnd}$, name=egnd] ++(1,0)
+    to[R, l_=$R_\mathrm{gnd}$, name=rgnd] ++(2,0) coordinate(gnd b);
+    % switch set
+    \def\swdown{-3.2}
+    \draw (skin- b) ++(1,0) coordinate(sw1) to[cosw, invert, mirror, l=1, *-, name=s1] ++(0,\swdown) to[short, -*] ++(0, -1.5);
+    \draw (sw1) ++(1,0) coordinate(sw2) to[cosw, invert, mirror, l=2, *-] ++(0,\swdown) to[R=$R$, -*] ++(0, -1.5);
+    \draw (sw2|-skin+ b) ++(1,0) coordinate(sw3) to[short, *-] (sw3|-sw2) to[cosw, invert, mirror, l=3,] ++(0,\swdown) to[R=$R$, -*] ++(0, -1.5);
+    \draw (sw3) ++(1,0) coordinate(sw4) to[short, *-] (sw4|-sw2) to[cosw, invert, mirror, l=4, name=s4] ++(0,\swdown) to[short] ++(0, -1.5) coordinate(endsw);
+    \draw (gnd b) |- (endsw) node[rectjoinfill]{};
+    % boxes
+    \node [rectangle, draw, dashed, fit=(GND0) (vplus) (vpluslabel) (vminuslabel)](body){};
+    \node [anchor=south east, align=center] at (body.south east) {Body} ;
+    \node [rectangle, draw, dashed, fit=(rplus) (eplus) (epluslabel) (rpluslabel)](top){};
+    \node [rectangle, draw, dashed, fit=(eminus) (rminus) (eminuslabel) (rminuslabel)](bot){};
+    \node [anchor=center, align=center] at ($(top.south)!0.5!(bot.north)$) {electrodes} ;
+    \node [rectangle, draw, dashed, fit=(egnd) (rgnd) (egndlabel) (rgndlabel)](gnd){};
+    \node [below, align=center] at (gnd.south) {ground\\ electrode} ;
+    \node [rectangle, draw, dashed, fit=(s1) (s4label), inner ysep=8pt](switches){};
+    % ADC and micro
+    \draw (LNA.out) -- ++(0.5,0) node[msport,circuitikz/RF/scale=2](ADC){ADC};
+    \draw (ADC.right) -- ++(0.5,0) node[twoportshape, anchor=left, t=$\upmu$C](uC){};
+    \draw (uC.south) -- (uC.south |- switches.east) -- ++(-4,0)
+    node[align=left, anchor=east](DCS){\small digitally\\ controlled\\ switches};
+    \draw[-Stealth] (DCS.west) -- (switches.east);
+    % components
+    \node [anchor=north west] at ([xshift=-10pt, yshift=-5pt]switches.south east) {ADG1414};
+    \node [anchor=north west] at ([yshift=-5pt]LNA.refv down) {AD8429};
+\end{circuitikz}
+} % scalebox
+
+\begin{lstlisting}[basicstyle=\small\ttfamily]
+\ctikzloadstyle{romano}
+\scalebox{0.707}{%
+\begin{circuitikz}[american, romano circuit style]
+    \ctikzset{bipoles/cuteswitch/thickness=0.5}
+    \draw (0,0) node[ground](GND0){} to[sV, l=$v_{cm}$] ++(0,1)
+    to [R, l=$R_c$, -*] ++(0,1.5) coordinate(vcm) --++(0,0.5) coordinate(diffc);
+    \draw (diffc) -| ++(-0.5, 0.5) to[sV,l=$v_+$, name=vplus] ++(0,1) --++(0,2)
+    -- ++(2.5,0) coordinate(skin+ a) to[battery2, l=$E_+$, name=eplus] ++(1,0)
+    to[R=$R_+$, name=rplus] ++(2,0) coordinate(skin+ b) -- ++(0.5,0)
+    -- ++(4,0) coordinate(hpin+) to[highpass] ++(2,0)
+    node[inst amp, anchor=+, noinv input up,
+    circuitikz/amplifiers/scale=1.6,
+    circuitikz/tripoles/inst amp/width=1](LNA){LNA}
+    (LNA.out);
+    \coordinate (skin- a) at (LNA.- -| skin+ a);
+    \draw (diffc) -| ++(0.5,0.5) to[sV,l_=$v_-$, name=vminus] ++(0, 1) |- (skin- a);
+    \draw (skin- a) to[battery2, l_=$E_-$, name=eminus] ++(1,0)
+    to[R, l_=$R_-$, name=rminus] ++(2,0) coordinate(skin- b) -- ++(2.5,0)
+    -- (skin- b -| hpin+) to[highpass] (LNA.-);
+    \coordinate (gnd a) at (vcm -| skin+ a);
+    \draw (vcm) -- (gnd a) to[battery2, l_=$E_\mathrm{gnd}$, name=egnd] ++(1,0)
+    to[R, l_=$R_\mathrm{gnd}$, name=rgnd] ++(2,0) coordinate(gnd b);
+    % switch set
+    \def\swdown{-3.2}
+    \draw (skin- b) ++(1,0) coordinate(sw1) to[cosw, invert, mirror, l=1, *-, name=s1] ++(0,\swdown) to[short, -*] ++(0, -1.5);
+    \draw (sw1) ++(1,0) coordinate(sw2) to[cosw, invert, mirror, l=2, *-] ++(0,\swdown) to[R=$R$, -*] ++(0, -1.5);
+    \draw (sw2|-skin+ b) ++(1,0) coordinate(sw3) to[short, *-] (sw3|-sw2) to[cosw, invert, mirror, l=3,] ++(0,\swdown) to[R=$R$, -*] ++(0, -1.5);
+    \draw (sw3) ++(1,0) coordinate(sw4) to[short, *-] (sw4|-sw2) to[cosw, invert, mirror, l=4, name=s4] ++(0,\swdown) to[short] ++(0, -1.5) coordinate(endsw);
+    \draw (gnd b) |- (endsw) node[rectjoinfill]{};
+    % boxes
+    \node [rectangle, draw, dashed, fit=(GND0) (vplus) (vpluslabel) (vminuslabel)](body){};
+    \node [anchor=south east, align=center] at (body.south east) {Body} ;
+    \node [rectangle, draw, dashed, fit=(rplus) (eplus) (epluslabel) (rpluslabel)](top){};
+    \node [rectangle, draw, dashed, fit=(eminus) (rminus) (eminuslabel) (rminuslabel)](bot){};
+    \node [anchor=center, align=center] at ($(top.south)!0.5!(bot.north)$) {electrodes} ;
+    \node [rectangle, draw, dashed, fit=(egnd) (rgnd) (egndlabel) (rgndlabel)](gnd){};
+    \node [below, align=center] at (gnd.south) {ground\\ electrode} ;
+    \node [rectangle, draw, dashed, fit=(s1) (s4label), inner ysep=8pt](switches){};
+    % ADC and micro
+    \draw (LNA.out) -- ++(0.5,0) node[msport,circuitikz/RF/scale=2](ADC){ADC};
+    \draw (ADC.right) -- ++(0.5,0) node[twoportshape, anchor=left, t=$\upmu$C](uC){};
+    \draw (uC.south) -- (uC.south |- switches.east) -- ++(-4,0)
+    node[align=left, anchor=east](DCS){\small digitally\\ controlled\\ switches};
+    \draw[-Stealth] (DCS.west) -- (switches.east);
+    % components
+    \node [anchor=north west] at ([xshift=-10pt, yshift=-5pt]switches.south east) {ADG1414};
+    \node [anchor=north west] at ([yshift=-5pt]LNA.refv down) {AD8429};
+\end{circuitikz}
+} % scalebox
+\end{lstlisting}
 
 \begin{tabular}{l}\label{ex:compatibility}
 \IfFileExists{compatibility.pdf}
