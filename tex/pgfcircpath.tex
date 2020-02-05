@@ -69,6 +69,10 @@
 }
 }
 
+\newdimen{\@@xa}
+\newdimen{\@@ya}
+\newdimen{\@@xb}
+\newdimen{\@@yb}
 
 %% Generic bipole path
 %% I am not user what the second argument is needed for
@@ -90,10 +94,33 @@
     (\tikztostart) coordinate (\ctikzvalof{bipole/name}start)%necessary to get correct coordinates in the case of relative start/end or constructions like ((node1)-|(node2))
     (\tikztotarget) coordinate (\ctikzvalof{bipole/name}end)
     \pgfextra{
-        \pgfmathanglebetweenpoints{\pgfpointanchor{\ctikzvalof{bipole/name}start}{center}}
-        {\pgfpointanchor{\ctikzvalof{bipole/name}end}{center}}
-        \pgfmathround{\pgfmathresult}
-        \edef\pgf@circ@direction{\pgfmathresult}%Calculate direction(angle) of path
+        % keep the old behavior if transform shape is active
+        \iftikz@fullytransformed
+            % \typeout{FT TRUE}
+            \pgfmathanglebetweenpoints{\pgfpointanchor{\ctikzvalof{bipole/name}start}{center}}
+            {\pgfpointanchor{\ctikzvalof{bipole/name}end}{center}}
+            \pgfmathround{\pgfmathresult}
+            \edef\pgf@circ@direction{\pgfmathresult}%Calculate direction(angle) of path
+        \else
+            % \typeout{FT FALSE}
+            \pgfscope
+            \pgftransformreset
+            \pgfgettransformentries\a\b\c\d\temp\temp
+            \pgfextractx{\@@xa}{\pgfpointanchor{\ctikzvalof{bipole/name}start}{center}}
+            \pgfextracty{\@@ya}{\pgfpointanchor{\ctikzvalof{bipole/name}start}{center}}
+            \pgfextractx{\@@xb}{\pgfpointanchor{\ctikzvalof{bipole/name}end}{center}}
+            \pgfextracty{\@@yb}{\pgfpointanchor{\ctikzvalof{bipole/name}end}{center}}
+            % \typeout{XA:\space\the\@@xa\space YA:\space\the\@@ya\space XB:\space\the\@@xb\space YB:\space\the\@@yb\space}
+            % \typeout{MATRIX\space A:\a\space B:\b\space C:\c\space D:\d}
+            % \pgfmathsetmacro{\newx}{\a*(\@@xb-\@@xa)+\b*(\@@yb-\@@ya)}
+            % \pgfmathsetmacro{\newy}{\c*(\@@xb-\@@xa)+\d*(\@@yb-\@@ya)}
+            % \typeout{NEWX:\space\newx\space NEWY:\space\newy}
+            \pgfmathsetmacro{\@@@aaa}{Mod(atan2(\c*(\@@xb-\@@xa)+\d*(\@@yb-\@@ya), \a*(\@@xb-\@@xa)+\b*(\@@yb-\@@ya)), 360)}
+            \xdef\@@@rot{\@@@aaa}% smuggle \@@@rot after the scope
+            \endpgfscope
+            % \typeout{ROT\space\@@@rot}
+            \pgfmathsetmacro\pgf@circ@direction{round(\@@@rot)}%Calculate direction(angle) of path
+        \fi
         \pgfsyssoftpath@setcurrentpath{\myp@th}
     }
     \pgfextra{\def\pgf@temp{open}\def\pgf@circ@temp{#1}}
@@ -103,8 +130,8 @@
         \fi
         ($(\tikztostart) ! .5 ! (\tikztotarget)$)%%positio of middle node
         node[#1shape, rotate=\pgf@circ@direction, yscale=\ctikzvalof{mirror value}, xscale=\ctikzvalof{invert value}]
-        (\ctikzvalof{bipole/name}) {}
-        \ifpgf@circuit@bipole@inverted
+            (\ctikzvalof{bipole/name}) {}
+            \ifpgf@circuit@bipole@inverted
             \ifcsname pgf@anchor@#1shape@pathstart\endcsname%if special path-anchors are defined, use them!
                 coordinate	(anchorstartnode) at (\ctikzvalof{bipole/name}.pathend)
                 coordinate	(anchorendnode) at (\ctikzvalof{bipole/name}.pathstart)
