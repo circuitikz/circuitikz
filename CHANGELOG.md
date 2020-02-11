@@ -1,6 +1,10 @@
 <!--- CircuiTikz - Changelog --->
 The major changes among the different circuitikz versions are listed here. See <https://github.com/circuitikz/circuitikz/commits> for a full list of changes.
 
+* Version 1.0.1 (unreleased)
+
+- bump version number.
+
 * Version 1.0 (2020-02-04)
 
 And finally... version 1.0 (2020-02-04) of `circuitikz` is released.
