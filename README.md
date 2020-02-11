@@ -1,5 +1,3 @@
-### notice
-This package is in a kind of **feature-freeze state** until v1.0 is released, possibly around 2020 New Year.
 
 circuitikz
 ==========
