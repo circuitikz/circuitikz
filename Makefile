@@ -109,7 +109,7 @@ flat:
 	sed -i 's/\\ProvidesPackage{circuitikz}.*/\\ProvidesPackage{circuitikzgit}/' $(CTIKZ_GIT_FILENAME)
 	sed -i 's/\r$$//g' $(CTIKZ_GIT_FILENAME)
 	#insert git revision context version:
-	sed -i 's/\\def\\pgfcircversion{\(.*\)/\\def\\pgfcircversion\{\1-$(GIT_REV)\}/' $(CTIKZ_CONTEXT_GIT_FILENAME)
+	sed -i 's/\\def\\pgfcircversion{\(.*\)}/\\def\\pgfcircversion\{\1-$(GIT_REV)\}/' $(CTIKZ_CONTEXT_GIT_FILENAME)
 	sed -i 's/\\def\\pgfcircversiondate{.*/\\def\\pgfcircversiondate\{$(GIT_DATE)\}/' $(CTIKZ_CONTEXT_GIT_FILENAME)
 	sed -i 's/\\startmodule\[circuitikz\].*/\\startmodule[circuitikzgit]/' $(CTIKZ_CONTEXT_GIT_FILENAME)
 	sed -i 's/\r$$//' $(CTIKZ_CONTEXT_GIT_FILENAME)
