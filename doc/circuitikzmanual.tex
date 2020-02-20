@@ -248,6 +248,33 @@ Correcting this will need a big rewrite of the path routines, and although the a
 
 This same issue create a lot of problem of compatibility between \Circuitikz{} and the new \texttt{pic} Ti\emph{k}Z feature, so basically don't put components into \texttt{pic}s.
 
+\subsection{Scale factors inaccuracies}\label{sec:usefpu}
+
+Sometimes, when using fractional scaling factors and big values for the coordinates, the basic layer inaccuracies from \TeX{} can bite you, producing results like the following one:
+
+\begin{LTXexample}[varwidth=true]
+\begin{circuitikz}[scale=1.2, transform shape,
+    ]
+    \draw (60,1) to [battery2, v_=$V_{cc}$, name=B] ++(0,2);
+    \node[draw,red,circle,inner sep=4pt] at(B.left) {};
+    \node[draw,red,circle,inner sep=4pt] at(B.right) {};
+\end{circuitikz}
+\end{LTXexample}
+
+A general solution for this problem is difficult to find; probably the best approach is to use a \verb|scalebox| command to scale the circuit instead of relying on internal scaling.
+
+Nevertheless,  \href{https://tex.stackexchange.com/a/529159/38080}{Schrödinger's cat} found a solution which has been ported to \Circuitikz: you can use the  key \texttt{use fpu reciprocal} which will patch a standard low-level math routine with a more precise one.
+
+\begin{LTXexample}[varwidth=true]
+\begin{circuitikz}[scale=1.2, transform shape,
+    use fpu reciprocal,
+    ]
+\draw (60,1) to [battery2, v_=$V_{cc}$] ++(0,2);
+\end{circuitikz}
+\end{LTXexample}
+
+They \texttt{use fpu reciprocal} key seems to have no side effects, but given that it is patching an internal interface of \TikZ{} it can break any time, so it is advisable to use it only if and when needed.
+
 
 \subsection{Incompabilities between version}
 Here, we will provide a list of incompabilitys between different version of circuitikz. We will try to hold this list short, but sometimes it is easier to break with old syntax than including a lot of switches and compatibility layers.
