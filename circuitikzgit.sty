@@ -12,7 +12,7 @@
 
 \NeedsTeXFormat{LaTeX2e}
 
-\def\pgfcircversion{1.0.1-d160210}
+\def\pgfcircversion{1.0.1-c683346}
 \def\pgfcircversiondate{2020/02/20}
 
 \ProvidesPackage{circuitikzgit}
@@ -28,6 +28,7 @@
 % latex' which we have lost in the transition
 %
 \usetikzlibrary{arrows.meta, bending}
+\usetikzlibrary{fpu} % may be needed for use fpu reciprocal (v1.0.1)
 
 % The options are listed in the manual in this order
 
@@ -2374,6 +2375,20 @@
     \def\ctikztextnot#1{$\overline{\hbox{#1}}$}
 \fi\fi\fi
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% switch to use fpu in reciprocal scale transformations
+%%
+%% this code has been contributed by Schrödinger's cat
+%% https://tex.stackexchange.com/a/529159/38080
+%%
+\tikzset{use fpu reciprocal/.code={%
+\def\pgfmathreciprocal@##1{%
+    \begingroup
+    \pgfkeys{/pgf/fpu=true,/pgf/fpu/output format=fixed}%
+    \pgfmathparse{1/##1}%
+    \pgfmath@smuggleone\pgfmathresult
+    \endgroup
+}}}%
 
 %%%---------- close: tex/pgfcircutils
 
@@ -19333,8 +19348,10 @@
     \pgfextra{
         \pgfmathanglebetweenpoints{\pgfpointanchor{\ctikzvalof{bipole/name}start}{center}}
         {\pgfpointanchor{\ctikzvalof{bipole/name}end}{center}}
-        \pgfmathround{\pgfmathresult}
+        % DO NOT ROUND HERE! pgfcirclabel.tex will do that when needed
+        % \pgfmathround{\pgfmathresult}
         \edef\pgf@circ@direction{\pgfmathresult}%Calculate direction(angle) of path
+        % \typeout{DIRECTION:\pgf@circ@direction}
         \pgfsyssoftpath@setcurrentpath{\myp@th}
     }
     \pgfextra{\def\pgf@temp{open}\def\pgf@circ@temp{#1}}
