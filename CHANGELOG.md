@@ -4,6 +4,8 @@ The major changes among the different circuitikz versions are listed here. See <
 * Version 1.0.1 (unreleased)
 
 - bump version number.
+- add v1.0 version snapshots
+- fixed a nasty bug for the flat file generation for ConTeXt
 
 * Version 1.0 (2020-02-04)
 
