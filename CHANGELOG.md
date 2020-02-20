@@ -5,6 +5,7 @@ The major changes among the different circuitikz versions are listed here. See <
 
 - bump version number.
 - add v1.0 version snapshots
+- added crossed generic impedance (suggested by Radványi Patrik Tamás)
 - added a special key to help with precision loss in case of fractional scaling (thanks to AndreaDiPietro92 on GitHub for noticing and reporting)
 - fixed a nasty bug for the flat file generation for ConTeXt
 
