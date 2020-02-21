@@ -5,7 +5,10 @@ The major changes among the different circuitikz versions are listed here. See <
 
 - bump version number.
 - add v1.0 version snapshots
-- added a special key to help with precision loss in case of fractional scaling (thanks to AndreaDiPietro92 on GitHub for noticing and reporting)
+- added crossed generic impedance (suggested by Radványi Patrik Tamás)
+- added open barrier bipole (suggested by Radványi Patrik Tamás)
+- added two flags to flip the direction of light's arrows on LED and photodiode (suggested by karlkappe on GitHub)
+- added a special key to help with precision loss in case of fractional scaling (thanks to AndreaDiPietro92 on GitHub for noticing and reporting, and to Schrödinger's cat for finding a fix)
 - fixed a nasty bug for the flat file generation for ConTeXt
 
 * Version 1.0 (2020-02-04)
