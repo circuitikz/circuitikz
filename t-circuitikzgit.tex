@@ -10,8 +10,8 @@
 %
 % See the files gpl-3.0_license.txt and lppl-1-3c_license.txt for more details.
 
-\def\pgfcircversion{1.0.1-c683346}
-\def\pgfcircversiondate{2020/02/20}
+\def\pgfcircversion{1.0.1-966871e}
+\def\pgfcircversiondate{2020/02/21}
 \writestatus{loading}{\pgfcircversiondate{} The CircuiTikz circuit drawing package version \pgfcircversion}
 
 \usemodule[tikz]
@@ -760,6 +760,7 @@
 \ctikzset{bipoles/squid/width/.initial=.60}
 \ctikzset{bipoles/barrier/height/.initial=.60}
 \ctikzset{bipoles/barrier/width/.initial=.60}
+\ctikzset{bipoles/openbarrier/gap/.initial=0.5}
 \ctikzset{bipoles/thermocouple/height/.initial=.250}
 \ctikzset{bipoles/thermocouple/height 2/.initial=.60}
 \ctikzset{bipoles/thermocouple/width/.initial=.140}
@@ -1761,6 +1762,24 @@
 \ctikzset{inductor/cute/.code={\ctikzsetvalof{inductor}{cute}}}
 \ctikzset{inductor/european/.code={\ctikzsetvalof{inductor}{european}}}
 \ctikzset{inductor/american/.code={\ctikzsetvalof{inductor}{american}}}
+
+%
+% Flipping arrows in LED and photodiodes
+%
+\newif\ifpgf@led@fliparrows
+\newif\ifpgf@pd@fliparrows
+\pgf@led@fliparrowsfalse
+\pgf@pd@fliparrowsfalse
+%
+% by default the arrows start (LED) and go (PD) to the anode.
+%
+\ctikzset{led arrows from anode/.code=\pgf@led@fliparrowsfalse}
+\ctikzset{pd arrows to anode/.code=\pgf@pd@fliparrowsfalse}
+%
+% but they can start form the cathode (LED) or go to it (PD)
+%
+\ctikzset{led arrows from cathode/.code=\pgf@led@fliparrowstrue}
+\ctikzset{pd arrows to cathode/.code=\pgf@pd@fliparrowstrue}
 
 \newif\ifpgf@circuit@strokediode
 \newif\ifpgf@circuit@fulldiode
@@ -4182,6 +4201,27 @@
     \pgf@circ@draworfill
 }
 
+%
+% generic crossed, suggested by Radványi Patrik Tamás <patrikradvanyi@gmail.com>
+% inherit "generic" properties
+%
+\pgfcircdeclarebipolescaled{resistors}
+{}
+{\ctikzvalof{bipoles/generic/height}}
+{xgeneric}
+{\ctikzvalof{bipoles/generic/height}}
+{\ctikzvalof{bipoles/generic/width}}
+{
+    \pgfpathrectanglecorners{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@up}}{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@down}}
+    \pgf@circ@setlinewidth{bipoles}{\pgfstartlinewidth}
+    \pgf@circ@draworfill
+    % cross it
+    \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@up}}
+    \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@down}}
+    \pgfpathmoveto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@up}}
+    \pgfpathlineto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@down}}
+    \pgfusepath{draw}
+}
 %% Generic empty tunable
 \pgfcircdeclarebipolescaled{resistors}
 {}
@@ -6032,6 +6072,50 @@
     \endpgfscope
 }
 
+%
+% draw LED arrows
+%
+\def\pgf@circ@draw@ledarrows{%
+    \pgfsetlinewidth{\pgfstartlinewidth}
+    \pgfsetarrowsend{latexslim}
+    \ifpgf@led@fliparrows
+        \pgfpathmoveto{\pgfpoint{0pt}{0.8\pgf@circ@res@up}}
+        \pgfpathlineto{\pgfpoint{-0.6\pgf@circ@res@right}{1.8\pgf@circ@res@up}}
+        \pgfusepath{draw}
+        \pgfpathmoveto{\pgfpoint{0.6\pgf@circ@res@right}{0.6\pgf@circ@res@up}}
+        \pgfpathlineto{\pgfpoint{0pt}{1.6\pgf@circ@res@up}}
+        \pgfusepath{draw}
+    \else
+        \pgfpathmoveto{\pgfpoint{-0.4\pgf@circ@res@right}{\pgf@circ@res@up}}
+        \pgfpathlineto{\pgfpoint{0.6\pgf@circ@res@right}{2\pgf@circ@res@up}}
+        \pgfusepath{draw}
+        \pgfpathmoveto{\pgfpoint{0.2\pgf@circ@res@right}{0.8\pgf@circ@res@up}}
+        \pgfpathlineto{\pgfpoint{1.2\pgf@circ@res@right}{1.8\pgf@circ@res@up}}
+        \pgfusepath{draw}
+    \fi
+}
+%
+% ---and photodiode arrows
+%
+\def\pgf@circ@draw@pdarrows{%
+    \pgfsetlinewidth{\pgfstartlinewidth}
+    \pgfsetarrowsstart{latexslim}
+    \ifpgf@pd@fliparrows
+        \pgfpathmoveto{\pgfpoint{0pt}{0.8\pgf@circ@res@up}}
+        \pgfpathlineto{\pgfpoint{-0.6\pgf@circ@res@right}{1.8\pgf@circ@res@up}}
+        \pgfusepath{draw}
+        \pgfpathmoveto{\pgfpoint{0.6\pgf@circ@res@right}{0.6\pgf@circ@res@up}}
+        \pgfpathlineto{\pgfpoint{0pt}{1.6\pgf@circ@res@up}}
+        \pgfusepath{draw}
+    \else
+        \pgfpathmoveto{\pgfpoint{-0.4\pgf@circ@res@right}{\pgf@circ@res@up}}
+        \pgfpathlineto{\pgfpoint{0.6\pgf@circ@res@right}{2\pgf@circ@res@up}}
+        \pgfusepath{draw}
+        \pgfpathmoveto{\pgfpoint{0.2\pgf@circ@res@right}{0.8\pgf@circ@res@up}}
+        \pgfpathlineto{\pgfpoint{1.2\pgf@circ@res@right}{1.8\pgf@circ@res@up}}
+        \pgfusepath{draw}
+    \fi
+}
 %% Black light emitting diode
 \pgfcircdeclarebipolescaled{diodes}
 {}
@@ -6054,15 +6138,7 @@
     \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@up}}
     \pgfusepath{draw}
 
-    \pgfsetlinewidth{\pgfstartlinewidth}
-    \pgfsetarrowsend{latexslim}
-    \pgfpathmoveto{\pgfpoint{-0.4\pgf@circ@res@right}{\pgf@circ@res@up}}
-    \pgfpathlineto{\pgfpoint{0.6\pgf@circ@res@right}{2\pgf@circ@res@up}}
-    \pgfusepath{draw}
-    \pgfpathmoveto{\pgfpoint{0.2\pgf@circ@res@right}{0.8\pgf@circ@res@up}}
-    \pgfpathlineto{\pgfpoint{1.2\pgf@circ@res@right}{1.8\pgf@circ@res@up}}
-    \pgfusepath{draw}
-
+    \pgf@circ@draw@ledarrows
 }
 
 %% Black photodiode
@@ -6087,14 +6163,7 @@
     \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@up}}
     \pgfusepath{draw}
 
-    \pgfsetlinewidth{\pgfstartlinewidth}
-    \pgfsetarrowsstart{latexslim}
-    \pgfpathmoveto{\pgfpoint{-0.4\pgf@circ@res@right}{\pgf@circ@res@up}}
-    \pgfpathlineto{\pgfpoint{0.6\pgf@circ@res@right}{2\pgf@circ@res@up}}
-    \pgfusepath{draw}
-    \pgfpathmoveto{\pgfpoint{0.2\pgf@circ@res@right}{0.8\pgf@circ@res@up}}
-    \pgfpathlineto{\pgfpoint{1.2\pgf@circ@res@right}{1.8\pgf@circ@res@up}}
-    \pgfusepath{draw}
+    \pgf@circ@draw@pdarrows
 }
 
 %% Black varcap
@@ -6259,14 +6328,7 @@
     \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@up}}
     \pgfusepath{draw}
 
-    \pgfsetlinewidth{\pgfstartlinewidth}
-    \pgfsetarrowsend{latexslim}
-    \pgfpathmoveto{\pgfpoint{-0.4\pgf@circ@res@right}{\pgf@circ@res@up}}
-    \pgfpathlineto{\pgfpoint{0.6\pgf@circ@res@right}{2\pgf@circ@res@up}}
-    \pgfusepath{draw}
-    \pgfpathmoveto{\pgfpoint{0.2\pgf@circ@res@right}{0.8\pgf@circ@res@up}}
-    \pgfpathlineto{\pgfpoint{1.2\pgf@circ@res@right}{1.8\pgf@circ@res@up}}
-    \pgfusepath{draw}
+    \pgf@circ@draw@ledarrows
 }
 
 %% Empty photodiode
@@ -6286,14 +6348,7 @@
     \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@up}}
     \pgfusepath{draw}
 
-    \pgfsetlinewidth{\pgfstartlinewidth}
-    \pgfsetarrowsstart{latexslim}
-    \pgfpathmoveto{\pgfpoint{-0.4\pgf@circ@res@right}{\pgf@circ@res@up}}
-    \pgfpathlineto{\pgfpoint{0.6\pgf@circ@res@right}{2\pgf@circ@res@up}}
-    \pgfusepath{draw}
-    \pgfpathmoveto{\pgfpoint{0.2\pgf@circ@res@right}{0.8\pgf@circ@res@up}}
-    \pgfpathlineto{\pgfpoint{1.2\pgf@circ@res@right}{1.8\pgf@circ@res@up}}
-    \pgfusepath{draw}
+    \pgf@circ@draw@pdarrows
 }
 
 %% Empty varcap
@@ -8963,6 +9018,34 @@
     \pgfusepath{draw}
 }
 
+%
+% open version of the barrier symbol
+% suggested by Radványi Patrik Tamás <patrikradvanyi@gmail.com>
+%
+\pgfcircdeclarebipolescaled{misc}
+{}
+{\ctikzvalof{bipoles/barrier/height}}
+{openbarrier}
+{\ctikzvalof{bipoles/barrier/height}}
+{\ctikzvalof{bipoles/barrier/width}}
+{
+    % this is set with normal wire linewidth
+    \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{0pt}}
+    \pgfpathlineto{\pgfpoint{\ctikzvalof{bipoles/openbarrier/gap}*\pgf@circ@res@left}{0pt}}
+    \pgfpathmoveto{\pgfpoint{\pgf@circ@res@right}{0pt}}
+    \pgfpathlineto{\pgfpoint{\ctikzvalof{bipoles/openbarrier/gap}*\pgf@circ@res@right}{0pt}}
+    \pgfusepath{draw}
+
+    % do the cross part
+    \pgf@circ@setlinewidth{bipoles}{\pgfstartlinewidth}
+
+    \pgfpathmoveto{\pgfpoint{0.35*\pgf@circ@res@left}{0.35*\pgf@circ@res@up}}
+    \pgfpathlineto{\pgfpoint{0.35*\pgf@circ@res@right}{0.35*\pgf@circ@res@down}}
+    \pgfpathmoveto{\pgfpoint{0.35*\pgf@circ@res@left}{0.35*\pgf@circ@res@down}}
+    \pgfpathlineto{\pgfpoint{0.35*\pgf@circ@res@right}{0.35*\pgf@circ@res@up}}
+
+    \pgfusepath{draw}
+}
 %% Lamp
 \pgfcircdeclarebipolescaled{misc}
 {}
@@ -19338,6 +19421,7 @@
 \def\pgf@circ@generic@path#1{\pgf@circ@bipole@path{generic}{#1}}
 \def\pgf@circ@ageneric@path#1{\pgf@circ@bipole@path{ageneric}{#1}}
 \def\pgf@circ@tgeneric@path#1{\pgf@circ@bipole@path{tgeneric}{#1}}
+\def\pgf@circ@xgeneric@path#1{\pgf@circ@bipole@path{xgeneric}{#1}}
 \def\pgf@circ@fullgeneric@path#1{\pgf@circ@bipole@path{fullgeneric}{#1}}
 \def\pgf@circ@tfullgeneric@path#1{\pgf@circ@bipole@path{tfullgeneric}{#1}}
 \def\pgf@circ@ammeter@path#1{\pgf@circ@bipole@path{ammeter}{#1}}
@@ -19356,6 +19440,7 @@
 \def\pgf@circ@mstline@path#1{\pgf@circ@bipole@path{mstline}{#1}}
 \def\pgf@circ@squid@path#1{\pgf@circ@bipole@path{squid}{#1}}
 \def\pgf@circ@barrier@path#1{\pgf@circ@bipole@path{barrier}{#1}}
+\def\pgf@circ@openbarrier@path#1{\pgf@circ@bipole@path{openbarrier}{#1}}
 \def\pgf@circ@thermocouple@path#1{\pgf@circ@bipole@path{thermocouple}{#1}}
 \def\pgf@circ@fuse@path#1{\pgf@circ@bipole@path{fuse}{#1}}
 \def\pgf@circ@afuse@path#1{\pgf@circ@bipole@path{afuse}{#1}}
@@ -19468,6 +19553,7 @@
 
 
 \compattikzset{generic/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@generic@path, l=#1}}
+\compattikzset{xgeneric/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@xgeneric@path, l=#1}}
 \compattikzset{ageneric/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@ageneric@path, l=#1}}
 \compattikzset{tgeneric/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@tgeneric@path, l=#1}}
 \compattikzset{fullgeneric/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@fullgeneric@path, l=#1}}
@@ -19480,6 +19566,7 @@
 
 \compattikzset{squid/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@squid@path}}
 \compattikzset{barrier/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@barrier@path}}
+\compattikzset{openbarrier/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@openbarrier@path}}
 \compattikzset{thermocouple/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@thermocouple@path}}
 \compattikzset{fuse/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@fuse@path}}
 \compattikzset{asymmetric fuse/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@afuse@path}}
