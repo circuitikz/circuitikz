@@ -1,9 +1,10 @@
 <!--- CircuiTikz - Changelog --->
 The major changes among the different circuitikz versions are listed here. See <https://github.com/circuitikz/circuitikz/commits> for a full list of changes.
 
-* Version 1.0.1 (unreleased)
+* Version 1.0.1 (2020-02-22)
 
-- bump version number.
+Minor fixes and addition to 1.0, in time to catch the freeze for TL2020.
+
 - add v1.0 version snapshots
 - added crossed generic impedance (suggested by Radványi Patrik Tamás)
 - added open barrier bipole (suggested by Radványi Patrik Tamás)
