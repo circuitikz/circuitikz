@@ -10,7 +10,7 @@
 %
 % See the files gpl-3.0_license.txt and lppl-1-3c_license.txt for more details.
 
-\def\pgfcircversion{1.0.2-unreleased-6d23533}
+\def\pgfcircversion{1.0.2-unreleased-518ecac}
 \def\pgfcircversiondate{2020/02/29}
 \writestatus{loading}{\pgfcircversiondate{} The CircuiTikz circuit drawing package version \pgfcircversion}
 
@@ -834,6 +834,15 @@
 \ctikzset{nogate/.add code={}{\pgf@circuit@bpt@drawgatefalse}}
 \pgfkeys{/tikz/nobase/.add code={}{\pgf@circuit@bpt@drawgatefalse}}
 \ctikzset{nobase/.add code={}{\pgf@circuit@bpt@drawgatefalse}}
+
+% Option draw bpt with schottky base
+\newif\ifpgf@circuit@bpt@schottky
+\pgf@circuit@bpt@schottkyfalse
+\pgfkeys{/tikz/schottky base/.add code={}{\pgf@circuit@bpt@schottkytrue}}
+\ctikzset{schottky base/.add code={}{\pgf@circuit@bpt@schottkytrue}}
+\pgfkeys{/tikz/no schottky base/.add code={}{\pgf@circuit@bpt@schottkyfalse}}
+\ctikzset{no schottky base/.add code={}{\pgf@circuit@bpt@schottkyfalse}}
+\ctikzset{tripoles/schottky base size/.initial=0.07}
 
 % Option draw bpt without base connection
 \newif\ifpgf@circuit@bpt@drawbase
@@ -10790,6 +10799,7 @@
         {\ctikzvalof{tripoles/#1/base height 2}\pgf@circ@res@up}}
         \pgfusepath{draw}
 
+        % drawing base
         \pgfscope
             \pgfpathmoveto{\pgfpoint
                 {\ctikzvalof{tripoles/#1/base width}\pgf@circ@res@left}
@@ -10798,6 +10808,42 @@
                 {\ctikzvalof{tripoles/#1/base width}\pgf@circ@res@left}
             {\ctikzvalof{tripoles/#1/base height}\pgf@circ@res@down}}
             \pgf@circ@setlinewidth{tripoles}{\pgflinewidth}
+            \ifpgf@circuit@bpt@schottky
+                % upper
+                \pgfpathmoveto{\pgfpoint
+                    {\ctikzvalof{tripoles/#1/base width}\pgf@circ@res@left}
+                    {\ctikzvalof{tripoles/#1/base height}\pgf@circ@res@up}}
+                \pgfpathlineto{\pgfpoint
+                    {\ctikzvalof{tripoles/#1/base width}\pgf@circ@res@left}
+                    {\ctikzvalof{tripoles/#1/base height}\pgf@circ@res@up+
+                    \ctikzvalof{tripoles/schottky base size}\pgf@circ@scaled@Rlen}}
+                \pgfpathlineto{\pgfpoint
+                    {\ctikzvalof{tripoles/#1/base width}\pgf@circ@res@left+
+                        \ctikzvalof{tripoles/schottky base size}\pgf@circ@scaled@Rlen}
+                    {\ctikzvalof{tripoles/#1/base height}\pgf@circ@res@up+
+                        \ctikzvalof{tripoles/schottky base size}\pgf@circ@scaled@Rlen}}
+                \pgfpathlineto{\pgfpoint
+                    {\ctikzvalof{tripoles/#1/base width}\pgf@circ@res@left+
+                        \ctikzvalof{tripoles/schottky base size}\pgf@circ@scaled@Rlen}
+                    {\ctikzvalof{tripoles/#1/base height}\pgf@circ@res@up}}
+                % % lower
+                \pgfpathmoveto{\pgfpoint
+                    {\ctikzvalof{tripoles/#1/base width}\pgf@circ@res@left}
+                    {\ctikzvalof{tripoles/#1/base height}\pgf@circ@res@down}}
+                \pgfpathlineto{\pgfpoint
+                    {\ctikzvalof{tripoles/#1/base width}\pgf@circ@res@left}
+                    {\ctikzvalof{tripoles/#1/base height}\pgf@circ@res@down-
+                    \ctikzvalof{tripoles/schottky base size}\pgf@circ@scaled@Rlen}}
+                \pgfpathlineto{\pgfpoint
+                    {\ctikzvalof{tripoles/#1/base width}\pgf@circ@res@left-
+                        \ctikzvalof{tripoles/schottky base size}\pgf@circ@scaled@Rlen}
+                    {\ctikzvalof{tripoles/#1/base height}\pgf@circ@res@down-
+                    \ctikzvalof{tripoles/schottky base size}\pgf@circ@scaled@Rlen}}
+                \pgfpathlineto{\pgfpoint
+                    {\ctikzvalof{tripoles/#1/base width}\pgf@circ@res@left-
+                        \ctikzvalof{tripoles/schottky base size}\pgf@circ@scaled@Rlen}
+                    {\ctikzvalof{tripoles/#1/base height}\pgf@circ@res@down}}
+                \fi
             \pgfusepath{draw}
         \endpgfscope
 
@@ -11118,6 +11164,42 @@
                     {\ctikzvalof{tripoles/bjt/base width}\pgf@circ@res@left}
                     {\ctikzvalof{tripoles/bjt/base height}\pgf@circ@res@down-(\numdown-1)*\multistep}}
                 \pgf@circ@setlinewidth{tripoles}{\pgflinewidth}
+                \ifpgf@circuit@bpt@schottky
+                    % upper
+                    \pgfpathmoveto{\pgfpoint
+                        {\ctikzvalof{tripoles/bjt/base width}\pgf@circ@res@left}
+                        {\ctikzvalof{tripoles/bjt/base height}\pgf@circ@res@up+(\numup-1)*\multistep}}
+                    \pgfpathlineto{\pgfpoint
+                        {\ctikzvalof{tripoles/bjt/base width}\pgf@circ@res@left}
+                        {\ctikzvalof{tripoles/bjt/base height}\pgf@circ@res@up+(\numup-1)*\multistep+
+                        \ctikzvalof{tripoles/schottky base size}\pgf@circ@scaled@Rlen}}
+                    \pgfpathlineto{\pgfpoint
+                        {\ctikzvalof{tripoles/bjt/base width}\pgf@circ@res@left+
+                            \ctikzvalof{tripoles/schottky base size}\pgf@circ@scaled@Rlen}
+                        {\ctikzvalof{tripoles/bjt/base height}\pgf@circ@res@up+(\numup-1)*\multistep+
+                            \ctikzvalof{tripoles/schottky base size}\pgf@circ@scaled@Rlen}}
+                    \pgfpathlineto{\pgfpoint
+                        {\ctikzvalof{tripoles/bjt/base width}\pgf@circ@res@left+
+                            \ctikzvalof{tripoles/schottky base size}\pgf@circ@scaled@Rlen}
+                        {\ctikzvalof{tripoles/bjt/base height}\pgf@circ@res@up+(\numup-1)*\multistep}}
+                    % lower
+                    \pgfpathmoveto{\pgfpoint
+                        {\ctikzvalof{tripoles/bjt/base width}\pgf@circ@res@left}
+                        {\ctikzvalof{tripoles/bjt/base height}\pgf@circ@res@down-(\numdown-1)*\multistep}}
+                    \pgfpathlineto{\pgfpoint
+                        {\ctikzvalof{tripoles/bjt/base width}\pgf@circ@res@left}
+                        {\ctikzvalof{tripoles/bjt/base height}\pgf@circ@res@down-(\numdown-1)*\multistep-
+                        \ctikzvalof{tripoles/schottky base size}\pgf@circ@scaled@Rlen}}
+                    \pgfpathlineto{\pgfpoint
+                        {\ctikzvalof{tripoles/bjt/base width}\pgf@circ@res@left-
+                            \ctikzvalof{tripoles/schottky base size}\pgf@circ@scaled@Rlen}
+                        {\ctikzvalof{tripoles/bjt/base height}\pgf@circ@res@down-(\numdown-1)*\multistep-
+                        \ctikzvalof{tripoles/schottky base size}\pgf@circ@scaled@Rlen}}
+                    \pgfpathlineto{\pgfpoint
+                        {\ctikzvalof{tripoles/bjt/base width}\pgf@circ@res@left-
+                            \ctikzvalof{tripoles/schottky base size}\pgf@circ@scaled@Rlen}
+                        {\ctikzvalof{tripoles/bjt/base height}\pgf@circ@res@down-(\numdown-1)*\multistep}}
+                \fi
                 \pgfsetroundcap % I like it more...
                 \pgfusepath{draw}
             \endpgfscope
