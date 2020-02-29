@@ -4,6 +4,7 @@ The major changes among the different circuitikz versions are listed here. See <
 * Version 1.0.2 (unreleased)
 
     - bumped version number
+    - added Schottky transistors
     - fixed formatting of `CHANGELOG.md`
 
 * Version 1.0.1 (2020-02-22)
