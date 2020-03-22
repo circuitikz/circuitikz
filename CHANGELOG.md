@@ -1,10 +1,9 @@
 <!--- CircuiTikz - Changelog --->
 The major changes among the different circuitikz versions are listed here. See <https://github.com/circuitikz/circuitikz/commits> for a full list of changes.
 
-* Version 1.0.2 (unreleased)
+* Version 1.0.2 (2020-03-22)
 
-    - bumped version number
-    - added Schottky transistors
+    - added Schottky transistors (thanks to a suggestion by Jérôme Monclard on GitHub)
     - fixed formatting of `CHANGELOG.md`
 
 * Version 1.0.1 (2020-02-22)
