@@ -4,6 +4,7 @@ The major changes among the different circuitikz versions are listed here. See <
 * Version 1.0.3 (unreleased)
 
     - bumped version number
+    - added `inerter` component by user Tadashi on GitHub
 
 * Version 1.0.2 (2020-03-22)
 
