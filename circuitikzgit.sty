@@ -12,8 +12,8 @@
 
 \NeedsTeXFormat{LaTeX2e}
 
-\def\pgfcircversion{1.0.3-unreleased-ca8ebbf}
-\def\pgfcircversiondate{2020/03/25}
+\def\pgfcircversion{1.0.3-unreleased-1bbc7c3}
+\def\pgfcircversiondate{2020/04/08}
 
 \ProvidesPackage{circuitikzgit}
 [\pgfcircversiondate{} The CircuiTikz circuit drawing package version \pgfcircversion]
@@ -1370,6 +1370,8 @@
 \ctikzset{tripoles/pigbt/gate height/.initial=.45}
 \ctikzset{tripoles/pigbt/gate height 2/.initial=.15}
 \ctikzset{tripoles/pigbt/base height/.initial=.4}
+\ctikzset{tripoles/pigbt/outer base height/.initial=.4}
+\ctikzset{tripoles/pigbt/outer base thickness/.initial=1}
 \ctikzset{tripoles/pigbt/conn height/.initial=0}
 \ctikzset{tripoles/pigbt/height/.initial=1.1}
 \ctikzset{tripoles/pigbt/gate width/.initial=.62}
@@ -1383,6 +1385,8 @@
 \ctikzset{tripoles/nigbt/gate height/.initial=.45}
 \ctikzset{tripoles/nigbt/gate height 2/.initial=.15}
 \ctikzset{tripoles/nigbt/base height/.initial=.4}
+\ctikzset{tripoles/nigbt/outer base height/.initial=.4}
+\ctikzset{tripoles/nigbt/outer base thickness/.initial=1}
 \ctikzset{tripoles/nigbt/conn height/.initial=0}
 \ctikzset{tripoles/nigbt/height/.initial=1.1}
 \ctikzset{tripoles/nigbt/gate width/.initial=.62}
@@ -1396,6 +1400,8 @@
 \ctikzset{tripoles/Lpigbt/gate height/.initial=.45}
 \ctikzset{tripoles/Lpigbt/gate height 2/.initial=.15}
 \ctikzset{tripoles/Lpigbt/base height/.initial=.4}
+\ctikzset{tripoles/Lpigbt/outer base height/.initial=.4}
+\ctikzset{tripoles/Lpigbt/outer base thickness/.initial=1}
 \ctikzset{tripoles/Lpigbt/conn height/.initial=.4}
 \ctikzset{tripoles/Lpigbt/height/.initial=1.1}
 \ctikzset{tripoles/Lpigbt/gate width/.initial=.62}
@@ -1409,6 +1415,8 @@
 \ctikzset{tripoles/Lnigbt/gate height/.initial=.45}
 \ctikzset{tripoles/Lnigbt/gate height 2/.initial=.15}
 \ctikzset{tripoles/Lnigbt/base height/.initial=.4}
+\ctikzset{tripoles/Lnigbt/outer base height/.initial=.4}
+\ctikzset{tripoles/Lnigbt/outer base thickness/.initial=1}
 \ctikzset{tripoles/Lnigbt/conn height/.initial=.4}
 \ctikzset{tripoles/Lnigbt/height/.initial=1.1}
 \ctikzset{tripoles/Lnigbt/gate width/.initial=.62}
@@ -1417,6 +1425,21 @@
 \ctikzset{tripoles/Lnigbt/bodydiode distance/.initial=.3}
 \ctikzset{tripoles/Lnigbt/bodydiode conn/.initial=.6}
 \ctikzset{tripoles/Lnigbt/curr direction/.initial=1}
+
+\ctikzset{tripoles/igbt/outer base height/.code={
+    \ctikzset{tripoles/nigbt/outer base height/.initial=#1}
+    \ctikzset{tripoles/pigbt/outer base height/.initial=#1}
+    \ctikzset{tripoles/Lnigbt/outer base height/.initial=#1}
+    \ctikzset{tripoles/Lpigbt/outer base height/.initial=#1}
+    \ctikzset{tripoles/Lnigbt/conn height/.initial=#1}
+    \ctikzset{tripoles/Lpigbt/conn height/.initial=#1}
+}}
+\ctikzset{tripoles/igbt/outer base thickness/.code={
+    \ctikzset{tripoles/nigbt/outer base thickness=#1}
+    \ctikzset{tripoles/pigbt/outer base thickness=#1}
+    \ctikzset{tripoles/Lnigbt/outer base thickness=#1}
+    \ctikzset{tripoles/Lpigbt/outer base thickness=#1}
+}}
 
 \ctikzset{tripoles/njfet/width/.initial=.7}
 \ctikzset{tripoles/njfet/gate height/.initial=.5}
@@ -11639,12 +11662,19 @@
 
         %draw thicker gate lines
         \pgfscope
-            \pgfpathmoveto{\pgfpoint
-                {\ctikzvalof{tripoles/#1/gate width}\pgf@circ@res@left}
-            {\ctikzvalof{tripoles/#1/base height}\pgf@circ@res@up+\pgfverticaltransformationadjustment*.5\pgflinewidth}}
-            \pgfpathlineto{\pgfpoint
-                {\ctikzvalof{tripoles/#1/gate width}\pgf@circ@res@left}
-            {\ctikzvalof{tripoles/#1/base height}\pgf@circ@res@down-\pgfverticaltransformationadjustment*.5\pgflinewidth}}
+            \pgfscope
+                \pgfpathmoveto{\pgfpoint
+                    {\ctikzvalof{tripoles/#1/gate width}\pgf@circ@res@left}
+                {\ctikzvalof{tripoles/#1/outer base height}\pgf@circ@res@up+\pgfverticaltransformationadjustment*.5\pgflinewidth}}
+                \pgfpathlineto{\pgfpoint
+                    {\ctikzvalof{tripoles/#1/gate width}\pgf@circ@res@left}
+                {\ctikzvalof{tripoles/#1/outer base height}\pgf@circ@res@down-\pgfverticaltransformationadjustment*.5\pgflinewidth}}
+                % set the normal thickness
+                \pgf@circ@setlinewidth{tripoles}{\pgflinewidth}
+                \edef\@@extrat{\ctikzvalof{tripoles/#1/outer base thickness}}
+                \pgfsetlinewidth{\@@extrat\pgflinewidth}
+                \pgfusepath{draw}
+            \endpgfscope
             \pgfpathmoveto{\pgfpoint
                 {\ctikzvalof{tripoles/#1/base width}\pgf@circ@res@left}
             {\ctikzvalof{tripoles/#1/base height}\pgf@circ@res@up+\pgfverticaltransformationadjustment*.5\pgflinewidth}}
