@@ -6,6 +6,7 @@ The major changes among the different circuitikz versions are listed here. See <
     - bumped version number
     - added `inerter` component by user Tadashi on GitHub
     - added variable outer base height for IGBT, suggested by user RA-EE on GitHub
+    - added configurable "+" and "-" signs on american-style voltage generators
 
 * Version 1.0.2 (2020-03-22)
 
