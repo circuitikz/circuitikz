@@ -10,7 +10,7 @@
 %
 % See the files gpl-3.0_license.txt and lppl-1-3c_license.txt for more details.
 
-\def\pgfcircversion{1.0.3-unreleased-4847dee}
+\def\pgfcircversion{1.0.3-unreleased-06ffdc3}
 \def\pgfcircversiondate{2020/04/18}
 \writestatus{loading}{\pgfcircversiondate{} The CircuiTikz circuit drawing package version \pgfcircversion}
 
@@ -10419,12 +10419,39 @@
 % #2 - text inside
 % #3 - number of inputs
 % #4 = is it a not?
+%
+% option to add a circle for not-output, see
+% https://github.com/circuitikz/circuitikz/issues/385
+%
+\newif\ifpgf@circ@european@port@circle\pgf@circ@european@port@circlefalse
+\ctikzset{tripoles/european not shape/.initial=ocirc}
+\ctikzset{tripoles/european not symbol/.is choice}
+\ctikzset{tripoles/european not symbol/triangle/.code={\pgf@circ@european@port@circlefalse}}
+\ctikzset{tripoles/european not symbol/circle/.code={%
+\pgf@circ@european@port@circletrue\ctikzset{tripoles/european not shape=ocirc}}}
+\ctikzset{tripoles/european not symbol/ieee circle/.code={%
+\pgf@circ@european@port@circletrue\ctikzset{tripoles/european not shape=notcirc}}}
 
 \long\def\pgfcircdeclareeurologicport#1#2#3#4{
     \pgfdeclareshape{european #1 port}
     {
         \savedmacro{\ctikzclass}{\edef\ctikzclass{logic ports}}
         \saveddimen{\scaledRlen}{\pgfmathsetlength{\pgf@x}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}}
+        \saveddimen{\boutshift}{%
+            \ifpgf@circ@european@port@circle
+                \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
+                \edef\pgf@temp{ocirc}
+                \edef\pgf@circ@temp{\ctikzvalof{tripoles/european not shape}}
+                \ifx\pgf@temp\pgf@circ@temp % it's ocirc
+                    \pgfmathsetlength{\pgf@x}{2*\ctikzvalof{nodes width}*\pgf@circ@Rlen}
+                \else % it's ieee not circ
+                    \pgf@circ@notradius % defined together with ieeestd ports
+                    \pgf@x=2\pgf@circ@res@temp
+                \fi
+            \else
+                \pgf@x=0pt
+            \fi
+        }
         \savedmacro\resize{% automatic
             \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
             \pgf@circ@res@up = \ctikzvalof{tripoles/european #1 port/height}\pgf@circ@scaled@Rlen
@@ -10481,7 +10508,7 @@
         }
     \fi
     \anchor{out}{\northeast\pgf@y=0pt}
-    \anchor{bout}{\right\pgf@y=0pt}
+    \anchor{bout}{\right\advance\pgf@x by \boutshift\pgf@y=0pt}
 
     \anchor{left}{\left}% edges of component minus leads
     \anchor{right}{\right}
@@ -10536,15 +10563,24 @@
         \pgfpathlineto{%
         \pgfpoint{\ctikzvalof{tripoles/european #1 port/reserved}\pgf@circ@res@right}{0pt}}
         %
+        \pgfusepath{draw}
+        %
         \edef\pgf@temp{not}
         \edef\pgf@circ@temp{#4}
         \ifx\pgf@temp\pgf@circ@temp % is a not
-            \pgfpathmoveto{\pgfpoint{\ctikzvalof{tripoles/european #1 port/not width}\pgf@circ@res@right}{0pt}}
-            \pgfpathlineto{\pgfpoint{\ctikzvalof{tripoles/european #1 port/reserved}\pgf@circ@res@right}%
-            {\ctikzvalof{tripoles/european #1 port/not height}\pgf@circ@res@up}}
+            \ifpgf@circ@european@port@circle
+                \pgfscope
+                    \pgf@circ@setlinewidth{tripoles}{\pgflinewidth}
+                    \pgftransformxshift{\ctikzvalof{tripoles/european #1 port/reserved}\pgf@circ@res@right}
+                    \pgfnode{\ctikzvalof{tripoles/european not shape}}{west}{}{NOT}{\pgfusepath{stroke}}
+                \endpgfscope
+            \else
+                \pgfpathmoveto{\pgfpoint{\ctikzvalof{tripoles/european #1 port/not width}\pgf@circ@res@right}{0pt}}
+                \pgfpathlineto{\pgfpoint{\ctikzvalof{tripoles/european #1 port/reserved}\pgf@circ@res@right}%
+                {\ctikzvalof{tripoles/european #1 port/not height}\pgf@circ@res@up}}
+                \pgfusepath{draw}
+            \fi
         \fi
-        %
-        \pgfusepath{draw}
         %
         \pgfpathmoveto{\pgfpointorigin}
         \pgftext{#2}
