@@ -9,6 +9,7 @@ The major changes among the different circuitikz versions are listed here. See <
     - added `inerter` component by user Tadashi on GitHub
     - added variable outer base height for IGBT, suggested by user RA-EE on GitHub
     - added configurable "+" and "-" signs on american-style voltage generators
+    - text on amplifiers can be positioned to the left or centered
 
 * Version 1.0.2 (2020-03-22)
 
