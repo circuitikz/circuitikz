@@ -1,6 +1,10 @@
 <!--- CircuiTikz - Changelog --->
 The major changes among the different circuitikz versions are listed here. See <https://github.com/circuitikz/circuitikz/commits> for a full list of changes.
 
+* Version 1.1.2 (unreleased)
+
+    - bumped version number
+
 * Version 1.1.1 (2020-04-24)
 
     One-line bugfix release for the IEEE ports "not" circle thickness
