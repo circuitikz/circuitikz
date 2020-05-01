@@ -2049,12 +2049,14 @@ This are simple drawings to indicate multiple wires.
 \begin{groupdesc}
 \circuitdescbip{multiwire}{Single line multiple wires}{multiwire}
 \circuitdescbip{bmultiwire}{Double line multiple wires}{bmultiwire}
+\circuitdescbip{tmultiwire}{Triple line multiple wires}{tmultiwire}
 \end{groupdesc}
 
 \begin{LTXexample}[varwidth=true]
 \begin{circuitikz}
     \draw (0,0) to[multiwire=4] ++(1,0);
     \draw (0,-2) to[bmultiwire=6] ++(1,0);
+    \draw (0,-4) to[tmultiwire=3] ++(1,0);
 \end{circuitikz}
 \end{LTXexample}
 
@@ -2209,6 +2211,7 @@ It also has a \texttt{zero} anchor if you need to rotate it about its real cente
     \circuitdesc*{oscillator}{oscillator}{}
     \circuitdesc*{circulator}{circulator}{}
     \circuitdesc*{wilkinson}{wilkinson divider}{}( in/180/0.1, out2/45/0.1, out1/-45/0.1 )
+    \circuitdesc*{gridnode}{gridnode}{}(left/135/0.2, right/45/0.2, center/-100/0.4, up/90/0.2, down/-45/.2)
 \end{groupdesc}
 
 \begin{groupdesc}
@@ -2232,6 +2235,10 @@ It also has a \texttt{zero} anchor if you need to rotate it about its real cente
     \circuitdescbip*{phaseshifter}{phase shifter}{}
     \circuitdescbip*{vphaseshifter}{var.\ phase shifter}{}
     \circuitdescbip*{detector}{detector}{}
+    \circuitdescbip*{sacdc}{sacdc}{}
+    \circuitdescbip*{sdcac}{sdcac}{}
+    \circuitdescbip*{tacdc}{tacdc}{}
+    \circuitdescbip*{tdcac}{tdcac}{}(left/170/0.5, right/5/0.5, center/-90/0.3, ac1/45/0.1, ac2/-5/.3, ac3/-45/.1, dc1/135/.3, dc2/185/.3)
 \end{groupdesc}
 
 \begin{groupdesc}
@@ -6753,6 +6760,21 @@ The best way of contributing is forking the project, adding your component in th
 \end{document}
 	\end{lstlisting}
 \end{tabular}
+
+\begin{LTXexample}[varwidth=true,pos=t]
+\begin{circuitikz}[smallR/.style={european resistor, resistors/scale=0.5}]
+    \draw (0,0) node[tacdcshape, anchor=ac2](acdc){} to[smallR] ++(-2,0) -- node[circ](point){} ++(-1,0);
+    \draw (acdc.ac1) to[nos, invert, mirror, name=switch,color=red] ++(-2,0) -- (point);
+    \draw (acdc.ac3) to[smallR] ++(-2,0)
+        -- (point) 
+        to[tmultiwire] ++(-1,0) 
+        node[gridnode, anchor=right]{}; 
+    \node[above=.3cm,color=red] at (switch) {fault};
+    \draw (acdc.dc1) to[smallR,l=HVDC line] ++(2,0) node[tdcacshape, anchor=dc1](dcac){};
+    \draw (acdc.dc2) -- (dcac.dc2);
+    \draw (dcac.right) to[tmultiwire] ++(2,0) node[gridnode,anchor=left]{};
+\end{circuitikz}
+\end{LTXexample}
 
 % % changelog.tex will be updated by makefile from CHANGELOG.md
 \section{Changelog and Release Notes}
