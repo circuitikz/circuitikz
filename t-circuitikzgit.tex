@@ -10,8 +10,8 @@
 %
 % See the files gpl-3.0_license.txt and lppl-1-3c_license.txt for more details.
 
-\def\pgfcircversion{1.1.2-unreleased-a9945a3}
-\def\pgfcircversiondate{2020/05/01}
+\def\pgfcircversion{1.1.2-unreleased-b7df3d4}
+\def\pgfcircversiondate{2020/05/02}
 \writestatus{loading}{\pgfcircversiondate{} The CircuiTikz circuit drawing package version \pgfcircversion}
 
 \usemodule[tikz]
@@ -2055,6 +2055,13 @@
 \newif\ifpgf@circuit@tubes@fullcathode\pgf@circuit@tubes@fullcathodefalse
 \pgfkeys{/tikz/fullcathode/.add code={}{\pgf@circuit@tubes@fullcathodetrue}}
 \ctikzset{tubes/fullcathode/.add code={}{\pgf@circuit@tubes@fullcathodetrue}}
+
+% powerelectronic blocks
+\ctikzset{bipoles/sacdc/width/.initial=.7}
+\ctikzset{bipoles/sdcac/width/.initial=.7}
+\ctikzset{bipoles/tacdc/width/.initial=.7}
+\ctikzset{bipoles/tdcac/width/.initial=.7}
+\ctikzset{quadpoles/gridnode/width/.initial=.7} %not sure if quadpole?
 
 %%%---------- close: tex/pgfcirc.defines
 %%%%%%%%%%% Springe nach tex/pgfcircutils
@@ -4234,6 +4241,28 @@
     \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{0pt}}
     \pgfusepath{draw}
 }
+
+\pgfcircdeclarebipole
+{}
+{\ctikzvalof{bipoles/multiwire/height}}
+{tmultiwire}
+{\ctikzvalof{bipoles/multiwire/height}}
+{\ctikzvalof{bipoles/multiwire/width}}
+{
+    \pgf@circ@res@other=\ctikzvalof{bipoles/multiwire/spacing}\pgf@circ@Rlen
+    \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@down}}
+    \pgfpathlineto{\pgfpoint{0pt}{\pgf@circ@res@up}}
+    \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left+\pgf@circ@res@other}{\pgf@circ@res@down}}
+    \pgfpathlineto{\pgfpoint{\pgf@circ@res@other}{\pgf@circ@res@up}}
+    \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left+2\pgf@circ@res@other}{\pgf@circ@res@down}}
+    \pgfpathlineto{\pgfpoint{2\pgf@circ@res@other}{\pgf@circ@res@up}}
+    \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{0pt}}
+    \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{0pt}}
+    \pgfusepath{draw}
+}
+
+%
+%
 %% Generic bipole - used as resistor by some (bleah)
 \pgfcircdeclarebipolescaled{resistors}
 {}
@@ -8679,6 +8708,376 @@
     \fi
 
 }
+
+%% single phase ac/dc converter
+\pgfcircdeclarebipolescaled{blocks}
+{
+    \anchor{dc1}{
+        \northeast
+        \pgf@y=.4\pgf@y
+    }
+    \anchor{dc2}{
+        \northeast
+        \pgf@y=-.4\pgf@y
+    }
+}
+{\ctikzvalof{bipoles/sacdc/width}}
+{sacdc}
+{\ctikzvalof{bipoles/sacdc/width}}
+{\ctikzvalof{bipoles/sacdc/width}}
+{
+    \pgf@circ@res@step = \ctikzvalof{bipoles/sacdc/width}\pgf@circ@scaled@Rlen
+    \divide \pgf@circ@res@step by 2
+
+    \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@zero}}
+    \pgf@circ@res@other = \pgf@circ@res@left
+    \advance\pgf@circ@res@other by \pgf@circ@res@step
+
+    \ifpgf@circuit@dashed
+        \pgfsetdash{{0.1cm}{0.1cm}}{0cm}
+    \fi
+
+    % draw outer box
+    \pgf@circ@twoportbox
+
+    \ifpgf@circuit@inputarrow
+        {
+            \advance \pgf@circ@res@left by -.5\ctikzvalof{bipoles/thickness}\pgfstartlinewidth
+            \pgftransformshift{\pgfpoint{\pgf@circ@res@left}{0pt}}
+            \pgfnode{inputarrow}{tip}{}{pgf@inputarrow}{\pgfusepath{fill}}
+        }
+    \fi
+
+    % rotate inner symbol
+    \def\pgfcircmathresult{\expandafter\pgf@circ@stripdecimals\pgf@circ@direction\pgf@nil}
+    \ifnum \pgfcircmathresult > 45 \ifnum \pgfcircmathresult < 135
+        \pgftransformrotate{270}
+    \fi\fi
+    \ifnum \pgfcircmathresult > 134 \ifnum \pgfcircmathresult < 225  % 134 degree, because >= 135 is not possible
+        \pgftransformrotate{180}
+    \fi\fi
+    \ifnum \pgfcircmathresult > 225 \ifnum \pgfcircmathresult < 315
+        \pgftransformrotate{90}
+    \fi\fi
+
+    % draw inner symbol
+    \pgfsetdash{}{0pt}	% always draw solid line for inner symbol
+    \pgfsetarrows{-} %never draw arrows
+    \pgfsetlinewidth{\pgfstartlinewidth}
+    \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@down}}
+    \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@up}}
+    \pgfusepath{draw}
+    
+    % draw sin wave
+    \pgfpathmoveto{\pgfpoint{-.76\pgf@circ@res@step}{.5\pgf@circ@res@step}}
+    \pgfpathsine{\pgfpoint{.17\pgf@circ@res@step}{.17\pgf@circ@res@step}}
+    \pgfpathcosine{\pgfpoint{.17\pgf@circ@res@step}{-.17\pgf@circ@res@step}}
+    \pgfpathsine{\pgfpoint{.17\pgf@circ@res@step}{-.17\pgf@circ@res@step}}
+    \pgfpathcosine{\pgfpoint{.17\pgf@circ@res@step}{.17\pgf@circ@res@step}}
+    \pgfusepath{draw}
+    
+    % draw equal sign
+    \pgfpathmoveto{\pgfpoint{.2\pgf@circ@res@step}{-.375\pgf@circ@res@step}}
+    \pgfpathlineto{\pgfpoint{0.7\pgf@circ@res@step}{-0.375\pgf@circ@res@step}}
+    \pgfusepath{draw}
+    \pgfpathmoveto{\pgfpoint{.2\pgf@circ@res@step}{-.625\pgf@circ@res@step}}
+    \pgfpathlineto{\pgfpoint{0.7\pgf@circ@res@step}{-0.625\pgf@circ@res@step}}
+    \pgfusepath{draw}
+}
+
+
+
+%% single phase dc/ac converter
+\pgfcircdeclarebipolescaled{blocks}
+{
+    \anchor{dc1}{
+        \northeast
+        \pgf@y=.4\pgf@y
+        \pgf@x=-\pgf@x
+    }
+    \anchor{dc2}{
+        \northeast
+        \pgf@y=-.4\pgf@y
+        \pgf@x=-\pgf@x
+    }
+}
+{\ctikzvalof{bipoles/sdcac/width}}
+{sdcac}
+{\ctikzvalof{bipoles/sdcac/width}}
+{\ctikzvalof{bipoles/sdcac/width}}
+{
+    \pgf@circ@res@step = \ctikzvalof{bipoles/sdcac/width}\pgf@circ@scaled@Rlen
+    \divide \pgf@circ@res@step by 2
+
+    \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@zero}}
+    \pgf@circ@res@other = \pgf@circ@res@left
+    \advance\pgf@circ@res@other by \pgf@circ@res@step
+
+    \ifpgf@circuit@dashed
+        \pgfsetdash{{0.1cm}{0.1cm}}{0cm}
+    \fi
+
+    % draw outer box
+    \pgf@circ@twoportbox
+
+    \ifpgf@circuit@inputarrow
+        {
+            \advance \pgf@circ@res@left by -.5\ctikzvalof{bipoles/thickness}\pgfstartlinewidth
+            \pgftransformshift{\pgfpoint{\pgf@circ@res@left}{0pt}}
+            \pgfnode{inputarrow}{tip}{}{pgf@inputarrow}{\pgfusepath{fill}}
+        }
+    \fi
+
+    % rotate inner symbol
+    \def\pgfcircmathresult{\expandafter\pgf@circ@stripdecimals\pgf@circ@direction\pgf@nil}
+    \ifnum \pgfcircmathresult > 45 \ifnum \pgfcircmathresult < 135
+        \pgftransformrotate{270}
+    \fi\fi
+    \ifnum \pgfcircmathresult > 134 \ifnum \pgfcircmathresult < 225  % 134 degree, because >= 135 is not possible
+        \pgftransformrotate{180}
+    \fi\fi
+    \ifnum \pgfcircmathresult > 225 \ifnum \pgfcircmathresult < 315
+        \pgftransformrotate{90}
+    \fi\fi
+
+    % draw inner symbol
+    \pgfsetdash{}{0pt}	% always draw solid line for inner symbol
+    \pgfsetarrows{-} %never draw arrows
+    \pgfsetlinewidth{\pgfstartlinewidth}
+    \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@down}}
+    \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@up}}
+    \pgfusepath{draw}
+    
+    % draw sin wave
+    \pgfpathmoveto{\pgfpoint{.14\pgf@circ@res@step}{-.5\pgf@circ@res@step}}
+    \pgfpathsine{\pgfpoint{.17\pgf@circ@res@step}{.17\pgf@circ@res@step}}
+    \pgfpathcosine{\pgfpoint{.17\pgf@circ@res@step}{-.17\pgf@circ@res@step}}
+    \pgfpathsine{\pgfpoint{.17\pgf@circ@res@step}{-.17\pgf@circ@res@step}}
+    \pgfpathcosine{\pgfpoint{.17\pgf@circ@res@step}{.17\pgf@circ@res@step}}
+    \pgfusepath{draw}
+    
+    % draw equal sign
+    \pgfpathmoveto{\pgfpoint{-.2\pgf@circ@res@step}{.375\pgf@circ@res@step}}
+    \pgfpathlineto{\pgfpoint{-0.7\pgf@circ@res@step}{0.375\pgf@circ@res@step}}
+    \pgfusepath{draw}
+    \pgfpathmoveto{\pgfpoint{-.2\pgf@circ@res@step}{.625\pgf@circ@res@step}}
+    \pgfpathlineto{\pgfpoint{-0.7\pgf@circ@res@step}{0.625\pgf@circ@res@step}}
+    \pgfusepath{draw}
+}
+
+
+%% threephase ac/dc converter
+\pgfcircdeclarebipolescaled{blocks}
+{
+    \anchor{dc1}{
+        \northeast
+        \pgf@y=.4\pgf@y
+    }
+    \anchor{dc2}{
+        \northeast
+        \pgf@y=-.4\pgf@y
+    }
+    \anchor{ac1}{
+        \northeast
+        \pgf@y=.6\pgf@y
+        \pgf@x=-\pgf@x
+    }
+    \anchor{ac2}{
+        \northeast
+        \pgf@y=0\pgf@y
+        \pgf@x=-\pgf@x
+    }
+    \anchor{ac3}{
+        \northeast
+        \pgf@y=-.6\pgf@y
+        \pgf@x=-\pgf@x
+    }
+}
+{\ctikzvalof{bipoles/tacdc/width}}
+{tacdc}
+{\ctikzvalof{bipoles/tacdc/width}}
+{\ctikzvalof{bipoles/tacdc/width}}
+{
+    \pgf@circ@res@step = \ctikzvalof{bipoles/tacdc/width}\pgf@circ@scaled@Rlen
+    \divide \pgf@circ@res@step by 2
+
+    \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@zero}}
+    \pgf@circ@res@other = \pgf@circ@res@left
+    \advance\pgf@circ@res@other by \pgf@circ@res@step
+
+    \ifpgf@circuit@dashed
+        \pgfsetdash{{0.1cm}{0.1cm}}{0cm}
+    \fi
+
+    % draw outer box
+    \pgf@circ@twoportbox
+
+    \ifpgf@circuit@inputarrow
+        {
+            \advance \pgf@circ@res@left by -.5\ctikzvalof{bipoles/thickness}\pgfstartlinewidth
+            \pgftransformshift{\pgfpoint{\pgf@circ@res@left}{0pt}}
+            \pgfnode{inputarrow}{tip}{}{pgf@inputarrow}{\pgfusepath{fill}}
+        }
+    \fi
+
+    % rotate inner symbol
+    \def\pgfcircmathresult{\expandafter\pgf@circ@stripdecimals\pgf@circ@direction\pgf@nil}
+    \ifnum \pgfcircmathresult > 45 \ifnum \pgfcircmathresult < 135
+        \pgftransformrotate{270}
+    \fi\fi
+    \ifnum \pgfcircmathresult > 134 \ifnum \pgfcircmathresult < 225  % 134 degree, because >= 135 is not possible
+        \pgftransformrotate{180}
+    \fi\fi
+    \ifnum \pgfcircmathresult > 225 \ifnum \pgfcircmathresult < 315
+        \pgftransformrotate{90}
+    \fi\fi
+
+    % draw inner symbol
+    \pgfsetdash{}{0pt}	% always draw solid line for inner symbol
+    \pgfsetarrows{-} %never draw arrows
+    \pgfsetlinewidth{\pgfstartlinewidth}
+    \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@down}}
+    \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@up}}
+    \pgfusepath{draw}
+    
+    % draw sin waves
+    \pgfpathmoveto{\pgfpoint{-.76\pgf@circ@res@step}{.65\pgf@circ@res@step}}
+    \pgfpathsine{\pgfpoint{.17\pgf@circ@res@step}{.17\pgf@circ@res@step}}
+    \pgfpathcosine{\pgfpoint{.17\pgf@circ@res@step}{-.17\pgf@circ@res@step}}
+    \pgfpathsine{\pgfpoint{.17\pgf@circ@res@step}{-.17\pgf@circ@res@step}}
+    \pgfpathcosine{\pgfpoint{.17\pgf@circ@res@step}{.17\pgf@circ@res@step}}
+    \pgfusepath{draw}
+    \pgfpathmoveto{\pgfpoint{-.76\pgf@circ@res@step}{.5\pgf@circ@res@step}}
+    \pgfpathsine{\pgfpoint{.17\pgf@circ@res@step}{.17\pgf@circ@res@step}}
+    \pgfpathcosine{\pgfpoint{.17\pgf@circ@res@step}{-.17\pgf@circ@res@step}}
+    \pgfpathsine{\pgfpoint{.17\pgf@circ@res@step}{-.17\pgf@circ@res@step}}
+    \pgfpathcosine{\pgfpoint{.17\pgf@circ@res@step}{.17\pgf@circ@res@step}}
+    \pgfusepath{draw}
+    \pgfpathmoveto{\pgfpoint{-.76\pgf@circ@res@step}{.35\pgf@circ@res@step}}
+    \pgfpathsine{\pgfpoint{.17\pgf@circ@res@step}{.17\pgf@circ@res@step}}
+    \pgfpathcosine{\pgfpoint{.17\pgf@circ@res@step}{-.17\pgf@circ@res@step}}
+    \pgfpathsine{\pgfpoint{.17\pgf@circ@res@step}{-.17\pgf@circ@res@step}}
+    \pgfpathcosine{\pgfpoint{.17\pgf@circ@res@step}{.17\pgf@circ@res@step}}
+    \pgfusepath{draw}
+    
+    
+    
+    
+    % draw equal sign
+    \pgfpathmoveto{\pgfpoint{.2\pgf@circ@res@step}{-.375\pgf@circ@res@step}}
+    \pgfpathlineto{\pgfpoint{0.7\pgf@circ@res@step}{-0.375\pgf@circ@res@step}}
+    \pgfusepath{draw}
+    \pgfpathmoveto{\pgfpoint{.2\pgf@circ@res@step}{-.625\pgf@circ@res@step}}
+    \pgfpathlineto{\pgfpoint{0.7\pgf@circ@res@step}{-0.625\pgf@circ@res@step}}
+    \pgfusepath{draw}
+}
+
+
+%% threephase dc/ac converter
+\pgfcircdeclarebipolescaled{blocks}
+{
+    \anchor{dc1}{
+        \northeast
+        \pgf@y=.4\pgf@y
+        \pgf@x=-\pgf@x
+    }
+    \anchor{dc2}{
+        \northeast
+        \pgf@y=-.4\pgf@y
+        \pgf@x=-\pgf@x
+    }
+    \anchor{ac1}{
+        \northeast
+        \pgf@y=.6\pgf@y
+    }
+    \anchor{ac2}{
+        \northeast
+        \pgf@y=0\pgf@y
+    }
+    \anchor{ac3}{
+        \northeast
+        \pgf@y=-.6\pgf@y
+    }
+}
+{\ctikzvalof{bipoles/tdcac/width}}
+{tdcac}
+{\ctikzvalof{bipoles/tdcac/width}}
+{\ctikzvalof{bipoles/tdcac/width}}
+{
+    \pgf@circ@res@step = \ctikzvalof{bipoles/tdcac/width}\pgf@circ@scaled@Rlen
+    \divide \pgf@circ@res@step by 2
+
+    \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@zero}}
+    \pgf@circ@res@other = \pgf@circ@res@left
+    \advance\pgf@circ@res@other by \pgf@circ@res@step
+
+    \ifpgf@circuit@dashed
+        \pgfsetdash{{0.1cm}{0.1cm}}{0cm}
+    \fi
+
+    % draw outer box
+    \pgf@circ@twoportbox
+
+    \ifpgf@circuit@inputarrow
+        {
+            \advance \pgf@circ@res@left by -.5\ctikzvalof{bipoles/thickness}\pgfstartlinewidth
+            \pgftransformshift{\pgfpoint{\pgf@circ@res@left}{0pt}}
+            \pgfnode{inputarrow}{tip}{}{pgf@inputarrow}{\pgfusepath{fill}}
+        }
+    \fi
+
+    % rotate inner symbol
+    \def\pgfcircmathresult{\expandafter\pgf@circ@stripdecimals\pgf@circ@direction\pgf@nil}
+    \ifnum \pgfcircmathresult > 45 \ifnum \pgfcircmathresult < 135
+        \pgftransformrotate{270}
+    \fi\fi
+    \ifnum \pgfcircmathresult > 134 \ifnum \pgfcircmathresult < 225  % 134 degree, because >= 135 is not possible
+        \pgftransformrotate{180}
+    \fi\fi
+    \ifnum \pgfcircmathresult > 225 \ifnum \pgfcircmathresult < 315
+        \pgftransformrotate{90}
+    \fi\fi
+
+    % draw inner symbol
+    \pgfsetdash{}{0pt}	% always draw solid line for inner symbol
+    \pgfsetarrows{-} %never draw arrows
+    \pgfsetlinewidth{\pgfstartlinewidth}
+    \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@down}}
+    \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@up}}
+    \pgfusepath{draw}
+    
+    % draw sin waves
+    \pgfpathmoveto{\pgfpoint{.14\pgf@circ@res@step}{-.65\pgf@circ@res@step}}
+    \pgfpathsine{\pgfpoint{.17\pgf@circ@res@step}{.17\pgf@circ@res@step}}
+    \pgfpathcosine{\pgfpoint{.17\pgf@circ@res@step}{-.17\pgf@circ@res@step}}
+    \pgfpathsine{\pgfpoint{.17\pgf@circ@res@step}{-.17\pgf@circ@res@step}}
+    \pgfpathcosine{\pgfpoint{.17\pgf@circ@res@step}{.17\pgf@circ@res@step}}
+    \pgfusepath{draw}
+    \pgfpathmoveto{\pgfpoint{.14\pgf@circ@res@step}{-.5\pgf@circ@res@step}}
+    \pgfpathsine{\pgfpoint{.17\pgf@circ@res@step}{.17\pgf@circ@res@step}}
+    \pgfpathcosine{\pgfpoint{.17\pgf@circ@res@step}{-.17\pgf@circ@res@step}}
+    \pgfpathsine{\pgfpoint{.17\pgf@circ@res@step}{-.17\pgf@circ@res@step}}
+    \pgfpathcosine{\pgfpoint{.17\pgf@circ@res@step}{.17\pgf@circ@res@step}}
+    \pgfusepath{draw}
+    \pgfpathmoveto{\pgfpoint{.14\pgf@circ@res@step}{-.35\pgf@circ@res@step}}
+    \pgfpathsine{\pgfpoint{.17\pgf@circ@res@step}{.17\pgf@circ@res@step}}
+    \pgfpathcosine{\pgfpoint{.17\pgf@circ@res@step}{-.17\pgf@circ@res@step}}
+    \pgfpathsine{\pgfpoint{.17\pgf@circ@res@step}{-.17\pgf@circ@res@step}}
+    \pgfpathcosine{\pgfpoint{.17\pgf@circ@res@step}{.17\pgf@circ@res@step}}
+    \pgfusepath{draw}
+    
+    
+    
+    
+    % draw equal sign
+    \pgfpathmoveto{\pgfpoint{-.2\pgf@circ@res@step}{.375\pgf@circ@res@step}}
+    \pgfpathlineto{\pgfpoint{-0.7\pgf@circ@res@step}{0.375\pgf@circ@res@step}}
+    \pgfusepath{draw}
+    \pgfpathmoveto{\pgfpoint{-.2\pgf@circ@res@step}{.625\pgf@circ@res@step}}
+    \pgfpathlineto{\pgfpoint{-0.7\pgf@circ@res@step}{0.625\pgf@circ@res@step}}
+    \pgfusepath{draw}
+}
+
 
 %%%%%%%%%%%%%%%%%%%%%%%
 %% MECHANICAL SYMBOLS
@@ -15899,8 +16298,145 @@
 
             \endpgfscope
         }
+}
+
+%% gridnode
+\pgfdeclareshape{gridnode}
+{
+    \savedmacro{\ctikzclass}{\edef\ctikzclass{blocks}}
+    \saveddimen{\scaledRlen}{\pgfmathsetlength{\pgf@x}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}}
+    \savedanchor\northwest{
+        \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
+            \pgf@y=\ctikzvalof{quadpoles/gridnode/width}\pgf@circ@scaled@Rlen
+            \pgf@y=.5\pgf@y
+            \pgf@x=-\ctikzvalof{quadpoles/gridnode/width}\pgf@circ@scaled@Rlen
+            \pgf@x=.5\pgf@x
+    }
+    \anchor{center}{
+        \pgfpointorigin
     }
 
+    \anchor{north}{
+        \northwest
+        \pgf@x=0pt
+    }
+    \anchor{up}{
+        \northwest
+        \pgf@x=0pt
+    }
+    \anchor{south}{
+        \northwest
+        \pgf@x=0pt
+        \pgf@y=-\pgf@y
+    }
+    \anchor{down}{
+        \northwest
+        \pgf@x=0pt
+        \pgf@y=-\pgf@y
+    }
+    \anchor{east}{
+        \northwest
+        \pgf@y=0pt
+        \pgf@x=-\pgf@x
+    }
+    \anchor{right}{
+        \northwest
+        \pgf@y=0pt
+        \pgf@x=-\pgf@x
+    }
+    \anchor{west}{
+        \northwest
+        \pgf@y=0pt
+    }    
+    \anchor{left}{
+        \northwest
+        \pgf@y=0pt
+    }
+    \anchor{south west}{ 
+        \northwest 
+        \pgf@y=-\pgf@y
+    }
+    \anchor{north east}{
+        \northwest 
+        \pgf@x=-\pgf@x
+        \relax
+    }
+    \anchor{north west}{ 
+        \northwest 
+    }
+    \anchor{south east}{ 
+        \northwest 
+        \pgf@x=-\pgf@x
+        \pgf@y=-\pgf@y
+    }
+    \anchor{text}{
+        \pgf@x=-2\pgf@x
+        \advance \pgf@x by -.5\wd\pgfnodeparttextbox
+        \advance \pgf@y by -1.5\ht\pgfnodeparttextbox
+    }
+    \backgroundpath{
+        \pgfsetcolor{\ctikzvalof{color}}
+        \pgf@circ@scaled@Rlen=\scaledRlen
+
+        \pgf@circ@res@step=\ctikzvalof{quadpoles/gridnode/width}\pgf@circ@scaled@Rlen
+    
+        \northwest
+        \pgf@circ@res@up = \pgf@y
+        \pgf@circ@res@down = -\pgf@y
+        \pgf@circ@res@right = -\pgf@x
+        \pgf@circ@res@left = \pgf@x
+        
+        \pgf@circ@res@step = \ctikzvalof{quadpoles/gridnode/width}\pgf@circ@scaled@Rlen
+        \divide \pgf@circ@res@step by 2
+
+        \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@zero}}
+        \pgf@circ@res@other = \pgf@circ@res@left
+        \advance\pgf@circ@res@other by \pgf@circ@res@step
+
+        \ifpgf@circuit@dashed
+            \pgfsetdash{{0.1cm}{0.1cm}}{0cm}
+        \fi
+
+        % draw outer box
+        \pgf@circ@twoportbox
+        
+        
+        \ifpgf@circuit@inputarrow
+            {
+                \advance \pgf@circ@res@left by -.5\ctikzvalof{bipoles/thickness}\pgfstartlinewidth
+                \pgftransformshift{\pgfpoint{\pgf@circ@res@left}{0pt}}
+                \pgfnode{inputarrow}{tip}{}{pgf@inputarrow}{\pgfusepath{fill}}
+            }
+        \fi
+    
+        \pgfsetdash{}{0pt}	% always draw solid line for inner symbol
+        \pgfsetarrows{-} %never draw arrows
+        \pgfsetlinewidth{0.05mm}
+        
+        % draw grid
+        \foreach \line in {-1,-.5,...,1}
+        {
+            
+            \pgfpathmoveto{\pgfpoint{\line\pgf@circ@res@right}{\pgf@circ@res@up}}
+            \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{\line\pgf@circ@res@up}}
+%             \pgfusepath{draw}
+            
+            \pgfpathmoveto{\pgfpoint{\line\pgf@circ@res@right}{\pgf@circ@res@up}}
+            \pgfpathlineto{\pgfpoint{\pgf@circ@res@left}{\line\pgf@circ@res@down}}
+%             \pgfusepath{draw}
+            
+            \pgfpathmoveto{\pgfpoint{\line\pgf@circ@res@right}{\pgf@circ@res@down}}
+            \pgfpathlineto{\pgfpoint{\pgf@circ@res@left}{\line\pgf@circ@res@up}}
+%             \pgfusepath{draw}
+            
+            \pgfpathmoveto{\pgfpoint{\line\pgf@circ@res@right}{\pgf@circ@res@down}}
+            \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{\line\pgf@circ@res@down}}
+            \pgfusepath{draw}
+
+        }
+    }
+}
+    
 
 % Wilkinson divider
 \pgfdeclareshape{wilkinson}{
@@ -20644,6 +21180,11 @@
 \def\pgf@circ@phaseshifter@path#1{\pgf@circ@bipole@path{phaseshifter}{#1}}
 \def\pgf@circ@vphaseshifter@path#1{\pgf@circ@bipole@path{vphaseshifter}{#1}}
 \def\pgf@circ@detector@path#1{\pgf@circ@bipole@path{detector}{#1}}
+%
+\def\pgf@circ@sacdc@path#1{\pgf@circ@bipole@path{sacdc}{#1}}
+\def\pgf@circ@sdcac@path#1{\pgf@circ@bipole@path{sdcac}{#1}}
+\def\pgf@circ@tacdc@path#1{\pgf@circ@bipole@path{tacdc}{#1}}
+\def\pgf@circ@tdcac@path#1{\pgf@circ@bipole@path{tdcac}{#1}}
 
 %%Mechanical
 \def\pgf@circ@spring@path#1{\pgf@circ@bipole@path{spring}{#1}}
@@ -20768,6 +21309,11 @@
 \compattikzset{phaseshifter/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@phaseshifter@path}}
 \compattikzset{vphaseshifter/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@vphaseshifter@path}}
 \compattikzset{detector/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@detector@path}}
+%
+\compattikzset{sacdc/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@sacdc@path, l=#1}}
+\compattikzset{sdcac/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@sdcac@path, l=#1}}
+\compattikzset{tacdc/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@tacdc@path, l=#1}}
+\compattikzset{tdcac/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@tdcac@path, l=#1}}
 
 % % % % % %
 % % Begin of Diodes
@@ -21107,6 +21653,9 @@
 \def\pgf@circ@multiwire@path#1{\pgf@circ@bipole@path{multiwire}{#1}}
 \compattikzset{multiwire/.style = {\circuitikzbasekey,
 /tikz/to path=\pgf@circ@multiwire@path, l=#1}}
+\def\pgf@circ@tmultiwire@path#1{\pgf@circ@bipole@path{tmultiwire}{#1}}
+\compattikzset{tmultiwire/.style = {\circuitikzbasekey,
+/tikz/to path=\pgf@circ@tmultiwire@path, l=#1}}
 
 % reed switches
 \def\pgf@circ@reed@path#1{\pgf@circ@bipole@path{reed}{#1}}
