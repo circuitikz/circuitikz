@@ -839,8 +839,145 @@
 
             \endpgfscope
         }
+}
+
+%% gridnode
+\pgfdeclareshape{gridnode}
+{
+    \savedmacro{\ctikzclass}{\edef\ctikzclass{blocks}}
+    \saveddimen{\scaledRlen}{\pgfmathsetlength{\pgf@x}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}}
+    \savedanchor\northwest{
+        \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
+            \pgf@y=\ctikzvalof{quadpoles/gridnode/width}\pgf@circ@scaled@Rlen
+            \pgf@y=.5\pgf@y
+            \pgf@x=-\ctikzvalof{quadpoles/gridnode/width}\pgf@circ@scaled@Rlen
+            \pgf@x=.5\pgf@x
+    }
+    \anchor{center}{
+        \pgfpointorigin
     }
 
+    \anchor{north}{
+        \northwest
+        \pgf@x=0pt
+    }
+    \anchor{up}{
+        \northwest
+        \pgf@x=0pt
+    }
+    \anchor{south}{
+        \northwest
+        \pgf@x=0pt
+        \pgf@y=-\pgf@y
+    }
+    \anchor{down}{
+        \northwest
+        \pgf@x=0pt
+        \pgf@y=-\pgf@y
+    }
+    \anchor{east}{
+        \northwest
+        \pgf@y=0pt
+        \pgf@x=-\pgf@x
+    }
+    \anchor{right}{
+        \northwest
+        \pgf@y=0pt
+        \pgf@x=-\pgf@x
+    }
+    \anchor{west}{
+        \northwest
+        \pgf@y=0pt
+    }    
+    \anchor{left}{
+        \northwest
+        \pgf@y=0pt
+    }
+    \anchor{south west}{ 
+        \northwest 
+        \pgf@y=-\pgf@y
+    }
+    \anchor{north east}{
+        \northwest 
+        \pgf@x=-\pgf@x
+        \relax
+    }
+    \anchor{north west}{ 
+        \northwest 
+    }
+    \anchor{south east}{ 
+        \northwest 
+        \pgf@x=-\pgf@x
+        \pgf@y=-\pgf@y
+    }
+    \anchor{text}{
+        \pgf@x=-2\pgf@x
+        \advance \pgf@x by -.5\wd\pgfnodeparttextbox
+        \advance \pgf@y by -1.5\ht\pgfnodeparttextbox
+    }
+    \backgroundpath{
+        \pgfsetcolor{\ctikzvalof{color}}
+        \pgf@circ@scaled@Rlen=\scaledRlen
+
+        \pgf@circ@res@step=\ctikzvalof{quadpoles/gridnode/width}\pgf@circ@scaled@Rlen
+    
+        \northwest
+        \pgf@circ@res@up = \pgf@y
+        \pgf@circ@res@down = -\pgf@y
+        \pgf@circ@res@right = -\pgf@x
+        \pgf@circ@res@left = \pgf@x
+        
+        \pgf@circ@res@step = \ctikzvalof{quadpoles/gridnode/width}\pgf@circ@scaled@Rlen
+        \divide \pgf@circ@res@step by 2
+
+        \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@zero}}
+        \pgf@circ@res@other = \pgf@circ@res@left
+        \advance\pgf@circ@res@other by \pgf@circ@res@step
+
+        \ifpgf@circuit@dashed
+            \pgfsetdash{{0.1cm}{0.1cm}}{0cm}
+        \fi
+
+        % draw outer box
+        \pgf@circ@twoportbox
+        
+        
+        \ifpgf@circuit@inputarrow
+            {
+                \advance \pgf@circ@res@left by -.5\ctikzvalof{bipoles/thickness}\pgfstartlinewidth
+                \pgftransformshift{\pgfpoint{\pgf@circ@res@left}{0pt}}
+                \pgfnode{inputarrow}{tip}{}{pgf@inputarrow}{\pgfusepath{fill}}
+            }
+        \fi
+    
+        \pgfsetdash{}{0pt}	% always draw solid line for inner symbol
+        \pgfsetarrows{-} %never draw arrows
+        \pgfsetlinewidth{0.05mm}
+        
+        % draw grid
+        \foreach \line in {-1,-.5,...,1}
+        {
+            
+            \pgfpathmoveto{\pgfpoint{\line\pgf@circ@res@right}{\pgf@circ@res@up}}
+            \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{\line\pgf@circ@res@up}}
+%             \pgfusepath{draw}
+            
+            \pgfpathmoveto{\pgfpoint{\line\pgf@circ@res@right}{\pgf@circ@res@up}}
+            \pgfpathlineto{\pgfpoint{\pgf@circ@res@left}{\line\pgf@circ@res@down}}
+%             \pgfusepath{draw}
+            
+            \pgfpathmoveto{\pgfpoint{\line\pgf@circ@res@right}{\pgf@circ@res@down}}
+            \pgfpathlineto{\pgfpoint{\pgf@circ@res@left}{\line\pgf@circ@res@up}}
+%             \pgfusepath{draw}
+            
+            \pgfpathmoveto{\pgfpoint{\line\pgf@circ@res@right}{\pgf@circ@res@down}}
+            \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{\line\pgf@circ@res@down}}
+            \pgfusepath{draw}
+
+        }
+    }
+}
+    
 
 % Wilkinson divider
 \pgfdeclareshape{wilkinson}{
