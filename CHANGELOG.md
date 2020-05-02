@@ -4,6 +4,7 @@ The major changes among the different circuitikz versions are listed here. See <
 * Version 1.1.2 (unreleased)
 
     - bumped version number
+    - Blocks and component for three-phase networks (3-lines wire, AC/DC and DC/AC converters blocks and grid node block) added by user `@olfline` on GitHub
 
 * Version 1.1.1 (2020-04-24)
 
