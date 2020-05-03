@@ -1620,6 +1620,133 @@
     \pgfusepath{draw}
 }
 
+% % % winding symbols
+% triangle
+\def\pgf@circ@delta{
+    \pgfscope
+        \def\pgfcircmathresult{\expandafter\pgf@circ@stripdecimals\pgf@circ@direction\pgf@nil}
+            \pgftransformrotate{-\pgfcircmathresult}
+
+        \pgf@circ@setlinewidth{bipoles}{\pgfstartlinewidth}
+        \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@down}}
+        \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@down}}
+        \pgfpathlineto{\pgfpoint{0}{.866\pgf@circ@res@up}}
+        \pgfpathclose
+        \pgfusepath{stroke}
+    \endpgfscope
+}
+
+% star
+\def\pgf@circ@wye{
+    \pgfscope
+        \def\pgfcircmathresult{\expandafter\pgf@circ@stripdecimals\pgf@circ@direction\pgf@nil}
+            \pgftransformrotate{-\pgfcircmathresult}
+    
+        \pgf@circ@setlinewidth{bipoles}{\pgfstartlinewidth}
+        \pgfpathmoveto{\pgfpoint{0}{\pgf@circ@res@down}}
+        \pgfpathlineto{\pgfpointorigin}
+        \pgfpathlineto{\pgfpointpolar{-30}{\pgf@circ@res@down}}
+        \pgfpathmoveto{\pgfpointorigin}
+        \pgfpathlineto{\pgfpointpolar{-150}{\pgf@circ@res@down}}
+        \pgfusepath{stroke}
+    \endpgfscope
+}
+
+% zigzag
+\def\pgf@circ@zig{
+    \pgfscope
+        \def\pgfcircmathresult{\expandafter\pgf@circ@stripdecimals\pgf@circ@direction\pgf@nil}
+            \pgftransformrotate{-\pgfcircmathresult}
+    
+        \pgf@circ@setlinewidth{bipoles}{\pgfstartlinewidth}
+        \pgfpathmoveto{\pgfpointorigin}
+        \pgfpathlineto{\pgfpointpolar{90}{.5\pgf@circ@res@up}}
+        \pgfpathlineto{\pgfpointpolar{60}{\pgf@circ@res@up}}
+        
+        \pgfpathmoveto{\pgfpointorigin}
+        \pgfpathlineto{\pgfpointpolar{210}{.5\pgf@circ@res@up}}
+        \pgfpathlineto{\pgfpointpolar{0}{\pgf@circ@res@down}}
+        
+        \pgfpathmoveto{\pgfpointorigin}
+        \pgfpathlineto{\pgfpointpolar{330}{.5\pgf@circ@res@up}}
+        \pgfpathlineto{\pgfpointpolar{-60}{\pgf@circ@res@up}}
+        \pgfusepath{stroke}
+    \endpgfscope
+}
+
+% % % % round three-phase transformer
+\pgfcircdeclarebipolescaled{sources}
+{}
+{\ctikzvalof{bipoles/oosourcetrans/height}}
+{oosourcetrans}
+{\ctikzvalof{bipoles/oosourcetrans/height}}
+{\ctikzvalof{bipoles/oosourcetrans/width}}
+{
+    \pgf@circ@res@other = \ctikzvalof{bipoles/oosourcetrans/vectorgroup} \pgf@circ@scaled@Rlen
+    
+    \pgfpointorigin
+    \pgf@circ@setlinewidth{bipoles}{\pgfstartlinewidth}
+    \pgfpathcircle{\pgfpoint{\ctikzvalof{bipoles/oosourcetrans/circleoffset}\pgf@circ@res@left}{0}}
+        {\ctikzvalof{bipoles/oosourcetrans/circlesize}\pgf@circ@res@left}
+    \pgf@circ@maybefill
+    \pgfpathcircle{\pgfpoint{\ctikzvalof{bipoles/oosourcetrans/circleoffset}\pgf@circ@res@right}{0}}
+        {\ctikzvalof{bipoles/oosourcetrans/circlesize}\pgf@circ@res@right}
+    \pgf@circ@draworfill
+    \pgfpathcircle{\pgfpoint{\ctikzvalof{bipoles/oosourcetrans/circleoffset}\pgf@circ@res@left}{0}}
+        {\ctikzvalof{bipoles/oosourcetrans/circlesize}\pgf@circ@res@left}
+    \pgfusepath{draw}
+    
+    
+% % %     % draw inner symbols
+    
+    %%primary winding
+    \ifpgf@circ@prim@delta
+        \pgfscope
+            \pgftransformxshift{.6\pgf@circ@res@left}
+            \pgftransformscale{.4\pgf@circ@res@other}
+            \pgf@circ@delta
+        \endpgfscope
+        
+    \else\ifpgf@circ@prim@wye
+        \pgfscope
+            \pgftransformxshift{.6\pgf@circ@res@left}
+            \pgftransformscale{.5\pgf@circ@res@other}
+            \pgf@circ@wye
+        \endpgfscope
+    
+    \else\ifpgf@circ@prim@zig
+        \pgfscope
+            \pgftransformxshift{.6\pgf@circ@res@left}
+            \pgftransformscale{.5\pgf@circ@res@other}
+            \pgf@circ@zig
+        \endpgfscope
+    \fi\fi\fi
+    
+    %%secondary winding
+    \ifpgf@circ@sec@delta
+        \pgfscope
+            \pgftransformxshift{.6\pgf@circ@res@right}
+            \pgftransformscale{.4\pgf@circ@res@other}
+            \pgf@circ@delta
+        \endpgfscope
+        
+    \else\ifpgf@circ@sec@wye
+        \pgfscope
+            \pgftransformxshift{.6\pgf@circ@res@right}
+            \pgftransformscale{.5\pgf@circ@res@other}
+            \pgf@circ@wye
+        \endpgfscope
+    
+    \else\ifpgf@circ@sec@zig
+        \pgfscope
+            \pgftransformxshift{.6\pgf@circ@res@right}
+            \pgftransformscale{.5\pgf@circ@res@other}
+            \pgf@circ@zig
+        \endpgfscope
+    \fi\fi\fi
+}
+
+
 %% Independent current source - American
 \pgfcircdeclarebipolescaled{sources}
 {}
