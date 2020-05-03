@@ -1727,15 +1727,16 @@ Notice that if you choose the dashed style, the noise sources are fillable:
     \circuitdescbip*[oosource]{ioosource}{Double Zero style current source}{}
     \circuitdescbip*[oosource]{voosource}{Double Zero style voltage source}{}
     \circuitdescbip*[oosourcetrans]{oosourcetrans}{transformer source}{}
+    \circuitdescbip*[ooosource]{ooosource}{transformer with three windings}{}(left/135/0.2, right/5/0.5, sec1/45/.2, sec2/60/.2, sec3/90/.2, tert1/0/.2, tert2/-45/.2, tert3/-90/.2)
 \end{groupdesc}
 
-The transformershape has options for the primary (prim$=<value>$) and the secondary (sec$=<value>$) three-phase winding: \textbf{delta}, \textbf{wye} and \textbf{zig}.
-
+The transformershapes vector group options can be specified for the primary (prim$=<value>$), the secondary (sec$=<value>$) and tertiary (tert$=<value>$) three-phase vector groups: \textbf{delta}, \textbf{wye} and \textbf{zig}.
+ 
 \begin{LTXexample}[varwidth=true]
 \begin{circuitikz}
     \draw (0,0) to[oosourcetrans,prim=zig,sec=delta,o-] ++(2,0)
     to[oosourcetrans, prim=delta, sec=wye,-o] ++(0,-2) 
-    to[oosourcetrans, prim=wye,sec=zig] (0,0);
+    to[ooosource, prim=wye,sec=zig,tert=delta] (0,0);
 \end{circuitikz}
 \end{LTXexample}
 
@@ -6777,17 +6778,18 @@ The best way of contributing is forking the project, adding your component in th
 
 \begin{LTXexample}[varwidth=true,pos=t]
 \begin{circuitikz}[smallR/.style={european resistor, resistors/scale=0.5}]
-    \draw (0,0) node[tacdcshape, anchor=ac2](acdc){} to[smallR] ++(-2,0) -- node[circ](point){} ++(-1,0);
+    \draw (0,0) node[tacdcshape, anchor=ac2](acdc){} to[smallR] ++(-2,0) -- node[circ](point){} ++(-.5,0);
     \draw (acdc.ac1) to[nos, invert, mirror, name=switch,color=red] ++(-2,0) -- (point);
     \draw (acdc.ac3) to[smallR] ++(-2,0)
-        -- (point) 
-        to[tmultiwire] ++(-1,0) 
-        to[oosourcetrans,prim=wye,sec=delta] ++(-2,0)
+        -- (point)
+        to[oosourcetrans,prim=wye,sec=delta,l=transformer] ++(-1.5,0)
+        to[tmultiwire] ++(-.5,0) 
         node[gridnode, anchor=right]{}; 
     \node[above=.3cm,color=red] at (switch) {fault};
     \draw (acdc.dc1) to[smallR,l=HVDC line] ++(2,0) node[tdcacshape, anchor=dc1](dcac){};
     \draw (acdc.dc2) -- (dcac.dc2);
-    \draw (dcac.right) to[tmultiwire] ++(2,0) node[gridnode,anchor=left]{};
+    \draw (dcac.right) to[ooosource,prim=delta,sec=delta,tert=wye,invert] ++(1.5,0)
+                        to[tmultiwire] ++(.5,0) node[gridnode,anchor=left]{};
 \end{circuitikz}
 \end{LTXexample}
 

@@ -1747,6 +1747,165 @@
 }
 
 
+% % % % ooosource for three phase transformer
+\pgfcircdeclarebipolescaled{sources}
+{
+% setting the right anchor a bit to the left
+    \anchor{right}{
+            \northeast
+            \pgf@x=.85\pgf@x
+            \pgf@y=0pt
+    }
+    \anchor{east}{
+            \northeast
+            \pgf@x=.85\pgf@x
+            \pgf@y=0pt
+    }
+% add some anchors in case the are needed :)
+    \anchor{sec1}{
+            \northeast
+            \pgf@y=.5\pgf@y
+            \pgf@x=.99\pgf@x
+    }
+    \anchor{sec2}{
+            \northeast
+            \pgf@y=.82\pgf@y
+            \pgf@x=.82\pgf@x
+    }
+    \anchor{sec3}{
+            \northeast
+            \pgf@x=.5\pgf@x
+            \pgf@y=.99\pgf@y
+    }
+    \anchor{tert1}{
+            \northeast
+            \pgf@y=-.5\pgf@y
+            \pgf@x=.99\pgf@x
+    }
+    \anchor{tert2}{
+            \northeast
+            \pgf@y=-.82\pgf@y
+            \pgf@x=.82\pgf@x
+    }
+    \anchor{tert3}{
+            \northeast
+            \pgf@x=.5\pgf@x
+            \pgf@y=-.99\pgf@y
+    }
+}
+{\ctikzvalof{bipoles/ooosource/height}}
+{ooosource}
+{\ctikzvalof{bipoles/ooosource/height}}
+{\ctikzvalof{bipoles/ooosource/width}}
+{
+    \pgf@circ@res@other = \ctikzvalof{bipoles/ooosource/vectorgroup} \pgf@circ@scaled@Rlen
+    
+    % left
+    \pgfpointorigin
+    \pgf@circ@setlinewidth{bipoles}{\pgfstartlinewidth}
+    \pgfpathcircle{\pgfpoint{\ctikzvalof{bipoles/ooosource/circleoffset}\pgf@circ@res@left}{0}}
+        {\ctikzvalof{bipoles/ooosource/circlesize}\pgf@circ@res@left}
+    \pgf@circ@maybefill
+    % up
+    \pgfscope
+        \pgftransformyshift{\ctikzvalof{bipoles/ooosource/circleoffset}\pgf@circ@res@down}
+            \pgfpathcircle{\pgfpoint{\ctikzvalof{bipoles/ooosource/circleoffset}\pgf@circ@res@right}{0}}
+                {\ctikzvalof{bipoles/ooosource/circlesize}\pgf@circ@res@right}
+            \pgf@circ@maybefill
+    \endpgfscope
+    % down
+    \pgfscope
+        \pgftransformyshift{\ctikzvalof{bipoles/ooosource/circleoffset}\pgf@circ@res@up}
+            \pgfpathcircle{\pgfpoint{\ctikzvalof{bipoles/ooosource/circleoffset}\pgf@circ@res@right}{0}}
+                    {\ctikzvalof{bipoles/ooosource/circlesize}\pgf@circ@res@right}
+            \pgf@circ@draworfill
+    \endpgfscope
+
+    % left
+    \pgfpathcircle{\pgfpoint{\ctikzvalof{bipoles/ooosource/circleoffset}\pgf@circ@res@left}{0}}
+        {\ctikzvalof{bipoles/ooosource/circlesize}\pgf@circ@res@left}
+    \pgfusepath{draw}
+    % up
+    \pgfscope
+        \pgftransformyshift{\ctikzvalof{bipoles/ooosource/circleoffset}\pgf@circ@res@down}
+            \pgfpathcircle{\pgfpoint{\ctikzvalof{bipoles/ooosource/circleoffset}\pgf@circ@res@right}{0}}
+                {\ctikzvalof{bipoles/ooosource/circlesize}\pgf@circ@res@right}
+            \pgfusepath{draw}
+    \endpgfscope
+    
+% % %     draw inner symbols
+
+% % % not so nice, but it works
+% %     primary winding
+    \ifpgf@circ@prim@delta
+        \pgfscope
+            \pgftransformxshift{.6\pgf@circ@res@left}
+            \pgftransformscale{.4\pgf@circ@res@other}
+            \pgf@circ@delta
+        \endpgfscope
+        
+    \else\ifpgf@circ@prim@wye
+        \pgfscope
+            \pgftransformxshift{.6\pgf@circ@res@left}
+            \pgftransformscale{.5\pgf@circ@res@other}
+            \pgf@circ@wye
+        \endpgfscope
+    
+    \else\ifpgf@circ@prim@zig
+        \pgfscope
+            \pgftransformxshift{.6\pgf@circ@res@left}
+            \pgftransformscale{.5\pgf@circ@res@other}
+            \pgf@circ@zig
+        \endpgfscope
+    \fi\fi\fi
+    
+% %     secondary winding
+    \ifpgf@circ@sec@delta
+        \pgfscope
+            \pgftransformshift{\pgfpoint{.6\pgf@circ@res@right}{.5\pgf@circ@res@up}}
+            \pgftransformscale{.4\pgf@circ@res@other}
+            \pgf@circ@delta
+        \endpgfscope
+        
+    \else\ifpgf@circ@sec@wye
+        \pgfscope
+            \pgftransformshift{\pgfpoint{.6\pgf@circ@res@right}{.5\pgf@circ@res@up}}
+            \pgftransformscale{.5\pgf@circ@res@other}
+            \pgf@circ@wye
+        \endpgfscope
+    
+    \else\ifpgf@circ@sec@zig
+        \pgfscope
+            \pgftransformshift{\pgfpoint{.6\pgf@circ@res@right}{.5\pgf@circ@res@up}}
+            \pgftransformscale{.5\pgf@circ@res@other}
+            \pgf@circ@zig
+        \endpgfscope
+    \fi\fi\fi
+    
+% %     tertiary winding
+    \ifpgf@circ@tert@delta
+        \pgfscope
+            \pgftransformshift{\pgfpoint{.6\pgf@circ@res@right}{.5\pgf@circ@res@down}}
+            \pgftransformscale{.4\pgf@circ@res@other}
+            \pgf@circ@delta
+        \endpgfscope
+        
+    \else\ifpgf@circ@tert@wye
+        \pgfscope
+            \pgftransformshift{\pgfpoint{.6\pgf@circ@res@right}{.5\pgf@circ@res@down}}
+            \pgftransformscale{.5\pgf@circ@res@other}
+            \pgf@circ@wye
+        \endpgfscope
+    
+    \else\ifpgf@circ@tert@zig
+        \pgfscope
+            \pgftransformshift{\pgfpoint{.6\pgf@circ@res@right}{.5\pgf@circ@res@down}}
+            \pgftransformscale{.5\pgf@circ@res@other}
+            \pgf@circ@zig
+        \endpgfscope
+    \fi\fi\fi
+}
+
 %% Independent current source - American
 \pgfcircdeclarebipolescaled{sources}
 {}
