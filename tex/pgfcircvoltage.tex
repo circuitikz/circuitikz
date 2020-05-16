@@ -226,8 +226,8 @@
             node [ocirc, fill=blue] at (anchorendnode) {}
             node [ocirc, fill=green] at (pgfcirc@Vto) {}
             node [ocirc, fill=yellow] at (pgfcirc@Vfrom) {}
-            node [odiamondpole, fill=green] at (pgfcirc@Vto@flat) {}
-            node [odiamondpole, fill=yellow] at (pgfcirc@Vfrom@flat) {}
+            node [odiamondpole, fill=green!50!black] at (pgfcirc@Vto@flat) {}
+            node [odiamondpole, fill=orange] at (pgfcirc@Vfrom@flat) {}
         \fi
         coordinate (pgfcirc@Vto) at ($(pgfcirc@Vto@flat) ! \absvshift!90 :  (anchorendnode)$)
         coordinate (pgfcirc@Vfrom) at ($(pgfcirc@Vfrom@flat) ! \absvshift!-90 :  (anchorstartnode)$)
@@ -271,7 +271,7 @@
             \else
                 (pgfcirc@Vfrom) --(pgfcirc@Vto) node[currarrow, sloped,  allow upside down, pos=1,anchor=tip] {}
             \fi
-            \else
+        \else
             \ifpgf@circuit@bipole@voltage@backward
                 (pgfcirc@Vto) .. controls (pgfcirc@Vcont2)  and (pgfcirc@Vcont1) ..
                 node[currarrow, sloped,  allow upside down, pos=1, anchor=tip] {}
@@ -282,30 +282,58 @@
                 (pgfcirc@Vto)
             \fi
         \fi
-        \else
-        \ifpgf@circuit@bipole@voltage@backward
-            \ifpgf@circ@oldvoltagedirection
-                (pgfcirc@Vfrom) node[inner sep=0, node font=\pgf@circ@avfont,
-                    anchor=\pgf@circ@bipole@voltage@label@anchor]{\pgf@circ@avplus}
-                (pgfcirc@Vto) node[inner sep=0, node font=\pgf@circ@avfont,
-                    anchor=\pgf@circ@bipole@voltage@label@anchor]{\pgf@circ@avminus}
-            \else
-                (pgfcirc@Vfrom) node[inner sep=0, node font=\pgf@circ@avfont,
-                    anchor=\pgf@circ@bipole@voltage@label@anchor]{\pgf@circ@avminus}
-                (pgfcirc@Vto) node[inner sep=0, node font=\pgf@circ@avfont,
-                    anchor=\pgf@circ@bipole@voltage@label@anchor]{\pgf@circ@avplus}
+    \else % american
+        \ifx\@@kind\@@open % open circuit; put + and - directly on it
+            \ifpgf@circuit@bipole@voltage@backward
+                \ifpgf@circ@oldvoltagedirection
+                    (pgfcirc@Vfrom@flat) node[inner sep=0, node font=\pgf@circ@avfont,
+                        anchor=center]{\pgf@circ@avplus}
+                    (pgfcirc@Vto@flat) node[inner sep=0, node font=\pgf@circ@avfont,
+                        anchor=center]{\pgf@circ@avminus}
+                \else
+                    (pgfcirc@Vfrom@flat) node[inner sep=0, node font=\pgf@circ@avfont,
+                        anchor=center]{\pgf@circ@avminus}
+                    (pgfcirc@Vto@flat) node[inner sep=0, node font=\pgf@circ@avfont,
+                        anchor=center]{\pgf@circ@avplus}
+                \fi
+                \else
+                \ifpgf@circ@oldvoltagedirection
+                    (pgfcirc@Vfrom@flat) node[inner sep=0, node font=\pgf@circ@avfont,
+                        anchor=center]{\pgf@circ@avminus}
+                    (pgfcirc@Vto@flat) node[inner sep=0, node font=\pgf@circ@avfont,
+                        anchor=center]{\pgf@circ@avplus}
+                \else
+                    (pgfcirc@Vfrom@flat) node[inner sep=0, node font=\pgf@circ@avfont,
+                        anchor=center]{\pgf@circ@avplus}
+                    (pgfcirc@Vto@flat) node[inner sep=0, node font=\pgf@circ@avfont,
+                        anchor=center]{\pgf@circ@avminus}
+                \fi
             \fi
-            \else
-            \ifpgf@circ@oldvoltagedirection
-                (pgfcirc@Vfrom) node[inner sep=0, node font=\pgf@circ@avfont,
-                    anchor=\pgf@circ@bipole@voltage@label@anchor]{\pgf@circ@avminus}
-                (pgfcirc@Vto) node[inner sep=0, node font=\pgf@circ@avfont,
-                    anchor=\pgf@circ@bipole@voltage@label@anchor]{\pgf@circ@avplus}
-            \else
-                (pgfcirc@Vfrom) node[inner sep=0, node font=\pgf@circ@avfont,
-                    anchor=\pgf@circ@bipole@voltage@label@anchor]{\pgf@circ@avplus}
-                (pgfcirc@Vto) node[inner sep=0, node font=\pgf@circ@avfont,
-                    anchor=\pgf@circ@bipole@voltage@label@anchor]{\pgf@circ@avminus}
+        \else % not open circuit
+            \ifpgf@circuit@bipole@voltage@backward
+                \ifpgf@circ@oldvoltagedirection
+                    (pgfcirc@Vfrom) node[inner sep=0, node font=\pgf@circ@avfont,
+                        anchor=\pgf@circ@bipole@voltage@label@anchor]{\pgf@circ@avplus}
+                    (pgfcirc@Vto) node[inner sep=0, node font=\pgf@circ@avfont,
+                        anchor=\pgf@circ@bipole@voltage@label@anchor]{\pgf@circ@avminus}
+                \else
+                    (pgfcirc@Vfrom) node[inner sep=0, node font=\pgf@circ@avfont,
+                        anchor=\pgf@circ@bipole@voltage@label@anchor]{\pgf@circ@avminus}
+                    (pgfcirc@Vto) node[inner sep=0, node font=\pgf@circ@avfont,
+                        anchor=\pgf@circ@bipole@voltage@label@anchor]{\pgf@circ@avplus}
+                \fi
+                \else
+                \ifpgf@circ@oldvoltagedirection
+                    (pgfcirc@Vfrom) node[inner sep=0, node font=\pgf@circ@avfont,
+                        anchor=\pgf@circ@bipole@voltage@label@anchor]{\pgf@circ@avminus}
+                    (pgfcirc@Vto) node[inner sep=0, node font=\pgf@circ@avfont,
+                        anchor=\pgf@circ@bipole@voltage@label@anchor]{\pgf@circ@avplus}
+                \else
+                    (pgfcirc@Vfrom) node[inner sep=0, node font=\pgf@circ@avfont,
+                        anchor=\pgf@circ@bipole@voltage@label@anchor]{\pgf@circ@avplus}
+                    (pgfcirc@Vto) node[inner sep=0, node font=\pgf@circ@avfont,
+                        anchor=\pgf@circ@bipole@voltage@label@anchor]{\pgf@circ@avminus}
+                \fi
             \fi
         \fi
     \fi
@@ -362,6 +390,8 @@
 }
 
 %% Output routine
+%% this is the entry point
+%%
 \def\pgf@circ@drawvoltage{% node name
     \pgfextra{ %WARNING: indentation is probably wrong
         \edef\pgfcircmathresult{\expandafter\pgf@circ@stripdecimals\pgf@circ@direction\pgf@nil}
@@ -465,6 +495,9 @@
         % outside the (+) -- (-) line
         \pgfmathsetlength{\alshift}{(\ctikzvalof{voltage/american label distance}-0.6)*\partheight}
         \pgfsetcornersarced{\pgfpointorigin}% do not use rounded corners!
+        % set the macro for detecting open
+        \edef\@@kind{\ctikzvalof{bipole/kind}}\edef\@@open{open}
+        % \typeout{KIND\space\@@kind}
     }%end pgfextra
 
     \ifpgf@circuit@bipole@isvoltage
@@ -472,6 +505,8 @@
     \else
         \pgf@circ@drawvoltagegeneric
     \fi
+
+    % \pgfextra{\typeout{LABEL\space KIND:\@@kind\space OPEN:\@@open}}
 
     \ifpgf@circuit@bipole@voltage@straight
         coordinate (Vlab) at ($(pgfcirc@Vto)!0.5!(pgfcirc@Vfrom) $)
@@ -489,9 +524,23 @@
                 coordinate (Vlab) at ($(Vlab) ! \alshift ! \pgf@circ@bipole@voltage@label@where :(pgfcirc@Vto)$)
             \fi
         \fi
-        node [anchor=\pgf@circ@bipole@voltage@label@anchor, inner sep=2pt,
-        \circuitikzbasekey/bipole voltage style](\ctikzvalof{bipole/name}voltage)
-        at (Vlab) {\pgf@circ@finallabels{voltage/label}}
+
+        \ifpgf@circuit@europeanvoltage
+            node [anchor=\pgf@circ@bipole@voltage@label@anchor, inner sep=2pt,
+            \circuitikzbasekey/bipole voltage style](\ctikzvalof{bipole/name}voltage)
+            at (Vlab) {\pgf@circ@finallabels{voltage/label}}
+        \else % american voltages
+            \ifx\@@kind\@@open
+                coordinate (Vlab) at ($(pgfcirc@Vfrom@flat)!0.5!(pgfcirc@Vto@flat)$)
+                node [anchor=center, inner sep=2pt,
+                \circuitikzbasekey/bipole voltage style](\ctikzvalof{bipole/name}voltage)
+                at (Vlab) {\pgf@circ@finallabels{voltage/label}}
+            \else
+                node [anchor=\pgf@circ@bipole@voltage@label@anchor, inner sep=2pt,
+                \circuitikzbasekey/bipole voltage style](\ctikzvalof{bipole/name}voltage)
+                at (Vlab) {\pgf@circ@finallabels{voltage/label}}
+            \fi
+        \fi
     \fi
 }%end drawvoltages
 \endinput

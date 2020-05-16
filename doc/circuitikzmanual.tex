@@ -5395,9 +5395,9 @@ As an alternative for the current arrows, you can also use the following flows. 
 \end{LTXexample}
 
 \subsection{Voltages}
-See introduction note at Currents (chapter \ref{curr-and-volt}, page \pageref{curr-and-volt})!
+See introduction note at Currents and Voltages (chapter \ref{curr-and-volt}, page \pageref{curr-and-volt}) for the direction of the voltage and currents.
 
-\subsubsection{European style} The default, with arrows. Use option \texttt{europeanvoltage} or style \verb![european voltages]!.
+\subsubsection{European style} The default, with arrows. Use option \texttt{europeanvoltage} or style \verb![european voltages]!, or setting (even locally) \texttt{voltage=european}.
 
 \begin{LTXexample}[varwidth=true]
 \begin{circuitikz}[european voltages]
@@ -5465,11 +5465,77 @@ See introduction note at Currents (chapter \ref{curr-and-volt}, page \pageref{cu
 \end{circuitikz}
 \end{LTXexample}
 
+\subsubsection{Straight European style} Using straight arrows. Use option \texttt{straightvoltages} or style \verb![straight voltages]!, or setting (even locally) \texttt{voltage=straight}. Notice that this is an only lightly tested option, so use with care.
 
+\begin{LTXexample}[varwidth=true]
+\begin{circuitikz}[straight voltages]
+   \draw (0,0) to[R, v^>=$v_1$] (2,0);
+\end{circuitikz}
+\end{LTXexample}
+
+\begin{LTXexample}[varwidth=true]
+\begin{circuitikz}[straight voltages]
+   \draw (0,0) to[R, v^<=$v_1$] (2,0);
+\end{circuitikz}
+\end{LTXexample}
+
+\begin{LTXexample}[varwidth=true]
+\begin{circuitikz}[straight voltages]
+   \draw (0,0) to[R, v_>=$v_1$] (2,0);
+\end{circuitikz}
+\end{LTXexample}
+
+\begin{LTXexample}[varwidth=true]
+\begin{circuitikz}[straight voltages]
+   \draw (0,0) to[R, v_<=$v_1$] (2,0);
+\end{circuitikz}
+\end{LTXexample}
+
+\begin{LTXexample}[varwidth=true]
+\begin{circuitikz}[straight voltages]
+   \draw (0,0) to[V=10V, i_=$i_1$] (2,0);
+\end{circuitikz}
+\end{LTXexample}
+
+\begin{LTXexample}[varwidth=true]
+\begin{circuitikz}[straight voltages]
+   \draw (0,0) to[V<=10V, i_=$i_1$] (2,0);
+\end{circuitikz}
+\end{LTXexample}
+
+\begin{LTXexample}[varwidth=true]
+\begin{circuitikz}[straight voltages]
+   \draw (0,0) to[I=1A, v_=$u_1$] (2,0);
+\end{circuitikz}
+\end{LTXexample}
+
+\begin{LTXexample}[varwidth=true]
+\begin{circuitikz}[straight voltages]
+   \draw (0,0) to[I<=1A, v_=$u_1$] (2,0);
+\end{circuitikz}
+\end{LTXexample}
+
+\begin{LTXexample}[varwidth=true]
+\begin{circuitikz}[straight voltages]
+   \draw (0,0) to[I=$~$,l=1A, v_=$u_1$] (2,0);
+\end{circuitikz}
+\end{LTXexample}
+
+\begin{LTXexample}[varwidth=true]
+\begin{circuitikz}[straight voltages]
+   \draw (0,0) to[I,l=1A, v_=$u_1$] (2,0);
+\end{circuitikz}
+\end{LTXexample}
+
+\begin{LTXexample}[varwidth=true]
+\begin{circuitikz}[straight voltages]
+   \draw (0,0) to[battery,l_=1V, v=$u_1$, i=$i_1$] (2,0);
+\end{circuitikz}
+\end{LTXexample}
 
 
 \subsubsection{American style}
-Use option \texttt{americanvoltage} or set \verb![american voltages]!.
+Use option \texttt{americanvoltage} or set \verb![american voltages]! or use the option \texttt{voltage=american}.
 
 \begin{LTXexample}[varwidth=true]
 \begin{circuitikz}[american voltages]
@@ -5539,9 +5605,21 @@ Notes that \texttt{american voltage} also affects batteries.
 \end{circuitikz}
 \end{LTXexample}
 
+When using \texttt{american} or \texttt{straight} voltage style, the \texttt{open} component is treated differently, and the voltage is placed in the middle of the open space\footnote{Since \texttt{v1.1.2}, thank to an \href{https://github.com/circuitikz/circuitikz/issues/374}{issue opened by user \texttt{rhandley} on GitHub}; it has no backeard compatibility key because it was plainly a bug in Romano's opinion.}:
+
+\begin{LTXexample}[varwidth=true]
+\begin{circuitikz}[american voltages]
+    \draw (0,1.5) -- ++(0.5,0)
+        to[open, v=$v_o$, o-o] ++(2,0) -- ++(0.5,0);
+    \draw (0,0) -- ++(0.5,0)
+        to[open, v=$v_o$, voltage=straight, *-*] ++(2,0)
+        -- ++(0.5,0);
+\end{circuitikz}
+\end{LTXexample}
+
 \subsubsection{American voltages customization}
 
-Since 0.9.0, you can change the font\footnote{There where a bug before, noticed by the user \texttt{dzereb} on \href{https://tex.stackexchange.com/questions/487683/odd-minus-style-when-drawing-american-voltage}{tex.stackexchange.com} which made the symbols using different fonts in a basically random way. In the same page, user \texttt{campa} found the problem. Thanks!} used by the \texttt{american voltages} style, by setting to something different from nothing the key \texttt{voltage/american font} (default: nothing, using the current font) style:
+Since 0.9.0, you can change the font\footnote{There was a bug before, noticed by the user \texttt{dzereb} on \href{https://tex.stackexchange.com/questions/487683/odd-minus-style-when-drawing-american-voltage}{tex.stackexchange.com} which made the symbols using different fonts in a basically random way. In the same page, user \texttt{campa} found the problem. Thanks!} used by the \texttt{american voltages} style, by setting to something different from nothing the key \texttt{voltage/american font} (default: nothing, using the current font) style:
 
 \begin{LTXexample}[varwidth=true]
 \begin{circuitikz}[american]
