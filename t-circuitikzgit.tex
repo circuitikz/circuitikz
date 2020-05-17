@@ -10,7 +10,7 @@
 %
 % See the files gpl-3.0_license.txt and lppl-1-3c_license.txt for more details.
 
-\def\pgfcircversion{1.1.2-unreleased-3f532f9}
+\def\pgfcircversion{1.1.2-unreleased-f8ffd76}
 \def\pgfcircversiondate{2020/05/17}
 \writestatus{loading}{\pgfcircversiondate{} The CircuiTikz circuit drawing package version \pgfcircversion}
 
@@ -11212,13 +11212,14 @@
 % https://github.com/circuitikz/circuitikz/issues/385
 %
 \newif\ifpgf@circ@european@port@circle\pgf@circ@european@port@circlefalse
+\newif\ifpgf@circ@european@port@circle@ieee\pgf@circ@european@port@circle@ieeefalse
 \ctikzset{tripoles/european not shape/.initial=ocirc}
 \ctikzset{tripoles/european not symbol/.is choice}
 \ctikzset{tripoles/european not symbol/triangle/.code={\pgf@circ@european@port@circlefalse}}
 \ctikzset{tripoles/european not symbol/circle/.code={%
-\pgf@circ@european@port@circletrue\ctikzset{tripoles/european not shape=ocirc}}}
+\pgf@circ@european@port@circletrue\pgf@circ@european@port@circle@ieeefalse\ctikzset{tripoles/european not shape=ocirc}}}
 \ctikzset{tripoles/european not symbol/ieee circle/.code={%
-\pgf@circ@european@port@circletrue\ctikzset{tripoles/european not shape=notcirc}}}
+\pgf@circ@european@port@circletrue\pgf@circ@european@port@circle@ieeetrue\ctikzset{tripoles/european not shape=notcirc}}}
 
 \long\def\pgfcircdeclareeurologicport#1#2#3#4{
     \pgfdeclareshape{european #1 port}
@@ -11320,6 +11321,7 @@
 
     \backgroundpath{
         \pgfsetcolor{\ctikzvalof{color}}
+        \pgfstartlinewidth=\pgflinewidth
         \pgfscope
             \pgf@circ@setlinewidth{tripoles}{\pgflinewidth}
             \pgfpathrectanglecorners
@@ -11360,6 +11362,8 @@
                 \pgfscope
                     \pgf@circ@setlinewidth{tripoles}{\pgflinewidth}
                     \pgftransformxshift{\ctikzvalof{tripoles/european #1 port/reserved}\pgf@circ@res@right}
+                    % reset  linewidth for IEEE ports, otherwise they will multiply...
+                    \ifpgf@circ@european@port@circle@ieee\pgfsetlinewidth{\pgfstartlinewidth}\fi
                     \pgfnode{\ctikzvalof{tripoles/european not shape}}{west}{}{NOT}{\pgfusepath{stroke}}
                 \endpgfscope
             \else
