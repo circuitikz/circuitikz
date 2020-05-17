@@ -1854,16 +1854,41 @@
 \newif\ifpgf@circ@siunitx
 \newif\ifpgf@circ@siunitx@res
 
+%
+% voltage and current options
+%
+
+\newif\ifpgf@circuit@europeancurrent
+\newif\ifpgf@circuit@europeanvoltage
+\newif\ifpgf@circuit@bipole@voltage@straight
+
+\ctikzset{voltage/.is choice}
+%
+% straight is expected to be a subset of european, so disable it in american style
+%
+\ctikzset{voltage/american/.code = {\pgf@circuit@europeanvoltagefalse\pgf@circuit@bipole@voltage@straightfalse}}
+\ctikzset{voltage/european/.code = {\pgf@circuit@europeanvoltagetrue\pgf@circuit@bipole@voltage@straightfalse}}
+\ctikzset{voltage/straight/.code = {\pgf@circuit@europeanvoltagetrue\pgf@circuit@bipole@voltage@straighttrue}}
+\ctikzset{voltage/curved/.code = {\pgf@circuit@europeanvoltagetrue\pgf@circuit@bipole@voltage@straighttrue}}
+
+\ctikzset{current/.is choice}
+\ctikzset{current/american/.code = \pgf@circuit@europeancurrentfalse}
+\ctikzset{current/european/.code = \pgf@circuit@europeancurrenttrue}
+
+% this is left for backward compatibility...
 \ctikzset{straight/.is choice}
-\ctikzset{straightvoltage value/.initial=true}
 \ctikzset{straight/true/.code = {\pgf@circuit@bipole@voltage@straighttrue}}
 \ctikzset{straight/false/.code = {\pgf@circuit@bipole@voltage@straightfalse}}
-\ctikzset{straightvoltage/.style = {/tikz/circuitikz/straight=true}}
-\newif\ifpgf@circuit@bipole@voltage@straight
 \ctikzset{bipole/straight/.is if=pgf@circuit@bipole@voltage@straight}
+% never used, removed (RG 2020-05-17)
+% \ctikzset{straightvoltage value/.initial=true}
+% \ctikzset{straightvoltage/.style = {/tikz/circuitikz/straight=true}}
 
+%
+% voltage is used also to set parameters, apart for the /.is choice
+% above. I hope it is ok --- would be a mess otherwise
+%
 
-\ctikzset{voltage/.is family}
 \ctikzset{voltage/distance from node/.initial=.5} %\pgf@circ@Rlen units
 \ctikzset{voltage/distance from line/.initial=.08} % pos, tra 0 e 1
 \ctikzset{voltage/bump a/.initial=1.2}
@@ -1878,7 +1903,7 @@
 \ctikzset{voltage/american plus/.initial={$+$}}
 \ctikzset{voltage/american minus/.initial={$-$}}
 
-% special cases
+% special cases for voltage positions
 \ctikzset{bipoles/generic/voltage/distance from node/.initial=.4}
 \ctikzset{bipoles/generic/voltage/bump b/.initial=2}
 \ctikzset{bipoles/generic/voltage/european label distance/.initial=1.8}
@@ -1910,15 +1935,28 @@
 \ctikzset{bipoles/thermistorntc/voltage/bump b/.initial=1.6}
 %\ctikzset{bipoles/thermistorptc/voltage/distance from node/.initial=.2}
 \ctikzset{bipoles/thermistorptc/voltage/bump b/.initial=1.6}
+%
+% american open voltage adjusting
+%
+\newif\ifpgf@adjust@open@voltage\pgf@adjust@open@voltagetrue
+\ctikzset{american open voltage/.is choice}
+\ctikzset{american open voltage/center/.code={\pgf@adjust@open@voltagetrue}}
+\ctikzset{american open voltage/legacy/.code={\pgf@adjust@open@voltagefalse}}
 
-\ctikzset{current/.is family}
+%
+% currents
+%
 \ctikzset{current/distance/.initial = .5}
 
+%
+% voltage and current styles
+%
 
 \tikzset{american currents/.style = {\circuitikzbasekey/current = american}}
 \tikzset{european currents/.style = {\circuitikzbasekey/current = european}}
 \tikzset{american voltages/.style = {\circuitikzbasekey/voltage = american}}
 \tikzset{european voltages/.style = {\circuitikzbasekey/voltage = european}}
+\tikzset{straight voltages/.style = {\circuitikzbasekey/voltage = straight}}
 \tikzset{american resistors/.style = {\circuitikzbasekey/resistor = american}}
 \tikzset{european resistors/.style = {\circuitikzbasekey/resistor = european}}
 
@@ -1934,21 +1972,15 @@
 \tikzset{cute inductors/.style = {\circuitikzbasekey/inductor = cute}}
 \tikzset{american ports/.style = {\circuitikzbasekey/logic ports = american}}
 \tikzset{european ports/.style = {\circuitikzbasekey/logic ports = european}}
+
+%
+% general styles
+%
+
 \tikzset{european/.style = {european currents, european voltages, european resistors, european inductors, european ports, european gas filled surge arrester set}}
 \tikzset{american/.style = {american currents, american voltages, american resistors, american inductors, american ports, american gas filled surge arrester set}}
 \tikzset{cute/.style = {european currents, european voltages, american resistors, cute inductors, american ports}}
 
-% I should try to make the tree clearer (this voltage conflicts with the options above)
-
-\newif\ifpgf@circuit@europeanvoltage
-\ctikzset{voltage/.is choice}
-\ctikzset{voltage/american/.code = {\pgf@circuit@europeanvoltagefalse}}
-\ctikzset{voltage/european/.code = {\pgf@circuit@europeanvoltagetrue}}
-
-\newif\ifpgf@circuit@europeancurrent
-\ctikzset{current/.is choice}
-\ctikzset{current/american/.code = \pgf@circuit@europeancurrentfalse}
-\ctikzset{current/european/.code = \pgf@circuit@europeancurrenttrue}
 
 % noise sources
 \ctikzset{bipoles/noise sources/fillcolor/.initial=gray!50}
