@@ -1431,7 +1431,7 @@
             \pgf@circ@draworfill
         \endpgfscope
         % now we have to draw the pins, if needed
-        \ifdim\extshift>0pt\ifpgfcirc@draw@leads\pgfscope % let's avoid too much indent
+        \ifdim\extshift>0pt\ifpgfcirc@draw@input@leads\pgfscope % let's avoid too much indent
         % Ok, we have to draw the leads (a.k.a. pins)
             \pgfsetlinewidth{\ctikzvalof{multipoles/external pins thickness}\pgflinewidth}
             % We mimic the anchors here --- probably there is a better way
@@ -1814,7 +1814,11 @@
 %
 % integrate with the other logic ports
 %
-\ctikzset{logic ports/ieee/.code= {\pgf@circuit@europeanlogicportfalse
+% the if is not really used, kept for cleanliness
+\newif\ifpgf@circuit@ieeelogicport\pgf@circuit@ieeelogicportfalse
+\ctikzset{logic ports/ieee/.code= {%
+    \pgf@circuit@ieeelogicporttrue
+    \pgf@circuit@europeanlogicportfalse
     \tikzset{and port/.style={shape=ieeestd and port}}%
     \tikzset{or port/.style={shape=ieeestd or port}}%
     \tikzset{xor port/.style={shape=ieeestd xor port}}%
@@ -1824,8 +1828,11 @@
     \tikzset{nor port/.style={shape=ieeestd nor port}}%
     \tikzset{xnor port/.style={shape=ieeestd xnor port}}%
     \tikzset{schmitt port/.style={shape=ieeestd schmitt port}}%
-    \tikzset{inv schmitt port/.style={shape=ieeestd schmitt port}}%
+    \tikzset{invschmitt port/.style={shape=ieeestd invschmitt port}}%
 }}
+% add code for the other ports
+\ctikzset{logic ports/european/.add code={\pgf@circuit@ieeelogicportfalse}}
+\ctikzset{logic ports/american/.add code={\pgf@circuit@ieeelogicportfalse}}
 \tikzset{ieee ports/.style = {\circuitikzbasekey/logic ports = ieee}}
 %
 % the base angle for the or port. See the drawings. This will not change with height
@@ -2244,9 +2251,11 @@
             \pgfextractx{\pgf@circ@res@other}{\bodyright}   %body border, without "not" ball
             \advance\pgf@circ@res@other by \pinlen\relax
             \ifdim \pgf@circ@res@other > \pgf@circ@res@right
-                \pgfpathmoveto{\pgfpoint{\pgf@circ@res@right}{0pt}}
-                \pgfpathlineto{\pgfpoint{\pgf@circ@res@other}{0pt}}
-                \pgfusepath{draw}
+                \ifpgfcirc@draw@output@leads
+                    \pgfpathmoveto{\pgfpoint{\pgf@circ@res@right}{0pt}}
+                    \pgfpathlineto{\pgfpoint{\pgf@circ@res@other}{0pt}}
+                    \pgfusepath{draw}
+                \fi
             \fi
             \ifnum #3=1\relax\pgfscope
                 \pgftransformshift{\pgfpoint{\pgf@circ@res@right}{0pt}}
@@ -2270,7 +2279,7 @@
     \pgfmathsetlength{\pgf@circ@res@temp}{\pgf@circ@res@up+0.5*\pind}
     \pgfextractx{\pgf@circ@res@left}{\bodyleft}
     \pgfextracty{\pgf@circ@res@down}{\bodyleft}
-    \ifpgfcirc@draw@leads
+    \ifpgfcirc@draw@input@leads
         %input leads --- all the same for AND ports
         \loop\ifnum\pgf@circ@count@a>0
         \advance\pgf@circ@res@temp by -\pind
@@ -2318,7 +2327,7 @@
     % Find the pins on the rack; they are 1...
     \pgf@circ@count@b=\numexpr (\inputs - \inners)/2\relax       % =K; numexpr rounds up!
     \pgf@circ@count@c=\numexpr \inputs - \pgf@circ@count@b +1 \relax % =inputs - K +1
-    \ifpgfcirc@draw@leads
+    \ifpgfcirc@draw@input@leads
         %input leads --- for or ports
         \loop\ifnum\pgf@circ@count@a>0
         \pgfextractx{\pgf@circ@res@right}{\topleft}
@@ -2490,10 +2499,7 @@
         \anchor{body right}{\bodyright\pgf@y=0pt}
         \anchor{right}{\bottomright\pgf@y=0pt}
         \anchor{body left}{\bodyleft\pgf@y=0pt}% central edge of the body
-        \anchor{left}{% central edge of the component
-            \pgf@circ@ieeestd@xorbar% save \xorbar in temp
-            \bodyleft\pgf@y=0pt\advance\pgf@x by -\pgf@circ@res@temp
-        }
+        \anchor{left}{\bodyleft\pgf@y=0pt}
         \anchor{up}{%
             \bodyleft
             \pgf@y=+0.5\pgf@y\pgf@x=0pt
@@ -2533,9 +2539,11 @@
             \pgfextractx{\pgf@circ@res@other}{\bodyright}   %body border, without "not" ball
             \advance\pgf@circ@res@other by \pinlen\relax
             \ifdim \pgf@circ@res@other > \pgf@circ@res@right
-                \pgfpathmoveto{\pgfpoint{\pgf@circ@res@right}{0pt}}
-                \pgfpathlineto{\pgfpoint{\pgf@circ@res@other}{0pt}}
-                \pgfusepath{draw}
+                \ifpgfcirc@draw@output@leads
+                    \pgfpathmoveto{\pgfpoint{\pgf@circ@res@right}{0pt}}
+                    \pgfpathlineto{\pgfpoint{\pgf@circ@res@other}{0pt}}
+                    \pgfusepath{draw}
+                \fi
             \fi
             \ifnum #2=1\relax\pgfscope
                 \pgftransformshift{\pgfpoint{\pgf@circ@res@right}{0pt}}
@@ -2556,9 +2564,11 @@
     \pgfextracty{\pgf@circ@res@up}{\bodyleft}
     \pgfextractx{\pgf@circ@res@right}{\bodyright}
     % \draw input pin
-    \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{0pt}}
-    \pgfpathlineto{\pgfpoint{\pgf@circ@res@left-\pinlen}{0pt}}
-    \pgfusepath{draw}
+    \ifpgfcirc@draw@input@leads
+        \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{0pt}}
+        \pgfpathlineto{\pgfpoint{\pgf@circ@res@left-\pinlen}{0pt}}
+        \pgfusepath{draw}
+    \fi
     \pgfscope
         \pgf@circ@setlinewidth{tripoles}{\pgflinewidth}
         \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@up}}
@@ -2569,14 +2579,16 @@
     \endpgfscope
 }
 
-\pgfcircdeclareieeebufferportpair{schmitt}{inv schmitt}{%
+\pgfcircdeclareieeebufferportpair{schmitt}{invschmitt}{%
     \pgfextractx{\pgf@circ@res@left}{\bodyleft}
     \pgfextracty{\pgf@circ@res@up}{\bodyleft}
     \pgfextractx{\pgf@circ@res@right}{\bodyright}
     % \draw input pin
-    \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{0pt}}
-    \pgfpathlineto{\pgfpoint{\pgf@circ@res@left-\pinlen}{0pt}}
-    \pgfusepath{draw}
+    \ifpgfcirc@draw@input@leads
+        \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{0pt}}
+        \pgfpathlineto{\pgfpoint{\pgf@circ@res@left-\pinlen}{0pt}}
+        \pgfusepath{draw}
+    \fi
     \pgfscope
         \pgf@circ@setlinewidth{tripoles}{\pgflinewidth}
         \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@up}}

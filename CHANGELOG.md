@@ -4,6 +4,7 @@ The major changes among the different circuitikz versions are listed here. See <
 * Version 1.1.3 (unreleased)
 
     - Bumped version number
+    - Several fixes in the logic ports: fixed IEEE `invschmitt` name, added symmetry to the three-style shorthands for the ports, etc.
 
 * Version 1.1.2 (2020-05-17)
 
