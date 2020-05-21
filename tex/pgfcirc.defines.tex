@@ -1207,6 +1207,7 @@
 %% transistors stop here
 
 %% Logic ports
+%% beware that the third option is in IEEE ports in pgfcircmultipoles.tex
 
 \newif\ifpgf@circuit@europeanlogicport
 \ctikzset{logic ports/.is choice}
@@ -1219,6 +1220,9 @@
     \tikzset{nand port/.style={shape=european nand port}}%
     \tikzset{nor port/.style={shape=european nor port}}%
     \tikzset{xnor port/.style={shape=european xnor port}}%
+    % there is no Schmitt ports in european style (yet)
+    \tikzset{schmitt port/.style={shape=schmitt}}%
+    \tikzset{invschmitt port/.style={shape=invschmitt}}%
 }}
 \ctikzset{logic ports/american/.code= {\pgf@circuit@europeanlogicportfalse
     \tikzset{and port/.style={shape=american and port}}%
@@ -1229,6 +1233,8 @@
     \tikzset{nand port/.style={shape=american nand port}}%
     \tikzset{nor port/.style={shape=american nor port}}%
     \tikzset{xnor port/.style={shape=american xnor port}}%
+    \tikzset{schmitt port/.style={shape=schmitt}}%
+    \tikzset{invschmitt port/.style={shape=invschmitt}}%
 }}
 
 \ctikzset{logic ports origin/.is choice}
@@ -1272,12 +1278,26 @@
 \ctikzset{american or shape/roundy/.code={\pgfcirc@roundy@or@shapestrue}}
 \ctikzset{american or shape/pointy/.code={\pgfcirc@roundy@or@shapesfalse}}
 
-\newif\ifpgfcirc@draw@leads\pgfcirc@draw@leadstrue
+\newif\ifpgfcirc@draw@input@leads\pgfcirc@draw@input@leadstrue
 \ctikzset{logic ports draw input leads/.is choice}
-\ctikzset{logic ports draw input leads/true/.code={\pgfcirc@draw@leadstrue}}
-\ctikzset{logic ports draw input leads/false/.code={\pgfcirc@draw@leadsfalse}}
-\tikzset{input leads/.code={\pgfcirc@draw@leadstrue}}
-\tikzset{no input leads/.code={\pgfcirc@draw@leadsfalse}}
+\ctikzset{logic ports draw input leads/true/.code={\pgfcirc@draw@input@leadstrue}}
+\ctikzset{logic ports draw input leads/false/.code={\pgfcirc@draw@input@leadsfalse}}
+\tikzset{input leads/.code={\pgfcirc@draw@input@leadstrue}}
+\tikzset{no input leads/.code={\pgfcirc@draw@input@leadsfalse}}
+
+\newif\ifpgfcirc@draw@output@leads\pgfcirc@draw@output@leadstrue
+\ctikzset{logic ports draw output leads/.is choice}
+\ctikzset{logic ports draw output leads/true/.code={\pgfcirc@draw@output@leadstrue}}
+\ctikzset{logic ports draw output leads/false/.code={\pgfcirc@draw@output@leadsfalse}}
+\tikzset{output leads/.code={\pgfcirc@draw@output@leadstrue}}
+\tikzset{no output leads/.code={\pgfcirc@draw@output@leadsfalse}}
+
+\ctikzset{logic ports draw leads/.is choice}
+\ctikzset{logic ports draw leads/true/.code={\pgfcirc@draw@output@leadstrue\pgfcirc@draw@input@leadstrue}}
+\ctikzset{logic ports draw leads/false/.code={\pgfcirc@draw@output@leadsfalse\pgfcirc@draw@input@leadsfalse}}
+\tikzset{all leads/.code={\pgfcirc@draw@output@leadstrue\pgfcirc@draw@input@leadstrue}}
+\tikzset{no leads/.code={\pgfcirc@draw@output@leadsfalse\pgfcirc@draw@input@leadsfalse}}
+
 
 \ctikzset{tripoles/american and port/width/.initial=1.1}
 \ctikzset{tripoles/american and port/height/.initial=.8}
