@@ -69,21 +69,25 @@
 }
 }
 
-
 %% Generic bipole path
-%% I am not user what the second argument is needed for
 \def\pgf@circ@bipole@path#1#2{
+    % normally we will add "shape" to the shape name and not put anything in the node text
+    \pgf@circ@bipole@path@base{shape}{}{#1}{#2}
+}
+%% ultra generic bipole path
+%% I am not sure what the last argument is needed for
+\def\pgf@circ@bipole@path@base#1#2#3#4{
 
     \pgfextra{
         \set@explicit@center@anchor{\tikztostart}
         \set@explicit@center@anchor{\tikztotarget}
         \pgfsyssoftpath@getcurrentpath{\myp@th}%% save current path to extend after calculation of correct start/end coordinates
-        \ctikzset{bipole/kind = #1}
+        \ctikzset{bipole/kind = #3}
         \edef\pgf@temp{\ctikzvalof{bipole/name}}
         \def\pgf@circ@temp{}
         \ifx\pgf@temp\pgf@circ@temp % if it has not a name
             \pgfmathrandominteger{\pgf@circ@rand}{1000}{9999}
-            \ctikzset{bipole/name = #1\pgf@circ@rand} % create it (re-usage should not create problem, but...)
+            \ctikzset{bipole/name = #3\pgf@circ@rand} % create it (re-usage should not create problem, but...)
         \fi
     }
 
@@ -98,16 +102,16 @@
         % \typeout{DIRECTION:\pgf@circ@direction}
         \pgfsyssoftpath@setcurrentpath{\myp@th}
     }
-    \pgfextra{\def\pgf@temp{open}\def\pgf@circ@temp{#1}}
+    \pgfextra{\def\pgf@temp{open}\def\pgf@circ@temp{#3}}
     \ifx\pgf@temp\pgf@circ@temp  % if it is an open
         \else
             --($(\ctikzvalof{bipole/name}start) ! .5\pgflinewidth ! (\ctikzvalof{bipole/name}end)$) %ugly workaround to get correct linejoins(node breaks path?)
         \fi
         ($(\tikztostart) ! .5 ! (\tikztotarget)$)%%positio of middle node
-        node[#1shape, rotate=\pgf@circ@direction, yscale=\ctikzvalof{mirror value}, xscale=\ctikzvalof{invert value}]
-        (\ctikzvalof{bipole/name}) {}
+        node[#3#1, rotate=\pgf@circ@direction, yscale=\ctikzvalof{mirror value}, xscale=\ctikzvalof{invert value}]
+        (\ctikzvalof{bipole/name}) {#2}
         \ifpgf@circuit@bipole@inverted
-            \ifcsname pgf@anchor@#1shape@pathstart\endcsname%if special path-anchors are defined, use them!
+            \ifcsname pgf@anchor@#3#1@pathstart\endcsname%if special path-anchors are defined, use them!
                 coordinate	(anchorstartnode) at (\ctikzvalof{bipole/name}.pathend)
                 coordinate	(anchorendnode) at (\ctikzvalof{bipole/name}.pathstart)
             \else
@@ -115,7 +119,7 @@
                 coordinate	(anchorendnode) at (\ctikzvalof{bipole/name}.left)
             \fi
             \else
-            \ifcsname pgf@anchor@#1shape@pathstart\endcsname%if special path-anchors are defined, use them!
+            \ifcsname pgf@anchor@#3#1@pathstart\endcsname%if special path-anchors are defined, use them!
                 coordinate	(anchorstartnode) at (\ctikzvalof{bipole/name}.pathstart)
                 coordinate	(anchorendnode) at (\ctikzvalof{bipole/name}.pathend)
             \else
@@ -123,7 +127,7 @@
                 coordinate	(anchorendnode) at (\ctikzvalof{bipole/name}.right)
             \fi
         \fi
-        \pgfextra{\def\pgf@temp{open}\def\pgf@circ@temp{#1}}
+        \pgfextra{\def\pgf@temp{open}\def\pgf@circ@temp{#3}}
         \ifx\pgf@temp\pgf@circ@temp  % if it is an open
         \else
             (\ctikzvalof{bipole/name}start.center) -- (anchorstartnode)
@@ -136,7 +140,7 @@
         \pgf@circ@ifkeyempty{bipole/voltage/label/name}\else\pgf@circ@drawvoltage\fi
         \pgf@circ@ifkeyempty{bipole/current/label/name}\else\pgf@circ@drawcurrent\fi
         \pgf@circ@ifkeyempty{bipole/flow/label/name}\else\pgf@circ@drawflow\fi
-        \pgfextra{\def\pgf@temp{open}\def\pgf@circ@temp{#1}}
+        \pgfextra{\def\pgf@temp{open}\def\pgf@circ@temp{#3}}
         \ifx\pgf@temp\pgf@circ@temp  % if it is an open
             (\ctikzvalof{bipole/name}end)%Move to end of path
         \else
