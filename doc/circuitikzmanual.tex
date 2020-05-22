@@ -3936,8 +3936,30 @@ If otherwise \texttt{europeanports} option is active (or the style \texttt{[euro
 Finally, for version \texttt{1.1.0} and up, you can use the style \texttt{ieee ports} to set the shorthands to the set of \texttt{ieeestd} ports. (There is no global option for this).
 \end{framed}
 
+\subsubsection{Path-style logic ports}
 
-\subsubsection{American port usage}
+The one-input, one-output ports have a handy path-style equivalent; they are the following:
+
+\begin{groupdesc}
+    \ctikzset{logic ports=ieee}
+    \circuitdescbip*{inline not}<not port>{``not''  logic port}{}
+    \circuitdescbip*{inline buffer}<buffer port>{``buffer''  logic port}{}
+    \circuitdescbip*{inline schmitt}<schmitt port>{Schmitt logic port}{}
+    \circuitdescbip*{inline invschmitt}<invschmitt port>{Inverting Schmitt logic port}{}
+\end{groupdesc}
+
+Those ports follows the current selected style, although you can change it on the fly (even if it has not a lot of sense); you can apply labels, annotations and (again, not a lot of sense) voltages to them. The assigned value is typeset as if it were the main text of the node.
+
+\begin{LTXexample}[varwidth=true, basicstyle=\small\ttfamily]
+\begin{circuitikz}[american]
+    \ctikzset{logic ports=ieee}
+    \draw (0,0) to[inline not=I1, l=label, v=$\Delta V$] ++(2,0);
+    \draw (0,-2) to[inline not, a=ann, european ports] ++(2,0);
+\end{circuitikz}
+\end{LTXexample}
+
+
+\subsubsection{American ports usage}
 
 Since version \texttt{1.0.0}, the default shape of the family of american ``or'' ports has changed to a more ``pointy'' one, for better distinguish them from the ``and''-type ports. You can still going back to the previous aspect with the key \texttt{american or shape} that can be set to \texttt{pointy} or \texttt{roundy}. The \texttt{legacy} style will enact the old, roundy style also.
 
@@ -4132,6 +4154,18 @@ In the case of \textsc{not}, there are only \texttt{in} and \texttt{out} (althou
   ++(0,-1) node[ground] {} to[C] (not1.out)
   (not2.out) -| (4,1) -| (0,0)
 ;\end{circuitikz}
+\end{LTXexample}
+
+This last circuit could be drawn also (and probably in a more natural manner) using the path-style components:
+
+\begin{LTXexample}[varwidth=true, basicstyle=\small\ttfamily]
+\begin{circuitikz}[american]
+    \draw (0,0) node[ground]{} to[C] ++(0,1.5)
+    coordinate(c)
+    to[inline not] ++(2.5,0) -- ++(0,1)
+    -| ++(-5,-1)
+    to[inline not] (c);
+\end{circuitikz}
 \end{LTXexample}
 
 
