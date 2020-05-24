@@ -1229,6 +1229,11 @@
             % draw "inverting" circles on outputs, they must be last
             %
             \pgfscope
+                \ifpgf@circuit@ieeelogicport
+                    \def\@@notcirc{notcirc}
+                \else
+                    \def\@@notcirc{ocirc}
+                \fi
                 \pgfsetlinewidth{\ctikzvalof{multipoles/external pins thickness}\pgflinewidth}
                 \pgf@circ@count@a=\numpins\relax
                 \divide\pgf@circ@count@a by 2 \pgf@circ@count@b=\pgf@circ@count@a
@@ -1239,14 +1244,14 @@
                     \edef\@@tmp{\ctikzvalof{multipoles/flipflop/n\the\pgf@circ@count@c}}
                     \ifnum\@@tmp>0\pgfscope
                         \pgftransformshift{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@up+(\pgf@circ@dip@pin@shift-\the\pgf@circ@count@a)*\pgf@circ@res@step}}
-                        \pgfnode{ocirc}{east}{}{\thisshape-N\the\pgf@circ@count@c}{\pgfusepath{stroke}}
+                        \pgfnode{\@@notcirc}{east}{}{\thisshape-N\the\pgf@circ@count@c}{\pgfusepath{stroke}}
                     \endpgfscope\fi
                     % right side pins
                     \pgf@circ@count@c=\numexpr2*\pgf@circ@count@b-\pgf@circ@count@a+1\relax
                     \edef\@@tmp{\ctikzvalof{multipoles/flipflop/n\the\pgf@circ@count@c}}
                     \ifnum\@@tmp>0\pgfscope
                         \pgftransformshift{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@up+(\pgf@circ@dip@pin@shift-\the\pgf@circ@count@a)*\pgf@circ@res@step}}
-                        \pgfnode{ocirc}{west}{}{\thisshape-N\the\pgf@circ@count@c}{\pgfusepath{stroke}}
+                        \pgfnode{\@@notcirc}{west}{}{\thisshape-N\the\pgf@circ@count@c}{\pgfusepath{stroke}}
                     \endpgfscope\fi
                     \advance\pgf@circ@count@a by -1\relax%
                 \repeatpgfmathloop
@@ -1254,13 +1259,13 @@
                 \edef\@@tmp{\ctikzvalof{multipoles/flipflop/nu}}
                 \ifnum\@@tmp>0\pgfscope
                     \pgftransformshift{\pgfpoint{0pt}{\pgf@circ@res@up}}
-                    \pgfnode{ocirc}{south}{}{\thisshape-Nu}{\pgfusepath{stroke}}
+                    \pgfnode{\@@notcirc}{south}{}{\thisshape-Nu}{\pgfusepath{stroke}}
                 \endpgfscope\fi
                 % down side
                 \edef\@@tmp{\ctikzvalof{multipoles/flipflop/nd}}
                 \ifnum\@@tmp>0\pgfscope
                     \pgftransformshift{\pgfpoint{0pt}{\pgf@circ@res@down}}
-                    \pgfnode{ocirc}{north}{}{\thisshape-Nd}{\pgfusepath{stroke}}
+                    \pgfnode{\@@notcirc}{north}{}{\thisshape-Nd}{\pgfusepath{stroke}}
                 \endpgfscope\fi
             \endpgfscope
         }%
@@ -1814,7 +1819,7 @@
 %
 % integrate with the other logic ports
 %
-% the if is not really used, kept for cleanliness
+% 
 \newif\ifpgf@circuit@ieeelogicport\pgf@circuit@ieeelogicportfalse
 \ctikzset{logic ports/ieee/.code= {%
     \pgf@circuit@ieeelogicporttrue
