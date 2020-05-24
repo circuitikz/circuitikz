@@ -513,6 +513,7 @@ And finally, this is still \TikZ, so that you can freely mix other graphics elem
 \end{circuitikz}
 \end{LTXexample}
 
+\clearpage
 \subsection{A more complex tutorial: circuits, Romano style.}
 \begingroup % do not propagate to the rest of the manual
 
@@ -746,9 +747,251 @@ and you will obtain the following diagram with the exact same code (I just remov
           \draw [blockdef] (vi2|-VEE) ++(0,-2) \coord(tmp)
           -- node[midway, fill=white]{bloque 2} (vo2|- tmp);
 \end{circuitikz}
-
 \endgroup
 
+\clearpage
+\subsection{Tutorial: a logic circuit}
+
+\begingroup % let's keep the tutorial thing separated.
+\tikzset{sr-ff/.style={flipflop, flipflop def={
+    t1=S, t2=CP, t3=R, t4={\ctikztextnot{Q}},t6=Q, td=~, nd=1}},
+}
+\ctikzset{
+        logic ports=ieee,
+        logic ports/scale=0.7,
+}
+\newcommand*{\myblock}[1]{% the parameter will be prepended to the relevant node names
+    node[sr-ff](#1-FF){} (#1-FF.bup) node[above]{SR-FF}
+        (#1-FF.pin 1) -- ++(-1,0) node[and port, anchor=out](#1-AND1){}
+        % notice the second coordinate here, so that I have just one number
+        % to change if I want more or less space
+        (#1-FF.pin 3) -- (#1-FF.pin 3 -| #1-AND1.out) node[and port, anchor=out](#1-AND2){}
+        % go left again to put the not insert point
+        (#1-AND1.in 1) to[short, -*] ++(-1,0) coordinate(#1-in)
+        % let's position the NOT in the center to be really finicky
+        % this is using the calc tikz library
+        % ($(not up)!0.5!(not up|- #1-AND2.in 2)$) node[not port, rotate=-90](#1-NOT){}
+        % and connect it
+        % (not up) -- (#1-NOT.in) (#1-NOT.out) |- (#1-AND2.in 2)
+        % with the new path-style not
+        to[inline not] (#1-in |- #1-AND2.in 2) -- (#1-AND2.in 2);
+}
+\newcommand*{\fullcirc}[1][]{%
+\begin{circuitikz}
+    \draw (0,0) \myblock{A};
+    \draw (0,-4) \myblock{B};
+    %
+    % do the connection
+    %
+    \draw (A-AND1.in 2) to[short, -*] (A-AND2.in 1)
+        to[short, -*] (B-AND1.in 2) to[short, -*] (B-AND2.in 1)
+        -- ++(0, -2) coordinate(down) node[below]{ENABLE};
+    \draw (A-FF.pin 2) to[short, -*] (B-FF.pin 2)
+        -- (B-FF.pin 2 |- down) node[below]{CP};
+    % look at the manual again here
+    \draw (B-FF.down) to[short, -*] ++(0,-0.3) coordinate(dd);
+    \draw (A-FF.down) -- ++(0,-.5) -- ++(1.5,0) |- (dd)
+        -- (dd |- down) node[below]{RESET};
+    \draw (A-in) -- ++(-0.5, 0) node[below]{$a_0$};
+    \draw (B-in) -- ++(-0.5, 0) node[below]{$a_1$};
+    %
+    #1
+    %
+\end{circuitikz}%
+}
+
+\begin{minipage}{0.45\linewidth}
+\parskip=6pt plus 12pt minus 2pt
+
+Let's suppose we want to reproduce the circuit on the right\footnotemark, maybe as part of a more complex one.
+
+Looking at the circuit to draw, I see that there is a basic block: the flip-flop with the added three-port circuit to its left, marked with the red dashed rectangle.
+The main distance to respect here is that we want the two ANDs in line with the flip-flop inputs, so I'll start with the flip-flop and then add the rest of the block.
+
+The shapes are very similar to the IEEE logic gates (see section~\ref{sec:ieeestdports});
+after a first check, the standard size of the port is a bit too big with respect to the flip-flop, so I scale them down a bit.
+
+\begin{lstlisting}
+\ctikzset{
+        logic ports=ieee,
+        logic ports/scale=0.7,
+}
+\end{lstlisting}
+\end{minipage}\hfill
+\begin{minipage}{0.5\linewidth}
+    \fullcirc[{
+        \node[draw, red, dashed, fit=(A-in) (A-FF)]{};
+    }]
+\end{minipage}
+\footnotetext{It seems a quite popular one on \href{https://tex.stackexchange.com/q/545317/38080}{tex.stackexchange}\dots}
+
+I want a reusable block, so I will start from a coordinate and then use only relative, defining coordinates along the way.
+
+\begin{minipage}{0.7\linewidth}
+    The first thing is to define a suitable flip-flop. The standard SR~(see \ref{sec:flipflops}) is \emph{almost} what we need, but not exactly the same. So let's define a new one:
+    \begin{lstlisting}
+\tikzset{sr-ff/.style={flipflop, flipflop def={
+    t1=S, t2=CP, t3=R, t4={\ctikztextnot{Q}},
+    t6=Q, nd=1}},
+}
+    \end{lstlisting}
+\end{minipage}\hfill
+\begin{minipage}{0.2\linewidth}
+    \begin{circuitikz}[scale=0.8, transform shape]
+        \tikzset{sr-ff/.style={flipflop, flipflop def={
+            t1=S, t2=CP, t3=R, t4={\ctikztextnot{Q}},
+            t6=Q, nd=1}},
+        }
+        \node[sr-ff]{};
+    \end{circuitikz}
+\end{minipage}
+
+\begin{minipage}{0.7\linewidth}
+
+    If you look closer, you can notice that the new flip-flop has no lead in the bottom pin; this is due to the fact that there is no label here, and leads are drawn in flip-flops only if there is a label. This can be fixed by adding a blank label (like \verb|td=~|); otherwise you have to utilize the anchors on the internal ``not'' circle.
+
+\end{minipage}\hfill
+\begin{minipage}{0.2\linewidth}
+    \begin{circuitikz}[scale=0.8, transform shape]
+        \node[sr-ff]{};
+    \end{circuitikz}
+\end{minipage}
+
+Now we can add the ``and'' gates. For example, we can add the gates to the right like this:
+
+\begin{LTXexample}[varwidth=true, basicstyle=\small\ttfamily]
+\begin{circuitikz}[]
+    \draw (0,0) node[sr-ff](FF){} (FF.bup)
+    node[above]{SR-FF};
+    \draw (FF.pin 1) -- ++(-1,0) node[and port,
+        anchor=out](AND1){}
+          (FF.pin 3) -- ++(-1,0) node[and port,
+        anchor=out](AND2){};
+\end{circuitikz}
+\end{LTXexample}
+
+You can notice a pair of things here: first of all, the use of the \texttt{anchor=out} in the port, to tell \TikZ{} that we want the node moved so that the \texttt{out} anchor is the reference one. The second one is that we have repeated the absolute shift (the \texttt{++(-1, 0)}) twice. This is a bad practice; it is much better to have the ``free'' parameters of a schematic just stated once, so that we can change them in just one point.
+
+You can of course use a macro, like \verb|\newcommand{\andshift}{(-1,0)}| but it is much more elegant to do something like this:
+\begin{LTXexample}[varwidth=true, basicstyle=\small\ttfamily]
+\begin{circuitikz}[]
+    \draw (0,0) node[sr-ff](FF){} (FF.bup)
+    node[above]{SR-FF};
+    \draw (FF.pin 1) -- ++(-1,0) node[and port,
+        anchor=out](AND1){}
+        (FF.pin 3) -- (FF.pin 3 -| AND1.out)
+        node[and port, anchor=out](AND2){};
+\end{circuitikz}
+\end{LTXexample}
+
+In this snippet, the coordinate \texttt{(FF.pin 3 -| AND1.out)} is the \TikZ{} way to say ``the point which is horizontally straight from \texttt{FF.pin 3} and vertically form \texttt{AND1.out}''. That way one can change the number \texttt{-1} to move both AND ports nearer or farther away.
+
+Now we can add the not port. Since version~\texttt{1.1.3} you can use a path-style not port, so you can just say: this:
+
+\begin{LTXexample}[varwidth=true, basicstyle=\small\ttfamily]
+\begin{circuitikz}[scale=0.8, transform shape]
+\draw (0,0) node[sr-ff](FF){} (FF.bup)
+    node[above]{SR-FF} (FF.pin 1) -- ++(-1,0)
+    node[and port, anchor=out](AND1){}
+    (FF.pin 3) -- (FF.pin 3 -| AND1.out)
+    node[and port, anchor=out](AND2){}
+    (AND1.in 1) to[short, -*] ++(-1,0) coordinate(in)
+    to[inline not] (in |- AND2.in 2) -- (AND2.in 2);
+\end{circuitikz}
+\end{LTXexample}
+
+In earlier version, you should have found the center point between the two terminal, position the ``not'' shape and ten connect it, like for example (this code must stay into the \verb|\draw| command):
+
+\begin{lstlisting}
+    % let's position the NOT in the center
+    % this is using the calc tikz library
+    ($(in)!0.5!(in |- AND2.in 2)$) node[not port, rotate=-90](NOT){}
+    % and connect it
+    (in) -- (NOT.in) (NOT.out) |- (AND2.in 2)
+\end{lstlisting}
+
+Now we have the basic block; we have to use it twice, so one of the possible way to do it is to prepare a command.
+We will change the names of the nodes and the coordinates to be different for any ``call'' of the block (another option is to use a \texttt{pic}; but this is more straightforward).
+
+\begin{lstlisting}
+\newcommand*{\myblock}[1]{%  Add #1- to the node and coord names
+    node[sr-ff](#1-FF){} (#1-FF.bup) node[above]{SR-FF}
+        (#1-FF.pin 1) -- ++(-1,0) node[and port, anchor=out](#1-AND1){}
+        (#1-FF.pin 3) -- (#1-FF.pin 3 -| #1-AND1.out)
+        node[and port, anchor=out](#1-AND2){}
+        (#1-AND1.in 1) to[short, -*] ++(-1,0) coordinate(#1-in)
+        to[inline not] (#1-in |- #1-AND2.in 2) -- (#1-AND2.in 2);
+}
+\end{lstlisting}
+
+
+\begin{minipage}{0.45\linewidth}
+\parskip=6pt plus 12pt minus 2pt
+
+So now we can draw two of our blocks:
+\begin{lstlisting}
+    \draw (0,0) \myblock{A};
+    \draw (0,-4) \myblock{B};
+\end{lstlisting}
+Part of the anchors and coordinates that we have accessible are marked in red in the diagram at the side.
+
+Now we have to just connect the relevant parts and add the labels. The names of the inputs are quite easy:
+\begin{lstlisting}
+    \draw (A-in) -- ++(-0.5, 0) node[below]{$a_0$};
+    \draw (B-in) -- ++(-0.5, 0) node[below]{$a_1$};
+\end{lstlisting}
+And finally:
+\end{minipage}\hfill
+\begin{minipage}{0.5\linewidth}
+    \begingroup
+    \def\showcoord(#1)<#2:#3>{%
+    node[circle, red, draw, inner sep=1pt,pin={%
+        [red, inner sep=0.5pt, font=\small,
+        pin distance=#3cm, pin edge={red, }%
+    ]#2:#1}](){}}
+    \begin{circuitikz}[]
+        \draw (0,0) \myblock{A};
+        \draw (0,-4) \myblock{B};
+        \foreach \b in {A, B}
+            \foreach \n in {in, AND1.in 2, AND2.in 1, FF.pin 2, FF.down}
+                \path (\b-\n) \showcoord(\b-\n)<45:0.6>;
+    \end{circuitikz}
+    \endgroup
+\end{minipage}
+
+\begin{lstlisting}
+    \draw (A-AND1.in 2) to[short, -*] (A-AND2.in 1)
+        to[short, -*] (B-AND1.in 2) to[short, -*] (B-AND2.in 1)
+        -- ++(0, -2) coordinate(down) node[below]{ENABLE};
+    \draw (A-FF.pin 2) to[short, -*] (B-FF.pin 2)
+        -- (B-FF.pin 2 |- down) node[below]{CP};
+    \draw (B-FF.down) to[short, -*] ++(0,-0.3) coordinate(dd);
+    \draw (A-FF.down) -- ++(0,-.5) -- ++(1.5,0) |- (dd)
+        -- (dd |- down) node[below]{RESET};
+\end{lstlisting}
+
+Will create the final diagram:
+
+\begin{circuitikz}[scale=0.8, transform shape]
+    \draw (0,0) \myblock{A};
+    \draw (0,-4) \myblock{B};
+    %
+    % do the connection
+    %
+    \draw (A-AND1.in 2) to[short, -*] (A-AND2.in 1)
+        to[short, -*] (B-AND1.in 2) to[short, -*] (B-AND2.in 1)
+        -- ++(0, -2) coordinate(down) node[below]{ENABLE};
+    \draw (A-FF.pin 2) to[short, -*] (B-FF.pin 2)
+        -- (B-FF.pin 2 |- down) node[below]{CP};
+    % look at the manual again here
+    \draw (B-FF.down) to[short, -*] ++(0,-0.3) coordinate(dd);
+    \draw (A-FF.down) -- ++(0,-.5) -- ++(1.5,0) |- (dd)
+        -- (dd |- down) node[below]{RESET};
+    \draw (A-in) -- ++(-0.5, 0) node[below]{$a_0$};
+    \draw (B-in) -- ++(-0.5, 0) node[below]{$a_1$};
+    %
+\end{circuitikz}
+\endgroup
 
 
 \section{The components}
