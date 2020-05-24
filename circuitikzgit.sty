@@ -12,8 +12,8 @@
 
 \NeedsTeXFormat{LaTeX2e}
 
-\def\pgfcircversion{1.1.3-unreleased-660e6b5}
-\def\pgfcircversiondate{2020/05/22}
+\def\pgfcircversion{1.1.3-unreleased-da03fa1}
+\def\pgfcircversiondate{2020/05/24}
 
 \ProvidesPackage{circuitikzgit}
 [\pgfcircversiondate{} The CircuiTikz circuit drawing package version \pgfcircversion]
@@ -11139,6 +11139,19 @@
         \pgf@x=-\pgf@x
         \pgf@y=-\pgf@y
     }
+    \anchorborder{% this is used when the node is used as a path element
+        \pgf@xa=\pgf@x
+        \pgf@ya=\pgf@y
+        \pgfextracty{\pgf@circ@res@up}{\northwest}
+        \pgfextractx{\pgf@circ@res@left}{\northwest}
+        \pgfpointborderrectangle{\pgfpoint{\pgf@xa}{\pgf@ya}}
+            {\pgfpoint{-\pgf@circ@res@left}{\pgf@circ@res@up}}
+    }
+    \anchor{text}{%
+        % centered and a bit to the left (it's a triangle)!
+        \pgf@x=\dimexpr -.6\wd\pgfnodeparttextbox\relax
+        \pgf@y=\dimexpr.5\dp\pgfnodeparttextbox-.5\ht\pgfnodeparttextbox\relax
+    }
     \backgroundpath{
         \pgfsetcolor{\ctikzvalof{color}}
 
@@ -11270,6 +11283,19 @@
         \pgf@x=-\pgf@x
         \pgf@y=-\pgf@y
     }
+    \anchorborder{% this is used when the node is used as a path element
+        \pgf@xa=\pgf@x
+        \pgf@ya=\pgf@y
+        \pgfextracty{\pgf@circ@res@up}{\northwest}
+        \pgfextractx{\pgf@circ@res@left}{\northwest}
+        \pgfpointborderrectangle{\pgfpoint{\pgf@xa}{\pgf@ya}}
+            {\pgfpoint{-\pgf@circ@res@left}{\pgf@circ@res@up}}
+    }
+    \anchor{text}{%
+        % centered and a bit to the left (it's a triangle)!
+        \pgf@x=\dimexpr -.6\wd\pgfnodeparttextbox\relax
+        \pgf@y=\dimexpr.5\dp\pgfnodeparttextbox-.5\ht\pgfnodeparttextbox\relax
+    }
     \backgroundpath{
         \pgfsetcolor{\ctikzvalof{color}}
 
@@ -11392,6 +11418,19 @@
         \northwest
         \pgf@x=-\pgf@x
         \pgf@y=-\pgf@y
+    }
+    \anchorborder{% this is used when the node is used as a path element
+        \pgf@xa=\pgf@x
+        \pgf@ya=\pgf@y
+        \pgfextracty{\pgf@circ@res@up}{\northwest}
+        \pgfextractx{\pgf@circ@res@left}{\northwest}
+        \pgfpointborderrectangle{\pgfpoint{\pgf@xa}{\pgf@ya}}
+            {\pgfpoint{-\pgf@circ@res@left}{\pgf@circ@res@up}}
+    }
+    \anchor{text}{%
+        % centered and a bit to the left (it's a triangle)!
+        \pgf@x=\dimexpr -.6\wd\pgfnodeparttextbox\relax
+        \pgf@y=\dimexpr.5\dp\pgfnodeparttextbox-.5\ht\pgfnodeparttextbox\relax
     }
     \backgroundpath{
         \pgfsetcolor{\ctikzvalof{color}}
@@ -11535,6 +11574,19 @@
         \northwest
         \pgf@x=-\pgf@x
         \pgf@y=-\pgf@y
+    }
+    \anchorborder{% this is used when the node is used as a path element
+        \pgf@xa=\pgf@x
+        \pgf@ya=\pgf@y
+        \pgfextracty{\pgf@circ@res@up}{\northwest}
+        \pgfextractx{\pgf@circ@res@left}{\northwest}
+        \pgfpointborderrectangle{\pgfpoint{\pgf@xa}{\pgf@ya}}
+            {\pgfpoint{-\pgf@circ@res@left}{\pgf@circ@res@up}}
+    }
+    \anchor{text}{%
+        % centered and a bit to the left (it's a triangle)!
+        \pgf@x=\dimexpr -.6\wd\pgfnodeparttextbox\relax
+        \pgf@y=\dimexpr.5\dp\pgfnodeparttextbox-.5\ht\pgfnodeparttextbox\relax
     }
     \backgroundpath{
         \pgfsetcolor{\ctikzvalof{color}}
@@ -11714,6 +11766,14 @@
     \anchor{east}{\pgfextractx{\pgf@circ@res@right}{\northeast}%
     \pgfpoint{\pgf@circ@res@right}{0cm}}
 
+    \anchorborder{% this is used when the node is used as a path element
+        \pgf@xa=\pgf@x
+        \pgf@ya=\pgf@y
+        \pgfextracty{\pgf@circ@res@up}{\northeast}
+        \pgfextractx{\pgf@circ@res@right}{\northeast}
+        \pgfpointborderrectangle{\pgfpoint{\pgf@xa}{\pgf@ya}}
+            {\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@up}}
+    }
     \backgroundpath{
         \pgfsetcolor{\ctikzvalof{color}}
         \pgfstartlinewidth=\pgflinewidth
@@ -18764,6 +18824,11 @@
             % draw "inverting" circles on outputs, they must be last
             %
             \pgfscope
+                \ifpgf@circuit@ieeelogicport
+                    \def\@@notcirc{notcirc}
+                \else
+                    \def\@@notcirc{ocirc}
+                \fi
                 \pgfsetlinewidth{\ctikzvalof{multipoles/external pins thickness}\pgflinewidth}
                 \pgf@circ@count@a=\numpins\relax
                 \divide\pgf@circ@count@a by 2 \pgf@circ@count@b=\pgf@circ@count@a
@@ -18774,14 +18839,14 @@
                     \edef\@@tmp{\ctikzvalof{multipoles/flipflop/n\the\pgf@circ@count@c}}
                     \ifnum\@@tmp>0\pgfscope
                         \pgftransformshift{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@up+(\pgf@circ@dip@pin@shift-\the\pgf@circ@count@a)*\pgf@circ@res@step}}
-                        \pgfnode{ocirc}{east}{}{\thisshape-N\the\pgf@circ@count@c}{\pgfusepath{stroke}}
+                        \pgfnode{\@@notcirc}{east}{}{\thisshape-N\the\pgf@circ@count@c}{\pgfusepath{stroke}}
                     \endpgfscope\fi
                     % right side pins
                     \pgf@circ@count@c=\numexpr2*\pgf@circ@count@b-\pgf@circ@count@a+1\relax
                     \edef\@@tmp{\ctikzvalof{multipoles/flipflop/n\the\pgf@circ@count@c}}
                     \ifnum\@@tmp>0\pgfscope
                         \pgftransformshift{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@up+(\pgf@circ@dip@pin@shift-\the\pgf@circ@count@a)*\pgf@circ@res@step}}
-                        \pgfnode{ocirc}{west}{}{\thisshape-N\the\pgf@circ@count@c}{\pgfusepath{stroke}}
+                        \pgfnode{\@@notcirc}{west}{}{\thisshape-N\the\pgf@circ@count@c}{\pgfusepath{stroke}}
                     \endpgfscope\fi
                     \advance\pgf@circ@count@a by -1\relax%
                 \repeatpgfmathloop
@@ -18789,13 +18854,13 @@
                 \edef\@@tmp{\ctikzvalof{multipoles/flipflop/nu}}
                 \ifnum\@@tmp>0\pgfscope
                     \pgftransformshift{\pgfpoint{0pt}{\pgf@circ@res@up}}
-                    \pgfnode{ocirc}{south}{}{\thisshape-Nu}{\pgfusepath{stroke}}
+                    \pgfnode{\@@notcirc}{south}{}{\thisshape-Nu}{\pgfusepath{stroke}}
                 \endpgfscope\fi
                 % down side
                 \edef\@@tmp{\ctikzvalof{multipoles/flipflop/nd}}
                 \ifnum\@@tmp>0\pgfscope
                     \pgftransformshift{\pgfpoint{0pt}{\pgf@circ@res@down}}
-                    \pgfnode{ocirc}{north}{}{\thisshape-Nd}{\pgfusepath{stroke}}
+                    \pgfnode{\@@notcirc}{north}{}{\thisshape-Nd}{\pgfusepath{stroke}}
                 \endpgfscope\fi
             \endpgfscope
         }%
@@ -19349,7 +19414,7 @@
 %
 % integrate with the other logic ports
 %
-% the if is not really used, kept for cleanliness
+% 
 \newif\ifpgf@circuit@ieeelogicport\pgf@circuit@ieeelogicportfalse
 \ctikzset{logic ports/ieee/.code= {%
     \pgf@circuit@ieeelogicporttrue
@@ -19365,7 +19430,7 @@
     \tikzset{schmitt port/.style={shape=ieeestd schmitt port}}%
     \tikzset{invschmitt port/.style={shape=ieeestd invschmitt port}}%
 }}
-% add code for the other ports
+% add code to be compatible with the other ports
 \ctikzset{logic ports/european/.add code={\pgf@circuit@ieeelogicportfalse}}
 \ctikzset{logic ports/american/.add code={\pgf@circuit@ieeelogicportfalse}}
 \tikzset{ieee ports/.style = {\circuitikzbasekey/logic ports = ieee}}
@@ -20043,7 +20108,57 @@
             \bodyleft
             \pgf@y=-0.5\pgf@y\pgf@x=0pt
         }
-
+        % this is for when it's used as a bipole
+        % we use the enclosing rectangle (see below)
+        \anchorborder{%
+            %% This (commented out) is the correct border anchor. But if we use the correct
+            %% border anchor there is no horizontal space for the label ;-) because
+            %% the triangle is too steep. So we will use a simple square border
+            %%
+            %% find the border anchor of a triangle (like a not port or an
+            %% amplifier) ---
+            %%
+            %%      -----^ up
+            %%     I --- |
+            %%     I    -|--
+            %%left I     |  ---    right
+            %% ----I-----|-------I-----
+            %%
+            %%
+            %\pgf@xa=\pgf@x
+            %% it's simmetrical w/ vertical side, use only positive y
+            %\pgfmathsetmacro{\@@switchy}{ifthenelse(\pgf@y>0,1,-1)}
+            %\pgfmathsetlength{\pgf@ya}{abs(\pgf@y)}
+            %\pgfextracty{\pgf@circ@res@up}{\bodyleft}
+            %\pgfextractx{\pgf@circ@res@left}{\bodyleft}
+            %\pgfextractx{\pgf@circ@res@right}{\bodyright}
+            %% limit angle for the left (vertical) side
+            %\pgfmathsetmacro{\@@phimax}{atan2(\pgf@circ@res@up,\pgf@circ@res@left)}
+            %\pgfmathsetmacro{\@@phi}{atan2(\pgf@ya,\pgf@xa)}
+            %\pgfmathsetmacro{\@@leftside}{ifthenelse(\@@phi>\@@phimax,1,0)}
+            %% find the border
+            %\ifnum\@@leftside>0
+            %    % vertical side
+            %    \pgfpointborderrectangle{\pgfpoint{\pgf@xa}{\pgf@ya}}
+            %        {\pgfpoint{-\pgf@circ@res@left}{\pgf@circ@res@up}}
+            %\else
+            %    % triangle upper line
+            %    \pgfpointintersectionoflines
+            %        {\pgfpointorigin}{\pgfqpoint{\pgf@xa}{\pgf@ya}}
+            %        {\pgfqpoint{\pgf@circ@res@left}{\pgf@circ@res@up}}{\pgfqpoint{\pgf@circ@res@right}{0pt}}
+            %\fi
+            %% readjust y sign
+            %\pgf@y=\@@switchy\pgf@y
+            %
+            % this is the square border to position the path label with a bit of horizontal space
+            %
+            \pgf@xa=\pgf@x
+            \pgf@ya=\pgf@y
+            \pgfextracty{\pgf@circ@res@up}{\bodyleft}
+            \pgfextractx{\pgf@circ@res@left}{\bodyleft}
+            \pgfpointborderrectangle{\pgfpoint{\pgf@xa}{\pgf@ya}}
+                {\pgfpoint{-\pgf@circ@res@left}{\pgf@circ@res@up}}
+        }
         % geographical anchors
         \anchor{nw}{\northwest}
         \anchor{ne}{\northeast}
@@ -21657,21 +21772,57 @@
 }
 }
 
-
 %% Generic bipole path
-%% I am not user what the second argument is needed for
 \def\pgf@circ@bipole@path#1#2{
-
+    % Create a bipole path from the shapes defined with \pgfcircdeclarebipole
+    % or \pgfcircdeclarebipolescaled; the node shapes are named with a "shape"
+    % appended to the main (path-style) name
+    % #1 path-style node name
+    % #2 the argument passed from the to-path structure; don't touch
+    %
+    % Example:
+    % \def\pgf@circ@capacitor@path#1{\pgf@circ@bipole@path{capacitor}{#1}}
+    %
+    \pgf@circ@bipole@path@base{shape}{}{#1}{#2}
+}
+%
+% this is used for components that are mainly node-style but have a path-style form
+%
+\def\pgfcirc@node@to@path#1#2#3{%
+    % add a path-style component based on a node-style one without mangling the name
+    % of the shape.
+    % #1: node-type shape name (existing)
+    % #2: path-type name (to be created)
+    % #3: additional options to add to the path style
+    %
+    \expandafter\def\csname pgf@circ@#1@path\endcsname##1{\pgf@circ@bipole@path@base{}{##1}{#1}{}}%
+    \compattikzset{#2/.style = {\circuitikzbasekey,
+        /tikz/to path=\csname pgf@circ@#1@path\endcsname{##1},
+        #3}}%
+    \ctikzset{bipoles/#1/height/.initial=1}%
+}
+%%
+%% ultra-generic bipole path
+%% I am not sure what the last argument is needed for, but don't touch it or everything explodes
+%%
+\def\pgf@circ@bipole@path@base#1#2#3#4{%
+    %
+    % Create a path-style component based on a node-style shape
+    % #1: postfix to be added to the name path to obtain the main shape name
+    % #2: text to be passed as text to the node
+    % #3: name of the bipole component
+    % #4: this will be filled by the argument of the to-path
+    %
     \pgfextra{
         \set@explicit@center@anchor{\tikztostart}
         \set@explicit@center@anchor{\tikztotarget}
         \pgfsyssoftpath@getcurrentpath{\myp@th}%% save current path to extend after calculation of correct start/end coordinates
-        \ctikzset{bipole/kind = #1}
+        \ctikzset{bipole/kind = #3}
         \edef\pgf@temp{\ctikzvalof{bipole/name}}
         \def\pgf@circ@temp{}
         \ifx\pgf@temp\pgf@circ@temp % if it has not a name
             \pgfmathrandominteger{\pgf@circ@rand}{1000}{9999}
-            \ctikzset{bipole/name = #1\pgf@circ@rand} % create it (re-usage should not create problem, but...)
+            \ctikzset{bipole/name = #3\pgf@circ@rand} % create it (re-usage should not create problem, but...)
         \fi
     }
 
@@ -21686,16 +21837,16 @@
         % \typeout{DIRECTION:\pgf@circ@direction}
         \pgfsyssoftpath@setcurrentpath{\myp@th}
     }
-    \pgfextra{\def\pgf@temp{open}\def\pgf@circ@temp{#1}}
+    \pgfextra{\def\pgf@temp{open}\def\pgf@circ@temp{#3}}
     \ifx\pgf@temp\pgf@circ@temp  % if it is an open
         \else
             --($(\ctikzvalof{bipole/name}start) ! .5\pgflinewidth ! (\ctikzvalof{bipole/name}end)$) %ugly workaround to get correct linejoins(node breaks path?)
         \fi
         ($(\tikztostart) ! .5 ! (\tikztotarget)$)%%positio of middle node
-        node[#1shape, rotate=\pgf@circ@direction, yscale=\ctikzvalof{mirror value}, xscale=\ctikzvalof{invert value}]
-        (\ctikzvalof{bipole/name}) {}
+        node[#3#1, rotate=\pgf@circ@direction, yscale=\ctikzvalof{mirror value}, xscale=\ctikzvalof{invert value}]
+        (\ctikzvalof{bipole/name}) {#2}
         \ifpgf@circuit@bipole@inverted
-            \ifcsname pgf@anchor@#1shape@pathstart\endcsname%if special path-anchors are defined, use them!
+            \ifcsname pgf@anchor@#3#1@pathstart\endcsname%if special path-anchors are defined, use them!
                 coordinate	(anchorstartnode) at (\ctikzvalof{bipole/name}.pathend)
                 coordinate	(anchorendnode) at (\ctikzvalof{bipole/name}.pathstart)
             \else
@@ -21703,7 +21854,7 @@
                 coordinate	(anchorendnode) at (\ctikzvalof{bipole/name}.left)
             \fi
             \else
-            \ifcsname pgf@anchor@#1shape@pathstart\endcsname%if special path-anchors are defined, use them!
+            \ifcsname pgf@anchor@#3#1@pathstart\endcsname%if special path-anchors are defined, use them!
                 coordinate	(anchorstartnode) at (\ctikzvalof{bipole/name}.pathstart)
                 coordinate	(anchorendnode) at (\ctikzvalof{bipole/name}.pathend)
             \else
@@ -21711,7 +21862,7 @@
                 coordinate	(anchorendnode) at (\ctikzvalof{bipole/name}.right)
             \fi
         \fi
-        \pgfextra{\def\pgf@temp{open}\def\pgf@circ@temp{#1}}
+        \pgfextra{\def\pgf@temp{open}\def\pgf@circ@temp{#3}}
         \ifx\pgf@temp\pgf@circ@temp  % if it is an open
         \else
             (\ctikzvalof{bipole/name}start.center) -- (anchorstartnode)
@@ -21724,7 +21875,7 @@
         \pgf@circ@ifkeyempty{bipole/voltage/label/name}\else\pgf@circ@drawvoltage\fi
         \pgf@circ@ifkeyempty{bipole/current/label/name}\else\pgf@circ@drawcurrent\fi
         \pgf@circ@ifkeyempty{bipole/flow/label/name}\else\pgf@circ@drawflow\fi
-        \pgfextra{\def\pgf@temp{open}\def\pgf@circ@temp{#1}}
+        \pgfextra{\def\pgf@temp{open}\def\pgf@circ@temp{#3}}
         \ifx\pgf@temp\pgf@circ@temp  % if it is an open
             (\ctikzvalof{bipole/name}end)%Move to end of path
         \else
@@ -22501,6 +22652,22 @@
 \pgf@circ@definetranspath{nigbt}
 \pgf@circ@definetranspath{Lpigbt}
 \pgf@circ@definetranspath{Lnigbt}
+%
+% Path-style logical ports
+%
+% create path-style element for one input --- one output logical ports
+%
+\def\pgfcirc@port@node@to@path#1#2{%
+    %
+    % add a logic port path style component --- we need to suppress leads
+    % and use the correct center
+    %
+    \pgfcirc@node@to@path{#1}{#2}{/tikz/no leads, \circuitikzbasekey/logic ports origin=center}%
+}
+\pgfcirc@port@node@to@path{not port}{inline not}
+\pgfcirc@port@node@to@path{buffer port}{inline buffer}
+\pgfcirc@port@node@to@path{schmitt port}{inline schmitt}
+\pgfcirc@port@node@to@path{invschmitt port}{inline invschmitt}
 %%%---------- close: tex/pgfcircpath
 
 \ifpgf@circ@siunitx
