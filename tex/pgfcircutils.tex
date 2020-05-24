@@ -71,13 +71,18 @@
 %% this code has been contributed by Schrödinger's cat
 %% https://tex.stackexchange.com/a/529159/38080
 %%
-\tikzset{use fpu reciprocal/.code={%
-\def\pgfmathreciprocal@##1{%
-    \begingroup
-    \pgfkeys{/pgf/fpu=true,/pgf/fpu/output format=fixed}%
-    \pgfmathparse{1/##1}%
-    \pgfmath@smuggleone\pgfmathresult
-    \endgroup
-}}}%
+%% Guarded against a possible inclusion of the key in the
+%% fpu library
+%%
+\pgfkeysifdefined{/pgf/use fpu reciprocal}{}{
+    \pgfqkeys{/pgf}{use fpu reciprocal/.code={%
+    \def\pgfmathreciprocal@##1{%
+        \begingroup
+        \pgfkeys{/pgf/fpu=true,/pgf/fpu/output format=fixed}%
+        \pgfmathparse{1/##1}%
+        \pgfmath@smuggleone\pgfmathresult
+        \endgroup
+    }}}%
+}
 
 \endinput
