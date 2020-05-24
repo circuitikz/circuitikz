@@ -4,8 +4,11 @@ The major changes among the different circuitikz versions are listed here. See <
 * Version 1.1.3 (unreleased)
 
     - Bumped version number
-    - Several fixes in the logic ports: fixed IEEE `invschmitt` name, added symmetry to the three-style shorthands for the ports, etc.
-    - Fixed a gross bug in square poles anchor borders.
+    - New path-style not, buffer, and Schmitt logic ports
+    - New tutorial (using the "inline not" component)
+    - Several fixes in the logic ports: fixed IEEE `invschmitt` name, added symmetry to the three-style shorthands for the ports, and so on
+    - Fixed a gross bug in square poles anchor borders
+    - Fixed size of not circles in flip-flops (based on logic ports style)
 
 * Version 1.1.2 (2020-05-17)
 

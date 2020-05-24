@@ -81,14 +81,17 @@
         \checkclass{N}%
     }%
 }
-% description of a path-style component:
+% description of a path-style bipole component:
 % optional: main name, if different from above
-% mandatory component name, description, comma separated alias
+% mandatory component name
+% optional between <>: shapename, if note "nodeshape"
+% mandatory description, comma separated alias
 % optional between (): anchor specification list
 % optional between []: internal nodes specification list
-\NewDocumentCommand{\circuitdescbip}{s o m m m d() d[]}
+%                                    1 2 3 4   5 6 7   8
+\NewDocumentCommand{\circuitdescbip}{s o m d<> m m d() d[]}
 {
-\index{#3} \tikz\foreach \i in {#5} {\index{\i|see{#3}} };
+\index{#3} \tikz\foreach \i in {#6} {\index{\i|see{#3}} };
     \twopartbox{%
         \begin{circuitikz}
         \IfBooleanTF{#1}{%
@@ -96,22 +99,23 @@
             }{
             \draw (0,0) to[#3, name=B] (2,0);
         }
-        \IfValueT{#6}{%
-                \foreach \n/\a/\d in {#6} \path(B.\n) \showcoord(\n)<\a:\d>;
+        \IfValueT{#7}{%
+                \foreach \n/\a/\d in {#7} \path(B.\n) \showcoord(\n)<\a:\d>;
             }
-            \IfValueT{#7}{%
-                \foreach \n/\a/\d in {#7} \path(B-\n) \showcoordb(B-\n)<\a:\d>;
+            \IfValueT{#8}{%
+                \foreach \n/\a/\d in {#8} \path(B-\n) \showcoordb(B-\n)<\a:\d>;
             }
         \end{circuitikz}%
         }{\sloppy%
-        \texttt{\textbf{#3}}: #4, \texttt{type: path-style\IfBooleanT{#1}{, fillable}%
-            \IfValueT{#7}{, \texttt{name=B}}%
+        \texttt{\textbf{#3}}: #5, \texttt{type: path-style\IfBooleanT{#1}{, fillable}%
+            \IfValueT{#8}{, \texttt{name=B}}%
+            \IfValueTF{#4}{, nodename: #4.}{
             \IfValueTF{#2}{, nodename: #2shape.%\drawphantomshape{#2shape}%
             }{, nodename: #3shape.%\drawphantomshape{#3shape}%
-            }%
+        }}%
         }%
-        \ifthenelse{\equal{#5}{}}{ }{%
-        Aliases: \texttt{#5}. }\checkclass{B}%
+        \ifthenelse{\equal{#6}{}}{ }{%
+        Aliases: \texttt{#6}. }\checkclass{B}%
     }%
 }
 
