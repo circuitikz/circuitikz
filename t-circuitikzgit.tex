@@ -10,8 +10,8 @@
 %
 % See the files gpl-3.0_license.txt and lppl-1-3c_license.txt for more details.
 
-\def\pgfcircversion{1.1.3-unreleased-ab7a2a1}
-\def\pgfcircversiondate{2020/05/24}
+\def\pgfcircversion{1.1.3-unreleased-b908eb8}
+\def\pgfcircversiondate{2020/05/30}
 \writestatus{loading}{\pgfcircversiondate{} The CircuiTikz circuit drawing package version \pgfcircversion}
 
 \usemodule[tikz]
@@ -2231,10 +2231,14 @@
 %% this code has been contributed by Schrödinger's cat
 %% https://tex.stackexchange.com/a/529159/38080
 %%
-%% Guarded against a possible inclusion of the key in the
-%% fpu library
+%% Use the official key to use the fpu if installed, see
+%% https://github.com/pgf-tikz/pgf/issues/861
 %%
-\pgfkeysifdefined{/pgf/use fpu reciprocal}{}{
+%% Thanks to "muzimuzhi Z" https://tex.stackexchange.com/a/547085/38080
+%%
+\pgfkeysifdefined{/pgf/fpu/install only/.@cmd}{%
+    \pgfqkeys{/pgf}{use fpu reciprocal/.code={\pgfkeys{/pgf/fpu/install only={reciprocal}}}}%
+    }{%
     \pgfqkeys{/pgf}{use fpu reciprocal/.code={%
     \def\pgfmathreciprocal@##1{%
         \begingroup
