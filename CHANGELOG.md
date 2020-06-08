@@ -1,14 +1,18 @@
 <!--- CircuiTikz - Changelog --->
 The major changes among the different circuitikz versions are listed here. See <https://github.com/circuitikz/circuitikz/commits> for a full list of changes.
 
-* Version 1.1.3 (unreleased)
+* Version 1.2.0 (unreleased)
 
-    - Bumped version number
+    In this release, the big change is the rewriting of the voltages output routine. Now all voltage options (american, european, and straight) take into account the shape (square border) of the component. The adjusting parameters are now (at least for passive elements) acting in similar way for all the options, too.
+
+    - Bumped version number to 1.2 (potentially incompatible changes!)
     - New path-style not, buffer, and Schmitt logic ports
     - New tutorial (using the "inline not" component)
+    - Voltage output routine rewrite; now it takes into account the shape of the component also for "american" and "straight" voltages
     - Several fixes in the logic ports: fixed IEEE `invschmitt` name, added symmetry to the three-style shorthands for the ports, and so on
     - Fixed a gross bug in square poles anchor borders
     - Fixed size of not circles in flip-flops (based on logic ports style)
+    - Fixed the order of initial options, to avoid "european" overwriting single options
 
 * Version 1.1.2 (2020-05-17)
 

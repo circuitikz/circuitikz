@@ -722,10 +722,8 @@
 \ctikzset{bipoles/open/width/.initial=.3} %necessary for curly voltages
 \ctikzset{bipoles/open/voltage/straight label distance/.initial=0}
 \ctikzset{bipoles/open/voltage/distance from node/.initial=.2}
-\ctikzset{bipoles/short/height/.initial=0} %dummy height for voltage positioning
-\ctikzset{bipoles/short/width/.initial=0} %dummy width for voltage positioning
-%\ctikzset{bipoles/short/voltage/straight label distance/.initial=.2}
-%\ctikzset{bipoles/short/voltage/distance from node/.initial=.5}
+\ctikzset{bipoles/short/height/.initial=.2} %dummy height for voltage positioning
+\ctikzset{bipoles/short/width/.initial=.0} % you can't set a dummy width, the short is not short anymore...
 % multiwire
 \ctikzset{bipoles/multiwire/height/.initial=0.4}
 \ctikzset{bipoles/multiwire/width/.initial=0.2}
@@ -739,20 +737,20 @@
 \ctikzset{bipoles/voltmeter/width/.initial=.60}
 \ctikzset{bipoles/smeter/height/.initial=.60}
 \ctikzset{bipoles/smeter/width/.initial=.60}
-\ctikzset{bipoles/smeter/voltage/additional label shift/.initial=1}
+\ctikzset{bipoles/smeter/voltage/additional shift/.initial=1}
 \ctikzset{bipoles/qmeter/depth/.initial=.40}
 \ctikzset{bipoles/qmeter/height/.initial=.80}
 \ctikzset{bipoles/qmeter/width/.initial=.60}
 % this must be specified for each one
-\ctikzset{bipoles/qvprobe/voltage/additional label shift/.initial=.5}
-\ctikzset{bipoles/qiprobe/voltage/additional label shift/.initial=.5}
-\ctikzset{bipoles/qpprobe/voltage/additional label shift/.initial=.5}
+\ctikzset{bipoles/qvprobe/voltage/additional shift/.initial=.5}
+\ctikzset{bipoles/qiprobe/voltage/additional shift/.initial=.5}
+\ctikzset{bipoles/qpprobe/voltage/additional shift/.initial=.5}
 \ctikzset{bipoles/iloop/width/.initial=.40}
 \ctikzset{bipoles/iloop/height/.initial=.60}
 
 \ctikzset{bipoles/oscope/height/.initial=.60}
 \ctikzset{bipoles/oscope/width/.initial=.60}
-\ctikzset{bipoles/oscope/voltage/additional label shift/.initial=1}
+\ctikzset{bipoles/oscope/voltage/additional shift/.initial=1}
 
 
 % option to not rotate the new (Romano's) instruments
@@ -1889,7 +1887,7 @@
 \ctikzset{voltage/american/.code = {\pgf@circuit@europeanvoltagefalse\pgf@circuit@bipole@voltage@straightfalse}}
 \ctikzset{voltage/european/.code = {\pgf@circuit@europeanvoltagetrue\pgf@circuit@bipole@voltage@straightfalse}}
 \ctikzset{voltage/straight/.code = {\pgf@circuit@europeanvoltagetrue\pgf@circuit@bipole@voltage@straighttrue}}
-\ctikzset{voltage/curved/.code = {\pgf@circuit@europeanvoltagetrue\pgf@circuit@bipole@voltage@straighttrue}}
+\ctikzset{voltage/curved/.code = {\pgf@circuit@europeanvoltagetrue\pgf@circuit@bipole@voltage@straightfalse}}
 
 \ctikzset{current/.is choice}
 \ctikzset{current/american/.code = \pgf@circuit@europeancurrentfalse}
@@ -1900,61 +1898,100 @@
 \ctikzset{straight/true/.code = {\pgf@circuit@bipole@voltage@straighttrue}}
 \ctikzset{straight/false/.code = {\pgf@circuit@bipole@voltage@straightfalse}}
 \ctikzset{bipole/straight/.is if=pgf@circuit@bipole@voltage@straight}
-% never used, removed (RG 2020-05-17)
-% \ctikzset{straightvoltage value/.initial=true}
-% \ctikzset{straightvoltage/.style = {/tikz/circuitikz/straight=true}}
-
 %
 % voltage is used also to set parameters, apart for the /.is choice
 % above. I hope it is ok --- would be a mess otherwise
 %
-
-\ctikzset{voltage/distance from node/.initial=.5} %\pgf@circ@Rlen units
-\ctikzset{voltage/distance from line/.initial=.08} % pos, tra 0 e 1
-\ctikzset{voltage/bump a/.initial=1.2}
-\ctikzset{voltage/bump b/.initial=1.5}
 \ctikzset{voltage/shift/.initial=0.0} % shift form the cable of voltage symbols
 \ctikzset{voltage shift/.style={voltage/shift=#1}}
 \tikzset{voltage shift/.style={\circuitikzbasekey/voltage/shift=#1}}
-\ctikzset{voltage/european label distance/.initial=1.4}
-\ctikzset{voltage/american label distance/.initial=1.1}
+
 % shaping the +/- sign, see pgfcircvoltage.tex
 \ctikzset{voltage/american font/.initial={}}
 \ctikzset{voltage/american plus/.initial={$+$}}
 \ctikzset{voltage/american minus/.initial={$-$}}
-
+% here we start the voltage adjustments for special components.
+% default values:
+%
+% this is the distance of the "point" marking the voltage along the line
+% 0.0 is on the external nodes of the to path
+% 1.0 is cramped on the object
+% this can be overriden component by component
+\ctikzset{voltage/distance from node/.initial=.5}% pos, 0->1
+%
+% this is the distance from the line (perpendicular to) where the voltage is drawn.
+% It is global, and not adjustable by component (use the "label distance" or locally
+% if you need it)
+\ctikzset{voltage/distance from line/.initial=.08}% in \pgf@circ@scaled@Rlen units
+%
+% bend paramenters for european arc. You can override them component-based
+\ctikzset{voltage/bump b/.initial=1.5}
+%
+% generator voltages symbols or arrows (always straight) are put along the
+% 60 ... 120 angles of the symbol (don't ask why). The distance here is on the
+% center..angle line. It's called bump a because I don't know...
+%
+\ctikzset{voltage/bump a/.initial=1.2}
+%
+% these are the label distances FROM the drawings.
+% You can override them component by component.
+\ctikzset{voltage/european label distance/.initial=1.4}
+\ctikzset{voltage/straight label distance/.initial=1.4}
+\ctikzset{voltage/american label distance/.initial=1.4}
+%
+% the KIND is the node name without SHAPE
+% See the definition above for meaning
+% if bipoles/KIND/voltage/straight label distance is not defined, it uses the height
+% if bipoles/KIND/voltage/additional shift is not defined, it is 0 (extra distance)
+%
 % special cases for voltage positions
-\ctikzset{bipoles/generic/voltage/distance from node/.initial=.4}
+\ctikzset{bipoles/generic/voltage/distance from node/.initial=0.4}
 \ctikzset{bipoles/generic/voltage/bump b/.initial=2}
-\ctikzset{bipoles/generic/voltage/european label distance/.initial=1.8}
-%\ctikzset{bipoles/thermocouple/voltage/distance from node/.initial=.3}
-\ctikzset{bipoles/thermocouple/voltage/bump b/.initial=2.2}
-\ctikzset{bipoles/thermocouple/voltage/european label distance/.initial=1.5}
+%
 \ctikzset{bipoles/ageneric/voltage/distance from node/.initial=.4}
 \ctikzset{bipoles/ageneric/voltage/bump b/.initial=2}
-\ctikzset{bipoles/ageneric/voltage/european label distance/.initial=1.8}
+%
 \ctikzset{bipoles/fullgeneric/voltage/distance from node/.initial=.4}
 \ctikzset{bipoles/fullgeneric/voltage/bump b/.initial=2}
-\ctikzset{bipoles/fullgeneric/voltage/european label distance/.initial=1.8}
+%
 \ctikzset{bipoles/memristor/voltage/distance from node/.initial=.4}
 \ctikzset{bipoles/memristor/voltage/bump b/.initial=2}
-\ctikzset{bipoles/memristor/voltage/european label distance/.initial=1.8}
-%\ctikzset{bipoles/tline/voltage/distance from node/.initial=.2}
+%
 \ctikzset{bipoles/tline/voltage/bump b/.initial=2.4}
-\ctikzset{bipoles/tline/voltage/european label distance/.initial=2.1}
-%\ctikzset{bipoles/varistor/voltage/distance from node/.initial=.2}
+%
 \ctikzset{bipoles/varistor/voltage/bump b/.initial=2.4}
-\ctikzset{bipoles/varistor/voltage/european label distance/.initial=2}
-%\ctikzset{bipoles/photoresistor/voltage/distance from node/.initial=.2}
-\ctikzset{bipoles/photoresistor/voltage/bump b/.initial=2}
-\ctikzset{bipoles/photoresistor/voltage/european label distance/.initial=1.8}
-%\ctikzset{bipoles/thermistor/voltage/distance from node/.initial=.2}
+\ctikzset{bipoles/varistor/voltage/american label distance/.initial=1.8}
+%
+\ctikzset{bipoles/photoresistor/voltage/bump b/.initial=1.6}
+%
 \ctikzset{bipoles/thermistor/voltage/bump b/.initial=2.4}
-\ctikzset{bipoles/thermistor/voltage/european label distance/.initial=2}
-%\ctikzset{bipoles/thermistorntc/voltage/distance from node/.initial=.2}
+\ctikzset{bipoles/thermistor/voltage/european label distance/.initial=0.8}
 \ctikzset{bipoles/thermistorntc/voltage/bump b/.initial=1.6}
-%\ctikzset{bipoles/thermistorptc/voltage/distance from node/.initial=.2}
+\ctikzset{bipoles/thermistorntc/voltage/european label distance/.initial=0.8}
 \ctikzset{bipoles/thermistorptc/voltage/bump b/.initial=1.6}
+\ctikzset{bipoles/thermistorptc/voltage/european label distance/.initial=0.8}
+%
+\ctikzset{bipoles/ccapacitor/voltage/bump b/.initial=2.2}
+%
+\ctikzset{bipoles/emptyzzdiode/voltage/bump b/.initial=2.5}
+\ctikzset{bipoles/emptyzzdiode/voltage/european label distance/.initial=1.0}
+\ctikzset{bipoles/fullzzdiode/voltage/bump b/.initial=2.5}
+\ctikzset{bipoles/fullzzdiode/voltage/european label distance/.initial=1.0}
+\ctikzset{bipoles/emptythyristor/voltage/bump b/.initial=2.0}
+\ctikzset{bipoles/emptythyristor/voltage/european label distance/.initial=1.2}
+\ctikzset{bipoles/fullthyristor/voltage/bump b/.initial=2.0}
+\ctikzset{bipoles/fullthyristor/voltage/european label distance/.initial=1.2}
+\ctikzset{bipoles/emptytriac/voltage/bump b/.initial=1.8}
+\ctikzset{bipoles/emptytriac/voltage/european label distance/.initial=0.8}
+\ctikzset{bipoles/fulltriac/voltage/bump b/.initial=1.8}
+\ctikzset{bipoles/fulltriac/voltage/european label distance/.initial=0.8}
+%
+\ctikzset{bipoles/short/voltage/american label distance/.initial=2.8}
+\ctikzset{bipoles/open/voltage/distance from node/.initial=0.3}
+%
+\ctikzset{bipoles/battery/voltage/bump a/.initial=1.4}
+\ctikzset{bipoles/vsourceAM/voltage/american label distance/.initial=1.2}
+\ctikzset{bipoles/cvsourceAM/voltage/american label distance/.initial=1.2}
 %
 % american open voltage adjusting
 %
@@ -1962,7 +1999,6 @@
 \ctikzset{american open voltage/.is choice}
 \ctikzset{american open voltage/center/.code={\pgf@adjust@open@voltagetrue}}
 \ctikzset{american open voltage/legacy/.code={\pgf@adjust@open@voltagefalse}}
-
 %
 % currents
 %
