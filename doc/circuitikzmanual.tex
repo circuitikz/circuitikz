@@ -280,6 +280,7 @@ They \texttt{use fpu reciprocal} key seems to have no side effects, but given th
 Here, we will provide a list of incompabilitys between different version of circuitikz. We will try to hold this list short, but sometimes it is easier to break with old syntax than including a lot of switches and compatibility layers.
 You can check the used version at your local installation using the macro \verb!\pgfcircversion{}!.
 \begin{itemize}
+    \item After v1.2.0: voltage arrows, symbols and label positions are calculated with a rewritten routine. There should be little change, \emph{unless} you touched internal values\dots
     \item After v1.1.3: during the 1.1.0 --- 1.1.2 version, the inverted Schmitt buffer in IEEE style ports was called \texttt{inv schmitt} (with an additional space). The correct name is \texttt{invschmitt port} (the same as the legacy american port).
     \item After v1.1.2: the position of \texttt{american} voltages for the \texttt{open} bipoles (you can revert to old behavior, see section~\ref{sec:sub-voltage-position}).
     \item After v0.9.7: the position of the text of transistor nodes has changed; see section~\ref{sec:transistors-labels}.
@@ -1862,12 +1863,12 @@ Notice that source and generators are divided in three classes that can be style
 
 \subsubsection{Stationary sources}
 \begin{groupdesc}
-    \circuitdescbip*[vsource]{european voltage source}{Voltage source (european style)}{}
+    \circuitdescbip*[vsource]{european voltage source}{Voltage source (european style)}{vsource}
     \circuitdescbip*[vsourceC]{cute european voltage source}{Voltage source (cute european style)}{vsourceC, ceV}
-    \circuitdescbip*[vsourceAM]{american voltage source}{Voltage source (american style)}{}
-    \circuitdescbip*[isource]{european current source}{Current source (european style)}{}
+    \circuitdescbip*[vsourceAM]{american voltage source}{Voltage source (american style)}{vsourceAM}
+    \circuitdescbip*[isource]{european current source}{Current source (european style)}{isource}
     \circuitdescbip*[isourceC]{cute european current source}{Current source (cute european style)}{isourceC, ceI}
-    \circuitdescbip*[isourceAM]{american current source}{Current source (american style)}{}
+    \circuitdescbip*[isourceAM]{american current source}{Current source (american style)}{isourceAM}
 \end{groupdesc}
 
 \begin{framed}
@@ -1893,12 +1894,12 @@ Similarly, if (default behaviour) \texttt{europeanvoltages} option is active (or
 
 \subsubsection{Controlled sources}
 \begin{groupdesc}
-    \circuitdescbip*[cvsource]{european controlled voltage source}{Controlled voltage source (european style)}{}
+    \circuitdescbip*[cvsource]{european controlled voltage source}{Controlled voltage source (european style)}{cvsource}
     \circuitdescbip*[cvsourceC]{cute european controlled voltage source}{Voltage source (cute european style)}{cvsourceC, cceV}
-    \circuitdescbip*[cvsourceAM]{american controlled voltage source}{Controlled voltage source (american style)}{}
-    \circuitdescbip*[cisource]{european controlled current source}{Controlled current source (european style)}{}
+    \circuitdescbip*[cvsourceAM]{american controlled voltage source}{Controlled voltage source (american style)}{cvsourceAM}
+    \circuitdescbip*[cisource]{european controlled current source}{Controlled current source (european style)}{cisource}
     \circuitdescbip*[cisourceC]{cute european controlled current source}{Current source (cute european style)}{cisourceC, cceI}
-    \circuitdescbip*[cisourceAM]{american controlled current source}{Controlled current source (american style)}{}
+    \circuitdescbip*[cisourceAM]{american controlled current source}{Controlled current source (american style)}{cisourceAM}
     \circuitdescbip*[ecsource]{empty controlled source}{Empty controlled source}{ecsource}
 \end{groupdesc}
 
@@ -5871,7 +5872,7 @@ Use option \texttt{americanvoltage} or set \verb![american voltages]! or use the
 \end{circuitikz}
 \end{LTXexample}
 
-You can fine-tune the position of the \texttt{+} and \texttt{-} symbols and the label in independent way using \texttt{voltage/shift} (default \texttt{0.0} for the former and \texttt{voltage/american label distance} (the distance of the label form the lines of the symbols, default \texttt{1.1}) for the latter.
+You can fine-tune the position of the \texttt{+} and \texttt{-} symbols and the label in independent way using \texttt{voltage/shift} (default \texttt{0.0} for the former and \texttt{voltage/american label distance} (the distance of the label form the lines of the symbols, default \texttt{1.4}) for the latter.
 
 \begin{LTXexample}[varwidth=true]
 \begin{circuitikz}[american voltages]
@@ -5962,7 +5963,7 @@ This could be especially useful if you define a style, to use like this:
 \tikz \draw (0,0) to[C, i=$\imath$] (2,0);
 \end{LTXexample}
 
-However, you can override the properties \texttt{voltage/distance from node} (how distant from the initial and final points of the path the arrow starts and ends) and \texttt{voltage/bump b} (how high the bump of the arrow is --- how curved it is)\footnote{Prior to 0.9.4 you had also \texttt{voltage/european label distance} (how distant from the bipole the voltage label will be) but this is deprecated, and the european-style label is printed near the bump)} on a per-component basis, in order to fine-tune the voltages:
+However, you can override the properties \texttt{voltage/distance from node} (how distant from the initial and final points of the path the arrow starts and ends, default \texttt{0.5}) and \texttt{voltage/bump b} (how high the bump of the arrow is --- how curved it is, default \texttt{1.5}), and also \texttt{voltage/european label distance} (how distant from the ``bump''  the voltage label will be, default \texttt{1.4}) on a per-component basis, in order to fine-tune the voltages:
 
 
 \begin{LTXexample}[varwidth=true]
@@ -6850,13 +6851,13 @@ If you think they are too tight or too loose you can use a (developer-only) key 
 
 \begin{LTXexample}[varwidth]
 \begin{circuitikz}
-    \ctikzset{bipoles/viscoe/voltage/additional label shift/.initial=1}
+    \ctikzset{bipoles/viscoe/voltage/additional shift/.initial=1}
     \draw (0,0) to[spring] ++(2,0)
     to[viscoe, v=V] ++(2,0);
 \end{circuitikz}
 \end{LTXexample}
 
-Notice that by default the key \texttt{bipoles/\emph{mybipole}/voltage/additional label shift} is not defined, so if you want to use it you must create it before (this is the meaning of the \texttt{.initial} here).
+Notice that by default the key \texttt{bipoles/\emph{mybipole}/voltage/additional shift} is not defined, so if you want to use it you must create it before (this is the meaning of the \texttt{.initial} here).
 
 
 As a final note, notice that the \texttt{viscoe} element is already added to the standard package.
