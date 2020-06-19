@@ -6,6 +6,7 @@ The major changes among the different circuitikz versions are listed here. See <
     In this release, the big change is the rewriting of the voltages output routine. Now all voltage options (american, european, and straight) take into account the shape (square border) of the component. The adjusting parameters are now (at least for passive elements) acting in similar way for all the options, too.
 
     - Bumped version number to 1.2 (potentially incompatible changes!)
+    - Added 1.1.2 checkpoint
     - New path-style not, buffer, and Schmitt logic ports
     - New tutorial (using the "inline not" component)
     - Voltage output routine rewrite; now it takes into account the shape of the component also for "american" and "straight" voltages
