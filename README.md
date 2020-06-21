@@ -74,7 +74,10 @@ also the questions tagged `circuitikz` on  https://tex.stackexchange.com/ are of
 * Romano Giannetti (romano.giannetti@gmail.com)
 
 -------------
-Copyright 2007-19 by Massimo Redaelli
+Copyright 2018-2020 by Romano Giannetti
+Copyright 2015-2020 by Stefan Lindner
+Copyright 2013-2020 by Stefan Erhardt
+Copyright 2007-2020 by Massimo Redaelli
 
 This file may be distributed and/or modified
 
