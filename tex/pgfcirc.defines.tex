@@ -9,9 +9,10 @@
 % 2. under the GNU Public License.
 %
 % See the files gpl-3.0_license.txt and lppl-1-3c_license.txt for more details.
-
 %
-%% Key managements
+% This file has folding marks for vim (See last line).
+%
+%% Key managements%<<<1
 
 \long\def\pgf@circ@comment#1{}
 
@@ -24,15 +25,17 @@
 \def\ctikzvalof#1{\pgfkeysvalueof{\circuitikzbasekey/#1}}
 \def\ctikzsetvalof#1#2{\pgfkeyssetvalue{\circuitikzbasekey/#1}{#2}}
 
-%% Temporary Counters
+\pgfkeys{\circuitikzbasekey/.search also={/tikz}}
+%%>>>
 
+%% Temporary Counters and dimensions%<<<1
+%% Temporary Counters
 \newcount\pgf@circ@count@a
 \newcount\pgf@circ@count@b
 \newcount\pgf@circ@count@c
 %%%%%%%%%%%%
 %% Dimensions
-
-% coordinates
+% coordinate
 \newdimen\pgf@circ@res@up
 \newdimen\pgf@circ@res@down
 \newdimen\pgf@circ@res@zero
@@ -41,10 +44,19 @@
 \newdimen\pgf@circ@res@other
 \newdimen\pgf@circ@res@step
 \newdimen\pgf@circ@res@temp
+% Base len for all circuitikz
+\newdimen\pgf@circ@Rlen
+% scaled length for internal use in scalable shapes
+\newdimen\pgf@circ@scaled@Rlen
+\ctikzset{bipoles/length/.code={\pgf@circ@Rlen = #1\pgf@circ@scaled@Rlen=\pgf@circ@Rlen}}
+\pgf@circ@Rlen = 1.4cm
+% by default scale is 1.0
+\pgf@circ@scaled@Rlen=\pgf@circ@Rlen
 % inital thickness
 \newdimen \pgfstartlinewidth
+%%>>>
 
-% arrow tips, ported over old arrows library (deprecated)
+% arrow tips, ported over old arrows library (deprecated)%<<<1
 % see https://tex.stackexchange.com/questions/234084/latex-arrow-tip-with-arrows-meta-library
 % this was the original definition of latex' tips, renamed to avoid clashes
 %
@@ -76,6 +88,9 @@
 }
 
 \pgfarrowsdeclarereversed{latexslim reversed}{latexslim reversed}{latexslim}{latexslim}
+%%>>>
+
+%% Macros to do things depending on the class%<<<1
 
 \def\pgf@circ@setifdefinedfill#1#2{%
     % if \ctikzclass is defined and \ctikzclass/fill is defined and is not none:
@@ -150,8 +165,9 @@
 }
 % use \pgf@circ@setlinewidth{none}{\pgflinewidth} if there is no legacy case
 \ctikzset{none/thickness/.initial=1.0} % do not touch
+%%>>>
 
-%% font changes compatible with plain/LaTeX/ConTeXt
+%% font changes compatible with plain/LaTeX/ConTeXt%<<<1
 %% thanks to Henri Menke https://github.com/circuitikz/circuitikz/issues/285#issuecomment-537224605
 
 \ifpgfutil@format@is@latex
@@ -203,8 +219,10 @@
     {{}}% #1 is \relax, so consider empty
     {\expandafter{#1}}% otherwise, leave the key after one more expansion
 }%
-%
-% text position (added with ieeestd logic ports. Maybe to be extended to other components,
+%>>>
+
+% text position in some component.%<<<1
+% (added with ieeestd logic ports. Maybe to be extended to other components,
 % like amplifiers)
 %
 \newif\ifpgf@circ@center@text\pgf@circ@center@texttrue
@@ -215,8 +233,9 @@
 \ctikzset{component text/center/.code={\pgf@circ@center@texttrue}}%
 \ctikzset{component text/left/.code={\pgf@circ@center@textfalse}}%
 \ctikzset{left text distance/.initial=0.3em}%
+%>>>
 
-% voltage options
+% voltage direction options%<<<1
 
 \newif\ifpgf@circ@siunitx
 \newif\ifpgf@circuit@compat
@@ -229,53 +248,108 @@
 \ctikzset{voltage dir/noold/.code={\pgf@circ@oldvoltagedirectionfalse\pgf@circ@fixbatteriesfalse}}
 \ctikzset{voltage dir/RP/.code={\pgf@circ@oldvoltagedirectiontrue\pgf@circ@fixbatteriestrue}}
 \ctikzset{voltage dir/EF/.code={\pgf@circ@oldvoltagedirectionfalse\pgf@circ@fixbatteriestrue}}
-\tikzset{voltage dir/.style={circuitikz/voltage dir=#1}}
+\tikzset{voltage dir/.style={circuitikz/voltage dir=#1}}%
+%>>>
 
-% Option ">" for twoports
-\newif\ifpgf@circuit@inputarrow
-\ctikzset{>/.add code={}{\pgf@circuit@inputarrowtrue}}
-\ctikzset{inputarrow/.is choice}
-\ctikzset{inputarrow/true/.code={\pgf@circuit@inputarrowtrue}}
-\ctikzset{inputarrow/false/.code={\pgf@circuit@inputarrowfalse}}
-
-% Option "boxed" for nodes and twoports
-\newif\ifpgf@circuit@boxed
-\pgfkeys{/tikz/boxed/.add code={}{\pgf@circuit@boxedtrue}}
-\ctikzset{boxed/.add code={}{\pgf@circuit@boxedtrue}}
-\pgfkeys{/tikz/box/.add code={}{\pgf@circuit@boxedtrue}}
-\ctikzset{box/.add code={}{\pgf@circuit@boxedtrue}}
-
-% Option "dashed" for nodes and twoports
-\newif\ifpgf@circuit@dashed
-\pgfkeys{/tikz/dashed/.add code={}{\pgf@circuit@dashedtrue}}
-\ctikzset{dashed/.add code={}{\pgf@circuit@dashedtrue}}
-
+% bipole definitions for path component and text decorations%%<<<1
+%
 % Option "t=*" for nodes
 \pgfkeys{/tikz/t/.add code={}{\ctikzset{text=#1}}}
+%
+\ctikzset{bipole/.is family}
+\ctikzset{bipole/kind/.initial=}
+\ctikzset{bipole/name/.initial=}
+\newif\ifpgf@circuit@bipole@isvoltage
+\ctikzset{bipole/is voltage/.is if=pgf@circuit@bipole@isvoltage}
+\newif\ifpgf@circuit@bipole@voltageoutsideofsymbol
+\ctikzset{bipole/is voltageoutsideofsymbol/.is if=pgf@circuit@bipole@voltageoutsideofsymbol}
+\newif\ifpgf@circuit@bipole@strokedsymbol
+\ctikzset{bipole/is strokedsymbol/.is if=pgf@circuit@bipole@strokedsymbol}
+\newif\ifpgf@circuit@bipole@iscurrent
+\ctikzset{bipole/is current/.is if=pgf@circuit@bipole@iscurrent}
 
-\ctikzset{current arrow scale/.initial=16}
+\ctikzset{bipole/voltage/.is family}
+\newif\ifpgf@circuit@bipole@voltage@backward
+\ctikzset{bipole/voltage/direction/.is choice}
+\ctikzset{bipole/voltage/direction/forward/.code={\pgf@circuit@bipole@voltage@backwardfalse}}
+\ctikzset{bipole/voltage/direction/backward/.code={\pgf@circuit@bipole@voltage@backwardtrue}}
+\newif\ifpgf@circuit@bipole@voltage@below
+\ctikzset{bipole/voltage/position/.is choice}
+\ctikzset{bipole/voltage/position/above/.code={\pgf@circuit@bipole@voltage@belowfalse}}
+\ctikzset{bipole/voltage/position/below/.code={\pgf@circuit@bipole@voltage@belowtrue}}
 
-\ctikzset{bipoles/.is family}
+\ctikzset{bipole/voltage/label/unit/.initial=}
+\ctikzset{bipole/voltage/label/name/.initial=}
+
+\ctikzset{bipole/current/.is family}
+\newif\ifpgf@circuit@bipole@current@backward
+\ctikzset{bipole/current/direction/.is choice}
+\ctikzset{bipole/current/direction/forward/.code={\pgf@circuit@bipole@current@backwardfalse}}
+\ctikzset{bipole/current/direction/backward/.code={\pgf@circuit@bipole@current@backwardtrue}}
+\newif\ifpgf@circuit@bipole@current@before
+\ctikzset{bipole/current/x position/.is choice}
+\ctikzset{bipole/current/x position/after/.code={\pgf@circuit@bipole@current@beforefalse}}
+\ctikzset{bipole/current/x position/before/.code={\pgf@circuit@bipole@current@beforetrue}}
+\newif\ifpgf@circuit@bipole@current@below
+\ctikzset{bipole/current/y position/.is choice}
+\ctikzset{bipole/current/y position/above/.code={\pgf@circuit@bipole@current@belowfalse}}
+\ctikzset{bipole/current/y position/below/.code={\pgf@circuit@bipole@current@belowtrue}}
+\ctikzset{bipole/current/label/unit/.initial=}
+\ctikzset{bipole/current/label/name/.initial=}
+
+\ctikzset{bipole/flow/.is family}
+\newif\ifpgf@circuit@bipole@flow@backward
+\ctikzset{bipole/flow/direction/.is choice}
+\ctikzset{bipole/flow/direction/forward/.code={\pgf@circuit@bipole@flow@backwardfalse}}
+\ctikzset{bipole/flow/direction/backward/.code={\pgf@circuit@bipole@flow@backwardtrue}}
+\newif\ifpgf@circuit@bipole@flow@before
+\ctikzset{bipole/flow/x position/.is choice}
+\ctikzset{bipole/flow/x position/after/.code={\pgf@circuit@bipole@flow@beforefalse}}
+\ctikzset{bipole/flow/x position/before/.code={\pgf@circuit@bipole@flow@beforetrue}}
+\newif\ifpgf@circuit@bipole@flow@below
+\ctikzset{bipole/flow/y position/.is choice}
+\ctikzset{bipole/flow/y position/above/.code={\pgf@circuit@bipole@flow@belowfalse}}
+\ctikzset{bipole/flow/y position/below/.code={\pgf@circuit@bipole@flow@belowtrue}}
+\ctikzset{bipole/flow/label/unit/.initial=}
+\ctikzset{bipole/flow/label/name/.initial=}
+\ctikzset{flow/distance/.initial = .5}
+\ctikzset{flow/offset/.initial = .2}%distance between flow-arrow and conductor
+
+\ctikzset{bipole/label/.is family}
+\ctikzset{bipole/label/position/.initial=90}
+\ctikzset{bipole/label/unit/.initial=}
+\ctikzset{bipole/label/name/.initial=}
+\ctikzset{bipole/annotation/.is family}
+\ctikzset{bipole/annotation/position/.initial=-90}
+\ctikzset{bipole/annotation/unit/.initial=}
+\ctikzset{bipole/annotation/name/.initial=}
+
+\newif\ifpgf@circ@siunitx
+\newif\ifpgf@circ@siunitx@res
+
+\ctikzset{label/align/.is choice}
+\ctikzset{label/align/straight/.code={\ctikzsetvalof{label/align}{straight}}}
+\ctikzset{label/align/rotate/.code={\ctikzsetvalof{label/align}{rotate}}}
+\ctikzset{label/align/smart/.code={\ctikzsetvalof{label/align}{smart}}}
+%%>>>
+
+% traditional styles %<<<1
+%
+\ctikzset{thickness/.initial=2}
+\ctikzset{color/.initial=black}
+\pgfkeys{/tikz/color/.add code={}{\ctikzset{color={#1}}}}
 \ctikzset{bipoles/border margin/.initial=1.1}
 \ctikzset{bipoles/thickness/.initial=2}
 \ctikzset{tripoles/thickness/.initial=2}
 \ctikzset{quadpoles/thickness/.initial=2}
 \ctikzset{nodes width/.initial=.04}
+%%>>>
 
-% Base len for all circuitikz
-\newdimen\pgf@circ@Rlen
-% scaled length for internal use in scalable shapes
-\newdimen\pgf@circ@scaled@Rlen
-\ctikzset{bipoles/length/.code={\pgf@circ@Rlen = #1\pgf@circ@scaled@Rlen=\pgf@circ@Rlen}}
-\pgf@circ@Rlen = 1.4cm
-% by default scale is 1.0
-\pgf@circ@scaled@Rlen=\pgf@circ@Rlen
+% Styles definitions and macros%<<<1
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% main style definitions
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-
 
 % load a style file: search ctikzstyle-NAME.tex in path
 \def\ctikzloadstyle#1{%
@@ -395,8 +469,15 @@
 \ctikzset{displays/scale/.initial=1.0}
 \ctikzset{displays/fill/.initial=none}
 \ctikzset{displays/thickness/.initial=none}
+%
+% general styles
+%
+\tikzset{european/.style = {european currents, european voltages, european resistors, european inductors, european ports, european gas filled surge arrester set}}
+\tikzset{american/.style = {american currents, american voltages, american resistors, american inductors, american ports, american gas filled surge arrester set}}
+\tikzset{cute/.style = {european currents, european voltages, american resistors, cute inductors, american ports}}
+%%>>>
 
-% grounds and power supplies
+% grounds and power supplies%<<<1
 
 \ctikzset{monopoles/.is family}
 \ctikzset{monopoles/ground/width/.initial=.25}
@@ -423,24 +504,28 @@
 \ctikzset{monopoles/bareantenna/width/.initial=.25}
 \ctikzset{monopoles/bareantenna/label/xanchor/.initial=1}
 \ctikzset{monopoles/bareantenna/label/yanchor/.initial=0.5}
-\ctikzset{monopoles/waves/width/.initial=0.5}
+\ctikzset{monopoles/waves/width/.initial=0.5}%
+%>>>
 
-% microstrips
+% microstrips %<<<1
 \ctikzset{bipoles/mstline/height/.initial=0.3}
 \ctikzset{bipoles/mstline/width/.initial=1.2}
 \pgfkeys{/tikz/mstlinelen/.add code={}{\ctikzset{bipoles/mstline/width=#1}}}
 \ctikzset{monopoles/msport/width/.initial=.5}
 \ctikzset{monopoles/msrstub/height/.initial=1.0}
-\ctikzset{monopoles/msrstub/width/.initial=0.6}
+\ctikzset{monopoles/msrstub/width/.initial=0.6}%
+%>>>
 
-% microphone and loudspeaker
+% microphone and loudspeaker%<<<1
 \ctikzset{bipoles/loudspeaker/height/.initial=.8}
 \ctikzset{bipoles/loudspeaker/depth/.initial=.3}
 \ctikzset{bipoles/loudspeaker/width/.initial=.8}
 \ctikzset{bipoles/mic/height/.initial=1.2}
 \ctikzset{bipoles/mic/depth/.initial=.1}
-\ctikzset{bipoles/mic/width/.initial=.8}
+\ctikzset{bipoles/mic/width/.initial=.8}%
+%>>>
 
+% resistors%<<<1
 % Zig Zag resistors
 \ctikzset{resistors/zigs/.initial=3}
 \ctikzset{resistors/width/.code={%
@@ -501,8 +586,17 @@
 \ctikzset{bipoles/tgeneric/height/.initial=.70}
 \ctikzset{bipoles/tgeneric/width/.initial=.80}
 \ctikzset{bipoles/ageneric/width/.initial=.80}
+\ctikzset{bipoles/memristor/height/.initial=.30}
+\ctikzset{bipoles/memristor/wave height/.initial=.5}
+\ctikzset{bipoles/memristor/width/.initial=.80}
 
-%% Capacitors
+\newif\ifpgf@circuit@europeanresistor
+\ctikzset{resistor/.is choice}
+\ctikzset{resistor/american/.code = \pgf@circuit@europeanresistorfalse }
+\ctikzset{resistor/european/.code = \pgf@circuit@europeanresistortrue }
+%%>>>
+
+%% Capacitors%<<<1
 \ctikzset{bipoles/capacitor/height/.initial=.6}
 \ctikzset{bipoles/capacitor/width/.initial=.2}
 \ctikzset{bipoles/ecapacitor/height/.initial=.5}
@@ -519,9 +613,10 @@
 \ctikzset{bipoles/vcapacitor/width/.initial=.5}
 \ctikzset{bipoles/vcapacitor/capacitor width/.initial=.4}
 \ctikzset{bipoles/piezoelectric/height/.initial=.7}
-\ctikzset{bipoles/piezoelectric/width/.initial=.5}
+\ctikzset{bipoles/piezoelectric/width/.initial=.5}%
+%>>>
 
-% Inductors
+% Inductors%<<<1
 \ctikzset{inductors/coils/.code={%
     \ctikzset{bipoles/cuteinductor/coils=#1}%
     \ctikzset{bipoles/cutechoke/coils=#1}%
@@ -578,8 +673,20 @@
 \ctikzset{bipoles/tfullgeneric/width/.initial=.80}
 \ctikzset{bipoles/fullgeneric/height/.initial=.30}
 \ctikzset{bipoles/fullgeneric/width/.initial=.80}
+\ctikzset{inductor/.is choice}
+\ctikzset{inductor/cute/.code={\ctikzsetvalof{inductor}{cute}}}
+\ctikzset{inductor/european/.code={\ctikzsetvalof{inductor}{european}}}
+\ctikzset{inductor/american/.code={\ctikzsetvalof{inductor}{american}}}
 
-% Sources
+\tikzset{american inductors/.style = {\circuitikzbasekey/inductor = american}}
+\tikzset{european inductors/.style = {\circuitikzbasekey/inductor = european}}
+\tikzset{cute inductors/.style = {\circuitikzbasekey/inductor = cute}}
+\tikzset{american ports/.style = {\circuitikzbasekey/logic ports = american}}
+\tikzset{european ports/.style = {\circuitikzbasekey/logic ports = european}}
+
+%%>>>
+
+% Sources%<<<1
 
 \ctikzset{bipoles/esource/height/.initial=.60}
 \ctikzset{bipoles/esource/width/.initial=.60}
@@ -632,7 +739,12 @@
 \ctikzset{bipoles/battery1/width/.initial=.3}
 \ctikzset{bipoles/battery2/height/.initial=.6}
 \ctikzset{bipoles/battery2/width/.initial=.3}
+% noise sources
+\ctikzset{bipoles/noise sources/fillcolor/.initial=gray!50}
 
+%%>>>
+
+% "oo" style transformers and power grid diagrams%<<<1
 % % % ootransformer
 \ctikzset{bipoles/oosourcetrans/height/.initial=.6}
 \ctikzset{bipoles/oosourcetrans/width/.initial=.6}
@@ -671,9 +783,10 @@
 \pgfkeys{tikz/tert/.is choice}
 \pgfkeys{tikz/tert/delta/.add code={}{\pgf@circ@tert@deltatrue}}
 \pgfkeys{tikz/tert/wye/.add code={}{\pgf@circ@tert@wyetrue}}
-\pgfkeys{tikz/tert/zig/.add code={}{\pgf@circ@tert@zigtrue}}
+\pgfkeys{tikz/tert/zig/.add code={}{\pgf@circ@tert@zigtrue}}%
+%>>>
 
-% diodes
+% diodes%<<<1
 
 \ctikzset{bipoles/diode/height/.initial=.50}
 \ctikzset{bipoles/diode/width/.initial=.40}
@@ -683,8 +796,52 @@
 \ctikzset{bipoles/bidirectionaldiode/diode width right/.initial=.3}
 \ctikzset{bipoles/varcap/height/.initial=.50}
 \ctikzset{bipoles/varcap/width/.initial=.45}
+\ctikzset{tripoles/thyristor/height/.initial=1.10}
+\ctikzset{tripoles/thyristor/height 2/.initial=.5}
+\ctikzset{tripoles/thyristor/width/.initial=1.0}
+\ctikzset{tripoles/thyristor/diode height/.initial=.5}
+\ctikzset{tripoles/thyristor/diode width left/.initial=.4}
+\ctikzset{tripoles/thyristor/diode width right/.initial=.3}
 
-% switches
+\ctikzset{tripoles/triac/height/.initial=1.1}
+\ctikzset{tripoles/triac/width/.initial=1}
+\ctikzset{tripoles/triac/diode width left/.initial=.3}
+\ctikzset{tripoles/triac/diode width right/.initial=.3}
+%
+% Flipping arrows in LED and photodiodes
+%
+\newif\ifpgf@led@fliparrows
+\newif\ifpgf@pd@fliparrows
+\pgf@led@fliparrowsfalse
+\pgf@pd@fliparrowsfalse
+%
+% by default the arrows start (LED) and go (PD) to the anode.
+%
+\ctikzset{led arrows from anode/.code=\pgf@led@fliparrowsfalse}
+\ctikzset{pd arrows to anode/.code=\pgf@pd@fliparrowsfalse}
+%
+% but they can start form the cathode (LED) or go to it (PD)
+%
+\ctikzset{led arrows from cathode/.code=\pgf@led@fliparrowstrue}
+\ctikzset{pd arrows to cathode/.code=\pgf@pd@fliparrowstrue}
+
+\newif\ifpgf@circuit@strokediode
+\newif\ifpgf@circuit@fulldiode
+\pgf@circuit@strokediodefalse
+\pgf@circuit@fulldiodefalse
+
+\ctikzset{diode/.is choice}
+\ctikzset{diode/empty/.code = \pgf@circuit@fulldiodefalse\pgf@circuit@strokediodefalse}%default
+\ctikzset{diode/full/.code = \pgf@circuit@fulldiodetrue }
+\ctikzset{diode/stroke/.code = \pgf@circuit@strokediodetrue}
+
+\tikzset{full diodes/.style = { \circuitikzbasekey/diode = full}}
+\tikzset{empty diodes/.style = { \circuitikzbasekey/diode = empty}}
+\tikzset{stroke diodes/.style = { \circuitikzbasekey/diode = stroke}}
+
+%%>>>
+
+% switches%<<<1
 
 \ctikzset{bipoles/spst/height/.initial=.35}
 \ctikzset{bipoles/spst/width/.initial=.35}
@@ -695,12 +852,30 @@
 \ctikzset{bipoles/ncs/height/.initial=.35}
 \ctikzset{bipoles/ncs/width/.initial=.35}
 \ctikzset{bipoles/ncs/depth/.initial=.2}
+\ctikzset{bipoles/pushbutton/height/.initial=.5}
+\ctikzset{bipoles/pushbutton/height 2/.initial=.2}
+\ctikzset{bipoles/pushbutton/width/.initial=.50}
 %%% reed switch
 \ctikzset{bipoles/reed/height/.initial=.4}
 \ctikzset{bipoles/reed/width/.initial=.8}% 0.35 in nos
 \ctikzset{bipoles/reed/depth/.initial=.4}
+%% Cute switches
+\ctikzset{bipoles/cuteswitch/shape/.initial={ocirc}}
+\ctikzset{bipoles/cuteswitch/height/.initial=.6}
+\ctikzset{bipoles/cuteswitch/height 2/.initial=.2}
+\ctikzset{bipoles/cuteswitch/width/.initial=.50}
+\ctikzset{bipoles/cuteswitch/thickness/.initial=1}
 
-% misc
+\ctikzset{tripoles/spdt/width/.initial=.85}
+\ctikzset{tripoles/spdt/height/.initial=.45}
+\ctikzset{tripoles/spdt/margin/.initial=.45}
+
+\ctikzset{tripoles/toggleswitch/height/.initial=.8}
+\ctikzset{tripoles/toggleswitch/height 2/.initial=.0}
+\ctikzset{tripoles/toggleswitch/width/.initial=.80}
+%%>>>
+
+% arresters, fuses, lamps, etc%<<<1
 
 \ctikzset{bipoles/european gas filled surge arrester/height/.initial=.30}
 \ctikzset{bipoles/european gas filled surge arrester/width/.initial=.80}
@@ -715,9 +890,31 @@
 \ctikzset{bipoles/fuse/width/.initial=.50}
 \ctikzset{bipoles/afuse/height/.initial=.20}
 \ctikzset{bipoles/afuse/width/.initial=.50}
-\ctikzset{bipoles/memristor/height/.initial=.30}
-\ctikzset{bipoles/memristor/wave height/.initial=.5}
-\ctikzset{bipoles/memristor/width/.initial=.80}
+\ctikzset{bipoles/lamp/height/.initial=.60}
+\ctikzset{bipoles/lamp/width/.initial=.60}
+\ctikzset{bipoles/bulb/height/.initial=.8}
+\ctikzset{bipoles/bulb/width/.initial=.8}
+\ctikzset{bipoles/tline/height/.initial=.3}
+\ctikzset{bipoles/tline/width/.initial=.8}
+\ctikzset{bipoles/squid/height/.initial=.60}
+\ctikzset{bipoles/squid/width/.initial=.60}
+\ctikzset{bipoles/barrier/height/.initial=.60}
+\ctikzset{bipoles/barrier/width/.initial=.60}
+\ctikzset{bipoles/openbarrier/gap/.initial=0.5}
+\ctikzset{bipoles/thermocouple/height/.initial=.250}
+\ctikzset{bipoles/thermocouple/height 2/.initial=.60}
+\ctikzset{bipoles/thermocouple/width/.initial=.140}
+\newif\ifpgf@circuit@europeangfsurgearrester
+\ctikzset{gas filled surge arrester choice/.is choice}
+\ctikzset{gas filled surge arrester choice/european/.code= {\pgf@circuit@europeangfsurgearrestertrue}}
+\ctikzset{gas filled surge arrester choice/american/.code= {\pgf@circuit@europeangfsurgearresterfalse}}
+
+\tikzset{american gas filled surge arrester set/.style = {\circuitikzbasekey/gas filled surge arrester choice=american}}
+\tikzset{european gas filled surge arrester set/.style = {\circuitikzbasekey/gas filled surge arrester choice=european}}
+%%>>>
+
+% wires (open, shorts, ...)%<<<1
+
 \ctikzset{bipoles/open/height/.initial=.3} %necessary for curly voltages
 \ctikzset{bipoles/open/width/.initial=.3} %necessary for curly voltages
 \ctikzset{bipoles/open/voltage/straight label distance/.initial=0}
@@ -728,7 +925,11 @@
 \ctikzset{bipoles/multiwire/height/.initial=0.4}
 \ctikzset{bipoles/multiwire/width/.initial=0.2}
 \ctikzset{bipoles/multiwire/spacing/.initial=0.05}
+% crossing wires
+\ctikzset{bipoles/crossing/size/.initial=.2}
+%%>>>
 
+% Instruments %<<<1
 \ctikzset{bipoles/ammeter/height/.initial=.60}
 \ctikzset{bipoles/ammeter/width/.initial=.60}
 \ctikzset{bipoles/ohmmeter/height/.initial=.60}
@@ -759,30 +960,9 @@
 \ctikzset{straight instruments/.add code={}{\pgf@circuit@straightinstrumentstrue}}
 \pgfkeys{/tikz/rotated instruments/.add code={}{\pgf@circuit@straightinstrumentsfalse}}
 \ctikzset{rotated instruments/.add code={}{\pgf@circuit@straightinstrumentsfalse}}
+%%>>>
 
-
-\ctikzset{bipoles/buffer/height/.initial=1}
-\ctikzset{bipoles/buffer/width/.initial=1}
-\ctikzset{bipoles/not port/width/.initial=1}
-\ctikzset{bipoles/not port/height/.initial=.8}
-\ctikzset{bipoles/not port/circle width/.initial=.15}
-\ctikzset{bipoles/lamp/height/.initial=.60}
-\ctikzset{bipoles/lamp/width/.initial=.60}
-\ctikzset{bipoles/bulb/height/.initial=.8}
-\ctikzset{bipoles/bulb/width/.initial=.8}
-\ctikzset{bipoles/tline/height/.initial=.3}
-\ctikzset{bipoles/tline/width/.initial=.8}
-\ctikzset{bipoles/squid/height/.initial=.60}
-\ctikzset{bipoles/squid/width/.initial=.60}
-\ctikzset{bipoles/barrier/height/.initial=.60}
-\ctikzset{bipoles/barrier/width/.initial=.60}
-\ctikzset{bipoles/openbarrier/gap/.initial=0.5}
-\ctikzset{bipoles/thermocouple/height/.initial=.250}
-\ctikzset{bipoles/thermocouple/height 2/.initial=.60}
-\ctikzset{bipoles/thermocouple/width/.initial=.140}
-\ctikzset{bipoles/pushbutton/height/.initial=.5}
-\ctikzset{bipoles/pushbutton/height 2/.initial=.2}
-\ctikzset{bipoles/pushbutton/width/.initial=.50}
+% blocks (twoports and so)%<<<1
 
 \ctikzset{bipoles/twoport/width/.initial=.7}
 \ctikzset{bipoles/twoport/height/.initial=.7}
@@ -805,11 +985,16 @@
 \ctikzset{bipoles/phaseshifter/width/.initial=.7}
 \ctikzset{bipoles/vphaseshifter/width/.initial=.7}
 \ctikzset{bipoles/detector/width/.initial=.7}
+\ctikzset{tripoles/mixer/width/.initial=0.7}
+\ctikzset{tripoles/adder/width/.initial=0.7}
+\ctikzset{tripoles/circulator/width/.initial=.7}
+\ctikzset{tripoles/oscillator/width/.initial=.7}
 
-% crossing wires
-\ctikzset{bipoles/crossing/size/.initial=.2}
+\ctikzset{tripoles/wilkinson/height/.initial=1.3}
+\ctikzset{tripoles/wilkinson/width/.initial=1.3}
+%%>>>
 
-% Transistors starts here
+% Transistors %<<<1
 
 \newif\ifpgf@circuit@trans@depletiontype
 \pgf@circuit@trans@depletiontypefalse
@@ -1203,9 +1388,43 @@
 \ctikzset{tripoles/bjt/pnp/curr direction/.initial=-1}
 
 %% transistors stop here
+%%>>>
 
-%% Logic ports
+% Electronic tubes: diodetube, triode, tetrode and pentode%<<<1
+\ctikzset{tubes/width/.initial=1}                    % relative width
+\ctikzset{tubes/height/.initial=1.4}                 % relative height
+\ctikzset{tubes/tube radius/.initial=0.40}           % radius of tube circle
+\ctikzset{tubes/anode distance/.initial=0.40}        % distance from center
+\ctikzset{tubes/anode width/.initial=0.40}           % width of an anode/plate
+\ctikzset{tubes/grid protrusion/.initial=0.25}       % distance from center
+\ctikzset{tubes/grid dashes/.initial=5}              % number of grid dashes
+\ctikzset{tubes/grid separation/.initial=0.2}        % separation between grids
+\ctikzset{tubes/grid shift/.initial=0.0}             % y shift grids from center
+\ctikzset{tubes/cathode distance/.initial=0.40}      % distance from grid
+\ctikzset{tubes/cathode width/.initial=0.40}         % width of an cathode
+\ctikzset{tubes/cathode corners/.initial=0.06}       % corners of the cathode wire
+\ctikzset{tubes/cathode right extend/.initial=0.075} % extension at the right side
+\ctikzset{tubes/filament distance/.initial=0.1}      % distance from cathode
+\ctikzset{tubes/filament angle/.initial=15}          % Angle from centerpoint
+
+\newif\ifpgf@circuit@tubes@filament\pgf@circuit@tubes@filamentfalse
+\pgfkeys{/tikz/filament/.add code={}{\pgf@circuit@tubes@filamenttrue}}
+\ctikzset{tubes/filament/.add code={}{\pgf@circuit@tubes@filamenttrue}}
+\newif\ifpgf@circuit@tubes@nocathode\pgf@circuit@tubes@nocathodefalse
+\pgfkeys{/tikz/nocathode/.add code={}{\pgf@circuit@tubes@nocathodetrue}}
+\ctikzset{tubes/nocathode/.add code={}{\pgf@circuit@tubes@nocathodetrue}}
+\newif\ifpgf@circuit@tubes@fullcathode\pgf@circuit@tubes@fullcathodefalse
+\pgfkeys{/tikz/fullcathode/.add code={}{\pgf@circuit@tubes@fullcathodetrue}}
+\ctikzset{tubes/fullcathode/.add code={}{\pgf@circuit@tubes@fullcathodetrue}}%
+%>>>
+
+%% Logic ports%<<<1
 %% beware that the third option is in IEEE ports in pgfcircmultipoles.tex
+
+% switches for logic gates
+%
+\pgfkeys{/tikz/number inputs/.initial=0}
+\pgfkeys{/tikz/number inputs/.default=0}
 
 \newif\ifpgf@circuit@europeanlogicport
 \ctikzset{logic ports/.is choice}
@@ -1296,6 +1515,12 @@
 \tikzset{all leads/.code={\pgfcirc@draw@output@leadstrue\pgfcirc@draw@input@leadstrue}}
 \tikzset{no leads/.code={\pgfcirc@draw@output@leadsfalse\pgfcirc@draw@input@leadsfalse}}
 
+% old, legacy keys that should be killed over
+\ctikzset{bipoles/buffer/height/.initial=1}
+\ctikzset{bipoles/buffer/width/.initial=1}
+\ctikzset{bipoles/not port/width/.initial=1}
+\ctikzset{bipoles/not port/height/.initial=.8}
+\ctikzset{bipoles/not port/circle width/.initial=.15}
 
 \ctikzset{tripoles/american and port/width/.initial=1.1}
 \ctikzset{tripoles/american and port/height/.initial=.8}
@@ -1429,10 +1654,9 @@
 \ctikzset{tripoles/american xnor port/bbb/.initial=.4}
 \ctikzset{tripoles/american xnor port/ccc/.initial=.5}
 \ctikzset{tripoles/american xnor port/ddd/.initial=.0}
-% switches for logic gates
-%
-\pgfkeys{/tikz/number inputs/.initial=0}
-\pgfkeys{/tikz/number inputs/.default=0}
+%%>>>
+
+% flip flops and muxdemxes%<<<1
 
 %% flip-flop specific keys (most others are the same as chips)
 
@@ -1455,7 +1679,10 @@
 \ctikzset{multipoles/muxdemux/NR/.initial=1}
 \ctikzset{multipoles/muxdemux/NB/.initial=3}
 \ctikzset{multipoles/muxdemux/NT/.initial=0}
-\ctikzset{multipoles/muxdemux/square pins/.initial=0}
+\ctikzset{multipoles/muxdemux/square pins/.initial=0}%
+%>>>
+
+% Amplifiers%<<<1
 %
 % switches for op amps
 % changing input polarity
@@ -1576,42 +1803,9 @@
 \tikzset{amp minus/.code={\ctikzsetvalof{amplifiers/minus}{#1}}}
 \def\pgf@circ@ampli@plus{\ctikzvalof{amplifiers/plus}}
 \def\pgf@circ@ampli@minus{\ctikzvalof{amplifiers/minus}}
+%%>>>
 
-\ctikzset{tripoles/thyristor/height/.initial=1.10}
-\ctikzset{tripoles/thyristor/height 2/.initial=.5}
-\ctikzset{tripoles/thyristor/width/.initial=1.0}
-\ctikzset{tripoles/thyristor/diode height/.initial=.5}
-\ctikzset{tripoles/thyristor/diode width left/.initial=.4}
-\ctikzset{tripoles/thyristor/diode width right/.initial=.3}
-
-\ctikzset{tripoles/triac/height/.initial=1.1}
-\ctikzset{tripoles/triac/width/.initial=1}
-\ctikzset{tripoles/triac/diode width left/.initial=.3}
-\ctikzset{tripoles/triac/diode width right/.initial=.3}
-
-%% Cute switches
-\ctikzset{bipoles/cuteswitch/shape/.initial={ocirc}}
-\ctikzset{bipoles/cuteswitch/height/.initial=.6}
-\ctikzset{bipoles/cuteswitch/height 2/.initial=.2}
-\ctikzset{bipoles/cuteswitch/width/.initial=.50}
-\ctikzset{bipoles/cuteswitch/thickness/.initial=1}
-
-\ctikzset{tripoles/spdt/width/.initial=.85}
-\ctikzset{tripoles/spdt/height/.initial=.45}
-\ctikzset{tripoles/spdt/margin/.initial=.45}
-
-\ctikzset{tripoles/toggleswitch/height/.initial=.8}
-\ctikzset{tripoles/toggleswitch/height 2/.initial=.0}
-\ctikzset{tripoles/toggleswitch/width/.initial=.80}
-
-\ctikzset{tripoles/mixer/width/.initial=0.7}
-\ctikzset{tripoles/adder/width/.initial=0.7}
-\ctikzset{tripoles/circulator/width/.initial=.7}
-\ctikzset{tripoles/oscillator/width/.initial=.7}
-
-
-\ctikzset{tripoles/wilkinson/height/.initial=1.3}
-\ctikzset{tripoles/wilkinson/width/.initial=1.3}
+% Transformers%<<<1
 
 \ctikzset{quadpoles/transformer/inner/.initial=0.4}
 \ctikzset{quadpoles/transformer/width/.initial=1.5}
@@ -1654,9 +1848,105 @@
         \ctikzset{quadpoles/gyrator/width=0.6}%
     }%
 }
+%%>>>
 
+% seven segment displays by RGtti%<<<1
+
+\newif\ifpgf@circ@sevenseg@dot
+\newif\ifpgf@circ@sevenseg@box
+\def\pgf@circ@sevenseg@dotstate{empty}
+\ctikzset{seven seg/.is family}
+\ctikzset{seven seg/dot/.is choice}
+% none means no dot, not space for it. Empty means no dot, but space
+\ctikzset{seven seg/dot/none/.code={\pgf@circ@sevenseg@dotfalse}}
+\ctikzset{seven seg/dot/empty/.code={\pgf@circ@sevenseg@dottrue\def\pgf@circ@sevenseg@dotstate{empty}}}
+\ctikzset{seven seg/dot/off/.code={\pgf@circ@sevenseg@dottrue\def\pgf@circ@sevenseg@dotstate{off}}}
+\ctikzset{seven seg/dot/on/.code={\pgf@circ@sevenseg@dottrue\def\pgf@circ@sevenseg@dotstate{on}}}
 %
-% multipoles
+\ctikzset{seven seg/width/.initial=0.4}% relative to \pgf@circ@Rlen
+\ctikzset{seven seg/thickness/.initial=4pt}% segment thickness
+\ctikzset{seven seg/segment sep/.initial=0.2pt}% gap between segments
+\ctikzset{seven seg/box sep/.initial=1pt}% external box gap
+\ctikzset{seven seg/color on/.initial=red}% color for segment "on"
+\ctikzset{seven seg/color off/.initial=gray!20!white} % ...and "off"
+\ctikzset{seven seg/box/.is choice}
+\ctikzset{seven seg/box/off/.code={\pgf@circ@sevenseg@boxfalse}}
+\ctikzset{seven seg/box/on/.code={\pgf@circ@sevenseg@boxtrue}}
+
+\ctikzset{seven seg/bits/.initial=0000000}
+
+\ctikzset{seven seg/value/.code={%
+    \edef\@@tmp{#1}%
+    \edef\@@n{0} \ifx\@@tmp\@@n\relax\ctikzset{seven seg/bits=1111110}\fi
+    \edef\@@n{1} \ifx\@@tmp\@@n\relax\ctikzset{seven seg/bits=0110000}\fi
+    \edef\@@n{2} \ifx\@@tmp\@@n\relax\ctikzset{seven seg/bits=1101101}\fi
+    \edef\@@n{3} \ifx\@@tmp\@@n\relax\ctikzset{seven seg/bits=1111001}\fi
+    \edef\@@n{4} \ifx\@@tmp\@@n\relax\ctikzset{seven seg/bits=0110011}\fi
+    \edef\@@n{5} \ifx\@@tmp\@@n\relax\ctikzset{seven seg/bits=1011011}\fi
+    \edef\@@n{6} \ifx\@@tmp\@@n\relax\ctikzset{seven seg/bits=1011111}\fi
+    \edef\@@n{7} \ifx\@@tmp\@@n\relax\ctikzset{seven seg/bits=1110000}\fi
+    \edef\@@n{8} \ifx\@@tmp\@@n\relax\ctikzset{seven seg/bits=1111111}\fi
+    \edef\@@n{9} \ifx\@@tmp\@@n\relax\ctikzset{seven seg/bits=1111011}\fi
+    \edef\@@n{10}\ifx\@@tmp\@@n\relax\ctikzset{seven seg/bits=1110111}\fi
+    \edef\@@n{11}\ifx\@@tmp\@@n\relax\ctikzset{seven seg/bits=0011111}\fi
+    \edef\@@n{12}\ifx\@@tmp\@@n\relax\ctikzset{seven seg/bits=1001110}\fi
+    \edef\@@n{13}\ifx\@@tmp\@@n\relax\ctikzset{seven seg/bits=0111101}\fi
+    \edef\@@n{14}\ifx\@@tmp\@@n\relax\ctikzset{seven seg/bits=1001111}\fi
+    \edef\@@n{15}\ifx\@@tmp\@@n\relax\ctikzset{seven seg/bits=1000111}\fi
+    \edef\@@n{A} \ifx\@@tmp\@@n\relax\ctikzset{seven seg/bits=1110111}\fi
+    \edef\@@n{B} \ifx\@@tmp\@@n\relax\ctikzset{seven seg/bits=0011111}\fi
+    \edef\@@n{C} \ifx\@@tmp\@@n\relax\ctikzset{seven seg/bits=1001110}\fi
+    \edef\@@n{D} \ifx\@@tmp\@@n\relax\ctikzset{seven seg/bits=0111101}\fi
+    \edef\@@n{E} \ifx\@@tmp\@@n\relax\ctikzset{seven seg/bits=1001111}\fi
+    \edef\@@n{F} \ifx\@@tmp\@@n\relax\ctikzset{seven seg/bits=1000111}\fi
+    \edef\@@n{a} \ifx\@@tmp\@@n\relax\ctikzset{seven seg/bits=1110111}\fi
+    \edef\@@n{b} \ifx\@@tmp\@@n\relax\ctikzset{seven seg/bits=0011111}\fi
+    \edef\@@n{c} \ifx\@@tmp\@@n\relax\ctikzset{seven seg/bits=1001110}\fi
+    \edef\@@n{d} \ifx\@@tmp\@@n\relax\ctikzset{seven seg/bits=0111101}\fi
+    \edef\@@n{e} \ifx\@@tmp\@@n\relax\ctikzset{seven seg/bits=1001111}\fi
+    \edef\@@n{f} \ifx\@@tmp\@@n\relax\ctikzset{seven seg/bits=1000111}\fi
+    \edef\@@n{-} \ifx\@@tmp\@@n\relax\ctikzset{seven seg/bits=0000001}\fi
+}}
+
+\tikzset{%
+    seven segment val/.style args={#1dot#2box#3}{%
+        shape=bare7seg,
+        /tikz/circuitikz/seven seg/value=#1,
+        /tikz/circuitikz/seven seg/dot=#2,
+        /tikz/circuitikz/seven seg/box=#3,
+    },
+    seven segment bits/.style args={#1dot#2box#3}{%
+        shape=bare7seg,
+        /tikz/circuitikz/seven seg/bits=#1,
+        /tikz/circuitikz/seven seg/dot=#2,
+        /tikz/circuitikz/seven seg/box=#3,
+    },
+}
+%%>>>
+
+% Options for twoports and blocks%<<<1
+
+% Option ">" for twoports
+\newif\ifpgf@circuit@inputarrow
+\ctikzset{>/.add code={}{\pgf@circuit@inputarrowtrue}}
+\ctikzset{inputarrow/.is choice}
+\ctikzset{inputarrow/true/.code={\pgf@circuit@inputarrowtrue}}
+\ctikzset{inputarrow/false/.code={\pgf@circuit@inputarrowfalse}}
+
+% Option "boxed" for nodes and twoports
+\newif\ifpgf@circuit@boxed
+\pgfkeys{/tikz/boxed/.add code={}{\pgf@circuit@boxedtrue}}
+\ctikzset{boxed/.add code={}{\pgf@circuit@boxedtrue}}
+\pgfkeys{/tikz/box/.add code={}{\pgf@circuit@boxedtrue}}
+\ctikzset{box/.add code={}{\pgf@circuit@boxedtrue}}
+
+% Option "dashed" for nodes and twoports
+\newif\ifpgf@circuit@dashed
+\pgfkeys{/tikz/dashed/.add code={}{\pgf@circuit@dashedtrue}}
+\ctikzset{dashed/.add code={}{\pgf@circuit@dashedtrue}}%
+%>>>
+
+% Chips and Rotary switches (multipoles) %<<<1
 %
 \ctikzset{multipoles/thickness/.initial=2}
 \ctikzset{multipoles/font/.initial=\pgf@circ@font@tiny}
@@ -1738,8 +2028,9 @@
     rotary switch ->/.default={5 in 60 wiper 20},
     rotary switch <->/.default={5 in 60 wiper 20},
 }
+%%>>>
 
-% %Mechanical section
+% %Mechanical section%<<<1
 \ctikzset{/tikz/circuitikz/tripoles/elmech/height/.initial=.8}
 \ctikzset{/tikz/circuitikz/tripoles/elmech/width/.initial=.6}
 \ctikzset{bipoles/spring/height/.initial=.5}
@@ -1753,128 +2044,20 @@
 \ctikzset{bipoles/damper/height/.initial=.35}
 \ctikzset{bipoles/damper/length/.initial=.3}
 \ctikzset{bipoles/damper/width/.initial=.4}
+%%>>>
 
+% powerelectronic blocks%<<<1
+\ctikzset{bipoles/sacdc/width/.initial=.7}
+\ctikzset{bipoles/sdcac/width/.initial=.7}
+\ctikzset{bipoles/tacdc/width/.initial=.7}
+\ctikzset{bipoles/tdcac/width/.initial=.7}
+\ctikzset{quadpoles/gridnode/width/.initial=.7} %not sure if quadpole?
+%>>>
 
-\ctikzset{bipole/.is family}
-\ctikzset{bipole/kind/.initial=}
-\ctikzset{bipole/name/.initial=}
-\newif\ifpgf@circuit@bipole@isvoltage
-\ctikzset{bipole/is voltage/.is if=pgf@circuit@bipole@isvoltage}
-\newif\ifpgf@circuit@bipole@voltageoutsideofsymbol
-\ctikzset{bipole/is voltageoutsideofsymbol/.is if=pgf@circuit@bipole@voltageoutsideofsymbol}
-\newif\ifpgf@circuit@bipole@strokedsymbol
-\ctikzset{bipole/is strokedsymbol/.is if=pgf@circuit@bipole@strokedsymbol}
-\newif\ifpgf@circuit@bipole@iscurrent
-\ctikzset{bipole/is current/.is if=pgf@circuit@bipole@iscurrent}
-
-\ctikzset{bipole/voltage/.is family}
-\newif\ifpgf@circuit@bipole@voltage@backward
-\ctikzset{bipole/voltage/direction/.is choice}
-\ctikzset{bipole/voltage/direction/forward/.code={\pgf@circuit@bipole@voltage@backwardfalse}}
-\ctikzset{bipole/voltage/direction/backward/.code={\pgf@circuit@bipole@voltage@backwardtrue}}
-\newif\ifpgf@circuit@bipole@voltage@below
-\ctikzset{bipole/voltage/position/.is choice}
-\ctikzset{bipole/voltage/position/above/.code={\pgf@circuit@bipole@voltage@belowfalse}}
-\ctikzset{bipole/voltage/position/below/.code={\pgf@circuit@bipole@voltage@belowtrue}}
-
-\ctikzset{bipole/voltage/label/unit/.initial=}
-\ctikzset{bipole/voltage/label/name/.initial=}
-
-\ctikzset{bipole/current/.is family}
-\newif\ifpgf@circuit@bipole@current@backward
-\ctikzset{bipole/current/direction/.is choice}
-\ctikzset{bipole/current/direction/forward/.code={\pgf@circuit@bipole@current@backwardfalse}}
-\ctikzset{bipole/current/direction/backward/.code={\pgf@circuit@bipole@current@backwardtrue}}
-\newif\ifpgf@circuit@bipole@current@before
-\ctikzset{bipole/current/x position/.is choice}
-\ctikzset{bipole/current/x position/after/.code={\pgf@circuit@bipole@current@beforefalse}}
-\ctikzset{bipole/current/x position/before/.code={\pgf@circuit@bipole@current@beforetrue}}
-\newif\ifpgf@circuit@bipole@current@below
-\ctikzset{bipole/current/y position/.is choice}
-\ctikzset{bipole/current/y position/above/.code={\pgf@circuit@bipole@current@belowfalse}}
-\ctikzset{bipole/current/y position/below/.code={\pgf@circuit@bipole@current@belowtrue}}
-\ctikzset{bipole/current/label/unit/.initial=}
-\ctikzset{bipole/current/label/name/.initial=}
-
-\ctikzset{bipole/flow/.is family}
-\newif\ifpgf@circuit@bipole@flow@backward
-\ctikzset{bipole/flow/direction/.is choice}
-\ctikzset{bipole/flow/direction/forward/.code={\pgf@circuit@bipole@flow@backwardfalse}}
-\ctikzset{bipole/flow/direction/backward/.code={\pgf@circuit@bipole@flow@backwardtrue}}
-\newif\ifpgf@circuit@bipole@flow@before
-\ctikzset{bipole/flow/x position/.is choice}
-\ctikzset{bipole/flow/x position/after/.code={\pgf@circuit@bipole@flow@beforefalse}}
-\ctikzset{bipole/flow/x position/before/.code={\pgf@circuit@bipole@flow@beforetrue}}
-\newif\ifpgf@circuit@bipole@flow@below
-\ctikzset{bipole/flow/y position/.is choice}
-\ctikzset{bipole/flow/y position/above/.code={\pgf@circuit@bipole@flow@belowfalse}}
-\ctikzset{bipole/flow/y position/below/.code={\pgf@circuit@bipole@flow@belowtrue}}
-\ctikzset{bipole/flow/label/unit/.initial=}
-\ctikzset{bipole/flow/label/name/.initial=}
-\ctikzset{flow/distance/.initial = .5}
-\ctikzset{flow/offset/.initial = .2}%distance between flow-arrow and conductor
-
-\ctikzset{bipole/label/.is family}
-\ctikzset{bipole/label/position/.initial=90}
-\ctikzset{bipole/label/unit/.initial=}
-\ctikzset{bipole/label/name/.initial=}
-\ctikzset{bipole/annotation/.is family}
-\ctikzset{bipole/annotation/position/.initial=-90}
-\ctikzset{bipole/annotation/unit/.initial=}
-\ctikzset{bipole/annotation/name/.initial=}
-
-\newif\ifpgf@circuit@europeanresistor
-\ctikzset{resistor/.is choice}
-\ctikzset{resistor/american/.code = \pgf@circuit@europeanresistorfalse }
-\ctikzset{resistor/european/.code = \pgf@circuit@europeanresistortrue }
-
-\ctikzset{inductor/.is choice}
-\ctikzset{inductor/cute/.code={\ctikzsetvalof{inductor}{cute}}}
-\ctikzset{inductor/european/.code={\ctikzsetvalof{inductor}{european}}}
-\ctikzset{inductor/american/.code={\ctikzsetvalof{inductor}{american}}}
-
+% voltage and current options%<<<1
 %
-% Flipping arrows in LED and photodiodes
-%
-\newif\ifpgf@led@fliparrows
-\newif\ifpgf@pd@fliparrows
-\pgf@led@fliparrowsfalse
-\pgf@pd@fliparrowsfalse
-%
-% by default the arrows start (LED) and go (PD) to the anode.
-%
-\ctikzset{led arrows from anode/.code=\pgf@led@fliparrowsfalse}
-\ctikzset{pd arrows to anode/.code=\pgf@pd@fliparrowsfalse}
-%
-% but they can start form the cathode (LED) or go to it (PD)
-%
-\ctikzset{led arrows from cathode/.code=\pgf@led@fliparrowstrue}
-\ctikzset{pd arrows to cathode/.code=\pgf@pd@fliparrowstrue}
-
-\newif\ifpgf@circuit@strokediode
-\newif\ifpgf@circuit@fulldiode
-\pgf@circuit@strokediodefalse
-\pgf@circuit@fulldiodefalse
-
-\ctikzset{diode/.is choice}
-\ctikzset{diode/empty/.code = \pgf@circuit@fulldiodefalse\pgf@circuit@strokediodefalse}%default
-\ctikzset{diode/full/.code = \pgf@circuit@fulldiodetrue }
-\ctikzset{diode/stroke/.code = \pgf@circuit@strokediodetrue}
-
-\tikzset{full diodes/.style = { \circuitikzbasekey/diode = full}}
-\tikzset{empty diodes/.style = { \circuitikzbasekey/diode = empty}}
-\tikzset{stroke diodes/.style = { \circuitikzbasekey/diode = stroke}}
-
-\ctikzset{thickness/.initial=2}
-\ctikzset{color/.initial=black}
-\pgfkeys{/tikz/color/.add code={}{\ctikzset{color={#1}}}}
-
-\newif\ifpgf@circ@siunitx
-\newif\ifpgf@circ@siunitx@res
-
-%
-% voltage and current options
-%
+\ctikzset{current arrow scale/.initial=16}
+\ctikzset{current/distance/.initial = .5}
 
 \newif\ifpgf@circuit@europeancurrent
 \newif\ifpgf@circuit@europeanvoltage
@@ -1938,13 +2121,30 @@
 \ctikzset{voltage/european label distance/.initial=1.4}
 \ctikzset{voltage/straight label distance/.initial=1.4}
 \ctikzset{voltage/american label distance/.initial=1.4}
+% american open voltage adjusting
 %
+\newif\ifpgf@adjust@open@voltage\pgf@adjust@open@voltagetrue
+\ctikzset{american open voltage/.is choice}
+\ctikzset{american open voltage/center/.code={\pgf@adjust@open@voltagetrue}}
+\ctikzset{american open voltage/legacy/.code={\pgf@adjust@open@voltagefalse}}
+%
+% voltage and current styles
+%
+\tikzset{american currents/.style = {\circuitikzbasekey/current = american}}
+\tikzset{european currents/.style = {\circuitikzbasekey/current = european}}
+\tikzset{american voltages/.style = {\circuitikzbasekey/voltage = american}}
+\tikzset{european voltages/.style = {\circuitikzbasekey/voltage = european}}
+\tikzset{straight voltages/.style = {\circuitikzbasekey/voltage = straight}}
+\tikzset{american resistors/.style = {\circuitikzbasekey/resistor = american}}
+\tikzset{european resistors/.style = {\circuitikzbasekey/resistor = european}}
+%%>>>
+
+% special cases for voltage positions%<<<1
 % the KIND is the node name without SHAPE
 % See the definition above for meaning
 % if bipoles/KIND/voltage/straight label distance is not defined, it uses the height
 % if bipoles/KIND/voltage/additional shift is not defined, it is 0 (extra distance)
 %
-% special cases for voltage positions
 \ctikzset{bipoles/generic/voltage/distance from node/.initial=0.4}
 \ctikzset{bipoles/generic/voltage/bump b/.initial=2}
 %
@@ -1992,169 +2192,7 @@
 \ctikzset{bipoles/battery/voltage/bump a/.initial=1.4}
 \ctikzset{bipoles/vsourceAM/voltage/american label distance/.initial=1.2}
 \ctikzset{bipoles/cvsourceAM/voltage/american label distance/.initial=1.2}
-%
-% american open voltage adjusting
-%
-\newif\ifpgf@adjust@open@voltage\pgf@adjust@open@voltagetrue
-\ctikzset{american open voltage/.is choice}
-\ctikzset{american open voltage/center/.code={\pgf@adjust@open@voltagetrue}}
-\ctikzset{american open voltage/legacy/.code={\pgf@adjust@open@voltagefalse}}
-%
-% currents
-%
-\ctikzset{current/distance/.initial = .5}
-
-%
-% voltage and current styles
-%
-
-\tikzset{american currents/.style = {\circuitikzbasekey/current = american}}
-\tikzset{european currents/.style = {\circuitikzbasekey/current = european}}
-\tikzset{american voltages/.style = {\circuitikzbasekey/voltage = american}}
-\tikzset{european voltages/.style = {\circuitikzbasekey/voltage = european}}
-\tikzset{straight voltages/.style = {\circuitikzbasekey/voltage = straight}}
-\tikzset{american resistors/.style = {\circuitikzbasekey/resistor = american}}
-\tikzset{european resistors/.style = {\circuitikzbasekey/resistor = european}}
-
-\newif\ifpgf@circuit@europeangfsurgearrester
-\ctikzset{gas filled surge arrester choice/.is choice}
-\ctikzset{gas filled surge arrester choice/european/.code= {\pgf@circuit@europeangfsurgearrestertrue}}
-\ctikzset{gas filled surge arrester choice/american/.code= {\pgf@circuit@europeangfsurgearresterfalse}}
-
-\tikzset{american gas filled surge arrester set/.style = {\circuitikzbasekey/gas filled surge arrester choice=american}}
-\tikzset{european gas filled surge arrester set/.style = {\circuitikzbasekey/gas filled surge arrester choice=european}}
-\tikzset{american inductors/.style = {\circuitikzbasekey/inductor = american}}
-\tikzset{european inductors/.style = {\circuitikzbasekey/inductor = european}}
-\tikzset{cute inductors/.style = {\circuitikzbasekey/inductor = cute}}
-\tikzset{american ports/.style = {\circuitikzbasekey/logic ports = american}}
-\tikzset{european ports/.style = {\circuitikzbasekey/logic ports = european}}
-
-%
-% general styles
-%
-
-\tikzset{european/.style = {european currents, european voltages, european resistors, european inductors, european ports, european gas filled surge arrester set}}
-\tikzset{american/.style = {american currents, american voltages, american resistors, american inductors, american ports, american gas filled surge arrester set}}
-\tikzset{cute/.style = {european currents, european voltages, american resistors, cute inductors, american ports}}
-
-
-% noise sources
-\ctikzset{bipoles/noise sources/fillcolor/.initial=gray!50}
-
-\ctikzset{label/align/.is choice}
-\ctikzset{label/align/straight/.code={\ctikzsetvalof{label/align}{straight}}}
-\ctikzset{label/align/rotate/.code={\ctikzsetvalof{label/align}{rotate}}}
-\ctikzset{label/align/smart/.code={\ctikzsetvalof{label/align}{smart}}}
-
-% seven segment displays by RGtti
-
-\newif\ifpgf@circ@sevenseg@dot
-\newif\ifpgf@circ@sevenseg@box
-\def\pgf@circ@sevenseg@dotstate{empty}
-\ctikzset{seven seg/.is family}
-\ctikzset{seven seg/dot/.is choice}
-% none means no dot, not space for it. Empty means no dot, but space
-\ctikzset{seven seg/dot/none/.code={\pgf@circ@sevenseg@dotfalse}}
-\ctikzset{seven seg/dot/empty/.code={\pgf@circ@sevenseg@dottrue\def\pgf@circ@sevenseg@dotstate{empty}}}
-\ctikzset{seven seg/dot/off/.code={\pgf@circ@sevenseg@dottrue\def\pgf@circ@sevenseg@dotstate{off}}}
-\ctikzset{seven seg/dot/on/.code={\pgf@circ@sevenseg@dottrue\def\pgf@circ@sevenseg@dotstate{on}}}
-%
-\ctikzset{seven seg/width/.initial=0.4}% relative to \pgf@circ@Rlen
-\ctikzset{seven seg/thickness/.initial=4pt}% segment thickness
-\ctikzset{seven seg/segment sep/.initial=0.2pt}% gap between segments
-\ctikzset{seven seg/box sep/.initial=1pt}% external box gap
-\ctikzset{seven seg/color on/.initial=red}% color for segment "on"
-\ctikzset{seven seg/color off/.initial=gray!20!white} % ...and "off"
-\ctikzset{seven seg/box/.is choice}
-\ctikzset{seven seg/box/off/.code={\pgf@circ@sevenseg@boxfalse}}
-\ctikzset{seven seg/box/on/.code={\pgf@circ@sevenseg@boxtrue}}
-
-\ctikzset{seven seg/bits/.initial=0000000}
-
-\ctikzset{seven seg/value/.code={%
-    \edef\@@tmp{#1}%
-    \edef\@@n{0} \ifx\@@tmp\@@n\relax\ctikzset{seven seg/bits=1111110}\fi
-    \edef\@@n{1} \ifx\@@tmp\@@n\relax\ctikzset{seven seg/bits=0110000}\fi
-    \edef\@@n{2} \ifx\@@tmp\@@n\relax\ctikzset{seven seg/bits=1101101}\fi
-    \edef\@@n{3} \ifx\@@tmp\@@n\relax\ctikzset{seven seg/bits=1111001}\fi
-    \edef\@@n{4} \ifx\@@tmp\@@n\relax\ctikzset{seven seg/bits=0110011}\fi
-    \edef\@@n{5} \ifx\@@tmp\@@n\relax\ctikzset{seven seg/bits=1011011}\fi
-    \edef\@@n{6} \ifx\@@tmp\@@n\relax\ctikzset{seven seg/bits=1011111}\fi
-    \edef\@@n{7} \ifx\@@tmp\@@n\relax\ctikzset{seven seg/bits=1110000}\fi
-    \edef\@@n{8} \ifx\@@tmp\@@n\relax\ctikzset{seven seg/bits=1111111}\fi
-    \edef\@@n{9} \ifx\@@tmp\@@n\relax\ctikzset{seven seg/bits=1111011}\fi
-    \edef\@@n{10}\ifx\@@tmp\@@n\relax\ctikzset{seven seg/bits=1110111}\fi
-    \edef\@@n{11}\ifx\@@tmp\@@n\relax\ctikzset{seven seg/bits=0011111}\fi
-    \edef\@@n{12}\ifx\@@tmp\@@n\relax\ctikzset{seven seg/bits=1001110}\fi
-    \edef\@@n{13}\ifx\@@tmp\@@n\relax\ctikzset{seven seg/bits=0111101}\fi
-    \edef\@@n{14}\ifx\@@tmp\@@n\relax\ctikzset{seven seg/bits=1001111}\fi
-    \edef\@@n{15}\ifx\@@tmp\@@n\relax\ctikzset{seven seg/bits=1000111}\fi
-    \edef\@@n{A} \ifx\@@tmp\@@n\relax\ctikzset{seven seg/bits=1110111}\fi
-    \edef\@@n{B} \ifx\@@tmp\@@n\relax\ctikzset{seven seg/bits=0011111}\fi
-    \edef\@@n{C} \ifx\@@tmp\@@n\relax\ctikzset{seven seg/bits=1001110}\fi
-    \edef\@@n{D} \ifx\@@tmp\@@n\relax\ctikzset{seven seg/bits=0111101}\fi
-    \edef\@@n{E} \ifx\@@tmp\@@n\relax\ctikzset{seven seg/bits=1001111}\fi
-    \edef\@@n{F} \ifx\@@tmp\@@n\relax\ctikzset{seven seg/bits=1000111}\fi
-    \edef\@@n{a} \ifx\@@tmp\@@n\relax\ctikzset{seven seg/bits=1110111}\fi
-    \edef\@@n{b} \ifx\@@tmp\@@n\relax\ctikzset{seven seg/bits=0011111}\fi
-    \edef\@@n{c} \ifx\@@tmp\@@n\relax\ctikzset{seven seg/bits=1001110}\fi
-    \edef\@@n{d} \ifx\@@tmp\@@n\relax\ctikzset{seven seg/bits=0111101}\fi
-    \edef\@@n{e} \ifx\@@tmp\@@n\relax\ctikzset{seven seg/bits=1001111}\fi
-    \edef\@@n{f} \ifx\@@tmp\@@n\relax\ctikzset{seven seg/bits=1000111}\fi
-    \edef\@@n{-} \ifx\@@tmp\@@n\relax\ctikzset{seven seg/bits=0000001}\fi
-}}
-
-\tikzset{%
-    seven segment val/.style args={#1dot#2box#3}{%
-        shape=bare7seg,
-        /tikz/circuitikz/seven seg/value=#1,
-        /tikz/circuitikz/seven seg/dot=#2,
-        /tikz/circuitikz/seven seg/box=#3,
-    },
-    seven segment bits/.style args={#1dot#2box#3}{%
-        shape=bare7seg,
-        /tikz/circuitikz/seven seg/bits=#1,
-        /tikz/circuitikz/seven seg/dot=#2,
-        /tikz/circuitikz/seven seg/box=#3,
-    },
-}
-
-
-%%%%%%%%%% new
-\pgfkeys{\circuitikzbasekey/.search also={/tikz}}
-
-% Electronic tubes: diodetube, triode, tetrode and pentode
-\ctikzset{tubes/width/.initial=1}                    % relative width
-\ctikzset{tubes/height/.initial=1.4}                 % relative height
-\ctikzset{tubes/tube radius/.initial=0.40}           % radius of tube circle
-\ctikzset{tubes/anode distance/.initial=0.40}        % distance from center
-\ctikzset{tubes/anode width/.initial=0.40}           % width of an anode/plate
-\ctikzset{tubes/grid protrusion/.initial=0.25}       % distance from center
-\ctikzset{tubes/grid dashes/.initial=5}              % number of grid dashes
-\ctikzset{tubes/grid separation/.initial=0.2}        % separation between grids
-\ctikzset{tubes/grid shift/.initial=0.0}             % y shift grids from center
-\ctikzset{tubes/cathode distance/.initial=0.40}      % distance from grid
-\ctikzset{tubes/cathode width/.initial=0.40}         % width of an cathode
-\ctikzset{tubes/cathode corners/.initial=0.06}       % corners of the cathode wire
-\ctikzset{tubes/cathode right extend/.initial=0.075} % extension at the right side
-\ctikzset{tubes/filament distance/.initial=0.1}      % distance from cathode
-\ctikzset{tubes/filament angle/.initial=15}          % Angle from centerpoint
-
-\newif\ifpgf@circuit@tubes@filament\pgf@circuit@tubes@filamentfalse
-\pgfkeys{/tikz/filament/.add code={}{\pgf@circuit@tubes@filamenttrue}}
-\ctikzset{tubes/filament/.add code={}{\pgf@circuit@tubes@filamenttrue}}
-\newif\ifpgf@circuit@tubes@nocathode\pgf@circuit@tubes@nocathodefalse
-\pgfkeys{/tikz/nocathode/.add code={}{\pgf@circuit@tubes@nocathodetrue}}
-\ctikzset{tubes/nocathode/.add code={}{\pgf@circuit@tubes@nocathodetrue}}
-\newif\ifpgf@circuit@tubes@fullcathode\pgf@circuit@tubes@fullcathodefalse
-\pgfkeys{/tikz/fullcathode/.add code={}{\pgf@circuit@tubes@fullcathodetrue}}
-\ctikzset{tubes/fullcathode/.add code={}{\pgf@circuit@tubes@fullcathodetrue}}
-
-% powerelectronic blocks
-\ctikzset{bipoles/sacdc/width/.initial=.7}
-\ctikzset{bipoles/sdcac/width/.initial=.7}
-\ctikzset{bipoles/tacdc/width/.initial=.7}
-\ctikzset{bipoles/tdcac/width/.initial=.7}
-\ctikzset{quadpoles/gridnode/width/.initial=.7} %not sure if quadpole?
+%%>>>
 
 \endinput
+% vim: set fdm=marker fmr=%<<<,%>>>:
