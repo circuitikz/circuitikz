@@ -594,6 +594,8 @@
 \ctikzset{resistor/.is choice}
 \ctikzset{resistor/american/.code = \pgf@circuit@europeanresistorfalse }
 \ctikzset{resistor/european/.code = \pgf@circuit@europeanresistortrue }
+\tikzset{american resistors/.style = {\circuitikzbasekey/resistor = american}}
+\tikzset{european resistors/.style = {\circuitikzbasekey/resistor = european}}
 %%>>>
 
 %% Capacitors%<<<1
@@ -2062,16 +2064,38 @@
 \newif\ifpgf@circuit@europeancurrent
 \newif\ifpgf@circuit@europeanvoltage
 \newif\ifpgf@circuit@bipole@voltage@straight
+\newif\ifpgf@circuit@bipole@voltage@raised
 
 \ctikzset{voltage/.is choice}
 %
 % straight is expected to be a subset of european, so disable it in american style
 %
-\ctikzset{voltage/american/.code = {\pgf@circuit@europeanvoltagefalse\pgf@circuit@bipole@voltage@straightfalse}}
-\ctikzset{voltage/european/.code = {\pgf@circuit@europeanvoltagetrue\pgf@circuit@bipole@voltage@straightfalse}}
-\ctikzset{voltage/straight/.code = {\pgf@circuit@europeanvoltagetrue\pgf@circuit@bipole@voltage@straighttrue}}
-\ctikzset{voltage/curved/.code = {\pgf@circuit@europeanvoltagetrue\pgf@circuit@bipole@voltage@straightfalse}}
-
+\ctikzset{voltage/american/.code = {%
+    \pgf@circuit@europeanvoltagefalse
+    \pgf@circuit@bipole@voltage@straightfalse
+    \pgf@circuit@bipole@voltage@raisedfalse
+}}
+\ctikzset{voltage/raised/.code = {%
+    \pgf@circuit@europeanvoltagefalse
+    \pgf@circuit@bipole@voltage@straightfalse
+    \pgf@circuit@bipole@voltage@raisedtrue
+}}
+\ctikzset{voltage/european/.code = {%
+    \pgf@circuit@europeanvoltagetrue
+    \pgf@circuit@bipole@voltage@straightfalse
+    \pgf@circuit@bipole@voltage@raisedfalse
+}}
+\ctikzset{voltage/straight/.code = {%
+    \pgf@circuit@europeanvoltagetrue
+    \pgf@circuit@bipole@voltage@straighttrue
+    \pgf@circuit@bipole@voltage@raisedfalse
+}}
+\ctikzset{voltage/curved/.code = {%
+    \pgf@circuit@europeanvoltagetrue
+    \pgf@circuit@bipole@voltage@straightfalse
+    \pgf@circuit@bipole@voltage@raisedfalse
+}}
+% are these used?
 \ctikzset{current/.is choice}
 \ctikzset{current/american/.code = \pgf@circuit@europeancurrentfalse}
 \ctikzset{current/european/.code = \pgf@circuit@europeancurrenttrue}
@@ -2135,8 +2159,7 @@
 \tikzset{american voltages/.style = {\circuitikzbasekey/voltage = american}}
 \tikzset{european voltages/.style = {\circuitikzbasekey/voltage = european}}
 \tikzset{straight voltages/.style = {\circuitikzbasekey/voltage = straight}}
-\tikzset{american resistors/.style = {\circuitikzbasekey/resistor = american}}
-\tikzset{european resistors/.style = {\circuitikzbasekey/resistor = european}}
+\tikzset{raised voltages/.style = {\circuitikzbasekey/voltage = raised}}
 %%>>>
 
 % special cases for voltage positions%<<<1

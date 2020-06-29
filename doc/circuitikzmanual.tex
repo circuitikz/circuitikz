@@ -5513,9 +5513,54 @@ as shown in the following examples.
 
 This manual has been typeset with the option \texttt{\chosenvoltoption}.
 
+\subsubsection{Common properties of voltages and currents}
+\label{sec:common-vif-pos}
+
+Currents, voltages and flows (see later) are positioned along, or across, the part of the wires that connect the inner component to the rest of the circuit. So, changing the length of the connection (the coordinates that embrace the \texttt{to[...]} command) will change the position of the components.
+
+\begin{LTXexample}[varwidth=true]
+\begin{circuitikz}
+    \draw (-1,1) to[R, v=$v$, i=$i$, f>^=$f$] (1,1);
+    \draw (-2,0) to[R, v=$v$, i=$i$, f>^=$f$] (2,0);
+\end{circuitikz}
+\end{LTXexample}
+
+However, you can override the properties \texttt{voltage/distance from node} (default \texttt{0.5}: how distant from the initial and final points of the path the arrow starts and ends or the plus and minus symbols are drawn) and \texttt{voltage/bump b} (how high the bump of the arrow is --- how curved it is, default \texttt{1.5}), and also \texttt{voltage/european label distance} (how distant from the normal position the voltage label will be, default \texttt{1.4}) on a per-component basis, in order to fine-tune the voltages:
+
+\begin{LTXexample}[varwidth=true]
+\tikz \draw (0,0) to[R, v=1<\volt>] (2,0); \par
+\ctikzset{voltage/distance from node=.1}
+\ctikzset{voltage/bump b=2.5}
+\tikz \draw (0,0) to[R, v=1<\volt>] (2,0);
+\end{LTXexample}
+
+The same concept as \texttt{distance from node} applies to the key \texttt{current/distance} for the position of the current's arrow:
+
+\begin{LTXexample}[varwidth=true]
+\tikz \draw (0,0) to[C, i=$\imath$] (2,0); \par
+\ctikzset{current/distance = .2}
+\tikz \draw (0,0) to[C, i=$\imath$] (2,0);
+\end{LTXexample}
+
+You can change globally these parameters by defining a component-specific key; you have to use the internal name of the component (in the component list, is the \texttt{nodename} without the terminal ``\texttt{shape}'' part):
+
+\begin{LTXexample}[varwidth=true]
+\tikz \draw (0,0) to[R, v=1<\volt>] (1.5,0)
+       to[C, v=2<\volt>] (3,0); \par
+\ctikzset{bipoles/capacitor/voltage/distance from node/.initial=.7}
+\tikz \draw (0,0) to[R, v=1<\volt>] (1.5,0)
+       to[C, v=2<\volt>] (3,0); \par
+\end{LTXexample}
+
+Note the \texttt{.initial}; you have to create such key the first time you use it. These kind of adjustments are not guaranteed to work in future upgrades, though; if you have to create a key you are somehow touching the internal structure of the package; it's much safer to create a style.
+
+One common request is to change the style of the arrows (both head and line) of these elements. For now\footnote{That could change in future\dots but it's not trivial.} voltages, currents and flows are part of the same path of the component, so this is not possible in simple way; you have to drawn your own with \TikZ{} commands.
+
 \subsection{Currents}\label{sec:currents}
 
-Inline (along the wire) currents are selected with \verb|i_>|, \verb|i^<|, \verb|i>_|, \verb|i>^|, and various simplification; the default position and direction is obtained with the key \verb|i=...|.
+Inline (along the wire) currents are selected with \verb|i_>|, \verb|i^<|, \verb|i>_|, \verb|i>^|, and various combination; the default position and direction is obtained with the simple key \verb|i=...|.
+
+Basically, \verb|^| and \verb|_| control if the label is above or below the line (above and below \textbf{do} depend on the direction of the component path), and \verb|<| and \verb|>| the direction of the arrow; swapping them (from for example from \verb|i^>| to \verb|i>^|) will switch the side of the component where the symbol is drawn. See the following examples:
 
 
 \begin{LTXexample}[varwidth=true]
@@ -5566,31 +5611,16 @@ Inline (along the wire) currents are selected with \verb|i_>|, \verb|i^<|, \verb
 \end{circuitikz}
 \end{LTXexample}
 
-Also:
+Also notice that the direction of the path is important:
 
 \begin{LTXexample}[varwidth=true]
 \begin{circuitikz}
+   \draw (2,1) to[R, i<=$i_1$] (0,1);
    \draw (0,0) to[R, i<=$i_1$] (2,0);
 \end{circuitikz}
 \end{LTXexample}
 
-\begin{LTXexample}[varwidth=true]
-\begin{circuitikz}
-   \draw (0,0) to[R, i>=$i_1$] (2,0);
-\end{circuitikz}
-\end{LTXexample}
-
-\begin{LTXexample}[varwidth=true]
-\begin{circuitikz}
-   \draw (0,0) to[R, i^=$i_1$] (2,0);
-\end{circuitikz}
-\end{LTXexample}
-
-\begin{LTXexample}[varwidth=true]
-\begin{circuitikz}
-   \draw (0,0) to[R, i_=$i_1$] (2,0);
-\end{circuitikz}
-\end{LTXexample}
+Default directions can change if the component is active or passive,\footnote{This, in hindsight, has been a bad feature --- and I'm partly responsible for it. But removing it would create \emph{too small} variations in circuits, so it stays.} following the chosen global voltage direction strategy (see section~\ref{curr-and-volt}).
 
 \begin{LTXexample}[varwidth=true]
 \begin{circuitikz}
@@ -5599,8 +5629,8 @@ Also:
 \end{LTXexample}
 
 \begin{LTXexample}[varwidth=true]
-\begin{circuitikz}
-   \draw (0,0) to[V<=10V, i_=$i_1$] (2,0);
+\begin{circuitikz}[voltage dir=EF]
+   \draw (0,0) to[V=10V, i_=$i_1$] (2,0);
 \end{circuitikz}
 \end{LTXexample}
 
@@ -5616,22 +5646,27 @@ Also:
 \end{circuitikz}
 \end{LTXexample}
 
+Current generators with the direct label (the one obtained by, for example, \texttt{I = something}) will treat it as a current:
+
 \begin{LTXexample}[varwidth=true]
-\begin{circuitikz}[american]
-   \draw (0,0) to[dcisource=1A, i_=$i_1$] (2,0);
+\begin{circuitikz}
+   \draw (0,0) to[I=$a_1$] (2,0);
 \end{circuitikz}
 \end{LTXexample}
 
+If you use the option \texttt{americancurrent} or using the style \texttt{[american currents]}
+you can changhe the style of current generators.
+
 \begin{LTXexample}[varwidth=true]
-\begin{circuitikz}[american]
-   \draw (0,0) to[dcisource=1A,invert, i_=$i_1$] (2,0);
+\begin{circuitikz}[american currents]
+   \draw (0,0) to[I=$a_1$] (2,0);
 \end{circuitikz}
 \end{LTXexample}
+
 
 \subsection{Flows}\label{flows}
-As an alternative for the current arrows, you can also use the following flows. They can also be used to indicate thermal or power flows. The syntax is pretty the same as for currents.
 
-\textit{This is a new beta feature since version 0.8.3; therefore, please provide bug reports or hints to optimize this feature regarding placement and appearance! This means that the appearance may change in the future!}
+As an alternative for the current arrows, you can also use the following ``flows''. They can also be used to indicate thermal or power flows. The syntax is pretty the same as for currents.
 
 \begin{LTXexample}[varwidth=true]
 \begin{circuitikz}
@@ -5676,9 +5711,13 @@ As an alternative for the current arrows, you can also use the following flows. 
 \end{LTXexample}
 
 \subsection{Voltages}
-See introduction note at Currents and Voltages (chapter \ref{curr-and-volt}, page \pageref{curr-and-volt}) for the direction of the voltage and currents.
+See the introduction at Currents and Voltages (section~\ref{curr-and-volt}, page \pageref{curr-and-volt}) for the default direction of the voltage and currents.
 
-\subsubsection{European style} The default, with arrows. Use option \texttt{europeanvoltage} or style \verb![european voltages]!, or setting (even locally) \texttt{voltage=european}.
+Voltages come in four different styles: European (with curved or straight arrows) and American (with signs that can stay near the wire or raised at the label level).
+
+Direction and position of the symbols are controlled in the same way as for the currents (see section~\ref{sec:currents}) with the \verb|_^<>| symbols.
+
+\subsubsection{European style} The default, with curved arrows. Use option \texttt{europeanvoltage} or style \verb![european voltages]!, or setting (even locally) \texttt{voltage=european}.
 
 \begin{LTXexample}[varwidth=true]
 \begin{circuitikz}[european voltages]
@@ -5704,17 +5743,7 @@ See introduction note at Currents and Voltages (chapter \ref{curr-and-volt}, pag
 \end{circuitikz}
 \end{LTXexample}
 
-\begin{LTXexample}[varwidth=true]
-\begin{circuitikz}
-   \draw (0,0) to[V=10V, i_=$i_1$] (2,0);
-\end{circuitikz}
-\end{LTXexample}
-
-\begin{LTXexample}[varwidth=true]
-\begin{circuitikz}
-   \draw (0,0) to[V<=10V, i_=$i_1$] (2,0);
-\end{circuitikz}
-\end{LTXexample}
+The default direction for active elements can change, depending on the global \texttt{voltage dir} setting, so be careful.
 
 \begin{LTXexample}[varwidth=true]
 \begin{circuitikz}
@@ -5740,13 +5769,45 @@ See introduction note at Currents and Voltages (chapter \ref{curr-and-volt}, pag
 \end{circuitikz}
 \end{LTXexample}
 
+Moreover, for historical reasons, voltage generators have differently looking arrows (they are straight even in curved European style).
 \begin{LTXexample}[varwidth=true]
 \begin{circuitikz}
    \draw (0,0) to[battery,l_=1V, v=$u_1$, i=$i_1$] (2,0);
 \end{circuitikz}
 \end{LTXexample}
 
-\subsubsection{Straight European style} Using straight arrows. Use option \texttt{straightvoltages} or style \verb![straight voltages]!, or setting (even locally) \texttt{voltage=straight}. Notice that this is an only lightly tested option, so use with care.
+\begin{LTXexample}[varwidth=true]
+\begin{circuitikz}
+   \draw (0,0) to[V=10V, i_=$i_1$] (2,0);
+\end{circuitikz}
+\end{LTXexample}
+
+You can change this last thing by forcing ``off'' the status of ``voltage generator''  of the component; but now the normal (passive) rule will apply, so, again, be careful.
+
+\begin{LTXexample}[varwidth=true]
+\begin{circuitikz}
+   \draw (0,0) to[battery, bipole/is voltage=false,
+                 v>=$u_1$,] (2,0);
+\end{circuitikz}
+\end{LTXexample}
+
+As for the currents, the direct label of voltage sources is passed as a voltage:
+
+\begin{LTXexample}[varwidth=true]
+\begin{circuitikz}
+   \draw (0,0) to[cV=$k\cdot a_1$] (2,0);
+\end{circuitikz}
+\end{LTXexample}
+
+The following results from using the option \texttt{americanvoltage} or the style \texttt{[american voltages]}.
+
+\begin{LTXexample}[varwidth=true]
+\begin{circuitikz}[american voltages]
+   \draw (0,0) to[V=$a_1$] (2,0);
+\end{circuitikz}
+\end{LTXexample}
+
+\subsubsection{Straight European style} Using straight arrows. Use option \texttt{straightvoltages} or style \verb![straight voltages]!, or setting (even locally) \texttt{voltage=straight}.
 
 \begin{LTXexample}[varwidth=true]
 \begin{circuitikz}[straight voltages]
@@ -5772,48 +5833,28 @@ See introduction note at Currents and Voltages (chapter \ref{curr-and-volt}, pag
 \end{circuitikz}
 \end{LTXexample}
 
+Again, voltage generators are treated differently:
+
 \begin{LTXexample}[varwidth=true]
 \begin{circuitikz}[straight voltages]
-   \draw (0,0) to[V=10V, i_=$i_1$] (2,0);
+   \draw (0,0) to[V=10V, i_=$i_1$] (3,0);
 \end{circuitikz}
 \end{LTXexample}
 
 \begin{LTXexample}[varwidth=true]
 \begin{circuitikz}[straight voltages]
-   \draw (0,0) to[V<=10V, i_=$i_1$] (2,0);
+   \draw (0,0) to[I, v=10V, i_=$i_1$] (3,0);
 \end{circuitikz}
 \end{LTXexample}
+
+And you can override that with \texttt{bipole/is voltage} keeping into account that the default direction will be the one of passive components:
 
 \begin{LTXexample}[varwidth=true]
 \begin{circuitikz}[straight voltages]
-   \draw (0,0) to[I=1A, v_=$u_1$] (2,0);
+   \draw (0,0) to[V=10V, bipole/is voltage=false,
+                 i_=$i_1$] (3,0);
 \end{circuitikz}
 \end{LTXexample}
-
-\begin{LTXexample}[varwidth=true]
-\begin{circuitikz}[straight voltages]
-   \draw (0,0) to[I<=1A, v_=$u_1$] (2,0);
-\end{circuitikz}
-\end{LTXexample}
-
-\begin{LTXexample}[varwidth=true]
-\begin{circuitikz}[straight voltages]
-   \draw (0,0) to[I=$~$,l=1A, v_=$u_1$] (2,0);
-\end{circuitikz}
-\end{LTXexample}
-
-\begin{LTXexample}[varwidth=true]
-\begin{circuitikz}[straight voltages]
-   \draw (0,0) to[I,l=1A, v_=$u_1$] (2,0);
-\end{circuitikz}
-\end{LTXexample}
-
-\begin{LTXexample}[varwidth=true]
-\begin{circuitikz}[straight voltages]
-   \draw (0,0) to[battery,l_=1V, v=$u_1$, i=$i_1$] (2,0);
-\end{circuitikz}
-\end{LTXexample}
-
 
 \subsubsection{American style}
 Use option \texttt{americanvoltage} or set \verb![american voltages]! or use the option \texttt{voltage=american}.
@@ -5854,7 +5895,53 @@ Use option \texttt{americanvoltage} or set \verb![american voltages]! or use the
 \end{circuitikz}
 \end{LTXexample}
 
-\subsubsection{Voltage position}\label{sec:sub-voltage-position} It is possible to move away the arrows and the plus or minus signs with the key \texttt{voltages shift} (default value is \texttt{0}, which gives the standard position):
+
+\subsubsection{Raised American style}
+
+Since version \texttt{1.2.1}, ``raised'' American voltages are available; to use them, set the style \verb![raised voltages]! or use the option \texttt{voltage=raised}.
+This is a version of the American-style voltage where the signs are raised to the level of the label.
+The label is centered between the two signs, and the position of the signs is calculated supposing that the label itself will be pretty simple; if you have very big labels you will need to adjust the position with \texttt{voltage shift} and/or the \texttt{voltage/distance from node} properties (see section~\ref{sec:common-vif-pos}).
+
+\begin{LTXexample}[varwidth=true]
+\begin{circuitikz}[raised voltages]
+   \draw (0,0) to[R, v^>=$v_1$] (2,0);
+\end{circuitikz}
+\end{LTXexample}
+
+\begin{LTXexample}[varwidth=true]
+\begin{circuitikz}[raised voltages]
+   \draw (0,0) to[R, v^<=$v_1$] (2,0);
+\end{circuitikz}
+\end{LTXexample}
+
+\begin{LTXexample}[varwidth=true]
+\begin{circuitikz}[raised voltages]
+   \draw (0,0) to[R, v_>=$v_1$] (2,0);
+\end{circuitikz}
+\end{LTXexample}
+
+\begin{LTXexample}[varwidth=true]
+\begin{circuitikz}[raised voltages]
+   \draw (0,0) to[R, v_<=$v_1$] (2,0);
+\end{circuitikz}
+\end{LTXexample}
+
+\begin{LTXexample}[varwidth=true]
+\begin{circuitikz}[american]
+   \ctikzset{voltage=raised}
+   \draw (0,0) to[I=1A, v_=$u_1$] (2,0);
+\end{circuitikz}
+\end{LTXexample}
+
+\begin{LTXexample}[varwidth=true]
+\begin{circuitikz}[raised voltages]
+   \draw (0,0) to[I<=1A, v_=$i_1$] (2,0);
+\end{circuitikz}
+\end{LTXexample}
+
+\subsubsection{Voltage position}\label{sec:sub-voltage-position}
+
+It is possible to move the arrows and the plus or minus signs away form the component with the key \texttt{voltages shift} (default value is \texttt{0}, which gives the standard position):
 
 \begin{LTXexample}[varwidth=true]
 \begin{circuitikz}[]
@@ -5862,7 +5949,7 @@ Use option \texttt{americanvoltage} or set \verb![american voltages]! or use the
    \draw (0,-1) to[R, v=$v_1$, i=$i_1$,
       voltage shift=0.5] (2,-1);
    \draw (0,-2) to[R, v=$v_1$, i=$i_1$,
-      voltage shift=1.0, ] (2,-2);
+      voltage shift=1.0] (2,-2);
 \end{circuitikz}
 \end{LTXexample}
 
@@ -5872,12 +5959,24 @@ Use option \texttt{americanvoltage} or set \verb![american voltages]! or use the
 \end{circuitikz}
 \end{LTXexample}
 
+Negative values do work as expected:
+
+\begin{LTXexample}[varwidth=true]
+\begin{circuitikz}[raised voltages]
+   \draw (0,1.5) to[R, v^=$v_1$, i=$i_1$] ++(2,0);
+   \draw (0,0) to[R, v^=$v_1$, i=$i_1$,
+        voltage shift=-1.0] ++(2,0);
+\end{circuitikz}
+\end{LTXexample}
+
 You can fine-tune the position of the \texttt{+} and \texttt{-} symbols and the label in independent way using \texttt{voltage/shift} (default \texttt{0.0} for the former and \texttt{voltage/american label distance} (the distance of the label form the lines of the symbols, default \texttt{1.4}) for the latter.
 
 \begin{LTXexample}[varwidth=true]
 \begin{circuitikz}[american voltages]
-    \ctikzset{voltage/american label distance=0.2, voltage/shift=2}
-    \draw (0,0) to[R, v=$v_1$, i=$i_1$] (2,0);
+    \draw (0,1) to[R, v=$v_1$, i=$i_1$] ++(2,0);
+    % normally 1.4, make it tighter
+    \ctikzset{voltage/american label distance=0.5}
+    \draw (0,0) to[R, v=$v_1$, i=$i_1$] ++(2,0);
 \end{circuitikz}
 \end{LTXexample}
 
@@ -5949,32 +6048,6 @@ This could be especially useful if you define a style, to use like this:
 \end{LTXexample}
 
 
-\subsection{Global properties of voltages and currents}
-
-\begin{LTXexample}[varwidth=true]
-\tikz \draw (0,0) to[R, v=1<\volt>] (2,0); \par
-\ctikzset{voltage/distance from node=.1}
-\tikz \draw (0,0) to[R, v=1<\volt>] (2,0);
-\end{LTXexample}
-
-\begin{LTXexample}[varwidth=true]
-\tikz \draw (0,0) to[C, i=$\imath$] (2,0); \par
-\ctikzset{current/distance = .2}
-\tikz \draw (0,0) to[C, i=$\imath$] (2,0);
-\end{LTXexample}
-
-However, you can override the properties \texttt{voltage/distance from node} (how distant from the initial and final points of the path the arrow starts and ends, default \texttt{0.5}) and \texttt{voltage/bump b} (how high the bump of the arrow is --- how curved it is, default \texttt{1.5}), and also \texttt{voltage/european label distance} (how distant from the ``bump''  the voltage label will be, default \texttt{1.4}) on a per-component basis, in order to fine-tune the voltages:
-
-
-\begin{LTXexample}[varwidth=true]
-\tikz \draw (0,0) to[R, v=1<\volt>] (1.5,0)
-       to[C, v=2<\volt>] (3,0); \par
-\ctikzset{bipoles/capacitor/voltage/distance from node/.initial=.7}
-\tikz \draw (0,0) to[R, v=1<\volt>] (1.5,0)
-       to[C, v=2<\volt>] (3,0); \par
-\end{LTXexample}
-
-Note the \texttt{.initial}; you have to create such key the first time you use it.
 
 \subsection{Changing the style of labels and text ornaments}
 
@@ -5987,7 +6060,7 @@ For example, you can make all annotations small by using:
 \ctikzset{bipole annotation style/.style={font=\small}}
 \end{lstlisting}
 
-And the change (override) the setting in one specific bipole using:
+And/or change (override) the setting in one specific bipole using:
 
 \begin{lstlisting}[numbers=none]
 ...to[bipole annotation style={color=red}, R, a={Red note}]...
@@ -6014,144 +6087,6 @@ The available styles and commands are \texttt{bipole label style}, \texttt{bipol
         bipole flow style={fill=green, outer sep=5pt},
         R=R1, v=V1, i=I1, f>^=F1] ++(3,0)
     to [bipole current append style={color=red}, R, v<=V2, i^=I2, f>^=F2] ++(3,0);
-\end{circuitikz}
-\end{LTXexample}
-
-\subsection{Labels in special components}
-
-For some components label, current and voltage behave as one would expect:
-
-\begin{LTXexample}[varwidth=true]
-\begin{circuitikz}
-   \draw (0,0) to[I=$a_1$] (2,0);
-\end{circuitikz}
-\end{LTXexample}
-
-\begin{LTXexample}[varwidth=true]
-\begin{circuitikz}
-   \draw (0,0) to[I, i=$a_1$] (2,0);
-\end{circuitikz}
-\end{LTXexample}
-
-
-\begin{LTXexample}[varwidth=true]
-\begin{circuitikz}
-   \draw (0,0) to[cI=$k\cdot a_1$] (2,0);
-\end{circuitikz}
-\end{LTXexample}
-
-
-\begin{LTXexample}[varwidth=true]
-\begin{circuitikz}
-   \draw (0,0) to[sI=$a_1$] (2,0);
-\end{circuitikz}
-\end{LTXexample}
-
-\begin{LTXexample}[varwidth=true]
-\begin{circuitikz}
-   \draw (0,0) to[csI=$k\cdot a_1$] (2,0);
-\end{circuitikz}
-\end{LTXexample}
-
-The following results from using the option \texttt{americancurrent} or using the style \texttt{[american currents]}.
-
-\begin{LTXexample}[varwidth=true]
-\begin{circuitikz}[american currents]
-   \draw (0,0) to[I=$a_1$] (2,0);
-\end{circuitikz}
-\end{LTXexample}
-
-\begin{LTXexample}[varwidth=true]
-\begin{circuitikz}[american currents]
-   \draw (0,0) to[I, i=$a_1$] (2,0);
-\end{circuitikz}
-\end{LTXexample}
-
-
-\begin{LTXexample}[varwidth=true]
-\begin{circuitikz}[american currents]
-   \draw (0,0) to[cI=$k\cdot a_1$] (2,0);
-\end{circuitikz}
-\end{LTXexample}
-
-
-\begin{LTXexample}[varwidth=true]
-\begin{circuitikz}[american currents]
-   \draw (0,0) to[sI=$a_1$] (2,0);
-\end{circuitikz}
-\end{LTXexample}
-
-\begin{LTXexample}[varwidth=true]
-\begin{circuitikz}[american currents]
-   \draw (0,0) to[csI=$k\cdot a_1$] (2,0);
-\end{circuitikz}
-\end{LTXexample}
-
-The same holds for voltage sources:
-
-\begin{LTXexample}[varwidth=true]
-\begin{circuitikz}
-   \draw (0,0) to[V=$a_1$] (2,0);
-\end{circuitikz}
-\end{LTXexample}
-
-\begin{LTXexample}[varwidth=true]
-\begin{circuitikz}
-   \draw (0,0) to[V, v=$a_1$] (2,0);
-\end{circuitikz}
-\end{LTXexample}
-
-
-\begin{LTXexample}[varwidth=true]
-\begin{circuitikz}
-   \draw (0,0) to[cV=$k\cdot a_1$] (2,0);
-\end{circuitikz}
-\end{LTXexample}
-
-
-\begin{LTXexample}[varwidth=true]
-\begin{circuitikz}
-   \draw (0,0) to[sV=$a_1$] (2,0);
-\end{circuitikz}
-\end{LTXexample}
-
-\begin{LTXexample}[varwidth=true]
-\begin{circuitikz}
-   \draw (0,0) to[csV=$k\cdot a_1$] (2,0);
-\end{circuitikz}
-\end{LTXexample}
-
-The following results from using the option \texttt{americanvoltage} or the style \texttt{[american voltages]}.
-
-\begin{LTXexample}[varwidth=true]
-\begin{circuitikz}[american voltages]
-   \draw (0,0) to[V=$a_1$] (2,0);
-\end{circuitikz}
-\end{LTXexample}
-
-\begin{LTXexample}[varwidth=true]
-\begin{circuitikz}[american voltages]
-   \draw (0,0) to[V, v=$a_1$] (2,0);
-\end{circuitikz}
-\end{LTXexample}
-
-
-\begin{LTXexample}[varwidth=true]
-\begin{circuitikz}[american voltages]
-   \draw (0,0) to[cV=$k v_e$] (2,0);
-\end{circuitikz}
-\end{LTXexample}
-
-
-\begin{LTXexample}[varwidth=true]
-\begin{circuitikz}[american voltages]
-   \draw (0,0) to[sV=$a_1$] (2,0);
-\end{circuitikz}
-\end{LTXexample}
-
-\begin{LTXexample}[varwidth=true]
-\begin{circuitikz}[american voltages]
-   \draw (0,0) to[csV=$k v_e$] (2,0);
 \end{circuitikz}
 \end{LTXexample}
 
@@ -7197,3 +7132,4 @@ Here a series of example, contributed by several people, is shown with their cod
 \printindex
 
 \end{document}
+% vim: set fdm=marker fmr=%<<<,%>>>:

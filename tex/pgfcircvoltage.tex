@@ -174,6 +174,10 @@
                 \def\pgf@circ@bipole@voltage@label@anchor{center}
             \fi
         \fi
+        \ifpgf@circuit@bipole@voltage@raised
+            \def\pgf@circ@bipole@voltage@label@anchor{center}
+            \pgfmathsetlength{\absvshift}{\absvshift+height{"Q"}} % with the current font.
+        \fi
     }
     % %\pgf@circ@Rlen/\ctikzvalof{current arrow scale} is equal to the length of the currarrow
     %absolute move, minimum space is length of arrowhead
@@ -207,7 +211,7 @@
                 coordinate (pgfcirc@Vlab) at ($(pgfcirc@Vcont2)!0.5!(pgfcirc@Vcont1)$)
                 coordinate (pgfcirc@Vdir) at (pgfcirc@Vcont2)
             \fi
-        \else % we are here in case of american here
+        \else
             % we are in case of american here
             coordinate (pgfcirc@Vto) at ($(pgfcirc@Vto@flat) ! \absvshift!90 :  (anchorendnode)$)
             coordinate (pgfcirc@Vfrom) at ($(pgfcirc@Vfrom@flat) ! \absvshift!-90 :  (anchorstartnode)$)
@@ -215,6 +219,11 @@
             coordinate (pgfcirc@Vdir0) at ($(pgfcirc@mid)+(pgfcirc@bottom)-(pgfcirc@Vfrom@flat)$)
             coordinate (pgfcirc@Vlab) at ($(pgfcirc@bottom) !  \absvshift!-90 : (pgfcirc@Vdir0)$)
             coordinate (pgfcirc@Vdir) at ($(pgfcirc@mid)+(pgfcirc@Vlab)-(pgfcirc@Vfrom@flat)$)
+            \ifpgf@circuit@bipole@voltage@raised
+                % move the from and to up to the level of Vlab
+                coordinate (pgfcirc@Vto) at ($(pgfcirc@Vlab)+(pgfcirc@Vto@flat)-(pgfcirc@mid)$)
+                coordinate (pgfcirc@Vfrom) at ($(pgfcirc@Vlab)+(pgfcirc@Vfrom@flat)-(pgfcirc@mid)$)
+            \fi
         \fi
     \else
         \ifpgf@circuit@europeanvoltage
@@ -253,6 +262,11 @@
             % and add the extra distance
             coordinate (pgfcirc@Vlab) at ($(pgfcirc@top) !  \absvshift!90 : (pgfcirc@Vdir0)$)
             coordinate (pgfcirc@Vdir) at ($(pgfcirc@mid)+(pgfcirc@Vlab)-(pgfcirc@Vfrom@flat)$)
+            \ifpgf@circuit@bipole@voltage@raised
+                % move the from and to up to the level of Vlab
+                coordinate (pgfcirc@Vto) at ($(pgfcirc@Vlab)+(pgfcirc@Vto@flat)-(pgfcirc@mid)$)
+                coordinate (pgfcirc@Vfrom) at ($(pgfcirc@Vlab)+(pgfcirc@Vfrom@flat)-(pgfcirc@mid)$)
+            \fi
         \fi
     \fi
     \ifx\@@kind\@@open
@@ -507,7 +521,12 @@
             % check for american
             \edef\pgf@temp{/tikz/circuitikz/bipoles/\ctikzvalof{bipole/kind}/voltage/american label distance}
             \pgfkeysifdefined{\pgf@temp}{%
-                \edef\labeldist{\ctikzvalof{bipoles/\ctikzvalof{bipole/kind}/voltage/american label distance}}%
+                \ifpgf@circuit@bipole@voltage@raised
+                    % do not apply the shift if we are using raised american style
+                    \edef\labeldist{1.4}% default value
+                \else
+                    \edef\labeldist{\ctikzvalof{bipoles/\ctikzvalof{bipole/kind}/voltage/american label distance}}%
+                \fi
                 % \typeout{AL:ADJUSTED\space for\space \ctikzvalof{bipole/kind} \space at \space \aldist}
             }{\edef\labeldist{\ctikzvalof{voltage/american label distance}}}
             \ifpgf@circ@debugv\edef\whichtypeshift{AME}\fi
