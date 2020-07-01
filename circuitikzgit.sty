@@ -12,8 +12,8 @@
 
 \NeedsTeXFormat{LaTeX2e}
 
-\def\pgfcircversion{1.2.1-unreleased-6408324}
-\def\pgfcircversiondate{2020/06/30}
+\def\pgfcircversion{1.2.1-unreleased-67851f3}
+\def\pgfcircversiondate{2020/07/01}
 
 \ProvidesPackage{circuitikzgit}
 [\pgfcircversiondate{} The CircuiTikz circuit drawing package version \pgfcircversion]
@@ -22003,22 +22003,6 @@
     }
 }
 
-%% Helper function for path-function to ensure using anchors between nodes
-\def\set@explicit@center@anchor#1{
-    \pgfutil@ifundefined{pgf@sh@ns@#1}
-    {
-        %This coordinate is no node(but a relative position or a coordinate), no further handling needed
-        }{
-        \pgfutil@in@.{#1}
-        \ifpgfutil@in@
-            % Anchor is used, do nothing!
-    \else%
-        \let\tikz@moveto@waiting=\relax
-        \pgfpathmoveto{\tikz@last@position}%force movement, because tikz@moveto@waiting
-        \edef#1{#1.center}%ensure using center anchor
-    \fi
-}
-}
 
 %% Generic bipole path
 \def\pgf@circ@bipole@path#1#2{
@@ -22062,9 +22046,6 @@
     % #4: this will be filled by the argument of the to-path
     %
     \pgfextra{
-        \set@explicit@center@anchor{\tikztostart}
-        \set@explicit@center@anchor{\tikztotarget}
-        \pgfsyssoftpath@getcurrentpath{\myp@th}%% save current path to extend after calculation of correct start/end coordinates
         \ctikzset{bipole/kind = #3}
         \edef\pgf@temp{\ctikzvalof{bipole/name}}
         \def\pgf@circ@temp{}
@@ -22073,69 +22054,65 @@
             \ctikzset{bipole/name = #3\pgf@circ@rand} % create it (re-usage should not create problem, but...)
         \fi
     }
-
-    (\tikztostart) coordinate (\ctikzvalof{bipole/name}start)%necessary to get correct coordinates in the case of relative start/end or constructions like ((node1)-|(node2))
-    (\tikztotarget) coordinate (\ctikzvalof{bipole/name}end)
+    % save start and stop values
+    % notice that we DO NOT MOVE the path position at all!
+    coordinate (\ctikzvalof{bipole/name}start) at (\tikztostart)
+    coordinate (\ctikzvalof{bipole/name}end) at (\tikztotarget)
     \pgfextra{
+        % find the direction (angle) of the path
         \pgfmathanglebetweenpoints{\pgfpointanchor{\ctikzvalof{bipole/name}start}{center}}
-        {\pgfpointanchor{\ctikzvalof{bipole/name}end}{center}}
-        % DO NOT ROUND HERE! pgfcirclabel.tex will do that when needed
-        % \pgfmathround{\pgfmathresult}
-        \edef\pgf@circ@direction{\pgfmathresult}%Calculate direction(angle) of path
-        % \typeout{DIRECTION:\pgf@circ@direction}
-        \pgfsyssoftpath@setcurrentpath{\myp@th}
+            {\pgfpointanchor{\ctikzvalof{bipole/name}end}{center}}
+        \edef\pgf@circ@direction{\pgfmathresult}
     }
+    % position the component in the middle of the path. We DO NOT MOVE the current position!
+    node[#3#1, rotate=\pgf@circ@direction, yscale=\ctikzvalof{mirror value},
+        xscale=\ctikzvalof{invert value}] (\ctikzvalof{bipole/name})
+        at ($(\tikztostart) ! .5 ! (\tikztotarget)$) {#2}
+    % set start and end labels
+    \ifpgf@circuit@bipole@inverted
+        \ifcsname pgf@anchor@#3#1@pathstart\endcsname%if special path-anchors are defined, use them!
+            coordinate	(anchorstartnode) at (\ctikzvalof{bipole/name}.pathend)
+            coordinate	(anchorendnode) at (\ctikzvalof{bipole/name}.pathstart)
+        \else
+            coordinate	(anchorstartnode) at (\ctikzvalof{bipole/name}.right)
+            coordinate	(anchorendnode) at (\ctikzvalof{bipole/name}.left)
+        \fi
+        \else
+        \ifcsname pgf@anchor@#3#1@pathstart\endcsname%if special path-anchors are defined, use them!
+            coordinate	(anchorstartnode) at (\ctikzvalof{bipole/name}.pathstart)
+            coordinate	(anchorendnode) at (\ctikzvalof{bipole/name}.pathend)
+        \else
+            coordinate	(anchorstartnode) at (\ctikzvalof{bipole/name}.left)
+            coordinate	(anchorendnode) at (\ctikzvalof{bipole/name}.right)
+        \fi
+    \fi
+    % draw the leads unless it's an open circuit
+    % stop at the component
     \pgfextra{\def\pgf@temp{open}\def\pgf@circ@temp{#3}}
-    \ifx\pgf@temp\pgf@circ@temp  % if it is an open
-        \else
-            --($(\ctikzvalof{bipole/name}start) ! .5\pgflinewidth ! (\ctikzvalof{bipole/name}end)$) %ugly workaround to get correct linejoins(node breaks path?)
-        \fi
-        ($(\tikztostart) ! .5 ! (\tikztotarget)$)%%positio of middle node
-        node[#3#1, rotate=\pgf@circ@direction, yscale=\ctikzvalof{mirror value}, xscale=\ctikzvalof{invert value}]
-        (\ctikzvalof{bipole/name}) {#2}
-        \ifpgf@circuit@bipole@inverted
-            \ifcsname pgf@anchor@#3#1@pathstart\endcsname%if special path-anchors are defined, use them!
-                coordinate	(anchorstartnode) at (\ctikzvalof{bipole/name}.pathend)
-                coordinate	(anchorendnode) at (\ctikzvalof{bipole/name}.pathstart)
-            \else
-                coordinate	(anchorstartnode) at (\ctikzvalof{bipole/name}.right)
-                coordinate	(anchorendnode) at (\ctikzvalof{bipole/name}.left)
-            \fi
-            \else
-            \ifcsname pgf@anchor@#3#1@pathstart\endcsname%if special path-anchors are defined, use them!
-                coordinate	(anchorstartnode) at (\ctikzvalof{bipole/name}.pathstart)
-                coordinate	(anchorendnode) at (\ctikzvalof{bipole/name}.pathend)
-            \else
-                coordinate	(anchorstartnode) at (\ctikzvalof{bipole/name}.left)
-                coordinate	(anchorendnode) at (\ctikzvalof{bipole/name}.right)
-            \fi
-        \fi
-        \pgfextra{\def\pgf@temp{open}\def\pgf@circ@temp{#3}}
-        \ifx\pgf@temp\pgf@circ@temp  % if it is an open
-        \else
-            (\ctikzvalof{bipole/name}start.center) -- (anchorstartnode)
-            (anchorendnode)  -- (\ctikzvalof{bipole/name}end.center)
-        \fi
-
-        \drawpoles
-        \pgf@circ@ifkeyempty{bipole/label/name}\else\pgf@circ@drawlabels{label}\fi
-        \pgf@circ@ifkeyempty{bipole/annotation/name}\else\pgf@circ@drawlabels{annotation}\fi
-        \pgf@circ@ifkeyempty{bipole/voltage/label/name}\else\pgf@circ@drawvoltage\fi
-        \pgf@circ@ifkeyempty{bipole/current/label/name}\else\pgf@circ@drawcurrent\fi
-        \pgf@circ@ifkeyempty{bipole/flow/label/name}\else\pgf@circ@drawflow\fi
-        \pgfextra{\def\pgf@temp{open}\def\pgf@circ@temp{#3}}
-        \ifx\pgf@temp\pgf@circ@temp  % if it is an open
-            (\ctikzvalof{bipole/name}end)%Move to end of path
-        \else
-            ($(\ctikzvalof{bipole/name}end) ! .5\pgflinewidth ! (\ctikzvalof{bipole/name}start)$) -- (\ctikzvalof{bipole/name}end)%ugly workaround to get correct linejoins(node breaks path?)
-            %tikztostart and tikztotarget could not be used, because it would break if target coordinate is something like (node1-|node2)
-
-        \fi
-    % reset
-    \pgfextra{
-        \pgfcircresetpath
-    }
-    \tikztonodes%draw pending nodes an path
+    \ifx\pgf@temp\pgf@circ@temp  % if it is an open do nothing
+    \else
+        % it is important to start the path with -- to have correct line joins!
+        -- (\tikztostart) -- (anchorstartnode)
+    \fi
+    % Add all the "ornaments": labels, annotations, voltages, currents and flows
+    \drawpoles
+    \pgf@circ@ifkeyempty{bipole/label/name}\else\pgf@circ@drawlabels{label}\fi
+    \pgf@circ@ifkeyempty{bipole/annotation/name}\else\pgf@circ@drawlabels{annotation}\fi
+    \pgf@circ@ifkeyempty{bipole/voltage/label/name}\else\pgf@circ@drawvoltage\fi
+    \pgf@circ@ifkeyempty{bipole/current/label/name}\else\pgf@circ@drawcurrent\fi
+    \pgf@circ@ifkeyempty{bipole/flow/label/name}\else\pgf@circ@drawflow\fi
+    % finish the path from the component to the final target
+    % you never know --- re-set \pgf@temp to detect open
+    \pgfextra{\def\pgf@temp{open}\def\pgf@circ@temp{#3}}
+    \ifx\pgf@temp\pgf@circ@temp  % if it is an open do nothing
+        (\tikztotarget)
+    \else
+        (anchorendnode)  -- (\tikztotarget)
+    \fi
+    % reset internal circuit keys
+    \pgfextra{\pgfcircresetpath}
+    %draw pending nodes an path
+    \tikztonodes
 }
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
