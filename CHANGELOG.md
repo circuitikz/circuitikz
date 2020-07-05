@@ -3,12 +3,18 @@ The major changes among the different circuitikz versions are listed here. See <
 
 * Version 1.2.1 (unreleased)
 
-    In this release, there are big changes, potentially dangerous. The macros that implement the path elements (`to[...]`) has been rewritten.
-    Also, a new style of voltages has been added.
+    In this release, there are big changes, potentially dangerous.
 
-    - Bumped version number to 1.2.1 to avoid confusion
+    From the user point of view:
+    - there is now a new style of voltages ("raised American")
+    - a powerful mechanism for customize voltages, current and flows has been added.
+
+    The internal changes are basically the re-implementation of the macros that draw the path elements (`to[...]`), which have been completely rewritten. Please be sure to read the possible incompatibilities in the manual (section 1.9).
+
+    - Added access to voltages, currents and flows anchors
     - Added "raised american" voltage style
     - Rewrite of the path generation macros
+    - Several small bugs fixed (no one ever used some "f^>" options...)
 
 * Version 1.2.0 (2020-06-21)
 
