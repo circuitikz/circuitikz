@@ -1,9 +1,9 @@
 <!--- CircuiTikz - Changelog --->
 The major changes among the different circuitikz versions are listed here. See <https://github.com/circuitikz/circuitikz/commits> for a full list of changes.
 
-* Version 1.2.1 (unreleased)
+* Version 1.2.1 (2020-07-06)
 
-    In this release, there are big changes, potentially dangerous.
+    Several changes, both internal and user-visible. These are quite risky, although they *should* be backeard-compatible.
 
     From the user point of view:
     - there is now a new style of voltages ("raised American")
