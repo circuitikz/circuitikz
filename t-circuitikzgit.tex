@@ -10,8 +10,8 @@
 %
 % See the files gpl-3.0_license.txt and lppl-1-3c_license.txt for more details.
 
-\def\pgfcircversion{1.2.1-unreleased-c95eb49}
-\def\pgfcircversiondate{2020/07/02}
+\def\pgfcircversion{1.2.1-unreleased-a446db6}
+\def\pgfcircversiondate{2020/07/06}
 \writestatus{loading}{\pgfcircversiondate{} The CircuiTikz circuit drawing package version \pgfcircversion}
 
 \usemodule[tikz]
@@ -2144,9 +2144,17 @@
 % above. I hope it is ok --- would be a mess otherwise
 %
 \ctikzset{voltage/shift/.initial=0.0} % shift form the cable of voltage symbols
-\ctikzset{voltage shift/.style={voltage/shift=#1}}
+\ctikzset{voltage shift/.style={\circuitikzbasekey/voltage/shift=#1}}
 \tikzset{voltage shift/.style={\circuitikzbasekey/voltage/shift=#1}}
-
+%
+% keys for exporting voltage, current, flow anchors
+%
+\newif\ifpgfcirc@has@v\pgfcirc@has@vfalse
+\newif\ifpgfcirc@has@f\pgfcirc@has@ffalse
+\newif\ifpgfcirc@has@i\pgfcirc@has@ifalse
+\def\ctikzgetanchor#1#2{\csname pgfcirc@#1-#2-anchor\endcsname}
+\def\ctikzgetdirection#1{\csname pgfcirc@#1-direction\endcsname}
+%
 % shaping the +/- sign, see pgfcircvoltage.tex
 \ctikzset{voltage/american font/.initial={}}
 \ctikzset{voltage/american plus/.initial={$+$}}
@@ -20699,6 +20707,7 @@
 % Default position varies whether the component is a voltage source
 % or not
 \ctikzset{v/.code = {
+        \pgfcirc@has@vtrue
         \ifpgf@circuit@bipole@isvoltage
             \pgfkeys{\circuitikzbasekey/bipole/voltage/position=above,
             \circuitikzbasekey/bipole/voltage/direction=forward}
@@ -20838,32 +20847,32 @@
                 coordinate (pgfcirc@bottom) at (\ctikzvalof{bipole/name}.-90)
                 coordinate (pgfcirc@Vto1) at ($(pgfcirc@mid)+(pgfcirc@bottom)-(pgfcirc@Vfrom@flat)$)
                 coordinate (pgfcirc@Vfrom1) at ($(pgfcirc@mid)+(pgfcirc@bottom)-(pgfcirc@Vto@flat)$)
-                coordinate (pgfcirc@Vto)   at ($(pgfcirc@Vto1) ! \absvshift!90 :  (pgfcirc@Vfrom1)$)
-                coordinate (pgfcirc@Vfrom) at ($(pgfcirc@Vfrom1) ! \absvshift!-90 :  (pgfcirc@Vto1)$)
-                coordinate (pgfcirc@Vlab) at ($(pgfcirc@Vto)!0.5!(pgfcirc@Vfrom) $)
-                coordinate (pgfcirc@Vdir) at (pgfcirc@Vto)
+                coordinate (\pgfcirc@a@prefix-Vto)   at ($(pgfcirc@Vto1) ! \absvshift!90 :  (pgfcirc@Vfrom1)$)
+                coordinate (\pgfcirc@a@prefix-Vfrom) at ($(pgfcirc@Vfrom1) ! \absvshift!-90 :  (pgfcirc@Vto1)$)
+                coordinate (\pgfcirc@a@prefix-Vlab) at ($(\pgfcirc@a@prefix-Vto)!0.5!(\pgfcirc@a@prefix-Vfrom) $)
+                coordinate (pgfcirc@Vdir) at (\pgfcirc@a@prefix-Vto)
             \else
-                coordinate (pgfcirc@Vto)   at ($(pgfcirc@Vto@flat) ! \absvshift!90 :  (anchorendnode)$)
-                coordinate (pgfcirc@Vfrom) at ($(pgfcirc@Vfrom@flat) ! \absvshift!-90 :  (anchorstartnode)$)
+                coordinate (\pgfcirc@a@prefix-Vto)   at ($(pgfcirc@Vto@flat) ! \absvshift!90 :  (anchorendnode)$)
+                coordinate (\pgfcirc@a@prefix-Vfrom) at ($(pgfcirc@Vfrom@flat) ! \absvshift!-90 :  (anchorstartnode)$)
                 coordinate (pgfcirc@Vcont1t) at ($(\ctikzvalof{bipole/name}.center) ! \bumpb ! (\ctikzvalof{bipole/name}.-110)$)
                 coordinate (pgfcirc@Vcont2t) at ($(\ctikzvalof{bipole/name}.center) ! \bumpb ! (\ctikzvalof{bipole/name}.-70)$)
-                coordinate (pgfcirc@Vcont1) at ($(pgfcirc@Vcont1t) ! -\absvshift!90 : (pgfcirc@Vcont2t)$)
-                coordinate (pgfcirc@Vcont2) at ($(pgfcirc@Vcont2t) ! -\absvshift!-90 : (pgfcirc@Vcont1t)$)
-                coordinate (pgfcirc@Vlab) at ($(pgfcirc@Vcont2)!0.5!(pgfcirc@Vcont1)$)
-                coordinate (pgfcirc@Vdir) at (pgfcirc@Vcont2)
+                coordinate (\pgfcirc@a@prefix-Vcont1) at ($(pgfcirc@Vcont1t) ! -\absvshift!90 : (pgfcirc@Vcont2t)$)
+                coordinate (\pgfcirc@a@prefix-Vcont2) at ($(pgfcirc@Vcont2t) ! -\absvshift!-90 : (pgfcirc@Vcont1t)$)
+                coordinate (\pgfcirc@a@prefix-Vlab) at ($(\pgfcirc@a@prefix-Vcont2)!0.5!(\pgfcirc@a@prefix-Vcont1)$)
+                coordinate (pgfcirc@Vdir) at (\pgfcirc@a@prefix-Vcont2)
             \fi
         \else
             % we are in case of american here
-            coordinate (pgfcirc@Vto) at ($(pgfcirc@Vto@flat) ! \absvshift!90 :  (anchorendnode)$)
-            coordinate (pgfcirc@Vfrom) at ($(pgfcirc@Vfrom@flat) ! \absvshift!-90 :  (anchorstartnode)$)
+            coordinate (\pgfcirc@a@prefix-Vto) at ($(pgfcirc@Vto@flat) ! \absvshift!90 :  (anchorendnode)$)
+            coordinate (\pgfcirc@a@prefix-Vfrom) at ($(pgfcirc@Vfrom@flat) ! \absvshift!-90 :  (anchorstartnode)$)
             coordinate (pgfcirc@bottom) at (\ctikzvalof{bipole/name}.-90)
             coordinate (pgfcirc@Vdir0) at ($(pgfcirc@mid)+(pgfcirc@bottom)-(pgfcirc@Vfrom@flat)$)
-            coordinate (pgfcirc@Vlab) at ($(pgfcirc@bottom) !  \absvshift!-90 : (pgfcirc@Vdir0)$)
-            coordinate (pgfcirc@Vdir) at ($(pgfcirc@mid)+(pgfcirc@Vlab)-(pgfcirc@Vfrom@flat)$)
+            coordinate (\pgfcirc@a@prefix-Vlab) at ($(pgfcirc@bottom) !  \absvshift!-90 : (pgfcirc@Vdir0)$)
+            coordinate (pgfcirc@Vdir) at ($(pgfcirc@mid)+(\pgfcirc@a@prefix-Vlab)-(pgfcirc@Vfrom@flat)$)
             \ifpgf@circuit@bipole@voltage@raised
                 % move the from and to up to the level of Vlab
-                coordinate (pgfcirc@Vto) at ($(pgfcirc@Vlab)+(pgfcirc@Vto@flat)-(pgfcirc@mid)$)
-                coordinate (pgfcirc@Vfrom) at ($(pgfcirc@Vlab)+(pgfcirc@Vfrom@flat)-(pgfcirc@mid)$)
+                coordinate (\pgfcirc@a@prefix-Vto) at ($(\pgfcirc@a@prefix-Vlab)+(pgfcirc@Vto@flat)-(pgfcirc@mid)$)
+                coordinate (\pgfcirc@a@prefix-Vfrom) at ($(\pgfcirc@a@prefix-Vlab)+(pgfcirc@Vfrom@flat)-(pgfcirc@mid)$)
             \fi
         \fi
     \else
@@ -20874,107 +20883,113 @@
                 coordinate (pgfcirc@Vto1) at ($(pgfcirc@mid)+(pgfcirc@top)-(pgfcirc@Vfrom@flat)$)
                 coordinate (pgfcirc@Vfrom1) at ($(pgfcirc@mid)+(pgfcirc@top)-(pgfcirc@Vto@flat)$)
                 % add the extra distance
-                coordinate (pgfcirc@Vto)   at ($(pgfcirc@Vto1) ! \absvshift!-90 :  (pgfcirc@Vfrom1)$)
-                coordinate (pgfcirc@Vfrom) at ($(pgfcirc@Vfrom1) ! \absvshift!90 :  (pgfcirc@Vto1)$)
-                coordinate (pgfcirc@Vlab) at ($(pgfcirc@Vto)!0.5!(pgfcirc@Vfrom) $)
+                coordinate (\pgfcirc@a@prefix-Vto)   at ($(pgfcirc@Vto1) ! \absvshift!-90 :  (pgfcirc@Vfrom1)$)
+                coordinate (\pgfcirc@a@prefix-Vfrom) at ($(pgfcirc@Vfrom1) ! \absvshift!90 :  (pgfcirc@Vto1)$)
+                coordinate (\pgfcirc@a@prefix-Vlab) at ($(\pgfcirc@a@prefix-Vto)!0.5!(\pgfcirc@a@prefix-Vfrom) $)
                 % direction line to shift the label later
-                coordinate (pgfcirc@Vdir) at (pgfcirc@Vto)
+                coordinate (pgfcirc@Vdir) at (\pgfcirc@a@prefix-Vto)
             \else
                 % european voltages here
-                coordinate (pgfcirc@Vto) at ($(pgfcirc@Vto@flat) ! -\absvshift!90 :  (anchorendnode)$)
-                coordinate (pgfcirc@Vfrom) at ($(pgfcirc@Vfrom@flat) ! -\absvshift!-90 :  (anchorstartnode)$)
+                coordinate (\pgfcirc@a@prefix-Vto) at ($(pgfcirc@Vto@flat) ! -\absvshift!90 :  (anchorendnode)$)
+                coordinate (\pgfcirc@a@prefix-Vfrom) at ($(pgfcirc@Vfrom@flat) ! -\absvshift!-90 :  (anchorstartnode)$)
                 % identify the two control points for the "arc" of the voltage
                 coordinate (pgfcirc@Vcont1t) at ($(\ctikzvalof{bipole/name}.center) ! \bumpb ! (\ctikzvalof{bipole/name}.110)$)
                 coordinate (pgfcirc@Vcont2t) at ($(\ctikzvalof{bipole/name}.center) ! \bumpb ! (\ctikzvalof{bipole/name}.70)$)
                 % and shift them a bit
-                coordinate (pgfcirc@Vcont1) at ($(pgfcirc@Vcont1t) ! \absvshift!90 : (pgfcirc@Vcont2t)$)
-                coordinate (pgfcirc@Vcont2) at ($(pgfcirc@Vcont2t) ! \absvshift!-90 : (pgfcirc@Vcont1t)$)
-                coordinate (pgfcirc@Vlab) at ($(pgfcirc@Vcont2)!0.5!(pgfcirc@Vcont1)$)
+                coordinate (\pgfcirc@a@prefix-Vcont1) at ($(pgfcirc@Vcont1t) ! \absvshift!90 : (pgfcirc@Vcont2t)$)
+                coordinate (\pgfcirc@a@prefix-Vcont2) at ($(pgfcirc@Vcont2t) ! \absvshift!-90 : (pgfcirc@Vcont1t)$)
+                coordinate (\pgfcirc@a@prefix-Vlab) at ($(\pgfcirc@a@prefix-Vcont2)!0.5!(\pgfcirc@a@prefix-Vcont1)$)
                 % direction line to shift the label later
-                coordinate (pgfcirc@Vdir) at (pgfcirc@Vcont2)
+                coordinate (pgfcirc@Vdir) at (\pgfcirc@a@prefix-Vcont2)
             \fi
         \else
             % we are in case of american here
-            coordinate (pgfcirc@Vto) at ($(pgfcirc@Vto@flat) ! \absvshift!-90 :  (anchorendnode)$)
-            coordinate (pgfcirc@Vfrom) at ($(pgfcirc@Vfrom@flat) ! \absvshift!90 :  (anchorstartnode)$)
+            coordinate (\pgfcirc@a@prefix-Vto) at ($(pgfcirc@Vto@flat) ! \absvshift!-90 :  (anchorendnode)$)
+            coordinate (\pgfcirc@a@prefix-Vfrom) at ($(pgfcirc@Vfrom@flat) ! \absvshift!90 :  (anchorstartnode)$)
             coordinate (pgfcirc@top) at (\ctikzvalof{bipole/name}.90)
             % move parallel to the component line
             coordinate (pgfcirc@Vdir0) at ($(pgfcirc@mid)+(pgfcirc@top)-(pgfcirc@Vfrom@flat)$)
             % and add the extra distance
-            coordinate (pgfcirc@Vlab) at ($(pgfcirc@top) !  \absvshift!90 : (pgfcirc@Vdir0)$)
-            coordinate (pgfcirc@Vdir) at ($(pgfcirc@mid)+(pgfcirc@Vlab)-(pgfcirc@Vfrom@flat)$)
+            coordinate (\pgfcirc@a@prefix-Vlab) at ($(pgfcirc@top) !  \absvshift!90 : (pgfcirc@Vdir0)$)
+            coordinate (pgfcirc@Vdir) at ($(pgfcirc@mid)+(\pgfcirc@a@prefix-Vlab)-(pgfcirc@Vfrom@flat)$)
             \ifpgf@circuit@bipole@voltage@raised
                 % move the from and to up to the level of Vlab
-                coordinate (pgfcirc@Vto) at ($(pgfcirc@Vlab)+(pgfcirc@Vto@flat)-(pgfcirc@mid)$)
-                coordinate (pgfcirc@Vfrom) at ($(pgfcirc@Vlab)+(pgfcirc@Vfrom@flat)-(pgfcirc@mid)$)
+                coordinate (\pgfcirc@a@prefix-Vto) at ($(\pgfcirc@a@prefix-Vlab)+(pgfcirc@Vto@flat)-(pgfcirc@mid)$)
+                coordinate (\pgfcirc@a@prefix-Vfrom) at ($(\pgfcirc@a@prefix-Vlab)+(pgfcirc@Vfrom@flat)-(pgfcirc@mid)$)
             \fi
         \fi
     \fi
     \ifx\@@kind\@@open
-        coordinate (pgfcirc@Vto) at (pgfcirc@Vto@flat)
-        coordinate (pgfcirc@Vfrom) at (pgfcirc@Vfrom@flat)
+        coordinate (\pgfcirc@a@prefix-Vto) at (pgfcirc@Vto@flat)
+        coordinate (\pgfcirc@a@prefix-Vfrom) at (pgfcirc@Vfrom@flat)
     \fi
     \ifpgf@circ@debugv
         node [ocirc, fill=red] at (anchorstartnode) {}
         node [ocirc, fill=blue] at (anchorendnode) {}
-        node [ocirc, fill=green] at (pgfcirc@Vto) {}
-        node [ocirc, fill=yellow] at (pgfcirc@Vfrom) {}
+        node [ocirc, fill=green] at (\pgfcirc@a@prefix-Vto) {}
+        node [ocirc, fill=yellow] at (\pgfcirc@a@prefix-Vfrom) {}
         node [odiamondpole, fill=green!50!black] at (pgfcirc@Vto@flat) {}
         node [odiamondpole, fill=orange] at (pgfcirc@Vfrom@flat) {}
         \ifpgf@circuit@europeanvoltage
             \ifpgf@circuit@bipole@voltage@straight
             \else
-                node [osquarepole, fill=red] at (pgfcirc@Vcont1) {}
-                node [osquarepole, fill=blue] at (pgfcirc@Vcont2) {}
+                node [osquarepole, fill=red] at (\pgfcirc@a@prefix-Vcont1) {}
+                node [osquarepole, fill=blue] at (\pgfcirc@a@prefix-Vcont2) {}
             \fi
         \fi
     \fi
 
+    %
+    % Now we draw the voltage things (only if not empty --- in which case we have been
+    % called just to set the anchors)
+    %
+    \pgf@circ@ifkeyempty{bipole/voltage/label/name}\else
     \ifpgf@circuit@europeanvoltage
         \ifpgf@circuit@bipole@voltage@straight
             \ifpgf@circuit@bipole@voltage@backward
-                (pgfcirc@Vto) --(pgfcirc@Vfrom) node[currarrow, sloped,  allow upside down, pos=1,anchor=tip] {}
+                (\pgfcirc@a@prefix-Vto) --(\pgfcirc@a@prefix-Vfrom) node[currarrow, sloped,  allow upside down, pos=1,anchor=tip] {}
             \else
-                (pgfcirc@Vfrom) --(pgfcirc@Vto) node[currarrow, sloped,  allow upside down, pos=1,anchor=tip] {}
+                (\pgfcirc@a@prefix-Vfrom) --(\pgfcirc@a@prefix-Vto) node[currarrow, sloped,  allow upside down, pos=1,anchor=tip] {}
             \fi
         \else
             \ifpgf@circuit@bipole@voltage@backward
-                (pgfcirc@Vto) .. controls (pgfcirc@Vcont2)  and (pgfcirc@Vcont1) ..
+                (\pgfcirc@a@prefix-Vto) .. controls (\pgfcirc@a@prefix-Vcont2)  and (\pgfcirc@a@prefix-Vcont1) ..
                 node[currarrow, sloped,  allow upside down, pos=1, anchor=tip] {}
-                (pgfcirc@Vfrom)
+                (\pgfcirc@a@prefix-Vfrom)
             \else
-                (pgfcirc@Vfrom) .. controls (pgfcirc@Vcont1)  and (pgfcirc@Vcont2) ..
+                (\pgfcirc@a@prefix-Vfrom) .. controls (\pgfcirc@a@prefix-Vcont1)  and (\pgfcirc@a@prefix-Vcont2) ..
                 node[currarrow, sloped,  allow upside down, pos=1, anchor=tip] {}
-                (pgfcirc@Vto)
+                (\pgfcirc@a@prefix-Vto)
             \fi
         \fi
     \else % american
         \ifpgf@circuit@bipole@voltage@backward
             \ifpgf@circ@oldvoltagedirection
-                (pgfcirc@Vfrom) node[inner sep=0, node font=\pgf@circ@avfont,
+                (\pgfcirc@a@prefix-Vfrom) node[inner sep=0, node font=\pgf@circ@avfont,
                     anchor=\pgf@circ@bipole@voltage@label@anchor]{\pgf@circ@avplus}
-                (pgfcirc@Vto) node[inner sep=0, node font=\pgf@circ@avfont,
+                (\pgfcirc@a@prefix-Vto) node[inner sep=0, node font=\pgf@circ@avfont,
                     anchor=\pgf@circ@bipole@voltage@label@anchor]{\pgf@circ@avminus}
             \else
-                (pgfcirc@Vfrom) node[inner sep=0, node font=\pgf@circ@avfont,
+                (\pgfcirc@a@prefix-Vfrom) node[inner sep=0, node font=\pgf@circ@avfont,
                     anchor=\pgf@circ@bipole@voltage@label@anchor]{\pgf@circ@avminus}
-                (pgfcirc@Vto) node[inner sep=0, node font=\pgf@circ@avfont,
+                (\pgfcirc@a@prefix-Vto) node[inner sep=0, node font=\pgf@circ@avfont,
                     anchor=\pgf@circ@bipole@voltage@label@anchor]{\pgf@circ@avplus}
             \fi
             \else
             \ifpgf@circ@oldvoltagedirection
-                (pgfcirc@Vfrom) node[inner sep=0, node font=\pgf@circ@avfont,
+                (\pgfcirc@a@prefix-Vfrom) node[inner sep=0, node font=\pgf@circ@avfont,
                     anchor=\pgf@circ@bipole@voltage@label@anchor]{\pgf@circ@avminus}
-                (pgfcirc@Vto) node[inner sep=0, node font=\pgf@circ@avfont,
+                (\pgfcirc@a@prefix-Vto) node[inner sep=0, node font=\pgf@circ@avfont,
                     anchor=\pgf@circ@bipole@voltage@label@anchor]{\pgf@circ@avplus}
             \else
-                (pgfcirc@Vfrom) node[inner sep=0, node font=\pgf@circ@avfont,
+                (\pgfcirc@a@prefix-Vfrom) node[inner sep=0, node font=\pgf@circ@avfont,
                     anchor=\pgf@circ@bipole@voltage@label@anchor]{\pgf@circ@avplus}
-                (pgfcirc@Vto) node[inner sep=0, node font=\pgf@circ@avfont,
+                (\pgfcirc@a@prefix-Vto) node[inner sep=0, node font=\pgf@circ@avfont,
                     anchor=\pgf@circ@bipole@voltage@label@anchor]{\pgf@circ@avminus}
             \fi
         \fi
     \fi
+    \fi % Closing the ...ifempty
 }
 
 %% Output routine for voltage sources
@@ -21006,21 +21021,22 @@
     \ifpgf@circuit@bipole@voltage@below
         coordinate (pgfcirc@Vfrom0) at ($(\ctikzvalof{bipole/name}.center) ! \bumpaplus ! (\ctikzvalof{bipole/name}.-120)$)
         coordinate (pgfcirc@Vto0) at ($(\ctikzvalof{bipole/name}.center) ! \bumpaplus ! (\ctikzvalof{bipole/name}.-60)$)
-        coordinate (pgfcirc@Vfrom) at ($ (pgfcirc@Vfrom0) ! \addvshift! -90: (pgfcirc@Vto0) $)
-        coordinate (pgfcirc@Vto) at ($ (pgfcirc@Vto0) ! \addvshift! 90: (pgfcirc@Vfrom0) $)
+        coordinate (\pgfcirc@a@prefix-Vfrom) at ($ (pgfcirc@Vfrom0) ! \addvshift! -90: (pgfcirc@Vto0) $)
+        coordinate (\pgfcirc@a@prefix-Vto) at ($ (pgfcirc@Vto0) ! \addvshift! 90: (pgfcirc@Vfrom0) $)
     \else
         coordinate (pgfcirc@Vfrom0) at ($ (\ctikzvalof{bipole/name}.center) ! \bumpaplus ! (\ctikzvalof{bipole/name}.120)$)
         coordinate (pgfcirc@Vto0) at ($ (\ctikzvalof{bipole/name}.center) ! \bumpaplus ! (\ctikzvalof{bipole/name}.60)$)
-        coordinate (pgfcirc@Vfrom) at ($ (pgfcirc@Vfrom0) ! \addvshift! 90: (pgfcirc@Vto0) $)
-        coordinate (pgfcirc@Vto) at ($ (pgfcirc@Vto0) ! \addvshift! -90: (pgfcirc@Vfrom0) $)
+        coordinate (\pgfcirc@a@prefix-Vfrom) at ($ (pgfcirc@Vfrom0) ! \addvshift! 90: (pgfcirc@Vto0) $)
+        coordinate (\pgfcirc@a@prefix-Vto) at ($ (pgfcirc@Vto0) ! \addvshift! -90: (pgfcirc@Vfrom0) $)
     \fi
-    coordinate (pgfcirc@Vlab) at ($(pgfcirc@Vto)!0.5!(pgfcirc@Vfrom) $)
-    coordinate (pgfcirc@Vdir) at (pgfcirc@Vto)
+    coordinate (\pgfcirc@a@prefix-Vlab) at ($(\pgfcirc@a@prefix-Vto)!0.5!(\pgfcirc@a@prefix-Vfrom) $)
+    coordinate (pgfcirc@Vdir) at (\pgfcirc@a@prefix-Vto)
+    \pgf@circ@ifkeyempty{bipole/voltage/label/name}\else
     \ifpgf@circuit@europeanvoltage
         \ifpgf@circuit@bipole@voltage@backward
-            (pgfcirc@Vto)  -- node[currarrow, sloped,  allow upside down, pos=1, anchor=tip] {} (pgfcirc@Vfrom)
+            (\pgfcirc@a@prefix-Vto)  -- node[currarrow, sloped,  allow upside down, pos=1, anchor=tip] {} (\pgfcirc@a@prefix-Vfrom)
         \else
-            (pgfcirc@Vfrom)  -- node[currarrow, sloped,  allow upside down, pos=1, anchor=tip] {} (pgfcirc@Vto)
+            (\pgfcirc@a@prefix-Vfrom)  -- node[currarrow, sloped,  allow upside down, pos=1, anchor=tip] {} (\pgfcirc@a@prefix-Vto)
         \fi
         \else% american voltage
         \ifpgf@circuit@bipole@voltageoutsideofsymbol
@@ -21028,23 +21044,24 @@
 
             \ifpgf@circ@fixbatteries
                 \ifpgf@circuit@bipole@voltage@backward
-                    (pgfcirc@Vfrom)  node[node font=\pgf@circ@avfont] {\pgf@circ@avplus}
-                    (pgfcirc@Vto) node[node font=\pgf@circ@avfont] {\pgf@circ@avminus}
+                    (\pgfcirc@a@prefix-Vfrom)  node[node font=\pgf@circ@avfont] {\pgf@circ@avplus}
+                    (\pgfcirc@a@prefix-Vto) node[node font=\pgf@circ@avfont] {\pgf@circ@avminus}
                 \else
-                    (pgfcirc@Vfrom)  node[node font=\pgf@circ@avfont] {\pgf@circ@avminus}
-                    (pgfcirc@Vto) node[node font=\pgf@circ@avfont] {\pgf@circ@avplus}
+                    (\pgfcirc@a@prefix-Vfrom)  node[node font=\pgf@circ@avfont] {\pgf@circ@avminus}
+                    (\pgfcirc@a@prefix-Vto) node[node font=\pgf@circ@avfont] {\pgf@circ@avplus}
                 \fi
                 \else
                 \ifpgf@circuit@bipole@voltage@backward
-                    (pgfcirc@Vfrom)  node[node font=\pgf@circ@avfont] {\pgf@circ@avminus}
-                    (pgfcirc@Vto) node[node font=\pgf@circ@avfont] {\pgf@circ@avplus}
+                    (\pgfcirc@a@prefix-Vfrom)  node[node font=\pgf@circ@avfont] {\pgf@circ@avminus}
+                    (\pgfcirc@a@prefix-Vto) node[node font=\pgf@circ@avfont] {\pgf@circ@avplus}
                 \else
-                    (pgfcirc@Vfrom)  node[node font=\pgf@circ@avfont] {\pgf@circ@avplus}
-                    (pgfcirc@Vto) node[node font=\pgf@circ@avfont] {\pgf@circ@avminus}
+                    (\pgfcirc@a@prefix-Vfrom)  node[node font=\pgf@circ@avfont] {\pgf@circ@avplus}
+                    (\pgfcirc@a@prefix-Vto) node[node font=\pgf@circ@avfont] {\pgf@circ@avminus}
                 \fi
             \fi
         \fi
     \fi
+    \fi % closes ...ifempty
 }
 
 %% Output routine
@@ -21052,8 +21069,21 @@
 %%
 %% locally used dimensions
 \newdimen{\pgfcirc@labelshift}
+\newif\ifpgfcirc@v@curved % helper if --- true only if voltages are curved
 \def\pgf@circ@drawvoltage{% node name
-    \pgfextra{ %WARNING: indentation is probably wrong
+    \pgfextra{%
+        % set the helper if...curved
+        \ifpgf@circuit@europeanvoltage
+            \ifpgf@circuit@bipole@voltage@straight
+                \pgfcirc@v@curvedfalse
+            \else
+                \pgfcirc@v@curvedtrue
+            \fi
+        \else
+            \pgfcirc@v@curvedfalse
+        \fi
+        % \typeout{V routine called with prefix: \pgfcirc@a@prefix}
+        % Label anchors WARNING: indentation is probably wrong
         \edef\pgfcircmathresult{\expandafter\pgf@circ@stripdecimals\pgf@circ@direction\pgf@nil}
         \ifnum\pgfcircmathresult >4 \ifnum\pgfcircmathresult <86
         \ifpgf@circuit@bipole@voltage@below
@@ -21112,13 +21142,15 @@
         \fi
         \fi\fi
 
+        % export anchor position (if not needed, is always the same macro)
+        \expandafter\xdef\csname pgfcirc@\pgfcirc@a@prefix-Vlab-anchor\endcsname{\pgf@circ@bipole@voltage@label@anchor}
         % this must be set *before* changing for mirroring and inverting; in that case
         % the xscale/yscale parameters take it into account
-            \ifpgf@circuit@bipole@voltage@below
-                \def\pgf@circ@bipole@voltage@label@where{-90}
-            \else
-                \def\pgf@circ@bipole@voltage@label@where{90}
-            \fi
+        \ifpgf@circuit@bipole@voltage@below
+            \def\pgf@circ@bipole@voltage@label@where{-90}
+        \else
+            \def\pgf@circ@bipole@voltage@label@where{90}
+        \fi
 
         % magic to counteract the scale and yscale effects (there should be a better way...)
         \ifnum \ctikzvalof{mirror value}=-1
@@ -21194,6 +21226,9 @@
 
     \ifpgf@circuit@bipole@isvoltage
         \pgf@circ@drawvoltagegenerator
+        % add fake cont1 and cont2 anchors for export
+        coordinate (\pgfcirc@a@prefix-Vcont1) at ($(\pgfcirc@a@prefix-Vfrom) !0.5! (\pgfcirc@a@prefix-Vto)$)
+        coordinate (\pgfcirc@a@prefix-Vcont2) at ($(\pgfcirc@a@prefix-Vfrom) !0.5! (\pgfcirc@a@prefix-Vto)$)
     \else
         \pgf@circ@drawvoltagegeneric
     \fi
@@ -21204,26 +21239,40 @@
     %     \pgf@circ@debugvtrue}
 
     % move a bit if requested
-    coordinate (pgfcirc@Vlab) at ($(pgfcirc@Vlab) ! \pgfcirc@labelshift ! \pgf@circ@bipole@voltage@label@where :(pgfcirc@Vdir)$)
+    coordinate (\pgfcirc@a@prefix-Vlab) at ($(\pgfcirc@a@prefix-Vlab) ! \pgfcirc@labelshift ! \pgf@circ@bipole@voltage@label@where :(pgfcirc@Vdir)$)
 
     % check for the case of american AND open
     \ifpgf@circuit@europeanvoltage
     \else
         \ifx\@@kind\@@open
         % override pgfcirc@Vlab
-        coordinate (pgfcirc@Vlab) at ($(pgfcirc@Vfrom@flat)!0.5!(pgfcirc@Vto@flat)$)\fi
+        coordinate (\pgfcirc@a@prefix-Vlab) at ($(pgfcirc@Vfrom@flat)!0.5!(pgfcirc@Vto@flat)$)\fi
     \fi
 
     \ifpgf@circ@debugv
-            node [odiamondpole, color=blue] at (pgfcirc@Vlab) {}
+            node [odiamondpole, color=blue] at (\pgfcirc@a@prefix-Vlab) {}
             node [odiamondpole, color=red] at (pgfcirc@Vdir) {}
             node [overlay, red, font=\tiny, anchor=south east, align=right] at(pgfcirc@Vdir)
             {\whichtypeshift:\the\pgfcirc@labelshift\\ DIR:\pgf@circ@bipole@voltage@label@where}
     \fi
 
-    node [anchor=\pgf@circ@bipole@voltage@label@anchor, inner sep=2pt,
-    \circuitikzbasekey/bipole voltage style](\ctikzvalof{bipole/name}voltage)
-    at (pgfcirc@Vlab) {\pgf@circ@finallabels{voltage/label}}
+    % put the node only if it's not empty
+    \pgf@circ@ifkeyempty{bipole/voltage/label/name}\else
+        node [anchor=\pgf@circ@bipole@voltage@label@anchor, inner sep=2pt,
+        \circuitikzbasekey/bipole voltage style](\ctikzvalof{bipole/name}voltage)
+        at (\pgfcirc@a@prefix-Vlab) {\pgf@circ@finallabels{voltage/label}}
+    \fi
+
+    \ifpgfcirc@v@curved\else
+        % fake Vcont1 and Vcont2 for when they are exported --- in the middle of Vto and Vfrom
+        coordinate (\pgfcirc@a@prefix-Vcont1) at ($(\pgfcirc@a@prefix-Vfrom) !0.5! (\pgfcirc@a@prefix-Vto)$)
+        coordinate (\pgfcirc@a@prefix-Vcont2) at ($(\pgfcirc@a@prefix-Vfrom) !0.5! (\pgfcirc@a@prefix-Vto)$)
+    \fi
+    % revert from and to (and c1 - c2) if needed (simpler than rework the positioning above...)
+    \ifpgf@circuit@bipole@voltage@backward
+        \pgfcirc@swap@coordinates{\pgfcirc@a@prefix-Vfrom}{\pgfcirc@a@prefix-Vto}
+        \pgfcirc@swap@coordinates{\pgfcirc@a@prefix-Vcont1}{\pgfcirc@a@prefix-Vcont2}
+    \fi
 
 }%end drawvoltages
 %%%---------- close: tex/pgfcircvoltage
@@ -21319,6 +21368,7 @@
 }
 
 \ctikzset{i/.code = {
+        \pgfcirc@has@itrue
         \pgfkeys{\circuitikzbasekey/bipole/current/direction = forward,
             \circuitikzbasekey/bipole/current/x position = after,
         \circuitikzbasekey/bipole/current/y position = above }
@@ -21362,8 +21412,8 @@
 %% Output routine
 \def\pgf@circ@drawcurrent{
     \pgfextra{
-        \edef\pgf@circ@ffffff{\pgf@circ@direction}
-        \def\pgfcircmathresult{\expandafter\pgf@circ@stripdecimals\pgf@circ@ffffff\pgf@nil}
+        \edef\pgf@circ@rounded@dir{\pgf@circ@direction}
+        \def\pgfcircmathresult{\expandafter\pgf@circ@stripdecimals\pgf@circ@rounded@dir\pgf@nil}
 
         \ifnum\pgfcircmathresult >4 \ifnum\pgfcircmathresult <86
         \ifpgf@circuit@bipole@current@below
@@ -21409,36 +21459,50 @@
         \ifpgf@circuit@bipole@current@below
             \def\pgf@circ@dir{north}\else\def\pgf@circ@dir{south}
         \fi
-    \fi
+        \fi
+        % export anchor position (if not needed, is always the same macro)
+        \expandafter\xdef\csname pgfcirc@\pgfcirc@a@prefix-Ilab-anchor\endcsname{\pgf@circ@dir}
 
-    \ifpgf@circuit@bipole@current@below
-        \def\pgf@circ@bipole@current@label@where{-90}
-    \else
-        \def\pgf@circ@bipole@current@label@where{+90}
-    \fi
+        \ifpgf@circuit@bipole@current@below
+            \def\pgf@circ@bipole@current@label@where{-90}
+        \else
+            \def\pgf@circ@bipole@current@label@where{+90}
+        \fi
     }
 
+    %
     \pgfextra{\def\pgf@temp{short}\edef\pgf@circ@temp{\ctikzvalof{bipole/kind}}}
     \ifx\pgf@circ@temp\pgf@temp%draw current at a short at middle of the line
-        (\tikztostart)--(\tikztotarget)
+        coordinate (\pgfcirc@a@prefix-Ifrom) at (\tikztostart)
+        coordinate (\pgfcirc@a@prefix-Ito) at (\tikztotarget)
     \else% normal bipole or source
         \ifpgf@circuit@bipole@current@before
-            (\tikztostart)--(anchorstartnode)
+            coordinate (\pgfcirc@a@prefix-Ifrom) at (\tikztostart)
+            coordinate (\pgfcirc@a@prefix-Ito) at (anchorstartnode)
         \else
-            (anchorendnode)--(\tikztotarget)
+            coordinate (\pgfcirc@a@prefix-Ifrom) at (anchorendnode)
+            coordinate (\pgfcirc@a@prefix-Ito) at (\tikztotarget)
         \fi
     \fi
     \ifpgf@circuit@bipole@current@backward
         \pgfextra{
-            \pgfmathsubtract{\pgf@circ@ffffff}{180}
-            \edef\pgf@circ@ffffff{\expandafter\pgf@circ@stripdecimals\pgfmathresult\pgf@nil}
+            \pgfmathsubtract{\pgf@circ@rounded@dir}{180}
+            \edef\pgf@circ@rounded@dir{\expandafter\pgf@circ@stripdecimals\pgfmathresult\pgf@nil}
         }
     \fi
-    coordinate[currarrow,pos=\ctikzvalof{current/distance},rotate=\pgf@circ@ffffff,
-    anchor=center](Iarrow)
-    (Iarrow.\pgf@circ@bipole@current@label@where)
+    coordinate (\pgfcirc@a@prefix-Ipos) at ($(\pgfcirc@a@prefix-Ifrom)! \ctikzvalof{current/distance} !(\pgfcirc@a@prefix-Ito)$)
+    % if the current label is not empty (in which case we have already all the anchors)
+    \pgf@circ@ifkeyempty{bipole/current/label/name}\else
+    % put the arrow node
+    node[currarrow, rotate=\pgf@circ@rounded@dir, anchor=center](Iarrow) at (\pgfcirc@a@prefix-Ipos) {}
+    % put the label
     node[anchor=\pgf@circ@dir, \circuitikzbasekey/bipole current style]
-    (\ctikzvalof{bipole/name}current){\pgf@circ@finallabels{current/label}}
+        (\ctikzvalof{bipole/name}current)
+        at (Iarrow.\pgf@circ@bipole@current@label@where){\pgf@circ@finallabels{current/label}}
+    \fi % end ifempty
+    \ifpgf@circuit@bipole@current@backward
+        \pgfcirc@swap@coordinates{\pgfcirc@a@prefix-Ifrom}{\pgfcirc@a@prefix-Ito}
+    \fi
 }
 
 %%%---------- close: tex/pgfcirccurrent
@@ -21459,6 +21523,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% flow handling
 
+
 %% styles
 \ctikzset{bipole flow style/.style={}}
 \tikzset{bipole flow style/.code={
@@ -21473,7 +21538,7 @@
         f = #1,
         \circuitikzbasekey/bipole/flow/direction = forward,
         \circuitikzbasekey/bipole/flow/x position = after,
-        \circuitikzbasekey/bipole/curflowrent/y position = above
+        \circuitikzbasekey/bipole/flow/y position = above
     }
 }
 
@@ -21539,6 +21604,7 @@
 \ctikzset{f^/.style = { f = #1, \circuitikzbasekey/bipole/flow/y position = above } }
 
 \ctikzset{f/.code = {
+        \pgfcirc@has@ftrue
         \pgfkeys{\circuitikzbasekey/bipole/flow/direction = forward,
             \circuitikzbasekey/bipole/flow/x position = after,
         \circuitikzbasekey/bipole/flow/y position = above }
@@ -21559,10 +21625,11 @@
 }
 
 %% Output routine
+
 \def\pgf@circ@drawflow{
     \pgfextra{
-        \edef\pgf@circ@ffffff{\pgf@circ@direction}
-        \def\pgfcircmathresult{\expandafter\pgf@circ@stripdecimals\pgf@circ@ffffff\pgf@nil}
+        \edef\pgf@circ@rounded@dir{\pgf@circ@direction}
+        \def\pgfcircmathresult{\expandafter\pgf@circ@stripdecimals\pgf@circ@rounded@dir\pgf@nil}
 
         \ifnum\pgfcircmathresult >4 \ifnum\pgfcircmathresult <86
                 \ifpgf@circuit@bipole@flow@below
@@ -21615,38 +21682,62 @@
         \else
                 \def\pgf@circ@bipole@flow@label@where{+90}
         \fi
+        % export anchor position (if not needed, is always the same macro)
+        \expandafter\xdef\csname pgfcirc@\pgfcirc@a@prefix-Flab-anchor\endcsname{\pgf@circ@dir}
     }
 
     \pgfextra{\def\pgf@temp{short}\edef\pgf@circ@temp{\ctikzvalof{bipole/kind}}}
-    \ifx\pgf@circ@temp\pgf@temp%draw flow at a short at middle of the line
-        (\tikztostart)--(\tikztotarget)
+    \ifx\pgf@circ@temp\pgf@temp%draw current at a short at middle of the line
+        coordinate (pgfcirc@Ffrom@flat) at (\tikztostart)
+        coordinate (pgfcirc@Fto@flat) at (\tikztotarget)
     \else% normal bipole or source
         \ifpgf@circuit@bipole@flow@before
-            (\tikztostart)--(anchorstartnode)
+            coordinate (pgfcirc@Ffrom@flat) at (\tikztostart)
+            coordinate (pgfcirc@Fto@flat) at (anchorstartnode)
         \else
-            (anchorendnode)--(\tikztotarget)
+            coordinate (pgfcirc@Ffrom@flat) at (anchorendnode)
+            coordinate (pgfcirc@Fto@flat) at (\tikztotarget)
         \fi
     \fi
     \pgfextra{
+        \newdimen{\absfshift}
+        \def\flow@offset{\ctikzvalof{flow/offset}\pgf@circ@Rlen}
+        \absfshift=\flow@offset
         \ifpgf@circuit@bipole@flow@backward
-            \ifpgf@circuit@bipole@flow@below
-                \def\flow@offset{\ctikzvalof{flow/offset}\pgf@circ@Rlen}
-            \else
-                \def\flow@offset{-\ctikzvalof{flow/offset}\pgf@circ@Rlen}
-            \fi
-            \pgfmathsubtract{\pgf@circ@ffffff}{180}
-            \edef\pgf@circ@ffffff{\expandafter\pgf@circ@stripdecimals\pgfmathresult\pgf@nil}
-            \else
-            \ifpgf@circuit@bipole@flow@below
-                \def\flow@offset{-\ctikzvalof{flow/offset}\pgf@circ@Rlen}
-            \else
-                \def\flow@offset{\ctikzvalof{flow/offset}\pgf@circ@Rlen}
-            \fi
+            \pgfmathsubtract{\pgf@circ@rounded@dir}{180}
+            \edef\pgf@circ@rounded@dir{\expandafter\pgf@circ@stripdecimals\pgfmathresult\pgf@nil}
         \fi
     }
-    coordinate[flowarrow,pos=\ctikzvalof{flow/distance},rotate=\pgf@circ@ffffff,yshift=\flow@offset, anchor=center](Farrowpos)
-    (Farrowpos.\pgf@circ@bipole@flow@label@where) node[anchor=\pgf@circ@dir, \circuitikzbasekey/bipole flow style]
-    (\ctikzvalof{bipole/name}flow){\pgf@circ@finallabels{flow/label}}
+    \ifpgf@circuit@bipole@flow@below
+        coordinate (pgfcirc@Ffrom@up) at ($(pgfcirc@Ffrom@flat) ! \absfshift !-90: (pgfcirc@Fto@flat)$)
+        coordinate (pgfcirc@Fto@up) at ($(pgfcirc@Fto@flat) ! \absfshift !90: (pgfcirc@Ffrom@flat)$)
+    \else
+        coordinate (pgfcirc@Ffrom@up) at ($(pgfcirc@Ffrom@flat) ! \absfshift !90: (pgfcirc@Fto@flat)$)
+        coordinate (pgfcirc@Fto@up) at ($(pgfcirc@Fto@flat) ! \absfshift !-90: (pgfcirc@Ffrom@flat)$)
+    \fi
+    coordinate (\pgfcirc@a@prefix-Fpos) at ($(pgfcirc@Ffrom@up) ! \ctikzvalof{flow/distance} !(pgfcirc@Fto@up)$)
+    \pgfextra{
+        \absfshift=0.25\pgf@circ@Rlen% This is half size of the "flowarrow" shape!
+    }
+    coordinate (\pgfcirc@a@prefix-Ffrom) at ($(\pgfcirc@a@prefix-Fpos)!\absfshift!(pgfcirc@Ffrom@up)$)
+    coordinate (\pgfcirc@a@prefix-Fto) at ($(\pgfcirc@a@prefix-Fpos)!\absfshift!(pgfcirc@Fto@up) $)
+    %
+    % coordinate (\pgfcirc@a@prefix-Fpos) at
+    %     ([yshift=\flow@offset]$(\pgfcirc@a@prefix-Ffrom)! \ctikzvalof{flow/distance} !(\pgfcirc@a@prefix-Fto)$)
+    % if the flow label is not empty (in which case we have already all the anchors)
+    \pgf@circ@ifkeyempty{bipole/flow/label/name}\else
+        % the flow arrow is really a node "flowarrow", not a real arrow
+        node[flowarrow, rotate=\pgf@circ@rounded@dir, anchor=center](Farrowpos) at (\pgfcirc@a@prefix-Fpos) {}
+
+        node[anchor=\pgf@circ@dir, \circuitikzbasekey/bipole flow style]
+        (\ctikzvalof{bipole/name}flow) at (Farrowpos.\pgf@circ@bipole@flow@label@where) {\pgf@circ@finallabels{flow/label}}
+    \fi
+
+    % adjust from and to before exporting --- it's much more simple like this then rework the algorithm above
+    \ifpgf@circuit@bipole@flow@backward
+        \pgfcirc@swap@coordinates{\pgfcirc@a@prefix-Ffrom}{\pgfcirc@a@prefix-Fto}
+    \fi
+
 }
 
 %%%---------- close: tex/pgfcircflow
@@ -21756,6 +21847,13 @@
 
 \def\pgf@circ@direction{0.0}
 
+% swap two coordinates
+\def\pgfcirc@swap@coordinates#1#2{%
+    coordinate (tmp) at (#1)
+    coordinate (#1) at (#2)
+    coordinate (#2) at (tmp)
+}
+
 % Names
 \ctikzset{name/.style = { n=#1 } } %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%@@@
 \ctikzset{n/.code = {
@@ -21844,6 +21942,9 @@
         \ifx\pgf@temp\pgf@circ@temp % if it has not a name
             \pgfmathrandominteger{\pgf@circ@rand}{1000}{9999}
             \ctikzset{bipole/name = #3\pgf@circ@rand} % create it (re-usage should not create problem, but...)
+            \edef\pgfcirc@a@prefix{pgfcirc}% do not pollute the namespace for nothing
+        \else
+            \edef\pgfcirc@a@prefix{\ctikzvalof{bipole/name}}% for exporting v-i-f anchors
         \fi
     }
     % save start and stop values
@@ -21855,6 +21956,7 @@
         \pgfmathanglebetweenpoints{\pgfpointanchor{\ctikzvalof{bipole/name}start}{center}}
             {\pgfpointanchor{\ctikzvalof{bipole/name}end}{center}}
         \edef\pgf@circ@direction{\pgfmathresult}
+        \expandafter\xdef\csname pgfcirc@\pgfcirc@a@prefix-direction\endcsname{\pgf@circ@direction}
     }
     % position the component in the middle of the path. We DO NOT MOVE the current position!
     node[#3#1, rotate=\pgf@circ@direction, yscale=\ctikzvalof{mirror value},
@@ -21890,9 +21992,11 @@
     \drawpoles
     \pgf@circ@ifkeyempty{bipole/label/name}\else\pgf@circ@drawlabels{label}\fi
     \pgf@circ@ifkeyempty{bipole/annotation/name}\else\pgf@circ@drawlabels{annotation}\fi
-    \pgf@circ@ifkeyempty{bipole/voltage/label/name}\else\pgf@circ@drawvoltage\fi
-    \pgf@circ@ifkeyempty{bipole/current/label/name}\else\pgf@circ@drawcurrent\fi
-    \pgf@circ@ifkeyempty{bipole/flow/label/name}\else\pgf@circ@drawflow\fi
+    \ifpgfcirc@has@v\pgf@circ@drawvoltage\fi
+    % \pgf@circ@ifkeyempty{bipole/current/label/name}\else\pgf@circ@drawcurrent\fi
+    \ifpgfcirc@has@i\pgf@circ@drawcurrent\fi
+    % \pgf@circ@ifkeyempty{bipole/flow/label/name}\else\pgf@circ@drawflow\fi
+    \ifpgfcirc@has@f\pgf@circ@drawflow\fi
     % finish the path from the component to the final target
     % you never know --- re-set \pgf@temp to detect open
     \pgfextra{\def\pgf@temp{open}\def\pgf@circ@temp{#3}}
