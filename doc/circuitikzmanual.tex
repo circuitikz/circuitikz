@@ -5567,7 +5567,7 @@ You can change globally these parameters by defining a component-specific key; y
 
 Note the \texttt{.initial}; you have to create such key the first time you use it. These kind of adjustments are not guaranteed to work in future upgrades, though; if you have to create a key you are somehow touching the internal structure of the package; it's much safer to create a style.
 
-One common request is to change the style of the arrows (both head and line) of these elements. For now\footnote{That could change in future\dots but it's not trivial.} voltages, currents and flows are part of the same path of the component, so this is not possible in simple way; you have to drawn your own with \TikZ{} commands.
+One common request is to change the style of the arrows (both head and line) of these elements. Voltages, currents and flows are part of the same path of the component, so this is not possible in simple way; you have to drawn your own with \TikZ{} commands using the facilities explained in section~\ref{sec:vif-anchors}.
 
 \subsection{Currents}\label{sec:currents}
 
@@ -6103,6 +6103,234 @@ The available styles and commands are \texttt{bipole label style}, \texttt{bipol
 \end{circuitikz}
 \end{LTXexample}
 
+\subsection{Accessing labels text nodes}
+
+Since 0.9.5, you can access all the labels nodes\footnote{The access to \texttt{label}s and \texttt{annotation}s was present before, but not documented.} using special node names. So, if you use \texttt{name} to give a name to the bipole node, you can access also the following nodes: \texttt{namelabel} (notice: no space nor any other symbol between \texttt{name} and \texttt{label}!), \texttt{nameannotation}, \texttt{namevoltage}, \texttt{namecurrent} and \texttt{nameflow}. Notice that the node names are available only if the bipole has an anchor or an annotation, of course.
+
+\begin{LTXexample}[varwidth=true,
+            pos=t, basicstyle=\small\ttfamily
+    ]
+\newcommand{\marknode}[2][45]{%
+    \node[circle, draw, red, inner sep=1pt,
+    pin={[red, font=\tiny]#1:#2}] at (#2.center) {};
+}
+\begin{circuitikz}[ american]
+    \draw (0,0) to [R=L1, a=A1, name=L1] ++(3,0)
+    to [R, l2_=L2 and 2L, a^=A2, name=L2] ++(3,0);
+    \marknode{L1} \marknode{L1label} \marknode[0]{L1annotation}
+    \marknode{L2} \marknode[0]{L2label} \marknode{L2annotation}
+    \draw[blue] (L2label.south west) rectangle (L2label.north east);
+    \draw (6.1,0) to [R=R1, v=V1, i=I1, f>^=F1, name=R1] ++(3,0)
+    to [R, v<=V2, i^=I2, f>^=F2, name=R2] ++(3,0);
+    \marknode[0]{R1voltage} \marknode[0]{R2voltage} \marknode[90]{R1current}
+    \marknode[90]{R2current} \marknode{R1flow} \marknode{R2flow}
+\end{circuitikz}
+\end{LTXexample}
+
+\subsection{Advanced voltages, currents and flows}\label{sec:vif-anchors}
+
+Since version \texttt{1.2.1}, it is possible to access the anchors of the ``ornaments'' --- voltage, current and flows, together with some additional information that makes it possible to personalize them.
+Normally, voltages and flow and currents are drawn into the path of the bipoles, so that it is not possible, for example, to change the line type or color of the arrows, or the type of arrows\footnote{in regular voltages, the arrows are not real \TikZ{} arrows, but the auxiliary arrow shapes of \Circuitikz{}}. Access to the anchors allows to do all this things, and more.
+
+For example, you can do something like this:
+
+\begin{LTXexample}[varwidth=true, basicstyle=\small\ttfamily]
+\begin{circuitikz}[]
+    \draw (0,1) to[R, v=$v$] ++(3,0);
+    \draw (0,0) to[R, v, name=R, voltage/bump b=3] ++(3,0);
+    \draw [thin, red, -{Stealth[width=8pt]}, ]
+    (R-Vfrom) .. controls (R-Vcont1) and (R-Vcont2).. (R-Vto)
+    node [black, pos=0.5, fill=white]{v};
+\end{circuitikz}
+\end{LTXexample}
+
+Or, for example, to have a different voltage style; normally you would define a macro:
+
+\begin{LTXexample}[varwidth=true, basicstyle=\small\ttfamily]
+\begin{circuitikz}[voltage shift=0.5]
+    \def\eurVPM#1#2{% node, label
+        \draw [thin, -{Stealth[width=8pt]}, shorten >=5pt,
+        shorten <=5pt] (#1-Vfrom) node[font=\tiny]{$-$}
+        .. controls (#1-Vcont1) and (#1-Vcont2)..
+        (#1-Vto) node[font=\tiny]{$+$}
+        node[pos=0.5,anchor=\ctikzgetanchor{#1}{Vlab}]{#2};}
+    \draw (0,0) to[R=R1, name=R1, v, i=$i$] ++(3,0)
+        to[R, l_=R2, v^, name=R2] ++(0,-3);
+    \eurVPM{R1}{$v_1$} \eurVPM{R2}{$v_2$}
+\end{circuitikz}
+\end{LTXexample}
+
+\subsubsection{Activating the anchors}
+
+You will have access to the anchors for voltages, currents and flows when, in the bipole, you have both a \texttt{v}, \texttt{i}, \texttt{f} specification (one or more of them) \textbf{and} a \texttt{name} key, to give the bipole a name. Otherwise, the anchors and the associated functions are not defined.
+To suppress the normal output of the \texttt{v}, \texttt{i}, \texttt{f} keys, you can use such keys without any argument, like in the previous example; notice that the \verb|_| and \verb|^| modifiers work as expected.
+
+The following line of resistors has been drawn with the following commands; it is used to show the name of the available anchors.
+
+\begin{lstlisting}
+    \draw (0,0) to[R=R1, v=$v$, name=R1] ++(4,0)
+        to[R, l_=R2, i=$i$, name=R2] ++(4,0)
+        to[R=R3, f=$f$, name=R3] ++(4,0);
+\end{lstlisting}
+
+\begin{circuitikz}[]
+    \draw (0,0) to[R=R1, v=$v$, name=R1] ++(4,0) to[R, l_=R2, i=$i$, name=R2] ++(4,0) to[R=R3, f=$f$, name=R3] ++(4,0);
+    \path
+    (R1-Vto) \showcoord(R1-Vto)<-135:0.2>
+    (R1-Vfrom) \showcoord(R1-Vfrom)<-45:0.2>
+    (R1-Vcont1) \showcoord(R1-Vcont1)<-45:0.2>
+    (R1-Vcont2) \showcoord(R1-Vcont2)<-135:0.2>
+    (R1-Vlab) \showcoord(R1-Vlab)<-90:0.5>
+    (R2-Ito) \showcoord(R2-Ito)<45:0.3>
+    (R2-Ifrom) \showcoord(R2-Ifrom)<135:0.3>
+    (R2-Ipos) \showcoord(R2-Ipos)<-90:0.3>
+    (R3-Fto) \showcoord(R3-Fto)<45:0.3>
+    (R3-Ffrom) \showcoord(R3-Ffrom)<135:0.3>
+    (R3-Fpos) \showcoord(R3-Fpos)<-90:0.4>
+    ;
+\end{circuitikz}
+
+The meaning of the anchors is the following:
+\begin{itemize}
+\item
+    \texttt{Vfrom} and \texttt{Vto} are the main points where the voltage information is given: start and end point of the arrow, or position of the $+$ or $-$ sign. This is the same for the \texttt{Ffrom} or \texttt{Fto} anchors for flows; for inline currents, the corresponding \texttt{Ifrom} and \texttt{Ito} mark the wire segment where the arrowhead is positioned (at the specified \texttt{current/distance} fraction. The direction of the arrow is available using the auxiliary macro \verb|\ctikzgetdirection| (see below).
+\item
+    \texttt{Vcont1} and \texttt{Vcont2} are the control points for the curved arrow (see the examples above); in the case of straight arrows or american-style voltages, they are set at the midpoint between \texttt{Vfrom} and \texttt{Vto}.
+\item
+    \texttt{Vlab} is where the text label for the voltage is normally positioned. The anchor used for such label is available using the auxiliary macro \verb|\ctikzgetanchor| (see below)
+\item
+    \texttt{Ipos} and \texttt{Fpos} are the position for the arrowhead or the small flow arrow (which is a \texttt{currarrow} or \texttt{flowarrow} node normally) is positioned, respectively. The label is then added to the correct side of it using the anchor available via \verb|\ctikzgetanchor|.\footnote{In this case, the exact position of the label is not available if you do not position the element, for this there is no \texttt{Flab} or \texttt{Ilab} coordinate; you have to use the \texttt{Fpos} and \texttt{Ipos} coordinate with the corresponding \texttt{Ilab} and \texttt{Flab} anchors.}
+\end{itemize}
+
+Changing the options of the elements, will change the anchors acoordingly:
+
+\begin{lstlisting}
+    \ctikzset{current/distance=0.2}
+    \draw (0,0) to[R=R1, v>=$v$, name=R1] ++(4,0)
+        to[R, l_=R2, i<_=$i$, name=R2] ++(4,0)
+        to[R, l_=R3, f<_=$f$, name=R3] ++(4,0);
+\end{lstlisting}
+
+\begin{circuitikz}[]
+    \ctikzset{current/distance=0.2}
+    \draw (0,0) to[R=R1, v>=$v$, name=R1] ++(4,0) to[R, l_=R2, i<_=$i$, name=R2] ++(4,0) to[R, l_=R3, f<_=$f$, name=R3] ++(4,0);
+    \path
+    (R1-Vto) \showcoord(R1-Vto)<-45:0.2>
+    (R1-Vfrom) \showcoord(R1-Vfrom)<-135:0.2>
+    (R1-Vcont1) \showcoord(R1-Vcont1)<-135:0.2>
+    (R1-Vcont2) \showcoord(R1-Vcont2)<-45:0.2>
+    (R1-Vlab) \showcoord(R1-Vlab)<-90:0.5>
+    (R2-Ito) \showcoord(R2-Ito)<135:0.3>
+    (R2-Ifrom) \showcoord(R2-Ifrom)<45:0.3>
+    (R2-Ipos) \showcoord(R2-Ipos)<90:0.3>
+    (R3-Fto) \showcoord(R3-Fto)<90:0.4>
+    (R3-Ffrom) \showcoord(R3-Ffrom)<80:0.4>
+    (R3-Fpos) \showcoord(R3-Fpos)<-90:0.4>
+    ;
+\end{circuitikz}
+
+Obviously, the anchors follow the voltage style you choose:
+
+\begin{lstlisting}
+    \draw (0,0) to[R=R1, v=$v$, name=R1, voltage=straight] ++(4,0)
+        to[R=R2, v=$v$, name=R2, voltage=american] ++(4,0)
+        to[R=R3, v=$v$, name=R3, voltage=raised] ++(4,0);
+\end{lstlisting}
+
+\begin{circuitikz}[]
+    \ctikzset{current/distance=0.2}
+    \draw (0,0) to[R=R1, v=$v$, name=R1, voltage=straight] ++(4,0)
+        to[R=R2, v=$v$, name=R2, voltage=american] ++(4,0)
+        to[R=R3, v=$v$, name=R3, voltage=raised] ++(4,0);
+    \foreach \i in {1, 2, 3} {
+        \path
+        (R\i-Vto) \showcoord(R\i-Vto)<-90:0.4>
+        (R\i-Vfrom) \showcoord(R\i-Vfrom)<-90:0.4>
+        (R\i-Vcont1) \showcoord(R\i-Vcont1)<135:0.6>
+        (R\i-Vcont2) \showcoord(R\i-Vcont2)<45:0.6>
+        (R\i-Vlab) \showcoord(R\i-Vlab)<-90:0.6>
+        ;
+    }
+\end{circuitikz}
+
+Notice the postion of the control points, as well as the fact that the anchor available with \verb|\ctikzgetanchor| is applied to \texttt{Vfrom} and \texttt{Vto} symbols, too.
+
+Finally, as ever, generators are treated differently, but you have all your anchors too.
+
+\begin{lstlisting}
+    \ctikzset{american}
+    \draw (0,0) to[V=$v$, name=G1, voltage=european] ++(4,0)
+        to[V=$v$, v=$v$, name=G2, voltage=american] ++(4,0)
+        to[battery2, v=$v$, name=G3, voltage=raised] ++(4,0);
+\end{lstlisting}
+
+\begin{circuitikz}[]
+    \ctikzset{american}
+    \draw (0,0) to[V=$v$, name=G1, voltage=european] ++(4,0)
+        to[V=$v$, v=$v$, name=G2, voltage=american] ++(4,0)
+        to[battery2, v=$v$, name=G3, voltage=raised] ++(4,0);
+    \foreach \i in {1, 2, 3} {
+        \path
+        (G\i-Vto) \showcoord(G\i-Vto)<-60:0.1>
+        (G\i-Vfrom) \showcoord(G\i-Vfrom)<-120:0.1>
+        (G\i-Vlab) \showcoord(G\i-Vlab)<90:0.3>
+        ;
+    }
+\end{circuitikz}
+
+\subsubsection{Auxiliary information}
+
+When the anchors are activated, there are additional macros that you can use:
+\begin{itemize}
+    \item \texttt{\textbackslash ctikzgetanchor\{\emph{<name>}\}\{\emph{<anchor>}\}}: \emph{name} is the name of the bipole, and \emph{anchor} can be \texttt{Vlab}, \texttt{Fpos} or \texttt{Ipos}. This macro expands to the normal anchor position (something like \texttt{north}, \texttt{south west}). Notice that if you have not activated the corresponding anchor, the content of this macro is not specified. It could be equivalent to \verb|\relax| (basically, empty) or contains the anchor of a bipole with the same name from another drawing --- it's a global macro like the coordinates.
+    \item \texttt{\textbackslash ctikzgetdirection\{\emph{<name>}\}}: a number which is the direction of the \emph{name}d bipole.
+\end{itemize}
+
+For example, you could like the voltage label oriented with the bipole:
+
+\begin{LTXexample}[varwidth=true, basicstyle=\small\ttfamily]
+\begin{circuitikz}[]
+    \def\myvv#1#2{%
+    \draw [thin, blue, ->,]
+    (#1-Vfrom) .. controls (#1-Vcont1) and (#1-Vcont2).. (#1-Vto)
+    node [pos=0.5, below,
+    rotate=\ctikzgetdirection{#1}] at (#1-Vlab) {#2}; }
+    \draw (0,0) to[R, v, name=A] ++(3,0);
+    \draw (0,0) to[R, v, name=B] ++(3,3);
+    \myvv{A}{$v_A$}\myvv{B}{$v_B$}
+\end{circuitikz}
+\end{LTXexample}
+
+Or you could use the anchor to substitute the flow with a fancy one and still position automatically the label; suppose you have the following definition in your preamble (see \TikZ{} manual, ``Path decorations''):
+
+\begin{lstlisting}
+% requires \usetikzlibrary{decorations, decorations.pathmorphing}
+\tikzset{%
+lray/.style={decorate, decoration={
+    snake, amplitude=2pt,pre length=1pt,post length=2pt, segment length=5pt,},
+    -Triangle,
+}}
+\end{lstlisting}
+\tikzset{%
+lray/.style={decorate, decoration={
+    snake, amplitude=2pt,pre length=1pt,post length=2pt, segment length=5pt, },
+    -Triangle,
+}}
+
+You can then define a kind of ``power flow'' style:
+
+\begin{LTXexample}[varwidth=true, basicstyle=\small\ttfamily]
+\begin{circuitikz}[]
+    \newcommand\myff[3][blue]{% [opt: color] node label
+        \draw [lray, #1, ] (#2-Ffrom) -- (#2-Fto)
+        node [anchor=\ctikzgetanchor{#2}{Flab}, inner sep=4pt]
+        at (#2-Fpos) {#3};}
+    \draw (0,1) to[R, f, name=A] ++(3,0);
+    \draw (0,0) to[R, f_<, name=B] ++(3,0);
+    \myff{A}{$P_A$}\myff[red]{B}{$P_B$}
+\end{circuitikz}
+\end{LTXexample}
+
 \subsection{Integration with {\ttfamily siunitx}}
 
 If the option {\ttfamily siunitx} is active (and \emph{not} in \ConTeXt), then the following are equivalent:
@@ -6140,30 +6368,6 @@ If the option {\ttfamily siunitx} is active (and \emph{not} in \ConTeXt), then t
 \begin{LTXexample}[varwidth=true]
 \begin{circuitikz}
    \draw (0,0) to[R, v=$\SI{1}{\volt}$] (2,0);
-\end{circuitikz}
-\end{LTXexample}
-
-\subsection{Accessing labels text nodes}
-
-Since 0.9.5, you can access all the labels nodes\footnote{The access to \texttt{label}s and \texttt{annotation}s was present before, but not documented.} using special node names. So, if you use \texttt{name} to give a name to the bipole node, you can access also the following nodes: \texttt{namelabel} (notice: no space nor any other symbol between \texttt{name} and \texttt{label}!), \texttt{nameannotation}, \texttt{namevoltage}, \texttt{namecurrent} and \texttt{nameflow}.
-
-\begin{LTXexample}[varwidth=true,
-            pos=t, basicstyle=\small\ttfamily
-    ]
-\newcommand{\marknode}[2][45]{%
-    \node[circle, draw, red, inner sep=1pt,
-    pin={[red, font=\tiny]#1:#2}] at (#2.center) {};
-}
-\begin{circuitikz}[ american]
-    \draw (0,0) to [R=L1, a=A1, name=L1] ++(3,0)
-    to [R, l2_=L2 and 2L, a^=A2, name=L2] ++(3,0);
-    \marknode{L1} \marknode{L1label} \marknode[0]{L1annotation}
-    \marknode{L2} \marknode[0]{L2label} \marknode{L2annotation}
-    \draw[blue] (L2label.south west) rectangle (L2label.north east);
-    \draw (6.1,0) to [R=R1, v=V1, i=I1, f>^=F1, name=R1] ++(3,0)
-    to [R, v<=V2, i^=I2, f>^=F2, name=R2] ++(3,0);
-    \marknode[0]{R1voltage} \marknode[0]{R2voltage} \marknode[90]{R1current}
-    \marknode[90]{R2current} \marknode{R1flow} \marknode{R2flow}
 \end{circuitikz}
 \end{LTXexample}
 

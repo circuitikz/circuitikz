@@ -13,6 +13,13 @@
 
 \def\pgf@circ@direction{0.0}
 
+% swap two coordinates
+\def\pgfcirc@swap@coordinates#1#2{%
+    coordinate (tmp) at (#1)
+    coordinate (#1) at (#2)
+    coordinate (#2) at (tmp)
+}
+
 % Names
 \ctikzset{name/.style = { n=#1 } } %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%@@@
 \ctikzset{n/.code = {
@@ -101,6 +108,9 @@
         \ifx\pgf@temp\pgf@circ@temp % if it has not a name
             \pgfmathrandominteger{\pgf@circ@rand}{1000}{9999}
             \ctikzset{bipole/name = #3\pgf@circ@rand} % create it (re-usage should not create problem, but...)
+            \edef\pgfcirc@a@prefix{pgfcirc}% do not pollute the namespace for nothing
+        \else
+            \edef\pgfcirc@a@prefix{\ctikzvalof{bipole/name}}% for exporting v-i-f anchors
         \fi
     }
     % save start and stop values
@@ -112,6 +122,7 @@
         \pgfmathanglebetweenpoints{\pgfpointanchor{\ctikzvalof{bipole/name}start}{center}}
             {\pgfpointanchor{\ctikzvalof{bipole/name}end}{center}}
         \edef\pgf@circ@direction{\pgfmathresult}
+        \expandafter\xdef\csname pgfcirc@\pgfcirc@a@prefix-direction\endcsname{\pgf@circ@direction}
     }
     % position the component in the middle of the path. We DO NOT MOVE the current position!
     node[#3#1, rotate=\pgf@circ@direction, yscale=\ctikzvalof{mirror value},
@@ -147,9 +158,11 @@
     \drawpoles
     \pgf@circ@ifkeyempty{bipole/label/name}\else\pgf@circ@drawlabels{label}\fi
     \pgf@circ@ifkeyempty{bipole/annotation/name}\else\pgf@circ@drawlabels{annotation}\fi
-    \pgf@circ@ifkeyempty{bipole/voltage/label/name}\else\pgf@circ@drawvoltage\fi
-    \pgf@circ@ifkeyempty{bipole/current/label/name}\else\pgf@circ@drawcurrent\fi
-    \pgf@circ@ifkeyempty{bipole/flow/label/name}\else\pgf@circ@drawflow\fi
+    \ifpgfcirc@has@v\pgf@circ@drawvoltage\fi
+    % \pgf@circ@ifkeyempty{bipole/current/label/name}\else\pgf@circ@drawcurrent\fi
+    \ifpgfcirc@has@i\pgf@circ@drawcurrent\fi
+    % \pgf@circ@ifkeyempty{bipole/flow/label/name}\else\pgf@circ@drawflow\fi
+    \ifpgfcirc@has@f\pgf@circ@drawflow\fi
     % finish the path from the component to the final target
     % you never know --- re-set \pgf@temp to detect open
     \pgfextra{\def\pgf@temp{open}\def\pgf@circ@temp{#3}}

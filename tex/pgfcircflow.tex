@@ -13,6 +13,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% flow handling
 
+
 %% styles
 \ctikzset{bipole flow style/.style={}}
 \tikzset{bipole flow style/.code={
@@ -27,7 +28,7 @@
         f = #1,
         \circuitikzbasekey/bipole/flow/direction = forward,
         \circuitikzbasekey/bipole/flow/x position = after,
-        \circuitikzbasekey/bipole/curflowrent/y position = above
+        \circuitikzbasekey/bipole/flow/y position = above
     }
 }
 
@@ -93,6 +94,7 @@
 \ctikzset{f^/.style = { f = #1, \circuitikzbasekey/bipole/flow/y position = above } }
 
 \ctikzset{f/.code = {
+        \pgfcirc@has@ftrue
         \pgfkeys{\circuitikzbasekey/bipole/flow/direction = forward,
             \circuitikzbasekey/bipole/flow/x position = after,
         \circuitikzbasekey/bipole/flow/y position = above }
@@ -113,10 +115,11 @@
 }
 
 %% Output routine
+
 \def\pgf@circ@drawflow{
     \pgfextra{
-        \edef\pgf@circ@ffffff{\pgf@circ@direction}
-        \def\pgfcircmathresult{\expandafter\pgf@circ@stripdecimals\pgf@circ@ffffff\pgf@nil}
+        \edef\pgf@circ@rounded@dir{\pgf@circ@direction}
+        \def\pgfcircmathresult{\expandafter\pgf@circ@stripdecimals\pgf@circ@rounded@dir\pgf@nil}
 
         \ifnum\pgfcircmathresult >4 \ifnum\pgfcircmathresult <86
                 \ifpgf@circuit@bipole@flow@below
@@ -169,38 +172,62 @@
         \else
                 \def\pgf@circ@bipole@flow@label@where{+90}
         \fi
+        % export anchor position (if not needed, is always the same macro)
+        \expandafter\xdef\csname pgfcirc@\pgfcirc@a@prefix-Flab-anchor\endcsname{\pgf@circ@dir}
     }
 
     \pgfextra{\def\pgf@temp{short}\edef\pgf@circ@temp{\ctikzvalof{bipole/kind}}}
-    \ifx\pgf@circ@temp\pgf@temp%draw flow at a short at middle of the line
-        (\tikztostart)--(\tikztotarget)
+    \ifx\pgf@circ@temp\pgf@temp%draw current at a short at middle of the line
+        coordinate (pgfcirc@Ffrom@flat) at (\tikztostart)
+        coordinate (pgfcirc@Fto@flat) at (\tikztotarget)
     \else% normal bipole or source
         \ifpgf@circuit@bipole@flow@before
-            (\tikztostart)--(anchorstartnode)
+            coordinate (pgfcirc@Ffrom@flat) at (\tikztostart)
+            coordinate (pgfcirc@Fto@flat) at (anchorstartnode)
         \else
-            (anchorendnode)--(\tikztotarget)
+            coordinate (pgfcirc@Ffrom@flat) at (anchorendnode)
+            coordinate (pgfcirc@Fto@flat) at (\tikztotarget)
         \fi
     \fi
     \pgfextra{
+        \newdimen{\absfshift}
+        \def\flow@offset{\ctikzvalof{flow/offset}\pgf@circ@Rlen}
+        \absfshift=\flow@offset
         \ifpgf@circuit@bipole@flow@backward
-            \ifpgf@circuit@bipole@flow@below
-                \def\flow@offset{\ctikzvalof{flow/offset}\pgf@circ@Rlen}
-            \else
-                \def\flow@offset{-\ctikzvalof{flow/offset}\pgf@circ@Rlen}
-            \fi
-            \pgfmathsubtract{\pgf@circ@ffffff}{180}
-            \edef\pgf@circ@ffffff{\expandafter\pgf@circ@stripdecimals\pgfmathresult\pgf@nil}
-            \else
-            \ifpgf@circuit@bipole@flow@below
-                \def\flow@offset{-\ctikzvalof{flow/offset}\pgf@circ@Rlen}
-            \else
-                \def\flow@offset{\ctikzvalof{flow/offset}\pgf@circ@Rlen}
-            \fi
+            \pgfmathsubtract{\pgf@circ@rounded@dir}{180}
+            \edef\pgf@circ@rounded@dir{\expandafter\pgf@circ@stripdecimals\pgfmathresult\pgf@nil}
         \fi
     }
-    coordinate[flowarrow,pos=\ctikzvalof{flow/distance},rotate=\pgf@circ@ffffff,yshift=\flow@offset, anchor=center](Farrowpos)
-    (Farrowpos.\pgf@circ@bipole@flow@label@where) node[anchor=\pgf@circ@dir, \circuitikzbasekey/bipole flow style]
-    (\ctikzvalof{bipole/name}flow){\pgf@circ@finallabels{flow/label}}
+    \ifpgf@circuit@bipole@flow@below
+        coordinate (pgfcirc@Ffrom@up) at ($(pgfcirc@Ffrom@flat) ! \absfshift !-90: (pgfcirc@Fto@flat)$)
+        coordinate (pgfcirc@Fto@up) at ($(pgfcirc@Fto@flat) ! \absfshift !90: (pgfcirc@Ffrom@flat)$)
+    \else
+        coordinate (pgfcirc@Ffrom@up) at ($(pgfcirc@Ffrom@flat) ! \absfshift !90: (pgfcirc@Fto@flat)$)
+        coordinate (pgfcirc@Fto@up) at ($(pgfcirc@Fto@flat) ! \absfshift !-90: (pgfcirc@Ffrom@flat)$)
+    \fi
+    coordinate (\pgfcirc@a@prefix-Fpos) at ($(pgfcirc@Ffrom@up) ! \ctikzvalof{flow/distance} !(pgfcirc@Fto@up)$)
+    \pgfextra{
+        \absfshift=0.25\pgf@circ@Rlen% This is half size of the "flowarrow" shape!
+    }
+    coordinate (\pgfcirc@a@prefix-Ffrom) at ($(\pgfcirc@a@prefix-Fpos)!\absfshift!(pgfcirc@Ffrom@up)$)
+    coordinate (\pgfcirc@a@prefix-Fto) at ($(\pgfcirc@a@prefix-Fpos)!\absfshift!(pgfcirc@Fto@up) $)
+    %
+    % coordinate (\pgfcirc@a@prefix-Fpos) at
+    %     ([yshift=\flow@offset]$(\pgfcirc@a@prefix-Ffrom)! \ctikzvalof{flow/distance} !(\pgfcirc@a@prefix-Fto)$)
+    % if the flow label is not empty (in which case we have already all the anchors)
+    \pgf@circ@ifkeyempty{bipole/flow/label/name}\else
+        % the flow arrow is really a node "flowarrow", not a real arrow
+        node[flowarrow, rotate=\pgf@circ@rounded@dir, anchor=center](Farrowpos) at (\pgfcirc@a@prefix-Fpos) {}
+
+        node[anchor=\pgf@circ@dir, \circuitikzbasekey/bipole flow style]
+        (\ctikzvalof{bipole/name}flow) at (Farrowpos.\pgf@circ@bipole@flow@label@where) {\pgf@circ@finallabels{flow/label}}
+    \fi
+
+    % adjust from and to before exporting --- it's much more simple like this then rework the algorithm above
+    \ifpgf@circuit@bipole@flow@backward
+        \pgfcirc@swap@coordinates{\pgfcirc@a@prefix-Ffrom}{\pgfcirc@a@prefix-Fto}
+    \fi
+
 }
 
 \endinput
