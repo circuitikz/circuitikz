@@ -15,9 +15,9 @@
 
 % swap two coordinates
 \def\pgfcirc@swap@coordinates#1#2{%
-    coordinate (tmp) at (#1)
+    coordinate (pgfcirc@tmp@swap) at (#1)
     coordinate (#1) at (#2)
-    coordinate (#2) at (tmp)
+    coordinate (#2) at (pgfcirc@tmp@swap)
 }
 
 % Names
@@ -107,7 +107,7 @@
         \def\pgf@circ@temp{}
         \ifx\pgf@temp\pgf@circ@temp % if it has not a name
             \pgfmathrandominteger{\pgf@circ@rand}{1000}{9999}
-            \ctikzset{bipole/name = #3\pgf@circ@rand} % create it (re-usage should not create problem, but...)
+            \ctikzset{bipole/name = pgfcirc@#3\pgf@circ@rand} % create it (re-usage should not create problem, but...)
             \edef\pgfcirc@a@prefix{pgfcirc}% do not pollute the namespace for nothing
         \else
             \edef\pgfcirc@a@prefix{\ctikzvalof{bipole/name}}% for exporting v-i-f anchors
@@ -131,19 +131,19 @@
     % set start and end labels
     \ifpgf@circuit@bipole@inverted
         \ifcsname pgf@anchor@#3#1@pathstart\endcsname%if special path-anchors are defined, use them!
-            coordinate	(anchorstartnode) at (\ctikzvalof{bipole/name}.pathend)
-            coordinate	(anchorendnode) at (\ctikzvalof{bipole/name}.pathstart)
+            coordinate	(pgfcirc@anchorstartnode) at (\ctikzvalof{bipole/name}.pathend)
+            coordinate	(pgfcirc@anchorendnode) at (\ctikzvalof{bipole/name}.pathstart)
         \else
-            coordinate	(anchorstartnode) at (\ctikzvalof{bipole/name}.right)
-            coordinate	(anchorendnode) at (\ctikzvalof{bipole/name}.left)
+            coordinate	(pgfcirc@anchorstartnode) at (\ctikzvalof{bipole/name}.right)
+            coordinate	(pgfcirc@anchorendnode) at (\ctikzvalof{bipole/name}.left)
         \fi
         \else
         \ifcsname pgf@anchor@#3#1@pathstart\endcsname%if special path-anchors are defined, use them!
-            coordinate	(anchorstartnode) at (\ctikzvalof{bipole/name}.pathstart)
-            coordinate	(anchorendnode) at (\ctikzvalof{bipole/name}.pathend)
+            coordinate	(pgfcirc@anchorstartnode) at (\ctikzvalof{bipole/name}.pathstart)
+            coordinate	(pgfcirc@anchorendnode) at (\ctikzvalof{bipole/name}.pathend)
         \else
-            coordinate	(anchorstartnode) at (\ctikzvalof{bipole/name}.left)
-            coordinate	(anchorendnode) at (\ctikzvalof{bipole/name}.right)
+            coordinate	(pgfcirc@anchorstartnode) at (\ctikzvalof{bipole/name}.left)
+            coordinate	(pgfcirc@anchorendnode) at (\ctikzvalof{bipole/name}.right)
         \fi
     \fi
     % draw the leads unless it's an open circuit
@@ -152,7 +152,7 @@
     \ifx\pgf@temp\pgf@circ@temp  % if it is an open do nothing
     \else
         % it is important to start the path with -- to have correct line joins!
-        -- (\tikztostart) -- (anchorstartnode)
+        -- (\tikztostart) -- (pgfcirc@anchorstartnode)
     \fi
     % Add all the "ornaments": labels, annotations, voltages, currents and flows
     \drawpoles
@@ -169,7 +169,7 @@
     \ifx\pgf@temp\pgf@circ@temp  % if it is an open do nothing
         (\tikztotarget)
     \else
-        (anchorendnode)  -- (\tikztotarget)
+        (pgfcirc@anchorendnode)  -- (\tikztotarget)
     \fi
     % reset internal circuit keys
     \pgfextra{\pgfcircresetpath}
