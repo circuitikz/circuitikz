@@ -1,6 +1,10 @@
 <!--- CircuiTikz - Changelog --->
 The major changes among the different circuitikz versions are listed here. See <https://github.com/circuitikz/circuitikz/commits> for a full list of changes.
 
+* Version 1.2.3 (unreleased)
+
+    Bumped version number.
+
 * Version 1.2.2 (2020-07-15)
 
     Bug-fix release: coordinate name leakage. The node and coordinate names are global; the internal coordinate names have been made stronger.
