@@ -10,8 +10,8 @@
 %
 % See the files gpl-3.0_license.txt and lppl-1-3c_license.txt for more details.
 
-\def\pgfcircversion{1.2.1-797a746}
-\def\pgfcircversiondate{2020/07/06}
+\def\pgfcircversion{1.2.2-5df1da2}
+\def\pgfcircversiondate{2020/07/15}
 \writestatus{loading}{\pgfcircversiondate{} The CircuiTikz circuit drawing package version \pgfcircversion}
 
 \usemodule[tikz]
@@ -20421,7 +20421,7 @@
         % \typeout{FIN: TEMP\space\pgf@circ@temp\space LABANC\space\pgf@circ@labanc}
     }
     %Firstly, place a coordinate directly at the edge of the shape
-    (\ctikzvalof{bipole/name}.\pgf@circ@temp) coordinate (labelcoor)
+    (\ctikzvalof{bipole/name}.\pgf@circ@temp) coordinate (pgfcirc@labelcoor)
     %now decide, which labels should be drawn
     \pgfextra{
             \edef\pgf@temp{\ctikzvalof{label/align}}
@@ -20489,7 +20489,7 @@
         \edef\pgf@circ@labposangle{\expandafter\pgf@circ@stripdecimals\pgfmathresult\pgf@nil}
     }
     % reset cm is not working correctly here
-    (labelcoor)++(\pgf@circ@labposangle:\the\pgf@circ@res@temp) coordinate(labelcoor)
+    (pgfcirc@labelcoor)++(\pgf@circ@labposangle:\the\pgf@circ@res@temp) coordinate(pgfcirc@labelcoor)
     node[anchor=mid, rotate=\pgfcirclabrot, \circuitikzbasekey/bipole #1 style]
     (\ctikzvalof{bipole/name}#1){\pgf@circ@finallabels{#1}}
 }
@@ -20539,7 +20539,7 @@
                     % the inner sep, so recover it by shifting the anchor
                     % reset cm is not working sometime, use @marmot solution
                     % see https://tex.stackexchange.com/a/476018/38080
-                    (labelcoor) ++(-\pgf@circ@labanc:\pgf@circ@res@temp) coordinate(labelcoor)
+                    (pgfcirc@labelcoor) ++(-\pgf@circ@labanc:\pgf@circ@res@temp) coordinate(pgfcirc@labelcoor)
                     \pgfextra{\def\pgf@circ@labanctext{base}}%base
                 \else
                     \pgfextra{\def\pgf@circ@labanctext{north}}%north
@@ -20547,13 +20547,13 @@
              \else
                 \ifnum \pgf@circ@labanc < 90
                     % shift, as above
-                    (labelcoor) ++(-\pgf@circ@labanc:\pgf@circ@res@temp) coordinate(labelcoor)
+                    (pgfcirc@labelcoor) ++(-\pgf@circ@labanc:\pgf@circ@res@temp) coordinate(pgfcirc@labelcoor)
                     \pgfextra{\def\pgf@circ@labanctext{base}}%base
                 \else
                     \ifnum \pgf@circ@labanc > 180
                         % this shouldn't  happen, but somehow it does (270 degree anchors)
                         % shift, as above
-                        (labelcoor) ++(-\pgf@circ@labanc:\pgf@circ@res@temp) coordinate(labelcoor)
+                        (pgfcirc@labelcoor) ++(-\pgf@circ@labanc:\pgf@circ@res@temp) coordinate(pgfcirc@labelcoor)
                          \pgfextra{\def\pgf@circ@labanctext{base}}%base
                     \else
                       \pgfextra{\def\pgf@circ@labanctext{north}}%north
@@ -20561,7 +20561,7 @@
                 \fi
             \fi
         \fi\fi
-    (labelcoor) node[anchor=\pgf@circ@labanctext,
+    (pgfcirc@labelcoor) node[anchor=\pgf@circ@labanctext,
     inner sep=0.5\pgf@circ@res@temp, outer sep=0pt, \circuitikzbasekey/bipole #1 style,
         ](\ctikzvalof{bipole/name}#1){\strut\pgf@circ@finallabels{#1}%
     }
@@ -20831,12 +20831,12 @@
     }
     % %\pgf@circ@Rlen/\ctikzvalof{current arrow scale} is equal to the length of the currarrow
     %absolute move, minimum space is length of arrowhead
-    coordinate (pgfcirc@midtmp) at ($(\tikztostart) ! \pgf@circ@Rlen/\ctikzvalof{current arrow scale} ! (anchorstartnode)$)
-    coordinate (pgfcirc@midtmp) at ($(pgfcirc@midtmp) ! \distancefromnode ! (anchorstartnode)$)
+    coordinate (pgfcirc@midtmp) at ($(\tikztostart) ! \pgf@circ@Rlen/\ctikzvalof{current arrow scale} ! (pgfcirc@anchorstartnode)$)
+    coordinate (pgfcirc@midtmp) at ($(pgfcirc@midtmp) ! \distancefromnode ! (pgfcirc@anchorstartnode)$)
     coordinate (pgfcirc@Vfrom@flat) at (pgfcirc@midtmp)
     %absolute move, minimum space is length of arrowhead
-    coordinate (pgfcirc@midtmp) at ($(\tikztotarget) ! \pgf@circ@Rlen/\ctikzvalof{current arrow scale} ! (anchorendnode)$)
-    coordinate (pgfcirc@midtmp) at ($(pgfcirc@midtmp) ! \distancefromnode ! (anchorendnode)$)
+    coordinate (pgfcirc@midtmp) at ($(\tikztotarget) ! \pgf@circ@Rlen/\ctikzvalof{current arrow scale} ! (pgfcirc@anchorendnode)$)
+    coordinate (pgfcirc@midtmp) at ($(pgfcirc@midtmp) ! \distancefromnode ! (pgfcirc@anchorendnode)$)
     coordinate (pgfcirc@Vto@flat) at (pgfcirc@midtmp)
     coordinate (pgfcirc@mid) at ($(pgfcirc@Vfrom@flat)!0.5!(pgfcirc@Vto@flat)$)
 
@@ -20852,8 +20852,8 @@
                 coordinate (\pgfcirc@a@prefix-Vlab) at ($(\pgfcirc@a@prefix-Vto)!0.5!(\pgfcirc@a@prefix-Vfrom) $)
                 coordinate (pgfcirc@Vdir) at (\pgfcirc@a@prefix-Vto)
             \else
-                coordinate (\pgfcirc@a@prefix-Vto)   at ($(pgfcirc@Vto@flat) ! \absvshift!90 :  (anchorendnode)$)
-                coordinate (\pgfcirc@a@prefix-Vfrom) at ($(pgfcirc@Vfrom@flat) ! \absvshift!-90 :  (anchorstartnode)$)
+                coordinate (\pgfcirc@a@prefix-Vto)   at ($(pgfcirc@Vto@flat) ! \absvshift!90 :  (pgfcirc@anchorendnode)$)
+                coordinate (\pgfcirc@a@prefix-Vfrom) at ($(pgfcirc@Vfrom@flat) ! \absvshift!-90 :  (pgfcirc@anchorstartnode)$)
                 coordinate (pgfcirc@Vcont1t) at ($(\ctikzvalof{bipole/name}.center) ! \bumpb ! (\ctikzvalof{bipole/name}.-110)$)
                 coordinate (pgfcirc@Vcont2t) at ($(\ctikzvalof{bipole/name}.center) ! \bumpb ! (\ctikzvalof{bipole/name}.-70)$)
                 coordinate (\pgfcirc@a@prefix-Vcont1) at ($(pgfcirc@Vcont1t) ! -\absvshift!90 : (pgfcirc@Vcont2t)$)
@@ -20863,8 +20863,8 @@
             \fi
         \else
             % we are in case of american here
-            coordinate (\pgfcirc@a@prefix-Vto) at ($(pgfcirc@Vto@flat) ! \absvshift!90 :  (anchorendnode)$)
-            coordinate (\pgfcirc@a@prefix-Vfrom) at ($(pgfcirc@Vfrom@flat) ! \absvshift!-90 :  (anchorstartnode)$)
+            coordinate (\pgfcirc@a@prefix-Vto) at ($(pgfcirc@Vto@flat) ! \absvshift!90 :  (pgfcirc@anchorendnode)$)
+            coordinate (\pgfcirc@a@prefix-Vfrom) at ($(pgfcirc@Vfrom@flat) ! \absvshift!-90 :  (pgfcirc@anchorstartnode)$)
             coordinate (pgfcirc@bottom) at (\ctikzvalof{bipole/name}.-90)
             coordinate (pgfcirc@Vdir0) at ($(pgfcirc@mid)+(pgfcirc@bottom)-(pgfcirc@Vfrom@flat)$)
             coordinate (\pgfcirc@a@prefix-Vlab) at ($(pgfcirc@bottom) !  \absvshift!-90 : (pgfcirc@Vdir0)$)
@@ -20890,8 +20890,8 @@
                 coordinate (pgfcirc@Vdir) at (\pgfcirc@a@prefix-Vto)
             \else
                 % european voltages here
-                coordinate (\pgfcirc@a@prefix-Vto) at ($(pgfcirc@Vto@flat) ! -\absvshift!90 :  (anchorendnode)$)
-                coordinate (\pgfcirc@a@prefix-Vfrom) at ($(pgfcirc@Vfrom@flat) ! -\absvshift!-90 :  (anchorstartnode)$)
+                coordinate (\pgfcirc@a@prefix-Vto) at ($(pgfcirc@Vto@flat) ! -\absvshift!90 :  (pgfcirc@anchorendnode)$)
+                coordinate (\pgfcirc@a@prefix-Vfrom) at ($(pgfcirc@Vfrom@flat) ! -\absvshift!-90 :  (pgfcirc@anchorstartnode)$)
                 % identify the two control points for the "arc" of the voltage
                 coordinate (pgfcirc@Vcont1t) at ($(\ctikzvalof{bipole/name}.center) ! \bumpb ! (\ctikzvalof{bipole/name}.110)$)
                 coordinate (pgfcirc@Vcont2t) at ($(\ctikzvalof{bipole/name}.center) ! \bumpb ! (\ctikzvalof{bipole/name}.70)$)
@@ -20904,8 +20904,8 @@
             \fi
         \else
             % we are in case of american here
-            coordinate (\pgfcirc@a@prefix-Vto) at ($(pgfcirc@Vto@flat) ! \absvshift!-90 :  (anchorendnode)$)
-            coordinate (\pgfcirc@a@prefix-Vfrom) at ($(pgfcirc@Vfrom@flat) ! \absvshift!90 :  (anchorstartnode)$)
+            coordinate (\pgfcirc@a@prefix-Vto) at ($(pgfcirc@Vto@flat) ! \absvshift!-90 :  (pgfcirc@anchorendnode)$)
+            coordinate (\pgfcirc@a@prefix-Vfrom) at ($(pgfcirc@Vfrom@flat) ! \absvshift!90 :  (pgfcirc@anchorstartnode)$)
             coordinate (pgfcirc@top) at (\ctikzvalof{bipole/name}.90)
             % move parallel to the component line
             coordinate (pgfcirc@Vdir0) at ($(pgfcirc@mid)+(pgfcirc@top)-(pgfcirc@Vfrom@flat)$)
@@ -20924,8 +20924,8 @@
         coordinate (\pgfcirc@a@prefix-Vfrom) at (pgfcirc@Vfrom@flat)
     \fi
     \ifpgf@circ@debugv
-        node [ocirc, fill=red] at (anchorstartnode) {}
-        node [ocirc, fill=blue] at (anchorendnode) {}
+        node [ocirc, fill=red] at (pgfcirc@anchorstartnode) {}
+        node [ocirc, fill=blue] at (pgfcirc@anchorendnode) {}
         node [ocirc, fill=green] at (\pgfcirc@a@prefix-Vto) {}
         node [ocirc, fill=yellow] at (\pgfcirc@a@prefix-Vfrom) {}
         node [odiamondpole, fill=green!50!black] at (pgfcirc@Vto@flat) {}
@@ -21478,9 +21478,9 @@
     \else% normal bipole or source
         \ifpgf@circuit@bipole@current@before
             coordinate (\pgfcirc@a@prefix-Ifrom) at (\tikztostart)
-            coordinate (\pgfcirc@a@prefix-Ito) at (anchorstartnode)
+            coordinate (\pgfcirc@a@prefix-Ito) at (pgfcirc@anchorstartnode)
         \else
-            coordinate (\pgfcirc@a@prefix-Ifrom) at (anchorendnode)
+            coordinate (\pgfcirc@a@prefix-Ifrom) at (pgfcirc@anchorendnode)
             coordinate (\pgfcirc@a@prefix-Ito) at (\tikztotarget)
         \fi
     \fi
@@ -21693,9 +21693,9 @@
     \else% normal bipole or source
         \ifpgf@circuit@bipole@flow@before
             coordinate (pgfcirc@Ffrom@flat) at (\tikztostart)
-            coordinate (pgfcirc@Fto@flat) at (anchorstartnode)
+            coordinate (pgfcirc@Fto@flat) at (pgfcirc@anchorstartnode)
         \else
-            coordinate (pgfcirc@Ffrom@flat) at (anchorendnode)
+            coordinate (pgfcirc@Ffrom@flat) at (pgfcirc@anchorendnode)
             coordinate (pgfcirc@Fto@flat) at (\tikztotarget)
         \fi
     \fi
@@ -21849,9 +21849,9 @@
 
 % swap two coordinates
 \def\pgfcirc@swap@coordinates#1#2{%
-    coordinate (tmp) at (#1)
+    coordinate (pgfcirc@tmp@swap) at (#1)
     coordinate (#1) at (#2)
-    coordinate (#2) at (tmp)
+    coordinate (#2) at (pgfcirc@tmp@swap)
 }
 
 % Names
@@ -21941,7 +21941,7 @@
         \def\pgf@circ@temp{}
         \ifx\pgf@temp\pgf@circ@temp % if it has not a name
             \pgfmathrandominteger{\pgf@circ@rand}{1000}{9999}
-            \ctikzset{bipole/name = #3\pgf@circ@rand} % create it (re-usage should not create problem, but...)
+            \ctikzset{bipole/name = pgfcirc@#3\pgf@circ@rand} % create it (re-usage should not create problem, but...)
             \edef\pgfcirc@a@prefix{pgfcirc}% do not pollute the namespace for nothing
         \else
             \edef\pgfcirc@a@prefix{\ctikzvalof{bipole/name}}% for exporting v-i-f anchors
@@ -21965,19 +21965,19 @@
     % set start and end labels
     \ifpgf@circuit@bipole@inverted
         \ifcsname pgf@anchor@#3#1@pathstart\endcsname%if special path-anchors are defined, use them!
-            coordinate	(anchorstartnode) at (\ctikzvalof{bipole/name}.pathend)
-            coordinate	(anchorendnode) at (\ctikzvalof{bipole/name}.pathstart)
+            coordinate	(pgfcirc@anchorstartnode) at (\ctikzvalof{bipole/name}.pathend)
+            coordinate	(pgfcirc@anchorendnode) at (\ctikzvalof{bipole/name}.pathstart)
         \else
-            coordinate	(anchorstartnode) at (\ctikzvalof{bipole/name}.right)
-            coordinate	(anchorendnode) at (\ctikzvalof{bipole/name}.left)
+            coordinate	(pgfcirc@anchorstartnode) at (\ctikzvalof{bipole/name}.right)
+            coordinate	(pgfcirc@anchorendnode) at (\ctikzvalof{bipole/name}.left)
         \fi
         \else
         \ifcsname pgf@anchor@#3#1@pathstart\endcsname%if special path-anchors are defined, use them!
-            coordinate	(anchorstartnode) at (\ctikzvalof{bipole/name}.pathstart)
-            coordinate	(anchorendnode) at (\ctikzvalof{bipole/name}.pathend)
+            coordinate	(pgfcirc@anchorstartnode) at (\ctikzvalof{bipole/name}.pathstart)
+            coordinate	(pgfcirc@anchorendnode) at (\ctikzvalof{bipole/name}.pathend)
         \else
-            coordinate	(anchorstartnode) at (\ctikzvalof{bipole/name}.left)
-            coordinate	(anchorendnode) at (\ctikzvalof{bipole/name}.right)
+            coordinate	(pgfcirc@anchorstartnode) at (\ctikzvalof{bipole/name}.left)
+            coordinate	(pgfcirc@anchorendnode) at (\ctikzvalof{bipole/name}.right)
         \fi
     \fi
     % draw the leads unless it's an open circuit
@@ -21986,7 +21986,7 @@
     \ifx\pgf@temp\pgf@circ@temp  % if it is an open do nothing
     \else
         % it is important to start the path with -- to have correct line joins!
-        -- (\tikztostart) -- (anchorstartnode)
+        -- (\tikztostart) -- (pgfcirc@anchorstartnode)
     \fi
     % Add all the "ornaments": labels, annotations, voltages, currents and flows
     \drawpoles
@@ -22003,7 +22003,7 @@
     \ifx\pgf@temp\pgf@circ@temp  % if it is an open do nothing
         (\tikztotarget)
     \else
-        (anchorendnode)  -- (\tikztotarget)
+        (pgfcirc@anchorendnode)  -- (\tikztotarget)
     \fi
     % reset internal circuit keys
     \pgfextra{\pgfcircresetpath}
