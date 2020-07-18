@@ -3,12 +3,11 @@ The major changes among the different circuitikz versions are listed here. See <
 
 * Version 1.2.3 (unreleased)
 
-    Bumped version number.
+    - Fixed size of "not circle" in flip-flops to match european style not circle when used.
 
 * Version 1.2.2 (2020-07-15)
 
     Bug-fix release: coordinate name leakage. The node and coordinate names are global; the internal coordinate names have been made stronger.
-
 
 * Version 1.2.1 (2020-07-06)
 
