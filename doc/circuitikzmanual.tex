@@ -2478,10 +2478,10 @@ It also has a \texttt{zero} anchor if you need to rotate it about its real cente
 \noindent Contributed by Stefan Erhardt.
 
 \begin{groupdesc}
-    \circuitdesc*{mixer}{mixer}{}( 1/180/0.1,2/-90/0.1,3/0/0.1,4/90/0.1 )
+    \circuitdesc*{mixer}{mixer}{}( w/180/0.1,s/-90/0.1,e/0/0.1,n/90/0.1 )
     \circuitdesc*{adder}{adder}{}( west/180/0.1,south/-90/0.1,east/0/0.1,north/90/0.1 )
-    \circuitdesc*{oscillator}{oscillator}{}
-    \circuitdesc*{circulator}{circulator}{}
+    \circuitdesc*{oscillator}{oscillator}{}( w/180/0.1,s/-90/0.1,e/0/0.1,n/90/0.1 )
+    \circuitdesc*{circulator}{circulator}{}( left/180/0.1,down/-90/0.1,right/0/0.1, up/90/0.1 )
     \circuitdesc*{wilkinson}{wilkinson divider}{}( in/180/0.1, out2/45/0.1, out1/-45/0.1 )
     \circuitdesc*{gridnode}{gridnode\footnotemark}{}(left/135/0.2, right/45/0.2, center/-100/0.4, up/90/0.2, down/-45/.2)
     \footnotetext{added by \texttt{olfline}}
@@ -2518,25 +2518,48 @@ It also has a \texttt{zero} anchor if you need to rotate it about its real cente
 \end{groupdesc}
 
 \begin{groupdesc}
-    \circuitdesc*{fourport}{Generic fourport}{}
-    \circuitdesc*{coupler}{Coupler}{}
+    \circuitdesc*{fourport}{Generic fourport}{}(port1/180/0.1, port2/0/0.1, port3/0/0.2, port4/180/0.1)
+    \circuitdesc*{coupler}{Coupler}{}(left down/180/0.1, right down/0/0.1, right up/0/0.2, left up/180/0.1)
     \circuitdesc*{coupler2}{Coupler with rounded arrows}{}
 \end{groupdesc}
 
 \subsubsection{Blocks anchors}
 
-The ports of the mixer and adder can be addressed with numbers or \texttt{west}/\texttt{south}/\texttt{east}/\texttt{north}:
+The ports of the \texttt{mixer}, \texttt{adder}, \texttt{oscillator} and \texttt{circulator}  can be addressed with \texttt{west}, \texttt{south}, \texttt{east}, \texttt{north}; the equivalent \texttt{left}, \texttt{down}, \texttt{right}, \texttt{up};  or the shorter \texttt{w, s, e, n} ones:
 
 \begin{LTXexample}[varwidth=true]
 \begin{circuitikz} \draw
   (0,0) node[mixer] (mix) {}
-  (mix.1) node[left] {1}
-  (mix.2) node[below] {2}
-  (mix.3) node[right] {3}
-  (mix.4) node[above] {4}
+  (mix.w) node[left] {w}
+  (mix.s) node[below] {s}
+  (mix.e) node[right] {e}
+  (mix.n) node[above] {n}
 ;\end{circuitikz}
 \end{LTXexample}
 
+Moreover, the have proper border anchors since version \texttt{1.2.3}, so you can do things like this:
+
+\begin{LTXexample}[varwidth=true]
+\begin{circuitikz}
+  \draw (0,0) node[adder] (mix) {}
+  (-1,1) -- ++(0.5,0) -- (mix)
+  (-1,-1) -- ++(0.5,0) -- (mix) -- ++(1,0);
+  \draw [red, <-] (mix.45) -- ++(1,1);
+\end{circuitikz}
+\end{LTXexample}
+
+Those components have also \textbf{deprecated} anchors named \texttt{1, 2, 3, 4}; they are better not used because they can conflict with the border anchor. They still work for backward compatibility, but could be removed in a future release.
+
+\begin{LTXexample}[varwidth=true]
+\begin{circuitikz} \draw
+  (0,0) node[mixer] (mix) {}
+  (mix.1) node[left] {1} (mix.2) node[below] {2}
+  (mix.3) node[right] {3} (mix.4) node[above] {4};
+\draw [ultra thick, red, opacity=0.5]
+  (-1,-1)--(1,1)(-1,1)--(1,-1);
+\node [red, below] at (0,-1) {DON'T USE};
+\end{circuitikz}
+\end{LTXexample}
 
 The Wilkinson divider has:
 
@@ -2555,8 +2578,42 @@ The Wilkinson divider has:
 
 The couplers have:
 
+\begin{LTXexample}[varwidth=true, basicstyle=\small\ttfamily]
+\begin{circuitikz} \draw (0,1.5) %bounding box
+  (0,0) node[coupler] (c) {\SI{10}{dB}}
+  (c.left down) to[short,-o] ++(-0.5,0)
+  (c.right down) to[short,-o] ++(0.5,0)
+  (c.right up) to[short,-o] ++(0.5,0)
+  (c.left up) to[short,-o] ++(-0.5,0)
+  (c.left down) node[below left] {\texttt{left down}}
+  (c.right down) node[below right] {\texttt{right down}}
+  (c.right up) node[above right] {\texttt{right up}}
+  (c.left up) node[above left] {\texttt{left up}}
+  ;
+\end{circuitikz}
+\end{LTXexample}
+
+Or you can use also \texttt{port1} to \texttt{port4} if you prefer:
+
 \begin{LTXexample}[varwidth=true]
-\begin{circuitikz} \draw
+\begin{circuitikz} \draw (0,1.5) %bounding box
+  (0,0) node[coupler2] (c) {\SI{3}{dB}}
+  (c.port1) to[short,-o] ++(-0.5,0)
+  (c.port2) to[short,-o] ++(0.5,0)
+  (c.port3) to[short,-o] ++(0.5,0)
+  (c.port4) to[short,-o] ++(-0.5,0)
+  (c.port1) node[below left] {\texttt{port1}}
+  (c.port2) node[below right] {\texttt{port2}}
+  (c.port3) node[above right] {\texttt{port3}}
+  (c.port4) node[above left] {\texttt{port4}}
+  ;
+\end{circuitikz}
+\end{LTXexample}
+
+Also they have the simpler \texttt{1, 2, 3, 4} anchors, and although they have no border anchors (for now), it is better not to use them.
+
+\begin{LTXexample}[varwidth=true]
+\begin{circuitikz} \draw(0,1.5) %bounding box
   (0,0) node[coupler] (c) {\SI{10}{dB}}
   (c.1) to[short,-o] ++(-0.5,0)
   (c.2) to[short,-o] ++(0.5,0)
@@ -2569,22 +2626,6 @@ The couplers have:
   ;
 \end{circuitikz}
 \end{LTXexample}
-
-\begin{LTXexample}[varwidth=true]
-\begin{circuitikz} \draw
-  (0,0) node[coupler2] (c) {\SI{3}{dB}}
-  (c.1) to[short,-o] ++(-0.5,0)
-  (c.2) to[short,-o] ++(0.5,0)
-  (c.3) to[short,-o] ++(0.5,0)
-  (c.4) to[short,-o] ++(-0.5,0)
-  (c.1) node[below left] {\texttt{1}}
-  (c.2) node[below right] {\texttt{2}}
-  (c.3) node[above right] {\texttt{3}}
-  (c.4) node[above left] {\texttt{4}}
-  ;
-\end{circuitikz}
-\end{LTXexample}
-
 
 \subsubsection{Blocks customization}
 
@@ -7218,19 +7259,19 @@ Here a series of example, contributed by several people, is shown with their cod
         (2,0) node[coupler] (c1) {}
         (0,2) node[coupler,rotate=90] (c2) {}
         (0,-2) node[coupler,rotate=90] (c3) {}
-        (w1.out1) .. controls ++(0.8,0) and ++(0,0.8) .. (c3.3)
-        (w1.out2) .. controls ++(0.8,0) and ++(0,-0.8) .. (c2.4)
-        (c1.1) .. controls ++(-0.8,0) and ++(0,0.8) .. (c3.2)
-        (c1.4) .. controls ++(-0.8,0) and ++(0,-0.8) .. (c2.1)
+        (w1.out1) .. controls ++(0.8,0) and ++(0,0.8) .. (c3.port3)
+        (w1.out2) .. controls ++(0.8,0) and ++(0,-0.8) .. (c2.port4)
+        (c1.port1) .. controls ++(-0.8,0) and ++(0,0.8) .. (c3.port2)
+        (c1.port4) .. controls ++(-0.8,0) and ++(0,-0.8) .. (c2.port1)
         (w1.in) to[short,-o] ++(-1,0)
         (w1.in) node[left=30] {LO}
-        (c1.2) node[match,yscale=1] {}
-        (c1.3) to[short,-o] ++(1,0)
-        (c1.3) node[right=30] {RF}
-        (c2.3) to[detector,-o] ++(0,1.5)
-        (c2.2) to[detector,-o] ++(0,1.5)
-        (c3.1) to[detector,-o] ++(0,-1.5)
-        (c3.4) to[detector,-o] ++(0,-1.5)
+        (c1.port2) node[match,yscale=1] {}
+        (c1.port3) to[short,-o] ++(1,0)
+        (c1.port3) node[right=30] {RF}
+        (c2.port3) to[detector,-o] ++(0,1.5)
+        (c2.port2) to[detector,-o] ++(0,1.5)
+        (c3.port1) to[detector,-o] ++(0,-1.5)
+        (c3.port4) to[detector,-o] ++(0,-1.5)
         ;
     \end{circuitikz}
 \end{LTXexample}
