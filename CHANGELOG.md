@@ -5,6 +5,7 @@ The major changes among the different circuitikz versions are listed here. See <
 
     - Fixed size of "not circle" in flip-flops to match european style not circle when used.
     - added a Mach-Zehnder-Modulator block symbol as node mzm by user `@dl1chb`
+    - Block anchors: add border anchors for round elements and deprecate old 1, 2, 3, 4 anchors.
 
 * Version 1.2.2 (2020-07-15)
 
