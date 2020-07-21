@@ -10,8 +10,8 @@
 %
 % See the files gpl-3.0_license.txt and lppl-1-3c_license.txt for more details.
 
-\def\pgfcircversion{1.2.3-5687d3b}
-\def\pgfcircversiondate{2020/07/19}
+\def\pgfcircversion{1.2.3-9b787e3}
+\def\pgfcircversiondate{2020/07/21}
 \writestatus{loading}{\pgfcircversiondate{} The CircuiTikz circuit drawing package version \pgfcircversion}
 
 \usemodule[tikz]
@@ -1028,6 +1028,9 @@
 
 \ctikzset{tripoles/wilkinson/height/.initial=1.3}
 \ctikzset{tripoles/wilkinson/width/.initial=1.3}
+
+\ctikzset{tripoles/mzm/height/.initial=1.3}
+\ctikzset{tripoles/mzm/width/.initial=1.3}
 %%>>>
 
 % Transistors %<<<1
@@ -17514,6 +17517,146 @@
     \endpgfscope
 }
 
+% mach zehnder modulator
+\pgfdeclareshape{mzm}{
+    \savedmacro{\ctikzclass}{\edef\ctikzclass{blocks}}
+    \saveddimen{\scaledRlen}{\pgfmathsetlength{\pgf@x}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}}
+    \savedanchor\northwest{%
+        \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
+        \pgf@y=\ctikzvalof{tripoles/mzm/height}\pgf@circ@scaled@Rlen
+        \pgf@y=.5\pgf@y
+        \pgf@x= \pgf@circ@scaled@Rlen
+        \pgf@x=.5\pgf@x
+        \pgf@x=-\ctikzvalof{tripoles/mzm/width}\pgf@x
+    }
+    \anchor{center}{
+        \northwest
+        \pgf@x=0pt
+        \pgf@y=0pt
+    }
+    \anchor{north}{
+        \northwest
+        \pgf@x=0pt
+    }
+    \anchor{south}{
+        \northwest
+        \pgf@x=0pt
+        \pgf@y=-\pgf@y
+    }
+    \anchor{west}{
+        \northwest
+        \pgf@y=0pt
+    }
+    \anchor{east}{
+        \northwest
+        \pgf@y=0pt
+        \pgf@x=-\pgf@x
+    }
+    \anchor{south west}{
+        \northwest
+        \pgf@y=-\pgf@y
+    }
+    \anchor{north east}{
+        \northwest
+        \pgf@x=-\pgf@x
+    }
+    \anchor{north west}{
+        \northwest
+    }
+    \anchor{south east}{
+        \northwest
+        \pgf@x=-\pgf@x
+        \pgf@y=-\pgf@y
+    }
+    \anchor{in}{
+        \northwest
+        \pgf@y=0pt
+    }
+    \anchor{mod}{
+        \northwest
+        \pgf@x=0pt
+    }
+    \anchor{out}{
+        \northwest
+        \pgf@x=-\pgf@x
+        \pgf@y=0pt
+    }
+    \anchor{text}{
+        \northwest
+        \advance \pgf@y by 0.5\ht\pgfnodeparttextbox
+        \pgf@x=-.5\wd\pgfnodeparttextbox
+    }
+    \backgroundpath{
+        \pgfsetcolor{\ctikzvalof{color}}
+        \pgf@circ@scaled@Rlen=\scaledRlen
+
+        \northwest
+        \pgf@circ@res@up = \pgf@y
+        \pgf@circ@res@down = -\pgf@y
+        \pgf@circ@res@right = -\pgf@x
+        \pgf@circ@res@left = \pgf@x
+
+        \pgfstartlinewidth=\pgflinewidth
+
+        % draw outer box
+        \pgf@circ@twoportbox
+
+        % draw inner stuff
+          % rotate inner symbol
+    \def\pgfcircmathresult{\expandafter\pgf@circ@stripdecimals\pgf@circ@direction\pgf@nil}
+    \ifnum \pgfcircmathresult > 45 \ifnum \pgfcircmathresult < 135
+        \pgftransformrotate{270}
+    \fi\fi
+    \ifnum \pgfcircmathresult > 134 \ifnum \pgfcircmathresult < 225  % 134 degree, because >= 135 is not possible
+        \pgftransformrotate{180}
+    \fi\fi
+    \ifnum \pgfcircmathresult > 224 \ifnum \pgfcircmathresult < 315
+        \pgftransformrotate{90}
+    \fi\fi
+
+    % draw inner symbol
+     \pgfsetdash{}{0pt}	% always draw solid line for inner symbol
+     \pgfsetarrows{-} %never draw arrows
+     \pgfsetlinewidth{\pgfstartlinewidth}
+	\pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@zero}}
+	\pgfpathlineto{\pgfpoint{0.75\pgf@circ@res@left}{\pgf@circ@res@zero}}
+     \pgfusepath{draw}
+
+	\pgfpathmoveto{\pgfpoint{0.75\pgf@circ@res@left}{\pgf@circ@res@zero}}
+	\pgfpathlineto{\pgfpoint{0.5\pgf@circ@res@left}{0.25\pgf@circ@res@up}}
+	\pgfusepath{draw}
+
+	\pgfpathmoveto{\pgfpoint{0.75\pgf@circ@res@left}{\pgf@circ@res@zero}}
+	\pgfpathlineto{\pgfpoint{0.5\pgf@circ@res@left}{0.25\pgf@circ@res@down}}
+	\pgfusepath{draw}
+
+	\pgfpathmoveto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@zero}}
+	\pgfpathlineto{\pgfpoint{0.75\pgf@circ@res@right}{\pgf@circ@res@zero}}
+     \pgfusepath{draw}
+
+	\pgfpathmoveto{\pgfpoint{0.75\pgf@circ@res@right}{\pgf@circ@res@zero}}
+	\pgfpathlineto{\pgfpoint{0.5\pgf@circ@res@right}{0.25\pgf@circ@res@up}}
+	\pgfusepath{draw}
+
+	\pgfpathmoveto{\pgfpoint{0.75\pgf@circ@res@right}{\pgf@circ@res@zero}}
+	\pgfpathlineto{\pgfpoint{0.5\pgf@circ@res@right}{0.25\pgf@circ@res@down}}
+	\pgfusepath{draw}
+
+	\pgfpathmoveto{\pgfpoint{0.5\pgf@circ@res@right}{0.25\pgf@circ@res@up}}
+	\pgfpathlineto{\pgfpoint{0.5\pgf@circ@res@left}{0.25\pgf@circ@res@up}}
+	\pgfusepath{draw}
+
+	\pgfpathmoveto{\pgfpoint{0.5\pgf@circ@res@right}{0.25\pgf@circ@res@down}}
+	\pgfpathlineto{\pgfpoint{0.5\pgf@circ@res@left}{0.25\pgf@circ@res@down}}
+	\pgfusepath{draw}
+	
+    \pgfpathmoveto{\pgfpoint{\pgf@circ@res@zero}{\pgf@circ@res@up}}
+	\pgfpathlineto{\pgfpoint{\pgf@circ@res@zero}{0.35\pgf@circ@res@up}}
+	\pgfpathlineto{\pgfpoint{0.25\pgf@circ@res@right}{0.1\pgf@circ@res@up}}
+	\pgfusepath{draw}
+
+    }
+}
 %%%---------- close: tex/pgfcircquadpoles
 %%%%%%%%%%% Springe nach tex/pgfcircmultipoles
 %%%---------- open: tex/pgfcircmultipoles.tex
