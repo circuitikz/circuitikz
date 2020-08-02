@@ -276,7 +276,7 @@ Nevertheless,  \href{https://tex.stackexchange.com/a/529159/38080}{Schrödinger'
 The \texttt{use fpu reciprocal} key seems to have no side effects, but given that it is patching an internal interface of \TikZ{} it can break any time, so it is advisable to use it only if and when needed.
 
 
-\subsection{Incompabilities between version}
+\subsection{Incompabilities between version}\label{sec:incompatible-changes}
 Here, we will provide a list of incompabilitys between different version of circuitikz. We will try to hold this list short, but sometimes it is easier to break with old syntax than including a lot of switches and compatibility layers.
 You can check the used version at your local installation using the macro \verb!\pgfcircversion{}!.
 \begin{itemize}
@@ -284,9 +284,11 @@ You can check the used version at your local installation using the macro \verb!
 
         One of the changes is that the previous routine did the wrong thing if you used \texttt{(node) to[...]} (you should use an anchor or a coordinate, not a node there --- like \texttt{(node.anchor) to[...]}).
 
-        The other one was that in the structure \texttt{... to[...] node[pos=\emph{something}]  (coord)} the value of \texttt{pos} was completely wrong (even if you don't use \texttt{pos} explicitly, remeber it's \texttt{pos=0.5} by default).
+        The other one was that in the structure \texttt{... to[...] node[pos=\emph{something}]  (coord)} the value of \texttt{pos} was completely wrong (even if you don't use \texttt{pos} explicitly, remember it's \texttt{pos=0.5} by default).
 
         Additionally, the old code disrupted the \TikZ{} path-fill mechanism, so that you could get away with using the \texttt{fill} option on paths and having just the components to be filled, not the path. That was incorrect, although sometime it was handy.
+
+        See the FAQ at section~\ref{faqs:nodes} for more information.
 
     \item After v1.2.0: voltage arrows, symbols and label positions are calculated with a rewritten routine. There should be little change, \emph{unless} you touched internal values\dots
     \item After v1.1.3: during the 1.1.0 --- 1.1.2 version, the inverted Schmitt buffer in IEEE style ports was called \texttt{inv schmitt} (with an additional space). The correct name is \texttt{invschmitt port} (the same as the legacy american port).
@@ -6869,26 +6871,87 @@ Also, since \texttt{v1.2.3}, you can set the key \texttt{open poles fill} (defau
     \draw[color=white] (0,0) to[R, o-o] ++(3,0);
 \end{circuitikz}
 \end{LTXexample}
-\section{FAQ}
 
-\noindent Q: When using \verb!\tikzexternalize! I get the following error:
+\section{FAQ: Frequently asked questions}
+
+\def\faqQ{\par\medskip\noindent\textbf{Q: }}
+\def\faqA{\par\noindent\textbf{A: }}
+
+\subsection{Using named nodes in circuits}\label{faqs:nodes}
+
+\faqQ When I use a node to name a connection in the circuit, I have gaps in the wires! I am sure it used to work!
+
+\faqA This is explained in~\ref{sec:incompatible-changes}. The fast answer is that in a hurry, use the \texttt{1.1.2} fallback point with:
+
+\verb|\usepackage{circuitikz-1.1.2}|
+
+in your preamble.
+
+But really, your circuit definition is buggy, so the best thing to do is fix that; if you want to name a point in you circuit, you should use a \texttt{coordinate}, not a \texttt{node}.\footnote{Yes, I understand from where the confusion arise --- in circuit theory they are called nodes.} Here is a small tutorial on \emph{why} you should change your circuit.
+
+Nodes, in \TikZ, have normally a non-zero size even when they are empty; moreover, connections are supposed to join the border of nodes. Please study the following (pure \TikZ, not \Circuitikz)
+
+\begin{LTXexample}[varwidth=true, basicstyle=\small\ttfamily]
+\begin{tikzpicture}
+    \path (1,1) node (A){}; % empty node at (1,1)
+    \draw (1,0) -- (A) -- (2,1); % surprise!
+\end{tikzpicture}
+\end{LTXexample}
+
+The gap is there because the node has a non-zero size (more in detail, its \texttt{inner sep} is by default different from zero. You can see it easily if you draw the node shape:
+
+\begin{LTXexample}[varwidth=true, basicstyle=\small\ttfamily]
+\begin{tikzpicture}
+    \path (1,1) node [draw=red](A){};
+    \draw (1,0) -- (A) -- (2,1);
+\end{tikzpicture}
+\end{LTXexample}
+
+The problem is that you was want to name a coordinate, you should use a \texttt{coordinate}, \textbf{not} a node!
+
+\begin{LTXexample}[varwidth=true, basicstyle=\small\ttfamily]
+\begin{tikzpicture}
+    \path (1,1) coordinate (A); % give a name to (1,1)
+    \draw (1,0) -- (A) -- (2,1);% now it's ok!
+\end{tikzpicture}
+\end{LTXexample}
+
+Now, before version \texttt{1.2.1} (and since around \texttt{0.6}), \Circuitikz{} was detecting  when a connection was between nodes and sort-of added a \texttt{node.center} movement to the path. That in turn generated the need of hacks to draw the correct joining of lines, because that kind of movement broke the continuity of the path, like in this example:
+
+\begin{LTXexample}[varwidth=true, basicstyle=\small\ttfamily]
+    \begin{tikzpicture}[line width=4pt]
+    \path (1,1) node (A){};
+    \draw (1,0) -- (A.center) (A) (A.center) -- (2,1);
+\end{tikzpicture}
+\end{LTXexample}
+
+You can see more example and more reasoning on GitHub; start from the
+\href{https://github.com/circuitikz/circuitikz/issues/417}{issue detecting the join problem}, then
+\href{https://github.com/circuitikz/circuitikz/pull/418}{look at the merged fix}; you can follow several issue and discussion from there, but for example there are circuits that can't be drawn with the ``hack'' in, \href{https://github.com/circuitikz/circuitikz/issues/76#issuecomment-652980687}{like this one}.
+
+So finally it was decided\footnote{well, Romano decided, so you can blame him. \emph{I do not think that workarounds to correct malformed circuits are really maintainable; just see the bunch of code removed by the patch! --- Romano.}}  to remove the change, to simplify the code and to make the package more maintainable.
+
+\subsection{Errors when externalizing pictures}\label{faqs:externalize}
+
+\faqQ When using \verb!\tikzexternalize! I get the following error:
 \begin{verbatim}
  ! Emergency stop.
 \end{verbatim}
 
-\noindent A: The \TikZ\ manual states:
+\faqA The \TikZ\ manual states:
+
 \begin{quotation}
-Furthermore, the library assumes that all \LaTeX\ pictures are ended
+\noindent Furthermore, the library assumes that all \LaTeX\ pictures are ended
     with \\\verb!\end{tikzpicture}!.
 \end{quotation}
 
 Just substitute every occurrence of the environment \verb!circuitikz! with \verb!tikzpicture!. They are actually pretty much the same.
 
-\bigskip
+\subsection{Labels, voltages and currents woes}\label{faqs:labels}
 
-\noindent Q: How do I draw the voltage between two nodes?
+\faqQ How do I draw the voltage between two nodes?
 
-\noindent A: Between any two nodes there is an open circuit!
+\faqA Between any two nodes there is an open circuit!
 \begin{LTXexample}[varwidth=true]
 \begin{circuitikz} \draw
   node[ocirc] (A) at (0,0) {}
@@ -6899,24 +6962,22 @@ Just substitute every occurrence of the environment \verb!circuitikz! with \verb
 
 \bigskip
 
-\noindent Q: I cannot write \verb!to[R = $R_1=12V$]! nor \verb!to[ospst = open, 3s]!: I get errors.
+\faqQ I cannot write \verb!to[R = $R_1=12V$]! nor \verb!to[ospst = open, 3s]!: I get errors.
 
-\noindent A: It is a limitation of the parser.
+\faqA It is a limitation of the parser, joined with a suboptimal processing by \Circuitikz{} of the passing of the argument of keys.
 
-Use \verb|\def{\eq}{=}|  \verb!to[R = $R_1\eq 12V$]! and  \verb!to[ospst = open{,} 3s]! instead; see caveat in section~\ref{sec:labels-and-annotations}.
+Use for example \verb|\mbox{}| or define \verb|\def{\eq}{=}| and use \verb!to[R = $R_1\eq 12V$]!, or try to protect commas and equal signs like \verb!to[ospst = open{,} 3s]! or \verb|ospst=\mbox{open, 3s}| instead; see caveat in section~\ref{sec:labels-and-annotations}.
 
-\bigskip
+\subsection{Global scaling and rotating}\label{faqs:scale-and-rotate}
 
-\noindent Q: I tried to change the direction of the $y$ axis with \texttt{yscale=-1}, but the circuit is completely messed up.
+\faqQ I tried to change the direction of the $y$ axis with \texttt{yscale=-1}, but the circuit is completely messed up.
 
-\noindent A: Yes, it's a known bug (or misfeature, or limitation). See section~\ref{sec:bugs}. Don't do that.
+\faqA Yes, it's a known bug (or misfeature, or limitation). See section~\ref{sec:bugs}. Don't do that.
 
 
-\bigskip
+\faqQ I tried to put a diode in a \texttt{pic}, but it's coming out badly rotated.
 
-\noindent Q: I tried to put a diode in a \texttt{pic}, but it's coming out badly rotated.
-
-\noindent A: Yes, it's a known bug (or misfeature, or limitation). See section~\ref{sec:bugs}. \Circuitikz{} is not compatible with \texttt{pic}s at this point.
+\faqA Yes, it's a known bug (or misfeature, or limitation, or a fact of life). See section~\ref{sec:bugs}. \Circuitikz{} is not compatible with \texttt{pic}s at this point.
 
 \section{Defining new components}
 
