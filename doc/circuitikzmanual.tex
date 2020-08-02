@@ -2423,7 +2423,7 @@ Moreover, you have the arrow tip \texttt{latexslim} which is an arrow similar to
 
 \subsection{Terminal shapes}\label{sec:terminals}
 
-These are the so-called ``bipole nodes'' shapes, or poles (see section~\ref{sec:bipole-nodes}). These nodes are always filled; the ``open'' versions (starting with an \texttt{o}) are by default filled white, but you can override it with the \texttt{fill} parameter.
+These are the so-called ``bipole nodes'' shapes, or poles (see section~\ref{sec:bipole-nodes}). These nodes are always filled; the ``open'' versions (starting with an \texttt{o}) are by default filled with the color specified by the key \texttt{open nodes fill} (by default \texttt{white}), but you can override locally it with the \texttt{fill} parameter.
 
 \begin{groupdesc}
     \circuitdesc{circ}{Connected terminal}{}
@@ -2445,6 +2445,7 @@ Since version 0.9.0, ``bipole nodes'' shapes have all the standard geographical 
 
 The size of the poles is controlled by the key \texttt{nodes width} (default \texttt{0.04}, relative to the basic length).
 Be sure to see section~\ref{sec:bipole-nodes} for more usage and configurability.
+
 
 \subsubsection{BNC connector/terminal}
 
@@ -6818,6 +6819,8 @@ A workaround is shown in port \texttt{3}:
 ;\end{circuitikz}
 \end{LTXexample}
 
+\subsubsection{Background colors different from white}
+
 Notice also that the connection point are always filled, although the color \emph{tries} to follow the color of the filling of the component (but look at section~\ref{sec:transparent-poles}). Moreover, if you want to pass fill transparency down to path-style components, you \emph{have} to put it into the options of the \verb|\draw| command.
 
 \begin{LTXexample}[varwidth=true, pos=t]
@@ -6835,6 +6838,37 @@ Notice also that the connection point are always filled, although the color \emp
 
 As you can see, the ``black'' components (as \texttt{D*}) follow the color of the line, not the fill.
 
+Note however that if you choose a colored background, for example with the \verb|\pagecolor{}| command or with other tricks, the nodes will be by default still filled with white.
+
+\begin{LTXexample}[varwidth=true]
+\begin{circuitikz}[european]
+    \fill[color=blue] (-1,-1) rectangle (4,1);
+    \draw[color=white] (0,0) to[R, o-o] ++(3,0);
+\end{circuitikz}
+\end{LTXexample}
+
+You have two solutions for this. You can redefine the \texttt{o-o} (and the similar commands \texttt{-o}, \texttt{o-}, \texttt{*-o} and so on) with a blue filled ``open'' pole:
+
+\begin{LTXexample}[varwidth=true]
+\tikzset{bcirc/.style={shape=ocirc, fill=blue}}
+\ctikzset{o-o/.style ={
+    \circuitikzbasekey/bipole/nodes/left=bcirc,
+    \circuitikzbasekey/bipole/nodes/right=bcirc}}
+\begin{circuitikz}[european]
+    \fill[color=blue] (-1,-1) rectangle (4,1);
+    \draw[color=white] (0,0) to[R, o-o] ++(3,0);
+\end{circuitikz}
+\end{LTXexample}
+
+Also, since \texttt{v1.2.3}, you can set the key \texttt{open poles fill} (default: \texttt{white} which works for \texttt{ocirc}, \texttt{odiamondpole} and \texttt{osquarepole}):
+
+\begin{LTXexample}[varwidth=true]
+\begin{circuitikz}[european]
+    \ctikzset{open poles fill=blue}
+    \fill[color=blue] (-1,-1) rectangle (4,1);
+    \draw[color=white] (0,0) to[R, o-o] ++(3,0);
+\end{circuitikz}
+\end{LTXexample}
 \section{FAQ}
 
 \noindent Q: When using \verb!\tikzexternalize! I get the following error:
