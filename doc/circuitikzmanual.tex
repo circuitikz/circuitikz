@@ -1068,6 +1068,59 @@ Alternatively, that you can use the shape form, and then use the \texttt{left} a
 \end{circuitikz}
 \end{LTXexample}
 
+\subsubsection{Border anchors}\label{sec:bipoles-border-anchors}
+
+\begingroup
+\def\showbordersfornode#1{%
+\begin{circuitikz}[baseline, scale=0.8, transform shape]
+    \node[#1shape, name=bip] at(0,0) {};
+    \foreach \a in {0,30,...,359} \draw[red] (bip.\a) -- ++(\a:0.7) node[font=\tiny, fill=white, inner sep=0.5pt]{\a};
+    \node [font=\ttfamily\small, black, below] at (bip.-90) {\detokenize\expandafter{#1}};
+\end{circuitikz}
+}
+
+Bipoles have also installed generic border anchors --- that means, anchors that start at an angle. For complexity reason, these are for most of the components simply a generic enclosing rectangle. They interact in a non-trivial way with the \texttt{mirror} and \texttt{invert} keys, so it's best not to use them directly.
+
+\begin{quote}
+    \showbordersfornode{generic}
+    \showbordersfornode{resistor}
+    \showbordersfornode{fulldiode}
+    \showbordersfornode{vsource}
+    \showbordersfornode{capacitivesens}
+\end{quote}
+
+You can notice that the border anchors are a bit spaced out (this is useful because those anchors are used to position labels and annotations). You can override this if you need to reach exactly the border (whatever could that mean depends on the component) by using the key \texttt{bipoles/border margin}, which is a number that states how much the enclosing border is stretched out (default value is \texttt{1.1}). For example, setting
+\verb|\ctikzset{bipoles/border margin=1}| will make the border anchor coincide with the geographical shape:
+
+\begin{quote}
+    \ctikzset{bipoles/border margin=1}
+    \showbordersfornode{generic}
+    \showbordersfornode{resistor}
+    \showbordersfornode{fulldiode}
+    \showbordersfornode{vsource}
+    \showbordersfornode{capacitivesens}
+\end{quote}
+
+The above diagram has been obtained with the code:
+
+\begin{lstlisting}
+\def\showbordersfornode#1{%
+\begin{circuitikz}[baseline, scale=0.8, transform shape]
+    \node[#1shape, name=bip] at(0,0) {};
+    \foreach \a in {0,30,...,359} \draw[red] (bip.\a) -- ++(\a:0.7)
+        node[font=\tiny, fill=white, inner sep=0.5pt]{\a};
+    \node [font=\ttfamily\small, black, below] at (bip.-90)
+        {\detokenize\expandafter{#1}};
+\end{circuitikz}}
+\ctikzset{bipoles/border margin=1}
+\showbordersfornode{generic} \showbordersfornode{resistor}
+\showbordersfornode{fulldiode} \showbordersfornode{vsource}
+\showbordersfornode{capacitivesens}
+\end{lstlisting}
+
+
+\endgroup
+
 \subsubsection{Customization}
 \label{sec:components-size}
 
