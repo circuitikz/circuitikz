@@ -12,8 +12,8 @@
 
 \NeedsTeXFormat{LaTeX2e}
 
-\def\pgfcircversion{1.2.3-2fdab1c}
-\def\pgfcircversiondate{2020/08/02}
+\def\pgfcircversion{1.2.3-0135e36}
+\def\pgfcircversiondate{2020/08/03}
 
 \ProvidesPackage{circuitikzgit}
 [\pgfcircversiondate{} The CircuiTikz circuit drawing package version \pgfcircversion]
@@ -4687,6 +4687,35 @@
     }
 }
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% anchor adjustment macros
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% Extend the border anchor position by the specified factors on the right-top (north east corner)
+% and the left-down (southwest border). Argument must be number (possibly decimal) without sign
+
+\def\pgfcirc@border@extend@full#1#2#3#4{% right, top, left, down
+    \anchorborder{%
+        \ifpgf@circuit@bipole@inverted
+            \pgf@circ@res@left=-\pgf@x
+            \pgf@circ@res@up=-\pgf@y
+        \else
+            \pgf@circ@res@left=\pgf@x
+            \pgf@circ@res@up=\pgf@y
+        \fi
+        \ifdim\pgf@circ@res@up>0cm
+            \northeastborder
+            \pgfpointborderrectangle{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@up}}{\pgfpoint{#1\pgf@x}{#2\pgf@y}}
+        \else
+            \southwestborder
+            \pgfpointborderrectangle{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@up}}{\pgfpoint{-#3\pgf@x}{-#4\pgf@y}}
+        \fi
+    }
+}
+
+% Just up and down (very common)
+\def\pgfcirc@border@extend@updown#1#2{\pgfcirc@border@extend@full{1}{#1}{1}{#2}}
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Standard bipole shapes declarations
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -4922,13 +4951,14 @@
 
 %% Thermistor
 \pgfcircdeclarebipolescaled{resistors}
-{{% anchor for labelling the type of dependency
+{% anchor for labelling the type of dependency
     \anchor{label}{%
         \southwest
         \pgf@x=0.4\pgf@x
         \pgf@y=1.2\pgf@y
     }%
-}}
+    \pgfcirc@border@extend@updown{1}{1.2}
+}
 {\ctikzvalof{bipoles/thermistor/height}}
 {thermistor}
 {\ctikzvalof{bipoles/thermistor/height}}
@@ -5195,6 +5225,7 @@
 \pgfcircdeclarebipolescaled{capacitors}
 {
     \anchor{label}{\southwest\pgf@x=2.6\pgf@x\pgf@y=1.2\pgf@y}%
+    \pgfcirc@border@extend@full{2.6}{1}{4.4}{1.2}
 }
 {\ctikzvalof{bipoles/capacitor/height}}
 {capacitivesens}
@@ -5425,6 +5456,7 @@
         }
     }
     \anchor{midtap}{\midtap}
+    \pgfcirc@border@extend@full{1}{2}{1.6}{2.6}
 }
 {\ctikzvalof{bipoles/cuteinductor/lower coil height}}
 {scuteinductor}
@@ -5614,6 +5646,7 @@
         }
     }
     \anchor{midtap}{\midtap}
+    \pgfcirc@border@extend@full{1}{2}{1.6}{2.6}
 }
 {\ctikzvalof{bipoles/americaninductor/height 2}}
 {samericaninductor}
@@ -5709,6 +5742,7 @@
 {% anchor for labelling the type of dependency
     \anchor{label}{\southwest\pgf@x=0.4\pgf@x\pgf@y=2\pgf@y}%
     \anchor{midtap}{\northeast\pgf@x=0pt\relax}
+    \pgfcirc@border@extend@full{1}{2}{1}{2}
 }
 {\ctikzvalof{bipoles/fullgeneric/height}}
 {sfullgeneric}
@@ -6147,7 +6181,7 @@
         \pgftransformscale{-.015\pgf@circ@res@left*#1}
         \def\pgfcircmathresult{\expandafter\pgf@circ@stripdecimals\pgf@circ@direction\pgf@nil}
             \pgftransformrotate{-\pgfcircmathresult}
-    
+
         \pgf@circ@setlinewidth{bipoles}{\pgfstartlinewidth}
         \pgfpathmoveto{\pgfpoint{0}{\pgf@circ@res@down}}
         \pgfpathlineto{\pgfpointorigin}
@@ -6164,16 +6198,16 @@
         \pgftransformscale{-.015\pgf@circ@res@left*#1}
         \def\pgfcircmathresult{\expandafter\pgf@circ@stripdecimals\pgf@circ@direction\pgf@nil}
             \pgftransformrotate{-\pgfcircmathresult}
-    
+
         \pgf@circ@setlinewidth{bipoles}{\pgfstartlinewidth}
         \pgfpathmoveto{\pgfpointorigin}
         \pgfpathlineto{\pgfpointpolar{90}{.5\pgf@circ@res@up}}
         \pgfpathlineto{\pgfpointpolar{60}{\pgf@circ@res@up}}
-        
+
         \pgfpathmoveto{\pgfpointorigin}
         \pgfpathlineto{\pgfpointpolar{210}{.5\pgf@circ@res@up}}
         \pgfpathlineto{\pgfpointpolar{0}{\pgf@circ@res@down}}
-        
+
         \pgfpathmoveto{\pgfpointorigin}
         \pgfpathlineto{\pgfpointpolar{330}{.5\pgf@circ@res@up}}
         \pgfpathlineto{\pgfpointpolar{-60}{\pgf@circ@res@up}}
@@ -6189,7 +6223,7 @@
 {\ctikzvalof{bipoles/oosourcetrans/height}}
 {\ctikzvalof{bipoles/oosourcetrans/width}}
 {
-    
+
     \pgfpointorigin
     \pgf@circ@setlinewidth{bipoles}{\pgfstartlinewidth}
     \pgfpathcircle{\pgfpoint{\ctikzvalof{bipoles/oosourcetrans/circleoffset}\pgf@circ@res@left}{0}}
@@ -6201,43 +6235,43 @@
     \pgfpathcircle{\pgfpoint{\ctikzvalof{bipoles/oosourcetrans/circleoffset}\pgf@circ@res@left}{0}}
         {\ctikzvalof{bipoles/oosourcetrans/circlesize}\pgf@circ@res@left}
     \pgfusepath{draw}
-    
-    
+
+
 % % %     % draw inner symbols
-    
+
     %%primary winding
     \ifpgf@circ@prim@delta
         \pgfscope
             \pgftransformxshift{\ctikzvalof{bipoles/oosourcetrans/circlesize}\pgf@circ@res@left}
             \pgf@circ@delta{\ctikzvalof{bipoles/oosourcetrans/vectorgroupscale}}
         \endpgfscope
-        
+
     \else\ifpgf@circ@prim@wye
         \pgfscope
             \pgftransformxshift{\ctikzvalof{bipoles/oosourcetrans/circlesize}\pgf@circ@res@left}
             \pgf@circ@wye{\ctikzvalof{bipoles/oosourcetrans/vectorgroupscale}}
         \endpgfscope
-    
+
     \else\ifpgf@circ@prim@zig
         \pgfscope
             \pgftransformxshift{\ctikzvalof{bipoles/oosourcetrans/circlesize}\pgf@circ@res@left}
             \pgf@circ@zig{\ctikzvalof{bipoles/oosourcetrans/vectorgroupscale}}
         \endpgfscope
     \fi\fi\fi
-    
+
     %%secondary winding
     \ifpgf@circ@sec@delta
         \pgfscope
             \pgftransformxshift{\ctikzvalof{bipoles/oosourcetrans/circlesize}\pgf@circ@res@right}
             \pgf@circ@delta{\ctikzvalof{bipoles/oosourcetrans/vectorgroupscale}}
         \endpgfscope
-        
+
     \else\ifpgf@circ@sec@wye
         \pgfscope
             \pgftransformxshift{\ctikzvalof{bipoles/oosourcetrans/circlesize}\pgf@circ@res@right}
             \pgf@circ@wye{\ctikzvalof{bipoles/oosourcetrans/vectorgroupscale}}
         \endpgfscope
-    
+
     \else\ifpgf@circ@sec@zig
         \pgfscope
             \pgftransformxshift{\ctikzvalof{bipoles/oosourcetrans/circlesize}\pgf@circ@res@right}
@@ -6249,7 +6283,7 @@
 
 % % % % ooosource for three phase transformer
 \pgfcircdeclarebipolescaled{sources}
-{   
+{
     \anchor{right}{
             \northeast
             \pgf@y=0pt
@@ -6296,7 +6330,7 @@
     \anchor{centertert}{
             \centertert
     }
-            
+
     % add some anchors in case the are needed :)
     \anchor{prim1}{
             \pgf@circ@scaled@Rlen=\ctikzvalof{bipoles/ooosource/height}\pgf@circ@Rlen
@@ -6345,13 +6379,13 @@
 {\ctikzvalof{bipoles/ooosource/height}}
 {
 %     \pgf@circ@res@other = \ctikzvalof{bipoles/ooosource/vectorgroup} \pgf@circ@scaled@Rlen
-    
+
 %     % filling
 %     left
     \pgf@circ@setlinewidth{bipoles}{\pgfstartlinewidth}
         \pgfpathcircle{\pgfpoint{\ctikzvalof{bipoles/ooosource/circleoffset}\pgf@circ@res@left}{0}}{\ctikzvalof{bipoles/ooosource/circlesize}\pgf@circ@res@left}
-    \pgf@circ@maybefill 
-    
+    \pgf@circ@maybefill
+
     % up
     \pgfscope
         \pgfpointorigin
@@ -6369,14 +6403,14 @@
     % left
     \pgfpathcircle{\pgfpoint{\ctikzvalof{bipoles/ooosource/circleoffset}\pgf@circ@res@left}{0}}{\ctikzvalof{bipoles/ooosource/circlesize}\pgf@circ@res@left}
     \pgfusepath{draw}
-    
+
     % up
     \pgfscope
         \pgfpointorigin
         \pgfpathcircle{\pgfpointpolar{60}{\ctikzvalof{bipoles/ooosource/circleoffset}\pgf@circ@res@right}}{\ctikzvalof{bipoles/ooosource/circlesize}\pgf@circ@res@right}
         \pgfusepath{draw}
     \endpgfscope
-    
+
 % % %     draw inner symbols
 
 % %     primary winding
@@ -6385,20 +6419,20 @@
             \pgftransformxshift{\ctikzvalof{bipoles/ooosource/circlesize}\pgf@circ@res@left}
             \pgf@circ@delta{\ctikzvalof{bipoles/ooosource/vectorgroupscale}}
         \endpgfscope
-        
+
     \else\ifpgf@circ@prim@wye
         \pgfscope
             \pgftransformxshift{.6\pgf@circ@res@left}
             \pgf@circ@wye{\ctikzvalof{bipoles/ooosource/vectorgroupscale}}
         \endpgfscope
-    
+
     \else\ifpgf@circ@prim@zig
         \pgfscope
             \pgftransformxshift{.6\pgf@circ@res@left}
             \pgf@circ@zig{\ctikzvalof{bipoles/ooosource/vectorgroupscale}}
         \endpgfscope
     \fi\fi\fi
-    
+
 % %     secondary winding
     \ifpgf@circ@sec@delta
         \pgfscope
@@ -6406,33 +6440,33 @@
             \pgftransformshift{\pgfpointpolar{60}{\ctikzvalof{bipoles/ooosource/circlesize}\pgf@circ@res@right}}
             \pgf@circ@delta{\ctikzvalof{bipoles/ooosource/vectorgroupscale}}
         \endpgfscope
-        
+
     \else\ifpgf@circ@sec@wye
         \pgfscope
             \pgftransformshift{\pgfpointpolar{60}{\ctikzvalof{bipoles/ooosource/circlesize}\pgf@circ@res@right}}
             \pgf@circ@wye{\ctikzvalof{bipoles/ooosource/vectorgroupscale}}
         \endpgfscope
-    
+
     \else\ifpgf@circ@sec@zig
         \pgfscope
             \pgftransformshift{\pgfpointpolar{60}{\ctikzvalof{bipoles/ooosource/circlesize}\pgf@circ@res@right}}
             \pgf@circ@zig{\ctikzvalof{bipoles/ooosource/vectorgroupscale}}
         \endpgfscope
     \fi\fi\fi
-    
+
 % %     tertiary winding
     \ifpgf@circ@tert@delta
         \pgfscope
             \pgftransformshift{\pgfpointpolar{-60}{\ctikzvalof{bipoles/ooosource/circlesize}\pgf@circ@res@right}}
             \pgf@circ@delta{\ctikzvalof{bipoles/ooosource/vectorgroupscale}}
         \endpgfscope
-        
+
     \else\ifpgf@circ@tert@wye
         \pgfscope
             \pgftransformshift{\pgfpointpolar{-60}{\ctikzvalof{bipoles/ooosource/circlesize}\pgf@circ@res@right}}
             \pgf@circ@wye{\ctikzvalof{bipoles/ooosource/vectorgroupscale}}
         \endpgfscope
-    
+
     \else\ifpgf@circ@tert@zig
         \pgfscope
             \pgftransformshift{\pgfpointpolar{-60}{\ctikzvalof{bipoles/ooosource/circlesize}\pgf@circ@res@right}}
@@ -6919,22 +6953,7 @@
 %% Black alternative zigzag Zener diode
 \pgfcircdeclarebipolescaled{diodes}
 {% fix the anchor border
-    \anchorborder{%
-        \ifpgf@circuit@bipole@inverted
-            \pgf@circ@res@left=-\pgf@x
-            \pgf@circ@res@up=-\pgf@y
-        \else
-            \pgf@circ@res@left=\pgf@x
-            \pgf@circ@res@up=\pgf@y
-        \fi
-        \ifdim\pgf@circ@res@up>0cm
-            \northeastborder
-            \pgfpointborderrectangle{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@up}}{\pgfpoint{\pgf@x}{1.3\pgf@y}}
-        \else
-            \southwestborder
-            \pgfpointborderrectangle{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@up}}{\pgfpoint{-\pgf@x}{-1.3\pgf@y}}
-        \fi
-    }
+    \pgfcirc@border@extend@updown{1.3}{1.3}
 }
 {\ctikzvalof{bipoles/diode/height}}
 {fullzzdiode}
@@ -7062,22 +7081,7 @@
 %% Black light emitting diode
 \pgfcircdeclarebipolescaled{diodes}
 {% fix the anchor border
-    \anchorborder{%
-        \ifpgf@circuit@bipole@inverted
-            \pgf@circ@res@left=-\pgf@x
-            \pgf@circ@res@up=-\pgf@y
-        \else
-            \pgf@circ@res@left=\pgf@x
-            \pgf@circ@res@up=\pgf@y
-        \fi
-        \ifdim\pgf@circ@res@up>0cm
-            \northeastborder
-            \pgfpointborderrectangle{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@up}}{\pgfpoint{\pgf@x}{1.8\pgf@y}}
-        \else
-            \southwestborder
-            \pgfpointborderrectangle{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@up}}{\pgfpoint{-\pgf@x}{-\pgf@y}}
-        \fi
-    }
+    \pgfcirc@border@extend@updown{1.8}{1}
 }
 {\ctikzvalof{bipoles/diode/height}}
 {fulllediode}
@@ -7104,22 +7108,7 @@
 %% Black photodiode
 \pgfcircdeclarebipolescaled{diodes}
 {% fix the anchor border
-    \anchorborder{%
-        \ifpgf@circuit@bipole@inverted
-            \pgf@circ@res@left=-\pgf@x
-            \pgf@circ@res@up=-\pgf@y
-        \else
-            \pgf@circ@res@left=\pgf@x
-            \pgf@circ@res@up=\pgf@y
-        \fi
-        \ifdim\pgf@circ@res@up>0cm
-            \northeastborder
-            \pgfpointborderrectangle{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@up}}{\pgfpoint{\pgf@x}{1.8\pgf@y}}
-        \else
-            \southwestborder
-            \pgfpointborderrectangle{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@up}}{\pgfpoint{-\pgf@x}{-\pgf@y}}
-        \fi
-    }
+    \pgfcirc@border@extend@updown{1.8}{1}
 }
 {\ctikzvalof{bipoles/diode/height}}
 {fullpdiode}
@@ -7227,22 +7216,7 @@
 %% Empty alternative zigzag Zener diode
 \pgfcircdeclarebipolescaled{diodes}
 {% fix the anchor border
-    \anchorborder{%
-        \ifpgf@circuit@bipole@inverted
-            \pgf@circ@res@left=-\pgf@x
-            \pgf@circ@res@up=-\pgf@y
-        \else
-            \pgf@circ@res@left=\pgf@x
-            \pgf@circ@res@up=\pgf@y
-        \fi
-        \ifdim\pgf@circ@res@up>0cm
-            \northeastborder
-            \pgfpointborderrectangle{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@up}}{\pgfpoint{\pgf@x}{1.3\pgf@y}}
-        \else
-            \southwestborder
-            \pgfpointborderrectangle{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@up}}{\pgfpoint{-\pgf@x}{-1.3\pgf@y}}
-        \fi
-    }
+    \pgfcirc@border@extend@updown{1.3}{1.3}
 }
 {\ctikzvalof{bipoles/diode/height}}
 {emptyzzdiode}
@@ -7308,22 +7282,7 @@
 %% Empty light emitting diode
 \pgfcircdeclarebipolescaled{diodes}
 {% fix the anchor border
-    \anchorborder{%
-        \ifpgf@circuit@bipole@inverted
-            \pgf@circ@res@left=-\pgf@x
-            \pgf@circ@res@up=-\pgf@y
-        \else
-            \pgf@circ@res@left=\pgf@x
-            \pgf@circ@res@up=\pgf@y
-        \fi
-        \ifdim\pgf@circ@res@up>0cm
-            \northeastborder
-            \pgfpointborderrectangle{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@up}}{\pgfpoint{\pgf@x}{1.8\pgf@y}}
-        \else
-            \southwestborder
-            \pgfpointborderrectangle{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@up}}{\pgfpoint{-\pgf@x}{-\pgf@y}}
-        \fi
-    }
+    \pgfcirc@border@extend@updown{1.8}{1}
 }
 {\ctikzvalof{bipoles/diode/height}}
 {emptylediode}
@@ -7345,22 +7304,7 @@
 %% Empty photodiode
 \pgfcircdeclarebipolescaled{diodes}
 {% fix the anchor border
-    \anchorborder{%
-        \ifpgf@circuit@bipole@inverted
-            \pgf@circ@res@left=-\pgf@x
-            \pgf@circ@res@up=-\pgf@y
-        \else
-            \pgf@circ@res@left=\pgf@x
-            \pgf@circ@res@up=\pgf@y
-        \fi
-        \ifdim\pgf@circ@res@up>0cm
-            \northeastborder
-            \pgfpointborderrectangle{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@up}}{\pgfpoint{\pgf@x}{1.8\pgf@y}}
-        \else
-            \southwestborder
-            \pgfpointborderrectangle{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@up}}{\pgfpoint{-\pgf@x}{-\pgf@y}}
-        \fi
-    }
+    \pgfcirc@border@extend@updown{1.8}{1}
 }
 {\ctikzvalof{bipoles/diode/height}}
 {emptypdiode}
@@ -8456,7 +8400,9 @@
 
 %% Varistor
 \pgfcircdeclarebipolescaled{resistors}
-{}
+{
+    \pgfcirc@border@extend@updown{1}{1.4}
+}
 {\ctikzvalof{bipoles/varistor/height}}
 {varistor}
 {\ctikzvalof{bipoles/varistor/height}}
@@ -9714,7 +9660,7 @@
     \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@down}}
     \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@up}}
     \pgfusepath{draw}
-    
+
     % draw sin wave
     \pgfpathmoveto{\pgfpoint{-.76\pgf@circ@res@step}{.5\pgf@circ@res@step}}
     \pgfpathsine{\pgfpoint{.17\pgf@circ@res@step}{.17\pgf@circ@res@step}}
@@ -9722,7 +9668,7 @@
     \pgfpathsine{\pgfpoint{.17\pgf@circ@res@step}{-.17\pgf@circ@res@step}}
     \pgfpathcosine{\pgfpoint{.17\pgf@circ@res@step}{.17\pgf@circ@res@step}}
     \pgfusepath{draw}
-    
+
     % draw equal sign
     \pgfpathmoveto{\pgfpoint{.2\pgf@circ@res@step}{-.375\pgf@circ@res@step}}
     \pgfpathlineto{\pgfpoint{0.7\pgf@circ@res@step}{-0.375\pgf@circ@res@step}}
@@ -9794,7 +9740,7 @@
     \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@down}}
     \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@up}}
     \pgfusepath{draw}
-    
+
     % draw sin wave
     \pgfpathmoveto{\pgfpoint{.14\pgf@circ@res@step}{-.5\pgf@circ@res@step}}
     \pgfpathsine{\pgfpoint{.17\pgf@circ@res@step}{.17\pgf@circ@res@step}}
@@ -9802,7 +9748,7 @@
     \pgfpathsine{\pgfpoint{.17\pgf@circ@res@step}{-.17\pgf@circ@res@step}}
     \pgfpathcosine{\pgfpoint{.17\pgf@circ@res@step}{.17\pgf@circ@res@step}}
     \pgfusepath{draw}
-    
+
     % draw equal sign
     \pgfpathmoveto{\pgfpoint{-.2\pgf@circ@res@step}{.375\pgf@circ@res@step}}
     \pgfpathlineto{\pgfpoint{-0.7\pgf@circ@res@step}{0.375\pgf@circ@res@step}}
@@ -9886,7 +9832,7 @@
     \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@down}}
     \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@up}}
     \pgfusepath{draw}
-    
+
     % draw sin waves
     \pgfpathmoveto{\pgfpoint{-.76\pgf@circ@res@step}{.65\pgf@circ@res@step}}
     \pgfpathsine{\pgfpoint{.17\pgf@circ@res@step}{.17\pgf@circ@res@step}}
@@ -9906,10 +9852,10 @@
     \pgfpathsine{\pgfpoint{.17\pgf@circ@res@step}{-.17\pgf@circ@res@step}}
     \pgfpathcosine{\pgfpoint{.17\pgf@circ@res@step}{.17\pgf@circ@res@step}}
     \pgfusepath{draw}
-    
-    
-    
-    
+
+
+
+
     % draw equal sign
     \pgfpathmoveto{\pgfpoint{.2\pgf@circ@res@step}{-.375\pgf@circ@res@step}}
     \pgfpathlineto{\pgfpoint{0.7\pgf@circ@res@step}{-0.375\pgf@circ@res@step}}
@@ -9992,7 +9938,7 @@
     \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@down}}
     \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@up}}
     \pgfusepath{draw}
-    
+
     % draw sin waves
     \pgfpathmoveto{\pgfpoint{.14\pgf@circ@res@step}{-.65\pgf@circ@res@step}}
     \pgfpathsine{\pgfpoint{.17\pgf@circ@res@step}{.17\pgf@circ@res@step}}
@@ -10012,10 +9958,10 @@
     \pgfpathsine{\pgfpoint{.17\pgf@circ@res@step}{-.17\pgf@circ@res@step}}
     \pgfpathcosine{\pgfpoint{.17\pgf@circ@res@step}{.17\pgf@circ@res@step}}
     \pgfusepath{draw}
-    
-    
-    
-    
+
+
+
+
     % draw equal sign
     \pgfpathmoveto{\pgfpoint{-.2\pgf@circ@res@step}{.375\pgf@circ@res@step}}
     \pgfpathlineto{\pgfpoint{-0.7\pgf@circ@res@step}{0.375\pgf@circ@res@step}}
