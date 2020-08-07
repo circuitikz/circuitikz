@@ -1,6 +1,10 @@
 <!--- CircuiTikz - Changelog --->
 The major changes among the different circuitikz versions are listed here. See <https://github.com/circuitikz/circuitikz/commits> for a full list of changes.
 
+* Version 1.2.4 (unreleased)
+
+    - Bumped version number
+
 * Version 1.2.3 (2020-08-07)
 
     Several fixes and small enhancement all over the map, changes in the documentation to better explain the reasons and effect of the path-building changes of 1.2.0 and 1.2.1.
