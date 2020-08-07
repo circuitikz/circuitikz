@@ -1,12 +1,14 @@
 <!--- CircuiTikz - Changelog --->
 The major changes among the different circuitikz versions are listed here. See <https://github.com/circuitikz/circuitikz/commits> for a full list of changes.
 
-* Version 1.2.3 (unreleased)
+* Version 1.2.3 (2020-08-07)
 
-    - added a Mach-Zehnder-Modulator block symbol as node mzm by user `@dl1chb`
-    - add a `open poles fill` option to simplify circuits where the background is different from white
+    Several fixes and small enhancement all over the map, changes in the documentation to better explain the reasons and effect of the path-building changes of 1.2.0 and 1.2.1.
+
+    - added a Mach-Zehnder-Modulator block symbol as node `mzm` by user `@dl1chb`
+    - add an `open poles fill` option to simplify circuits where the background is different from white
     - restyled the FAQ and added the explanation of "gaps with `nodes`" that happens again after 1.2.1
-    - Fixed size of "not circle" in flip-flops to match european style not circle when used
+    - Fixed size of "not circle" in flip-flops to match european style `not circle` when used without the IEEE style
     - Block anchors: add border anchors for round elements and deprecate old 1, 2, 3, 4 anchors
     - Fixed some bipole border size to avoid overlapping labels; document it
 
