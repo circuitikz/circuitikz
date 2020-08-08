@@ -6984,6 +6984,91 @@ You can see more example and more reasoning on GitHub; start from the
 
 So finally it was decided\footnote{well, Romano decided, so you can blame him. \emph{I do not think that workarounds to correct malformed circuits are really maintainable; just see the bunch of code removed by the patch! --- Romano.}}  to remove the change, to simplify the code and to make the package more maintainable.
 
+\subsection{Using dashed (or colored) wires in circuits}\label{faqs:dashed}
+
+\faqQ How can I make part of the wires dashed (or colored)? This does not work:
+
+\begin{LTXexample}[varwidth=true, basicstyle=\small\ttfamily]
+\begin{circuitikz}
+    \draw (0,0) to[R] ++(2,0)
+    to[short, dashed, red] ++(1,0)
+    to [R] ++(2,0); % surprise!
+\end{circuitikz}
+\end{LTXexample}
+
+Nor this one, which is even stranger:
+
+\begin{LTXexample}[varwidth=true, basicstyle=\small\ttfamily]
+\begin{circuitikz}
+    \draw (0,0) to[R] ++(2,0)
+    [dashed, red] -- ++(1,0)
+    to [R] ++(2,0); % surprise!
+\end{circuitikz}
+\end{LTXexample}
+
+\faqA This is an effect on how \TikZ{} builds and draws path. As explained in the \TikZ{} manual,\footnote{in 3.1.5b, section~14, ``syntax for path specification''} most path options are globally valid for the whole path; color and dash/dot is one of this. You have two options in this case. The first one is to use two paths.
+
+\begin{LTXexample}[varwidth=true, basicstyle=\small\ttfamily]
+\begin{circuitikz}
+    \draw (0,0) to[R] ++(2,0) coordinate(a);
+    \draw [dashed, red] (a) -- ++(1,0) coordinate(b);
+    \draw (b) to [R] ++(2,0);
+\end{circuitikz}
+\end{LTXexample}
+
+The other one is to use \texttt{edge} operations\footnote{I took the idea form \href{https://tex.stackexchange.com/a/554905/38080}{this answer by \texttt{@LaTeXdraw-com} user on TeX.SE}, thanks!}; be sure to read about it on the \TikZ{} manual\footnote{in 3.1.5b, section~17.12, ``connecting nodes: use the \texttt{edge} operation''} --- but basically this is similar to the \texttt{to} operation but it builds another path (added at the end of the current path, like nodes are). This means that it can use different options, and that it \textbf{does not} moves the path coordinates.
+
+So, for example:
+
+\begin{LTXexample}[varwidth=true, basicstyle=\small\ttfamily]
+\begin{circuitikz}
+    \draw (0,0) to[R] ++(2,0)
+    edge[dashed, red] ++(1,0)
+    % we have to move the path position here!
+    ++(1,0) to [R] ++(2,0);
+\end{circuitikz}
+\end{LTXexample}
+
+The only problem with this approach is that the \texttt{edge}s are added \emph{after} the nodes, so it can create problems with nodes (look carefully!):
+
+\begin{LTXexample}[varwidth=true, basicstyle=\small\ttfamily]
+\begin{circuitikz}
+    \draw (0,0) to[R,-o] ++(2,0)
+    edge[dashed, red] ++(1,0)
+    ++(1,0) to [R] ++(2,0);
+\end{circuitikz}
+\end{LTXexample}
+
+So it's better, in this case, to add the nodes manually after the path (there is no perfect solution!)
+
+\begin{LTXexample}[varwidth=true, basicstyle=\small\ttfamily]
+\begin{circuitikz}
+    \draw (0,0) to[R] ++(2,0) coordinate(a)
+    edge[dashed, red] ++(1,0)
+    ++(1,0) to [R] ++(2,0);
+    \node [ocirc] at (a){};
+\end{circuitikz}
+\end{LTXexample}
+
+
+A more complex example can be seen (look at the comments!) in the following circuit.
+
+\begin{LTXexample}[varwidth=true, basicstyle=\small\ttfamily]
+\begin{circuitikz}[american]
+    \draw (0,0) to[R, v=$v_1$] ++(2,0)
+        edge[dashed] ++(1,0)
+    ++(1,0) to[R]
+    ++(2,0) to [R] ++(0,2) coordinate(a)
+        edge[red, dashed] ++(0,1)
+        % several edges start from the same position
+        edge[dashed, ->] node[above]{here} ++(-1,0)
+    % notice that the path here is still
+    % at coordinate (a)!
+    ++(0,1) to[R] ++(0,2)
+    (a) ++(-1,0) to[sV] ++(-2,0);
+\end{circuitikz}
+\end{LTXexample}
+
 \subsection{Errors when externalizing pictures}\label{faqs:externalize}
 
 \faqQ When using \verb!\tikzexternalize! I get the following error:
