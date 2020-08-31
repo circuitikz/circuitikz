@@ -5676,7 +5676,35 @@ However, you can override the properties \texttt{voltage/distance from node} (de
 \tikz \draw (0,0) to[R, v=1<\volt>] (2,0);
 \end{LTXexample}
 
-The same concept as \texttt{distance from node} applies to the key \texttt{current/distance} for the position of the current's arrow:
+You can also use a global \texttt{ctikzset} on the key \texttt{voltage/distance from node} (and similar) that will act as a default value. Notice however that the specific component value \textbf{overrides} the global one, and several components have pre-defined overrides, so they will ignore the default value. The components that have out of the box predefined overrides for \texttt{distance from node} are \texttt{generic}, \texttt{ageneric}, \texttt{fullgeneric} and \texttt{memristor} (set to \texttt{0.4}), and the ones that have it for \texttt{bump b} are
+\texttt{generic}, \texttt{ageneric}, \texttt{fullgeneric}, \texttt{memristor}, \texttt{tline}, \texttt{varistor}, \texttt{photoresistor}, \texttt{thermistor}, \texttt{thermistorntc}, \texttt{thermistorptc}, \texttt{ccapacitor}, \texttt{emptyzzdiode}, \texttt{fullzzdiode}, \texttt{emptythyristor}, \texttt{fullthyristor}, \texttt{emptytriac} and \texttt{fulltriac},, with several values (you can look at them in the file \texttt{pgfcirc.defines.tex})
+
+
+Notice also that normally \texttt{distance from node} is a relative displacement, computed on the node-component wire. So that this will put the start and stop point $1/4$ of the way between node and component:
+
+\begin{LTXexample}[varwidth=true]
+\begin{circuitikz}
+    \ctikzset{voltage/distance from node=0.25}
+    \draw (0, 2) to[D, v=$v_1$] ++(4,0);
+    \draw (0, 1) to[D, v=$v_1$] ++(3,0);
+    \draw (0, 0) to[D, v=$v_1$] ++(2,0);
+\end{circuitikz}
+\end{LTXexample}
+
+The value of \texttt{distance from node} can be also an absolute distance; in that case is measured from the start of the connection toward the component on the left (and symmetrically on the right), so this will put the start and end point to \SI{0.25}{\cm} from the start of the node:
+
+\begin{LTXexample}[varwidth=true]
+\begin{circuitikz}
+    \ctikzset{voltage/distance from node=0.25cm}
+    \draw (0, 2) to[D, v=$v_1$] ++(4,0);
+    \draw (0, 1) to[D, v=$v_1$] ++(3,0);
+    \draw (0, 0) to[D, v=$v_1$] ++(2,0);
+\end{circuitikz}
+\end{LTXexample}
+
+There is currently no way to specify the position at a fixed distance from the component (as opposed as from the node).
+
+The same concept as \texttt{distance from node} applies to the key \texttt{current/distance} for the position of the current's arrow (and to \texttt{flow/distance} for the flow arrow position):
 
 \begin{LTXexample}[varwidth=true]
 \tikz \draw (0,0) to[C, i=$\imath$] (2,0); \par
@@ -5684,7 +5712,7 @@ The same concept as \texttt{distance from node} applies to the key \texttt{curre
 \tikz \draw (0,0) to[C, i=$\imath$] (2,0);
 \end{LTXexample}
 
-You can change globally these parameters by defining a component-specific key; you have to use the internal name of the component (in the component list, is the \texttt{nodename} without the terminal ``\texttt{shape}'' part):
+If you want to change those parameters by defining a component-specific key you have to use the internal name of the component (in the component list, is the \texttt{nodename} without the terminal ``\texttt{shape}'' part):
 
 \begin{LTXexample}[varwidth=true]
 \tikz \draw (0,0) to[R, v=1<\volt>] (1.5,0)
