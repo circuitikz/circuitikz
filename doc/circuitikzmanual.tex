@@ -2546,13 +2546,14 @@ It also has a \texttt{zero} anchor if you need to rotate it about its real cente
 \end{groupdesc}
 
 \begin{groupdesc}
-    \circuitdescbip*{twoport}{generic two port\footnotemark}{}
-    \footnotetext{To specify text to be put in the component: \texttt{twoport[t=text]}): \tikz \draw[scale=.5, transform shape] (0,0) to[twoport,>,t=text] (2,0); }
+    \circuitdescbip*{twoport}{generic two port (use \texttt{t=\dots} to specify text)}{}
+    \circuitdescbip*{twoportsplit}{generic two port split (use \texttt{t1=\dots} and \texttt{t2=\dots} to specify text)}{}
     \circuitdescbip*{vco}{vco}{}
     \circuitdescbip*{bandpass}{bandpass}{}
     \circuitdescbip*{bandstop}{bandstop}{}
     \circuitdescbip*{highpass}{highpass}{}
     \circuitdescbip*{lowpass}{lowpass}{}
+    \circuitdescbip*{allpass}{allpass}{}
     \circuitdescbip*{adc}{A/D converter}{}
     \circuitdescbip*{dac}{D/A converter}{}
     \circuitdescbip*{dsp}{DSP}{}
@@ -2704,16 +2705,28 @@ Since inputs and outputs can vary, input arrows can be placed as nodes. Note tha
 \begin{LTXexample}[varwidth=true]
 \begin{circuitikz} \draw
   (0,0) node[mixer] (m) {}
-  (m.1) to[short,-o] ++(-1,0)
-  (m.2) to[short,-o] ++(0,-1)
-  (m.3) to[short,-o] ++(1,0)
-  (m.1) node[inputarrow] {}
-  (m.2) node[inputarrow,rotate=90] {};
+  (m.w) to[short,-o] ++(-1,0)
+  (m.s) to[short,-o] ++(0,-1)
+  (m.e) to[short,-o] ++(1,0)
+  (m.w) node[inputarrow] {}
+  (m.s) node[inputarrow,rotate=90] {};
 \end{circuitikz}
 \end{LTXexample}
 
 
 \paragraph{Labels and custom two-port boxes}
+
+You can use the keys \texttt{t}, \texttt{t1}, \texttt{t2} (shorthands for \texttt{text}, \texttt{text in}, \texttt{text out}) to fill the generic blocks:
+\begin{LTXexample}[varwidth=true]
+\begin{circuitikz} \draw
+  (0,0) to[short,o-] ++(0.3,0)
+  to[allpass,>] ++(2,0)
+  to[twoport,>,t={B}] ++(2,0)
+  to[twoportsplit,t1={\tiny in},
+    t2={\tiny\color{red}out}] ++(0,-2.5);
+\end{circuitikz}
+\end{LTXexample}
+
 Some two-ports have the option to place a normal label (\texttt{l=}) and a inner label (\texttt{t=}).
 \begin{LTXexample}[varwidth=true]
 \begin{circuitikz}
@@ -2721,7 +2734,6 @@ Some two-ports have the option to place a normal label (\texttt{l=}) and a inner
   \draw (0,0) to[amp,t=LNA,l_=$F{=}0.9\,$dB,o-o] ++(3,0);
 \end{circuitikz}
 \end{LTXexample}
-
 
 \paragraph{Box option}
 Some devices have the possibility to add a box around them. The inner symbol scales down to fit inside the box.
