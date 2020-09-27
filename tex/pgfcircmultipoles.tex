@@ -2758,4 +2758,270 @@
     }
 }
 
+%%%% tgateS
+% tgate is just ieee style for now
+\tikzset{%
+    tgate/.style ={shape=ieee tgate},
+    double tgate/.style ={shape=ieee double tgate},
+}
+\ctikzset{tgate scale/.initial=1}
+% Buffer and inverters
+%
+% #1: name
+% #2: 1: one-not, 2:double-not
+% #3: content
+\long\def\pgfcircdeclareieeetgate#1#2#3{%
+    \pgfdeclareshape{ieee #1}%
+    {%
+        \savedmacro{\ctikzclass}{\edef\ctikzclass{logic ports}}
+        \saveddimen{\scaledRlen}{\pgfmathsetlength{\pgf@x}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}}
+        \savedmacro{\thisshape}{\def\thisshape{\tikz@fig@name}}
+        \saveddimen{\baselen}{%
+            \pgf@circ@ieeestd@baselen\pgf@x=\pgf@circ@res@temp
+        }
+        \saveddimen{\stdH}{% This is HALF the height of the inner port
+            \pgf@circ@ieeestd@stdH\pgf@x=\pgf@circ@res@temp
+        }
+        \saveddimen{\notdiameter}{
+            \pgf@circ@notradius\pgf@x=2\pgf@circ@res@temp
+        }
+        \saveddimen{\notradius}{
+            \pgf@circ@notradius\pgf@x=\pgf@circ@res@temp
+        }
+        \saveddimen{\pinlen}{%
+            \pgf@circ@ieeestd@pinlen\pgf@x=\pgf@circ@res@temp
+        }
+        % anchors for the body (no pins included here)
+        % Notice that 0.8660254 is cos(30)
+        \savedanchor{\bodyleft}{% This DOES NOT take into account the pointy or/xor thing
+            \pgf@circ@ieeestd@stdH
+            \pgfmathsetlength{\pgf@x}{-2*0.8660254*\pgf@circ@res@temp*\ctikzvalof{tgate scale}}
+            \pgfmathsetlength{\pgf@y}{#2*\pgf@circ@res@temp*\ctikzvalof{tgate scale}}
+        }
+        \savedanchor{\topleft}{%
+            \pgf@circ@ieeestd@stdH
+            \pgfmathsetlength{\pgf@x}{-2*0.8660254*\pgf@circ@res@temp*\ctikzvalof{tgate scale}}
+            \pgfmathsetlength{\pgf@y}{#2*\pgf@circ@res@temp*\ctikzvalof{tgate scale}}
+        }
+        \savedanchor{\bodyright}{%
+            \pgf@circ@ieeestd@stdH
+            \pgfmathsetlength{\pgf@x}{2*0.8660254*\pgf@circ@res@temp*\ctikzvalof{tgate scale}}
+            \pgfmathsetlength{\pgf@y}{#2*\pgf@circ@res@temp*\ctikzvalof{tgate scale}}
+        }
+        \savedanchor{\bottomright}{% Here it is the same as \bodyright
+            \pgf@circ@ieeestd@stdH
+            \pgfmathsetlength{\pgf@x}{2*0.8660254*\pgf@circ@res@temp*\ctikzvalof{tgate scale}}
+            \pgfmathsetlength{\pgf@y}{#2*\pgf@circ@res@temp*\ctikzvalof{tgate scale}}
+        }
+        % geographical anchors --- must be rectangulars!
+        \savedanchor{\northwest}{%
+            \pgf@circ@ieeestd@stdH
+            \pgfmathsetlength{\pgf@x}{-2*0.8660254*\pgf@circ@res@temp*\ctikzvalof{tgate scale}}
+            \pgfmathsetlength{\pgf@y}{#2*\pgf@circ@res@temp*\ctikzvalof{tgate scale}}
+        }
+        \savedanchor{\southwest}{%
+            \pgf@circ@ieeestd@stdH
+            \pgfmathsetlength{\pgf@x}{-2*0.8660254*\pgf@circ@res@temp*\ctikzvalof{tgate scale}}
+            \pgfmathsetlength{\pgf@y}{-#2*\pgf@circ@res@temp*\ctikzvalof{tgate scale}}
+        }
+        \savedanchor{\southeast}{%
+            \pgf@circ@ieeestd@stdH
+            \pgfmathsetlength{\pgf@x}{2*0.8660254*\pgf@circ@res@temp*\ctikzvalof{tgate scale}}
+            \pgfmathsetlength{\pgf@y}{-#2*\pgf@circ@res@temp*\ctikzvalof{tgate scale}}
+        }
+        \savedanchor{\northeast}{%
+            \pgf@circ@ieeestd@stdH
+            \pgfmathsetlength{\pgf@x}{2*0.8660254*\pgf@circ@res@temp*\ctikzvalof{tgate scale}}
+            \pgfmathsetlength{\pgf@y}{#2*\pgf@circ@res@temp*\ctikzvalof{tgate scale}}
+        }
+        \anchor{center}{\pgfpointorigin}
+        \anchor{text}{
+            \ifpgf@circ@center@text
+                \pgfpoint{-.5\wd\pgfnodeparttextbox}{\dimexpr.5\dp\pgfnodeparttextbox-.5\ht\pgfnodeparttextbox}
+            \else
+                \pgf@circ@ieeestd@stdH
+                \pgfpoint{-0.8660254*\pgf@circ@res@temp + \ctikzvalof{left text distance}}{\dimexpr.5\dp\pgfnodeparttextbox-.5\ht\pgfnodeparttextbox}
+            \fi
+        }
+        % input anchors
+        \anchor{in}{\bodyleft\pgf@y=0pt\advance\pgf@x by-\pinlen}
+        \anchor{in 1}{\bodyleft\pgf@y=0pt\advance\pgf@x by-\pinlen}
+        \anchor{bin}{\bodyleft\pgf@y=0pt\relax}
+        \anchor{bin 1}{\bodyleft\pgf@y=0pt\relax}
+        % gates
+        \anchor{gate}{\bodyleft\pgf@circ@res@up=\pgf@y
+            \pgf@x=0pt\pgfmathsetlength{\pgf@y}{-(#2-1)*0.5*\pgf@circ@res@up-\pinlen}}
+        \anchor{bgate}{\bodyleft\pgf@circ@res@up=\pgf@y
+            \pgf@x=0pt\pgfmathsetlength{\pgf@y}{-(#2-1)*0.5*\pgf@circ@res@up}}
+        % gate (up) (2.1547 = 1+1/cos(30)
+        \anchor{notgate}{\bodyleft\pgf@circ@res@up=\pgf@y
+            \pgf@x=0pt\relax
+            \pgfmathsetlength{\pgf@circ@res@temp}{2.1547*\notradius}
+            \ifdim\pinlen>\pgf@circ@res@temp
+                \pgfmathsetlength{\pgf@y}{(#2-1)*0.5*\pgf@circ@res@up+\pinlen}
+            \else
+                \pgf@y=\pgf@circ@res@temp
+            \fi
+        }
+        \anchor{bnotgate}{\bodyleft\pgf@circ@res@up=\pgf@y
+            \pgf@x=0pt\pgfmathsetlength{\pgf@y}{(#2-1)*0.5*\pgf@circ@res@up+2.1547*\notradius}}
+
+        % output anchors
+        \anchor{out}{%
+            \pgfextractx{\pgf@circ@res@other}{\bodyright}   %body border, without not ball
+            \advance\pgf@circ@res@other by\pinlen
+            \pgfextractx{\pgf@circ@res@temp}{\bottomright}   %body + ball border
+            \ifdim \pgf@circ@res@temp > \pgf@circ@res@other
+                \pgf@circ@res@other = \pgf@circ@res@temp % do not enter in the ball...
+            \fi
+            \pgf@x=\pgf@circ@res@other\pgf@y=0pt
+        }
+        \anchor{bout}{\bottomright\pgf@y=0pt}
+
+        \anchor{body right}{\bodyright\pgf@y=0pt}
+        \anchor{right}{\bottomright\pgf@y=0pt}
+        \anchor{body left}{\bodyleft\pgf@y=0pt}% central edge of the body
+        \anchor{left}{\bodyleft\pgf@y=0pt}
+        \anchor{up}{%
+            \bodyleft
+            \pgf@x=0pt
+            \ifnum#2=1\relax
+                \pgf@y=0pt
+            \else
+                \pgf@y=.5\pgf@y
+            \fi
+            \advance\pgf@y by \notdiameter
+        }
+        \anchor{down}{%
+            \bodyleft
+            \pgf@x=0pt
+            \ifnum#2=1\relax
+                \pgf@y=0pt
+            \else
+                \pgf@y=-.5\pgf@y
+            \fi
+        }
+        % this is for when it's used as a bipole
+        % we use the enclosing rectangle (see below)
+        \anchorborder{%
+            %
+            % this is the square border to position the path label with a bit of horizontal space
+            %
+            \pgf@xa=\pgf@x
+            \pgf@ya=\pgf@y
+            \pgfextracty{\pgf@circ@res@up}{\bodyleft}
+            \pgfextractx{\pgf@circ@res@left}{\bodyleft}
+            \pgfpointborderrectangle{\pgfpoint{\pgf@xa}{\pgf@ya}}
+                {\pgfpoint{-\pgf@circ@res@left}{\pgf@circ@res@up}}
+        }
+        % geographical anchors
+        \anchor{nw}{\northwest}
+        \anchor{ne}{\northeast}
+        \anchor{se}{\southeast}
+        \anchor{sw}{\southwest}
+        \anchor{north west}{\northwest}
+        \anchor{north east}{\northeast}
+        \anchor{south east}{\southeast}
+        \anchor{south west}{\southwest}
+        % over 0,0 even if asymmetric
+        % will break if the geocoords are not rectangular
+        \anchor{n}{\northwest\pgf@x=0pt\relax}
+        \anchor{e}{\northeast\pgf@y=0pt\relax}
+        \anchor{s}{\southwest\pgf@x=0pt\relax}
+        \anchor{w}{\northwest\pgf@y=0pt\relax}
+        \anchor{north}{\northwest\pgf@x=0pt\relax}
+        \anchor{east}{\northeast\pgf@y=0pt\relax}
+        \anchor{south}{\southwest\pgf@x=0pt\relax}
+        \anchor{west}{\northwest\pgf@y=0pt\relax}
+
+        \backgroundpath{
+            \pgfscope
+                \pgfsetcolor{\ctikzvalof{color}}
+                \pgfextractx{\pgf@circ@res@left}{\bodyleft}
+                \pgfextracty{\pgf@circ@res@up}{\bodyleft}
+                \pgfextractx{\pgf@circ@res@right}{\bodyright}
+                % \draw input pins
+                \ifpgfcirc@draw@input@leads
+                    \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{0pt}}
+                    \pgfpathlineto{\pgfpoint{\pgf@circ@res@left-\pinlen}{0pt}}
+                    % gate (down)
+                    \pgfpathmoveto{\pgfpoint{0pt}{-(#2-1)*0.5*\pgf@circ@res@up}}
+                    \pgfpathlineto{\pgfpoint{0pt}{-(#2-1)*0.5*\pgf@circ@res@up-\pinlen}}
+                    % gate (up) (2.1547 = 1+1/cos(30)
+                    \pgfmathsetlength{\pgf@circ@res@temp}{2.1547*\notradius}
+                    \ifdim\pinlen>\pgf@circ@res@temp
+                        \pgfpathmoveto{\pgfpoint{0pt}{(#2-1)*0.5*\pgf@circ@res@up+\pgf@circ@res@temp}}
+                        \pgfpathlineto{\pgfpoint{0pt}{(#2-1)*0.5*\pgf@circ@res@up+\pinlen}}
+                    \fi
+                    \pgfusepath{draw}
+                \fi
+                #3
+            \endpgfscope
+            % output lead:
+            \pgfextractx{\pgf@circ@res@right}{\bottomright} %body+ball border
+            \pgfextractx{\pgf@circ@res@other}{\bodyright}   %body border, without "not" ball
+            \advance\pgf@circ@res@other by \pinlen\relax
+            \ifdim \pgf@circ@res@other > \pgf@circ@res@right
+                \ifpgfcirc@draw@output@leads
+                    \pgfpathmoveto{\pgfpoint{\pgf@circ@res@right}{0pt}}
+                    \pgfpathlineto{\pgfpoint{\pgf@circ@res@other}{0pt}}
+                    \pgfusepath{draw}
+                \fi
+            \fi
+        }
+    }
+}
+
+\pgfcircdeclareieeetgate{tgate}{1}{%
+    \pgfscope
+        \pgf@circ@setlinewidth{tripoles}{\pgflinewidth}
+        \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@up}}
+        \pgfpathlineto{\pgfpoint{0pt}{0pt}}
+        \pgfpathlineto{\pgfpoint{\pgf@circ@res@left}{-\pgf@circ@res@up}}
+        \pgfpathclose
+        \pgf@circ@draworfill
+        \pgfpathmoveto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@up}}
+        \pgfpathlineto{\pgfpoint{0pt}{0pt}}
+        \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{-\pgf@circ@res@up}}
+        \pgfpathclose
+        \pgf@circ@draworfill
+    \endpgfscope
+    \pgfscope
+        % 1.1547 is 1/cos(30)
+        \pgftransformshift{\pgfpoint{0pt}{1.1547*\notradius}}
+        \pgfnode{notcirc}{center}{}{\thisshape-not}{\pgfusepath{stroke}}
+    \endpgfscope
+}
+
+\pgfcircdeclareieeetgate{double tgate}{2}{%
+    \pgfscope
+        \pgf@circ@setlinewidth{tripoles}{\pgflinewidth}
+        \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@up}}
+        \pgfpathlineto{\pgfpoint{0pt}{.5\pgf@circ@res@up}}
+        \pgfpathlineto{\pgfpoint{\pgf@circ@res@left}{0pt}}
+        \pgfpathclose
+        \pgf@circ@draworfill
+        \pgfpathmoveto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@up}}
+        \pgfpathlineto{\pgfpoint{0pt}{.5\pgf@circ@res@up}}
+        \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{0pt}}
+        \pgfpathclose
+        \pgf@circ@draworfill
+        % bottom triangles
+        \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{-\pgf@circ@res@up}}
+        \pgfpathlineto{\pgfpoint{0pt}{-.5\pgf@circ@res@up}}
+        \pgfpathlineto{\pgfpoint{\pgf@circ@res@left}{0pt}}
+        \pgfpathclose
+        \pgf@circ@draworfill
+        \pgfpathmoveto{\pgfpoint{\pgf@circ@res@right}{-\pgf@circ@res@up}}
+        \pgfpathlineto{\pgfpoint{0pt}{-.5\pgf@circ@res@up}}
+        \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{0pt}}
+        \pgfpathclose
+        \pgf@circ@draworfill
+    \endpgfscope
+    \pgfscope
+        % 1.1547 is 1/cos(30)
+        \pgftransformshift{\pgfpoint{0pt}{.5*\pgf@circ@res@up+1.1547*\notradius}}
+        \pgfnode{notcirc}{center}{}{\thisshape-not}{\pgfusepath{stroke}}
+    \endpgfscope
+}
 

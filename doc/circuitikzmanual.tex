@@ -4267,6 +4267,8 @@ In addition to the legacy ports, since release 1.1.0, logic ports following the 
 
 These ports are completely independent from the legacy set (either \texttt{american} or \texttt{european}); they are not eanbled by default because the relative size of the ports is very different from the legacy ones, and that will disrupt every schematic (especially if drawn with absolute coordinate). If you want to use them as default, you can use the command \verb|\ctikzset{logic ports=ieee}| and by default the shapes \texttt{and port}, \texttt{or port} and so on will be the IEEE standard ones.
 
+The transmission gate (also known as ``bowtie'') components are not described in the IEEE standard, so they are simply inspired by the other IEEE ports --- this is why their name is prefixed by \texttt{ieee} and not by \texttt{ieeestd}. They are aliased to \texttt{tgate} and \texttt{double tgate} though, and it is recommended to use those names (maybe in the future there will be \texttt{american ports} and/or \texttt{european ports} versions available).
+
 \begin{groupdesc}
     \circuitdesc*{ieeestd and port}{IEEE standard ``and'' port}{}(in 1/180/0.2, in 2/180/0.2, out/0/0.2, bout/45/0.2)
     \circuitdesc*{ieeestd nand port}{IEEE standard ``nand'' port}{}(in 1/180/0.2, out/0/0.2, bout/45/0.2)
@@ -4280,8 +4282,11 @@ These ports are completely independent from the legacy set (either \texttt{ameri
     \circuitdesc*{ieeestd not port}{IEEE standard ``not'' port}{}(in/180/0.2, bin/-155/0.2, out/0/0.2, bout/45/0.2)
     \circuitdesc*{ieeestd schmitt port}{Schmitt port matched to IEEE standard ports}{}(in/180/0.2, out/0/0.2, bout/45/0.2)
     \circuitdesc*{ieeestd invschmitt port}{Inverting Schmitt port matched to IEEE standard ports}{}
+    \circuitdesc*{ieee tgate}{IEEE style transmission gate}{}(in 1/180/0.2, bin 1/-155/0.2, up/30/0.2, down/-30/0.2, out/0/0.2, bout/45/0.2, notgate/135/0.4, gate/-135/0.4)
+    \circuitdesc*{ieee double tgate}{IEEE style double transmission gate}{}(in/180/0.2, bin/-155/0.2, out/0/0.2, bout/45/0.2, up/30/0.2, down/-30/0.2, bnotgate/135/0.4, bgate/-115/0.4)
     \circuitdesc*{notcirc}{Inverting dot for IEEE ports}{}(west/180/0.1, east/0/0.1)
     \circuitdesc*{schmitt symbol}{Schmitt symbol to add to input pins if needed}{}(north west/145/0.1, south east/-45/0.1)
+
 \end{groupdesc}
 
 \subsubsection{European Logic gates}
@@ -4314,6 +4319,9 @@ The one-input, one-output ports have a handy path-style equivalent; they are the
     \circuitdescbip*{inline buffer}<buffer port>{``buffer''  logic port}{}
     \circuitdescbip*{inline schmitt}<schmitt port>{Schmitt logic port}{}
     \circuitdescbip*{inline invschmitt}<invschmitt port>{Inverting Schmitt logic port}{}
+    \ctikzset{tgate scale=0.7}
+    \circuitdescbip*{inline tgate}<tgate>{transmission gate}{}(bgate/-90/0.2, bnotgate/90/0.2)
+    \circuitdescbip*{inline double tgate}<double tgate>{double transmission gate}{}(bgate/-90/0.2, bnotgate/90/0.2)
 \end{groupdesc}
 
 Those ports follows the current selected style, although you can change it on the fly (even if it has not a lot of sense); you can apply labels, annotations and (again, not a lot of sense) voltages to them. The assigned value is typeset as if it were the main text of the node.
@@ -4326,6 +4334,18 @@ Those ports follows the current selected style, although you can change it on th
 \end{circuitikz}
 \end{LTXexample}
 
+Notice that in the inline version the leading pins are not drawn, so in the case of the transmission gates
+you have to use the border pins to connect the gates.
+
+\begin{LTXexample}[varwidth=true]
+\begin{circuitikz}[ ]
+    \ctikzset{logic ports=ieee,
+    tgate scale=0.7, logic ports/fill=yellow}
+    \draw (0,0) to[inline not] ++(2,0)
+    to[inline double tgate, name=P] ++(3,0)
+    (P.bnotgate) |- ++(-3,1);
+\end{circuitikz}
+\end{LTXexample}
 
 \subsubsection{American ports usage}
 
@@ -4791,6 +4811,48 @@ Finally, the internal \texttt{notcirc} node used for the output negation is acce
 
 \endgroup % for IEEE ports ctikzset
 %%
+
+\paragraph{Transmission gate symbols.}
+
+The \texttt{tgate} and \texttt{double tgate} components are available since \texttt{1.2.4} but only in the IEEE style. An additional parameter \texttt{tgate scale} (default \texttt{1.0}, meaning that the triangle is the same size as a \texttt{ieeestd not port}) select the relative scale of the components.
+
+\begin{LTXexample}[varwidth=true]
+\begin{circuitikz}[ ]
+    \ctikzset{logic ports=ieee, tgate scale=0.7, }
+    \draw (0,0) to[inline not, *-*] ++(2,0)
+    node[tgate, anchor=in]{};
+\end{circuitikz}
+\end{LTXexample}
+
+The anchors for the tgate's control point are called \texttt{gate} and \texttt{notgate} (and the corresponding \texttt{bgate} and \texttt{bnotgate} for the border anchors).
+
+\begin{quote}
+    \begin{circuitikz}
+        \node[ieee tgate](A) at (0,0) {};
+        \path (A.in) \showcoord(in)<180:0.2>;
+        \path (A.bin) \showcoordb(bin)<-135:0.2>;
+        \path (A.out) \showcoord(out)<0:0.2>;
+        \path (A.bout) \showcoordb(bout)<-45:0.2>;
+        \path (A.left) \showcoord(left)<135:0.4>;
+        \path (A.right) \showcoord(right)<45:0.4>;
+        \path (A.gate) \showcoord(gate)<-160:0.3>;
+        \path (A.bgate) \showcoordb(bgate)<-75:0.3>;
+        \path (A.notgate) \showcoord(notgate)<160:0.3>;
+        \path (A.bnotgate) \showcoordb(bnotgate)<75:0.3>;
+        \node[ieee double tgate](A) at (5,0) {};
+        \path (A.in) \showcoord(in)<180:0.2>;
+        \path (A.bin) \showcoordb(bin)<-135:0.2>;
+        \path (A.out) \showcoord(out)<0:0.2>;
+        \path (A.bout) \showcoordb(bout)<-45:0.2>;
+        \path (A.left) \showcoord(left)<135:0.4>;
+        \path (A.right) \showcoord(right)<45:0.4>;
+        \path (A.gate) \showcoord(gate)<-160:0.3>;
+        \path (A.bgate) \showcoordb(bgate)<-75:0.3>;
+        \path (A.notgate) \showcoord(notgate)<160:0.3>;
+        \path (A.bnotgate) \showcoordb(bnotgate)<75:0.3>;
+    \end{circuitikz}
+\end{quote}
+
 
 \subsubsection{European logic port usage}
 
