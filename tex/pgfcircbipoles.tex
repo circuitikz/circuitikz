@@ -4040,6 +4040,72 @@
 
 }
 
+%% twoport split
+\pgfcircdeclarebipolescaled{blocks}
+{}
+{\ctikzvalof{bipoles/twoportsplit/width}}
+{twoportsplit}
+{\ctikzvalof{bipoles/twoportsplit/width}}
+{\ctikzvalof{bipoles/twoportsplit/width}}
+{
+    \pgf@circ@res@step = \ctikzvalof{bipoles/twoportsplit/width}\pgf@circ@scaled@Rlen
+    \divide \pgf@circ@res@step by 2
+
+    \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@zero}}
+    \pgf@circ@res@other = \pgf@circ@res@left
+    \advance\pgf@circ@res@other by \pgf@circ@res@step
+
+    \ifpgf@circuit@dashed
+        \pgfsetdash{{0.1cm}{0.1cm}}{0cm}
+    \fi
+
+    % draw outer box
+    \pgf@circ@twoportbox
+
+    \ifpgf@circuit@inputarrow
+        {
+            \advance \pgf@circ@res@left by -.5\ctikzvalof{bipoles/thickness}\pgfstartlinewidth
+            \pgftransformshift{\pgfpoint{\pgf@circ@res@left}{0pt}}
+            \pgfnode{inputarrow}{tip}{}{pgf@inputarrow}{\pgfusepath{fill}}
+        }
+    \fi
+
+    %get texts
+    \def\pgfcirc@tin{\ctikzvalof{bipoles/twoport/text in}}
+    \def\pgfcirc@tout{\ctikzvalof{bipoles/twoport/text out}}
+
+    % rotate inner symbol
+    \def\texti{\pgfcirc@tin}
+    \def\textii{\pgfcirc@tout}
+    \def\pgfcircmathresult{\expandafter\pgf@circ@stripdecimals\pgf@circ@direction\pgf@nil}
+    \ifnum \pgfcircmathresult > 45 \ifnum \pgfcircmathresult < 135
+        \def\texti{\pgfcirc@tout}
+        \def\textii{\pgfcirc@tin}
+        \pgftransformrotate{270}
+    \fi\fi
+    \ifnum \pgfcircmathresult > 134 \ifnum \pgfcircmathresult < 225  % 134 degree, because >= 135 is not possible
+        \def\texti{\pgfcirc@tout}
+        \def\textii{\pgfcirc@tin}
+        \pgftransformrotate{180}
+    \fi\fi
+    \ifnum \pgfcircmathresult > 225 \ifnum \pgfcircmathresult < 315
+        \pgftransformrotate{90}
+        \def\texti{\pgfcirc@tin}
+        \def\textii{\pgfcirc@tout}
+    \fi\fi
+
+    % draw inner symbol
+    \pgfsetdash{}{0pt}	% always draw solid line for inner symbol
+    \pgfsetarrows{-} %never draw arrows
+    \pgfsetlinewidth{\pgfstartlinewidth}
+    \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@down}}
+    \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@up}}
+    \pgfusepath{draw}
+
+    \pgftext[center,x=0.45\pgf@circ@res@left,y=0.45\pgf@circ@res@up]{\texti}
+    \pgftext[center,x=0.45\pgf@circ@res@right,y=0.45\pgf@circ@res@down]{\textii}
+}
+
 %% voltage controled oscillator
 \pgfcircdeclarebipolescaled{blocks}
 {}
