@@ -12,8 +12,8 @@
 
 \NeedsTeXFormat{LaTeX2e}
 
-\def\pgfcircversion{1.2.4-unreleased-e4aebdd}
-\def\pgfcircversiondate{2020/08/31}
+\def\pgfcircversion{1.2.4-unreleased-092c950}
+\def\pgfcircversiondate{2020/09/27}
 
 \ProvidesPackage{circuitikzgit}
 [\pgfcircversiondate{} The CircuiTikz circuit drawing package version \pgfcircversion]
@@ -1294,11 +1294,27 @@
 \ctikzset{bipoles/twoport/width/.initial=.7}
 \ctikzset{bipoles/twoport/height/.initial=.7}
 \ctikzset{bipoles/twoport/text/.initial=}
+\ctikzset{bipoles/twoportsplit/width/.initial=.7}
+\ctikzset{bipoles/twoport/text in/.initial=}
+\ctikzset{bipoles/twoport/text out/.initial=}
+\ctikzset{text/.style={t=#1}}
+\ctikzset{t/.code={%
+        \ctikzsetvalof{bipoles/twoport/text}{#1}%
+}}
+\ctikzset{text in/.style={t1=#1}}
+\ctikzset{t1/.code={%
+        \ctikzsetvalof{bipoles/twoport/text in}{#1}%
+}}
+\ctikzset{text out/.style={t2=#1}}
+\ctikzset{t2/.code={%
+        \ctikzsetvalof{bipoles/twoport/text out}{#1}%
+}}
 \ctikzset{bipoles/vco/width/.initial=.7}
 \ctikzset{bipoles/bandpass/width/.initial=.7}
 \ctikzset{bipoles/bandstop/width/.initial=.7}
 \ctikzset{bipoles/highpass/width/.initial=.7}
 \ctikzset{bipoles/lowpass/width/.initial=.7}
+\ctikzset{bipoles/allpass/width/.initial=.7}
 \ctikzset{bipoles/adc/width/.initial=.7}
 \ctikzset{bipoles/dac/width/.initial=.7}
 \ctikzset{bipoles/dsp/width/.initial=.7}
@@ -8526,6 +8542,72 @@
 
 }
 
+%% twoport split
+\pgfcircdeclarebipolescaled{blocks}
+{}
+{\ctikzvalof{bipoles/twoportsplit/width}}
+{twoportsplit}
+{\ctikzvalof{bipoles/twoportsplit/width}}
+{\ctikzvalof{bipoles/twoportsplit/width}}
+{
+    \pgf@circ@res@step = \ctikzvalof{bipoles/twoportsplit/width}\pgf@circ@scaled@Rlen
+    \divide \pgf@circ@res@step by 2
+
+    \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@zero}}
+    \pgf@circ@res@other = \pgf@circ@res@left
+    \advance\pgf@circ@res@other by \pgf@circ@res@step
+
+    \ifpgf@circuit@dashed
+        \pgfsetdash{{0.1cm}{0.1cm}}{0cm}
+    \fi
+
+    % draw outer box
+    \pgf@circ@twoportbox
+
+    \ifpgf@circuit@inputarrow
+        {
+            \advance \pgf@circ@res@left by -.5\ctikzvalof{bipoles/thickness}\pgfstartlinewidth
+            \pgftransformshift{\pgfpoint{\pgf@circ@res@left}{0pt}}
+            \pgfnode{inputarrow}{tip}{}{pgf@inputarrow}{\pgfusepath{fill}}
+        }
+    \fi
+
+    %get texts
+    \def\pgfcirc@tin{\ctikzvalof{bipoles/twoport/text in}}
+    \def\pgfcirc@tout{\ctikzvalof{bipoles/twoport/text out}}
+
+    % rotate inner symbol
+    \def\texti{\pgfcirc@tin}
+    \def\textii{\pgfcirc@tout}
+    \def\pgfcircmathresult{\expandafter\pgf@circ@stripdecimals\pgf@circ@direction\pgf@nil}
+    \ifnum \pgfcircmathresult > 45 \ifnum \pgfcircmathresult < 135
+        \def\texti{\pgfcirc@tout}
+        \def\textii{\pgfcirc@tin}
+        \pgftransformrotate{270}
+    \fi\fi
+    \ifnum \pgfcircmathresult > 134 \ifnum \pgfcircmathresult < 225  % 134 degree, because >= 135 is not possible
+        \def\texti{\pgfcirc@tout}
+        \def\textii{\pgfcirc@tin}
+        \pgftransformrotate{180}
+    \fi\fi
+    \ifnum \pgfcircmathresult > 225 \ifnum \pgfcircmathresult < 315
+        \pgftransformrotate{90}
+        \def\texti{\pgfcirc@tin}
+        \def\textii{\pgfcirc@tout}
+    \fi\fi
+
+    % draw inner symbol
+    \pgfsetdash{}{0pt}	% always draw solid line for inner symbol
+    \pgfsetarrows{-} %never draw arrows
+    \pgfsetlinewidth{\pgfstartlinewidth}
+    \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@down}}
+    \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@up}}
+    \pgfusepath{draw}
+
+    \pgftext[center,x=0.45\pgf@circ@res@left,y=0.45\pgf@circ@res@up]{\texti}
+    \pgftext[center,x=0.45\pgf@circ@res@right,y=0.45\pgf@circ@res@down]{\textii}
+}
+
 %% voltage controled oscillator
 \pgfcircdeclarebipolescaled{blocks}
 {}
@@ -8865,6 +8947,74 @@
     \pgfusepath{draw}
     \pgfpathmoveto{\pgfpoint{-0.15\pgf@circ@res@step}{-0.15\pgf@circ@res@step}}
     \pgfpathlineto{\pgfpoint{0.15\pgf@circ@res@step}{0.15\pgf@circ@res@step}}
+    \pgfusepath{draw}
+
+    \pgfpathmoveto{\pgfpoint{-0.5\pgf@circ@res@step}{-0.5\pgf@circ@res@step}}
+    \pgfpathsine{\pgfpoint{.25\pgf@circ@res@step}{.25\pgf@circ@res@step}}
+    \pgfpathcosine{\pgfpoint{.25\pgf@circ@res@step}{-.25\pgf@circ@res@step}}
+    \pgfpathsine{\pgfpoint{.25\pgf@circ@res@step}{-.25\pgf@circ@res@step}}
+    \pgfpathcosine{\pgfpoint{.25\pgf@circ@res@step}{.25\pgf@circ@res@step}}
+    \pgfusepath{draw}
+}
+
+%% allpass filter
+\pgfcircdeclarebipolescaled{blocks}
+{}
+{\ctikzvalof{bipoles/allpass/width}}
+{allpass}
+{\ctikzvalof{bipoles/allpass/width}}
+{\ctikzvalof{bipoles/allpass/width}}
+{
+    \pgf@circ@res@step = \ctikzvalof{bipoles/allpass/width}\pgf@circ@scaled@Rlen
+    \divide \pgf@circ@res@step by 2
+
+    \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@zero}}
+    \pgf@circ@res@other = \pgf@circ@res@left
+    \advance\pgf@circ@res@other by \pgf@circ@res@step
+
+    \ifpgf@circuit@dashed
+        \pgfsetdash{{0.1cm}{0.1cm}}{0cm}
+    \fi
+
+    % draw outer box
+    \pgf@circ@twoportbox
+
+    \ifpgf@circuit@inputarrow
+        {
+            \advance \pgf@circ@res@left by -.5\ctikzvalof{bipoles/thickness}\pgfstartlinewidth
+            \pgftransformshift{\pgfpoint{\pgf@circ@res@left}{0pt}}
+            \pgfnode{inputarrow}{tip}{}{pgf@inputarrow}{\pgfusepath{fill}}
+        }
+    \fi
+
+    % rotate inner symbol
+    \def\pgfcircmathresult{\expandafter\pgf@circ@stripdecimals\pgf@circ@direction\pgf@nil}
+    \ifnum \pgfcircmathresult > 45 \ifnum \pgfcircmathresult < 135
+        \pgftransformrotate{270}
+    \fi\fi
+    \ifnum \pgfcircmathresult > 134 \ifnum \pgfcircmathresult < 225  % 134 degree, because >= 135 is not possible
+        \pgftransformrotate{180}
+    \fi\fi
+    \ifnum \pgfcircmathresult > 224 \ifnum \pgfcircmathresult < 315
+        \pgftransformrotate{90}
+    \fi\fi
+
+    % draw inner symbol
+    \pgfsetdash{}{0pt}	% always draw solid line for inner symbol
+    \pgfsetarrows{-} %never draw arrows
+    \pgfsetlinewidth{\pgfstartlinewidth}
+    \pgfpathmoveto{\pgfpoint{-0.5\pgf@circ@res@step}{0.5\pgf@circ@res@step}}
+    \pgfpathsine{\pgfpoint{.25\pgf@circ@res@step}{.25\pgf@circ@res@step}}
+    \pgfpathcosine{\pgfpoint{.25\pgf@circ@res@step}{-.25\pgf@circ@res@step}}
+    \pgfpathsine{\pgfpoint{.25\pgf@circ@res@step}{-.25\pgf@circ@res@step}}
+    \pgfpathcosine{\pgfpoint{.25\pgf@circ@res@step}{.25\pgf@circ@res@step}}
+    \pgfusepath{draw}
+
+    \pgfpathmoveto{\pgfpoint{-0.5\pgf@circ@res@step}{0}}
+    \pgfpathsine{\pgfpoint{.25\pgf@circ@res@step}{.25\pgf@circ@res@step}}
+    \pgfpathcosine{\pgfpoint{.25\pgf@circ@res@step}{-.25\pgf@circ@res@step}}
+    \pgfpathsine{\pgfpoint{.25\pgf@circ@res@step}{-.25\pgf@circ@res@step}}
+    \pgfpathcosine{\pgfpoint{.25\pgf@circ@res@step}{.25\pgf@circ@res@step}}
     \pgfusepath{draw}
 
     \pgfpathmoveto{\pgfpoint{-0.5\pgf@circ@res@step}{-0.5\pgf@circ@res@step}}
@@ -21155,10 +21305,6 @@
     \fi%
 }
 
-\ctikzset{text/.style={t=#1}}
-\ctikzset{t/.code={%
-        \ctikzsetvalof{bipoles/twoport/text}{#1}%
-}}
 
 %%%% Stacked labels
 %
@@ -22699,11 +22845,13 @@
 \def\pgf@circ@americangfsurgearrester@path#1{\pgf@circ@bipole@path{american gas filled surge arrester}{#1}}
 
 \def\pgf@circ@twoport@path#1{\pgf@circ@bipole@path{twoport}{#1}}
+\def\pgf@circ@twoportsplit@path#1{\pgf@circ@bipole@path{twoportsplit}{#1}}
 \def\pgf@circ@vco@path#1{\pgf@circ@bipole@path{vco}{#1}}
 \def\pgf@circ@bandpass@path#1{\pgf@circ@bipole@path{bandpass}{#1}}
 \def\pgf@circ@bandstop@path#1{\pgf@circ@bipole@path{bandstop}{#1}}
 \def\pgf@circ@highpass@path#1{\pgf@circ@bipole@path{highpass}{#1}}
 \def\pgf@circ@lowpass@path#1{\pgf@circ@bipole@path{lowpass}{#1}}
+\def\pgf@circ@allpass@path#1{\pgf@circ@bipole@path{allpass}{#1}}
 \def\pgf@circ@adc@path#1{\pgf@circ@bipole@path{adc}{#1}}
 \def\pgf@circ@dac@path#1{\pgf@circ@bipole@path{dac}{#1}}
 \def\pgf@circ@dsp@path#1{\pgf@circ@bipole@path{dsp}{#1}}
@@ -22830,11 +22978,13 @@
 \compattikzset{asymmetric fuse/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@afuse@path}}
 
 \compattikzset{twoport/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@twoport@path}}
+\compattikzset{twoportsplit/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@twoportsplit@path}}
 \compattikzset{vco/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@vco@path}}
 \compattikzset{bandpass/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@bandpass@path}}
 \compattikzset{bandstop/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@bandstop@path}}
 \compattikzset{highpass/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@highpass@path}}
 \compattikzset{lowpass/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@lowpass@path}}
+\compattikzset{allpass/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@allpass@path}}
 \compattikzset{adc/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@adc@path}}
 \compattikzset{dac/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@dac@path}}
 \compattikzset{dsp/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@dsp@path}}
