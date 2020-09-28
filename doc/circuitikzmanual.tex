@@ -4319,7 +4319,6 @@ The one-input, one-output ports have a handy path-style equivalent; they are the
     \circuitdescbip*{inline buffer}<buffer port>{``buffer''  logic port}{}
     \circuitdescbip*{inline schmitt}<schmitt port>{Schmitt logic port}{}
     \circuitdescbip*{inline invschmitt}<invschmitt port>{Inverting Schmitt logic port}{}
-    \ctikzset{tgate scale=0.7}
     \circuitdescbip*{inline tgate}<tgate>{transmission gate}{}(bgate/-90/0.2, bnotgate/90/0.2)
     \circuitdescbip*{inline double tgate}<double tgate>{double transmission gate}{}(bgate/-90/0.2, bnotgate/90/0.2)
 \end{groupdesc}
@@ -4334,13 +4333,14 @@ Those ports follows the current selected style, although you can change it on th
 \end{circuitikz}
 \end{LTXexample}
 
-Notice that in the inline version the leading pins are not drawn, so in the case of the transmission gates
+Notice that in the inline version the leading pins are not drawn,
+so in the case of the transmission gates
 you have to use the border pins to connect the gates.
 
 \begin{LTXexample}[varwidth=true]
 \begin{circuitikz}[ ]
     \ctikzset{logic ports=ieee,
-    tgate scale=0.7, logic ports/fill=yellow}
+    logic ports/fill=yellow}
     \draw (0,0) to[inline not] ++(2,0)
     to[inline double tgate, name=P] ++(3,0)
     (P.bnotgate) |- ++(-3,1);
@@ -4812,13 +4812,15 @@ Finally, the internal \texttt{notcirc} node used for the output negation is acce
 \endgroup % for IEEE ports ctikzset
 %%
 
-\paragraph{Transmission gate symbols.}
+\paragraph{Transmission gate symbols.}\label{sec:passgate}
 
-The \texttt{tgate} and \texttt{double tgate} components are available since \texttt{1.2.4} but only in the IEEE style. An additional parameter \texttt{tgate scale} (default \texttt{1.0}, meaning that the triangle is the same size as a \texttt{ieeestd not port}) select the relative scale of the components.
+
+The \texttt{tgate} and \texttt{double tgate} components are available since \texttt{1.2.4} but only in the IEEE style. An additional parameter \texttt{tgate scale} (default \texttt{0.7}; if you set this to \texttt{1} the triangles will have the same size as a \texttt{ieeestd buffer port}) select the relative scale of the components.
+
 
 \begin{LTXexample}[varwidth=true]
-\begin{circuitikz}[ ]
-    \ctikzset{logic ports=ieee, tgate scale=0.7, }
+\begin{circuitikz}
+    \ctikzset{logic ports=ieee}
     \draw (0,0) to[inline not, *-*] ++(2,0)
     node[tgate, anchor=in]{};
 \end{circuitikz}
@@ -4828,6 +4830,7 @@ The anchors for the tgate's control point are called \texttt{gate} and \texttt{n
 
 \begin{quote}
     \begin{circuitikz}
+        \ctikzset{logic ports=ieee, tgate scale=1}
         \node[ieee tgate](A) at (0,0) {};
         \path (A.in) \showcoord(in)<180:0.2>;
         \path (A.bin) \showcoordb(bin)<-135:0.2>;
@@ -5274,7 +5277,7 @@ The code that implemented the printing of the numbers (which in \texttt{muxdemux
 }
 \end{lstlisting}
 
-You can use these shapes  to draw a lot of symbols that are unavailable; using a bit of \LaTeX{} command trickery you can use them quite naturally too...
+You can use these shapes  to draw a lot of symbols that are unavailable; using a bit of \LaTeX{} command trickery you can use them quite naturally too... For example, this was used before the introduction of the \texttt{double tgate} symbol in \texttt{1.2.4} (see ~\ref{sec:passgate}:
 
 \begin{LTXexample}[varwidth=true]
 \def\tgate#1{
