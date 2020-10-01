@@ -12,8 +12,8 @@
 
 \NeedsTeXFormat{LaTeX2e}
 
-\def\pgfcircversion{1.2.4-unreleased-f7b9544}
-\def\pgfcircversiondate{2020/09/30}
+\def\pgfcircversion{1.2.4-unreleased-fc3b5b5}
+\def\pgfcircversiondate{2020/10/01}
 
 \ProvidesPackage{circuitikzgit}
 [\pgfcircversiondate{} The CircuiTikz circuit drawing package version \pgfcircversion]
@@ -1335,6 +1335,9 @@
 
 \ctikzset{tripoles/wilkinson/height/.initial=1.3}
 \ctikzset{tripoles/wilkinson/width/.initial=1.3}
+
+\ctikzset{tripoles/splitter/height/.initial=1.3}
+\ctikzset{tripoles/splitter/width/.initial=1.3}
 
 \ctikzset{tripoles/mzm/height/.initial=1.3}
 \ctikzset{tripoles/mzm/width/.initial=1.3}
@@ -17900,6 +17903,141 @@
         \pgfpathlineto{\pgfpoint{0.5\pgf@circ@res@right}{0.5\pgf@circ@res@down}}
         \pgfusepath{draw}
 
+    }
+}
+
+%% resistive splitter
+\pgfdeclareshape{splitter}{
+    \savedmacro{\ctikzclass}{\edef\ctikzclass{blocks}}
+    \saveddimen{\scaledRlen}{\pgfmathsetlength{\pgf@x}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}}
+    \savedanchor\northwest{%
+        \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
+        \pgf@y=\ctikzvalof{tripoles/wilkinson/height}\pgf@circ@scaled@Rlen
+        \pgf@y=.5\pgf@y
+        \pgf@x= \pgf@circ@scaled@Rlen
+        \pgf@x=.5\pgf@x
+        \pgf@x=-\ctikzvalof{tripoles/wilkinson/width}\pgf@x
+    }
+    \anchor{center}{
+        \northwest
+        \pgf@x=0pt
+        \pgf@y=0pt
+    }
+    \anchor{north}{
+        \northwest
+        \pgf@x=0pt
+    }
+    \anchor{south}{
+        \northwest
+        \pgf@x=0pt
+        \pgf@y=-\pgf@y
+    }
+    \anchor{west}{
+        \northwest
+        \pgf@y=0pt
+    }
+    \anchor{east}{
+        \northwest
+        \pgf@y=0pt
+        \pgf@x=-\pgf@x
+    }
+    \anchor{south west}{
+        \northwest
+        \pgf@y=-\pgf@y
+    }
+    \anchor{north east}{
+        \northwest
+        \pgf@x=-\pgf@x
+    }
+    \anchor{north west}{
+        \northwest
+    }
+    \anchor{south east}{
+        \northwest
+        \pgf@x=-\pgf@x
+        \pgf@y=-\pgf@y
+    }
+    \anchor{in}{
+        \northwest
+        \pgf@y=0pt
+    }
+    \anchor{out1}{
+        \northwest
+        \pgf@x=-\pgf@x
+        \pgf@y=-0.5\pgf@y
+    }
+    \anchor{out2}{
+        \northwest
+        \pgf@x=-\pgf@x
+        \pgf@y=0.5\pgf@y
+    }
+    \anchor{text}{
+        \northwest
+        \advance \pgf@y by 0.5\ht\pgfnodeparttextbox
+        \pgf@x=-.5\wd\pgfnodeparttextbox
+    }
+    \backgroundpath{
+        \pgfsetcolor{\ctikzvalof{color}}
+        \pgf@circ@scaled@Rlen=\scaledRlen
+
+        \northwest
+        \pgf@circ@res@up = \pgf@y
+        \pgf@circ@res@down = -\pgf@y
+        \pgf@circ@res@right = -\pgf@x
+        \pgf@circ@res@left = \pgf@x
+
+        \pgfstartlinewidth=\pgflinewidth
+
+        % draw outer box
+        \pgf@circ@twoportbox
+
+        % draw inner stuff
+        \pgfsetdash{}{0pt}	% always draw solid line for inner symbol
+        \pgfsetarrows{-} %never draw arrows
+        \pgfsetlinewidth{\pgfstartlinewidth}
+        \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{0pt}}
+        \pgfpathlineto{\pgfpoint{0.5\pgf@circ@res@left}{0pt}}
+        \pgfpathmoveto{\pgfpoint{\pgf@circ@res@right}{0.5\pgf@circ@res@up}}
+        \pgfpathlineto{\pgfpoint{0.5\pgf@circ@res@right}{0.5\pgf@circ@res@up}}
+        \pgfpathmoveto{\pgfpoint{0.5\pgf@circ@res@left}{0pt}}
+        \pgfpathmoveto{\pgfpoint{0.5\pgf@circ@res@right}{0.5\pgf@circ@res@down}}
+        \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{0.5\pgf@circ@res@down}}
+
+        \pgfusepath{draw}
+
+        \pgfsetdash{}{0pt}	% always draw solid line for inner symbol
+        % draw inner resisitors - european or american style is recognised
+        \foreach \respt/\resang/\linepta/\lineptb in %
+        { \pgfpoint{0.5\pgf@circ@res@right}{0pt}/90/%
+            \pgfpoint{0.5\pgf@circ@res@right}{0.5\pgf@circ@res@up}/\pgfpoint{0.5\pgf@circ@res@right}{0.5\pgf@circ@res@down},%
+          \pgfpoint{0}{0.25\pgf@circ@res@up}/25/%
+            \pgfpoint{0.5\pgf@circ@res@right}{0.5\pgf@circ@res@up}/\pgfpoint{0.5\pgf@circ@res@left}{0},%
+          \pgfpoint{0}{0.25\pgf@circ@res@down}/-25/%
+            \pgfpoint{0.5\pgf@circ@res@right}{0.5\pgf@circ@res@down}/\pgfpoint{0.5\pgf@circ@res@left}{0}}
+        {
+            {
+                \pgftransformshift{\respt}
+                \pgftransformrotate{\resang}
+
+                % calculate size of resistor
+                \ifpgf@circuit@europeanresistor
+                    \pgfmathparse{\pgf@circ@res@up / \pgf@circ@scaled@Rlen / \ctikzvalof{bipoles/generic/width} / 2}
+                    \pgftransformscale{\pgfmathresult}
+                    \pgfnode{genericshape}{center}{}{wilk@int@R}{\pgfusepath{fill}}
+                \else
+                    \pgfmathparse{\pgf@circ@res@up / \pgf@circ@scaled@Rlen / \ctikzvalof{bipoles/resistor/width} / 2}
+                    \pgftransformscale{\pgfmathresult}
+                    \pgfnode{resistorshape}{center}{}{wilk@int@R}{\pgfusepath{fill}}
+                \fi
+            }
+
+            \pgfpathmoveto{\linepta}
+            \pgfpathlineto{\pgfpointanchor{wilk@int@R}{right}}
+
+            \pgfpathmoveto{\pgfpointanchor{wilk@int@R}{left}}
+            \pgfpathlineto{\lineptb}
+            \pgfusepath{draw}
+        }
     }
 }
 
