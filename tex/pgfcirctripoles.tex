@@ -2642,6 +2642,246 @@
     \fi
 }
 
+%%% depletion MOSFET (simplified symbols)
+
+\long\def\pgfcirc@filldraw@depletion#1{%
+    \ifx\tikz@fillcolor\pgfutil@empty
+        % if there is no explicit fill check the specific key
+        \edef\@@tmp{\ctikzvalof{tripoles/#1/depletion color}}\edef\@@none{none}%
+        \ifx\@@tmp\@@none % if  it's none
+            \pgfusepath{draw}%
+        \else
+            \edef\@@default{default}%
+            \ifx\@@tmp\@@default % fill with the pen color
+                \pgfusepath{draw, fill}%
+            \else
+                \pgfsetfillcolor{\@@tmp}%
+                \pgfusepath{draw, fill}%
+            \fi
+        \fi
+    \else
+        \pgfsetfillcolor{\tikz@fillcolor}%
+        \pgfusepath{draw, fill}%
+    \fi
+}
+
+\pgfcircdeclaretransistor{nmosd}{
+        \anchor{inner up}{
+            \northeast
+            \pgf@y=\ctikzvalof{tripoles/nmosd/gate height}\pgf@y
+        }
+        \anchor{inner down}{
+            \northeast
+            \pgf@y=-\ctikzvalof{tripoles/nmosd/gate height}\pgf@y
+        }
+        \anchor{nobulk}{ %override
+            \left
+            \pgf@circ@res@temp=\ctikzvalof{tripoles/nmosd/depletion width}\pgf@x
+            \pgf@x=\ctikzvalof{tripoles/nmosd/base width}\pgf@x
+            \advance\pgf@x by -\pgf@circ@res@temp
+        }
+    }{%
+    % draw depletion channel
+    \pgfscope
+        \pgfpathrectanglecorners
+        {\pgfpoint
+        {\ctikzvalof{tripoles/nmosd/base width}\pgf@circ@res@left}
+        {\ctikzvalof{tripoles/nmosd/gate height}\pgf@circ@res@up}}
+        {\pgfpoint
+        {(\ctikzvalof{tripoles/nmosd/base width} - \ctikzvalof{tripoles/nmosd/depletion width})*\pgf@circ@res@left}
+        {-\ctikzvalof{tripoles/nmosd/gate height}\pgf@circ@res@up}}
+        \pgfcirc@filldraw@depletion{nmosd}
+    \endpgfscope
+    % draw drain and source terminals
+    \pgfpathmoveto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@up+\pgfverticaltransformationadjustment*.5*\pgflinewidth}}
+    \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{\ctikzvalof{tripoles/nmosd/gate height}\pgf@circ@res@up}}
+    \pgfpathlineto{\pgfpoint
+        {\ctikzvalof{tripoles/nmosd/base width}\pgf@circ@res@left}
+    {\ctikzvalof{tripoles/nmosd/gate height}\pgf@circ@res@up}}
+
+    \pgfpathmoveto{\pgfpoint
+        {\ctikzvalof{tripoles/nmosd/base width}\pgf@circ@res@left}
+    {\ctikzvalof{tripoles/nmosd/gate height}\pgf@circ@res@down}}
+    \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}
+    {\ctikzvalof{tripoles/nmosd/gate height}\pgf@circ@res@down}}
+    \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@down-\pgfverticaltransformationadjustment*.5*\pgflinewidth}}
+    \pgfusepath{draw}
+
+    \pgfscope
+        \pgfpathmoveto{\pgfpoint
+            {\ctikzvalof{tripoles/nmosd/base width}\pgf@circ@res@left}
+        {\ctikzvalof{tripoles/nmosd/base height}\pgf@circ@res@up}}
+        \pgfpathlineto{\pgfpoint
+            {\ctikzvalof{tripoles/nmosd/base width}\pgf@circ@res@left}
+        {\ctikzvalof{tripoles/nmosd/base height}\pgf@circ@res@down}}
+        \pgfpathmoveto{\pgfpoint
+            {\ctikzvalof{tripoles/nmosd/gate width}\pgf@circ@res@left}
+        {\ctikzvalof{tripoles/nmosd/gate height}\pgf@circ@res@up}}
+        \pgfpathlineto{\pgfpoint
+            {\ctikzvalof{tripoles/nmosd/gate width}\pgf@circ@res@left}
+        {\ctikzvalof{tripoles/nmosd/gate height}\pgf@circ@res@down}}
+        \pgf@circ@setlinewidth{tripoles}{\pgflinewidth}
+        \pgfusepath{draw}
+    \endpgfscope
+    \ifpgf@circuit@mos@arrows
+        \pgfscope
+            \ifpgf@circuit@trans@arrowatend
+                \pgftransformshift{\pgfpoint
+                    {\pgf@circ@res@right}%
+                    {\ctikzvalof{tripoles/pmosd/gate height}\pgf@circ@res@down}%
+                }
+                \pgfnode{trarrow}{btip}{}{}{\pgfusepath{stroke}}
+            \else
+                \pgfslopedattimetrue
+                \pgfallowupsidedownattimetrue
+                \pgfresetnontranslationattimefalse
+                \pgftransformlineattime{\ctikzvalof{tripoles/nmosd/arrow pos}}{%
+                    \pgfpoint%
+                    {\ctikzvalof{tripoles/nmosd/gate width}\pgf@circ@res@left}%
+                    {\ctikzvalof{tripoles/nmosd/gate height}\pgf@circ@res@down}%
+                    }{%
+                    \pgfpoint
+                    {\pgf@circ@res@right-\ctikzvalof{tripoles/nmosd/depletion width}*\pgf@circ@res@left}%
+                    {\ctikzvalof{tripoles/nmosd/gate height}\pgf@circ@res@down}%
+                }
+                \pgfnode{currarrow}{center}{}{}{\pgfusepath{stroke}}
+            \fi
+        \endpgfscope
+    \fi
+
+    \ifpgf@circuit@bpt@drawgate
+        \pgfpathmoveto{\pgfpoint
+            {\ctikzvalof{tripoles/nmosd/gate width}\pgf@circ@res@left}
+        {\pgf@circ@res@up+\pgf@circ@res@down}}
+        \pgfpathlineto{\pgfpoint{\pgf@circ@res@left-\pgfhorizontaltransformationadjustment*.5*\pgflinewidth}{\pgf@circ@res@up+\pgf@circ@res@down}}
+        \pgfusepath{draw}
+    \fi
+
+    \ifpgf@circuit@bpt@drawbulk % added by Burak Kelleci
+        \pgfpathmoveto{\pgfpoint{\ctikzvalof{tripoles/nmosd/base width}\pgf@circ@res@left-\ctikzvalof{tripoles/nmosd/depletion width}*\pgf@circ@res@left}
+                {\pgf@circ@res@up+\pgf@circ@res@down}}
+        \pgfpathlineto{\pgfpoint{\pgf@circ@res@right+\pgfhorizontaltransformationadjustment*.5*\pgflinewidth}
+                {\pgf@circ@res@up+\pgf@circ@res@down}}
+        \pgfusepath{draw}
+    \fi
+}
+
+\pgfcircdeclaretransistor{pmosd}{
+        \anchor{inner up}{
+            \northeast
+            \pgf@y=\ctikzvalof{tripoles/pmosd/gate height}\pgf@y
+        }
+        \anchor{inner down}{
+            \northeast
+            \pgf@y=-\ctikzvalof{tripoles/pmosd/gate height}\pgf@y
+        }
+        \anchor{nobulk}{ %override
+            \left
+            \pgf@circ@res@temp=\ctikzvalof{tripoles/pmosd/depletion width}\pgf@x
+            \pgf@x=\ctikzvalof{tripoles/pmosd/base width}\pgf@x
+            \advance\pgf@x by -\pgf@circ@res@temp
+        }
+    }{%
+    % draw depletion channel
+    \pgfscope
+        \pgfpathrectanglecorners
+        {\pgfpoint
+        {\ctikzvalof{tripoles/pmosd/base width}\pgf@circ@res@left}
+        {\ctikzvalof{tripoles/pmosd/gate height}\pgf@circ@res@up}}
+        {\pgfpoint
+        {(\ctikzvalof{tripoles/pmosd/base width} - \ctikzvalof{tripoles/pmosd/depletion width})*\pgf@circ@res@left}
+        {-\ctikzvalof{tripoles/pmosd/gate height}\pgf@circ@res@up}}
+        \pgfcirc@filldraw@depletion{pmosd}
+    \endpgfscope
+    \pgfpathmoveto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@up+\pgfverticaltransformationadjustment*.5*\pgflinewidth}}
+    \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}
+    {\ctikzvalof{tripoles/pmosd/gate height}\pgf@circ@res@up}}
+    \pgfpathlineto{\pgfpoint
+        {\ctikzvalof{tripoles/pmosd/base width}\pgf@circ@res@left}
+    {\ctikzvalof{tripoles/pmosd/gate height}\pgf@circ@res@up}}
+    \pgfusepath{draw}
+
+    \ifpgf@circuit@mos@arrows
+        \pgfscope
+            \ifpgf@circuit@trans@arrowatend
+                \pgftransformshift{\pgfpoint
+                    {\ctikzvalof{tripoles/pmosd/base width}\pgf@circ@res@left-\ctikzvalof{tripoles/nmosd/depletion width}*\pgf@circ@res@left}%
+                    {\ctikzvalof{tripoles/pmosd/gate height}\pgf@circ@res@up}%
+                }
+                \pgftransformrotate{180}
+                \pgfnode{trarrow}{tip}{}{}{\pgfusepath{stroke}}
+            \else
+                \pgfslopedattimetrue
+                \pgfallowupsidedownattimetrue
+                \pgfresetnontranslationattimefalse
+                \pgftransformlineattime{\ctikzvalof{tripoles/pmosd/arrow pos}}{%
+                    \pgfpoint%
+                    {\pgf@circ@res@right-\ctikzvalof{tripoles/nmosd/depletion width}*\pgf@circ@res@left}%
+                    {\ctikzvalof{tripoles/pmosd/gate height}\pgf@circ@res@up}%
+                    }{%
+                    \pgfpoint
+                    {\ctikzvalof{tripoles/pmosd/gate width}\pgf@circ@res@left}%
+                    {\ctikzvalof{tripoles/pmosd/gate height}\pgf@circ@res@up}%
+                }
+                \pgfnode{currarrow}{center}{}{}{\pgfusepath{stroke}}
+            \fi
+        \endpgfscope
+    \fi
+
+    \pgfscope
+        \pgfpathmoveto{\pgfpoint
+            {\ctikzvalof{tripoles/pmosd/base width}\pgf@circ@res@left}
+        {\ctikzvalof{tripoles/pmosd/base height}\pgf@circ@res@up}}
+        \pgfpathlineto{\pgfpoint
+            {\ctikzvalof{tripoles/pmosd/base width}\pgf@circ@res@left}
+        {\ctikzvalof{tripoles/pmosd/base height}\pgf@circ@res@down}}
+        \pgfpathmoveto{\pgfpoint
+            {\ctikzvalof{tripoles/pmosd/gate width}\pgf@circ@res@left}
+        {\ctikzvalof{tripoles/pmosd/gate height}\pgf@circ@res@up}}
+        \pgfpathlineto{\pgfpoint
+            {\ctikzvalof{tripoles/pmosd/gate width}\pgf@circ@res@left}
+        {\ctikzvalof{tripoles/pmosd/gate height}\pgf@circ@res@down}}
+        \pgf@circ@setlinewidth{tripoles}{\pgflinewidth}
+        \pgfusepath{draw}
+    \endpgfscope
+
+    \pgfpathmoveto{\pgfpoint
+        {\ctikzvalof{tripoles/pmosd/base width}\pgf@circ@res@left}
+    {\ctikzvalof{tripoles/pmosd/gate height}\pgf@circ@res@down}}
+    \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}
+    {\ctikzvalof{tripoles/pmosd/gate height}\pgf@circ@res@down}}
+    \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@down-\pgfverticaltransformationadjustment*.5*\pgflinewidth}}
+
+
+    \pgfusepath{draw}
+    \ifpgf@circuit@bpt@drawgate
+        \pgfpathmoveto{\pgfpoint
+            {\ctikzvalof{tripoles/pmosd/gate width}\pgf@circ@res@left}
+        {\pgf@circ@res@up+\pgf@circ@res@down}}
+        \pgfpathlineto{\pgfpoint{\pgf@circ@res@left-\pgfhorizontaltransformationadjustment*.5*\pgflinewidth}{\pgf@circ@res@up+\pgf@circ@res@down}}
+        \pgfusepath{draw}
+    \fi
+
+    \ifpgf@circuit@bpt@drawbulk % added by Burak Kelleci
+        \pgfpathmoveto{\pgfpoint{\ctikzvalof{tripoles/pmosd/base width}\pgf@circ@res@left-\ctikzvalof{tripoles/nmosd/depletion width}*\pgf@circ@res@left}
+                {\pgf@circ@res@up+\pgf@circ@res@down}}
+        \pgfpathlineto{\pgfpoint{\pgf@circ@res@right+\pgfhorizontaltransformationadjustment*.5*\pgflinewidth}
+                {\pgf@circ@res@up+\pgf@circ@res@down}}
+        \pgfusepath{draw}
+    \fi
+
+    \ifpgf@circuit@pmos@nocircle\else
+        % we are not scaling the circle with the MOS --- I think it's better to have it
+        % coherent with the poles/nodes of the rest of the circuit.
+        \pgfpathcircle{\pgfpoint
+            {\ctikzvalof{tripoles/pmosd/gate width}\pgf@circ@res@left - \ctikzvalof{nodes width}*\pgf@circ@Rlen}
+        {\pgf@circ@res@up+\pgf@circ@res@down}}{\ctikzvalof{nodes width}*\pgf@circ@Rlen}
+        \ifpgf@circuit@pmos@emptycircle
+            \pgfsetfillcolor{white}
+        \fi
+        \pgfusepath{draw,fill}
+    \fi
+}
 %% HEMT FET Transistor
 \pgfcircdeclaretransistor{hemt}{
         \anchor{inner up}{
@@ -2830,6 +3070,15 @@
     \drawfetcore{pfet}
 }
 
+\pgfdeclaretransistorwrapperaddbulk{nfetd}{}{%
+	\pgf@circuit@trans@depletiontypetrue
+	\drawfetcore{nfetd}
+}
+
+\pgfdeclaretransistorwrapperaddbulk{pfetd}{}{%
+    \pgf@circuit@trans@depletiontypetrue
+    \drawfetcore{pfetd}
+}
 % N-CHANNEL IGFET ENHANCEMENT TYPE
 \pgfdeclaretransistorwrapperaddbulk{nigfete}{}{%
     \pgf@circuit@trans@depletiontypefalse

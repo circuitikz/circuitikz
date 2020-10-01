@@ -8,6 +8,8 @@ The major changes among the different circuitikz versions are listed here. See <
     - added a couple of block elements: allpass filter, generic two-sides block (suggested by user `@myzinsky`)
     - added transmission gate (only IEEE style version) suggested by several users (`@SJulianS` on github, Philipp Birkl on `TeX.SX`)
     - added a resistive splitter block symbol by `@matthuszagh`
+    - added depletion-type `nmosd` and `pmosd` MOSFET simplified symbols
+    - added depletion-type `nfetd` and `pfetd` for plain full-symbol MOSFET
 
 * Version 1.2.3 (2020-08-07)
 
