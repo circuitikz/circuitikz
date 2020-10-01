@@ -4,6 +4,10 @@ The major changes among the different circuitikz versions are listed here. See <
 * Version 1.2.4 (unreleased)
 
     - Bumped version number
+    - several documentation enhancment
+    - added a couple of block elements: allpass filter, generic two-sides block (suggested by user `@myzinsky`)
+    - added transmission gate (only IEEE style version) suggested by several users (`@SJulianS` on github, Philipp Birkl on `TeX.SX`)
+    - added a resistive splitter block symbol by `@matthuszagh`
 
 * Version 1.2.3 (2020-08-07)
 
