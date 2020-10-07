@@ -1,6 +1,10 @@
 <!--- CircuiTikz - Changelog --->
 The major changes among the different circuitikz versions are listed here. See <https://github.com/circuitikz/circuitikz/commits> for a full list of changes.
 
+* Version 1.2.5 (unreleased)
+
+    - added macro to access labels and annotations anchors and direction
+
 * Version 1.2.4 (2020-10-04)
 
     - several documentation enhancment
