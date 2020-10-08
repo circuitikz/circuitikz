@@ -6412,6 +6412,33 @@ Since 0.9.5, you can access all the labels nodes\footnote{The access to \texttt{
 \end{circuitikz}
 \end{LTXexample}
 
+
+If you want to have more access to the label positioning algorithm, since \texttt{1.2.5} you can access the label  rotation using with the command \texttt{\textbackslash ctikzgetrotation\{\emph{nodename}\}} (where node name is for example \texttt{L1label} or \texttt{L2annotation}), and the anchor used for positioning the node as \texttt{\textbackslash ctikzgetanchor\{\emph{component label}\}\{\emph{type}\}}, where \emph{component label} is, for example, \texttt{L1} and type is either \texttt{label} or \texttt{annotation} (notice that the syntax is slightly different, for implementation reasons).
+Those values are available only if the dipole declares a \texttt{l} or \texttt{a} keys; if you want them without any label you need to declare a blank one (like for example \texttt{l=\textasciitilde}).
+The following example gives an idea of the values of those macro for the three types of label positioning strategies.
+
+\begin{LTXexample}[varwidth=true, pos=t, basicstyle=\small\ttfamily]
+\newcommand{\marklabann}[3][45]{% [angle] {node label} {type: label or annotation}
+\node[circle, draw, blue, inner sep=1pt,
+pin={[draw, blue, font=\tiny, align=left]#1:{#2 \\ dir: \ctikzgetdirection{#2#3} \\
+        anchor: \ctikzgetanchor{#2}{#3}}}] at (#2#3.\ctikzgetanchor{#2}{#3}) {};}
+\begin{tikzpicture}[scale=0.95, transform shape]
+\foreach \style/\xdelta in {straight/0, smart/5, rotate/10} {
+\begin{scope}[xshift=\xdelta cm]
+        \ctikzset{label/align = \style}
+        \draw (0,0) node[above right, rotate=45]{\style}
+            to[L, o-, l=$L_{ab}$, v, name=L1, a=a] ++(3,3)
+            to[ceV, -*, v, name=V1, l2_=L1 and L2, a^=A] ++(0,-3);
+        \marklabann[135]{L1}{label}
+        \marklabann[-90]{L1}{annotation}
+        \marklabann[90]{V1}{label}
+        \marklabann[-90]{V1}{annotation}
+\end{scope}}
+\end{tikzpicture}
+\end{LTXexample}
+
+
+
 \subsection{Advanced voltages, currents and flows}\label{sec:vif-anchors}
 
 Since version \texttt{1.2.1}, it is possible to access the anchors of the ``ornaments'' --- voltage, current and flows, together with some additional information that makes it possible to personalize them.
