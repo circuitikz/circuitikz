@@ -12,8 +12,8 @@
 
 \NeedsTeXFormat{LaTeX2e}
 
-\def\pgfcircversion{1.2.4-b361773}
-\def\pgfcircversiondate{2020/10/04}
+\def\pgfcircversion{1.2.5-unreleased-178c000}
+\def\pgfcircversiondate{2020/10/08}
 
 \ProvidesPackage{circuitikzgit}
 [\pgfcircversiondate{} The CircuiTikz circuit drawing package version \pgfcircversion]
@@ -21909,7 +21909,8 @@
                 \pgf@circ@res@temp=1.5\pgf@circ@res@temp
         \fi
         %Calculate rotation of the label from direction and strip decimals
-        \edef\pgfcirclabrot{\expandafter\pgf@circ@stripdecimals\pgf@circ@direction\pgf@nil}
+        \pgfmathsetmacro{\pgfcirclabrot}{round(\pgf@circ@direction)}
+        \edef\pgfcirclabrot{\expandafter\pgf@circ@stripdecimals\pgfcirclabrot\pgf@nil}
         % rotate the label at second or third quadrant:
         \ifnum \pgfcirclabrot > 90 \ifnum \pgfcirclabrot < 270
                 \pgfmathsubtract{\pgf@circ@direction}{180}
@@ -21919,8 +21920,10 @@
                         \pgf@circ@res@temp=1.5\pgf@circ@res@temp
                 \fi
         \fi\fi
-        \pgfmathparse{\ctikzvalof{bipole/#1/position}>0?\pgf@circ@direction+90:\pgf@circ@direction-90}
-        \edef\pgf@circ@labposangle{\expandafter\pgf@circ@stripdecimals\pgfmathresult\pgf@nil}
+        \pgfmathparse{\ctikzvalof{bipole/#1/position}>0?\pgf@circ@direction+90:\pgf@circ@direction-90}%
+        \edef\pgf@circ@labposangle{\expandafter\pgf@circ@stripdecimals\pgfmathresult\pgf@nil}%
+        \expandafter\xdef\csname pgfcirc@\pgfcirc@a@prefix#1-direction\endcsname{\pgfcirclabrot}%
+        \expandafter\xdef\csname pgfcirc@\pgfcirc@a@prefix-#1-anchor\endcsname{mid}%
     }
     % reset cm is not working correctly here
     (pgfcirc@labelcoor)++(\pgf@circ@labposangle:\the\pgf@circ@res@temp) coordinate(pgfcirc@labelcoor)
@@ -21964,7 +21967,6 @@
         \fi
     \fi\fi
     %Values between -5 and 5 are at pos /neg x-axis
-    \pgfextra{\def\uffa{}\newdimen\realshift\realshift=\dimexpr1pt\relax}
         \ifnum \pgfcircmathresult <6 \ifnum \pgfcircmathresult > -6
             \ifnum \ctikzvalof{bipole/#1/position} < 0
                 \ifnum \pgf@circ@labanc > 90
@@ -21995,6 +21997,10 @@
                 \fi
             \fi
         \fi\fi
+    \pgfextra{%
+        \expandafter\xdef\csname pgfcirc@\pgfcirc@a@prefix#1-direction\endcsname{0}%
+        \expandafter\xdef\csname pgfcirc@\pgfcirc@a@prefix-#1-anchor\endcsname{\pgf@circ@labanctext}%
+    }
     (pgfcirc@labelcoor) node[anchor=\pgf@circ@labanctext,
     inner sep=0.5\pgf@circ@res@temp, outer sep=0pt, \circuitikzbasekey/bipole #1 style,
         ](\ctikzvalof{bipole/name}#1){\strut\pgf@circ@finallabels{#1}%
