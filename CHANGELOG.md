@@ -4,6 +4,7 @@ The major changes among the different circuitikz versions are listed here. See <
 * Version 1.2.5 (unreleased)
 
     - added macro to access labels and annotations anchors and direction
+    - fixed a bug in "raised" voltages' positions with `invert` and/or `mirror`
 
 * Version 1.2.4 (2020-10-04)
 
