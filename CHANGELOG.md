@@ -1,7 +1,9 @@
 <!--- CircuiTikz - Changelog --->
 The major changes among the different circuitikz versions are listed here. See <https://github.com/circuitikz/circuitikz/commits> for a full list of changes.
 
-* Version 1.2.5 (unreleased)
+* Version 1.2.5 (2020-10-14)
+
+    Mainly a bugfix release fir `raised` voltage style.
 
     - added macro to access labels and annotations anchors and direction
     - fixed a bug in "raised" voltages' positions with `invert` and/or `mirror`
