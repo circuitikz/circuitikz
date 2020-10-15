@@ -1,6 +1,10 @@
 <!--- CircuiTikz - Changelog --->
 The major changes among the different circuitikz versions are listed here. See <https://github.com/circuitikz/circuitikz/commits> for a full list of changes.
 
+* Version 1.2.6 (unreleased)
+
+    - bumped version number to avoid confusion
+
 * Version 1.2.5 (2020-10-14)
 
     Mainly a bugfix release fir `raised` voltage style.
