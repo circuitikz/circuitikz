@@ -12,8 +12,8 @@
 
 \NeedsTeXFormat{LaTeX2e}
 
-\def\pgfcircversion{1.2.6-unreleased-11ffe93}
-\def\pgfcircversiondate{2020/10/29}
+\def\pgfcircversion{1.2.6-unreleased-6af138a}
+\def\pgfcircversiondate{2020/11/29}
 
 \ProvidesPackage{circuitikzgit}
 [\pgfcircversiondate{} The CircuiTikz circuit drawing package version \pgfcircversion]
@@ -7800,7 +7800,9 @@
 
 %% Push Button
 \pgfcircdeclarebipolescaled{switches}
-{}
+{
+    \anchor{tip}{\northeast\pgf@x=0pt\relax}
+}
 {\ctikzvalof{bipoles/pushbutton/height 2}}
 {pushbutton}
 {\ctikzvalof{bipoles/pushbutton/height}}
@@ -7821,7 +7823,9 @@
 
 %% Normally closed Push Button
 \pgfcircdeclarebipolescaled{switches}
-{}
+{
+    \anchor{tip}{\northeast\pgf@x=0pt\relax}
+}
 {\ctikzvalof{bipoles/pushbutton/height 2}}
 {ncpushbutton}
 {\ctikzvalof{bipoles/pushbutton/height}}
@@ -7835,6 +7839,64 @@
     \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{-\pgf@circ@res@temp}}
     \pgfpathmoveto{\pgfpoint{0}{-\pgf@circ@res@temp}}
     \pgfpathlineto{\pgfpoint{0}{\pgf@circ@res@up}}
+    \pgfusepath{draw}
+    %
+    \pgftransformshift{\pgfpoint{\pgf@circ@res@left}{0pt}}
+    \pgfnode{ocirc}{center}{}{}{\pgfusepath{draw}}
+    \pgftransformshift{\pgfpoint{2\pgf@circ@res@right}{0pt}}
+    \pgfnode{ocirc}{center}{}{}{\pgfusepath{draw}}
+}
+%% Push Button (normally closed but now open :-) see
+%% https://github.com/circuitikz/circuitikz/issues/128#issuecomment-731771299
+\pgfcircdeclarebipolescaled{switches}
+{
+    \anchor{tip}{
+        \pgf@circ@res@temp=\ctikzvalof{nodes width}\pgf@circ@Rlen
+        \northeast\divide\pgf@y by 2\advance\pgf@y by \pgf@circ@res@temp
+        \pgf@x=0pt\relax
+    }
+}
+{\ctikzvalof{bipoles/pushbutton/height 2}}
+{pushbuttonc}
+{\ctikzvalof{bipoles/pushbutton/height}}
+{\ctikzvalof{bipoles/pushbutton/width}}
+{
+    \pgf@circ@setlinewidth{bipoles}{\pgfstartlinewidth}
+    \pgf@circ@res@temp=\ctikzvalof{nodes width}\pgf@circ@Rlen
+    \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@temp}}
+    \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@temp}}
+    \pgfpathmoveto{\pgfpoint{0}{\pgf@circ@res@temp}}
+    \pgfpathlineto{\pgfpoint{0}{\pgf@circ@res@up/2+\pgf@circ@res@temp}}
+    \pgfusepath{draw}
+
+    \pgftransformshift{\pgfpoint{\pgf@circ@res@left}{0pt}}
+    \pgfnode{ocirc}{center}{}{}{\pgfusepath{draw}}
+    \pgftransformshift{\pgfpoint{2\pgf@circ@res@right}{0pt}}
+    \pgfnode{ocirc}{center}{}{}{\pgfusepath{draw}}
+}
+
+%% Normally closed Push Button now open
+\pgfcircdeclarebipolescaled{switches}
+{
+    \anchor{tip}{
+        \pgf@circ@res@temp=\ctikzvalof{nodes width}\pgf@circ@Rlen
+        \northeast\divide\pgf@y by 2\advance\pgf@y by \pgf@circ@res@temp
+        \pgf@x=0pt\relax
+    }
+}
+{\ctikzvalof{bipoles/pushbutton/height 2}}
+{ncpushbuttono}
+{\ctikzvalof{bipoles/pushbutton/height}}
+{\ctikzvalof{bipoles/pushbutton/width}}
+{
+    \pgf@circ@setlinewidth{bipoles}{\pgfstartlinewidth}
+    % This is the radius of the "ocirc" shape (see pgfcircshapes.tex)
+    % Warning, if the nodes will have a class, we have to touch this.
+    \pgf@circ@res@temp=\ctikzvalof{nodes width}\pgf@circ@Rlen
+    \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{-\pgf@circ@res@up/2}}
+    \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{-\pgf@circ@res@up/2}}
+    \pgfpathmoveto{\pgfpoint{0}{-\pgf@circ@res@up/2}}
+    \pgfpathlineto{\pgfpoint{0}{\pgf@circ@res@up/2+\pgf@circ@res@temp}}
     \pgfusepath{draw}
     %
     \pgftransformshift{\pgfpoint{\pgf@circ@res@left}{0pt}}
@@ -23524,6 +23586,8 @@
 \def\pgf@circ@ncs@path#1{\pgf@circ@bipole@path{ncs}{#1}}
 \def\pgf@circ@pushbutton@path#1{\pgf@circ@bipole@path{pushbutton}{#1}}
 \def\pgf@circ@ncpushbutton@path#1{\pgf@circ@bipole@path{ncpushbutton}{#1}}
+\def\pgf@circ@pushbuttonc@path#1{\pgf@circ@bipole@path{pushbuttonc}{#1}}
+\def\pgf@circ@ncpushbuttono@path#1{\pgf@circ@bipole@path{ncpushbuttono}{#1}}
 \def\pgf@circ@open@path#1{\pgf@circ@bipole@path{open}{#1}}
 \def\pgf@circ@generic@path#1{\pgf@circ@bipole@path{generic}{#1}}
 \def\pgf@circ@ageneric@path#1{\pgf@circ@bipole@path{ageneric}{#1}}
@@ -23855,6 +23919,10 @@
 \compattikzset{normally open push button/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@pushbutton@path, l=#1}}
 \compattikzset{ncpb/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@ncpushbutton@path, l=#1}}
 \compattikzset{normally closed push button/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@ncpushbutton@path, l=#1}}
+\compattikzset{nopbc/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@pushbuttonc@path, l=#1}}
+\compattikzset{normally open push button closed/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@pushbuttonc@path, l=#1}}
+\compattikzset{ncpbo/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@ncpushbuttono@path, l=#1}}
+\compattikzset{normally closed push button open/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@ncpushbuttono@path, l=#1}}
 \compattikzset{toggle switch/.style =  {\circuitikzbasekey, /tikz/to path=\pgf@circ@toggleswitch@path}}
 
 \compattikzset{ammeter/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@ammeter@path}}
