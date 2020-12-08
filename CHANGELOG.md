@@ -3,7 +3,12 @@ The major changes among the different circuitikz versions are listed here. See <
 
 * Version 1.2.6 (unreleased)
 
-    - bumped version number to avoid confusion
+    - added closed position for normally open button and the other way around (suggested by user `@septatrix`)
+    - added a `tip` anchor for push buttons
+    - added text anchor for legacy `linestub` component
+    - fixed a bug in style-files (thanks to user `@Alex` on `tex.stackexchange.com`)
+    - added a comment about relative coords (thanks to user `@septatrix`)
+    - several fixes to the manual
 
 * Version 1.2.5 (2020-10-14)
 
