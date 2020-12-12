@@ -6670,9 +6670,105 @@ You can then define a kind of ``power flow'' style:
 \end{circuitikz}
 \end{LTXexample}
 
+
+\subsubsection{Fixed voltage arrows: an example of advanced voltage usage}
+
+\begingroup % to contain example definitions
+An interesting application of the advanced voltage is to have fixed length straight voltage arrows.\footnote{This was suggested by users  \texttt{Franklin} and \texttt{Zarko} in \href{https://tex.stackexchange.com/questions/574576/circuitikz-straight-voltage-arrows-with-fixed-length}{a question on \texttt{tex.stackexchange.com}}}
+The normal voltage arrows length depends not on the component length but on the node distance (this is the behavior since when the voltages were first introduced, so it can't be changed).
+
+\begin{LTXexample}[varwidth=true, basicstyle=\scriptsize\ttfamily, pos=t]
+\begin{circuitikz}[european,]
+    \ctikzset{voltage=straight}
+    \draw (0,0) to[R,v=$v_1$,*-*] ++(2,0) to[R, v<=$v_2$] ++(4,0) to[C, *-*, v=$v_3$] ++(1,0);
+\end{circuitikz}
+\end{LTXexample}
+
+Using the advanced voltage interface mechanism, you can for example design voltages that are of fixed lengths; in the example below the new \texttt{xparse} method for defining commands is used, so that we can have a couple of different optional arguments:
+
+
+\begin{lstlisting}[basicstyle=\scriptsize\ttfamily]
+\NewDocumentCommand{\fixedvlen}{O{0.5cm} m m O{}}{% [semilength]{node}{label}[extra options]
+    % get the center of the standard arrow
+    \coordinate (#2-Vcenter) at ($(#2-Vfrom)!0.5!(#2-Vto)$);
+    % draw an arrow of a fixed size around that center and on the same line
+    \draw[-Triangle, #4] ($(#2-Vcenter)!#1!(#2-Vfrom)$) -- ($(#2-Vcenter)!#1!(#2-Vto)$);
+    % position the label as in the normal voltages
+    \node[anchor=\ctikzgetanchor{#2}{Vlab}, #4] at (#2-Vlab) {#3};
+}
+\end{lstlisting}
+\NewDocumentCommand{\fixedvlen}{O{0.5cm} m m O{}}{% [semilength]{node}{label}[extra options]
+    % get the center of the standard arrow
+    \coordinate (#2-Vcenter) at ($(#2-Vfrom)!0.5!(#2-Vto)$);
+    % draw an arrow of a fixed size around that center and on the same line
+    \draw[-Triangle, #4] ($(#2-Vcenter)!#1!(#2-Vfrom)$) -- ($(#2-Vcenter)!#1!(#2-Vto)$);
+    % position the label as in the normal voltages
+    \node[anchor=\ctikzgetanchor{#2}{Vlab}, #4] at (#2-Vlab) {#3};
+}
+
+\begin{LTXexample}[varwidth=true, basicstyle=\scriptsize\ttfamily, pos=t]
+\begin{circuitikz}[european,]
+    \ctikzset{voltage=straight}
+    \draw (0,2) to[R,v=$v_1$,*-*] ++(2,0) to[R, v<=$v_2$] ++(4,0) to[C, *-*, v=$v_3$] ++(1,0);
+    \draw (0,0) to[R,v=,name=v1,*-*] ++(2,0) to[R, v<=, name=v2] ++(4,0) to[C, *-*, v, name=v3] ++(1,0);
+    \fixedvlen{v1}{$V_1$}
+    \fixedvlen{v2}{$V_2$}
+    \fixedvlen{v3}{$V_3$}[red]
+\end{circuitikz}
+\end{LTXexample}
+
+Notice that with a coherent naming you can use a \verb|\foreach| loop for the last three lines.
+
+You can also notice that the arrow is not exactly the same as other arrows in the circuit; if you want them to be exactly the same, you can use a trick to get the default \Circuitikz{} arrow size --- please look at \href{https://tex.stackexchange.com/questions/549347/circuitikz-arrowhead/549354#549354}{this answer by Romano on \texttt{tex.stackexchange.com}}.
+
+Another possibility is to have the arrow length based on the length of the component; for example you can use this code:
+
+\begin{lstlisting}[basicstyle=\scriptsize\ttfamily]
+\NewDocumentCommand{\compvlen}{O{1.5} m m O{}}{% [relative length]{node}{label}[extra options]
+    % get the center of the standard arrow
+    \coordinate (#2-Vcenter) at ($(#2-Vfrom)!0.5!(#2-Vto)$);
+    % draw an arrow of a size proportional to the component length
+    % around that center and on the same line
+    % the component length is calculated using the let...in with the left and right anchors
+    % and multiplied by the relative length
+    \draw[-Triangle, #4] let \p1=(#2.left), \p2=(#2.right), \n1={0.5*#1*veclen(\x2-\x1,\y2-\y1)}
+        in ($(#2-Vcenter)!\n1!(#2-Vfrom)$) -- ($(#2-Vcenter)!\n1!(#2-Vto)$);
+    % position the label as in the normal voltages
+    \node[anchor=\ctikzgetanchor{#2}{Vlab}, #4] at (#2-Vlab) {#3};
+}
+\end{lstlisting}
+\NewDocumentCommand{\compvlen}{O{1.5} m m O{}}{% [relative length]{node}{label}[extra options]
+    % get the center of the standard arrow
+    \coordinate (#2-Vcenter) at ($(#2-Vfrom)!0.5!(#2-Vto)$);
+    % draw an arrow of a size proportional to the component length
+    % around that center and on the same line
+    % the component length is calculated using the let...in with the left and right anchors
+    % and multiplied by the relative length
+    \draw[-Triangle, #4] let \p1=(#2.left), \p2=(#2.right), \n1={0.5*#1*veclen(\x2-\x1,\y2-\y1)}
+        in ($(#2-Vcenter)!\n1!(#2-Vfrom)$) -- ($(#2-Vcenter)!\n1!(#2-Vto)$);
+    % position the label as in the normal voltages
+    \node[anchor=\ctikzgetanchor{#2}{Vlab}, #4] at (#2-Vlab) {#3};
+}
+
+
+\begin{LTXexample}[varwidth=true, basicstyle=\scriptsize\ttfamily, pos=t]
+\begin{circuitikz}[european,]
+    \ctikzset{voltage=straight}
+    \draw (0,2) to[R,v=$v_1$,*-*] ++(2,0) to[R, v<=$v_2$] ++(4,0) to[C, *-*, v=$v_3$] ++(1,0);
+    \draw (0,0) to[R,v=,name=v1,*-*] ++(2,0) to[R, v<=, name=v2] ++(4,0) to[C, *-*, v, name=v3] ++(1,0);
+    \compvlen{v1}{$V_1$}
+    \compvlen{v2}{$V_2$}
+    \compvlen{v3}{$V_3$}[red]
+\end{circuitikz}
+\end{LTXexample}
+
+
+\endgroup
+
+
 \subsection{Integration with {\ttfamily siunitx}}
 
-If the option {\ttfamily siunitx} is active (and \emph{not} in \ConTeXt), then the following are equivalent:
+If the option {\ttfamily siunitx} is active\footnote{This option is still experimental --- personally (Romano) I would advise using the normal \texttt{\textbackslash SI\{\}\{\}} syntax.}  (and \emph{not} in \ConTeXt), then the following are equivalent:
 
 \begin{LTXexample}[varwidth=true]
 \begin{circuitikz}
