@@ -3,6 +3,7 @@ The major changes among the different circuitikz versions are listed here. See <
 
 * Version 1.2.6 (unreleased)
 
+    - added option to have transistors with circles, suggested by user `@myzinsky`
     - added closed position for normally open button and the other way around (suggested by user `@septatrix`)
     - added a `tip` anchor for push buttons
     - added text anchor for legacy `linestub` component
