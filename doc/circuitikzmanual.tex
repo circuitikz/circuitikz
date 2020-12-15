@@ -2903,6 +2903,23 @@ If the option \texttt{arrowmos} is used (or after the command \verb!\ctikzset{tr
 You can go back to the no-arrows mos with \texttt{noarrowmos} locally or with
 \texttt{\textbackslash ctikzset\{tripoles/mos style/no arrows\}}.
 
+
+\paragraph{Circles.} Since \texttt{1.2.6}, you can add a circle\footnote{Suggested by Matthias Jung \href{https://github.com/circuitikz/circuitikz/issues/442}{on GitHub}} to most of the transistor shapes --- with the exception of multi-terminal ones (\texttt{bjtnpn} and \texttt{bjtpnp}, where it would be awkward anyway). The circle is intended in some case as the component's housing, and used to distinguish discrete components from integrated ones.
+
+To add the circle to a single transistor, you use the \texttt{tr circle} keys in the node; if you want all of your transistors with a circle, you can set the property \texttt{tr circle} with a \verb|\ctikzset| command (it will respect normal grouping, of course); in that case, you can use \texttt{tr circle=false} to locally disable them.
+
+\begin{LTXexample}[varwidth=true, basicstyle=\small\ttfamily]
+\begin{circuitikz}[]
+    \draw (0,2) node[npn]{} (2,2) node[npn, tr circle](Q){};
+    % collector connected to housing
+    \node [circ] at (Q.circle C){};
+    \ctikzset{tr circle=true} % or \ctikzset{tr circle} alone
+    \draw (0,0) node[nigfete]{}
+        (2,0) node[nigfete, tr circle=false]{};
+\end{circuitikz}
+\end{LTXexample}
+
+
 \paragraph{Body diodes and similar things.}\label{sec:bodydiodes-anchor} For all transistors (minus \texttt{bjtnpn} and \texttt{bjtpnp})  a body diode (or freewheeling or flyback diode) can automatically be drawn. Just use the global option \texttt{bodydiode}, or for single transistors, the tikz-option \texttt{bodydiode}.
 As you can see in the next example, the text for the diode is moved if a bodydiode is present (but beware, if you change a lot the relative dimension of components, it may become misplaced):
 
@@ -2955,8 +2972,7 @@ You can change the size of the Schottky ``hook'' changing the parameter \texttt{
     \end{circuitikz}
 \end{LTXexample}
 
-\paragraph{IGBT outer base}
-
+\paragraph{IGBT outer base.}
 Normally, in bipolar IGBTs the outer base is the same size (height) of the inner one, and of the same thickness (which will depend on the class thickness value). You can change this by setting (via \verb|\ctikzset`|) the keys \texttt{tripoles/igbt/outer base height} (default \texttt{0.4}, the same as \texttt{base height}), and \texttt{tripoles/igbt/outer base thickness} (default \texttt{1.0}), which will be relative to the class thickness.
 
 \begin{LTXexample}[varwidth=true, pos=t, basicstyle=\small\ttfamily]
@@ -3071,6 +3087,66 @@ You can create completely ``bare'' transistors (without the connection leads to 
 \begin{groupdesc}
     \circuitdesc{bjtnpn, collectors=2, emitters=2, bjt pins width=0, bjt multi height=0.8}{bjt npn with parameters}{Q}(B/180/0.2, C/45/0.2, E/-45/0.2, C1/0/0.4, C2/0/0.4, E1/0/0.4, E2/0/0.4, nobase/-135/0.4, cbase/135/0.4)
 \end{groupdesc}
+
+
+\subsubsection{Transistor circle customization}
+
+\paragraph{Position and size.} You can see in the following diagram where the circle is positioned --- when there is no bodydiode, it will pass through the anchors for the body diode and near the base connection. The dimension of the circle is bigger when the bodydiode is in, to encompass it.
+The anchors are present even there is no circle, so you can use them to draw different kind of circles (say, encompassing two transistors) in a coherent way.
+
+\circuitdesc{npn, tr circle}{npn with a circle}{}(circle base/90/0.5, circle C/30/0.2, circle E/-30/0.2, circle center/0/0.5)
+\circuitdesc{npn, tr circle, bodydiode}{npn with a circle}{}(circle base/90/0.6, circle C/30/0.2, circle E/-30/0.2, circle center/0/0.5 )
+
+The position of the circle on collector and emitter by default is the one shown above; the position along the base can be adjusted in most transistors using the \verb|\ctikzset| parameter \texttt{transistor circle/default base in} (by default \texttt{\ctikzvalof{transistor circle/default base in}}); \texttt{njfet} and \texttt{pjfet} use \texttt{transistor circle/njfet base in} (default \texttt{\ctikzvalof{transistor circle/njfet base in}}; the same for \texttt{pjfet}) and, finally, \texttt{isfet} uses \texttt{transistor circle/isfet base in} (default \texttt{\ctikzvalof{transistor circle/isfet base in}}). You can change the resulting size of the circle by setting to something different to \texttt{1.0} the parameter \texttt{transistor circle/scale circle radius} --- that will move the anchors too; for example:
+
+\begin{LTXexample}[varwidth=true, basicstyle=\small\ttfamily]
+\begin{circuitikz}[scale=1.5, transform shape]
+    \draw (0,0) node[npn, tr circle](Q1){};
+    \node [circ] at (Q1.circle C){};
+    \ctikzset{transistor circle/scale circle radius=1.2}
+    \draw[color=red] (0,0) node[npn, tr circle](Q2){};
+    \node [circ, color=red] at (Q2.circle C){};
+\end{circuitikz}
+\end{LTXexample}
+
+\paragraph{Line and color.} Normally the circle follows the style of the component --- the line thickness is fixed by the class element \texttt{transistors/thickness} and the color is the same as the component color. You can change, if you need, all of this things using the parameters of the following table (the parameters are under the \verb|\ctikzset| category root \texttt{transistor circle/}.
+
+\begin{center}
+    \begin{tabular}{>{\ttfamily}l>{\ttfamily}ll}
+        \toprule
+     parameter &  default & description  \\
+     \midrule
+     relative thickness & 1.0 & multiply the class thickness \\
+     color & none & the color of the circle: \texttt{none} means default \\
+     dash & none & dash pattern: none means unbroken line\footnotemark \\
+        \bottomrule
+    \end{tabular}
+    \footnotetext{Follows the syntax of \texttt{\textbackslash pgfsetdash} --- see \TikZ{} manual}
+\end{center}
+
+\begin{LTXexample}[varwidth=true, basicstyle=\small\ttfamily]
+\begin{circuitikz}[]
+    \draw (0,2) node[npn, tr circle](Q1){};
+    \ctikzset{transistor circle/relative thickness=2}
+    \draw (2,2) node[npn, tr circle](Q1){};
+    \ctikzset{transistor circle/color=red}
+    \draw (0,0) node[npn, tr circle](Q1){};
+    \ctikzset{transistor circle/dash={{4pt}{4pt}{1pt}{4pt}}}
+    \draw (2,0) node[npn, tr circle](Q1){};
+\end{circuitikz}
+\end{LTXexample}
+
+Finally, using the class style you can do quite interesting things.
+
+\begin{LTXexample}[varwidth=true, basicstyle=\small\ttfamily]
+\begin{circuitikz}[]
+    \ctikzset{transistors/thickness=4, transistors/fill=cyan!30,
+        transistor circle/relative thickness=0.25,}
+    \draw (0,0) node[npn, tr circle](Q1){};
+    \ctikzset{transistor circle/dash={{2pt}{2pt}}}
+    \draw (1.5,0) node[npn, tr circle, xscale=-1](Q2){};
+\end{circuitikz}
+\end{LTXexample}
 
 
 \subsubsection{Transistors anchors}
