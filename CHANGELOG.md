@@ -7,6 +7,7 @@ The major changes among the different circuitikz versions are listed here. See <
     - added closed position for normally open button and the other way around (suggested by user `@septatrix`)
     - added a `tip` anchor for push buttons
     - added text anchor for legacy `linestub` component
+    - added an option for a different style of european logic xnor port (suggested by user `@Schlepptop`)
     - fixed a bug in style-files (thanks to user `@Alex` on `tex.stackexchange.com`)
     - added a comment about relative coords (thanks to user `@septatrix`)
     - several fixes to the manual
