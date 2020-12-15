@@ -10,7 +10,7 @@
 %
 % See the files gpl-3.0_license.txt and lppl-1-3c_license.txt for more details.
 
-\def\pgfcircversion{1.2.6-unreleased-f6eb77e}
+\def\pgfcircversion{1.2.6-unreleased-34b2a02}
 \def\pgfcircversiondate{2020/12/15}
 \writestatus{loading}{\pgfcircversiondate{} The CircuiTikz circuit drawing package version \pgfcircversion}
 
@@ -1101,7 +1101,7 @@
 \ctikzset{schottky base/.add code={}{\pgf@circuit@bpt@schottkytrue}}
 \pgfkeys{/tikz/no schottky base/.add code={}{\pgf@circuit@bpt@schottkyfalse}}
 \ctikzset{no schottky base/.add code={}{\pgf@circuit@bpt@schottkyfalse}}
-\ctikzset{tripoles/schottky base size/.initial=0.07}
+\ctikzset{tripoles/schottky base size/.initial=0.05}
 
 % Option draw bpt without base connection
 \newif\ifpgf@circuit@bpt@drawbase
@@ -12004,12 +12004,112 @@
 %% Transistors
 %%%%%%%%%%%%%%%%%%%%%%%%
 
+%
+% definitions for transistor circles
+%
+\ctikzset{transistor circle/.is family}
+\ctikzset{transistor circle/relative thickness/.initial=1}
+\ctikzset{transistor circle/color/.initial=none}
+\ctikzset{transistor circle/dash/.initial=none}
+\ctikzset{transistor circle/scale circle radius/.initial=1}
+\ctikzset{transistor circle/default base in/.initial=0.9}
+\ctikzset{transistor circle/njfet base in/.initial=1.05}
+\ctikzset{transistor circle/pjfet base in/.initial=1.05}
+\ctikzset{transistor circle/isfet base in/.initial=0.65}
+
+\newif\ifpgf@circ@trcircle\pgf@circ@trcirclefalse
+\ctikzset{tr circle/.is if=pgf@circ@trcircle}
+\tikzset{tr circle/.is if=pgf@circ@trcircle}
+%
+% add a circle to the transistor:
+%
+\def\pgfcirc@transistorcircle{
+    \ifpgf@circ@trcircle
+    \pgfscope
+        \pgf@circ@setlinewidth{tripoles}{\pgflinewidth}
+        \pgfsetlinewidth{\ctikzvalof{transistor circle/relative thickness}\pgflinewidth}
+        \edef\@@none{none}
+        \edef\@@tmp{\ctikzvalof{transistor circle/color}}
+        \ifx\@@tmp\@@none\else
+            \pgfsetcolor{\@@tmp}
+        \fi
+        \edef\@@tmp{\ctikzvalof{transistor circle/dash}}
+        \ifx\@@tmp\@@none\else
+            \expandafter\pgfsetdash\expandafter{\@@tmp}{0cm}
+        \fi
+        % radius of the circle
+        % \pgfmathsetlength{\pgf@circ@res@temp}{((#2+\extrabodydiodelen)-(#1)+(#3)*(#3)/((#2+\extrabodydiodelen)-(#1)))/2}
+        % \pgfpathcircle{\pgfpoint{#1+\pgf@circ@res@temp}{0pt}}{\pgf@circ@res@temp}
+        \pgfpathcircle{\pgfpoint{\circleleft+\circleradius}{0pt}}{\circleradius}
+        \pgf@circ@draworfill
+    \endpgfscope
+    \fi
+}
 
 \long\def\pgfcircdeclaretransistor#1#2#3{
     \pgfdeclareshape{#1}
     {
         \savedmacro{\ctikzclass}{\edef\ctikzclass{transistors}}
         \saveddimen{\scaledRlen}{\pgfmathsetlength{\pgf@x}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}}
+        \savedmacro{\circlebase}{
+            \pgfkeysifdefined{\circuitikzbasekey/transistor circle/#1 base in}%
+            {% yes, we have it
+                \edef\circlebase{\ctikzvalof{transistor circle/#1 base in}}%
+            }{% no, use default
+                \edef\circlebase{\ctikzvalof{transistor circle/default base in}}
+            }}
+        % \savedmacro{\thistypeoftr}{\edef\thistypeoftr{#1}}
+        \saveddimen{\extrabodydiodelen}{
+            \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
+            \ifpgf@circuit@fet@bodydiode
+                % try to put the text to the right of the flyback diode
+                \pgfmathsetlength{\pgf@x}{(
+                    \ctikzvalof{tripoles/#1/bodydiode distance}*
+                    \ctikzvalof{tripoles/#1/width} +
+                    \ctikzvalof{tripoles/#1/bodydiode scale}*
+                    \ctikzvalof{bipoles/diode/height}/2
+                )*\pgf@circ@scaled@Rlen}
+            \else
+                \pgf@x=0pt\relax
+            \fi
+        }
+        \savedmacro{\scaecircleradius}{
+            \edef\scalecircleradius{\ctikzvalof{transistor circle/scale circle radius}}
+        }
+        \saveddimen{\circleradius}{
+            \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
+            % repeat the extrabodydiodelen (grrr)
+            \ifpgf@circuit@fet@bodydiode
+                % try to put the text to the right of the flyback diode
+                \pgfmathsetlength{\pgf@circ@res@other}{(
+                    \ctikzvalof{tripoles/#1/bodydiode distance}*
+                    \ctikzvalof{tripoles/#1/width} +
+                    \ctikzvalof{tripoles/#1/bodydiode scale}*
+                    \ctikzvalof{bipoles/diode/height}/2
+                )*\pgf@circ@scaled@Rlen}
+            \else
+                \pgf@circ@res@other=0pt\relax
+            \fi
+            % left
+            \pgf@xa=-\ctikzvalof{tripoles/#1/width}\pgf@circ@scaled@Rlen
+            \pgf@xa=\circlebase\pgf@xa % this is the base point of the circle
+            % northeast
+            \pgf@yb=\ctikzvalof{tripoles/#1/height}\pgf@circ@scaled@Rlen % y of the left point of circle
+            \pgf@yb=.5\pgf@yb
+            \pgf@xb=\pgf@circ@res@other % this is the x of the right points of the circle
+            %
+            \pgf@yb=\ctikzvalof{tripoles/#1/bodydiode conn}\pgf@yb %this is #3 of the circle
+            % find the radius of the circle
+            \pgfmathsetlength{\pgf@x}{((\pgf@xb)-(\pgf@xa)+(\pgf@yb)*(\pgf@yb)/((\pgf@xb)-(\pgf@xa)))/2*\scalecircleradius}
+        }
+        \saveddimen{\circleleft}{
+            \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
+            \pgf@xa=-\ctikzvalof{tripoles/#1/width}\pgf@circ@scaled@Rlen
+            \pgf@x=\circlebase\pgf@xa
+        }
+        \anchor{circle center}{
+            \pgf@y=0pt\pgf@x=\circleleft\advance\pgf@x by\circleradius
+        }
         \anchor{center}{
             \pgfpointorigin
         }
@@ -12033,14 +12133,12 @@
             \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
             \ifpgf@circuit@transisors@fixlabels
                 \ifpgf@circuit@fet@bodydiode
-                    % try to put the text to the right of the flyback diode
-                    \pgfmathsetlength{\pgf@circ@res@other}{(
-                        \ctikzvalof{tripoles/#1/bodydiode distance}*
-                        \ctikzvalof{tripoles/#1/width} +
-                        \ctikzvalof{tripoles/#1/bodydiode scale}*
-                        \ctikzvalof{bipoles/diode/height}/2
-                        )*\pgf@circ@scaled@Rlen}
-                    \advance\pgf@x by \pgf@circ@res@other
+                    \advance \pgf@x by \extrabodydiodelen
+                \fi
+                \ifpgf@circ@trcircle
+                    \left\pgf@xa=\pgf@x
+                    \pgfmathsetlength{\pgf@x}{\circleleft+2*\circleradius}
+                    % \advance \pgf@x by \circleradius
                 \fi
                 % add a bit of space to avoid central (substrate) terminal if drawn
                 \advance\pgf@x by 0.05\pgf@circ@scaled@Rlen\relax
@@ -12136,6 +12234,10 @@
             \left
             \pgf@x=\ctikzvalof{tripoles/#1/base width}\pgf@x
         }
+        \anchor{circle base}{
+            \left
+            \pgf@x=\circlebase\pgf@x
+        }
         \anchor{nogate}{
             \left
             \pgf@x=\ctikzvalof{tripoles/#1/gate width}\pgf@x
@@ -12176,6 +12278,33 @@
             \northeast
             \pgf@y=\ctikzvalof{tripoles/#1/curr direction}\pgf@y
             \pgf@y=\ctikzvalof{tripoles/#1/bodydiode conn}\pgf@y
+        }
+        \anchor{circle C}{
+            \left
+            \pgf@xa=\circlebase\pgf@x % this is #1 of the circle
+            \northeast
+            \pgf@xb=\pgf@x %this is #2 of the circle
+            \pgf@yb=\ctikzvalof{tripoles/#1/bodydiode conn}\pgf@y %this is #3 of the circle
+            % the base of the triangle is x_2 - x_1 - r
+            \pgfmathsetlength{\pgf@circ@res@other}{\pgf@xb-\pgf@xa-\circleradius}
+            % so let's go with the height
+            \pgfmathsetlength{\pgf@ya}{sqrt(abs(\circleradius*\circleradius-\pgf@circ@res@other*\pgf@circ@res@other))}
+            % finally, direction
+            \pgf@y=\ctikzvalof{tripoles/#1/curr direction}\pgf@ya
+        }
+        \anchor{circle E}{
+            \left
+            \pgf@xa=\circlebase\pgf@x % this is #1 of the circle
+            \northeast
+            \pgf@xb=\pgf@x %this is #2 of the circle
+            \pgf@yb=\ctikzvalof{tripoles/#1/bodydiode conn}\pgf@y %this is #3 of the circle
+            % the base of the triangle is x_2 - x_1 - r
+            \pgfmathsetlength{\pgf@circ@res@other}{\pgf@xb-\pgf@xa-\circleradius}
+            % so let's go with the height
+            \pgfmathsetlength{\pgf@ya}{sqrt(abs(\circleradius*\circleradius-\pgf@circ@res@other*\pgf@circ@res@other))}
+            % finally, direction
+            % finally, direction
+            \pgf@y=-\ctikzvalof{tripoles/#1/curr direction}\pgf@ya
         }
         \anchor{body E in}{
             \northeast
@@ -12286,6 +12415,10 @@
             \pgf@y=-\ctikzvalof{tripoles/#1/base height}\pgf@y
         }
         }{
+
+        % add the circle if requested (before everything else, so we can fill it)
+        \pgfcirc@transistorcircle
+
         \pgfpathmoveto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@up+\pgfverticaltransformationadjustment*.5*\pgflinewidth}}
         \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}
         {\ctikzvalof{tripoles/#1/base height}\pgf@circ@res@up}}
@@ -12793,6 +12926,8 @@
         }
     }
     {
+        % add the circle if requested (before everything else, so we can fill it)
+        \pgfcirc@transistorcircle
         %draw upper connection
         \pgfpathmoveto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@up+\pgfverticaltransformationadjustment*.5*\pgflinewidth}}
         \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}
@@ -12901,6 +13036,9 @@
             \pgf@y=-\ctikzvalof{tripoles/nmos/gate height}\pgf@y
         }
     }{%
+    % add the circle if requested (before everything else, so we can fill it)
+    \pgfcirc@transistorcircle
+
     \pgfpathmoveto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@up+\pgfverticaltransformationadjustment*.5*\pgflinewidth}}
     \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}
     {\ctikzvalof{tripoles/nmos/gate height}\pgf@circ@res@up}}
@@ -12985,6 +13123,8 @@
             \pgf@y=-\ctikzvalof{tripoles/pmos/gate height}\pgf@y
         }
     }{%
+    % add the circle if requested (before everything else, so we can fill it)
+    \pgfcirc@transistorcircle
     \pgfpathmoveto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@up+\pgfverticaltransformationadjustment*.5*\pgflinewidth}}
     \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}
     {\ctikzvalof{tripoles/pmos/gate height}\pgf@circ@res@up}}
@@ -13115,6 +13255,8 @@
         }
     }{%
     % draw depletion channel
+    % add the circle if requested (before everything else, so we can fill it)
+    \pgfcirc@transistorcircle
     \pgfscope
         \pgfpathrectanglecorners
         {\pgfpoint
@@ -13215,6 +13357,8 @@
             \advance\pgf@x by -\pgf@circ@res@temp
         }
     }{%
+    % add the circle if requested (before everything else, so we can fill it)
+    \pgfcirc@transistorcircle
     % draw depletion channel
     \pgfscope
         \pgfpathrectanglecorners
@@ -13326,6 +13470,8 @@
             \pgf@y=-\ctikzvalof{tripoles/hemt/gate height}\pgf@y
         }
     }{%
+    % add the circle if requested (before everything else, so we can fill it)
+    \pgfcirc@transistorcircle
     \pgfpathmoveto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@up+\pgfverticaltransformationadjustment*.5*\pgflinewidth}}
     \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}
     {\ctikzvalof{tripoles/hemt/gate height}\pgf@circ@res@up}}
@@ -13361,6 +13507,9 @@
 
 \long\def\drawfetcore#1{
     \pgftransformationadjustments
+    % add the circle if requested (before everything else, so we can fill it)
+    \pgfcirc@transistorcircle
+
     %top connection
     \pgfpathmoveto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@up+\pgfverticaltransformationadjustment*.5*\pgflinewidth}}
     \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}
@@ -13625,6 +13774,8 @@
             \pgf@y=-\ctikzvalof{tripoles/njfet/gate height 2}\pgf@y
         }
     }{%
+    % add the circle if requested (before everything else, so we can fill it)
+    \pgfcirc@transistorcircle
     \pgfpathmoveto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@up+\pgfverticaltransformationadjustment*.5*\pgflinewidth}}
     \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}
     {\ctikzvalof{tripoles/njfet/gate height 2}\pgf@circ@res@up}}
@@ -13690,6 +13841,8 @@
             \pgf@y=-\ctikzvalof{tripoles/pjfet/gate height 2}\pgf@y
         }
     }{%
+    % add the circle if requested (before everything else, so we can fill it)
+    \pgfcirc@transistorcircle
     \pgfpathmoveto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@up+\pgfverticaltransformationadjustment*.5*\pgflinewidth}}
     \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}
     {\ctikzvalof{tripoles/pjfet/gate height 2}\pgf@circ@res@up}}
@@ -13744,7 +13897,10 @@
     \pgfusepath{draw}
 }
 
-\pgfdeclaretransistorwrapperaddbulk{isfet}{}{%
+\pgfdeclaretransistorwrapperaddbulk{isfet}{
+    }{%
+    % add the circle if requested (before everything else, so we can fill it)
+    \pgfcirc@transistorcircle
     \pgfpathmoveto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@up+\pgfverticaltransformationadjustment*.5*\pgflinewidth}}
     % DRAIN CONNECTION
     \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}
