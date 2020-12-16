@@ -1,7 +1,9 @@
 <!--- CircuiTikz - Changelog --->
 The major changes among the different circuitikz versions are listed here. See <https://github.com/circuitikz/circuitikz/commits> for a full list of changes.
 
-* Version 1.2.6 (unreleased)
+* Version 1.2.6 (2020-12-16)
+
+    The highlight of this release is the option to draw circles around transistors; moreover, a handful of new component and several bug fixes.
 
     - added option to have transistors with circles, suggested by user `@myzinsky`
     - added closed position for normally open button and the other way around (suggested by user `@septatrix`)
@@ -15,7 +17,7 @@ The major changes among the different circuitikz versions are listed here. See <
 
 * Version 1.2.5 (2020-10-14)
 
-    Mainly a bugfix release fir `raised` voltage style.
+    Mainly a bugfix release for `raised` voltage style.
 
     - added macro to access labels and annotations anchors and direction
     - fixed a bug in "raised" voltages' positions with `invert` and/or `mirror`
