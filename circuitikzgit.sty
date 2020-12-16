@@ -12,7 +12,7 @@
 
 \NeedsTeXFormat{LaTeX2e}
 
-\def\pgfcircversion{1.2.6-unreleased-e205e90}
+\def\pgfcircversion{1.2.6-unreleased-0a139e8}
 \def\pgfcircversiondate{2020/12/16}
 
 \ProvidesPackage{circuitikzgit}
@@ -4174,6 +4174,89 @@
     }
 }
 
+%%% dynodes (see https://github.com/circuitikz/circuitikz/issues/469)
+\ctikzset{monopoles/dynode/width/.initial=0.4}
+\ctikzset{monopoles/dynode/height/.initial=0.8}
+\ctikzset{monopoles/dynode/arc pos/.initial=0.5}
+\ctikzset{monopoles/dynode/arc angle/.initial=30}
+\ctikzset{monopoles/dynode/top width/.initial=1.0}
+
+\pgfdeclareshape{dynode}{
+    \savedmacro{\ctikzclass}{\edef\ctikzclass{tubes}}
+    \saveddimen{\scaledRlen}{\pgfmathsetlength{\pgf@x}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}}
+    \anchor{center}{\pgfpointorigin}
+    \savedanchor{\northeast}{
+        \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
+        \pgf@x=\ctikzvalof{monopoles/dynode/width}\pgf@circ@scaled@Rlen
+        \pgf@x=0.5\pgf@x
+        \pgf@y=\ctikzvalof{monopoles/dynode/height}\pgf@circ@scaled@Rlen
+    }
+    \savedanchor{\arcpos}{% bottom part of the arc pos
+        \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
+        \pgf@x=0pt
+        \pgf@y=\ctikzvalof{monopoles/dynode/height}\pgf@circ@scaled@Rlen
+        \pgf@y=\ctikzvalof{monopoles/dynode/arc pos}\pgf@y
+    }
+    \savedanchor{\topright}{%
+        \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
+        \pgf@x=\ctikzvalof{monopoles/dynode/width}\pgf@circ@scaled@Rlen
+        \pgf@x=\ctikzvalof{monopoles/dynode/top width}\pgf@x
+        \pgf@x=0.5\pgf@x
+        \pgf@y=\ctikzvalof{monopoles/dynode/height}\pgf@circ@scaled@Rlen
+    }
+    \anchor{arc}{\arcpos}
+    \anchor{top right}{\topright}
+    \anchor{top left}{\topright\pgf@x=-\pgf@x}
+    \anchor{text}{
+        \northeast
+        \advance\pgf@x by 4pt\relax
+        \pgf@y=\dimexpr0.5\pgf@y+.5\dp\pgfnodeparttextbox-.5\ht\pgfnodeparttextbox\relax
+    }
+    \anchor{top}{\northeast\pgf@x=0pt}
+    \anchor{right}{\northeast\pgf@y=0.5\pgf@y}
+    \anchor{left}{\northeast\pgf@x=-\pgf@x\pgf@y=0.5\pgf@y}
+    \anchor{bottom}{\pgfpointorigin}
+    \anchor{north}{\northeast\pgf@x=0pt}
+    \anchor{east}{\northeast\pgf@y=0.5\pgf@y}
+    \anchor{west}{\northeast\pgf@x=-\pgf@x\pgf@y=0.5\pgf@y}
+    \anchor{south}{\pgfpointorigin}
+    \anchor{north east}{\northeast}
+    \anchor{north west}{\northeast\pgf@x=-\pgf@x}
+    \anchor{south east}{\northeast\pgf@y=0pt\relax}
+    \anchor{south west}{\northeast\pgf@y=0pt\pgf@x=-\pgf@x}
+    \behindforegroundpath{
+        \pgfstartlinewidth=\pgflinewidth
+        \pgf@circ@scaled@Rlen=\scaledRlen
+        \pgfsetcolor{\ctikzvalof{color}}
+        \northeast
+        \pgf@circ@res@right=\pgf@x
+        \pgf@circ@res@up=\pgf@y
+        \arcpos
+        \pgf@circ@res@step=\pgf@y
+        % top
+        \pgfscope
+            \pgf@circ@setlinewidth{bipoles}{\pgfstartlinewidth}
+            \pgfpathmoveto{\pgfpoint{-\ctikzvalof{monopoles/dynode/top width}*\pgf@circ@res@right}{\pgf@circ@res@up}}
+            \pgfpathlineto{\pgfpoint{\ctikzvalof{monopoles/dynode/top width}*\pgf@circ@res@right}{\pgf@circ@res@up}}
+            \pgfusepath{draw}
+        \endpgfscope
+        % arc
+        \edef\@@angle{\ctikzvalof{monopoles/dynode/arc angle}}
+        \ifnum90=\@@angle\else % avoid divisions by zero
+            % radius
+            \pgfmathsetlength{\pgf@circ@res@other}{\pgf@circ@res@right/cos(\@@angle)}
+            % start angle y position
+            \pgfmathsetlength{\pgf@circ@res@step}{\pgf@circ@res@step+\pgf@circ@res@other*(1-sin(\@@angle))}
+            \pgfsetlinewidth{\pgfstartlinewidth}
+            \pgfpathmoveto{\pgfpoint{-\pgf@circ@res@right}{\pgf@circ@res@step}}
+            \pgfpatharc{-180+\@@angle}{-\@@angle}{\pgf@circ@res@other}
+        \fi
+        % tail
+        \pgfpathmoveto{\pgfpointorigin}
+        \pgfpathlineto{\pgfpoint{0pt}{\pgf@circ@res@up}}
+        \pgfusepath{draw}
+    }
+}
 % Microstrip monopoles
 
 \pgfdeclareshape{mslstub}{
