@@ -8,6 +8,7 @@ The major changes among the different circuitikz versions are listed here. See <
     - added a `tip` anchor for push buttons
     - added text anchor for legacy `linestub` component
     - added an option for a different style of european logic xnor port (suggested by user `@Schlepptop`)
+    - added dynode tubes electrodes (suggested by user `@ferdymercury`)
     - fixed a bug in style-files (thanks to user `@Alex` on `tex.stackexchange.com`)
     - added a comment about relative coords (thanks to user `@septatrix`)
     - several fixes to the manual

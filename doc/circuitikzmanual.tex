@@ -3440,11 +3440,15 @@ Example triode amplifier:
 \draw (Tri.east) node[right] {12AX7};
 \end{circuitikz}
 
-The \texttt{magnetron} shape will also scale with \texttt{tubes/scale}.
+\subsubsection{Other tubes-like components}
+
+The \texttt{magnetron} and \texttt{dynode} shapes will also scale with \texttt{tubes/scale}.
 
 \begin{groupdesc}
     \circuitdesc*{magnetron}{Magnetron}{}( anode/-90/0.2, cathode1/135/0.2,
     cathode2/45/0.2, left/180/0.2, right/0/0.2, top/90/0.4 )
+    \circuitdesc{dynode}{Dynode\footnotemark}{D}( top/90/0.1, bottom/180/0.3, left/180/0.3, right/0/0.3, center/0/0.3, arc/-30/0.4, top right/30/0.2, top left/150/0.2 )
+    \footnotetext{Suggested by the user \texttt{ferdymercury} on \href{https://github.com/circuitikz/circuitikz/issues/469}{GitHub}.}
 \end{groupdesc}
 
 \begin{LTXexample}[varwidth=true]
@@ -3459,6 +3463,50 @@ The \texttt{magnetron} shape will also scale with \texttt{tubes/scale}.
 \draw[->](magn.east) --++(1,0)node[right]{$RF_{out}$};
 \end{circuitikz}
 \end{LTXexample}
+
+
+\paragraph{Dynode customization.}
+The dynode element can be heavily customized. The parameters are the following (all of them under the \verb|\ctikzset| family \texttt{monopoles/dynode}):
+
+\begin{center}
+\begin{tabular}{>{\ttfamily}l>{\ttfamily}rp{0.75\linewidth}}
+    \toprule
+    parameter & default & description \\
+    \midrule
+    width & \ctikzvalof{monopoles/dynode/width} &  Total width (relative to the base length) measured at the arc width.\\
+    height & \ctikzvalof{monopoles/dynode/height} &  Total height (same units as width).\\
+    arc angle & \ctikzvalof{monopoles/dynode/arc angle} &  Angle (from the horizontal, going down) where the arc starts. A value of \texttt{90} don't plot any arc, \texttt{0} plots a semicircle. To avoid artifacts, use a value between \texttt{-60} and \texttt{90}; the arc horizontal size is always equal to the \texttt{width}.\\
+    arc pos & \ctikzvalof{monopoles/dynode/arc pos} &  Vertical position (relative to the height) of the arc center. \\
+    top width & \ctikzvalof{monopoles/dynode/top width} &  Relative width of the top bar; a value of \texttt{1} means full width, \texttt{0} means no bar.\\
+    \bottomrule
+\end{tabular}
+\end{center}
+
+
+\begin{LTXexample}[varwidth=true, basicstyle=\small\ttfamily]
+\begin{circuitikz}[american] \ctikzset{tubes/thickness=4}
+    \draw (0,0) to[R] (2,0) node[dynode]{} to[R,-*] (4,0);
+    \ctikzset{monopoles/dynode/.cd,
+        arc angle=0, arc pos=0.7, top width=0.5}
+    \draw (4,0) node[dynode]{};
+\end{circuitikz}
+\end{LTXexample}
+
+You can use styles and the parameters to create different types of electrodes:
+
+\begin{LTXexample}[varwidth=true, basicstyle=\small\ttfamily]
+\begin{circuitikz}[american] \ctikzset{tubes/thickness=4}
+    \tikzset{anode/.style={dynode,
+            circuitikz/monopoles/dynode/arc angle=90},
+        photocatode/.style={dynode,
+            circuitikz/monopoles/dynode/arc pos=1,
+            circuitikz/monopoles/dynode/top width=0},
+    }
+    \draw (0,0) node[dynode]{} (1,0) node[anode]{}
+           (2,0) node[photocatode]{};
+\end{circuitikz}
+\end{LTXexample}
+
 
 \subsection{RF components}\label{sec:RF}
 
