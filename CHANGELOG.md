@@ -3,9 +3,9 @@ The major changes among the different circuitikz versions are listed here. See <
 
 * Version 1.2.7 (2020-12-27)
 
-    Bugfix release: you *must* upgrade if you upgrade TikZ.
+    Bugfix release.
 
-    - The recent upgrade to TikZ to v3.1.8a to fix `circuitikz` issue 460 uncovered a problem in `circuitikz` itself that _seems_ fixed now.
+    - The recent temporary changes to TikZ to v3.1.8a revealed a problem in corner cases with `circuitikz` that should be fixed (thanks to Henri Menke)
 
 * Version 1.2.6 (2020-12-16)
 

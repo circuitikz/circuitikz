@@ -59,6 +59,30 @@
     }
 }
 
+%
+% expandable IF for the extra nodes (thanks to Henri Menke)
+% see https://chat.stackexchange.com/transcript/message/56560808#56560808
+%
+\def\pgfcirc@if@has@i{%
+    \ifpgfcirc@has@i
+        \expandafter\pgfutil@firstoftwo
+    \else
+        \expandafter\pgfutil@secondoftwo
+    \fi}
+\def\pgfcirc@if@has@v{%
+    \ifpgfcirc@has@v
+        \expandafter\pgfutil@firstoftwo
+    \else
+        \expandafter\pgfutil@secondoftwo
+    \fi}
+\def\pgfcirc@if@has@f{%
+    \ifpgfcirc@has@f
+        \expandafter\pgfutil@firstoftwo
+    \else
+        \expandafter\pgfutil@secondoftwo
+    \fi}
+
+
 
 %% Generic bipole path
 \def\pgf@circ@bipole@path#1#2{
@@ -158,11 +182,12 @@
     \drawpoles
     \pgf@circ@ifkeyempty{bipole/label/name}\else\pgf@circ@drawlabels{label}\fi
     \pgf@circ@ifkeyempty{bipole/annotation/name}\else\pgf@circ@drawlabels{annotation}\fi
-    % the following  must be made in their own path scope to avoid crash for TikZ>=3.1.8
-    % it should be logically safe for older version too
-    {\ifpgfcirc@has@v\pgf@circ@drawvoltage\fi}
-    {\ifpgfcirc@has@i\pgf@circ@drawcurrent\fi}
-    {\ifpgfcirc@has@f\pgf@circ@drawflow\fi}
+    % the following  must be made in their own path scope to avoid crash in TikZ 3.1.8/3.1.8a
+    % it should be logically safe for older version too --- even if TikZ reverted the change
+    % use explandable ifs too, thanks to Henri Menke
+    {\pgfcirc@if@has@v{\pgf@circ@drawvoltage}{}}%
+    {\pgfcirc@if@has@i{\pgf@circ@drawcurrent}{}}%
+    {\pgfcirc@if@has@f{\pgf@circ@drawflow}{}}%
     % finish the path from the component to the final target
     % you never know --- re-set \pgf@temp to detect open
     \pgfextra{\def\pgf@temp{open}\def\pgf@circ@temp{#3}}
