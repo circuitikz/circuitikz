@@ -1,6 +1,10 @@
 <!--- CircuiTikz - Changelog --->
 The major changes among the different circuitikz versions are listed here. See <https://github.com/circuitikz/circuitikz/commits> for a full list of changes.
 
+* Version 1.2.8 (unreleased)
+
+    - Fixed a typo in manual (thanks to @muzimuzhi on GitHub)
+
 * Version 1.2.7 (2020-12-27)
 
     Bugfix release.
