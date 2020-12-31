@@ -253,6 +253,28 @@
     \ifx\pgf@temp\pgf@circ@temp\else(\tikztotarget) node[\pgf@circ@temp] {}\fi
 }
 
+%% Macros for path and style activation for bipoles or path-style
+
+\def\comnpatname{\ifpgf@circuit@compat *\else\fi}
+\def\compattikzset#1{%
+    % \typeout{BIPOLEDEF:\space \detokenize{#1}}%
+    \tikzset{\comnpatname#1}}
+\def\pgfcirc@activate@bipole#1#2#3{% path name, base node name, style name
+    \expandafter\def\csname pgf@circ@#1@path\endcsname##1{\pgf@circ@bipole@path{#2}{##1}}%
+    \compattikzset{#3/.style={\circuitikzbasekey, /tikz/to path=\csname pgf@circ@#1@path\endcsname, l=##1}}%
+}
+\def\pgfcirc@activate@bipole@simple#1{\pgfcirc@activate@bipole{#1}{#1}{#1}}
+
+%% Path definition with the new mechanism
+%% Mechanical
+
+\pgfcirc@activate@bipole@simple{spring}
+\pgfcirc@activate@bipole@simple{inerter}
+\pgfcirc@activate@bipole@simple{mass}
+\pgfcirc@activate@bipole@simple{damper}
+\pgfcirc@activate@bipole@simple{viscoe}
+
+
 %% Path definitions
 \def\pgf@circ@resistor@path#1{\ifpgf@circuit@europeanresistor\pgf@circ@bipole@path{generic}{#1}\else\pgf@circ@bipole@path{resistor}{#1}\fi}
 \def\pgf@circ@vresistor@path#1{\ifpgf@circuit@europeanresistor\pgf@circ@bipole@path{tgeneric}{#1}\else\pgf@circ@bipole@path{vresistor}{#1}\fi}
@@ -423,29 +445,8 @@
 \def\pgf@circ@tacdc@path#1{\pgf@circ@bipole@path{tacdc}{#1}}
 \def\pgf@circ@tdcac@path#1{\pgf@circ@bipole@path{tdcac}{#1}}
 
-%%Mechanical
-\def\pgf@circ@spring@path#1{\pgf@circ@bipole@path{spring}{#1}}
-\def\pgf@circ@inerter@path#1{\pgf@circ@bipole@path{inerter}{#1}}
-\def\pgf@circ@mass@path#1{\pgf@circ@bipole@path{mass}{#1}}
-\def\pgf@circ@damper@path#1{\pgf@circ@bipole@path{damper}{#1}}
-\def\pgf@circ@viscoe@path#1{\pgf@circ@bipole@path{viscoe}{#1}}
+%% Styles definitions
 
-%% Styles
-
-\def\comnpatname{\ifpgf@circuit@compat *\else\fi}
-\def\compattikzset#1{%
-    % \typeout{BIPOLEDEF:\space \detokenize{#1}}%
-    \tikzset{\comnpatname#1}}
-
-%\def\ctikzsetbipole#1#2{%
-%	\tikzset{#1/.style= {to path=#2, \circuitikzbasekey, l=##1}}%
-%}
-
-\compattikzset{spring/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@spring@path, l=#1}}
-\compattikzset{inerter/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@inerter@path, l=#1}}
-\compattikzset{mass/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@mass@path, l=#1}}
-\compattikzset{damper/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@damper@path, l=#1}}
-\compattikzset{viscoe/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@viscoe@path, l=#1}}
 \compattikzset{resistor/.style= {\circuitikzbasekey, /tikz/to path=\pgf@circ@resistor@path, l=#1}}
 \compattikzset{american resistor/.style= {\circuitikzbasekey, /tikz/to path=\pgf@circ@bipole@path{resistor}{#1}, l=#1}}
 \compattikzset{european resistor/.style= {\circuitikzbasekey, /tikz/to path=\pgf@circ@bipole@path{generic}{#1}, l=#1}}
