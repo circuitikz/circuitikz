@@ -259,24 +259,58 @@
 \def\compattikzset#1{%
     % \typeout{BIPOLEDEF:\space \detokenize{#1}}%
     \tikzset{\comnpatname#1}}
-\def\pgfcirc@activate@bipole#1#2#3{% path name, base node name, style name
-    \expandafter\def\csname pgf@circ@#1@path\endcsname##1{\pgf@circ@bipole@path{#2}{##1}}%
-    \compattikzset{#3/.style={\circuitikzbasekey, /tikz/to path=\csname pgf@circ@#1@path\endcsname, l=##1}}%
+%
+% this one is for normal definition: path to style, directly
+% the first parameter (#1) here is l,v,i (l=..., v=..., i=...)
+% the last parameter are options to be inserted in the "to path" definition
+%
+\def\pgfcirc@path@to@style#1#2#3#4{% using #1 as label, assign \pgf@circ@#2@path to style #3
+    \compattikzset{#3/.style={\circuitikzbasekey, #4, /tikz/to path=\csname pgf@circ@#2@path\endcsname, #1=##1}}%
 }
-\def\pgfcirc@activate@bipole@simple#1{\pgfcirc@activate@bipole{#1}{#1}{#1}}
+% this one create a alias style from a node definition
+\def\pgfcirc@node@to@style#1#2#3#4{% using #1 as label, assign \pgf@circ@bipole@path{#2} to style #3
+    \compattikzset{#3/.style={\circuitikzbasekey, #4, /tikz/to path=\pgf@circ@bipole@path{#2}, #1=##1}}%
+}
+% this create an alias style
+\def\pgfcirc@style@to@style#1#2{% alias style #1 to style #2
+    \compattikzset{#2/.style={\comnpatname #1 = ##1}}%
+}
 
+\def\pgfcirc@activate@bipole#1#2#3#4{% path name, base node name, style name
+    \expandafter\def\csname pgf@circ@#2@path\endcsname##1{\pgf@circ@bipole@path{#3}{##1}}%
+    \pgfcirc@path@to@style{#1}{#2}{#4}{}% no options here, let's see
+}
+\def\pgfcirc@activate@bipole@simple#1#2{\pgfcirc@activate@bipole{#1}{#2}{#2}{#2}}
+
+%% New system, for simple object
+%% \pgfcirc@activate@bipole@simple{l}{mass}
+%% New system, different names
+%% The old system is the following
+%% 1 - define just the pgf@circ@path@whatever#1
+%% (see for example the variable one)
+%% 2 - set the style
+%% \compattikzset{resistor/.style= {\circuitikzbasekey, /tikz/to path=\pgf@circ@resistor@path, l=#1}}
+
+%% RESISTORS
+
+% automatically switching path --- to be defined manually
+\def\pgf@circ@resistor@path#1{\ifpgf@circuit@europeanresistor\pgf@circ@bipole@path{generic}{#1}\else\pgf@circ@bipole@path{resistor}{#1}\fi}
+
+\pgfcirc@path@to@style{l}{resistor}{resistor}{}
+\pgfcirc@style@to@style{resistor}{R}
+\pgfcirc@node@to@style{l}{resistor}{american resistor}{}
+\pgfcirc@node@to@style{l}{generic}{european resistor}{}
 %% Path definition with the new mechanism
 %% Mechanical
 
-\pgfcirc@activate@bipole@simple{spring}
-\pgfcirc@activate@bipole@simple{inerter}
-\pgfcirc@activate@bipole@simple{mass}
-\pgfcirc@activate@bipole@simple{damper}
-\pgfcirc@activate@bipole@simple{viscoe}
+\pgfcirc@activate@bipole@simple{l}{spring}
+\pgfcirc@activate@bipole@simple{l}{inerter}
+\pgfcirc@activate@bipole@simple{l}{mass}
+\pgfcirc@activate@bipole@simple{l}{damper}
+\pgfcirc@activate@bipole@simple{l}{viscoe}
 
 
 %% Path definitions
-\def\pgf@circ@resistor@path#1{\ifpgf@circuit@europeanresistor\pgf@circ@bipole@path{generic}{#1}\else\pgf@circ@bipole@path{resistor}{#1}\fi}
 \def\pgf@circ@vresistor@path#1{\ifpgf@circuit@europeanresistor\pgf@circ@bipole@path{tgeneric}{#1}\else\pgf@circ@bipole@path{vresistor}{#1}\fi}
 \def\pgf@circ@sresistor@path#1{\ifpgf@circuit@europeanresistor\pgf@circ@bipole@path{thermistor}{#1}\else\pgf@circ@bipole@path{resistivesens}{#1}\fi}
 \def\pgf@circ@potentiometer@path#1{\ifpgf@circuit@europeanresistor\pgf@circ@bipole@path{genericpotentiometer}{#1}\else\pgf@circ@bipole@path{potentiometer}{#1}\fi}
@@ -447,9 +481,8 @@
 
 %% Styles definitions
 
-\compattikzset{resistor/.style= {\circuitikzbasekey, /tikz/to path=\pgf@circ@resistor@path, l=#1}}
-\compattikzset{american resistor/.style= {\circuitikzbasekey, /tikz/to path=\pgf@circ@bipole@path{resistor}{#1}, l=#1}}
-\compattikzset{european resistor/.style= {\circuitikzbasekey, /tikz/to path=\pgf@circ@bipole@path{generic}{#1}, l=#1}}
+% \compattikzset{american resistor/.style= {\circuitikzbasekey, /tikz/to path=\pgf@circ@bipole@path{resistor}{#1}, l=#1}}
+% \compattikzset{european resistor/.style= {\circuitikzbasekey, /tikz/to path=\pgf@circ@bipole@path{generic}{#1}, l=#1}}
 \compattikzset{potentiometer/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@potentiometer@path, l=#1}}
 \compattikzset{varistor/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@varistor@path, l=#1}}
 \compattikzset{photoresistor/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@photoresistor@path, l=#1}}
@@ -757,7 +790,6 @@
 \compattikzset{controlled vsourcesin/.style = {\comnpatname controlled sinusoidal  voltage source = #1}}
 \compattikzset{controlled isourcesin/.style = {\comnpatname controlled sinusoidal current source = #1}}
 
-\compattikzset{R/.style= {\comnpatname resistor = #1}}
 \compattikzset{vR/.style= {\comnpatname variable resistor = #1}}
 \compattikzset{phR/.style= {\comnpatname photoresistor = #1}}
 \compattikzset{thR/.style= {\comnpatname thermistor = #1}}
