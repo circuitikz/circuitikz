@@ -275,7 +275,7 @@
 \def\pgfcirc@style@to@style#1#2{% alias style #1 to style #2
     \compattikzset{#2/.style={\comnpatname #1 = ##1}}%
 }
-
+% create a bipole
 \def\pgfcirc@activate@bipole#1#2#3#4{% path name, base node name, style name
     \expandafter\def\csname pgf@circ@#2@path\endcsname##1{\pgf@circ@bipole@path{#3}{##1}}%
     \pgfcirc@path@to@style{#1}{#2}{#4}{}% no options here, let's see
@@ -291,16 +291,46 @@
 %% 2 - set the style
 %% \compattikzset{resistor/.style= {\circuitikzbasekey, /tikz/to path=\pgf@circ@resistor@path, l=#1}}
 
+%% Path definition with the new mechanism
+
 %% RESISTORS
 
 % automatically switching path --- to be defined manually
 \def\pgf@circ@resistor@path#1{\ifpgf@circuit@europeanresistor\pgf@circ@bipole@path{generic}{#1}\else\pgf@circ@bipole@path{resistor}{#1}\fi}
-
 \pgfcirc@path@to@style{l}{resistor}{resistor}{}
-\pgfcirc@style@to@style{resistor}{R}
 \pgfcirc@node@to@style{l}{resistor}{american resistor}{}
 \pgfcirc@node@to@style{l}{generic}{european resistor}{}
-%% Path definition with the new mechanism
+\pgfcirc@style@to@style{resistor}{R}
+
+\def\pgf@circ@vresistor@path#1{\ifpgf@circuit@europeanresistor\pgf@circ@bipole@path{tgeneric}{#1}\else\pgf@circ@bipole@path{vresistor}{#1}\fi}
+\pgfcirc@path@to@style{l}{vresistor}{variable resistor}{}
+\pgfcirc@node@to@style{l}{vresistor}{variable american resistor}{}
+\pgfcirc@node@to@style{l}{tgeneric}{variable european resistor}{}
+\pgfcirc@style@to@style{variable resistor}{vR}
+
+\def\pgf@circ@resistivesens@path#1{\ifpgf@circuit@europeanresistor\pgf@circ@bipole@path{thermistor}{#1}\else\pgf@circ@bipole@path{resistivesens}{#1}\fi}
+\pgfcirc@path@to@style{l}{resistivesens}{resistive sensor}{}
+\pgfcirc@node@to@style{l}{resistivesens}{american resistive sensor}{}
+\pgfcirc@node@to@style{l}{thermistor}{european resistive sensor}{}
+\pgfcirc@style@to@style{resistive sensor}{sR}
+
+\def\pgf@circ@potentiometer@path#1{\ifpgf@circuit@europeanresistor\pgf@circ@bipole@path{genericpotentiometer}{#1}\else\pgf@circ@bipole@path{potentiometer}{#1}\fi}
+\pgfcirc@path@to@style{l}{potentiometer}{potentiometer}{}
+\pgfcirc@node@to@style{l}{potentiometer}{american potentiometer}{}
+\pgfcirc@node@to@style{l}{genericpotentiometer}{european potentiometer}{}
+\pgfcirc@style@to@style{potentiometer}{pR}
+
+\pgfcirc@activate@bipole@simple{l}{thermistor}
+\pgfcirc@style@to@style{thermistor}{thR}
+\pgfcirc@activate@bipole{l}{thermistorptc}{thermistorptc}{thermistor ptc}
+\pgfcirc@style@to@style{thermistor ptc}{thRp}
+\pgfcirc@activate@bipole{l}{thermistorntc}{thermistorntc}{thermistor ntc}
+\pgfcirc@style@to@style{thermistor ntc}{thRn}
+\pgfcirc@activate@bipole@simple{l}{photoresistor}
+\pgfcirc@style@to@style{photoresistor}{phR}
+\pgfcirc@activate@bipole@simple{l}{varistor}
+
+
 %% Mechanical
 
 \pgfcirc@activate@bipole@simple{l}{spring}
@@ -311,13 +341,7 @@
 
 
 %% Path definitions
-\def\pgf@circ@vresistor@path#1{\ifpgf@circuit@europeanresistor\pgf@circ@bipole@path{tgeneric}{#1}\else\pgf@circ@bipole@path{vresistor}{#1}\fi}
-\def\pgf@circ@sresistor@path#1{\ifpgf@circuit@europeanresistor\pgf@circ@bipole@path{thermistor}{#1}\else\pgf@circ@bipole@path{resistivesens}{#1}\fi}
-\def\pgf@circ@potentiometer@path#1{\ifpgf@circuit@europeanresistor\pgf@circ@bipole@path{genericpotentiometer}{#1}\else\pgf@circ@bipole@path{potentiometer}{#1}\fi}
-\def\pgf@circ@thermistor@path#1{\pgf@circ@bipole@path{thermistor}{#1}}
-\def\pgf@circ@thermistorptc@path#1{\pgf@circ@bipole@path{thermistorptc}{#1}}
-\def\pgf@circ@thermistorntc@path#1{\pgf@circ@bipole@path{thermistorntc}{#1}}
-\def\pgf@circ@varistor@path#1{\pgf@circ@bipole@path{varistor}{#1}}
+
 \def\pgf@circ@capacitor@path#1{\pgf@circ@bipole@path{capacitor}{#1}}
 \def\pgf@circ@capacitivesens@path#1{\pgf@circ@bipole@path{capacitivesens}{#1}}
 \def\pgf@circ@ecapacitor@path#1{\pgf@circ@bipole@path{ecapacitor}{#1}}
@@ -481,19 +505,6 @@
 
 %% Styles definitions
 
-% \compattikzset{american resistor/.style= {\circuitikzbasekey, /tikz/to path=\pgf@circ@bipole@path{resistor}{#1}, l=#1}}
-% \compattikzset{european resistor/.style= {\circuitikzbasekey, /tikz/to path=\pgf@circ@bipole@path{generic}{#1}, l=#1}}
-\compattikzset{potentiometer/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@potentiometer@path, l=#1}}
-\compattikzset{varistor/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@varistor@path, l=#1}}
-\compattikzset{photoresistor/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@photoresistor@path, l=#1}}
-\compattikzset{thermistor/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@thermistor@path, l=#1}}
-\compattikzset{thermistor ptc/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@thermistorptc@path, l=#1}}
-\compattikzset{thermistor ntc/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@thermistorntc@path, l=#1}}
-\compattikzset{american potentiometer/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@bipole@path{potentiometer}{#1}, l=#1}}
-\compattikzset{european potentiometer/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@bipole@path{genericpotentiometer}{#1}, l=#1}}
-\compattikzset{variable resistor/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@vresistor@path, l=#1}}
-\compattikzset{variable american resistor/.style= {\circuitikzbasekey, /tikz/to path=\pgf@circ@bipole@path{vresistor}{#1}, l=#1}}
-\compattikzset{variable european resistor/.style= {\circuitikzbasekey, /tikz/to path=\pgf@circ@bipole@path{tgeneric}{#1}, l=#1}}
 \compattikzset{capacitor/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@capacitor@path, l=#1}}
 \compattikzset{elko/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@ecapacitor@path, l=#1}}
 \compattikzset{ecapacitor/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@ecapacitor@path, l=#1}}
@@ -790,12 +801,6 @@
 \compattikzset{controlled vsourcesin/.style = {\comnpatname controlled sinusoidal  voltage source = #1}}
 \compattikzset{controlled isourcesin/.style = {\comnpatname controlled sinusoidal current source = #1}}
 
-\compattikzset{vR/.style= {\comnpatname variable resistor = #1}}
-\compattikzset{phR/.style= {\comnpatname photoresistor = #1}}
-\compattikzset{thR/.style= {\comnpatname thermistor = #1}}
-\compattikzset{thRp/.style= {\comnpatname thermistor ptc= #1}}
-\compattikzset{thRn/.style= {\comnpatname thermistor ntc= #1}}
-\compattikzset{pR/.style= {\comnpatname potentiometer = #1}}
 \compattikzset{C/.style = {\comnpatname capacitor = #1}}
 \compattikzset{eC/.style = {\comnpatname ecapacitor = #1}}
 %% pC is deprecated, use cC instead
@@ -867,12 +872,6 @@
 \compattikzset{isourceN/.style= {\comnpatname noise current source= #1}}
 \compattikzset{nI/.style= {\comnpatname noise current source= #1}}
 
-% resistive sensor american style
-\def\pgf@circ@resistivesens@path#1{\pgf@circ@bipole@path{resistivesens}{#1}}
-\compattikzset{american resistive sensor/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@resistivesens@path, l=#1}}
-\compattikzset{european resistive sensor/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@thermistorntc@path, l=#1}}
-\compattikzset{resistive sensor/.style= {\circuitikzbasekey, /tikz/to path=\pgf@circ@sresistor@path, l=#1}}
-\compattikzset{sR/.style= {\comnpatname resistive sensor= #1}}
 
 \compattikzset{capacitive sensor/.style= {\circuitikzbasekey, /tikz/to path=\pgf@circ@capacitivesens@path, l=#1}}
 \compattikzset{sC/.style= {\comnpatname capacitive sensor= #1}}
