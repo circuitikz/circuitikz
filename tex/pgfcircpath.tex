@@ -275,6 +275,10 @@
 \def\pgfcirc@style@to@style#1#2{% alias style #1 to style #2
     \compattikzset{#2/.style={\comnpatname #1 = ##1}}%
 }
+% this create an alias style, changing the labelling
+\def\pgfcirc@style@to@style@label#1#2#3{% alias style #1 to style #2
+    \compattikzset{#2/.style={\comnpatname #1, #3 = ##1}}%
+}
 % create a bipole
 \def\pgfcirc@activate@bipole#1#2#3#4{% path name, base node name, style name
     \expandafter\def\csname pgf@circ@#2@path\endcsname##1{\pgf@circ@bipole@path{#3}{##1}}%
@@ -555,6 +559,30 @@
     \circuitikzbasekey/bipole/is voltageoutsideofsymbol=true}
 \pgfcirc@style@to@style{empty controlled source}{ecsource}
 
+\pgfcirc@activate@bipole@opt{v}{vsourcesin}{vsourcesin}{sinusoidal voltage source}{%
+    \circuitikzbasekey/bipole/is voltage=true,
+    \circuitikzbasekey/bipole/is voltageoutsideofsymbol=true}
+\pgfcirc@style@to@style{sinusoidal voltage source}{vsourcesin}
+\pgfcirc@style@to@style{sinusoidal voltage source}{sV}
+
+\pgfcirc@activate@bipole@opt{v}{cvsourcesin}{cvsourcesin}{controlled sinusoidal voltage source}{%
+    \circuitikzbasekey/bipole/is voltage=true,
+    \circuitikzbasekey/bipole/is voltageoutsideofsymbol=true}
+\pgfcirc@style@to@style{controlled sinusoidal voltage source}{cvsourcesin}
+\pgfcirc@style@to@style{controlled sinusoidal voltage source}{controlled vsourcesin}
+\pgfcirc@style@to@style{controlled sinusoidal voltage source}{csV}
+
+\pgfcirc@activate@bipole@opt{v}{vsourcesquare}{vsourcesquare}{square voltage source}{%
+    \circuitikzbasekey/bipole/is voltage=true,
+    \circuitikzbasekey/bipole/is voltageoutsideofsymbol=true}
+\pgfcirc@style@to@style{square voltage source}{vsourcesquare}
+\pgfcirc@style@to@style{square voltage source}{sqV}
+
+\pgfcirc@activate@bipole@opt{v}{vsourcetri}{vsourcetri}{triangle voltage source}{%
+    \circuitikzbasekey/bipole/is voltage=true,
+    \circuitikzbasekey/bipole/is voltageoutsideofsymbol=true}
+\pgfcirc@style@to@style{triangle voltage source}{vsourcetri}
+\pgfcirc@style@to@style{triangle voltage source}{tV}
 %% Sources: current
 
 \pgfcirc@activate@bipole@opt{i}{isource}{isource}{european current source}{%
@@ -573,6 +601,39 @@
 \pgfcirc@style@to@style{controlled current source}{cisource}
 \pgfcirc@style@to@style{controlled current source}{controlled isource}
 \pgfcirc@style@to@style{controlled current source}{cI}
+
+\pgfcirc@activate@bipole@opt{i}{isourcesin}{isourcesin}{sinusoidal current source}{%
+    \circuitikzbasekey/bipole/is current=true}
+\pgfcirc@style@to@style{sinusoidal current source}{isourcesin}
+\pgfcirc@style@to@style{sinusoidal current source}{sI}
+
+\pgfcirc@activate@bipole@opt{i}{cisourcesin}{cisourcesin}{controlled sinusoidal current source}{%
+    \circuitikzbasekey/bipole/is current=true}
+\pgfcirc@style@to@style{controlled sinusoidal current source}{cisourcesin}
+\pgfcirc@style@to@style{controlled sinusoidal current source}{controlled isourcesin}
+\pgfcirc@style@to@style{controlled sinusoidal current source}{csI}
+
+% build alias with voltage and current directions (legacy)
+
+\def\pgf@temp#1{
+    \pgfcirc@style@to@style@label{voltage source}{V#1}{v#1}
+    \pgfcirc@style@to@style@label{controlled voltage source}{cV#1}{v#1}
+    \pgfcirc@style@to@style@label{sinusoidal voltage source}{sV#1}{v#1}
+    \pgfcirc@style@to@style@label{controlled sinusoidal voltage source}{csV#1}{v#1}
+}
+\pgf@temp{_>} \pgf@temp{_<} \pgf@temp{^>} \pgf@temp{^<}
+\pgf@temp{>} \pgf@temp{<} \pgf@temp{^} \pgf@temp{_}
+\def\pgf@temp#1{
+    \pgfcirc@style@to@style@label{current source}{I#1}{i#1}
+    \pgfcirc@style@to@style@label{controlled current source}{cI#1}{i#1}
+    \pgfcirc@style@to@style@label{sinusoidal current source}{sI#1}{i#1}
+    \pgfcirc@style@to@style@label{controlled sinusoidal current source}{csI#1}{i#1}
+}
+\pgf@temp{_>} \pgf@temp{_<} \pgf@temp{^>} \pgf@temp{^<}
+\pgf@temp{>_} \pgf@temp{<_} \pgf@temp{>^} \pgf@temp{<^}
+\pgf@temp{>} \pgf@temp{<} \pgf@temp{^} \pgf@temp{_}
+
+
 % Mechanical
 
 \pgfcirc@activate@bipole@simple{l}{spring}
@@ -591,16 +652,11 @@
 \def\pgf@circ@esource@path#1{\pgf@circ@bipole@path{esource}{#1}}
 \def\pgf@circ@pvsource@path#1{\pgf@circ@bipole@path{pvsource}{#1}}
 \def\pgf@circ@dcvsource@path#1{\pgf@circ@bipole@path{dcvsource}{#1}}
-\def\pgf@circ@vsourcesin@path#1{\pgf@circ@bipole@path{vsourcesin}{#1}}
 \def\pgf@circ@oosource@path#1{\pgf@circ@bipole@path{oosource}{#1}}
 \def\pgf@circ@oosourcetrans@path#1{\pgf@circ@bipole@path{oosourcetrans}{#1}}
 \def\pgf@circ@ooosource@path#1{\pgf@circ@bipole@path{ooosource}{#1}}
 \def\pgf@circ@dcisource@path#1{\pgf@circ@bipole@path{dcisource}{#1}}
-\def\pgf@circ@isourcesin@path#1{\pgf@circ@bipole@path{isourcesin}{#1}}
-\def\pgf@circ@vsourcesquare@path#1{\pgf@circ@bipole@path{vsourcesquare}{#1}}
-\def\pgf@circ@vsourcetri@path#1{\pgf@circ@bipole@path{vsourcetri}{#1}}
-\def\pgf@circ@cvsourcesin@path#1{\pgf@circ@bipole@path{cvsourcesin}{#1}}
-\def\pgf@circ@cisourcesin@path#1{\pgf@circ@bipole@path{cisourcesin}{#1}}
+
 \def\pgf@circ@short@path#1{\pgf@circ@bipole@path{short}{#1}}
 \def\pgf@circ@cspst@path#1{\pgf@circ@bipole@path{cspst}{#1}}
 \def\pgf@circ@ospst@path#1{\pgf@circ@bipole@path{ospst}{#1}}
@@ -670,18 +726,6 @@
 \compattikzset{transmission line/.style = {tline = #1}}
 \compattikzset{TL/.style = {tline = #1}}
 \compattikzset{mstline/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@mstline@path, l=#1}}
-
-\compattikzset{sinusoidal voltage source/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@vsourcesin@path, \circuitikzbasekey/bipole/is voltage=true, \circuitikzbasekey/bipole/is voltageoutsideofsymbol=true, v=#1 }}
-\compattikzset{square voltage source/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@vsourcesquare@path, \circuitikzbasekey/bipole/is voltage=true, \circuitikzbasekey/bipole/is voltageoutsideofsymbol=true, v=#1 }}
-\compattikzset{triangle voltage source/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@vsourcetri@path, \circuitikzbasekey/bipole/is voltage=true, \circuitikzbasekey/bipole/is voltageoutsideofsymbol=true, v=#1 }}
-\compattikzset{sinusoidal current source/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@isourcesin@path, \circuitikzbasekey/bipole/is current=true, i=#1}}
-\compattikzset{controlled sinusoidal voltage source/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@cvsourcesin@path, \circuitikzbasekey/bipole/is voltage=true, \circuitikzbasekey/bipole/is voltageoutsideofsymbol=true, v=#1}}
-\compattikzset{controlled sinusoidal current source/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@cisourcesin@path, \circuitikzbasekey/bipole/is current=true, i=#1}}
-
-% \compattikzset{voltage source/.style = {\comnpatname \ifpgf@circuit@europeanvoltage european \else american \fi voltage source, \circuitikzbasekey/bipole/is voltage=true, v=#1}}
-% \compattikzset{current source/.style = {\comnpatname \ifpgf@circuit@europeancurrent european \else american \fi current source = #1, \circuitikzbasekey/bipole/is current=true}}
-% \compattikzset{controlled voltage source/.style = {\comnpatname \ifpgf@circuit@europeanvoltage european \else american \fi controlled voltage source, \circuitikzbasekey/bipole/is voltage=true, v=#1}}
-\compattikzset{controlled current source/.style = {\comnpatname \ifpgf@circuit@europeancurrent european \else american \fi controlled current source = #1, \circuitikzbasekey/bipole/is current=true}}
 
 
 \compattikzset{short/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@short@path}}
@@ -784,42 +828,6 @@
 \compattikzset{oosourcetrans/.style = {\circuitikzbasekey, \circuitikzbasekey/bipole/is voltage=true,\circuitikzbasekey/bipole/is voltageoutsideofsymbol=true, /tikz/to path=\pgf@circ@oosourcetrans@path, v=#1}}
 \compattikzset{ooosource/.style = {\circuitikzbasekey, \circuitikzbasekey/bipole/is voltage=true,\circuitikzbasekey/bipole/is voltageoutsideofsymbol=true, /tikz/to path=\pgf@circ@ooosource@path, v=#1}}
 
-\compattikzset{vsourcesin/.style = {\comnpatname sinusoidal voltage source = #1}}
-\compattikzset{vsourcesquare/.style = {\comnpatname square voltage source = #1}}
-\compattikzset{vsourcetri/.style = {triangle voltage source = #1}}
-\compattikzset{isourcesin/.style = {\comnpatname sinusoidal current source = #1}}
-\compattikzset{cisourcesin/.style = {\comnpatname controlled sinusoidal current source = #1}}
-\compattikzset{cvsourcesin/.style = {\comnpatname controlled sinusoidal  voltage source = #1}}
-
-\compattikzset{controlled vsourcesin/.style = {\comnpatname controlled sinusoidal  voltage source = #1}}
-\compattikzset{controlled isourcesin/.style = {\comnpatname controlled sinusoidal current source = #1}}
-
-\compattikzset{sV/.style = {\comnpatname sinusoidal voltage source = #1}}
-\compattikzset{sqV/.style = {\comnpatname square voltage source = #1}}
-\compattikzset{tV/.style = {\comnpatname triangle voltage source = #1}}
-\compattikzset{csV/.style = {\comnpatname controlled sinusoidal voltage source = #1}}
-\def\pgf@temp#1{
-    \compattikzset{V#1/.style = {\comnpatname voltage source, v#1=##1} }
-    \compattikzset{cV#1/.style = {\comnpatname controlled  voltage source, v#1=##1} }
-    \compattikzset{sV#1/.style = {\comnpatname sinusoidal  voltage source, v#1=##1} }
-    \compattikzset{csV#1/.style = {\comnpatname controlled sinusoidal voltage source, v#1=##1} }
-}
-\pgf@temp{_>} \pgf@temp{_<} \pgf@temp{^>} \pgf@temp{^<}
-\pgf@temp{>} \pgf@temp{<} \pgf@temp{^} \pgf@temp{_}
-
-%current sources
-
-\compattikzset{sI/.style = {\comnpatname sinusoidal current source = #1}}
-\compattikzset{csI/.style = {\comnpatname controlled sinusoidal current source = #1}}
-\def\pgf@temp#1{
-    \compattikzset{I#1/.style = {\comnpatname current source, i#1=##1} }
-    \compattikzset{cI#1/.style = {\comnpatname controlled current source, i#1=##1} }
-    \compattikzset{sI#1/.style = {\comnpatname sinusoidal current source, i#1=##1} }
-    \compattikzset{csI#1/.style = {\comnpatname controlled sinusoidal current source, i#1=##1} }
-}
-\pgf@temp{_>} \pgf@temp{_<} \pgf@temp{^>} \pgf@temp{^<}
-\pgf@temp{>_} \pgf@temp{<_} \pgf@temp{>^} \pgf@temp{<^}
-\pgf@temp{>} \pgf@temp{<} \pgf@temp{^} \pgf@temp{_}
 
 % cute sources
 \def\pgf@circ@vsourceC@path#1{\pgf@circ@bipole@path{vsourceC}{#1}}
