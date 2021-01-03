@@ -281,6 +281,13 @@
     \pgfcirc@path@to@style{#1}{#2}{#4}{}% no options here, let's see
 }
 \def\pgfcirc@activate@bipole@simple#1#2{\pgfcirc@activate@bipole{#1}{#2}{#2}{#2}}
+% create a bipole with options
+\def\pgfcirc@activate@bipole@opt#1#2#3#4#5{% path name, base node name, style name
+    \expandafter\def\csname pgf@circ@#2@path\endcsname##1{\pgf@circ@bipole@path{#3}{##1}}%
+    \pgfcirc@path@to@style{#1}{#2}{#4}{#5}% no options here, let's see
+}
+\def\pgfcirc@activate@bipole@simple@opt#1#2#3{\pgfcirc@activate@bipole@opt{#1}{#2}{#2}{#2}{#3}}
+
 
 %% New system, for simple object
 %% \pgfcirc@activate@bipole@simple{l}{mass}
@@ -432,6 +439,14 @@
 
 \pgfcirc@activate@bipole{l}{cutechoke}{cutechoke}{cute choke}
 
+%% Batteries
+\pgfcirc@activate@bipole@simple@opt{v}{battery}{\circuitikzbasekey/bipole/is voltage=true,
+    \circuitikzbasekey/bipole/is voltageoutsideofsymbol=true}
+\pgfcirc@activate@bipole@opt{v}{batteryone}{battery1}{battery1}{\circuitikzbasekey/bipole/is voltage=true,
+    \circuitikzbasekey/bipole/is voltageoutsideofsymbol=true}
+\pgfcirc@activate@bipole@opt{v}{batterytwo}{battery2}{battery2}{\circuitikzbasekey/bipole/is voltage=true,
+    \circuitikzbasekey/bipole/is voltageoutsideofsymbol=true}
+
 %% Mechanical
 
 \pgfcirc@activate@bipole@simple{l}{spring}
@@ -443,9 +458,6 @@
 
 %% Path definitions
 
-\def\pgf@circ@battery@path#1{\pgf@circ@bipole@path{battery}{#1}}
-\def\pgf@circ@batteryone@path#1{\pgf@circ@bipole@path{battery1}{#1}}
-\def\pgf@circ@batterytwo@path#1{\pgf@circ@bipole@path{battery2}{#1}}
 
 \def\pgf@circ@lamp@path#1{\pgf@circ@bipole@path{lamp}{#1}}
 \def\pgf@circ@bulb@path#1{\pgf@circ@bipole@path{bulb}{#1}}
@@ -531,9 +543,6 @@
 \def\pgf@circ@tacdc@path#1{\pgf@circ@bipole@path{tacdc}{#1}}
 \def\pgf@circ@tdcac@path#1{\pgf@circ@bipole@path{tdcac}{#1}}
 
-\compattikzset{battery/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@battery@path, \circuitikzbasekey/bipole/is voltage=true,  \circuitikzbasekey/bipole/is voltageoutsideofsymbol=true, v=#1}}
-\compattikzset{battery1/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@batteryone@path, \circuitikzbasekey/bipole/is voltage=true,  \circuitikzbasekey/bipole/is voltageoutsideofsymbol=true, v=#1}}
-\compattikzset{battery2/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@batterytwo@path, \circuitikzbasekey/bipole/is voltage=true,  \circuitikzbasekey/bipole/is voltageoutsideofsymbol=true, v=#1}}
 
 \compattikzset{gf surge arrester/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@gfsurgearrester@path, l=#1}}
 \compattikzset{american gas filled surge arrester/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@americangfsurgearrester@path, l=#1}}
