@@ -88,7 +88,7 @@
 \ctikzset{resistor/american/.code = \pgf@circuit@europeanresistorfalse }
 \ctikzset{resistor/european/.code = \pgf@circuit@europeanresistortrue }
 \tikzset{american resistors/.style = {\circuitikzbasekey/resistor = american}}
-\tikzset{european resistors/.style = {\circuitikzbasekey/resistor = european}}% 
+\tikzset{european resistors/.style = {\circuitikzbasekey/resistor = european}}%
 
 % wires (open, shorts, ...)
 
@@ -201,6 +201,26 @@
     \pgfusepath{draw}
 }
 
+%%%%%%%%%%%%%%%%
+%% Crossing
+%%%%%%%%%%%%%%%%
+
+%% crossing bipole (but see also nodes)
+\pgfcircdeclarebipole
+{}
+{\ctikzvalof{bipoles/crossing/size}}
+{crossing}
+{\ctikzvalof{bipoles/crossing/size}}
+{\ctikzvalof{bipoles/crossing/size}}{
+    \pgfscope
+        \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@zero}}
+        \pgfpathlineto{\pgfpoint{0.4\pgf@circ@res@left}{\pgf@circ@res@zero}}
+        \pgfpatharc{0}{-180}{0.4*\pgf@circ@res@left}
+        \pgfsetbeveljoin
+        \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@zero}}
+        \pgfusepath{draw}
+    \endpgfscope
+}
 %
 %
 %% Generic bipole - used as resistor by some
@@ -6406,6 +6426,23 @@
 %% MECHANICAL SYMBOLS
 %%%%%%%%%%%%%%%%%%%%%%%
 
+%% Settings for Mechanical section%<<<1
+\ctikzset{/tikz/circuitikz/tripoles/elmech/height/.initial=.8}
+\ctikzset{/tikz/circuitikz/tripoles/elmech/width/.initial=.6}
+\ctikzset{bipoles/spring/height/.initial=.5}
+\ctikzset{bipoles/spring/width/.initial=.5}
+\ctikzset{bipoles/inerter/height/.initial=.7}
+\ctikzset{bipoles/inerter/width/.initial=.175}
+\ctikzset{bipoles/mass/height/.initial=.55}
+\ctikzset{bipoles/mass/box height/.initial=.4}
+\ctikzset{bipoles/mass/width/.initial=.5}
+
+\ctikzset{bipoles/damper/height/.initial=.35}
+\ctikzset{bipoles/damper/length/.initial=.3}
+\ctikzset{bipoles/damper/width/.initial=.4}
+%%>>>
+
+%% Node shapes Mechanical analog system%<<<
 %% mechanical capacitance - stiffness/spring
 
 \pgfcircdeclarebipolescaled{mechanicals}
@@ -6563,32 +6600,69 @@
     \pgfusepath{stroke}
 
 }
+% %>>>
 
-%%%%%%%%%%%%%%%%
-%% Crossing
-%%%%%%%%%%%%%%%%
+%% Path definitions for Mechanical%<<<
 
-%% crossing bipole (but see also nodes)
-\pgfcircdeclarebipole
-{}
-{\ctikzvalof{bipoles/crossing/size}}
-{crossing}
-{\ctikzvalof{bipoles/crossing/size}}
-{\ctikzvalof{bipoles/crossing/size}}{
-    \pgfscope
-        \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@zero}}
-        \pgfpathlineto{\pgfpoint{0.4\pgf@circ@res@left}{\pgf@circ@res@zero}}
-        \pgfpatharc{0}{-180}{0.4*\pgf@circ@res@left}
-        \pgfsetbeveljoin
-        \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@zero}}
-        \pgfusepath{draw}
-    \endpgfscope
-}
+\pgfcirc@activate@bipole@simple{l}{spring}
+\pgfcirc@activate@bipole@simple{l}{inerter}
+\pgfcirc@activate@bipole@simple{l}{mass}
+\pgfcirc@activate@bipole@simple{l}{damper}
+\pgfcirc@activate@bipole@simple{l}{viscoe}
+% %>>>
 
 %%%%%%%%%%%%%%%%%%%%%%%%%
 %% Miscellaneous bipoles
 %%%%%%%%%%%%%%%%%%%%%%%%%
 
+% settings for microphone, loudspeaker, fuses and misc%<<<1
+
+\ctikzset{bipoles/loudspeaker/height/.initial=.8}
+\ctikzset{bipoles/loudspeaker/depth/.initial=.3}
+\ctikzset{bipoles/loudspeaker/width/.initial=.8}
+\ctikzset{bipoles/mic/height/.initial=1.2}
+\ctikzset{bipoles/mic/depth/.initial=.1}
+\ctikzset{bipoles/mic/width/.initial=.8}%
+
+% arresters, fuses, lamps, etc
+
+\ctikzset{bipoles/european gas filled surge arrester/height/.initial=.30}
+\ctikzset{bipoles/european gas filled surge arrester/width/.initial=.80}
+\ctikzset{bipoles/european gas filled surge arrester/inside/.initial=.30}
+\ctikzset{bipoles/american gas filled surge arrester/height/.initial=.60}
+\ctikzset{bipoles/american gas filled surge arrester/width/.initial=.60}
+\ctikzset{bipoles/american gas filled surge arrester/inside/.initial=.15}
+\ctikzset{bipoles/american gas filled surge arrester/dot x/.initial=.25}
+\ctikzset{bipoles/american gas filled surge arrester/dot y/.initial=.45}
+\ctikzset{bipoles/american gas filled surge arrester/size/.initial=.1}
+\ctikzset{bipoles/fuse/height/.initial=.20}
+\ctikzset{bipoles/fuse/width/.initial=.50}
+\ctikzset{bipoles/afuse/height/.initial=.20}
+\ctikzset{bipoles/afuse/width/.initial=.50}
+\ctikzset{bipoles/lamp/height/.initial=.60}
+\ctikzset{bipoles/lamp/width/.initial=.60}
+\ctikzset{bipoles/bulb/height/.initial=.8}
+\ctikzset{bipoles/bulb/width/.initial=.8}
+\ctikzset{bipoles/tline/height/.initial=.3}
+\ctikzset{bipoles/tline/width/.initial=.6}
+\ctikzset{bipoles/squid/height/.initial=.60}
+\ctikzset{bipoles/squid/width/.initial=.60}
+\ctikzset{bipoles/barrier/height/.initial=.60}
+\ctikzset{bipoles/barrier/width/.initial=.60}
+\ctikzset{bipoles/openbarrier/gap/.initial=0.5}
+\ctikzset{bipoles/thermocouple/height/.initial=.250}
+\ctikzset{bipoles/thermocouple/height 2/.initial=.60}
+\ctikzset{bipoles/thermocouple/width/.initial=.140}
+\newif\ifpgf@circuit@europeangfsurgearrester
+\ctikzset{gas filled surge arrester choice/.is choice}
+\ctikzset{gas filled surge arrester choice/european/.code= {\pgf@circuit@europeangfsurgearrestertrue}}
+\ctikzset{gas filled surge arrester choice/american/.code= {\pgf@circuit@europeangfsurgearresterfalse}}
+
+\tikzset{american gas filled surge arrester set/.style = {\circuitikzbasekey/gas filled surge arrester choice=american}}
+\tikzset{european gas filled surge arrester set/.style = {\circuitikzbasekey/gas filled surge arrester choice=european}}
+%%>>>
+
+%% Node shapes for miscellaneous symbols %<<<
 %% loudspeaker and microphone
 
 \pgfcircdeclarebipolescaled{misc}
@@ -6870,8 +6944,27 @@
     \pgfsetbeveljoin
     \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@zero}}
     \pgfusepath{draw}
-}
+}% %>>>
 
+%% Path definitions for Miscellaneous%<<<
+
+\pgfcirc@activate@bipole@simple{l}{lamp}
+\pgfcirc@activate@bipole@simple{l}{bulb}
+\pgfcirc@activate@bipole@simple{l}{squid}
+\pgfcirc@activate@bipole@simple{l}{barrier}
+\pgfcirc@activate@bipole@simple{l}{openbarrier}
+\pgfcirc@activate@bipole@simple{l}{thermocouple}
+\pgfcirc@activate@bipole@simple{l}{fuse}
+\pgfcirc@activate@bipole{l}{afuse}{afuse}{asymmetric fuse}
+\pgfcirc@style@to@style{asymmetric fuse}{afuse}
+\def\pgf@circ@gfsurgearrester@path#1{\ifpgf@circuit@europeangfsurgearrester\pgf@circ@europeangfsurgearrester@path{#1}\else\pgf@circ@americangfsurgearrester@path{#1}\fi}
+\pgfcirc@activate@bipole{l}{europeangfsurgearrester}{european gas filled surge arrester}{european gas filled surge arrester}
+\pgfcirc@activate@bipole{l}{americangfsurgearrester}{american gas filled surge arrester}{american gas filled surge arrester}
+\pgfcirc@path@to@style{l}{gfsurgearrester}{gas filled surge arrester}{}
+\pgfcirc@path@to@style{l}{gfsurgearrester}{gf surge arrester}{}
+\pgfcirc@activate@bipole@simple{l}{mic}
+\pgfcirc@activate@bipole@simple{l}{loudspeaker}
+% %>>>
 
 % end of pgfcircbipoles.tex
 % vim: set fdm=marker fmr=%<<<,%>>>:
