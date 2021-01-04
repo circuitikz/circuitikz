@@ -9,231 +9,6 @@
 % 2. under the GNU Public License.
 %
 % See the files gpl-3.0_license.txt and lppl-1-3c_license.txt for more details.
-
-%% Generic macro for defining a bipole shape%<<<
-% #1 - additional anchors
-% #2 - lower y-size of the bipole (from the center).
-% #3 - #shape is the name of the shape
-% #4 - upper y-size of the bipole (from the center)
-% #5 - width of the bipole
-% #6 - macros drawing the bipole
-%
-\long\def\pgfcircdeclarebipole{%
-    \pgfcircdeclarebipolescaled{default}}
-
-%% Generic macro for defining a bipole shape
-% #1 - scale factor
-% #2 - additional anchors
-% #3 - lower y-size of the bipole (from the center).
-% #4 - #shape is the name of the shape
-% #5 - upper y-size of the bipole (from the center)
-% #6 - width of the bipole
-% #7 - macros drawing the bipole
-%
-\long\def\pgfcircdeclarebipolescaled#1#2#3#4#5#6#7{
-    \pgfdeclareshape{#4shape}{
-        \savedmacro{\ctikzclass}{\edef\ctikzclass{#1}}
-        \saveddimen{\scaledRlen}{\pgfmathsetlength{\pgf@x}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}}
-        \savedanchor{\northeast}{
-            \pgf@circ@scaled@Rlen=\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen
-            \pgf@y=#5\pgf@circ@scaled@Rlen
-            \pgf@y=.5\pgf@y
-            \pgf@x=#6\pgf@circ@scaled@Rlen
-            \pgf@x=.5\pgf@x
-        }
-        \savedanchor{\northeastborder}{
-            \pgf@circ@scaled@Rlen=\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen
-            \pgf@y=#5\pgf@circ@scaled@Rlen
-            \pgf@y=.5\pgf@y
-            \pgf@y=\ctikzvalof{bipoles/border margin}\pgf@y
-            \pgf@x=#6\pgf@circ@scaled@Rlen
-            \pgf@x=.5\pgf@x
-            \pgf@x=\ctikzvalof{bipoles/border margin}\pgf@x
-        }
-        \savedanchor{\southwestborder}{
-            \pgf@circ@scaled@Rlen=\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen
-            \pgf@y=-#3\pgf@circ@scaled@Rlen
-            \pgf@y=.5\pgf@y
-            \pgf@y=\ctikzvalof{bipoles/border margin}\pgf@y
-            \pgf@x=-#6\pgf@circ@scaled@Rlen
-            \pgf@x=.5\pgf@x
-            \pgf@x=\ctikzvalof{bipoles/border margin}\pgf@x
-        }
-        \savedanchor{\southwest}{
-            \pgf@circ@scaled@Rlen=\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen
-            \pgf@y=-#3\pgf@circ@scaled@Rlen
-            \pgf@y=.5\pgf@y
-            \pgf@x=-#6\pgf@circ@scaled@Rlen
-            \pgf@x=.5\pgf@x
-        }
-        \savedanchor{\centerpoint}{
-            \pgf@circ@scaled@Rlen=\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen
-            \pgf@circ@res@down=-#3\pgf@circ@scaled@Rlen
-            \pgf@circ@res@up=#5\pgf@circ@scaled@Rlen
-            \pgfpointorigin
-            \pgf@y=\pgf@circ@res@up
-            \advance\pgf@y by\pgf@circ@res@down
-            \pgf@y=.5\pgf@y
-        }
-        \anchor{center}{\pgfpointorigin}
-        \anchor{n}{
-            \northeast
-            \pgf@x=0cm
-        }
-        \anchor{north east}{
-            \northeast
-        }
-        \anchor{north west}{
-            \northeast
-            \pgf@x=-\pgf@x
-        }
-        \anchor{ne}{
-            \northeast
-        }
-        \anchor{nw}{
-            \northeast
-            \pgf@x=-\pgf@x
-        }
-        \anchor{e}{
-            \northeast
-            \pgf@y=0cm
-        }
-        \anchor{s}{
-            \southwest
-            \pgf@x=0cm
-        }
-        \anchor{south east}{
-            \southwest
-            \pgf@x=-\pgf@x
-        }
-        \anchor{south west}{
-            \southwest
-        }
-        \anchor{se}{
-            \southwest
-            \pgf@x=-\pgf@x
-        }
-        \anchor{sw}{
-            \southwest
-        }
-        \anchor{w}{
-            \southwest
-            \pgf@y=0cm
-        }
-        \anchor{north}{
-            \northeast
-            \pgf@x=0cm
-        }
-        \anchor{east}{
-            \northeast
-            \pgf@y=0cm
-        }
-        \anchor{south}{
-            \southwest
-            \pgf@x=0cm
-        }
-        \anchor{west}{
-            \southwest
-            \pgf@y=0cm
-        }
-        \anchor{right}{
-            \northeast
-            \pgf@y=0cm
-        }
-        \anchor{above}{
-            \northeast
-            \pgf@x=0cm
-        }
-        \anchor{left}{
-            \southwest
-            \pgf@y=0cm
-        }
-        \anchor{below}{
-            \southwest
-            \pgf@x=0cm
-        }
-        \anchor{a}{
-            \northeast
-            \pgf@y=0cm
-        }
-        \anchor{b}{
-            \southwest
-            \pgf@y=0cm
-        }
-        \savedanchor{\textanchor}{%
-            \pgf@y=\ht\pgfnodeparttextbox
-            \pgf@x=-.5\wd\pgfnodeparttextbox
-        }
-        \anchor{text}{
-            \textanchor
-        }
-        \anchorborder{%
-            \ifpgf@circuit@bipole@inverted
-                \pgf@circ@res@left=-\pgf@x
-                \pgf@circ@res@up=-\pgf@y
-            \else
-                \pgf@circ@res@left=\pgf@x
-                \pgf@circ@res@up=\pgf@y
-            \fi
-            \ifdim\pgf@circ@res@up>0cm
-                \pgfpointborderrectangle{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@up}}{\northeastborder}
-            \else
-                \southwestborder
-                \pgfpointborderrectangle{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@up}}{\pgfpoint{-\pgf@x}{-\pgf@y}}
-            \fi
-        }
-
-        #2
-
-        \backgroundpath{
-            \pgfsetcolor{\ctikzvalof{color}}
-
-            \northeast
-            \pgf@circ@res@up = \pgf@y
-            \pgf@circ@res@zero = 0cm
-            \pgf@circ@res@left = -\pgf@x
-            \pgf@circ@res@right = \pgf@x
-            \southwest
-            \pgf@circ@res@down = \pgf@y
-            \pgf@circ@scaled@Rlen=\scaledRlen
-            \pgfstartlinewidth=\pgflinewidth
-            \pgfsetcornersarced{\pgfpointorigin}% do not use rounded corners!
-            #7
-
-            \pgfsetlinewidth{\pgfstartlinewidth}
-        }
-    }
-}% %>>>
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%% anchor adjustment macros%<<<
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-% Extend the border anchor position by the specified factors on the right-top (north east corner)
-% and the left-down (southwest border). Argument must be number (possibly decimal) without sign
-
-\def\pgfcirc@border@extend@full#1#2#3#4{% right, top, left, down
-    \anchorborder{%
-        \ifpgf@circuit@bipole@inverted
-            \pgf@circ@res@left=-\pgf@x
-            \pgf@circ@res@up=-\pgf@y
-        \else
-            \pgf@circ@res@left=\pgf@x
-            \pgf@circ@res@up=\pgf@y
-        \fi
-        \ifdim\pgf@circ@res@up>0cm
-            \northeastborder
-            \pgfpointborderrectangle{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@up}}{\pgfpoint{#1\pgf@x}{#2\pgf@y}}
-        \else
-            \southwestborder
-            \pgfpointborderrectangle{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@up}}{\pgfpoint{-#3\pgf@x}{-#4\pgf@y}}
-        \fi
-    }
-}
-
-% Just up and down (very common)
-\def\pgfcirc@border@extend@updown#1#2{\pgfcirc@border@extend@full{1}{#1}{1}{#2}}% %>>>
-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Standard bipole shapes declarations
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -313,7 +88,23 @@
 \ctikzset{resistor/american/.code = \pgf@circuit@europeanresistorfalse }
 \ctikzset{resistor/european/.code = \pgf@circuit@europeanresistortrue }
 \tikzset{american resistors/.style = {\circuitikzbasekey/resistor = american}}
-\tikzset{european resistors/.style = {\circuitikzbasekey/resistor = european}}% %>>>
+\tikzset{european resistors/.style = {\circuitikzbasekey/resistor = european}}% 
+
+% wires (open, shorts, ...)
+
+\ctikzset{bipoles/open/height/.initial=.3} %necessary for curly voltages
+\ctikzset{bipoles/open/width/.initial=.3} %necessary for curly voltages
+\ctikzset{bipoles/open/voltage/straight label distance/.initial=0}
+\ctikzset{bipoles/open/voltage/distance from node/.initial=.2}
+\ctikzset{bipoles/short/height/.initial=.1} %dummy height for voltage positioning
+\ctikzset{bipoles/short/width/.initial=.1} %dummy width for voltage positioning
+% multiwire
+\ctikzset{bipoles/multiwire/height/.initial=0.4}
+\ctikzset{bipoles/multiwire/width/.initial=0.2}
+\ctikzset{bipoles/multiwire/spacing/.initial=0.05}
+% crossing wires
+\ctikzset{bipoles/crossing/size/.initial=.2}
+%%>>>
 
 %% Shapes for generic, resistives and wires components %<<<
 %% Short circuit
@@ -627,6 +418,30 @@
     \pgfpathmoveto{\pgfpoint{.45\pgf@circ@res@left}{.7\pgf@circ@res@down}}
     \pgfpathlineto{\pgfpoint{.45\pgf@circ@res@left}{\pgf@circ@res@down}}
     \pgfusepath{draw}
+}
+
+%% Varistor
+\pgfcircdeclarebipolescaled{resistors}
+{
+    \pgfcirc@border@extend@updown{1}{1.4}
+}
+{\ctikzvalof{bipoles/varistor/height}}
+{varistor}
+{\ctikzvalof{bipoles/varistor/height}}
+{\ctikzvalof{bipoles/varistor/width}}
+{
+    \pgfscope
+        \pgfpathrectanglecorners{\pgfpoint{\pgf@circ@res@left}{\ctikzvalof{bipoles/varistor/main}\pgf@circ@res@up}}{\pgfpoint{\pgf@circ@res@right}{-\ctikzvalof{bipoles/varistor/main}\pgf@circ@res@up}}
+        \pgf@circ@setlinewidth{bipoles}{\pgfstartlinewidth}
+        \pgf@circ@draworfill
+    \endpgfscope
+
+    \pgfpathmoveto{\pgfpoint{-\pgf@circ@res@left}{-\pgf@circ@res@down}}
+    \pgfpathlineto{\pgfpoint{.4\pgf@circ@res@left}{\pgf@circ@res@down}}
+    \pgfpathlineto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@down}}
+    \pgfusepath{draw}
+
+    \pgftext[top,x=.65\pgf@circ@res@left,y=1.2\pgf@circ@res@down]{{\pgf@circ@font@tiny\textsf{U}}}
 }
 
 %% Generic tunable
@@ -3887,9 +3702,44 @@
 % %>>>
 
 %%%%%%%%%%%%%
-%% switches
+%% switches and buttons
 %%%%%%%%%%%%%
 
+%% Definitions for switches%<<<1
+
+\ctikzset{bipoles/spst/height/.initial=.35}
+\ctikzset{bipoles/spst/width/.initial=.35}
+\ctikzset{bipoles/spst/depth/.initial=.2}
+\ctikzset{bipoles/nos/height/.initial=.3}
+\ctikzset{bipoles/nos/width/.initial=.35}
+\ctikzset{bipoles/nos/depth/.initial=.2}
+\ctikzset{bipoles/ncs/height/.initial=.35}
+\ctikzset{bipoles/ncs/width/.initial=.35}
+\ctikzset{bipoles/ncs/depth/.initial=.2}
+\ctikzset{bipoles/pushbutton/height/.initial=.5}
+\ctikzset{bipoles/pushbutton/height 2/.initial=.2}
+\ctikzset{bipoles/pushbutton/width/.initial=.50}
+%%% reed switch
+\ctikzset{bipoles/reed/height/.initial=.4}
+\ctikzset{bipoles/reed/width/.initial=.8}% 0.35 in nos
+\ctikzset{bipoles/reed/depth/.initial=.4}
+%% Cute switches
+\ctikzset{bipoles/cuteswitch/shape/.initial={ocirc}}
+\ctikzset{bipoles/cuteswitch/height/.initial=.6}
+\ctikzset{bipoles/cuteswitch/height 2/.initial=.2}
+\ctikzset{bipoles/cuteswitch/width/.initial=.50}
+\ctikzset{bipoles/cuteswitch/thickness/.initial=1}
+
+\ctikzset{tripoles/spdt/width/.initial=.85}
+\ctikzset{tripoles/spdt/height/.initial=.45}
+\ctikzset{tripoles/spdt/margin/.initial=.45}
+
+\ctikzset{tripoles/toggleswitch/height/.initial=.8}
+\ctikzset{tripoles/toggleswitch/height 2/.initial=.0}
+\ctikzset{tripoles/toggleswitch/width/.initial=.80}
+%%>>>
+
+%% Node for switches and similar things%<<<
 %% (Closing) SPST
 \pgfcircdeclarebipolescaled{switches}
 {}
@@ -4204,10 +4054,82 @@
     \pgfsetarrowsend{latexslim}
     \pgfusepath{draw}
     }
+% %>>>
+
+%% Paths Switches and buttons%<<<
+
+\pgfcirc@activate@bipole{l}{cspst}{cspst}{closing switch}
+\pgfcirc@style@to@style{closing switch}{switch}
+\pgfcirc@style@to@style{closing switch}{cspst}
+\pgfcirc@style@to@style{switch}{spst}
+\pgfcirc@activate@bipole{l}{ospst}{ospst}{opening switch}
+\pgfcirc@style@to@style{opening switch}{ospst}
+
+\pgfcirc@activate@bipole@simple{l}{nos}
+\pgfcirc@style@to@style{nos}{normal open switch}
+\pgfcirc@activate@bipole@simple{l}{ncs}
+\pgfcirc@style@to@style{ncs}{normal closed switch}
+
+\pgfcirc@activate@bipole{l}{pushbutton}{pushbutton}{push button}
+\pgfcirc@style@to@style{push button}{nopb}
+\pgfcirc@style@to@style{push button}{normally open push button}
+\pgfcirc@activate@bipole{l}{ncpushbutton}{ncpushbutton}{ncpb}
+\pgfcirc@style@to@style{ncpb}{normally closed push button}
+\pgfcirc@activate@bipole{l}{pushbuttonc}{pushbuttonc}{nopbc}
+\pgfcirc@style@to@style{nopbc}{normally open push button closed}
+\pgfcirc@activate@bipole{l}{ncpushbuttono}{ncpushbuttono}{ncpbo}
+\pgfcirc@style@to@style{ncpbo}{normally closed push button open}
+
+\pgfcirc@activate@bipole{l}{toggleswitch}{toggleswitch}{toggle switch}
+\pgfcirc@activate@bipole@simple{l}{reed}
+
+\pgfcirc@activate@bipole{l}{cuteclosedswitch}{cuteclosedswitch}{cute closed switch}
+\pgfcirc@style@to@style{cute closed switch}{ccsw}
+\pgfcirc@activate@bipole{l}{cuteopenswitch}{cuteopenswitch}{cute open switch}
+\pgfcirc@style@to@style{cute open switch}{cosw}
+\pgfcirc@activate@bipole{l}{cuteclosingswitch}{cuteclosingswitch}{cute closing switch}
+\pgfcirc@style@to@style{cute closing switch}{ccgsw}
+\pgfcirc@activate@bipole{l}{cuteopeningswitch}{cuteopeningswitch}{cute opening switch}
+\pgfcirc@style@to@style{cute opening switch}{cogsw}% %>>>
 
 %%%%%%%%%%%%%%%%%
 %% Instruments
 %%%%%%%%%%%%%%%%%
+
+%% Definitions for Instruments %<<<1
+\ctikzset{bipoles/ammeter/height/.initial=.60}
+\ctikzset{bipoles/ammeter/width/.initial=.60}
+\ctikzset{bipoles/ohmmeter/height/.initial=.60}
+\ctikzset{bipoles/ohmmeter/width/.initial=.60}
+\ctikzset{bipoles/voltmeter/height/.initial=.60}
+\ctikzset{bipoles/voltmeter/width/.initial=.60}
+\ctikzset{bipoles/smeter/height/.initial=.60}
+\ctikzset{bipoles/smeter/width/.initial=.60}
+\ctikzset{bipoles/smeter/voltage/additional shift/.initial=1}
+\ctikzset{bipoles/qmeter/depth/.initial=.40}
+\ctikzset{bipoles/qmeter/height/.initial=.80}
+\ctikzset{bipoles/qmeter/width/.initial=.60}
+% this must be specified for each one
+\ctikzset{bipoles/qvprobe/voltage/additional shift/.initial=.5}
+\ctikzset{bipoles/qiprobe/voltage/additional shift/.initial=.5}
+\ctikzset{bipoles/qpprobe/voltage/additional shift/.initial=.5}
+\ctikzset{bipoles/iloop/width/.initial=.40}
+\ctikzset{bipoles/iloop/height/.initial=.60}
+
+\ctikzset{bipoles/oscope/height/.initial=.60}
+\ctikzset{bipoles/oscope/width/.initial=.60}
+\ctikzset{bipoles/oscope/voltage/additional shift/.initial=1}
+
+
+% option to not rotate the new (Romano's) instruments
+\newif\ifpgf@circuit@straightinstruments\pgf@circuit@straightinstrumentstrue
+\pgfkeys{/tikz/straight instruments/.add code={}{\pgf@circuit@straightinstrumentstrue}}
+\ctikzset{straight instruments/.add code={}{\pgf@circuit@straightinstrumentstrue}}
+\pgfkeys{/tikz/rotated instruments/.add code={}{\pgf@circuit@straightinstrumentsfalse}}
+\ctikzset{rotated instruments/.add code={}{\pgf@circuit@straightinstrumentsfalse}}
+%%>>>
+
+%% Node shapes for instruments%<<<
 
 % % METERINGSHAPE
 \long\def\drawmeteringcircle{
@@ -4708,74 +4630,24 @@
         \pgfusepath{draw}
     \endpgfscope
 }
+% %>>>
 
+% Path definitions for Instruments%<<<
 
-%% Varistor
-\pgfcircdeclarebipolescaled{resistors}
-{
-    \pgfcirc@border@extend@updown{1}{1.4}
-}
-{\ctikzvalof{bipoles/varistor/height}}
-{varistor}
-{\ctikzvalof{bipoles/varistor/height}}
-{\ctikzvalof{bipoles/varistor/width}}
-{
-    \pgfscope
-        \pgfpathrectanglecorners{\pgfpoint{\pgf@circ@res@left}{\ctikzvalof{bipoles/varistor/main}\pgf@circ@res@up}}{\pgfpoint{\pgf@circ@res@right}{-\ctikzvalof{bipoles/varistor/main}\pgf@circ@res@up}}
-        \pgf@circ@setlinewidth{bipoles}{\pgfstartlinewidth}
-        \pgf@circ@draworfill
-    \endpgfscope
-
-    \pgfpathmoveto{\pgfpoint{-\pgf@circ@res@left}{-\pgf@circ@res@down}}
-    \pgfpathlineto{\pgfpoint{.4\pgf@circ@res@left}{\pgf@circ@res@down}}
-    \pgfpathlineto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@down}}
-    \pgfusepath{draw}
-
-    \pgftext[top,x=.65\pgf@circ@res@left,y=1.2\pgf@circ@res@down]{{\pgf@circ@font@tiny\textsf{U}}}
-}
-
-%%%%%%%%%%%%%%
-%% RF bipoles
-%%%%%%%%%%%%%%
-
-% transmission line
-\pgfcircdeclarebipolescaled{RF}
-{}
-{\ctikzvalof{bipoles/tline/height}}
-{tline}
-{\ctikzvalof{bipoles/tline/height}}
-{\ctikzvalof{bipoles/tline/width}}
-{
-    \pgf@circ@res@step=.2\pgf@circ@res@right % half x axis
-    \begin{pgftransparencygroup}
-        \pgf@circ@setlinewidth{bipoles}{\pgfstartlinewidth}
-        \pgfpathmoveto{\pgfpoint{\pgf@circ@res@right-\pgf@circ@res@step}{\pgf@circ@res@up}}
-        \pgfpathlineto{\pgfpoint{\pgf@circ@res@left+\pgf@circ@res@step}{\pgf@circ@res@up}}
-        \pgfpatharc{-90}{90}{-\pgf@circ@res@step and -\pgf@circ@res@up}
-        \pgfpathlineto{\pgfpoint{\pgf@circ@res@right-\pgf@circ@res@step}{\pgf@circ@res@down}}
-        \pgf@circ@draworfill
-        \pgfpathellipse{\pgfpoint{\pgf@circ@res@right-\pgf@circ@res@step}{0pt}}
-        {\pgfpoint{\pgf@circ@res@step}{0pt}}{\pgfpoint{0pt}{-\pgf@circ@res@up}}
-        \pgf@circ@draworfill
-    \end{pgftransparencygroup}
-    \pgfsetlinewidth{\pgfstartlinewidth}
-    \pgfpathmoveto{\pgfpoint{\pgf@circ@res@right-\pgf@circ@res@step}{0pt}}
-    \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{0pt}}
-    \pgfusepath{stroke}
-}
-
-% microstrip transmission line
-\pgfcircdeclarebipolescaled{RF}
-{}
-{\ctikzvalof{bipoles/mstline/height}}
-{mstline}
-{\ctikzvalof{bipoles/mstline/height}}
-{\ctikzvalof{bipoles/mstline/width}}
-{
-    \pgfpathrectanglecorners{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@up}}{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@down}}
-    \pgf@circ@setlinewidth{bipoles}{\pgfstartlinewidth}
-    \pgf@circ@draworfill
-}
+\pgfcirc@activate@bipole@simple{l}{ammeter}
+\pgfcirc@activate@bipole@simple{l}{ohmmeter}
+\pgfcirc@activate@bipole@simple{l}{voltmeter}
+\pgfcirc@activate@bipole@simple{l}{oscope}
+\pgfcirc@activate@bipole@simple{l}{rmeter}
+\pgfcirc@activate@bipole@simple{l}{rmeterwa}
+\pgfcirc@activate@bipole@simple{l}{smeter}
+\pgfcirc@activate@bipole@simple{l}{iloop}
+% \pgfcirc@activate@bipole@simple{l}{iloop2} that was wrong
+\pgfcirc@activate@bipole{l}{ilooptwo}{iloop2}{iloop2}
+\pgfcirc@activate@bipole@simple{l}{qvprobe}
+\pgfcirc@activate@bipole@simple{l}{qiprobe}
+\pgfcirc@activate@bipole@simple{l}{qpprobe}
+% %>>>
 
 %%%%%%%%%%%%%%%%%%%
 %% Block diagrams

@@ -19,6 +19,38 @@
 %%%%%%%%%%%%%
 
 
+% grounds and power supplies%<<<1
+
+\ctikzset{monopoles/.is family}
+\ctikzset{monopoles/ground/width/.initial=.25}
+\ctikzset{monopoles/ground/connectionthickness/.initial=1}
+\ctikzset{monopoles/ground/thickness/.initial=2}
+\ctikzset{monopoles/rground/thickness/.initial=2}
+\ctikzset{monopoles/tground/thickness/.initial=3}
+\ctikzset{monopoles/vcc/width/.initial=.2}
+\ctikzset{monopoles/vcc/arrow/.initial=legacy}
+\ctikzset{monopoles/vee/arrow/.initial=legacy}
+\ctikzset{monopoles/match/width/.initial=.4}
+\ctikzset{monopoles/chassis/width/.initial=.25}
+\ctikzset{monopoles/alternative chassis/width/.initial=.25}
+\ctikzset{monopoles/equipotentiality/width/.initial=.25}
+\ctikzset{monopoles/antenna/width/.initial=.25}
+\ctikzset{monopoles/antenna/label/xanchor/.initial=.4}
+\ctikzset{monopoles/antenna/label/yanchor/.initial=.75}
+\ctikzset{monopoles/txantenna/label/xanchor/.initial=.4}
+\ctikzset{monopoles/txantenna/label/yanchor/.initial=.75}
+\ctikzset{monopoles/txantenna/width/.initial=.25}
+\ctikzset{monopoles/rxantenna/label/xanchor/.initial=.4}
+\ctikzset{monopoles/rxantenna/label/yanchor/.initial=.75}
+\ctikzset{monopoles/rxantenna/width/.initial=.25}
+\ctikzset{monopoles/bareantenna/width/.initial=.25}
+\ctikzset{monopoles/bareantenna/label/xanchor/.initial=1}
+\ctikzset{monopoles/bareantenna/label/yanchor/.initial=0.5}
+\ctikzset{monopoles/waves/width/.initial=0.5}%
+%>>>
+
+%% Node shapes for grounds and power supply%<<<
+
 %% Ground symbol
 % #1 -> name
 % #2 -> width
@@ -352,11 +384,77 @@
             \pgfusepath{draw}
         \endpgfscope
     }
+}% %>>>
+
+
+%% This are strange, and probably wrong FIXME
+% \compattikzset{vdd/.style = {\comnpatname vcc = #1}}
+% \compattikzset{vss/.style = {\comnpatname vee = #1}}
+\pgfcirc@style@to@style{vcc}{vdd}
+\pgfcirc@style@to@style{vee}{vss}
+
+
+%%%%%%%%%%%%%%
+%% RF bipoles and monopoles
+%%%%%%%%%%%%%%
+
+%% RF bipoles and monopoles settings %<<<1
+\ctikzset{bipoles/mstline/height/.initial=0.3}
+\ctikzset{bipoles/mstline/width/.initial=1.2}
+\pgfkeys{/tikz/mstlinelen/.add code={}{\ctikzset{bipoles/mstline/width=#1}}}
+\ctikzset{monopoles/msport/width/.initial=.5}
+\ctikzset{monopoles/msrstub/height/.initial=1.0}
+\ctikzset{monopoles/msrstub/width/.initial=0.6}%
+%>>>
+
+%% Node shapes for RF bipoles%<<<
+
+\pgfcircdeclarebipolescaled{RF}
+{}
+{\ctikzvalof{bipoles/tline/height}}
+{tline}
+{\ctikzvalof{bipoles/tline/height}}
+{\ctikzvalof{bipoles/tline/width}}
+{
+    \pgf@circ@res@step=.2\pgf@circ@res@right % half x axis
+    \begin{pgftransparencygroup}
+        \pgf@circ@setlinewidth{bipoles}{\pgfstartlinewidth}
+        \pgfpathmoveto{\pgfpoint{\pgf@circ@res@right-\pgf@circ@res@step}{\pgf@circ@res@up}}
+        \pgfpathlineto{\pgfpoint{\pgf@circ@res@left+\pgf@circ@res@step}{\pgf@circ@res@up}}
+        \pgfpatharc{-90}{90}{-\pgf@circ@res@step and -\pgf@circ@res@up}
+        \pgfpathlineto{\pgfpoint{\pgf@circ@res@right-\pgf@circ@res@step}{\pgf@circ@res@down}}
+        \pgf@circ@draworfill
+        \pgfpathellipse{\pgfpoint{\pgf@circ@res@right-\pgf@circ@res@step}{0pt}}
+        {\pgfpoint{\pgf@circ@res@step}{0pt}}{\pgfpoint{0pt}{-\pgf@circ@res@up}}
+        \pgf@circ@draworfill
+    \end{pgftransparencygroup}
+    \pgfsetlinewidth{\pgfstartlinewidth}
+    \pgfpathmoveto{\pgfpoint{\pgf@circ@res@right-\pgf@circ@res@step}{0pt}}
+    \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{0pt}}
+    \pgfusepath{stroke}
 }
 
-%%%%%%%%%%%%%%%%
-%% RF elements
-%%%%%%%%%%%%%%%%
+% microstrip transmission line
+\pgfcircdeclarebipolescaled{RF}
+{}
+{\ctikzvalof{bipoles/mstline/height}}
+{mstline}
+{\ctikzvalof{bipoles/mstline/height}}
+{\ctikzvalof{bipoles/mstline/width}}
+{
+    \pgfpathrectanglecorners{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@up}}{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@down}}
+    \pgf@circ@setlinewidth{bipoles}{\pgfstartlinewidth}
+    \pgf@circ@draworfill
+}% %>>>
+
+%% Path definitions for RF path objects%<<<
+\pgfcirc@activate@bipole@simple{l}{mstline}
+\pgfcirc@activate@bipole@simple{l}{tline}
+\pgfcirc@style@to@style{tline}{transmission line}
+\pgfcirc@style@to@style{tline}{TL}
+% %>>>
+
+%% Node shapes for RF monopoles%<<<
 
 % Legacy tlinestub
 % Contributed by Leonardo Azzinnari
@@ -1096,5 +1194,7 @@
         \endpgfscope
     }
 }
+% %>>>
 
 \endinput
+% vim: set fdm=marker fmr=%<<<,%>>>:

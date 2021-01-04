@@ -221,6 +221,228 @@
 }%
 %>>>
 
+%% Generic macro for defining a bipole shape%<<<
+% #1 - additional anchors
+% #2 - lower y-size of the bipole (from the center).
+% #3 - #shape is the name of the shape
+% #4 - upper y-size of the bipole (from the center)
+% #5 - width of the bipole
+% #6 - macros drawing the bipole
+%
+\long\def\pgfcircdeclarebipole{%
+    \pgfcircdeclarebipolescaled{default}}
+
+%% Generic macro for defining a bipole shape
+% #1 - scale factor
+% #2 - additional anchors
+% #3 - lower y-size of the bipole (from the center).
+% #4 - #shape is the name of the shape
+% #5 - upper y-size of the bipole (from the center)
+% #6 - width of the bipole
+% #7 - macros drawing the bipole
+%
+\long\def\pgfcircdeclarebipolescaled#1#2#3#4#5#6#7{
+    \pgfdeclareshape{#4shape}{
+        \savedmacro{\ctikzclass}{\edef\ctikzclass{#1}}
+        \saveddimen{\scaledRlen}{\pgfmathsetlength{\pgf@x}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}}
+        \savedanchor{\northeast}{
+            \pgf@circ@scaled@Rlen=\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen
+            \pgf@y=#5\pgf@circ@scaled@Rlen
+            \pgf@y=.5\pgf@y
+            \pgf@x=#6\pgf@circ@scaled@Rlen
+            \pgf@x=.5\pgf@x
+        }
+        \savedanchor{\northeastborder}{
+            \pgf@circ@scaled@Rlen=\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen
+            \pgf@y=#5\pgf@circ@scaled@Rlen
+            \pgf@y=.5\pgf@y
+            \pgf@y=\ctikzvalof{bipoles/border margin}\pgf@y
+            \pgf@x=#6\pgf@circ@scaled@Rlen
+            \pgf@x=.5\pgf@x
+            \pgf@x=\ctikzvalof{bipoles/border margin}\pgf@x
+        }
+        \savedanchor{\southwestborder}{
+            \pgf@circ@scaled@Rlen=\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen
+            \pgf@y=-#3\pgf@circ@scaled@Rlen
+            \pgf@y=.5\pgf@y
+            \pgf@y=\ctikzvalof{bipoles/border margin}\pgf@y
+            \pgf@x=-#6\pgf@circ@scaled@Rlen
+            \pgf@x=.5\pgf@x
+            \pgf@x=\ctikzvalof{bipoles/border margin}\pgf@x
+        }
+        \savedanchor{\southwest}{
+            \pgf@circ@scaled@Rlen=\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen
+            \pgf@y=-#3\pgf@circ@scaled@Rlen
+            \pgf@y=.5\pgf@y
+            \pgf@x=-#6\pgf@circ@scaled@Rlen
+            \pgf@x=.5\pgf@x
+        }
+        \savedanchor{\centerpoint}{
+            \pgf@circ@scaled@Rlen=\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen
+            \pgf@circ@res@down=-#3\pgf@circ@scaled@Rlen
+            \pgf@circ@res@up=#5\pgf@circ@scaled@Rlen
+            \pgfpointorigin
+            \pgf@y=\pgf@circ@res@up
+            \advance\pgf@y by\pgf@circ@res@down
+            \pgf@y=.5\pgf@y
+        }
+        \anchor{center}{\pgfpointorigin}
+        \anchor{n}{
+            \northeast
+            \pgf@x=0cm
+        }
+        \anchor{north east}{
+            \northeast
+        }
+        \anchor{north west}{
+            \northeast
+            \pgf@x=-\pgf@x
+        }
+        \anchor{ne}{
+            \northeast
+        }
+        \anchor{nw}{
+            \northeast
+            \pgf@x=-\pgf@x
+        }
+        \anchor{e}{
+            \northeast
+            \pgf@y=0cm
+        }
+        \anchor{s}{
+            \southwest
+            \pgf@x=0cm
+        }
+        \anchor{south east}{
+            \southwest
+            \pgf@x=-\pgf@x
+        }
+        \anchor{south west}{
+            \southwest
+        }
+        \anchor{se}{
+            \southwest
+            \pgf@x=-\pgf@x
+        }
+        \anchor{sw}{
+            \southwest
+        }
+        \anchor{w}{
+            \southwest
+            \pgf@y=0cm
+        }
+        \anchor{north}{
+            \northeast
+            \pgf@x=0cm
+        }
+        \anchor{east}{
+            \northeast
+            \pgf@y=0cm
+        }
+        \anchor{south}{
+            \southwest
+            \pgf@x=0cm
+        }
+        \anchor{west}{
+            \southwest
+            \pgf@y=0cm
+        }
+        \anchor{right}{
+            \northeast
+            \pgf@y=0cm
+        }
+        \anchor{above}{
+            \northeast
+            \pgf@x=0cm
+        }
+        \anchor{left}{
+            \southwest
+            \pgf@y=0cm
+        }
+        \anchor{below}{
+            \southwest
+            \pgf@x=0cm
+        }
+        \anchor{a}{
+            \northeast
+            \pgf@y=0cm
+        }
+        \anchor{b}{
+            \southwest
+            \pgf@y=0cm
+        }
+        \savedanchor{\textanchor}{%
+            \pgf@y=\ht\pgfnodeparttextbox
+            \pgf@x=-.5\wd\pgfnodeparttextbox
+        }
+        \anchor{text}{
+            \textanchor
+        }
+        \anchorborder{%
+            \ifpgf@circuit@bipole@inverted
+                \pgf@circ@res@left=-\pgf@x
+                \pgf@circ@res@up=-\pgf@y
+            \else
+                \pgf@circ@res@left=\pgf@x
+                \pgf@circ@res@up=\pgf@y
+            \fi
+            \ifdim\pgf@circ@res@up>0cm
+                \pgfpointborderrectangle{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@up}}{\northeastborder}
+            \else
+                \southwestborder
+                \pgfpointborderrectangle{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@up}}{\pgfpoint{-\pgf@x}{-\pgf@y}}
+            \fi
+        }
+
+        #2
+
+        \backgroundpath{
+            \pgfsetcolor{\ctikzvalof{color}}
+
+            \northeast
+            \pgf@circ@res@up = \pgf@y
+            \pgf@circ@res@zero = 0cm
+            \pgf@circ@res@left = -\pgf@x
+            \pgf@circ@res@right = \pgf@x
+            \southwest
+            \pgf@circ@res@down = \pgf@y
+            \pgf@circ@scaled@Rlen=\scaledRlen
+            \pgfstartlinewidth=\pgflinewidth
+            \pgfsetcornersarced{\pgfpointorigin}% do not use rounded corners!
+            #7
+
+            \pgfsetlinewidth{\pgfstartlinewidth}
+        }
+    }
+}% %>>>
+
+%% anchor adjustment macros%<<<
+
+% Extend the border anchor position by the specified factors on the right-top (north east corner)
+% and the left-down (southwest border). Argument must be number (possibly decimal) without sign
+
+\def\pgfcirc@border@extend@full#1#2#3#4{% right, top, left, down
+    \anchorborder{%
+        \ifpgf@circuit@bipole@inverted
+            \pgf@circ@res@left=-\pgf@x
+            \pgf@circ@res@up=-\pgf@y
+        \else
+            \pgf@circ@res@left=\pgf@x
+            \pgf@circ@res@up=\pgf@y
+        \fi
+        \ifdim\pgf@circ@res@up>0cm
+            \northeastborder
+            \pgfpointborderrectangle{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@up}}{\pgfpoint{#1\pgf@x}{#2\pgf@y}}
+        \else
+            \southwestborder
+            \pgfpointborderrectangle{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@up}}{\pgfpoint{-#3\pgf@x}{-#4\pgf@y}}
+        \fi
+    }
+}
+
+% Just up and down (very common)
+\def\pgfcirc@border@extend@updown#1#2{\pgfcirc@border@extend@full{1}{#1}{1}{#2}}% %>>>
+
 % text position in some component.%<<<1
 % (added with ieeestd logic ports. Maybe to be extended to other components,
 % like amplifiers)
@@ -477,45 +699,6 @@
 \tikzset{cute/.style = {european currents, european voltages, american resistors, cute inductors, american ports}}
 %%>>>
 
-% grounds and power supplies%<<<1
-
-\ctikzset{monopoles/.is family}
-\ctikzset{monopoles/ground/width/.initial=.25}
-\ctikzset{monopoles/ground/connectionthickness/.initial=1}
-\ctikzset{monopoles/ground/thickness/.initial=2}
-\ctikzset{monopoles/rground/thickness/.initial=2}
-\ctikzset{monopoles/tground/thickness/.initial=3}
-\ctikzset{monopoles/vcc/width/.initial=.2}
-\ctikzset{monopoles/vcc/arrow/.initial=legacy}
-\ctikzset{monopoles/vee/arrow/.initial=legacy}
-\ctikzset{monopoles/match/width/.initial=.4}
-\ctikzset{monopoles/chassis/width/.initial=.25}
-\ctikzset{monopoles/alternative chassis/width/.initial=.25}
-\ctikzset{monopoles/equipotentiality/width/.initial=.25}
-\ctikzset{monopoles/antenna/width/.initial=.25}
-\ctikzset{monopoles/antenna/label/xanchor/.initial=.4}
-\ctikzset{monopoles/antenna/label/yanchor/.initial=.75}
-\ctikzset{monopoles/txantenna/label/xanchor/.initial=.4}
-\ctikzset{monopoles/txantenna/label/yanchor/.initial=.75}
-\ctikzset{monopoles/txantenna/width/.initial=.25}
-\ctikzset{monopoles/rxantenna/label/xanchor/.initial=.4}
-\ctikzset{monopoles/rxantenna/label/yanchor/.initial=.75}
-\ctikzset{monopoles/rxantenna/width/.initial=.25}
-\ctikzset{monopoles/bareantenna/width/.initial=.25}
-\ctikzset{monopoles/bareantenna/label/xanchor/.initial=1}
-\ctikzset{monopoles/bareantenna/label/yanchor/.initial=0.5}
-\ctikzset{monopoles/waves/width/.initial=0.5}%
-%>>>
-
-% microstrips %<<<1
-\ctikzset{bipoles/mstline/height/.initial=0.3}
-\ctikzset{bipoles/mstline/width/.initial=1.2}
-\pgfkeys{/tikz/mstlinelen/.add code={}{\ctikzset{bipoles/mstline/width=#1}}}
-\ctikzset{monopoles/msport/width/.initial=.5}
-\ctikzset{monopoles/msrstub/height/.initial=1.0}
-\ctikzset{monopoles/msrstub/width/.initial=0.6}%
-%>>>
-
 % microphone and loudspeaker%<<<1
 \ctikzset{bipoles/loudspeaker/height/.initial=.8}
 \ctikzset{bipoles/loudspeaker/depth/.initial=.3}
@@ -524,40 +707,6 @@
 \ctikzset{bipoles/mic/depth/.initial=.1}
 \ctikzset{bipoles/mic/width/.initial=.8}%
 %>>>
-
-% switches%<<<1
-
-\ctikzset{bipoles/spst/height/.initial=.35}
-\ctikzset{bipoles/spst/width/.initial=.35}
-\ctikzset{bipoles/spst/depth/.initial=.2}
-\ctikzset{bipoles/nos/height/.initial=.3}
-\ctikzset{bipoles/nos/width/.initial=.35}
-\ctikzset{bipoles/nos/depth/.initial=.2}
-\ctikzset{bipoles/ncs/height/.initial=.35}
-\ctikzset{bipoles/ncs/width/.initial=.35}
-\ctikzset{bipoles/ncs/depth/.initial=.2}
-\ctikzset{bipoles/pushbutton/height/.initial=.5}
-\ctikzset{bipoles/pushbutton/height 2/.initial=.2}
-\ctikzset{bipoles/pushbutton/width/.initial=.50}
-%%% reed switch
-\ctikzset{bipoles/reed/height/.initial=.4}
-\ctikzset{bipoles/reed/width/.initial=.8}% 0.35 in nos
-\ctikzset{bipoles/reed/depth/.initial=.4}
-%% Cute switches
-\ctikzset{bipoles/cuteswitch/shape/.initial={ocirc}}
-\ctikzset{bipoles/cuteswitch/height/.initial=.6}
-\ctikzset{bipoles/cuteswitch/height 2/.initial=.2}
-\ctikzset{bipoles/cuteswitch/width/.initial=.50}
-\ctikzset{bipoles/cuteswitch/thickness/.initial=1}
-
-\ctikzset{tripoles/spdt/width/.initial=.85}
-\ctikzset{tripoles/spdt/height/.initial=.45}
-\ctikzset{tripoles/spdt/margin/.initial=.45}
-
-\ctikzset{tripoles/toggleswitch/height/.initial=.8}
-\ctikzset{tripoles/toggleswitch/height 2/.initial=.0}
-\ctikzset{tripoles/toggleswitch/width/.initial=.80}
-%%>>>
 
 % arresters, fuses, lamps, etc%<<<1
 
@@ -595,55 +744,6 @@
 
 \tikzset{american gas filled surge arrester set/.style = {\circuitikzbasekey/gas filled surge arrester choice=american}}
 \tikzset{european gas filled surge arrester set/.style = {\circuitikzbasekey/gas filled surge arrester choice=european}}
-%%>>>
-
-% wires (open, shorts, ...)%<<<1
-
-\ctikzset{bipoles/open/height/.initial=.3} %necessary for curly voltages
-\ctikzset{bipoles/open/width/.initial=.3} %necessary for curly voltages
-\ctikzset{bipoles/open/voltage/straight label distance/.initial=0}
-\ctikzset{bipoles/open/voltage/distance from node/.initial=.2}
-\ctikzset{bipoles/short/height/.initial=.1} %dummy height for voltage positioning
-\ctikzset{bipoles/short/width/.initial=.1} %dummy width for voltage positioning
-% multiwire
-\ctikzset{bipoles/multiwire/height/.initial=0.4}
-\ctikzset{bipoles/multiwire/width/.initial=0.2}
-\ctikzset{bipoles/multiwire/spacing/.initial=0.05}
-% crossing wires
-\ctikzset{bipoles/crossing/size/.initial=.2}
-%%>>>
-
-% Instruments %<<<1
-\ctikzset{bipoles/ammeter/height/.initial=.60}
-\ctikzset{bipoles/ammeter/width/.initial=.60}
-\ctikzset{bipoles/ohmmeter/height/.initial=.60}
-\ctikzset{bipoles/ohmmeter/width/.initial=.60}
-\ctikzset{bipoles/voltmeter/height/.initial=.60}
-\ctikzset{bipoles/voltmeter/width/.initial=.60}
-\ctikzset{bipoles/smeter/height/.initial=.60}
-\ctikzset{bipoles/smeter/width/.initial=.60}
-\ctikzset{bipoles/smeter/voltage/additional shift/.initial=1}
-\ctikzset{bipoles/qmeter/depth/.initial=.40}
-\ctikzset{bipoles/qmeter/height/.initial=.80}
-\ctikzset{bipoles/qmeter/width/.initial=.60}
-% this must be specified for each one
-\ctikzset{bipoles/qvprobe/voltage/additional shift/.initial=.5}
-\ctikzset{bipoles/qiprobe/voltage/additional shift/.initial=.5}
-\ctikzset{bipoles/qpprobe/voltage/additional shift/.initial=.5}
-\ctikzset{bipoles/iloop/width/.initial=.40}
-\ctikzset{bipoles/iloop/height/.initial=.60}
-
-\ctikzset{bipoles/oscope/height/.initial=.60}
-\ctikzset{bipoles/oscope/width/.initial=.60}
-\ctikzset{bipoles/oscope/voltage/additional shift/.initial=1}
-
-
-% option to not rotate the new (Romano's) instruments
-\newif\ifpgf@circuit@straightinstruments\pgf@circuit@straightinstrumentstrue
-\pgfkeys{/tikz/straight instruments/.add code={}{\pgf@circuit@straightinstrumentstrue}}
-\ctikzset{straight instruments/.add code={}{\pgf@circuit@straightinstrumentstrue}}
-\pgfkeys{/tikz/rotated instruments/.add code={}{\pgf@circuit@straightinstrumentsfalse}}
-\ctikzset{rotated instruments/.add code={}{\pgf@circuit@straightinstrumentsfalse}}
 %%>>>
 
 % blocks (twoports and so)%<<<1
@@ -1940,61 +2040,6 @@
 \tikzset{european voltages/.style = {\circuitikzbasekey/voltage = european}}
 \tikzset{straight voltages/.style = {\circuitikzbasekey/voltage = straight}}
 \tikzset{raised voltages/.style = {\circuitikzbasekey/voltage = raised}}
-%%>>>
-
-% special cases for voltage positions%<<<1
-% the KIND is the node name without SHAPE
-% See the definition above for meaning
-% if bipoles/KIND/voltage/straight label distance is not defined, it uses the height
-% if bipoles/KIND/voltage/additional shift is not defined, it is 0 (extra distance)
-%
-\ctikzset{bipoles/generic/voltage/distance from node/.initial=0.4}
-\ctikzset{bipoles/generic/voltage/bump b/.initial=2}
-%
-\ctikzset{bipoles/ageneric/voltage/distance from node/.initial=.4}
-\ctikzset{bipoles/ageneric/voltage/bump b/.initial=2}
-%
-\ctikzset{bipoles/fullgeneric/voltage/distance from node/.initial=.4}
-\ctikzset{bipoles/fullgeneric/voltage/bump b/.initial=2}
-%
-\ctikzset{bipoles/memristor/voltage/distance from node/.initial=.4}
-\ctikzset{bipoles/memristor/voltage/bump b/.initial=2}
-%
-\ctikzset{bipoles/tline/voltage/bump b/.initial=2.4}
-%
-\ctikzset{bipoles/varistor/voltage/bump b/.initial=2.4}
-\ctikzset{bipoles/varistor/voltage/american label distance/.initial=1.8}
-%
-\ctikzset{bipoles/photoresistor/voltage/bump b/.initial=1.6}
-%
-\ctikzset{bipoles/thermistor/voltage/bump b/.initial=2.4}
-\ctikzset{bipoles/thermistor/voltage/european label distance/.initial=0.8}
-\ctikzset{bipoles/thermistorntc/voltage/bump b/.initial=1.6}
-\ctikzset{bipoles/thermistorntc/voltage/european label distance/.initial=0.8}
-\ctikzset{bipoles/thermistorptc/voltage/bump b/.initial=1.6}
-\ctikzset{bipoles/thermistorptc/voltage/european label distance/.initial=0.8}
-%
-\ctikzset{bipoles/ccapacitor/voltage/bump b/.initial=2.2}
-%
-\ctikzset{bipoles/emptyzzdiode/voltage/bump b/.initial=2.5}
-\ctikzset{bipoles/emptyzzdiode/voltage/european label distance/.initial=1.0}
-\ctikzset{bipoles/fullzzdiode/voltage/bump b/.initial=2.5}
-\ctikzset{bipoles/fullzzdiode/voltage/european label distance/.initial=1.0}
-\ctikzset{bipoles/emptythyristor/voltage/bump b/.initial=2.0}
-\ctikzset{bipoles/emptythyristor/voltage/european label distance/.initial=1.2}
-\ctikzset{bipoles/fullthyristor/voltage/bump b/.initial=2.0}
-\ctikzset{bipoles/fullthyristor/voltage/european label distance/.initial=1.2}
-\ctikzset{bipoles/emptytriac/voltage/bump b/.initial=1.8}
-\ctikzset{bipoles/emptytriac/voltage/european label distance/.initial=0.8}
-\ctikzset{bipoles/fulltriac/voltage/bump b/.initial=1.8}
-\ctikzset{bipoles/fulltriac/voltage/european label distance/.initial=0.8}
-%
-\ctikzset{bipoles/short/voltage/american label distance/.initial=2.8}
-\ctikzset{bipoles/open/voltage/distance from node/.initial=0.3}
-%
-\ctikzset{bipoles/battery/voltage/bump a/.initial=1.4}
-\ctikzset{bipoles/vsourceAM/voltage/american label distance/.initial=1.2}
-\ctikzset{bipoles/cvsourceAM/voltage/american label distance/.initial=1.2}
 %%>>>
 
 \endinput
