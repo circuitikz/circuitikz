@@ -97,22 +97,6 @@
     %
     \pgf@circ@bipole@path@base{shape}{}{#1}{#2}
 }
-%
-% this is used for components that are mainly node-style but have a path-style form
-%
-\def\pgfcirc@node@to@path#1#2#3{%
-    % add a path-style component based on a node-style one without mangling the name
-    % of the shape.
-    % #1: node-type shape name (existing)
-    % #2: path-type name (to be created)
-    % #3: additional options to add to the path style
-    %
-    \expandafter\def\csname pgf@circ@#1@path\endcsname##1{\pgf@circ@bipole@path@base{}{##1}{#1}{}}%
-    \compattikzset{#2/.style = {\circuitikzbasekey,
-        /tikz/to path=\csname pgf@circ@#1@path\endcsname{##1},
-        #3}}%
-    \ctikzset{bipoles/#1/height/.initial=1}%
-}
 %%
 %% ultra-generic bipole path
 %% I am not sure what the last argument is needed for, but don't touch it or everything explodes
@@ -202,6 +186,74 @@
     \tikztonodes
 }
 
+%% Macros for path and style activation for bipoles or path-style
+
+\def\comnpatname{\ifpgf@circuit@compat *\else\fi}
+\def\compattikzset#1{%
+    % \typeout{BIPOLEDEF:\space \detokenize{#1}}%
+    \tikzset{\comnpatname#1}}
+%
+% this is used for components that are mainly node-style but have a path-style form
+%
+\def\pgfcirc@node@to@path#1#2#3{%
+    % add a path-style component based on a node-style one without mangling the name
+    % of the shape.
+    % #1: node-type shape name (existing)
+    % #2: path-type name (to be created)
+    % #3: additional options to add to the path style
+    %
+    \expandafter\def\csname pgf@circ@#1@path\endcsname##1{\pgf@circ@bipole@path@base{}{##1}{#1}{}}%
+    \compattikzset{#2/.style = {\circuitikzbasekey,
+        /tikz/to path=\csname pgf@circ@#1@path\endcsname{##1},
+        #3}}%
+    \ctikzset{bipoles/#1/height/.initial=1}%
+}
+%
+% this one is for normal definition: path to style, directly
+% the first parameter (#1) here is l,v,i (l=..., v=..., i=...)
+% the last parameter are options to be inserted in the "to path" definition
+%
+\def\pgfcirc@path@to@style#1#2#3#4{% using #1 as label, assign \pgf@circ@#2@path to style #3
+    \compattikzset{#3/.style={\circuitikzbasekey, #4, /tikz/to path=\csname pgf@circ@#2@path\endcsname, #1=##1}}%
+}
+% this one create a alias style from a node definition
+\def\pgfcirc@node@to@style#1#2#3#4{% using #1 as label, assign \pgf@circ@bipole@path{#2} to style #3
+    \compattikzset{#3/.style={\circuitikzbasekey, #4, /tikz/to path=\pgf@circ@bipole@path{#2}, #1=##1}}%
+}
+% this create an alias style
+\def\pgfcirc@style@to@style#1#2{% alias style #1 to style #2
+    \compattikzset{#2/.style={\comnpatname #1 = ##1}}%
+}
+% this create an alias style, changing the labelling
+\def\pgfcirc@style@to@style@label#1#2#3{% alias style #1 to style #2
+    \compattikzset{#2/.style={\comnpatname #1, #3 = ##1}}%
+}
+% create a bipole
+\def\pgfcirc@activate@bipole#1#2#3#4{% path name, base node name, style name
+    \expandafter\def\csname pgf@circ@#2@path\endcsname##1{\pgf@circ@bipole@path{#3}{##1}}%
+    \pgfcirc@path@to@style{#1}{#2}{#4}{}% no options here, let's see
+}
+\def\pgfcirc@activate@bipole@simple#1#2{\pgfcirc@activate@bipole{#1}{#2}{#2}{#2}}
+% create a bipole with options
+\def\pgfcirc@activate@bipole@opt#1#2#3#4#5{% path name, base node name, style name
+    \expandafter\def\csname pgf@circ@#2@path\endcsname##1{\pgf@circ@bipole@path{#3}{##1}}%
+    \pgfcirc@path@to@style{#1}{#2}{#4}{#5}% no options here, let's see
+}
+\def\pgfcirc@activate@bipole@simple@opt#1#2#3{\pgfcirc@activate@bipole@opt{#1}{#2}{#2}{#2}{#3}}
+
+
+%% New system, for simple object
+%% \pgfcirc@activate@bipole@simple{l}{mass}
+%% New system, different names
+%% The old system is the following
+%% 1 - define just the pgf@circ@path@whatever#1
+%% (see for example the variable one)
+%% 2 - set the style
+%% \compattikzset{resistor/.style= {\circuitikzbasekey, /tikz/to path=\pgf@circ@resistor@path, l=#1}}
+
+%% Path definition with the new mechanism have been moved to where the nodes
+%% are defined.
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Handling of terminals
 
@@ -252,58 +304,6 @@
     \pgfextra{ \edef\pgf@circ@temp{\ctikzvalof{bipole/nodes/right}} }
     \ifx\pgf@temp\pgf@circ@temp\else(\tikztotarget) node[\pgf@circ@temp] {}\fi
 }
-
-%% Macros for path and style activation for bipoles or path-style
-
-\def\comnpatname{\ifpgf@circuit@compat *\else\fi}
-\def\compattikzset#1{%
-    % \typeout{BIPOLEDEF:\space \detokenize{#1}}%
-    \tikzset{\comnpatname#1}}
-%
-% this one is for normal definition: path to style, directly
-% the first parameter (#1) here is l,v,i (l=..., v=..., i=...)
-% the last parameter are options to be inserted in the "to path" definition
-%
-\def\pgfcirc@path@to@style#1#2#3#4{% using #1 as label, assign \pgf@circ@#2@path to style #3
-    \compattikzset{#3/.style={\circuitikzbasekey, #4, /tikz/to path=\csname pgf@circ@#2@path\endcsname, #1=##1}}%
-}
-% this one create a alias style from a node definition
-\def\pgfcirc@node@to@style#1#2#3#4{% using #1 as label, assign \pgf@circ@bipole@path{#2} to style #3
-    \compattikzset{#3/.style={\circuitikzbasekey, #4, /tikz/to path=\pgf@circ@bipole@path{#2}, #1=##1}}%
-}
-% this create an alias style
-\def\pgfcirc@style@to@style#1#2{% alias style #1 to style #2
-    \compattikzset{#2/.style={\comnpatname #1 = ##1}}%
-}
-% this create an alias style, changing the labelling
-\def\pgfcirc@style@to@style@label#1#2#3{% alias style #1 to style #2
-    \compattikzset{#2/.style={\comnpatname #1, #3 = ##1}}%
-}
-% create a bipole
-\def\pgfcirc@activate@bipole#1#2#3#4{% path name, base node name, style name
-    \expandafter\def\csname pgf@circ@#2@path\endcsname##1{\pgf@circ@bipole@path{#3}{##1}}%
-    \pgfcirc@path@to@style{#1}{#2}{#4}{}% no options here, let's see
-}
-\def\pgfcirc@activate@bipole@simple#1#2{\pgfcirc@activate@bipole{#1}{#2}{#2}{#2}}
-% create a bipole with options
-\def\pgfcirc@activate@bipole@opt#1#2#3#4#5{% path name, base node name, style name
-    \expandafter\def\csname pgf@circ@#2@path\endcsname##1{\pgf@circ@bipole@path{#3}{##1}}%
-    \pgfcirc@path@to@style{#1}{#2}{#4}{#5}% no options here, let's see
-}
-\def\pgfcirc@activate@bipole@simple@opt#1#2#3{\pgfcirc@activate@bipole@opt{#1}{#2}{#2}{#2}{#3}}
-
-
-%% New system, for simple object
-%% \pgfcirc@activate@bipole@simple{l}{mass}
-%% New system, different names
-%% The old system is the following
-%% 1 - define just the pgf@circ@path@whatever#1
-%% (see for example the variable one)
-%% 2 - set the style
-%% \compattikzset{resistor/.style= {\circuitikzbasekey, /tikz/to path=\pgf@circ@resistor@path, l=#1}}
-
-%% Path definition with the new mechanism have been moved to where the nodes
-%% are defined.
 
 %%
 %% Definition of path for transistors
@@ -380,23 +380,4 @@
 \pgf@circ@definetranspath{Lpigbt}
 \pgf@circ@definetranspath{Lnigbt}
 %
-% Path-style logical ports
-%
-% create path-style element for one input --- one output logical ports
-%
-\def\pgfcirc@port@node@to@path#1#2{%
-    %
-    % add a logic port path style component --- we need to suppress leads
-    % and use the correct center
-    %
-    \pgfcirc@node@to@path{#1}{#2}{/tikz/no leads, \circuitikzbasekey/logic ports origin=center}%
-}
-\pgfcirc@port@node@to@path{not port}{inline not}
-\pgfcirc@port@node@to@path{buffer port}{inline buffer}
-\pgfcirc@port@node@to@path{schmitt port}{inline schmitt}
-\pgfcirc@port@node@to@path{invschmitt port}{inline invschmitt}
-
-\pgfcirc@port@node@to@path{tgate}{inline tgate}
-\pgfcirc@port@node@to@path{double tgate}{inline double tgate}
-
 % vim: set fdm=marker fmr=%<<<,%>>>:
