@@ -305,151 +305,14 @@
 %% Path definition with the new mechanism
 
 
-%% GENERICS
-\def\pgf@circ@empty@path#1{}
-\pgfcirc@activate@bipole@simple{l}{generic}
-\pgfcirc@activate@bipole@simple{l}{ageneric}
-\pgfcirc@activate@bipole@simple{l}{tgeneric}
-\pgfcirc@activate@bipole@simple{l}{xgeneric}
-\pgfcirc@activate@bipole@simple{l}{fullgeneric}
-\pgfcirc@activate@bipole@simple{l}{tfullgeneric}
-\pgfcirc@activate@bipole@simple{l}{short}
-\pgfcirc@activate@bipole@simple{l}{open}
-
 %% This are strange, and probably wrong FIXME
 % \compattikzset{vdd/.style = {\comnpatname vcc = #1}}
 % \compattikzset{vss/.style = {\comnpatname vee = #1}}
 \pgfcirc@style@to@style{vcc}{vdd}
 \pgfcirc@style@to@style{vee}{vss}
 
-%% RESISTORS
-
-% automatically switching path --- to be defined manually
-\def\pgf@circ@resistor@path#1{\ifpgf@circuit@europeanresistor\pgf@circ@bipole@path{generic}{#1}\else\pgf@circ@bipole@path{resistor}{#1}\fi}
-\pgfcirc@path@to@style{l}{resistor}{resistor}{}
-\pgfcirc@node@to@style{l}{resistor}{american resistor}{}
-\pgfcirc@node@to@style{l}{generic}{european resistor}{}
-\pgfcirc@style@to@style{resistor}{R}
-
-\def\pgf@circ@vresistor@path#1{\ifpgf@circuit@europeanresistor\pgf@circ@bipole@path{tgeneric}{#1}\else\pgf@circ@bipole@path{vresistor}{#1}\fi}
-\pgfcirc@path@to@style{l}{vresistor}{variable resistor}{}
-\pgfcirc@node@to@style{l}{vresistor}{variable american resistor}{}
-\pgfcirc@node@to@style{l}{tgeneric}{variable european resistor}{}
-\pgfcirc@style@to@style{variable resistor}{vR}
-
-\def\pgf@circ@resistivesens@path#1{\ifpgf@circuit@europeanresistor\pgf@circ@bipole@path{thermistor}{#1}\else\pgf@circ@bipole@path{resistivesens}{#1}\fi}
-\pgfcirc@path@to@style{l}{resistivesens}{resistive sensor}{}
-\pgfcirc@node@to@style{l}{resistivesens}{american resistive sensor}{}
-\pgfcirc@node@to@style{l}{thermistor}{european resistive sensor}{}
-\pgfcirc@style@to@style{resistive sensor}{sR}
-
-\def\pgf@circ@potentiometer@path#1{\ifpgf@circuit@europeanresistor\pgf@circ@bipole@path{genericpotentiometer}{#1}\else\pgf@circ@bipole@path{potentiometer}{#1}\fi}
-\pgfcirc@path@to@style{l}{potentiometer}{potentiometer}{}
-\pgfcirc@node@to@style{l}{potentiometer}{american potentiometer}{}
-\pgfcirc@node@to@style{l}{genericpotentiometer}{european potentiometer}{}
-\pgfcirc@style@to@style{potentiometer}{pR}
-
-\pgfcirc@activate@bipole@simple{l}{thermistor}
-\pgfcirc@style@to@style{thermistor}{thR}
-\pgfcirc@activate@bipole{l}{thermistorptc}{thermistorptc}{thermistor ptc}
-\pgfcirc@style@to@style{thermistor ptc}{thRp}
-\pgfcirc@activate@bipole{l}{thermistorntc}{thermistorntc}{thermistor ntc}
-\pgfcirc@style@to@style{thermistor ntc}{thRn}
-\pgfcirc@activate@bipole@simple{l}{photoresistor}
-\pgfcirc@style@to@style{photoresistor}{phR}
-\pgfcirc@activate@bipole@simple{l}{varistor}
-\pgfcirc@activate@bipole@simple{l}{memristor}
-\pgfcirc@style@to@style{memristor}{Mr}
 
 %% Capacitors
-
-\pgfcirc@activate@bipole@simple{l}{capacitor}
-\pgfcirc@style@to@style{capacitor}{C}
-\pgfcirc@activate@bipole@simple{l}{ecapacitor}
-\pgfcirc@style@to@style{ecapacitor}{eC}
-\pgfcirc@style@to@style{ecapacitor}{elko}
-\pgfcirc@activate@bipole{l}{polarcapacitor}{polarcapacitor}{polar capacitor}
-%% polar capacitor is deprecated, use curved capacitor instead
-\pgfcirc@style@to@style{polar capacitor}{pC}
-\pgfcirc@activate@bipole{l}{ccapacitor}{ccapacitor}{curved capacitor}
-\pgfcirc@style@to@style{curved capacitor}{cC}
-\pgfcirc@activate@bipole{l}{vcapacitor}{vcapacitor}{variable capacitor}
-\pgfcirc@style@to@style{variable capacitor}{vC}
-\pgfcirc@activate@bipole@simple{l}{piezoelectric}
-\pgfcirc@style@to@style{piezoelectric}{PZ}
-\pgfcirc@activate@bipole{l}{capacitivesens}{capacitivesens}{capacitive sensor}
-\pgfcirc@style@to@style{capacitive sensor}{sC}
-
-%% Inductors
-%% these are complex because of the three-way set
-%% should be simplified
-\def\pgf@circ@inductor@path#1{%
-    \pgfextra{
-        \edef\pgf@circ@temp{\ctikzvalof{inductor}}%
-        \def\pgf@temp{european}%
-    }
-    \ifx\pgf@temp\pgf@circ@temp%
-        \pgf@circ@europeaninductor@path{#1}%
-    \else%
-        \pgfextra{	\def\pgf@temp{cute} }%
-        \ifx\pgf@temp\pgf@circ@temp%
-            \pgf@circ@cuteinductor@path{#1}%
-        \else%
-            \pgf@circ@americaninductor@path{#1}%
-        \fi%
-    \fi%
-}
-\pgfcirc@path@to@style{l}{inductor}{inductor}{}
-\pgfcirc@style@to@style{inductor}{L}
-\pgfcirc@activate@bipole{l}{europeaninductor}{fullgeneric}{european inductor}
-\pgfcirc@activate@bipole{l}{americaninductor}{americaninductor}{american inductor}
-\pgfcirc@activate@bipole{l}{cuteinductor}{cuteinductor}{cute inductor}
-
-\def\pgf@circ@vinductor@path#1{
-    \pgfextra{
-        \edef\pgf@circ@temp{\ctikzvalof{inductor}}%
-        \def\pgf@temp{european}%
-    }
-    \ifx\pgf@temp\pgf@circ@temp%
-        \pgf@circ@veuropeaninductor@path{#1}%
-    \else%
-        \pgfextra{	\def\pgf@temp{cute} }%
-        \ifx\pgf@temp\pgf@circ@temp%
-            \pgf@circ@vcuteinductor@path{#1}%
-        \else%
-            \pgf@circ@vamericaninductor@path{#1}%
-        \fi%
-    \fi%
-}
-\pgfcirc@path@to@style{l}{vinductor}{variable inductor}{}
-\pgfcirc@style@to@style{variable inductor}{vL}
-\pgfcirc@activate@bipole{l}{veuropeaninductor}{tfullgeneric}{variable european inductor}
-\pgfcirc@activate@bipole{l}{vamericaninductor}{vamericaninductor}{variable american inductor}
-\pgfcirc@activate@bipole{l}{vcuteinductor}{vcuteinductor}{variable cute inductor}
-
-\def\pgf@circ@inductivesens@path#1{%
-    \pgfextra{
-        \edef\pgf@circ@temp{\ctikzvalof{inductor}}%
-        \def\pgf@temp{european}%
-    }
-    \ifx\pgf@temp\pgf@circ@temp%
-        \pgf@circ@europeaninductivesens@path{#1}%
-    \else%
-        \pgfextra{	\def\pgf@temp{cute} }%
-        \ifx\pgf@temp\pgf@circ@temp%
-            \pgf@circ@cuteinductivesens@path{#1}%
-        \else%
-            \pgf@circ@americaninductivesens@path{#1}%
-        \fi%
-    \fi%
-}
-\pgfcirc@path@to@style{l}{inductivesens}{inductive sensor}{}
-\pgfcirc@style@to@style{inductive sensor}{sL}
-\pgfcirc@activate@bipole{l}{europeaninductivesens}{sfullgeneric}{european inductive sensor}
-\pgfcirc@activate@bipole{l}{americaninductivesens}{samericaninductor}{american inductive sensor}
-\pgfcirc@activate@bipole{l}{cuteinductivesens}{scuteinductor}{cute inductive sensor}
-
-\pgfcirc@activate@bipole{l}{cutechoke}{cutechoke}{cute choke}
 
 %% Diodes
 
@@ -818,13 +681,6 @@
 \pgfcirc@style@to@style{tline}{transmission line}
 \pgfcirc@style@to@style{tline}{TL}
 
-%% wires and crossings
-
-\pgfcirc@activate@bipole@simple{l}{crossing}
-\pgfcirc@style@to@style{crossing}{xing}
-\pgfcirc@activate@bipole@simple{l}{multiwire}
-\pgfcirc@activate@bipole@simple{l}{bmultiwire}
-\pgfcirc@activate@bipole@simple{l}{tmultiwire}
 
 %%
 %% Definition of path for transistors
@@ -920,3 +776,4 @@
 \pgfcirc@port@node@to@path{tgate}{inline tgate}
 \pgfcirc@port@node@to@path{double tgate}{inline double tgate}
 
+% vim: set fdm=marker fmr=%<<<,%>>>:
