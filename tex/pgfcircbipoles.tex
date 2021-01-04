@@ -3759,7 +3759,7 @@
 \ctikzset{tripoles/toggleswitch/width/.initial=.80}
 %%>>>
 
-%% Node for switches and similar things%<<<
+%% Shapes Node for bipoles switches and similar things%<<<
 %% (Closing) SPST
 \pgfcircdeclarebipolescaled{switches}
 {}
@@ -4074,6 +4074,266 @@
     \pgfsetarrowsend{latexslim}
     \pgfusepath{draw}
     }
+% %>>>
+
+%% Shape nodes for switches (non-bipoles)%<<<
+
+%%%%%%%%%%%%%
+%% switches
+%%%%%%%%%%%%%
+
+% Legacy spdt
+\pgfdeclareshape{spdt}{
+    \savedmacro{\ctikzclass}{\edef\ctikzclass{switches}}
+    \saveddimen{\scaledRlen}{\pgfmathsetlength{\pgf@x}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}}
+    \savedanchor\northwest{%
+        \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
+        \pgf@y=\ctikzvalof{tripoles/spdt/height}\pgf@circ@scaled@Rlen
+        \pgf@y=.5\pgf@y
+        \pgf@x=-\ctikzvalof{tripoles/spdt/width}\pgf@circ@scaled@Rlen
+        \pgf@x=.5\pgf@x
+    }
+    \anchor{left}{%
+        \northwest
+        \pgf@y=0pt
+    }
+    \anchor{in}{
+        \northwest
+        \pgf@y=0pt
+    }
+    \anchor{out 1}{
+        \northwest
+        \pgf@x=-\pgf@x
+    }
+    \anchor{out 2}{
+        \northwest
+        \pgf@x=-\pgf@x
+        \pgf@y=-\pgf@y
+    }
+    \anchor{center}{
+        \pgf@y=0pt
+        \pgf@x=0pt
+    }
+    \anchor{east}{
+        \northwest
+        \pgf@y=0pt
+        \pgf@x=-\pgf@x
+    }
+    \anchor{west}{
+        \northwest
+        \pgf@y=0pt
+    }
+    \anchor{south}{
+        \northwest
+        \pgf@x=0pt
+        \pgf@y=-\pgf@y
+    }
+    \anchor{north}{
+        \northwest
+        \pgf@x=0pt
+    }
+    \anchor{south west}{
+        \northwest
+        \pgf@y=-\pgf@y
+    }
+    \anchor{north east}{
+        \northwest
+        \pgf@x=-\pgf@x
+    }
+    \anchor{north west}{
+        \northwest
+    }
+    \anchor{south east}{
+        \northwest
+        \pgf@x=-\pgf@x
+        \pgf@y=-\pgf@y
+    }
+    \backgroundpath{
+        \pgfsetcolor{\ctikzvalof{color}}
+
+        \northwest
+        \pgf@circ@res@up = \pgf@y
+        \pgf@circ@res@down = -\pgf@y
+        \pgf@circ@res@right = -\pgf@x
+        \pgf@circ@res@left = \pgf@x
+        \pgf@circ@res@other = \ctikzvalof{tripoles/spdt/margin}\pgf@circ@res@left
+
+
+        \pgfpathmoveto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@up}}
+        \pgfpathlineto{\pgfpoint{-\pgf@circ@res@other}{\pgf@circ@res@up}}
+        \pgfpathmoveto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@down}}
+        \pgfpathlineto{\pgfpoint{-\pgf@circ@res@other}{\pgf@circ@res@down}}
+
+        \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{0pt}}
+        \pgfpathlineto{\pgfpoint{\pgf@circ@res@other}{0pt}}
+
+        \pgfusepath{draw}
+
+        \pgfscope
+            \pgftransformshift{\pgfpoint{-\pgf@circ@res@other}{\pgf@circ@res@up}}
+            \pgfnode{ocirc}{center}{}{spdt1}{\pgfusepath{stroke}}
+        \endpgfscope
+        \pgfscope
+            \pgftransformshift{\pgfpoint{-\pgf@circ@res@other}{\pgf@circ@res@down}}
+            \pgfnode{ocirc}{center}{}{}{\pgfusepath{stroke}}
+        \endpgfscope
+        \pgfscope
+            \pgftransformshift{\pgfpoint{\pgf@circ@res@other}{0pt}}
+            \pgfnode{ocirc}{center}{}{spdt2}{\pgfusepath{stroke}}
+        \endpgfscope
+
+        \pgfscope
+            \pgfpathmoveto{\pgfpointshapeborder{spdt2}{\pgfpointorigin}}
+            \pgfpathlineto{
+                \pgfpointadd{\pgfpointshapeborder{spdt1}{\pgfpoint{-\pgf@circ@res@other}{-100pt}}}
+                {\pgfpoint{-.05\pgf@circ@res@up}{-.05\pgf@circ@res@up}}
+            }
+            \pgf@circ@setlinewidth{tripoles}{\pgflinewidth}
+            \pgfusepath{draw}
+        \endpgfscope
+    }
+}
+
+
+% cute switch "node" shapes, matching with cute "to" shapes
+% #1 -> name
+% #2 -> barposition
+% #3 -> arrowcode
+\long\def\pgfcircdeclarecutespdt#1#2#3{
+    \pgfdeclareshape{#1}
+    {
+        \savedmacro{\ctikzclass}{\edef\ctikzclass{switches}}
+        \saveddimen{\scaledRlen}{\pgfmathsetlength{\pgf@x}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}}
+        \savedanchor\northwest{%
+            \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
+            \pgf@y=\ctikzvalof{bipoles/cuteswitch/height}\pgf@circ@scaled@Rlen
+            \pgf@y=.5\pgf@y
+            \pgf@x=-\ctikzvalof{tripoles/spdt/width}\pgf@circ@scaled@Rlen
+            \pgf@x=.25\pgf@x
+        }
+        \savedanchor\midlever{
+            % these values are calculated when we create the definition of the shape.
+            \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
+            \pgf@y=\ctikzvalof{bipoles/cuteswitch/height}\pgf@circ@scaled@Rlen
+            \pgf@circ@res@temp=\ctikzvalof{nodes width}\pgf@circ@scaled@Rlen
+            \pgf@circ@res@temp=\ctikzvalof{bipoles/cuteswitch/thickness}\pgf@circ@res@temp
+            \pgf@circ@res@down = -.5\pgf@y
+            \pgf@circ@res@up = .5\pgf@y
+            \pgfextracty{\pgf@circ@res@other}{#2}
+            \pgf@x=0pt
+            \pgf@y=.5\pgf@circ@res@other
+        }
+        % radius of the connector
+        % This is the radius of the "ocirc" shape (see pgfcircshapes.tex)
+        \saveddimen{\radius}{\pgfmathsetlength\pgf@x{\pgf@circ@Rlen*\ctikzvalof{nodes width}}}
+        % shapename
+        \savedmacro{\thisshape}{\def\thisshape{\tikz@fig@name}}
+        % shape type
+        \savedmacro{\cshape}{\def\cshape{\ctikzvalof{bipoles/cuteswitch/shape}}}
+        % mid of the lever, to stack switches
+        \anchor{mid}{\midlever}
+        % center anchors
+        \anchor{cin}{ \northwest \pgf@y=0pt}
+        \anchor{cout 1}{ \northwest \pgf@x=-\pgf@x }
+        \anchor{cout 2}{ \northwest \pgf@x=-\pgf@x \pgf@y=-\pgf@y }
+        % horizontal angles
+        \anchor{in}{ \northwest \pgf@y=0pt\advance\pgf@x by -\radius}
+        \anchor{out 1}{ \northwest \pgf@x=-\pgf@x \advance\pgf@x by \radius}
+        \anchor{out 2}{ \northwest \pgf@x=-\pgf@x \advance\pgf@x by \radius \pgf@y=-\pgf@y }
+
+        \anchor{center}{ \pgf@y=0pt \pgf@x=0pt }
+        \anchor{east}{ \northwest \pgf@y=0pt \pgf@x=-\pgf@x  }
+        \anchor{west}{ \northwest \pgf@y=0pt }
+        \anchor{south}{ \northwest \pgf@x=0pt \pgf@y=-\pgf@y }
+        \anchor{north}{ \northwest \pgf@x=0pt }
+        \anchor{south west}{ \northwest \pgf@y=-\pgf@y }
+        \anchor{north east}{ \northwest \pgf@x=-\pgf@x }
+        \anchor{north west}{ \northwest }
+        \anchor{south east}{ \northwest \pgf@x=-\pgf@x \pgf@y=-\pgf@y }
+
+        \backgroundpath{
+            \pgfsetcolor{\ctikzvalof{color}}
+            \northwest
+            \pgf@circ@res@up = \pgf@y
+            \pgf@circ@res@down = -\pgf@y
+            \pgf@circ@res@right = -\pgf@x
+            \pgf@circ@res@left = \pgf@x
+
+            \pgfscope
+            % This is the radius of the "ocirc" shape (see pgfcircshapes.tex)
+            \pgf@circ@res@temp=\radius\relax
+            \pgf@circ@res@temp=\ctikzvalof{bipoles/cuteswitch/thickness}\pgf@circ@res@temp
+            \pgfsetlinewidth{2\pgf@circ@res@temp}
+            \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{0pt}}
+            \pgfpathlineto{#2}
+            \pgfsetroundcap\pgfusepath{draw}
+            \endpgfscope
+            \pgfscope % arrow
+            #3
+            \endpgfscope
+            % terminals
+            \pgfscope
+            \pgftransformshift{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@up}}
+            \pgfnode{\cshape}{center}{}{\thisshape-out 1}{\pgfusepath{stroke}}
+            \endpgfscope
+            \pgfscope
+            \pgftransformshift{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@down}}
+            \pgfnode{\cshape}{center}{}{\thisshape-out 2}{\pgfusepath{stroke}}
+            \endpgfscope
+            \pgfscope
+            \pgftransformshift{\pgfpoint{\pgf@circ@res@left}{0pt}}
+            \pgfnode{\cshape}{center}{}{\thisshape-in}{\pgfusepath{stroke}}
+            \endpgfscope
+
+        }
+    }
+}
+
+\pgfcircdeclarecutespdt{cute spdt up}
+{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@up-1.5\pgf@circ@res@temp}}
+{}
+
+\pgfcircdeclarecutespdt{cute spdt mid}
+{\pgfpoint{\pgf@circ@res@right}{0pt}}
+{}
+
+\pgfcircdeclarecutespdt{cute spdt down}
+{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@down+1.5\pgf@circ@res@temp}}
+{}
+
+\pgfcircdeclarecutespdt{cute spdt up arrow}
+{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@up-1.5\pgf@circ@res@temp}}
+{
+    \pgf@circ@setlinewidth{bipoles}{\pgflinewidth}
+    \pgftransformshift{\pgfpoint{\pgf@circ@res@left}{0pt}} % in node
+    \pgfpathmoveto{\pgfpointpolar{70}{1.5\pgf@circ@res@right}}
+    \pgfpatharc{70}{-50}{1.5\pgf@circ@res@right}
+    \pgfsetarrowsend{latexslim}
+    \pgfusepath{draw}
+}
+
+\pgfcircdeclarecutespdt{cute spdt mid arrow}
+{\pgfpoint{\pgf@circ@res@right}{0pt}}
+{
+    \pgf@circ@setlinewidth{bipoles}{\pgflinewidth}
+    \pgftransformshift{\pgfpoint{\pgf@circ@res@left}{0pt}} % in node
+    \pgfsetarrowsstart{latexslim}
+    \pgfpathmoveto{\pgfpointpolar{-60}{1.5\pgf@circ@res@right}}
+    \pgfpatharc{-60}{60}{1.5\pgf@circ@res@right}
+    \pgfsetarrowsend{latexslim}
+    \pgfusepath{draw}
+}
+
+\pgfcircdeclarecutespdt{cute spdt down arrow}
+{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@down+1.5\pgf@circ@res@temp}}
+{
+    \pgf@circ@setlinewidth{bipoles}{\pgflinewidth}
+    \pgftransformshift{\pgfpoint{\pgf@circ@res@left}{0pt}} % in node
+    \pgfpathmoveto{\pgfpointpolar{-50}{1.5\pgf@circ@res@right}}
+    \pgfpatharc{-50}{70}{1.5\pgf@circ@res@right}
+    \pgfsetarrowsend{latexslim}
+    \pgfusepath{draw}
+}
 % %>>>
 
 %% Paths Switches and buttons%<<<
