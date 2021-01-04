@@ -1624,7 +1624,7 @@
 % %>>>
 
 %%%%%%%%%%%
-%% Sources (batteries, independent, dependents and so on 
+%% Sources (batteries, independent, dependents and so on
 %%%%%%%%%%%
 
 % Definitions for Sources%<<<1
@@ -2976,6 +2976,63 @@
 %% Diodes
 %%%%%%%%%%%%%%
 
+% Definitions for diodes%<<<1
+
+\ctikzset{bipoles/diode/height/.initial=.50}
+\ctikzset{bipoles/diode/width/.initial=.40}
+\ctikzset{bipoles/bidirectionaldiode/height/.initial=1.1}
+\ctikzset{bipoles/bidirectionaldiode/width/.initial=1}
+\ctikzset{bipoles/bidirectionaldiode/diode width left/.initial=.3}
+\ctikzset{bipoles/bidirectionaldiode/diode width right/.initial=.3}
+\ctikzset{bipoles/varcap/height/.initial=.50}
+\ctikzset{bipoles/varcap/width/.initial=.45}
+\ctikzset{tripoles/thyristor/height/.initial=1.10}
+\ctikzset{tripoles/thyristor/height 2/.initial=.5}
+\ctikzset{tripoles/thyristor/width/.initial=1.0}
+\ctikzset{tripoles/thyristor/diode height/.initial=.5}
+\ctikzset{tripoles/thyristor/diode width left/.initial=.4}
+\ctikzset{tripoles/thyristor/diode width right/.initial=.3}
+
+\ctikzset{tripoles/triac/height/.initial=1.1}
+\ctikzset{tripoles/triac/width/.initial=1}
+\ctikzset{tripoles/triac/diode width left/.initial=.3}
+\ctikzset{tripoles/triac/diode width right/.initial=.3}
+%
+% Flipping arrows in LED and photodiodes
+%
+\newif\ifpgf@led@fliparrows
+\newif\ifpgf@pd@fliparrows
+\pgf@led@fliparrowsfalse
+\pgf@pd@fliparrowsfalse
+%
+% by default the arrows start (LED) and go (PD) to the anode.
+%
+\ctikzset{led arrows from anode/.code=\pgf@led@fliparrowsfalse}
+\ctikzset{pd arrows to anode/.code=\pgf@pd@fliparrowsfalse}
+%
+% but they can start form the cathode (LED) or go to it (PD)
+%
+\ctikzset{led arrows from cathode/.code=\pgf@led@fliparrowstrue}
+\ctikzset{pd arrows to cathode/.code=\pgf@pd@fliparrowstrue}
+
+\newif\ifpgf@circuit@strokediode
+\newif\ifpgf@circuit@fulldiode
+\pgf@circuit@strokediodefalse
+\pgf@circuit@fulldiodefalse
+
+\ctikzset{diode/.is choice}
+\ctikzset{diode/empty/.code = \pgf@circuit@fulldiodefalse\pgf@circuit@strokediodefalse}%default
+\ctikzset{diode/full/.code = \pgf@circuit@fulldiodetrue }
+\ctikzset{diode/stroke/.code = \pgf@circuit@strokediodetrue}
+
+\tikzset{full diodes/.style = { \circuitikzbasekey/diode = full}}
+\tikzset{empty diodes/.style = { \circuitikzbasekey/diode = empty}}
+\tikzset{stroke diodes/.style = { \circuitikzbasekey/diode = stroke}}
+
+%%>>>
+
+%% Node components for diodes %<<<1
+
 %% Black generic diode
 \pgfcircdeclarebipolescaled{diodes}
 {}
@@ -3709,7 +3766,86 @@
     \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{0pt}}
 
     \pgfusepath{draw}
+}% %>>>
+
+%% Paths definitions for Diodes%<<<
+
+\def\pgfcirc@tmp@generatediodes#1#2{
+    \pgfcirc@activate@bipole{l}{#1diode}{#1diode}{#1 diode}
+    \pgfcirc@style@to@style{#1 diode}{D#2}
+    \pgfcirc@activate@bipole{l}{#1zdiode}{#1zdiode}{#1 Zener diode}
+    \pgfcirc@style@to@style{#1 Zener diode}{zD#2}
+    \pgfcirc@activate@bipole{l}{#1zzdiode}{#1zzdiode}{#1 ZZener diode}
+    \pgfcirc@style@to@style{#1 ZZener diode}{zzD#2}
+    \pgfcirc@activate@bipole{l}{#1sdiode}{#1sdiode}{#1 Schottky diode}
+    \pgfcirc@style@to@style{#1 Schottky diode}{sD#2}
+    \pgfcirc@activate@bipole{l}{#1tdiode}{#1tdiode}{#1 tunnel diode}
+    \pgfcirc@style@to@style{#1 tunnel diode}{tD#2}
+    \pgfcirc@activate@bipole{l}{#1lediode}{#1lediode}{#1 led}
+    \pgfcirc@style@to@style{#1 led}{leD#2}
+    \pgfcirc@activate@bipole{l}{#1pdiode}{#1pdiode}{#1 photodiode}
+    \pgfcirc@style@to@style{#1 photodiode}{pD#2}
+    \pgfcirc@activate@bipole{l}{#1varcap}{#1varcap}{#1 varcap}
+    \pgfcirc@style@to@style{#1 varcap}{VC#2}
+    \pgfcirc@activate@bipole{l}{#1bidirectionaldiode}{#1bidirectionaldiode}{#1 bidirectionaldiode}
+    \pgfcirc@style@to@style{#1 bidirectionaldiode}{biD#2}
+    \pgfcirc@activate@bipole{l}{#1thyristor}{#1thyristor}{#1 thyristor}
+    \pgfcirc@style@to@style{#1 thyristor}{Ty#2}
+    \pgfcirc@activate@bipole{l}{#1triac}{#1triac}{#1 triac}
+    \pgfcirc@style@to@style{#1 triac}{Tr#2}
 }
+\pgfcirc@tmp@generatediodes{full}{*}
+\pgfcirc@tmp@generatediodes{empty}{o}
+\def\pgfcirc@tmp@generatestrokeddiodes#1#2{
+    \pgfcirc@node@to@style{l}{emptydiode}{#1 diode}{\circuitikzbasekey/bipole/is strokedsymbol=true}
+    \pgfcirc@style@to@style{#1 diode}{D#2}
+    \pgfcirc@node@to@style{l}{emptyzdiode}{#1 Zener diode}{\circuitikzbasekey/bipole/is strokedsymbol=true}
+    \pgfcirc@style@to@style{#1 Zener diode}{zD#2}
+    \pgfcirc@node@to@style{l}{emptyzzdiode}{#1 ZZener diode}{\circuitikzbasekey/bipole/is strokedsymbol=true}
+    \pgfcirc@style@to@style{#1 ZZener diode}{zzD#2}
+    \pgfcirc@node@to@style{l}{emptysdiode}{#1 Schottky diode}{\circuitikzbasekey/bipole/is strokedsymbol=true}
+    \pgfcirc@style@to@style{#1 Schottky diode}{sD#2}
+    \pgfcirc@node@to@style{l}{emptytdiode}{#1 tunnel diode}{\circuitikzbasekey/bipole/is strokedsymbol=true}
+    \pgfcirc@style@to@style{#1 tunnel diode}{tD#2}
+    \pgfcirc@node@to@style{l}{emptylediode}{#1 led}{\circuitikzbasekey/bipole/is strokedsymbol=true}
+    \pgfcirc@style@to@style{#1 led}{leD#2}
+    \pgfcirc@node@to@style{l}{emptypdiode}{#1 photodiode}{\circuitikzbasekey/bipole/is strokedsymbol=true}
+    \pgfcirc@style@to@style{#1 photodiode}{pD#2}
+    \pgfcirc@node@to@style{l}{emptyvarcap}{#1 varcap}{\circuitikzbasekey/bipole/is strokedsymbol=true}
+    \pgfcirc@style@to@style{#1 varcap}{VC#2}
+    \pgfcirc@node@to@style{l}{emptybidirectionaldiode}{#1 bidirectionaldiode}{\circuitikzbasekey/bipole/is strokedsymbol=true}
+    \pgfcirc@style@to@style{#1 bidirectionaldiode}{biD#2}
+    \pgfcirc@node@to@style{l}{emptythyristor}{#1 thyristor}{\circuitikzbasekey/bipole/is strokedsymbol=true}
+    \pgfcirc@style@to@style{#1 thyristor}{Ty#2}
+    \pgfcirc@node@to@style{l}{emptytriac}{#1 triac}{\circuitikzbasekey/bipole/is strokedsymbol=true}
+    \pgfcirc@style@to@style{#1 triac}{Tr#2}
+}
+\pgfcirc@tmp@generatestrokeddiodes{stroke}{-}
+\def\pgfcircdiodestylemacro{\ifpgf@circuit@strokediode stroke \else\ifpgf@circuit@fulldiode full \else empty \fi\fi}
+% these are auto-switching styles
+\pgfcirc@style@to@style{\pgfcircdiodestylemacro diode}{diode}
+\pgfcirc@style@to@style{diode}{D}
+\pgfcirc@style@to@style{\pgfcircdiodestylemacro Zener diode}{Zener diode}
+\pgfcirc@style@to@style{Zener diode}{zD}
+\pgfcirc@style@to@style{\pgfcircdiodestylemacro ZZener diode}{ZZener diode}
+\pgfcirc@style@to@style{ZZener diode}{zzD}
+\pgfcirc@style@to@style{\pgfcircdiodestylemacro Schottky diode}{Schottky diode}
+\pgfcirc@style@to@style{Schottky diode}{sD}
+\pgfcirc@style@to@style{\pgfcircdiodestylemacro tunnel diode}{tunnel diode}
+\pgfcirc@style@to@style{tunnel diode}{tD}
+\pgfcirc@style@to@style{\pgfcircdiodestylemacro led}{led}
+\pgfcirc@style@to@style{led}{leD}
+\pgfcirc@style@to@style{\pgfcircdiodestylemacro photodiode}{photodiode}
+\pgfcirc@style@to@style{photodiode}{pD}
+\pgfcirc@style@to@style{\pgfcircdiodestylemacro varcap}{varcap}
+\pgfcirc@style@to@style{varcap}{VC}
+\pgfcirc@style@to@style{\pgfcircdiodestylemacro bidirectionaldiode}{bidirectionaldiode}
+\pgfcirc@style@to@style{bidirectionaldiode}{biD}
+\pgfcirc@style@to@style{\pgfcircdiodestylemacro thyristor}{thyristor}
+\pgfcirc@style@to@style{thyristor}{Ty}
+\pgfcirc@style@to@style{\pgfcircdiodestylemacro triac}{triac}
+\pgfcirc@style@to@style{triac}{Tr}
+% %>>>
 
 %%%%%%%%%%%%%
 %% switches
