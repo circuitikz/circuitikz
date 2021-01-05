@@ -1,4 +1,5 @@
-XELATEXOPTIONS:=-8bit -interaction=nonstopmode
+# XELATEXOPTIONS:=-8bit -interaction=nonstopmode
+XELATEXOPTIONS:=-8bit -halt-on-error
 GIT_REV:=$(shell git rev-parse --short HEAD)
 GIT_DATE:=$(shell export LC_ALL=C;date +"%Y\/%m\/%d" --date=@`git show -s --format=%ct`)
 #GIT_DATE:=$(shell date)
@@ -16,12 +17,20 @@ manual-git: flat
 	#sed should only match first occurence in file, therefore the strange pattern
 	sed -i '0,/^\(\\usepackage.*\){circuitikz}\(.*\)/s//\1{circuitikzgit}\2/' doc/circuitikzmanual.tex
 	sed -i '0,/^\(\\usepackage.*\){circuitikz}\(.*\)/s//\1{circuitikzgit}\2/' doc/compatibility.tex
-	$(MAKE) manual-latex
+	$(MAKE) manual-latex || $(MAKE) manual-git-fail
+	$(MAKE) manual-context || $(MAKE) manual-git-fail
 	sed -i '0,/^\(\\usepackage.*\){circuitikzgit}\(.*\)/s//\1{circuitikz}\2/' doc/circuitikzmanual.tex
 	sed -i '0,/^\(\\usepackage.*\){circuitikzgit}\(.*\)/s//\1{circuitikz}\2/' doc/compatibility.tex
 	rm -f doc/$(CTIKZ_GIT_FILENAME)
 	mv doc/circuitikzmanual.pdf circuitikzmanualgit.pdf
 	zip -j --from-crlf ctikzstylesgit.zip tex/ctikzstyle*.tex
+
+manual-git-fail:
+	echo "ERROR manual-git failed, undo changes"
+	sed -i '0,/^\(\\usepackage.*\){circuitikzgit}\(.*\)/s//\1{circuitikz}\2/' doc/circuitikzmanual.tex
+	sed -i '0,/^\(\\usepackage.*\){circuitikzgit}\(.*\)/s//\1{circuitikz}\2/' doc/compatibility.tex
+	rm -f doc/$(CTIKZ_GIT_FILENAME)
+	exit 1
 
 manual: manual-latex manual-context clean
 
@@ -29,20 +38,11 @@ manual-context: changelog
 	rm -f doc/circuitikz-context.pdf
 	rm -f doc/tmp.pdf
 	cd doc; TEXINPUTS=.:../tex/: context circuitikz-context.tex
-	#optimize for smaller filesize(faktor 2!)--> no benefit at context!
-	#gs -sDEVICE=pdfwrite -dCompatibilityLevel=1.4 -dPDFSETTINGS=/screen -dNOPAUSE -dQUIET -dBATCH -sOutputFile=doc/tmp.pdf doc/circuitikz-context.pdf
-	#mv doc/tmp.pdf doc/circuitikz-context.pdf
 
 manual-latex: changelog
 	rm -f doc/circuitikzmanual.pdf
 	rm -f doc/tmp.pdf
-	#cd doc;pdflatex compatibility.tex; pdflatex circuitikzmanual.tex; pdflatex circuitikzmanual.tex
-	#compile with xelatex for smaller filesize!
-	# sometime you need three compilation to get index pages correctly
-	cd doc; TEXINPUTS=.:../tex/: xelatex $(XELATEXOPTIONS) compatibility.tex;  TEXINPUTS=.:../tex/: xelatex $(XELATEXOPTIONS) circuitikzmanual.tex;  TEXINPUTS=.:../tex/: xelatex $(XELATEXOPTIONS) circuitikzmanual.tex; TEXINPUTS=.:../tex/: xelatex $(XELATEXOPTIONS) circuitikzmanual.tex
-	#optimize for smaller filesize(faktor 2!)--> only useful if using pdflatex
-	#gs -sDEVICE=pdfwrite -dCompatibilityLevel=1.4 -dPDFSETTINGS=/screen -dNOPAUSE -dQUIET -dBATCH -sOutputFile=doc/tmp.pdf doc/circuitikzmanual.pdf
-	#mv doc/tmp.pdf doc/circuitikzmanual.pdf
+	cd doc; TEXINPUTS=.:../tex/: xelatex $(XELATEXOPTIONS) compatibility.tex && TEXINPUTS=.:../tex/: xelatex $(XELATEXOPTIONS) circuitikzmanual.tex &&  TEXINPUTS=.:../tex/: xelatex $(XELATEXOPTIONS) circuitikzmanual.tex && TEXINPUTS=.:../tex/: xelatex $(XELATEXOPTIONS) circuitikzmanual.tex
 
 changelog:
 	echo "%DO NOT EDIT THIS AUTOMATICALLY GENERATED FILE, run \"make changelog\" at toplevel!!!" > doc/changelog.tex
