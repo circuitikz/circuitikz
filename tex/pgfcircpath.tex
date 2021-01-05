@@ -1,7 +1,7 @@
-% Copyright 2018-2020 by Romano Giannetti
-% Copyright 2015-2020 by Stefan Lindner
-% Copyright 2013-2020 by Stefan Erhardt
-% Copyright 2007-2020 by Massimo Redaelli
+% Copyright 2018-2021 by Romano Giannetti
+% Copyright 2015-2021 by Stefan Lindner
+% Copyright 2013-2021 by Stefan Erhardt
+% Copyright 2007-2021 by Massimo Redaelli
 %
 % This file may be distributed and/or modified
 %
@@ -97,22 +97,6 @@
     %
     \pgf@circ@bipole@path@base{shape}{}{#1}{#2}
 }
-%
-% this is used for components that are mainly node-style but have a path-style form
-%
-\def\pgfcirc@node@to@path#1#2#3{%
-    % add a path-style component based on a node-style one without mangling the name
-    % of the shape.
-    % #1: node-type shape name (existing)
-    % #2: path-type name (to be created)
-    % #3: additional options to add to the path style
-    %
-    \expandafter\def\csname pgf@circ@#1@path\endcsname##1{\pgf@circ@bipole@path@base{}{##1}{#1}{}}%
-    \compattikzset{#2/.style = {\circuitikzbasekey,
-        /tikz/to path=\csname pgf@circ@#1@path\endcsname{##1},
-        #3}}%
-    \ctikzset{bipoles/#1/height/.initial=1}%
-}
 %%
 %% ultra-generic bipole path
 %% I am not sure what the last argument is needed for, but don't touch it or everything explodes
@@ -202,8 +186,75 @@
     \tikztonodes
 }
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%% Handling of terminals
+%% Macros for path and style activation for bipoles or path-style
+
+\def\comnpatname{\ifpgf@circuit@compat *\else\fi}
+\def\compattikzset#1{%
+    % \typeout{BIPOLEDEF:\space \detokenize{#1}}%
+    \tikzset{\comnpatname#1}}
+%
+% this is used for components that are mainly node-style but have a path-style form
+%
+\def\pgfcirc@node@to@path#1#2#3{%
+    % add a path-style component based on a node-style one without mangling the name
+    % of the shape.
+    % #1: node-type shape name (existing)
+    % #2: path-type name (to be created)
+    % #3: additional options to add to the path style
+    %
+    \expandafter\def\csname pgf@circ@#1@path\endcsname##1{\pgf@circ@bipole@path@base{}{##1}{#1}{}}%
+    \compattikzset{#2/.style = {\circuitikzbasekey,
+        /tikz/to path=\csname pgf@circ@#1@path\endcsname{##1},
+        #3}}%
+    \ctikzset{bipoles/#1/height/.initial=1}%
+}
+%
+% this one is for normal definition: path to style, directly
+% the first parameter (#1) here is l,v,i (l=..., v=..., i=...)
+% the last parameter are options to be inserted in the "to path" definition
+%
+\def\pgfcirc@path@to@style#1#2#3#4{% using #1 as label, assign \pgf@circ@#2@path to style #3
+    \compattikzset{#3/.style={\circuitikzbasekey, #4, /tikz/to path=\csname pgf@circ@#2@path\endcsname, #1=##1}}%
+}
+% this one create a alias style from a node definition
+\def\pgfcirc@node@to@style#1#2#3#4{% using #1 as label, assign \pgf@circ@bipole@path{#2} to style #3
+    \compattikzset{#3/.style={\circuitikzbasekey, #4, /tikz/to path=\pgf@circ@bipole@path{#2}, #1=##1}}%
+}
+% this create an alias style
+\def\pgfcirc@style@to@style#1#2{% alias style #1 to style #2
+    \compattikzset{#2/.style={\comnpatname #1 = ##1}}%
+}
+% this create an alias style, changing the labelling
+\def\pgfcirc@style@to@style@label#1#2#3{% alias style #1 to style #2
+    \compattikzset{#2/.style={\comnpatname #1, #3 = ##1}}%
+}
+% create a bipole
+\def\pgfcirc@activate@bipole#1#2#3#4{% path name, base node name, style name
+    \expandafter\def\csname pgf@circ@#2@path\endcsname##1{\pgf@circ@bipole@path{#3}{##1}}%
+    \pgfcirc@path@to@style{#1}{#2}{#4}{}% no options here, let's see
+}
+\def\pgfcirc@activate@bipole@simple#1#2{\pgfcirc@activate@bipole{#1}{#2}{#2}{#2}}
+% create a bipole with options
+\def\pgfcirc@activate@bipole@opt#1#2#3#4#5{% path name, base node name, style name
+    \expandafter\def\csname pgf@circ@#2@path\endcsname##1{\pgf@circ@bipole@path{#3}{##1}}%
+    \pgfcirc@path@to@style{#1}{#2}{#4}{#5}% no options here, let's see
+}
+\def\pgfcirc@activate@bipole@simple@opt#1#2#3{\pgfcirc@activate@bipole@opt{#1}{#2}{#2}{#2}{#3}}
+
+
+%% New system, for simple object
+%% \pgfcirc@activate@bipole@simple{l}{mass}
+%% New system, different names
+%% The old system is the following
+%% 1 - define just the pgf@circ@path@whatever#1
+%% (see for example the variable one)
+%% 2 - set the style
+%% \compattikzset{resistor/.style= {\circuitikzbasekey, /tikz/to path=\pgf@circ@resistor@path, l=#1}}
+
+%% Path definition with the new mechanism have been moved to where the nodes
+%% are defined.
+
+%% Handling of terminals%<<<
 
 \ctikzset{bipole/nodes/.is family}
 \ctikzset{bipole/nodes/left/.initial=none}
@@ -252,662 +303,11 @@
     \pgfextra{ \edef\pgf@circ@temp{\ctikzvalof{bipole/nodes/right}} }
     \ifx\pgf@temp\pgf@circ@temp\else(\tikztotarget) node[\pgf@circ@temp] {}\fi
 }
+% %>>>
 
-%% Path definitions
-\def\pgf@circ@resistor@path#1{\ifpgf@circuit@europeanresistor\pgf@circ@bipole@path{generic}{#1}\else\pgf@circ@bipole@path{resistor}{#1}\fi}
-\def\pgf@circ@vresistor@path#1{\ifpgf@circuit@europeanresistor\pgf@circ@bipole@path{tgeneric}{#1}\else\pgf@circ@bipole@path{vresistor}{#1}\fi}
-\def\pgf@circ@sresistor@path#1{\ifpgf@circuit@europeanresistor\pgf@circ@bipole@path{thermistor}{#1}\else\pgf@circ@bipole@path{resistivesens}{#1}\fi}
-\def\pgf@circ@potentiometer@path#1{\ifpgf@circuit@europeanresistor\pgf@circ@bipole@path{genericpotentiometer}{#1}\else\pgf@circ@bipole@path{potentiometer}{#1}\fi}
-\def\pgf@circ@thermistor@path#1{\pgf@circ@bipole@path{thermistor}{#1}}
-\def\pgf@circ@thermistorptc@path#1{\pgf@circ@bipole@path{thermistorptc}{#1}}
-\def\pgf@circ@thermistorntc@path#1{\pgf@circ@bipole@path{thermistorntc}{#1}}
-\def\pgf@circ@varistor@path#1{\pgf@circ@bipole@path{varistor}{#1}}
-\def\pgf@circ@capacitor@path#1{\pgf@circ@bipole@path{capacitor}{#1}}
-\def\pgf@circ@capacitivesens@path#1{\pgf@circ@bipole@path{capacitivesens}{#1}}
-\def\pgf@circ@ecapacitor@path#1{\pgf@circ@bipole@path{ecapacitor}{#1}}
-%% polar capacitor is deprectaed, use curved capacitor instead
-\def\pgf@circ@polarcapacitor@path#1{\pgf@circ@bipole@path{polarcapacitor}{#1}}
-\def\pgf@circ@ccapacitor@path#1{\pgf@circ@bipole@path{ccapacitor}{#1}}
-\def\pgf@circ@vcapacitor@path#1{\pgf@circ@bipole@path{vcapacitor}{#1}}
-\def\pgf@circ@piezoelectric@path#1{\pgf@circ@bipole@path{piezoelectric}{#1}}
-\def\pgf@circ@battery@path#1{\pgf@circ@bipole@path{battery}{#1}}
-\def\pgf@circ@batteryone@path#1{\pgf@circ@bipole@path{battery1}{#1}}
-\def\pgf@circ@batterytwo@path#1{\pgf@circ@bipole@path{battery2}{#1}}
-\def\pgf@circ@europeaninductor@path#1{\pgf@circ@bipole@path{fullgeneric}{#1}}
-\def\pgf@circ@americaninductor@path#1{\pgf@circ@bipole@path{americaninductor}{#1}}
-\def\pgf@circ@cuteinductor@path#1{\pgf@circ@bipole@path{cuteinductor}{#1}}
-\def\pgf@circ@cutechoke@path#1{\pgf@circ@bipole@path{cutechoke}{#1}}
-\def\pgf@circ@inductor@path#1{%
-    \pgfextra{
-        \edef\pgf@circ@temp{\ctikzvalof{inductor}}%
-        \def\pgf@temp{european}%
-    }
-    \ifx\pgf@temp\pgf@circ@temp%
-        \pgf@circ@europeaninductor@path{#1}%
-    \else%
-        \pgfextra{	\def\pgf@temp{cute} }%
-        \ifx\pgf@temp\pgf@circ@temp%
-            \pgf@circ@cuteinductor@path{#1}%
-        \else%
-            \pgf@circ@americaninductor@path{#1}%
-        \fi%
-    \fi%
-}
-\def\pgf@circ@vinductor@path#1{
-    \pgfextra{
-        \edef\pgf@circ@temp{\ctikzvalof{inductor}}%
-        \def\pgf@temp{european}%
-    }
-    \ifx\pgf@temp\pgf@circ@temp%
-        \pgf@circ@veuropeaninductor@path{#1}%
-    \else%
-        \pgfextra{	\def\pgf@temp{cute} }%
-        \ifx\pgf@temp\pgf@circ@temp%
-            \pgf@circ@vcuteinductor@path{#1}%
-        \else%
-            \pgf@circ@vamericaninductor@path{#1}%
-        \fi%
-    \fi%
-}
-\def\pgf@circ@inductivesens@path#1{%
-    \pgfextra{
-        \edef\pgf@circ@temp{\ctikzvalof{inductor}}%
-        \def\pgf@temp{european}%
-    }
-    \ifx\pgf@temp\pgf@circ@temp%
-        \pgf@circ@europeaninductivesens@path{#1}%
-    \else%
-        \pgfextra{	\def\pgf@temp{cute} }%
-        \ifx\pgf@temp\pgf@circ@temp%
-            \pgf@circ@cuteinductivesens@path{#1}%
-        \else%
-            \pgf@circ@americaninductivesens@path{#1}%
-        \fi%
-    \fi%
-}
-\def\pgf@circ@veuropeaninductor@path#1{\pgf@circ@bipole@path{tfullgeneric}{#1}}
-\def\pgf@circ@vamericaninductor@path#1{\pgf@circ@bipole@path{vamericaninductor}{#1}}
-\def\pgf@circ@vcuteinductor@path#1{\pgf@circ@bipole@path{vcuteinductor}{#1}}
-\def\pgf@circ@europeaninductivesens@path#1{\pgf@circ@bipole@path{sfullgeneric}{#1}}
-\def\pgf@circ@americaninductivesens@path#1{\pgf@circ@bipole@path{samericaninductor}{#1}}
-\def\pgf@circ@cuteinductivesens@path#1{\pgf@circ@bipole@path{scuteinductor}{#1}}
-\def\pgf@circ@lamp@path#1{\pgf@circ@bipole@path{lamp}{#1}}
-\def\pgf@circ@bulb@path#1{\pgf@circ@bipole@path{bulb}{#1}}
-\def\pgf@circ@esource@path#1{\pgf@circ@bipole@path{esource}{#1}}
-\def\pgf@circ@pvsource@path#1{\pgf@circ@bipole@path{pvsource}{#1}}
-\def\pgf@circ@vsource@path#1{\pgf@circ@bipole@path{vsource}{#1}}
-\def\pgf@circ@dcvsource@path#1{\pgf@circ@bipole@path{dcvsource}{#1}}
-\def\pgf@circ@vsourceam@path#1{\pgf@circ@bipole@path{vsourceAM}{#1}}
-\def\pgf@circ@vsourcesin@path#1{\pgf@circ@bipole@path{vsourcesin}{#1}}
-\def\pgf@circ@isource@path#1{\pgf@circ@bipole@path{isource}{#1}}
-\def\pgf@circ@oosource@path#1{\pgf@circ@bipole@path{oosource}{#1}}
-\def\pgf@circ@oosourcetrans@path#1{\pgf@circ@bipole@path{oosourcetrans}{#1}}
-\def\pgf@circ@ooosource@path#1{\pgf@circ@bipole@path{ooosource}{#1}}
-\def\pgf@circ@dcisource@path#1{\pgf@circ@bipole@path{dcisource}{#1}}
-\def\pgf@circ@isourcesin@path#1{\pgf@circ@bipole@path{isourcesin}{#1}}
-\def\pgf@circ@vsourcesquare@path#1{\pgf@circ@bipole@path{vsourcesquare}{#1}}
-\def\pgf@circ@vsourcetri@path#1{\pgf@circ@bipole@path{vsourcetri}{#1}}
-\def\pgf@circ@isourceam@path#1{\pgf@circ@bipole@path{isourceAM}{#1}}
-\def\pgf@circ@ecsource@path#1{\pgf@circ@bipole@path{ecsource}{#1}}
-\def\pgf@circ@cvsource@path#1{\pgf@circ@bipole@path{cvsource}{#1}}
-\def\pgf@circ@cvsourceam@path#1{\pgf@circ@bipole@path{cvsourceAM}{#1}}
-\def\pgf@circ@cvsourcesin@path#1{\pgf@circ@bipole@path{cvsourcesin}{#1}}
-\def\pgf@circ@cisource@path#1{\pgf@circ@bipole@path{cisource}{#1}}
-\def\pgf@circ@cisourceam@path#1{\pgf@circ@bipole@path{cisourceAM}{#1}}
-\def\pgf@circ@cisourcesin@path#1{\pgf@circ@bipole@path{cisourcesin}{#1}}
-\def\pgf@circ@short@path#1{\pgf@circ@bipole@path{short}{#1}}
-\def\pgf@circ@cspst@path#1{\pgf@circ@bipole@path{cspst}{#1}}
-\def\pgf@circ@ospst@path#1{\pgf@circ@bipole@path{ospst}{#1}}
-\def\pgf@circ@nos@path#1{\pgf@circ@bipole@path{nos}{#1}}
-\def\pgf@circ@ncs@path#1{\pgf@circ@bipole@path{ncs}{#1}}
-\def\pgf@circ@pushbutton@path#1{\pgf@circ@bipole@path{pushbutton}{#1}}
-\def\pgf@circ@ncpushbutton@path#1{\pgf@circ@bipole@path{ncpushbutton}{#1}}
-\def\pgf@circ@pushbuttonc@path#1{\pgf@circ@bipole@path{pushbuttonc}{#1}}
-\def\pgf@circ@ncpushbuttono@path#1{\pgf@circ@bipole@path{ncpushbuttono}{#1}}
-\def\pgf@circ@open@path#1{\pgf@circ@bipole@path{open}{#1}}
-\def\pgf@circ@generic@path#1{\pgf@circ@bipole@path{generic}{#1}}
-\def\pgf@circ@ageneric@path#1{\pgf@circ@bipole@path{ageneric}{#1}}
-\def\pgf@circ@tgeneric@path#1{\pgf@circ@bipole@path{tgeneric}{#1}}
-\def\pgf@circ@xgeneric@path#1{\pgf@circ@bipole@path{xgeneric}{#1}}
-\def\pgf@circ@fullgeneric@path#1{\pgf@circ@bipole@path{fullgeneric}{#1}}
-\def\pgf@circ@tfullgeneric@path#1{\pgf@circ@bipole@path{tfullgeneric}{#1}}
-\def\pgf@circ@ammeter@path#1{\pgf@circ@bipole@path{ammeter}{#1}}
-\def\pgf@circ@ohmmeter@path#1{\pgf@circ@bipole@path{ohmmeter}{#1}}
-\def\pgf@circ@voltmeter@path#1{\pgf@circ@bipole@path{voltmeter}{#1}}
-\def\pgf@circ@oscope@path#1{\pgf@circ@bipole@path{oscope}{#1}}
-\def\pgf@circ@empty@path#1{}
-\def\pgf@circ@photoresistor@path#1{\pgf@circ@bipole@path{photoresistor}{#1}}
-\def\pgf@circ@emptythyristor@path#1{\pgf@circ@bipole@path{emptythyristor}{#1}}
-\def\pgf@circ@fullthyristor@path#1{\pgf@circ@bipole@path{fullthyristor}{#1}}
-\def\pgf@circ@toggleswitch@path#1{\pgf@circ@bipole@path{toggleswitch}{#1}}
-\def\pgf@circ@memristor@path#1{\pgf@circ@bipole@path{memristor}{#1}}
-\def\pgf@circ@emptytriac@path#1{\pgf@circ@bipole@path{emptytriac}{#1}}
-\def\pgf@circ@fulltriac@path#1{\pgf@circ@bipole@path{fulltriac}{#1}}
-\def\pgf@circ@tline@path#1{\pgf@circ@bipole@path{tline}{#1}}
-\def\pgf@circ@mstline@path#1{\pgf@circ@bipole@path{mstline}{#1}}
-\def\pgf@circ@squid@path#1{\pgf@circ@bipole@path{squid}{#1}}
-\def\pgf@circ@barrier@path#1{\pgf@circ@bipole@path{barrier}{#1}}
-\def\pgf@circ@openbarrier@path#1{\pgf@circ@bipole@path{openbarrier}{#1}}
-\def\pgf@circ@thermocouple@path#1{\pgf@circ@bipole@path{thermocouple}{#1}}
-\def\pgf@circ@fuse@path#1{\pgf@circ@bipole@path{fuse}{#1}}
-\def\pgf@circ@afuse@path#1{\pgf@circ@bipole@path{afuse}{#1}}
-
-\def\pgf@circ@gfsurgearrester@path#1{\ifpgf@circuit@europeangfsurgearrester\pgf@circ@europeangfsurgearrester@path{#1}\else\pgf@circ@americangfsurgearrester@path{#1}\fi}
-\def\pgf@circ@europeangfsurgearrester@path#1{\pgf@circ@bipole@path{european gas filled surge arrester}{#1}}
-\def\pgf@circ@americangfsurgearrester@path#1{\pgf@circ@bipole@path{american gas filled surge arrester}{#1}}
-
-\def\pgf@circ@twoport@path#1{\pgf@circ@bipole@path{twoport}{#1}}
-\def\pgf@circ@twoportsplit@path#1{\pgf@circ@bipole@path{twoportsplit}{#1}}
-\def\pgf@circ@vco@path#1{\pgf@circ@bipole@path{vco}{#1}}
-\def\pgf@circ@bandpass@path#1{\pgf@circ@bipole@path{bandpass}{#1}}
-\def\pgf@circ@bandstop@path#1{\pgf@circ@bipole@path{bandstop}{#1}}
-\def\pgf@circ@highpass@path#1{\pgf@circ@bipole@path{highpass}{#1}}
-\def\pgf@circ@lowpass@path#1{\pgf@circ@bipole@path{lowpass}{#1}}
-\def\pgf@circ@allpass@path#1{\pgf@circ@bipole@path{allpass}{#1}}
-\def\pgf@circ@adc@path#1{\pgf@circ@bipole@path{adc}{#1}}
-\def\pgf@circ@dac@path#1{\pgf@circ@bipole@path{dac}{#1}}
-\def\pgf@circ@dsp@path#1{\pgf@circ@bipole@path{dsp}{#1}}
-\def\pgf@circ@fft@path#1{\pgf@circ@bipole@path{fft}{#1}}
-\def\pgf@circ@amp@path#1{\pgf@circ@bipole@path{amp}{#1}}
-\def\pgf@circ@vamp@path#1{\pgf@circ@bipole@path{vamp}{#1}}
-\def\pgf@circ@piattenuator@path#1{\pgf@circ@bipole@path{piattenuator}{#1}}
-\def\pgf@circ@vpiattenuator@path#1{\pgf@circ@bipole@path{vpiattenuator}{#1}}
-\def\pgf@circ@tattenuator@path#1{\pgf@circ@bipole@path{tattenuator}{#1}}
-\def\pgf@circ@vtattenuator@path#1{\pgf@circ@bipole@path{vtattenuator}{#1}}
-\def\pgf@circ@phaseshifter@path#1{\pgf@circ@bipole@path{phaseshifter}{#1}}
-\def\pgf@circ@vphaseshifter@path#1{\pgf@circ@bipole@path{vphaseshifter}{#1}}
-\def\pgf@circ@detector@path#1{\pgf@circ@bipole@path{detector}{#1}}
-%
-\def\pgf@circ@sacdc@path#1{\pgf@circ@bipole@path{sacdc}{#1}}
-\def\pgf@circ@sdcac@path#1{\pgf@circ@bipole@path{sdcac}{#1}}
-\def\pgf@circ@tacdc@path#1{\pgf@circ@bipole@path{tacdc}{#1}}
-\def\pgf@circ@tdcac@path#1{\pgf@circ@bipole@path{tdcac}{#1}}
-
-%%Mechanical
-\def\pgf@circ@spring@path#1{\pgf@circ@bipole@path{spring}{#1}}
-\def\pgf@circ@inerter@path#1{\pgf@circ@bipole@path{inerter}{#1}}
-\def\pgf@circ@mass@path#1{\pgf@circ@bipole@path{mass}{#1}}
-\def\pgf@circ@damper@path#1{\pgf@circ@bipole@path{damper}{#1}}
-\def\pgf@circ@viscoe@path#1{\pgf@circ@bipole@path{viscoe}{#1}}
-
-%% Styles
-
-\def\comnpatname{\ifpgf@circuit@compat *\else\fi}
-\def\compattikzset#1{%
-    % \typeout{BIPOLEDEF:\space \detokenize{#1}}%
-    \tikzset{\comnpatname#1}}
-
-%\def\ctikzsetbipole#1#2{%
-%	\tikzset{#1/.style= {to path=#2, \circuitikzbasekey, l=##1}}%
-%}
-
-\compattikzset{spring/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@spring@path, l=#1}}
-\compattikzset{inerter/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@inerter@path, l=#1}}
-\compattikzset{mass/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@mass@path, l=#1}}
-\compattikzset{damper/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@damper@path, l=#1}}
-\compattikzset{viscoe/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@viscoe@path, l=#1}}
-\compattikzset{resistor/.style= {\circuitikzbasekey, /tikz/to path=\pgf@circ@resistor@path, l=#1}}
-\compattikzset{american resistor/.style= {\circuitikzbasekey, /tikz/to path=\pgf@circ@bipole@path{resistor}{#1}, l=#1}}
-\compattikzset{european resistor/.style= {\circuitikzbasekey, /tikz/to path=\pgf@circ@bipole@path{generic}{#1}, l=#1}}
-\compattikzset{potentiometer/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@potentiometer@path, l=#1}}
-\compattikzset{varistor/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@varistor@path, l=#1}}
-\compattikzset{photoresistor/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@photoresistor@path, l=#1}}
-\compattikzset{thermistor/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@thermistor@path, l=#1}}
-\compattikzset{thermistor ptc/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@thermistorptc@path, l=#1}}
-\compattikzset{thermistor ntc/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@thermistorntc@path, l=#1}}
-\compattikzset{american potentiometer/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@bipole@path{potentiometer}{#1}, l=#1}}
-\compattikzset{european potentiometer/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@bipole@path{genericpotentiometer}{#1}, l=#1}}
-\compattikzset{variable resistor/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@vresistor@path, l=#1}}
-\compattikzset{variable american resistor/.style= {\circuitikzbasekey, /tikz/to path=\pgf@circ@bipole@path{vresistor}{#1}, l=#1}}
-\compattikzset{variable european resistor/.style= {\circuitikzbasekey, /tikz/to path=\pgf@circ@bipole@path{tgeneric}{#1}, l=#1}}
-\compattikzset{capacitor/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@capacitor@path, l=#1}}
-\compattikzset{elko/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@ecapacitor@path, l=#1}}
-\compattikzset{ecapacitor/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@ecapacitor@path, l=#1}}
-% polar capacitor is deprecated, use curved capacitor instead
-\compattikzset{polar capacitor/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@polarcapacitor@path, l=#1}}
-\compattikzset{curved capacitor/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@ccapacitor@path, l=#1}}
-\compattikzset{variable capacitor/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@vcapacitor@path, l=#1}}
-\compattikzset{piezoelectric/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@piezoelectric@path, l=#1}}
-\compattikzset{battery/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@battery@path, \circuitikzbasekey/bipole/is voltage=true,  \circuitikzbasekey/bipole/is voltageoutsideofsymbol=true, v=#1}}
-\compattikzset{battery1/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@batteryone@path, \circuitikzbasekey/bipole/is voltage=true,  \circuitikzbasekey/bipole/is voltageoutsideofsymbol=true, v=#1}}
-\compattikzset{battery2/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@batterytwo@path, \circuitikzbasekey/bipole/is voltage=true,  \circuitikzbasekey/bipole/is voltageoutsideofsymbol=true, v=#1}}
-\compattikzset{inductor/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@inductor@path, l=#1}}
-\compattikzset{gf surge arrester/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@gfsurgearrester@path, l=#1}}
-\compattikzset{american gas filled surge arrester/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@americangfsurgearrester@path, l=#1}}
-\compattikzset{european gas filled surge arrester/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@europeangfsurgearrester@path, l=#1}}
-\compattikzset{gas filled surge arrester/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@gfsurgearrester@path, l=#1}}
-\compattikzset{american inductor/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@americaninductor@path, l=#1}}
-\compattikzset{cute inductor/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@cuteinductor@path, l=#1}}
-\compattikzset{cute choke/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@cutechoke@path, l=#1}}
-\compattikzset{european inductor/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@europeaninductor@path, l=#1}}
-\compattikzset{variable inductor/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@vinductor@path, l=#1}}
-\compattikzset{variable european inductor/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@veuropeaninductor@path, l=#1}}
-\compattikzset{variable american inductor/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@vamericaninductor@path, l=#1}}
-\compattikzset{variable cute inductor/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@vcuteinductor@path, l=#1}}
-\compattikzset{tline/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@tline@path, l=#1}}
-\compattikzset{transmission line/.style = {tline = #1}}
-\compattikzset{TL/.style = {tline = #1}}
-\compattikzset{mstline/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@mstline@path, l=#1}}
-\compattikzset{european voltage source/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@vsource@path, \circuitikzbasekey/bipole/is voltage=true, \circuitikzbasekey/bipole/is voltageoutsideofsymbol=true, v=#1}}
-\compattikzset{american voltage source/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@vsourceam@path, \circuitikzbasekey/bipole/is voltage=true, v=#1}}
-\compattikzset{european current source/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@isource@path, \circuitikzbasekey/bipole/is current=true, i=#1}}
-\compattikzset{american current source/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@isourceam@path, \circuitikzbasekey/bipole/is current=true, i=#1}}
-\compattikzset{empty controlled source/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@ecsource@path, \circuitikzbasekey/bipole/is voltage=true, \circuitikzbasekey/bipole/is voltageoutsideofsymbol=true, v=#1}}
-\compattikzset{european controlled voltage source/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@cvsource@path, \circuitikzbasekey/bipole/is voltage=true, \circuitikzbasekey/bipole/is voltageoutsideofsymbol=true, v=#1}}
-\compattikzset{american controlled voltage source/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@cvsourceam@path, \circuitikzbasekey/bipole/is voltage=true, v=#1}}
-\compattikzset{european controlled current source/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@cisource@path, \circuitikzbasekey/bipole/is current=true, i=#1}}
-\compattikzset{american controlled current source/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@cisourceam@path, \circuitikzbasekey/bipole/is current=true, i=#1}}
-\compattikzset{sinusoidal voltage source/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@vsourcesin@path, \circuitikzbasekey/bipole/is voltage=true, \circuitikzbasekey/bipole/is voltageoutsideofsymbol=true, v=#1 }}
-\compattikzset{square voltage source/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@vsourcesquare@path, \circuitikzbasekey/bipole/is voltage=true, \circuitikzbasekey/bipole/is voltageoutsideofsymbol=true, v=#1 }}
-\compattikzset{triangle voltage source/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@vsourcetri@path, \circuitikzbasekey/bipole/is voltage=true, \circuitikzbasekey/bipole/is voltageoutsideofsymbol=true, v=#1 }}
-\compattikzset{sinusoidal current source/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@isourcesin@path, \circuitikzbasekey/bipole/is current=true, i=#1}}
-\compattikzset{controlled sinusoidal voltage source/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@cvsourcesin@path, \circuitikzbasekey/bipole/is voltage=true, \circuitikzbasekey/bipole/is voltageoutsideofsymbol=true, v=#1}}
-\compattikzset{controlled sinusoidal current source/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@cisourcesin@path, \circuitikzbasekey/bipole/is current=true, i=#1}}
-
-\compattikzset{voltage source/.style = {\comnpatname \ifpgf@circuit@europeanvoltage european \else american \fi voltage source, \circuitikzbasekey/bipole/is voltage=true, v=#1}}
-\compattikzset{current source/.style = {\comnpatname \ifpgf@circuit@europeancurrent european \else american \fi current source = #1, \circuitikzbasekey/bipole/is current=true}}
-\compattikzset{controlled voltage source/.style = {\comnpatname \ifpgf@circuit@europeanvoltage european \else american \fi controlled voltage source, \circuitikzbasekey/bipole/is voltage=true, v=#1}}
-\compattikzset{controlled current source/.style = {\comnpatname \ifpgf@circuit@europeancurrent european \else american \fi controlled current source = #1, \circuitikzbasekey/bipole/is current=true}}
-
-
-\compattikzset{generic/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@generic@path, l=#1}}
-\compattikzset{xgeneric/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@xgeneric@path, l=#1}}
-\compattikzset{ageneric/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@ageneric@path, l=#1}}
-\compattikzset{tgeneric/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@tgeneric@path, l=#1}}
-\compattikzset{fullgeneric/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@fullgeneric@path, l=#1}}
-\compattikzset{tfullgeneric/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@tfullgeneric@path, l=#1}}
-\compattikzset{short/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@short@path}}
-\compattikzset{open/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@open@path}}
-
-\compattikzset{lamp/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@lamp@path}}
-\compattikzset{bulb/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@bulb@path, l=#1}}
-
-\compattikzset{squid/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@squid@path}}
-\compattikzset{barrier/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@barrier@path}}
-\compattikzset{openbarrier/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@openbarrier@path}}
-\compattikzset{thermocouple/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@thermocouple@path}}
-\compattikzset{fuse/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@fuse@path}}
-\compattikzset{asymmetric fuse/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@afuse@path}}
-
-\compattikzset{twoport/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@twoport@path}}
-\compattikzset{twoportsplit/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@twoportsplit@path}}
-\compattikzset{vco/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@vco@path}}
-\compattikzset{bandpass/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@bandpass@path}}
-\compattikzset{bandstop/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@bandstop@path}}
-\compattikzset{highpass/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@highpass@path}}
-\compattikzset{lowpass/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@lowpass@path}}
-\compattikzset{allpass/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@allpass@path}}
-\compattikzset{adc/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@adc@path}}
-\compattikzset{dac/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@dac@path}}
-\compattikzset{dsp/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@dsp@path}}
-\compattikzset{fft/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@fft@path}}
-\compattikzset{amp/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@amp@path}}
-\compattikzset{vamp/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@vamp@path}}
-\compattikzset{piattenuator/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@piattenuator@path}}
-\compattikzset{vpiattenuator/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@vpiattenuator@path}}
-\compattikzset{tattenuator/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@tattenuator@path}}
-\compattikzset{vtattenuator/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@vtattenuator@path}}
-\compattikzset{phaseshifter/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@phaseshifter@path}}
-\compattikzset{vphaseshifter/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@vphaseshifter@path}}
-\compattikzset{detector/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@detector@path}}
-%
-\compattikzset{sacdc/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@sacdc@path, l=#1}}
-\compattikzset{sdcac/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@sdcac@path, l=#1}}
-\compattikzset{tacdc/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@tacdc@path, l=#1}}
-\compattikzset{tdcac/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@tdcac@path, l=#1}}
-
-% % % % % %
-% % Begin of Diodes
-% % % % % %
-
-\def\pgf@circ@fulldiode@path#1{\pgf@circ@bipole@path{fulldiode}{#1}}
-\def\pgf@circ@fullzdiode@path#1{\pgf@circ@bipole@path{fullzdiode}{#1}}
-\def\pgf@circ@fullzzdiode@path#1{\pgf@circ@bipole@path{fullzzdiode}{#1}}
-\def\pgf@circ@fullsdiode@path#1{\pgf@circ@bipole@path{fullsdiode}{#1}}
-\def\pgf@circ@fulltdiode@path#1{\pgf@circ@bipole@path{fulltdiode}{#1}}
-\def\pgf@circ@fulllediode@path#1{\pgf@circ@bipole@path{fulllediode}{#1}}
-\def\pgf@circ@fullpdiode@path#1{\pgf@circ@bipole@path{fullpdiode}{#1}}
-\def\pgf@circ@fullvarcap@path#1{\pgf@circ@bipole@path{fullvarcap}{#1}}
-\def\pgf@circ@fullbidirectionaldiode@path#1{\pgf@circ@bipole@path{fullbidirectionaldiode}{#1}}
-\def\pgf@circ@emptydiode@path#1{\pgf@circ@bipole@path{emptydiode}{#1}}
-\def\pgf@circ@emptyzdiode@path#1{\pgf@circ@bipole@path{emptyzdiode}{#1}}
-\def\pgf@circ@emptyzzdiode@path#1{\pgf@circ@bipole@path{emptyzzdiode}{#1}}
-\def\pgf@circ@emptysdiode@path#1{\pgf@circ@bipole@path{emptysdiode}{#1}}
-\def\pgf@circ@emptytdiode@path#1{\pgf@circ@bipole@path{emptytdiode}{#1}}
-\def\pgf@circ@emptylediode@path#1{\pgf@circ@bipole@path{emptylediode}{#1}}
-\def\pgf@circ@emptypdiode@path#1{\pgf@circ@bipole@path{emptypdiode}{#1}}
-\def\pgf@circ@emptyvarcap@path#1{\pgf@circ@bipole@path{emptyvarcap}{#1}}
-\def\pgf@circ@emptybidirectionaldiode@path#1{\pgf@circ@bipole@path{emptybidirectionaldiode}{#1}}
-
-\compattikzset{full diode/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@fulldiode@path}}
-\compattikzset{full Schottky diode/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@fullsdiode@path}}
-\compattikzset{full Zener diode/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@fullzdiode@path}}
-\compattikzset{full ZZener diode/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@fullzzdiode@path}}
-\compattikzset{full tunnel diode/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@fulltdiode@path}}
-\compattikzset{full photodiode/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@fullpdiode@path}}
-\compattikzset{full led/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@fulllediode@path}}
-\compattikzset{full varcap/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@fullvarcap@path}}
-\compattikzset{full bidirectionaldiode/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@fullbidirectionaldiode@path}}
-\compattikzset{full thyristor/.style =  {\circuitikzbasekey, /tikz/to path=\pgf@circ@fullthyristor@path}}
-\compattikzset{full triac/.style =  {\circuitikzbasekey, /tikz/to path=\pgf@circ@fulltriac@path}}
-
-\compattikzset{empty diode/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@emptydiode@path}}
-\compattikzset{empty Schottky diode/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@emptysdiode@path}}
-\compattikzset{empty Zener diode/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@emptyzdiode@path}}
-\compattikzset{empty ZZener diode/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@emptyzzdiode@path}}
-\compattikzset{empty tunnel diode/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@emptytdiode@path}}
-\compattikzset{empty photodiode/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@emptypdiode@path}}
-\compattikzset{empty led/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@emptylediode@path}}
-\compattikzset{empty varcap/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@emptyvarcap@path}}
-\compattikzset{empty bidirectionaldiode/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@emptybidirectionaldiode@path}}
-\compattikzset{empty thyristor/.style =  {\circuitikzbasekey, /tikz/to path=\pgf@circ@emptythyristor@path}}
-\compattikzset{empty triac/.style =  {\circuitikzbasekey, /tikz/to path=\pgf@circ@emptytriac@path}}
-
-\compattikzset{stroke diode/.style = {\circuitikzbasekey,\circuitikzbasekey/bipole/is strokedsymbol=true, /tikz/to path=\pgf@circ@emptydiode@path}}
-\compattikzset{stroke Schottky diode/.style = {\circuitikzbasekey,\circuitikzbasekey/bipole/is strokedsymbol=true, /tikz/to path=\pgf@circ@emptysdiode@path}}
-\compattikzset{stroke Zener diode/.style = {\circuitikzbasekey,\circuitikzbasekey/bipole/is strokedsymbol=true, /tikz/to path=\pgf@circ@emptyzdiode@path}}
-\compattikzset{stroke ZZener diode/.style = {\circuitikzbasekey,\circuitikzbasekey/bipole/is strokedsymbol=true, /tikz/to path=\pgf@circ@emptyzzdiode@path}}
-\compattikzset{stroke tunnel diode/.style = {\circuitikzbasekey,\circuitikzbasekey/bipole/is strokedsymbol=true, /tikz/to path=\pgf@circ@emptytdiode@path}}
-\compattikzset{stroke photodiode/.style = {\circuitikzbasekey,\circuitikzbasekey/bipole/is strokedsymbol=true, /tikz/to path=\pgf@circ@emptypdiode@path}}
-\compattikzset{stroke led/.style = {\circuitikzbasekey,\circuitikzbasekey/bipole/is strokedsymbol=true, /tikz/to path=\pgf@circ@emptylediode@path}}
-\compattikzset{stroke varcap/.style = {\circuitikzbasekey,\circuitikzbasekey/bipole/is strokedsymbol=true, /tikz/to path=\pgf@circ@emptyvarcap@path}}
-\compattikzset{stroke thyristor/.style =  {\circuitikzbasekey,\circuitikzbasekey/bipole/is strokedsymbol=true, /tikz/to path=\pgf@circ@emptythyristor@path}}
-%\compattikzset{stroke triac/.style =  {\circuitikzbasekey,\circuitikzbasekey/bipole/is strokedsymbol=true, /tikz/to path=\pgf@circ@emptytriac@path}}
-
-\def\pgfcircdiodestylemacro{\ifpgf@circuit@strokediode stroke \else\ifpgf@circuit@fulldiode full \else empty \fi\fi}
-
-\compattikzset{Schottky diode/.style = {\comnpatname \pgfcircdiodestylemacro Schottky diode}}
-\compattikzset{Zener diode/.style = {\comnpatname \pgfcircdiodestylemacro Zener diode}}
-\compattikzset{ZZener diode/.style = {\comnpatname \pgfcircdiodestylemacro ZZener diode}}
-\compattikzset{tunnel diode/.style = {\comnpatname \pgfcircdiodestylemacro tunnel diode}}
-\compattikzset{photodiode/.style = {\comnpatname \pgfcircdiodestylemacro photodiode}}
-\compattikzset{led/.style = {\comnpatname \pgfcircdiodestylemacro led}}
-\compattikzset{varcap/.style = {\comnpatname \pgfcircdiodestylemacro varcap}}
-\compattikzset{diode/.style = {\comnpatname \pgfcircdiodestylemacro diode}}
-\compattikzset{thyristor/.style =  {\comnpatname \pgfcircdiodestylemacro thyristor}}
-\compattikzset{triac/.style =  {\comnpatname \ifpgf@circuit@fulldiode full \else empty \fi triac}}%no stroke triac!
-\compattikzset{bidirectionaldiode/.style =  {\comnpatname \ifpgf@circuit@fulldiode full \else empty \fi bidirectionaldiode}}%no stroke bidirectionaldiode! (based on triac)
-
-%% Define Shortcuts
-\compattikzset{Do/.style = {\comnpatname empty diode}}
-\compattikzset{tDo/.style = {\comnpatname empty tunnel diode}}
-\compattikzset{zDo/.style = {\comnpatname empty Zener diode}}
-\compattikzset{zzDo/.style = {\comnpatname empty ZZener diode}}
-\compattikzset{sDo/.style = {\comnpatname empty Schottky diode}}
-\compattikzset{pDo/.style = {\comnpatname empty photodiode}}
-\compattikzset{leDo/.style = {\comnpatname empty led}}
-\compattikzset{VCo/.style = {\comnpatname empty varcap}}
-\compattikzset{biDo/.style = {\comnpatname empty bidirectionaldiode}}
-\compattikzset{Tyo/.style = {\comnpatname empty thyristor}}
-\compattikzset{Tro/.style = {\comnpatname empty triac}}
-
-\compattikzset{D*/.style = {\comnpatname full diode}}
-\compattikzset{tD*/.style = {\comnpatname full tunnel diode}}
-\compattikzset{zD*/.style = {\comnpatname full Zener diode}}
-\compattikzset{zzD*/.style = {\comnpatname full ZZener diode}}
-\compattikzset{sD*/.style = {\comnpatname full Schottky diode}}
-\compattikzset{pD*/.style = {\comnpatname full photodiode}}
-\compattikzset{leD*/.style = {\comnpatname full led}}
-\compattikzset{VC*/.style = {\comnpatname full varcap}}
-\compattikzset{biD*/.style = {\comnpatname full bidirectionaldiode}}
-\compattikzset{Ty*/.style = {\comnpatname full thyristor}}
-\compattikzset{Tr*/.style = {\comnpatname full triac}}
-
-\compattikzset{D/.style = {\comnpatname diode}}
-\compattikzset{tD/.style = {\comnpatname tunnel diode}}
-\compattikzset{zD/.style = {\comnpatname Zener diode}}
-\compattikzset{zzD/.style = {\comnpatname ZZener diode}}
-\compattikzset{sD/.style = {\comnpatname Schottky diode}}
-\compattikzset{pD/.style = {\comnpatname photodiode}}
-\compattikzset{leD/.style = {\comnpatname led}}
-\compattikzset{VC/.style = {\comnpatname varcap}}
-\compattikzset{biD/.style = {\comnpatname bidirectionaldiode}}
-\compattikzset{Ty/.style = {\comnpatname thyristor}}
-\compattikzset{Tr/.style = {\comnpatname triac}}
-
-\compattikzset{D-/.style = {\comnpatname stroke diode}}
-\compattikzset{tD-/.style = {\comnpatname stroke tunnel diode}}
-\compattikzset{zD-/.style = {\comnpatname stroke Zener diode}}
-\compattikzset{zzD-/.style = {\comnpatname stroke ZZener diode}}
-\compattikzset{sD-/.style = {\comnpatname stroke Schottky diode}}
-\compattikzset{pD-/.style = {\comnpatname stroke photodiode}}
-\compattikzset{leD-/.style = {\comnpatname stroke led}}
-\compattikzset{VC-/.style = {\comnpatname stroke varcap}}
-\compattikzset{Ty-/.style = {\comnpatname stroke thyristor}}
-\compattikzset{Tr-/.style = {\comnpatname empty triac}}%no stroke triac!
-\compattikzset{biD-/.style = {\comnpatname empty bidirectionaldiode}}%no stroke bidirectionaldiode! (based on triac)
-
-% % % % % %
-% % End of Diodes
-% % % % % %
-
-
-\compattikzset{memristor/.style =  {\circuitikzbasekey, /tikz/to path=\pgf@circ@memristor@path}}
-\compattikzset{closing switch/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@cspst@path, l=#1}}
-\compattikzset{opening switch/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@ospst@path, l=#1}}
-\compattikzset{ncs/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@ncs@path, l=#1}}
-\compattikzset{nos/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@nos@path, l=#1}}
-\compattikzset{normal closed switch/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@ncs@path, l=#1}}
-\compattikzset{normal open switch/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@nos@path, l=#1}}
-\compattikzset{switch/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@cspst@path, l=#1}}
-\compattikzset{push button/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@pushbutton@path, l=#1}}
-\compattikzset{nopb/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@pushbutton@path, l=#1}}
-\compattikzset{normally open push button/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@pushbutton@path, l=#1}}
-\compattikzset{ncpb/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@ncpushbutton@path, l=#1}}
-\compattikzset{normally closed push button/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@ncpushbutton@path, l=#1}}
-\compattikzset{nopbc/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@pushbuttonc@path, l=#1}}
-\compattikzset{normally open push button closed/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@pushbuttonc@path, l=#1}}
-\compattikzset{ncpbo/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@ncpushbuttono@path, l=#1}}
-\compattikzset{normally closed push button open/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@ncpushbuttono@path, l=#1}}
-\compattikzset{toggle switch/.style =  {\circuitikzbasekey, /tikz/to path=\pgf@circ@toggleswitch@path}}
-
-\compattikzset{ammeter/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@ammeter@path}}
-\compattikzset{voltmeter/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@voltmeter@path}}
-\compattikzset{ohmmeter/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@ohmmeter@path}}
-\tikzset{oscope/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@oscope@path, l=#1}}
-
-% cute switches
-%% closed cute switch
-\def\pgf@circ@cuteclosedswitch@path#1{\pgf@circ@bipole@path{cuteclosedswitch}{#1}}
-\compattikzset{cute closed switch/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@cuteclosedswitch@path, l=#1}}
-\compattikzset{ccsw/.style= {\comnpatname cute closed switch= #1}}
-
-%% open cute switch
-\def\pgf@circ@cuteopenswitch@path#1{\pgf@circ@bipole@path{cuteopenswitch}{#1}}
-\compattikzset{cute open switch/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@cuteopenswitch@path, l=#1}}
-\compattikzset{cosw/.style= {\comnpatname cute open switch= #1}}
-
-%% closing cute switch
-\def\pgf@circ@cuteclosingswitch@path#1{\pgf@circ@bipole@path{cuteclosingswitch}{#1}}
-\compattikzset{cute closing switch/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@cuteclosingswitch@path, l=#1}}
-\compattikzset{ccgsw/.style= {\comnpatname cute closing switch= #1}}
-
-%% opening cute switch
-\def\pgf@circ@cuteopeningswitch@path#1{\pgf@circ@bipole@path{cuteopeningswitch}{#1}}
-\compattikzset{cute opening switch/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@cuteopeningswitch@path, l=#1}}
-\compattikzset{cogsw/.style= {\comnpatname cute opening switch= #1}}
-
-
-% short forms
-\compattikzset{esource/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@esource@path, \circuitikzbasekey/bipole/is voltage=true,\circuitikzbasekey/bipole/is voltageoutsideofsymbol=true,  v=#1}}
-\compattikzset{pvsource/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@pvsource@path, \circuitikzbasekey/bipole/is voltage=true,\circuitikzbasekey/bipole/is voltageoutsideofsymbol=true,  v=#1}}
-\compattikzset{dcvsource/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@dcvsource@path, \circuitikzbasekey/bipole/is voltage=true,\circuitikzbasekey/bipole/is voltageoutsideofsymbol=true, v=#1}}
-\compattikzset{dcisource/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@dcisource@path, \circuitikzbasekey/bipole/is current=true, l=#1}}
-
-\compattikzset{ioosource/.style = {\circuitikzbasekey, \circuitikzbasekey/bipole/is current=true,/tikz/to path=\pgf@circ@oosource@path, i=#1}}
-\compattikzset{voosource/.style = {\circuitikzbasekey, \circuitikzbasekey/bipole/is voltage=true, \circuitikzbasekey/bipole/is voltageoutsideofsymbol=true, /tikz/to path=\pgf@circ@oosource@path, v=#1}}
-\compattikzset{oosourcetrans/.style = {\circuitikzbasekey, \circuitikzbasekey/bipole/is voltage=true,\circuitikzbasekey/bipole/is voltageoutsideofsymbol=true, /tikz/to path=\pgf@circ@oosourcetrans@path, v=#1}}
-\compattikzset{ooosource/.style = {\circuitikzbasekey, \circuitikzbasekey/bipole/is voltage=true,\circuitikzbasekey/bipole/is voltageoutsideofsymbol=true, /tikz/to path=\pgf@circ@ooosource@path, v=#1}}
-
-\compattikzset{vsource/.style = {\comnpatname voltage source = #1}}
-\compattikzset{isource/.style = {\comnpatname current source = #1}}
-\compattikzset{cisource/.style = {\comnpatname controlled current source = #1}}
-\compattikzset{ecsource/.style = {\comnpatname empty controlled source = #1}}
-\compattikzset{cvsource/.style = {\comnpatname controlled voltage source = #1}}
-\compattikzset{vsourcesin/.style = {\comnpatname sinusoidal voltage source = #1}}
-\compattikzset{vsourcesquare/.style = {\comnpatname square voltage source = #1}}
-\compattikzset{vsourcetri/.style = {triangle voltage source = #1}}
-\compattikzset{isourcesin/.style = {\comnpatname sinusoidal current source = #1}}
-\compattikzset{cisourcesin/.style = {\comnpatname controlled sinusoidal current source = #1}}
-\compattikzset{cvsourcesin/.style = {\comnpatname controlled sinusoidal  voltage source = #1}}
-
-\compattikzset{controlled vsource/.style = {\comnpatname controlled voltage source = #1}}
-\compattikzset{controlled isource/.style = {\comnpatname controlled current source = #1}}
-\compattikzset{controlled vsourcesin/.style = {\comnpatname controlled sinusoidal  voltage source = #1}}
-\compattikzset{controlled isourcesin/.style = {\comnpatname controlled sinusoidal current source = #1}}
-
-\compattikzset{R/.style= {\comnpatname resistor = #1}}
-\compattikzset{vR/.style= {\comnpatname variable resistor = #1}}
-\compattikzset{phR/.style= {\comnpatname photoresistor = #1}}
-\compattikzset{thR/.style= {\comnpatname thermistor = #1}}
-\compattikzset{thRp/.style= {\comnpatname thermistor ptc= #1}}
-\compattikzset{thRn/.style= {\comnpatname thermistor ntc= #1}}
-\compattikzset{pR/.style= {\comnpatname potentiometer = #1}}
-\compattikzset{C/.style = {\comnpatname capacitor = #1}}
-\compattikzset{eC/.style = {\comnpatname ecapacitor = #1}}
-%% pC is deprecated, use cC instead
-\compattikzset{pC/.style = {\comnpatname polar capacitor = #1}}
-\compattikzset{cC/.style = {\comnpatname curved capacitor = #1}}
-\compattikzset{vC/.style = {\comnpatname variable capacitor = #1}}
-\compattikzset{PZ/.style = {\comnpatname piezoelectric = #1}}
-\compattikzset{L/.style = {\comnpatname inductor = #1}}
-\compattikzset{vL/.style = {\comnpatname variable inductor = #1}}
-\compattikzset{V/.style = {\comnpatname voltage source = #1}}
-\compattikzset{cV/.style = {\comnpatname controlled voltage source = #1}}
-\compattikzset{sV/.style = {\comnpatname sinusoidal voltage source = #1}}
-\compattikzset{sqV/.style = {\comnpatname square voltage source = #1}}
-\compattikzset{tV/.style = {\comnpatname triangle voltage source = #1}}
-\compattikzset{csV/.style = {\comnpatname controlled sinusoidal voltage source = #1}}
-\def\pgf@temp#1{
-    \compattikzset{V#1/.style = {\comnpatname voltage source, v#1=##1} }
-    \compattikzset{cV#1/.style = {\comnpatname controlled  voltage source, v#1=##1} }
-    \compattikzset{sV#1/.style = {\comnpatname sinusoidal  voltage source, v#1=##1} }
-    \compattikzset{csV#1/.style = {\comnpatname controlled sinusoidal voltage source, v#1=##1} }
-}
-\pgf@temp{_>} \pgf@temp{_<} \pgf@temp{^>} \pgf@temp{^<}
-\pgf@temp{>} \pgf@temp{<} \pgf@temp{^} \pgf@temp{_}
-
-%current sources
-\compattikzset{I/.style = {\comnpatname current source = #1}}
-\compattikzset{cI/.style = {\comnpatname controlled current source = #1}}
-\compattikzset{sI/.style = {\comnpatname sinusoidal current source = #1}}
-\compattikzset{csI/.style = {\comnpatname controlled sinusoidal current source = #1}}
-\def\pgf@temp#1{
-    \compattikzset{I#1/.style = {\comnpatname current source, i#1=##1} }
-    \compattikzset{cI#1/.style = {\comnpatname controlled current source, i#1=##1} }
-    \compattikzset{sI#1/.style = {\comnpatname sinusoidal current source, i#1=##1} }
-    \compattikzset{csI#1/.style = {\comnpatname controlled sinusoidal current source, i#1=##1} }
-}
-\pgf@temp{_>} \pgf@temp{_<} \pgf@temp{^>} \pgf@temp{^<}
-\pgf@temp{>_} \pgf@temp{<_} \pgf@temp{>^} \pgf@temp{<^}
-\pgf@temp{>} \pgf@temp{<} \pgf@temp{^} \pgf@temp{_}
-
-% cute sources
-\def\pgf@circ@vsourceC@path#1{\pgf@circ@bipole@path{vsourceC}{#1}}
-\compattikzset{cute european voltage source/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@vsourceC@path, \circuitikzbasekey/bipole/is voltage=true, \circuitikzbasekey/bipole/is voltageoutsideofsymbol=true, v=#1}}
-\compattikzset{vsourceC/.style= {\comnpatname cute european voltage source= #1}}
-\compattikzset{ceV/.style= {\comnpatname cute european voltage source= #1}}
-
-\def\pgf@circ@isourceC@path#1{\pgf@circ@bipole@path{isourceC}{#1}}
-\compattikzset{cute european current source/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@isourceC@path, \circuitikzbasekey/bipole/is current=true, i=#1}}
-\compattikzset{isourceC/.style= {\comnpatname cute european current source= #1}}
-\compattikzset{ceI/.style= {\comnpatname cute european current source= #1}}
-
-\def\pgf@circ@cvsourceC@path#1{\pgf@circ@bipole@path{cvsourceC}{#1}}
-\compattikzset{cute european controlled voltage source/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@cvsourceC@path, \circuitikzbasekey/bipole/is voltage=true, \circuitikzbasekey/bipole/is voltageoutsideofsymbol=true, v=#1}}
-\compattikzset{cvsourceC/.style= {\comnpatname cute european controlled voltage source= #1}}
-\compattikzset{cceV/.style= {\comnpatname cute european controlled voltage source= #1}}
-
-\def\pgf@circ@cisourceC@path#1{\pgf@circ@bipole@path{cisourceC}{#1}}
-\compattikzset{cute european controlled current source/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@cisourceC@path,  \circuitikzbasekey/bipole/is current=true, i=#1}}
-\compattikzset{cisourceC/.style= {\comnpatname cute european controlled current source= #1}}
-\compattikzset{cceI/.style= {\comnpatname cute european controlled current source= #1}}
-
-% noise sources
-\def\pgf@circ@vsourceN@path#1{\pgf@circ@bipole@path{vsourceN}{#1}}
-\compattikzset{noise voltage source/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@vsourceN@path, \circuitikzbasekey/bipole/is voltage=true, \circuitikzbasekey/bipole/is voltageoutsideofsymbol=true, v=#1}}
-\compattikzset{vsourceN/.style= {\comnpatname noise voltage source= #1}}
-\compattikzset{nV/.style= {\comnpatname noise voltage source= #1}}
-
-\def\pgf@circ@isourceN@path#1{\pgf@circ@bipole@path{isourceN}{#1}}
-\compattikzset{noise current source/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@isourceN@path, \circuitikzbasekey/bipole/is current=true, i=#1}}
-\compattikzset{isourceN/.style= {\comnpatname noise current source= #1}}
-\compattikzset{nI/.style= {\comnpatname noise current source= #1}}
-
-% resistive sensor american style
-\def\pgf@circ@resistivesens@path#1{\pgf@circ@bipole@path{resistivesens}{#1}}
-\compattikzset{american resistive sensor/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@resistivesens@path, l=#1}}
-\compattikzset{european resistive sensor/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@thermistorntc@path, l=#1}}
-\compattikzset{resistive sensor/.style= {\circuitikzbasekey, /tikz/to path=\pgf@circ@sresistor@path, l=#1}}
-\compattikzset{sR/.style= {\comnpatname resistive sensor= #1}}
-
-\compattikzset{capacitive sensor/.style= {\circuitikzbasekey, /tikz/to path=\pgf@circ@capacitivesens@path, l=#1}}
-\compattikzset{sC/.style= {\comnpatname capacitive sensor= #1}}
-
-\compattikzset{cute inductive sensor/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@cuteinductivesens@path, l=#1}}
-\compattikzset{european inductive sensor/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@europeaninductivesens@path, l=#1}}
-\compattikzset{american inductive sensor/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@americaninductivesens@path, l=#1}}
-\compattikzset{inductive sensor/.style= {\circuitikzbasekey, /tikz/to path=\pgf@circ@inductivesens@path, l=#1}}
-\compattikzset{sL/.style= {\comnpatname inductive sensor= #1}}
-
-\compattikzset{Mr/.style = {\comnpatname memristor}}
-
-\compattikzset{cspst/.style = {\comnpatname closing switch = #1}}
-\compattikzset{ospst/.style = {\comnpatname opening switch = #1}}
-\compattikzset{spst/.style = {\comnpatname switch = #1}}
-
-\compattikzset{afuse/.style = {\comnpatname asymmetric fuse=#1}}
-
-\compattikzset{vdd/.style = {\comnpatname vcc = #1}}
-\compattikzset{vss/.style = {\comnpatname vee = #1}}
-
-% activate the to-style crossing
-\def\pgf@circ@crossing@path#1{\pgf@circ@bipole@path{crossing}{#1}}
-\compattikzset{crossing/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@crossing@path, l=#1}}
-\compattikzset{xing/.style= {\comnpatname crossing= #1}}
-
-%% loudspeaker and microphone
-
-\def\pgf@circ@loudspeaker@path#1{\pgf@circ@bipole@path{loudspeaker}{#1}}
-\compattikzset{loudspeaker/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@loudspeaker@path, l=#1}}
-
-\def\pgf@circ@mic@path#1{\pgf@circ@bipole@path{mic}{#1}}
-\compattikzset{mic/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@mic@path, l=#1}}
-
-% more instrument
-\def\pgf@circ@rmeter@path#1{\pgf@circ@bipole@path{rmeter}{#1}}
-\compattikzset{rmeter/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@rmeter@path, l=#1}}
-\def\pgf@circ@rmeterwa@path#1{\pgf@circ@bipole@path{rmeterwa}{#1}}
-\compattikzset{rmeterwa/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@rmeterwa@path, l=#1}}
-\def\pgf@circ@smeter@path#1{\pgf@circ@bipole@path{smeter}{#1}}
-\compattikzset{smeter/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@smeter@path, l=#1}}
-% current loop probes
-\def\pgf@circ@iloop@path#1{\pgf@circ@bipole@path{iloop}{#1}}
-\compattikzset{iloop/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@iloop@path, l=#1}}
-\def\pgf@circ@iloop2@path#1{\pgf@circ@bipole@path{iloop2}{#1}}
-\compattikzset{iloop2/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@iloop2@path, l=#1}}
-% qucs-style probes
-\def\pgf@circ@qiprobe@path#1{\pgf@circ@bipole@path{qiprobe}{#1}}
-\compattikzset{qiprobe/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@qiprobe@path, l=#1}}
-\def\pgf@circ@qvprobe@path#1{\pgf@circ@bipole@path{qvprobe}{#1}}
-\compattikzset{qvprobe/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@qvprobe@path, l=#1}}
-\def\pgf@circ@qpprobe@path#1{\pgf@circ@bipole@path{qpprobe}{#1}}
-\compattikzset{qpprobe/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@qpprobe@path, l=#1}}
-% multiwire(s)
-\def\pgf@circ@bmultiwire@path#1{\pgf@circ@bipole@path{bmultiwire}{#1}}
-\compattikzset{bmultiwire/.style = {\circuitikzbasekey,
-/tikz/to path=\pgf@circ@bmultiwire@path, l=#1}}
-\def\pgf@circ@multiwire@path#1{\pgf@circ@bipole@path{multiwire}{#1}}
-\compattikzset{multiwire/.style = {\circuitikzbasekey,
-/tikz/to path=\pgf@circ@multiwire@path, l=#1}}
-\def\pgf@circ@tmultiwire@path#1{\pgf@circ@bipole@path{tmultiwire}{#1}}
-\compattikzset{tmultiwire/.style = {\circuitikzbasekey,
-/tikz/to path=\pgf@circ@tmultiwire@path, l=#1}}
-
-% reed switches
-\def\pgf@circ@reed@path#1{\pgf@circ@bipole@path{reed}{#1}}
-\compattikzset{reed/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@reed@path, l=#1}}
-
+%%
+%% Definition of path for transistors
+%%
 % Transistor like bipoles
 
 \def\pgf@circ@trans@path#1#2{
@@ -948,53 +348,12 @@
     \pgfextra{
         \pgfcircresetpath
     }
-    (\tikztotarget) 	\tikztonodes  % e si continua
+    (\tikztotarget) 	\tikztonodes  % and go on!
 }
-
 
 \def\pgf@circ@definetranspath#1{
 	\compattikzset{T#1/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@trans@path{#1}{}, l=##1}}
 }
 
-\pgf@circ@definetranspath{elmech}
-\pgf@circ@definetranspath{nmos}
-\pgf@circ@definetranspath{pmos}
-\pgf@circ@definetranspath{nmosd}
-\pgf@circ@definetranspath{pmosd}
-\pgf@circ@definetranspath{hemt}
-\pgf@circ@definetranspath{npn}
-\pgf@circ@definetranspath{pnp}
-\pgf@circ@definetranspath{nfet}
-\pgf@circ@definetranspath{nigfete}
-\pgf@circ@definetranspath{nigfetd}
-\pgf@circ@definetranspath{nigfetebulk}
-\pgf@circ@definetranspath{pfet}
-\pgf@circ@definetranspath{pigfete}
-\pgf@circ@definetranspath{pigfetd}
-\pgf@circ@definetranspath{pigfetebulk}
-\pgf@circ@definetranspath{njfet}
-\pgf@circ@definetranspath{pjfet}
-\pgf@circ@definetranspath{pigbt}
-\pgf@circ@definetranspath{nigbt}
-\pgf@circ@definetranspath{Lpigbt}
-\pgf@circ@definetranspath{Lnigbt}
 %
-% Path-style logical ports
-%
-% create path-style element for one input --- one output logical ports
-%
-\def\pgfcirc@port@node@to@path#1#2{%
-    %
-    % add a logic port path style component --- we need to suppress leads
-    % and use the correct center
-    %
-    \pgfcirc@node@to@path{#1}{#2}{/tikz/no leads, \circuitikzbasekey/logic ports origin=center}%
-}
-\pgfcirc@port@node@to@path{not port}{inline not}
-\pgfcirc@port@node@to@path{buffer port}{inline buffer}
-\pgfcirc@port@node@to@path{schmitt port}{inline schmitt}
-\pgfcirc@port@node@to@path{invschmitt port}{inline invschmitt}
-
-\pgfcirc@port@node@to@path{tgate}{inline tgate}
-\pgfcirc@port@node@to@path{double tgate}{inline double tgate}
-
+% vim: set fdm=marker fmr=%<<<,%>>>:

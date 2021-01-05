@@ -1,7 +1,7 @@
-% Copyright 2018-2020 by Romano Giannetti
-% Copyright 2015-2020 by Stefan Lindner
-% Copyright 2013-2020 by Stefan Erhardt
-% Copyright 2007-2020 by Massimo Redaelli
+% Copyright 2018-2021 by Romano Giannetti
+% Copyright 2015-2021 by Stefan Lindner
+% Copyright 2013-2021 by Stefan Erhardt
+% Copyright 2007-2021 by Massimo Redaelli
 %
 % This file may be distributed and/or modified
 %
@@ -12,6 +12,54 @@
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Quadripoles
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+% Setting for Transformers and similar quadpoles%<<<1
+
+\ctikzset{quadpoles/transformer/inner/.initial=0.4}
+\ctikzset{quadpoles/transformer/width/.initial=1.5}
+\ctikzset{quadpoles/transformer/width1/.initial=.4}
+\ctikzset{quadpoles/transformer/height/.initial=1.5}
+\ctikzset{quadpoles/transformer/height1/.initial=.8}
+\ctikzset{quadpoles/transformer core/inner/.initial=0.4}
+\ctikzset{quadpoles/transformer core/width/.initial=1.5}
+\ctikzset{quadpoles/transformer core/height/.initial=1.5}
+\ctikzset{quadpoles/transformer core/core height/.initial=.5}
+\ctikzset{quadpoles/transformer core/core width/.initial=.05}
+\ctikzset{quadpoles/gyrator/inner/.initial=0.4}
+\ctikzset{quadpoles/gyrator/width/.initial=1.5}
+\ctikzset{quadpoles/gyrator/height/.initial=1.5}
+\ctikzset{quadpoles/fourport/width/.initial=1.3}
+\ctikzset{quadpoles/fourport/height/.initial=1.3}
+\ctikzset{quadpoles/coupler/width/.initial=1.3}
+\ctikzset{quadpoles/coupler/height/.initial=1.3}
+\ctikzset{quadpoles/coupler2/width/.initial=1.3}
+\ctikzset{quadpoles/coupler2/height/.initial=1.3}
+
+
+\ctikzset{quadpoles style/.is choice}
+\ctikzset{quadpoles style/inward/.code={% default value
+        \ctikzset{quadpoles/transformer/inner=0.4}%
+        \ctikzset{quadpoles/transformer/width=1.5}%
+        \ctikzset{quadpoles/transformer core/inner=0.4}%
+        \ctikzset{quadpoles/transformer core/width=1.5}%
+        \ctikzset{quadpoles/gyrator/inner=0.4}%
+        \ctikzset{quadpoles/gyrator/width=1.5}%
+    }%
+}
+\ctikzset{quadpoles style/inline/.code={% now horizontal baffle
+        \ctikzset{quadpoles/transformer/inner=1}%
+        \ctikzset{quadpoles/transformer/width=0.6}%
+        \ctikzset{quadpoles/transformer core/inner=1}%
+        \ctikzset{quadpoles/transformer core/width=0.6}%
+        \ctikzset{quadpoles/gyrator/inner=1} % FIXME
+        \ctikzset{quadpoles/gyrator/width=0.6}%
+    }%
+}
+%%>>>
+
+%% Node shapes for quadpoles (basically transformers)%<<<
 
 \long\def\pgfcircdeclarequadpole#1#2#3{
     \pgfdeclareshape{#1}
@@ -339,10 +387,1762 @@
     \pgfpathclose
     \pgf@circ@draworfill
 }{}
+% %>>>
 
-%%%%%%%%%%%%%%%%%%%%
-%% Block elements
-%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%
+%% Block diagrams
+%%%%%%%%%%%%%%%%%%%
+
+% Definitions and options for blocks (twoports and so)%<<<1
+
+\ctikzset{bipoles/twoport/width/.initial=.7}
+\ctikzset{bipoles/twoport/height/.initial=.7}
+\ctikzset{bipoles/twoport/text/.initial=}
+\ctikzset{bipoles/twoportsplit/width/.initial=.7}
+\ctikzset{bipoles/twoport/text in/.initial=}
+\ctikzset{bipoles/twoport/text out/.initial=}
+\ctikzset{text/.style={t=#1}}
+\ctikzset{t/.code={%
+        \ctikzsetvalof{bipoles/twoport/text}{#1}%
+}}
+\ctikzset{text in/.style={t1=#1}}
+\ctikzset{t1/.code={%
+        \ctikzsetvalof{bipoles/twoport/text in}{#1}%
+}}
+\ctikzset{text out/.style={t2=#1}}
+\ctikzset{t2/.code={%
+        \ctikzsetvalof{bipoles/twoport/text out}{#1}%
+}}
+\ctikzset{bipoles/vco/width/.initial=.7}
+\ctikzset{bipoles/bandpass/width/.initial=.7}
+\ctikzset{bipoles/bandstop/width/.initial=.7}
+\ctikzset{bipoles/highpass/width/.initial=.7}
+\ctikzset{bipoles/lowpass/width/.initial=.7}
+\ctikzset{bipoles/allpass/width/.initial=.7}
+\ctikzset{bipoles/adc/width/.initial=.7}
+\ctikzset{bipoles/dac/width/.initial=.7}
+\ctikzset{bipoles/dsp/width/.initial=.7}
+\ctikzset{bipoles/fft/width/.initial=.7}
+\ctikzset{bipoles/amp/width/.initial=.7}
+\ctikzset{bipoles/vamp/width/.initial=.7}
+\ctikzset{bipoles/piattenuator/width/.initial=.7}
+\ctikzset{bipoles/vpiattenuator/width/.initial=.7}
+\ctikzset{bipoles/tattenuator/width/.initial=.7}
+\ctikzset{bipoles/vtattenuator/width/.initial=.7}
+\ctikzset{bipoles/phaseshifter/width/.initial=.7}
+\ctikzset{bipoles/vphaseshifter/width/.initial=.7}
+\ctikzset{bipoles/detector/width/.initial=.7}
+\ctikzset{tripoles/mixer/width/.initial=0.7}
+\ctikzset{tripoles/adder/width/.initial=0.7}
+\ctikzset{tripoles/circulator/width/.initial=.7}
+\ctikzset{tripoles/oscillator/width/.initial=.7}
+
+\ctikzset{tripoles/wilkinson/height/.initial=1.3}
+\ctikzset{tripoles/wilkinson/width/.initial=1.3}
+
+\ctikzset{tripoles/splitter/height/.initial=1.3}
+\ctikzset{tripoles/splitter/width/.initial=1.3}
+
+\ctikzset{tripoles/mzm/height/.initial=1.3}
+\ctikzset{tripoles/mzm/width/.initial=1.3}
+
+% Option ">" for twoports
+\newif\ifpgf@circuit@inputarrow
+\ctikzset{>/.add code={}{\pgf@circuit@inputarrowtrue}}
+\ctikzset{inputarrow/.is choice}
+\ctikzset{inputarrow/true/.code={\pgf@circuit@inputarrowtrue}}
+\ctikzset{inputarrow/false/.code={\pgf@circuit@inputarrowfalse}}
+
+% Option "boxed" for nodes and twoports
+\newif\ifpgf@circuit@boxed
+\pgfkeys{/tikz/boxed/.add code={}{\pgf@circuit@boxedtrue}}
+\ctikzset{boxed/.add code={}{\pgf@circuit@boxedtrue}}
+\pgfkeys{/tikz/box/.add code={}{\pgf@circuit@boxedtrue}}
+\ctikzset{box/.add code={}{\pgf@circuit@boxedtrue}}
+
+% Option "dashed" for nodes and twoports
+\newif\ifpgf@circuit@dashed
+\pgfkeys{/tikz/dashed/.add code={}{\pgf@circuit@dashedtrue}}
+\ctikzset{dashed/.add code={}{\pgf@circuit@dashedtrue}}%
+
+% powerelectronic blocks
+\ctikzset{bipoles/sacdc/width/.initial=.7}
+\ctikzset{bipoles/sdcac/width/.initial=.7}
+\ctikzset{bipoles/tacdc/width/.initial=.7}
+\ctikzset{bipoles/tdcac/width/.initial=.7}
+\ctikzset{quadpoles/gridnode/width/.initial=.7} %not sure if quadpole?
+
+%>>>
+
+%% Node shapes definition for path-style block diagrams%<<<
+
+%% Draw the two-port fillable box
+\def\pgf@circ@twoportbox{
+    \pgfscope
+        \pgf@circ@setlinewidth{bipoles}{\pgfstartlinewidth}
+        \pgfpathrectanglecorners{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@up}}{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@down}}
+        \pgf@circ@draworfill
+    \endpgfscope
+}
+
+%% Generic two port box
+\pgfcircdeclarebipolescaled{blocks}
+{}
+{\ctikzvalof{bipoles/twoport/height}}
+{twoport}
+{\ctikzvalof{bipoles/twoport/height}}
+{\ctikzvalof{bipoles/twoport/width}}
+{
+    \pgf@circ@res@step = \ctikzvalof{bipoles/twoport/width}\pgf@circ@scaled@Rlen
+    \divide \pgf@circ@res@step by 2
+
+    \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@zero}}
+    \pgf@circ@res@other = \pgf@circ@res@left
+    \advance\pgf@circ@res@other by \pgf@circ@res@step
+    \ifpgf@circuit@dashed
+        \pgfsetdash{{0.1cm}{0.1cm}}{0cm}
+    \fi
+    % draw outer box
+    \pgf@circ@twoportbox
+    \ifpgf@circuit@inputarrow
+        {
+            \advance \pgf@circ@res@left by -.5\ctikzvalof{bipoles/thickness}\pgfstartlinewidth
+            \pgftransformshift{\pgfpoint{\pgf@circ@res@left}{0pt}}
+            \pgfnode{inputarrow}{tip}{}{pgf@inputarrow}{\pgfusepath{fill}}
+        }
+    \fi
+
+    % rotate inner symbol
+    \def\pgfcircmathresult{\expandafter\pgf@circ@stripdecimals\pgf@circ@direction\pgf@nil}
+    \ifnum \pgfcircmathresult > 45 \ifnum \pgfcircmathresult < 135
+        \pgftransformrotate{270}
+    \fi\fi
+    \ifnum \pgfcircmathresult > 135 \ifnum \pgfcircmathresult < 225
+        \pgftransformrotate{180}
+    \fi\fi
+    \ifnum \pgfcircmathresult > 225 \ifnum \pgfcircmathresult < 315
+        \pgftransformrotate{90}
+    \fi\fi
+
+    % draw inner symbol
+    \pgftext[center,x=0,y=0]{\ctikzvalof{bipoles/twoport/text}}
+
+}
+
+%% twoport split
+\pgfcircdeclarebipolescaled{blocks}
+{}
+{\ctikzvalof{bipoles/twoportsplit/width}}
+{twoportsplit}
+{\ctikzvalof{bipoles/twoportsplit/width}}
+{\ctikzvalof{bipoles/twoportsplit/width}}
+{
+    \pgf@circ@res@step = \ctikzvalof{bipoles/twoportsplit/width}\pgf@circ@scaled@Rlen
+    \divide \pgf@circ@res@step by 2
+
+    \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@zero}}
+    \pgf@circ@res@other = \pgf@circ@res@left
+    \advance\pgf@circ@res@other by \pgf@circ@res@step
+
+    \ifpgf@circuit@dashed
+        \pgfsetdash{{0.1cm}{0.1cm}}{0cm}
+    \fi
+
+    % draw outer box
+    \pgf@circ@twoportbox
+
+    \ifpgf@circuit@inputarrow
+        {
+            \advance \pgf@circ@res@left by -.5\ctikzvalof{bipoles/thickness}\pgfstartlinewidth
+            \pgftransformshift{\pgfpoint{\pgf@circ@res@left}{0pt}}
+            \pgfnode{inputarrow}{tip}{}{pgf@inputarrow}{\pgfusepath{fill}}
+        }
+    \fi
+
+    %get texts
+    \def\pgfcirc@tin{\ctikzvalof{bipoles/twoport/text in}}
+    \def\pgfcirc@tout{\ctikzvalof{bipoles/twoport/text out}}
+
+    % rotate inner symbol
+    \def\texti{\pgfcirc@tin}
+    \def\textii{\pgfcirc@tout}
+    \def\pgfcircmathresult{\expandafter\pgf@circ@stripdecimals\pgf@circ@direction\pgf@nil}
+    \ifnum \pgfcircmathresult > 45 \ifnum \pgfcircmathresult < 135
+        \def\texti{\pgfcirc@tout}
+        \def\textii{\pgfcirc@tin}
+        \pgftransformrotate{270}
+    \fi\fi
+    \ifnum \pgfcircmathresult > 134 \ifnum \pgfcircmathresult < 225  % 134 degree, because >= 135 is not possible
+        \def\texti{\pgfcirc@tout}
+        \def\textii{\pgfcirc@tin}
+        \pgftransformrotate{180}
+    \fi\fi
+    \ifnum \pgfcircmathresult > 225 \ifnum \pgfcircmathresult < 315
+        \pgftransformrotate{90}
+        \def\texti{\pgfcirc@tin}
+        \def\textii{\pgfcirc@tout}
+    \fi\fi
+
+    % draw inner symbol
+    \pgfsetdash{}{0pt}	% always draw solid line for inner symbol
+    \pgfsetarrows{-} %never draw arrows
+    \pgfsetlinewidth{\pgfstartlinewidth}
+    \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@down}}
+    \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@up}}
+    \pgfusepath{draw}
+
+    \pgftext[center,x=0.45\pgf@circ@res@left,y=0.45\pgf@circ@res@up]{\texti}
+    \pgftext[center,x=0.45\pgf@circ@res@right,y=0.45\pgf@circ@res@down]{\textii}
+}
+
+%% voltage controled oscillator
+\pgfcircdeclarebipolescaled{blocks}
+{}
+{\ctikzvalof{bipoles/vco/width}}
+{vco}
+{\ctikzvalof{bipoles/twoport/width}}
+{\ctikzvalof{bipoles/vco/width}}
+{
+    \pgf@circ@res@step = \ctikzvalof{bipoles/vco/width}\pgf@circ@scaled@Rlen
+    \divide \pgf@circ@res@step by 2
+
+    \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@zero}}
+    \pgf@circ@res@other = \pgf@circ@res@left
+    \advance\pgf@circ@res@other by \pgf@circ@res@step
+
+    \ifpgf@circuit@dashed
+        \pgfsetdash{{0.1cm}{0.1cm}}{0cm}
+    \fi
+    % draw circle
+    \pgfscope
+        \pgf@circ@setlinewidth{bipoles}{\pgfstartlinewidth}
+        \pgfpathcircle{\pgfpoint{0}{0}} {\pgf@circ@res@step}
+        \pgf@circ@draworfill
+    \endpgfscope
+    \ifpgf@circuit@inputarrow
+        {
+            \advance \pgf@circ@res@left by -.5\ctikzvalof{bipoles/thickness}\pgfstartlinewidth
+            \pgftransformshift{\pgfpoint{\pgf@circ@res@left}{0pt}}
+            \pgfnode{inputarrow}{tip}{}{pgf@inputarrow}{\pgfusepath{fill}}
+        }
+    \fi
+
+    % rotate inner symbol
+    \def\pgfcircmathresult{\expandafter\pgf@circ@stripdecimals\pgf@circ@direction\pgf@nil}
+    \ifnum \pgfcircmathresult > 45 \ifnum \pgfcircmathresult < 135
+        \pgftransformrotate{270}
+    \fi\fi
+    \ifnum \pgfcircmathresult > 134 \ifnum \pgfcircmathresult < 225  % 134 degree, because >= 135 is not possible
+        \pgftransformrotate{180}
+    \fi\fi
+    \ifnum \pgfcircmathresult > 224 \ifnum \pgfcircmathresult < 315
+        \pgftransformrotate{90}
+    \fi\fi
+
+    % draw inner sine waves
+    \pgfsetdash{}{0pt}	% always draw solid line for inner symbol
+    \pgfsetlinewidth{\pgfstartlinewidth}
+    \pgfpathmoveto{\pgfpoint{-.5\pgf@circ@res@step}{0\pgf@circ@res@step}}
+    \pgfpathsine{\pgfpoint{.25\pgf@circ@res@step}{.25\pgf@circ@res@step}}
+    \pgfpathcosine{\pgfpoint{.25\pgf@circ@res@step}{-.25\pgf@circ@res@step}}
+    \pgfpathsine{\pgfpoint{.25\pgf@circ@res@step}{-.25\pgf@circ@res@step}}
+    \pgfpathcosine{\pgfpoint{.25\pgf@circ@res@step}{.25\pgf@circ@res@step}}
+    \pgfusepath{draw}
+}
+
+%% bandpass filter
+\pgfcircdeclarebipolescaled{blocks}
+{}
+{\ctikzvalof{bipoles/bandpass/width}}
+{bandpass}
+{\ctikzvalof{bipoles/bandpass/width}}
+{\ctikzvalof{bipoles/bandpass/width}}
+{
+
+    \pgf@circ@res@step = \ctikzvalof{bipoles/bandpass/width}\pgf@circ@scaled@Rlen
+    \divide \pgf@circ@res@step by 2
+
+    \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@zero}}
+    \pgf@circ@res@other = \pgf@circ@res@left
+    \advance\pgf@circ@res@other by \pgf@circ@res@step
+
+    \ifpgf@circuit@dashed
+        \pgfsetdash{{0.1cm}{0.1cm}}{0cm}
+    \fi
+
+    % draw outer box
+    \pgf@circ@twoportbox
+
+    \ifpgf@circuit@inputarrow
+        {
+            \advance \pgf@circ@res@left by -.5\ctikzvalof{bipoles/thickness}\pgfstartlinewidth
+            \pgftransformshift{\pgfpoint{\pgf@circ@res@left}{0pt}}
+            \pgfnode{inputarrow}{tip}{}{pgf@inputarrow}{\pgfusepath{fill}}
+        }
+    \fi
+
+    % rotate inner symbol
+    \def\pgfcircmathresult{\expandafter\pgf@circ@stripdecimals\pgf@circ@direction\pgf@nil}
+    \ifnum \pgfcircmathresult > 45 \ifnum \pgfcircmathresult < 135
+        \pgftransformrotate{270}
+    \fi\fi
+    \ifnum \pgfcircmathresult > 134 \ifnum \pgfcircmathresult < 225  % 134 degree, because >= 135 is not possible
+        \pgftransformrotate{180}
+    \fi\fi
+    \ifnum \pgfcircmathresult > 224 \ifnum \pgfcircmathresult < 315
+        \pgftransformrotate{90}
+    \fi\fi
+
+    % draw inner symbol
+    \pgfsetdash{}{0pt}	% always draw solid line for inner symbol
+    \pgfsetarrows{-} %never draw arrows
+    \pgfsetlinewidth{\pgfstartlinewidth}
+    \pgfpathmoveto{\pgfpoint{-0.5\pgf@circ@res@step}{0.5\pgf@circ@res@step}}
+    \pgfpathsine{\pgfpoint{.25\pgf@circ@res@step}{.25\pgf@circ@res@step}}
+    \pgfpathcosine{\pgfpoint{.25\pgf@circ@res@step}{-.25\pgf@circ@res@step}}
+    \pgfpathsine{\pgfpoint{.25\pgf@circ@res@step}{-.25\pgf@circ@res@step}}
+    \pgfpathcosine{\pgfpoint{.25\pgf@circ@res@step}{.25\pgf@circ@res@step}}
+    \pgfusepath{draw}
+    \pgfpathmoveto{\pgfpoint{-0.15\pgf@circ@res@step}{0.35\pgf@circ@res@step}}
+    \pgfpathlineto{\pgfpoint{0.15\pgf@circ@res@step}{0.65\pgf@circ@res@step}}
+    \pgfusepath{draw}
+
+    \pgfpathmoveto{\pgfpoint{-0.5\pgf@circ@res@step}{0}}
+    \pgfpathsine{\pgfpoint{.25\pgf@circ@res@step}{.25\pgf@circ@res@step}}
+    \pgfpathcosine{\pgfpoint{.25\pgf@circ@res@step}{-.25\pgf@circ@res@step}}
+    \pgfpathsine{\pgfpoint{.25\pgf@circ@res@step}{-.25\pgf@circ@res@step}}
+    \pgfpathcosine{\pgfpoint{.25\pgf@circ@res@step}{.25\pgf@circ@res@step}}
+    \pgfusepath{draw}
+
+    \pgfpathmoveto{\pgfpoint{-0.5\pgf@circ@res@step}{-0.5\pgf@circ@res@step}}
+    \pgfpathsine{\pgfpoint{.25\pgf@circ@res@step}{.25\pgf@circ@res@step}}
+    \pgfpathcosine{\pgfpoint{.25\pgf@circ@res@step}{-.25\pgf@circ@res@step}}
+    \pgfpathsine{\pgfpoint{.25\pgf@circ@res@step}{-.25\pgf@circ@res@step}}
+    \pgfpathcosine{\pgfpoint{.25\pgf@circ@res@step}{.25\pgf@circ@res@step}}
+    \pgfusepath{draw}
+    \pgfpathmoveto{\pgfpoint{-0.15\pgf@circ@res@step}{-0.65\pgf@circ@res@step}}
+    \pgfpathlineto{\pgfpoint{0.15\pgf@circ@res@step}{-0.35\pgf@circ@res@step}}
+    \pgfusepath{draw}
+}
+
+%% bandstop filter
+\pgfcircdeclarebipolescaled{blocks}
+{}
+{\ctikzvalof{bipoles/bandstop/width}}
+{bandstop}
+{\ctikzvalof{bipoles/bandstop/width}}
+{\ctikzvalof{bipoles/bandstop/width}}
+{
+    \pgf@circ@res@step = \ctikzvalof{bipoles/bandstop/width}\pgf@circ@scaled@Rlen
+    \divide \pgf@circ@res@step by 2
+
+    \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@zero}}
+    \pgf@circ@res@other = \pgf@circ@res@left
+    \advance\pgf@circ@res@other by \pgf@circ@res@step
+
+    \ifpgf@circuit@dashed
+        \pgfsetdash{{0.1cm}{0.1cm}}{0cm}
+    \fi
+
+    % draw outer box
+    \pgf@circ@twoportbox
+
+    \ifpgf@circuit@inputarrow
+        {
+            \advance \pgf@circ@res@left by -.5\ctikzvalof{bipoles/thickness}\pgfstartlinewidth
+            \pgftransformshift{\pgfpoint{\pgf@circ@res@left}{0pt}}
+            \pgfnode{inputarrow}{tip}{}{pgf@inputarrow}{\pgfusepath{fill}}
+        }
+    \fi
+
+    % rotate inner symbol
+    \def\pgfcircmathresult{\expandafter\pgf@circ@stripdecimals\pgf@circ@direction\pgf@nil}
+    \ifnum \pgfcircmathresult > 45 \ifnum \pgfcircmathresult < 135
+        \pgftransformrotate{270}
+    \fi\fi
+    \ifnum \pgfcircmathresult > 134 \ifnum \pgfcircmathresult < 225% 134 degree, because >= 135 is not possible
+        \pgftransformrotate{180}
+    \fi\fi
+    \ifnum \pgfcircmathresult > 224 \ifnum \pgfcircmathresult < 315
+        \pgftransformrotate{90}
+    \fi\fi
+
+    % draw inner symbol
+    \pgfsetdash{}{0pt}% always draw solid line for inner symbol
+    \pgfsetarrows{-}%never draw arrows
+    \pgfsetlinewidth{\pgfstartlinewidth}
+    \pgfpathmoveto{\pgfpoint{-0.5\pgf@circ@res@step}{0.5\pgf@circ@res@step}}
+    \pgfpathsine{\pgfpoint{.25\pgf@circ@res@step}{.25\pgf@circ@res@step}}
+    \pgfpathcosine{\pgfpoint{.25\pgf@circ@res@step}{-.25\pgf@circ@res@step}}
+    \pgfpathsine{\pgfpoint{.25\pgf@circ@res@step}{-.25\pgf@circ@res@step}}
+    \pgfpathcosine{\pgfpoint{.25\pgf@circ@res@step}{.25\pgf@circ@res@step}}
+    \pgfusepath{draw}
+
+    \pgfpathmoveto{\pgfpoint{-0.5\pgf@circ@res@step}{0}}
+    \pgfpathsine{\pgfpoint{.25\pgf@circ@res@step}{.25\pgf@circ@res@step}}
+    \pgfpathcosine{\pgfpoint{.25\pgf@circ@res@step}{-.25\pgf@circ@res@step}}
+    \pgfpathsine{\pgfpoint{.25\pgf@circ@res@step}{-.25\pgf@circ@res@step}}
+    \pgfpathcosine{\pgfpoint{.25\pgf@circ@res@step}{.25\pgf@circ@res@step}}
+    \pgfusepath{draw}
+    \pgfpathmoveto{\pgfpoint{-0.15\pgf@circ@res@step}{-0.15\pgf@circ@res@step}}
+    \pgfpathlineto{\pgfpoint{0.15\pgf@circ@res@step}{0.15\pgf@circ@res@step}}
+    \pgfusepath{draw}
+
+    \pgfpathmoveto{\pgfpoint{-0.5\pgf@circ@res@step}{-0.5\pgf@circ@res@step}}
+    \pgfpathsine{\pgfpoint{.25\pgf@circ@res@step}{.25\pgf@circ@res@step}}
+    \pgfpathcosine{\pgfpoint{.25\pgf@circ@res@step}{-.25\pgf@circ@res@step}}
+    \pgfpathsine{\pgfpoint{.25\pgf@circ@res@step}{-.25\pgf@circ@res@step}}
+    \pgfpathcosine{\pgfpoint{.25\pgf@circ@res@step}{.25\pgf@circ@res@step}}
+    \pgfusepath{draw}
+}
+
+%% highpass filter
+\pgfcircdeclarebipolescaled{blocks}
+{}
+{\ctikzvalof{bipoles/highpass/width}}
+{highpass}
+{\ctikzvalof{bipoles/highpass/width}}
+{\ctikzvalof{bipoles/highpass/width}}
+{
+    \pgf@circ@res@step = \ctikzvalof{bipoles/highpass/width}\pgf@circ@scaled@Rlen
+    \divide \pgf@circ@res@step by 2
+
+    \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@zero}}
+    \pgf@circ@res@other = \pgf@circ@res@left
+    \advance\pgf@circ@res@other by \pgf@circ@res@step
+
+    \ifpgf@circuit@dashed
+        \pgfsetdash{{0.1cm}{0.1cm}}{0cm}
+    \fi
+
+    % draw outer box
+    \pgf@circ@twoportbox
+
+    \ifpgf@circuit@inputarrow
+        {
+            \advance \pgf@circ@res@left by -.5\ctikzvalof{bipoles/thickness}\pgfstartlinewidth
+            \pgftransformshift{\pgfpoint{\pgf@circ@res@left}{0pt}}
+            \pgfnode{inputarrow}{tip}{}{pgf@inputarrow}{\pgfusepath{fill}}
+        }
+    \fi
+
+    % rotate inner symbol
+    \def\pgfcircmathresult{\expandafter\pgf@circ@stripdecimals\pgf@circ@direction\pgf@nil}
+    \ifnum \pgfcircmathresult > 45 \ifnum \pgfcircmathresult < 135
+        \pgftransformrotate{270}
+    \fi\fi
+    \ifnum \pgfcircmathresult > 134 \ifnum \pgfcircmathresult < 225  % 134 degree, because >= 135 is not possible
+        \pgftransformrotate{180}
+    \fi\fi
+    \ifnum \pgfcircmathresult > 224 \ifnum \pgfcircmathresult < 315
+        \pgftransformrotate{90}
+    \fi\fi
+
+    % draw inner symbol
+    \pgfsetdash{}{0pt}	% always draw solid line for inner symbol
+    \pgfsetarrows{-} %never draw arrows
+    \pgfsetlinewidth{\pgfstartlinewidth}
+    \pgfpathmoveto{\pgfpoint{-0.5\pgf@circ@res@step}{0.5\pgf@circ@res@step}}
+    \pgfpathsine{\pgfpoint{.25\pgf@circ@res@step}{.25\pgf@circ@res@step}}
+    \pgfpathcosine{\pgfpoint{.25\pgf@circ@res@step}{-.25\pgf@circ@res@step}}
+    \pgfpathsine{\pgfpoint{.25\pgf@circ@res@step}{-.25\pgf@circ@res@step}}
+    \pgfpathcosine{\pgfpoint{.25\pgf@circ@res@step}{.25\pgf@circ@res@step}}
+    \pgfusepath{draw}
+
+    \pgfpathmoveto{\pgfpoint{-0.5\pgf@circ@res@step}{0}}
+    \pgfpathsine{\pgfpoint{.25\pgf@circ@res@step}{.25\pgf@circ@res@step}}
+    \pgfpathcosine{\pgfpoint{.25\pgf@circ@res@step}{-.25\pgf@circ@res@step}}
+    \pgfpathsine{\pgfpoint{.25\pgf@circ@res@step}{-.25\pgf@circ@res@step}}
+    \pgfpathcosine{\pgfpoint{.25\pgf@circ@res@step}{.25\pgf@circ@res@step}}
+    \pgfusepath{draw}
+    \pgfpathmoveto{\pgfpoint{-0.15\pgf@circ@res@step}{-0.15\pgf@circ@res@step}}
+    \pgfpathlineto{\pgfpoint{0.15\pgf@circ@res@step}{0.15\pgf@circ@res@step}}
+    \pgfusepath{draw}
+
+    \pgfpathmoveto{\pgfpoint{-0.5\pgf@circ@res@step}{-0.5\pgf@circ@res@step}}
+    \pgfpathsine{\pgfpoint{.25\pgf@circ@res@step}{.25\pgf@circ@res@step}}
+    \pgfpathcosine{\pgfpoint{.25\pgf@circ@res@step}{-.25\pgf@circ@res@step}}
+    \pgfpathsine{\pgfpoint{.25\pgf@circ@res@step}{-.25\pgf@circ@res@step}}
+    \pgfpathcosine{\pgfpoint{.25\pgf@circ@res@step}{.25\pgf@circ@res@step}}
+    \pgfusepath{draw}
+    \pgfpathmoveto{\pgfpoint{-0.15\pgf@circ@res@step}{-0.65\pgf@circ@res@step}}
+    \pgfpathlineto{\pgfpoint{0.15\pgf@circ@res@step}{-0.35\pgf@circ@res@step}}
+    \pgfusepath{draw}
+}
+
+%% lowpass filter
+\pgfcircdeclarebipolescaled{blocks}
+{}
+{\ctikzvalof{bipoles/lowpass/width}}
+{lowpass}
+{\ctikzvalof{bipoles/lowpass/width}}
+{\ctikzvalof{bipoles/lowpass/width}}
+{
+    \pgf@circ@res@step = \ctikzvalof{bipoles/lowpass/width}\pgf@circ@scaled@Rlen
+    \divide \pgf@circ@res@step by 2
+
+    \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@zero}}
+    \pgf@circ@res@other = \pgf@circ@res@left
+    \advance\pgf@circ@res@other by \pgf@circ@res@step
+
+    \ifpgf@circuit@dashed
+        \pgfsetdash{{0.1cm}{0.1cm}}{0cm}
+    \fi
+
+    % draw outer box
+    \pgf@circ@twoportbox
+
+    \ifpgf@circuit@inputarrow
+        {
+            \advance \pgf@circ@res@left by -.5\ctikzvalof{bipoles/thickness}\pgfstartlinewidth
+            \pgftransformshift{\pgfpoint{\pgf@circ@res@left}{0pt}}
+            \pgfnode{inputarrow}{tip}{}{pgf@inputarrow}{\pgfusepath{fill}}
+        }
+    \fi
+
+    % rotate inner symbol
+    \def\pgfcircmathresult{\expandafter\pgf@circ@stripdecimals\pgf@circ@direction\pgf@nil}
+    \ifnum \pgfcircmathresult > 45 \ifnum \pgfcircmathresult < 135
+        \pgftransformrotate{270}
+    \fi\fi
+    \ifnum \pgfcircmathresult > 134 \ifnum \pgfcircmathresult < 225  % 134 degree, because >= 135 is not possible
+        \pgftransformrotate{180}
+    \fi\fi
+    \ifnum \pgfcircmathresult > 224 \ifnum \pgfcircmathresult < 315
+        \pgftransformrotate{90}
+    \fi\fi
+
+    % draw inner symbol
+    \pgfsetdash{}{0pt}	% always draw solid line for inner symbol
+    \pgfsetarrows{-} %never draw arrows
+    \pgfsetlinewidth{\pgfstartlinewidth}
+    \pgfpathmoveto{\pgfpoint{-0.5\pgf@circ@res@step}{0.5\pgf@circ@res@step}}
+    \pgfpathsine{\pgfpoint{.25\pgf@circ@res@step}{.25\pgf@circ@res@step}}
+    \pgfpathcosine{\pgfpoint{.25\pgf@circ@res@step}{-.25\pgf@circ@res@step}}
+    \pgfpathsine{\pgfpoint{.25\pgf@circ@res@step}{-.25\pgf@circ@res@step}}
+    \pgfpathcosine{\pgfpoint{.25\pgf@circ@res@step}{.25\pgf@circ@res@step}}
+    \pgfusepath{draw}
+    \pgfpathmoveto{\pgfpoint{-0.15\pgf@circ@res@step}{0.35\pgf@circ@res@step}}
+    \pgfpathlineto{\pgfpoint{0.15\pgf@circ@res@step}{0.65\pgf@circ@res@step}}
+    \pgfusepath{draw}
+
+    \pgfpathmoveto{\pgfpoint{-0.5\pgf@circ@res@step}{0}}
+    \pgfpathsine{\pgfpoint{.25\pgf@circ@res@step}{.25\pgf@circ@res@step}}
+    \pgfpathcosine{\pgfpoint{.25\pgf@circ@res@step}{-.25\pgf@circ@res@step}}
+    \pgfpathsine{\pgfpoint{.25\pgf@circ@res@step}{-.25\pgf@circ@res@step}}
+    \pgfpathcosine{\pgfpoint{.25\pgf@circ@res@step}{.25\pgf@circ@res@step}}
+    \pgfusepath{draw}
+    \pgfpathmoveto{\pgfpoint{-0.15\pgf@circ@res@step}{-0.15\pgf@circ@res@step}}
+    \pgfpathlineto{\pgfpoint{0.15\pgf@circ@res@step}{0.15\pgf@circ@res@step}}
+    \pgfusepath{draw}
+
+    \pgfpathmoveto{\pgfpoint{-0.5\pgf@circ@res@step}{-0.5\pgf@circ@res@step}}
+    \pgfpathsine{\pgfpoint{.25\pgf@circ@res@step}{.25\pgf@circ@res@step}}
+    \pgfpathcosine{\pgfpoint{.25\pgf@circ@res@step}{-.25\pgf@circ@res@step}}
+    \pgfpathsine{\pgfpoint{.25\pgf@circ@res@step}{-.25\pgf@circ@res@step}}
+    \pgfpathcosine{\pgfpoint{.25\pgf@circ@res@step}{.25\pgf@circ@res@step}}
+    \pgfusepath{draw}
+}
+
+%% allpass filter
+\pgfcircdeclarebipolescaled{blocks}
+{}
+{\ctikzvalof{bipoles/allpass/width}}
+{allpass}
+{\ctikzvalof{bipoles/allpass/width}}
+{\ctikzvalof{bipoles/allpass/width}}
+{
+    \pgf@circ@res@step = \ctikzvalof{bipoles/allpass/width}\pgf@circ@scaled@Rlen
+    \divide \pgf@circ@res@step by 2
+
+    \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@zero}}
+    \pgf@circ@res@other = \pgf@circ@res@left
+    \advance\pgf@circ@res@other by \pgf@circ@res@step
+
+    \ifpgf@circuit@dashed
+        \pgfsetdash{{0.1cm}{0.1cm}}{0cm}
+    \fi
+
+    % draw outer box
+    \pgf@circ@twoportbox
+
+    \ifpgf@circuit@inputarrow
+        {
+            \advance \pgf@circ@res@left by -.5\ctikzvalof{bipoles/thickness}\pgfstartlinewidth
+            \pgftransformshift{\pgfpoint{\pgf@circ@res@left}{0pt}}
+            \pgfnode{inputarrow}{tip}{}{pgf@inputarrow}{\pgfusepath{fill}}
+        }
+    \fi
+
+    % rotate inner symbol
+    \def\pgfcircmathresult{\expandafter\pgf@circ@stripdecimals\pgf@circ@direction\pgf@nil}
+    \ifnum \pgfcircmathresult > 45 \ifnum \pgfcircmathresult < 135
+        \pgftransformrotate{270}
+    \fi\fi
+    \ifnum \pgfcircmathresult > 134 \ifnum \pgfcircmathresult < 225  % 134 degree, because >= 135 is not possible
+        \pgftransformrotate{180}
+    \fi\fi
+    \ifnum \pgfcircmathresult > 224 \ifnum \pgfcircmathresult < 315
+        \pgftransformrotate{90}
+    \fi\fi
+
+    % draw inner symbol
+    \pgfsetdash{}{0pt}	% always draw solid line for inner symbol
+    \pgfsetarrows{-} %never draw arrows
+    \pgfsetlinewidth{\pgfstartlinewidth}
+    \pgfpathmoveto{\pgfpoint{-0.5\pgf@circ@res@step}{0.5\pgf@circ@res@step}}
+    \pgfpathsine{\pgfpoint{.25\pgf@circ@res@step}{.25\pgf@circ@res@step}}
+    \pgfpathcosine{\pgfpoint{.25\pgf@circ@res@step}{-.25\pgf@circ@res@step}}
+    \pgfpathsine{\pgfpoint{.25\pgf@circ@res@step}{-.25\pgf@circ@res@step}}
+    \pgfpathcosine{\pgfpoint{.25\pgf@circ@res@step}{.25\pgf@circ@res@step}}
+    \pgfusepath{draw}
+
+    \pgfpathmoveto{\pgfpoint{-0.5\pgf@circ@res@step}{0}}
+    \pgfpathsine{\pgfpoint{.25\pgf@circ@res@step}{.25\pgf@circ@res@step}}
+    \pgfpathcosine{\pgfpoint{.25\pgf@circ@res@step}{-.25\pgf@circ@res@step}}
+    \pgfpathsine{\pgfpoint{.25\pgf@circ@res@step}{-.25\pgf@circ@res@step}}
+    \pgfpathcosine{\pgfpoint{.25\pgf@circ@res@step}{.25\pgf@circ@res@step}}
+    \pgfusepath{draw}
+
+    \pgfpathmoveto{\pgfpoint{-0.5\pgf@circ@res@step}{-0.5\pgf@circ@res@step}}
+    \pgfpathsine{\pgfpoint{.25\pgf@circ@res@step}{.25\pgf@circ@res@step}}
+    \pgfpathcosine{\pgfpoint{.25\pgf@circ@res@step}{-.25\pgf@circ@res@step}}
+    \pgfpathsine{\pgfpoint{.25\pgf@circ@res@step}{-.25\pgf@circ@res@step}}
+    \pgfpathcosine{\pgfpoint{.25\pgf@circ@res@step}{.25\pgf@circ@res@step}}
+    \pgfusepath{draw}
+}
+
+%% ADC
+\pgfcircdeclarebipolescaled{blocks}
+{}
+{\ctikzvalof{bipoles/adc/width}}
+{adc}
+{\ctikzvalof{bipoles/adc/width}}
+{\ctikzvalof{bipoles/adc/width}}
+{
+    \pgf@circ@res@step = \ctikzvalof{bipoles/adc/width}\pgf@circ@scaled@Rlen
+    \divide \pgf@circ@res@step by 2
+
+    \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@zero}}
+    \pgf@circ@res@other = \pgf@circ@res@left
+    \advance\pgf@circ@res@other by \pgf@circ@res@step
+
+    \ifpgf@circuit@dashed
+        \pgfsetdash{{0.1cm}{0.1cm}}{0cm}
+    \fi
+
+    % draw outer box
+    \pgf@circ@twoportbox
+
+    \ifpgf@circuit@inputarrow
+        {
+            \advance \pgf@circ@res@left by -.5\ctikzvalof{bipoles/thickness}\pgfstartlinewidth
+            \pgftransformshift{\pgfpoint{\pgf@circ@res@left}{0pt}}
+            \pgfnode{inputarrow}{tip}{}{pgf@inputarrow}{\pgfusepath{fill}}
+        }
+    \fi
+
+    % rotate inner symbol
+    \def\texti{A}
+    \def\textii{D}
+    \def\pgfcircmathresult{\expandafter\pgf@circ@stripdecimals\pgf@circ@direction\pgf@nil}
+    \ifnum \pgfcircmathresult > 45 \ifnum \pgfcircmathresult < 135
+        \def\texti{D}
+        \def\textii{A}
+        \pgftransformrotate{270}
+    \fi\fi
+    \ifnum \pgfcircmathresult > 134 \ifnum \pgfcircmathresult < 225  % 134 degree, because >= 135 is not possible
+        \def\texti{D}
+        \def\textii{A}
+        \pgftransformrotate{180}
+    \fi\fi
+    \ifnum \pgfcircmathresult > 225 \ifnum \pgfcircmathresult < 315
+        \pgftransformrotate{90}
+        \def\texti{A}
+        \def\textii{D}
+    \fi\fi
+
+    % draw inner symbol
+    \pgfsetdash{}{0pt}	% always draw solid line for inner symbol
+    \pgfsetarrows{-} %never draw arrows
+    \pgfsetlinewidth{\pgfstartlinewidth}
+    \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@down}}
+    \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@up}}
+    \pgfusepath{draw}
+
+    \pgftext[center,x=0.45\pgf@circ@res@left,y=0.45\pgf@circ@res@up]{\textsf{\texti}}
+    \pgftext[center,x=0.45\pgf@circ@res@right,y=0.45\pgf@circ@res@down]{\textsf{\textii}}
+}
+
+%% DAC
+\pgfcircdeclarebipolescaled{blocks}
+{}
+{\ctikzvalof{bipoles/dac/width}}
+{dac}
+{\ctikzvalof{bipoles/dac/width}}
+{\ctikzvalof{bipoles/dac/width}}
+{
+    \pgf@circ@res@step = \ctikzvalof{bipoles/dac/width}\pgf@circ@scaled@Rlen
+    \divide \pgf@circ@res@step by 2
+
+    \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@zero}}
+    \pgf@circ@res@other = \pgf@circ@res@left
+    \advance\pgf@circ@res@other by \pgf@circ@res@step
+
+    \ifpgf@circuit@dashed
+        \pgfsetdash{{0.1cm}{0.1cm}}{0cm}
+    \fi
+
+    % draw outer box
+    \pgf@circ@twoportbox
+
+    \ifpgf@circuit@inputarrow
+        {
+            \advance \pgf@circ@res@left by -.5\ctikzvalof{bipoles/thickness}\pgfstartlinewidth
+            \pgftransformshift{\pgfpoint{\pgf@circ@res@left}{0pt}}
+            \pgfnode{inputarrow}{tip}{}{pgf@inputarrow}{\pgfusepath{fill}}
+        }
+    \fi
+
+    % rotate inner symbol
+    \def\texti{D}
+    \def\textii{A}
+    \def\pgfcircmathresult{\expandafter\pgf@circ@stripdecimals\pgf@circ@direction\pgf@nil}
+    \ifnum \pgfcircmathresult > 45 \ifnum \pgfcircmathresult < 135
+        \def\texti{A}
+        \def\textii{D}
+        \pgftransformrotate{270}
+    \fi\fi
+    \ifnum \pgfcircmathresult > 134 \ifnum \pgfcircmathresult < 225  % 134 degree, because >= 135 is not possible
+        \def\texti{A}
+        \def\textii{D}
+        \pgftransformrotate{180}
+    \fi\fi
+    \ifnum \pgfcircmathresult > 225 \ifnum \pgfcircmathresult < 315
+        \pgftransformrotate{90}
+        \def\texti{D}
+        \def\textii{A}
+    \fi\fi
+
+    % draw inner symbol
+    \pgfsetdash{}{0pt}	% always draw solid line for inner symbol
+    \pgfsetarrows{-} %never draw arrows
+    \pgfsetlinewidth{\pgfstartlinewidth}
+    \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@down}}
+    \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@up}}
+    \pgfusepath{draw}
+
+    \pgftext[center,x=0.45\pgf@circ@res@left,y=0.45\pgf@circ@res@up]{\textsf{\texti}}
+    \pgftext[center,x=0.45\pgf@circ@res@right,y=0.45\pgf@circ@res@down]{\textsf{\textii}}
+}
+
+%% DSP
+\pgfcircdeclarebipolescaled{blocks}
+{}
+{\ctikzvalof{bipoles/dsp/width}}
+{dsp}
+{\ctikzvalof{bipoles/dsp/width}}
+{\ctikzvalof{bipoles/dsp/width}}
+{
+    \pgf@circ@res@step = \ctikzvalof{bipoles/dsp/width}\pgf@circ@scaled@Rlen
+    \divide \pgf@circ@res@step by 2
+
+    \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@zero}}
+    \pgf@circ@res@other = \pgf@circ@res@left
+    \advance\pgf@circ@res@other by \pgf@circ@res@step
+
+    \ifpgf@circuit@dashed
+        \pgfsetdash{{0.1cm}{0.1cm}}{0cm}
+    \fi
+
+    % draw outer box
+    \pgf@circ@twoportbox
+
+    \ifpgf@circuit@inputarrow
+        {
+            \advance \pgf@circ@res@left by -.5\ctikzvalof{bipoles/thickness}\pgfstartlinewidth
+            \pgftransformshift{\pgfpoint{\pgf@circ@res@left}{0pt}}
+            \pgfnode{inputarrow}{tip}{}{pgf@inputarrow}{\pgfusepath{fill}}
+        }
+    \fi
+
+    % rotate inner symbol
+    \def\pgfcircmathresult{\expandafter\pgf@circ@stripdecimals\pgf@circ@direction\pgf@nil}
+    \ifnum \pgfcircmathresult > 45 \ifnum \pgfcircmathresult < 135
+        \pgftransformrotate{270}
+    \fi\fi
+    \ifnum \pgfcircmathresult > 135 \ifnum \pgfcircmathresult < 225
+        \pgftransformrotate{180}
+    \fi\fi
+    \ifnum \pgfcircmathresult > 225 \ifnum \pgfcircmathresult < 315
+        \pgftransformrotate{90}
+    \fi\fi
+
+    % draw inner symbol
+    \pgftext[center,x=0,y=0]{\textsf{DSP}}
+}
+
+%% FFT
+\pgfcircdeclarebipolescaled{blocks}
+{}
+{\ctikzvalof{bipoles/fft/width}}
+{fft}
+{\ctikzvalof{bipoles/fft/width}}
+{\ctikzvalof{bipoles/fft/width}}
+{
+    \pgf@circ@res@step = \ctikzvalof{bipoles/fft/width}\pgf@circ@scaled@Rlen
+    \divide \pgf@circ@res@step by 2
+
+    \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@zero}}
+    \pgf@circ@res@other = \pgf@circ@res@left
+    \advance\pgf@circ@res@other by \pgf@circ@res@step
+
+    \ifpgf@circuit@dashed
+        \pgfsetdash{{0.1cm}{0.1cm}}{0cm}
+    \fi
+
+    % draw outer box
+    \pgf@circ@twoportbox
+
+    \ifpgf@circuit@inputarrow
+        {
+            \advance \pgf@circ@res@left by -.5\ctikzvalof{bipoles/thickness}\pgfstartlinewidth
+            \pgftransformshift{\pgfpoint{\pgf@circ@res@left}{0pt}}
+            \pgfnode{inputarrow}{tip}{}{pgf@inputarrow}{\pgfusepath{fill}}
+        }
+    \fi
+
+    % rotate inner symbol
+    \def\pgfcircmathresult{\expandafter\pgf@circ@stripdecimals\pgf@circ@direction\pgf@nil}
+    \ifnum \pgfcircmathresult > 45 \ifnum \pgfcircmathresult < 135
+        \pgftransformrotate{270}
+    \fi\fi
+    \ifnum \pgfcircmathresult > 135 \ifnum \pgfcircmathresult < 225
+        \pgftransformrotate{180}
+    \fi\fi
+    \ifnum \pgfcircmathresult > 225 \ifnum \pgfcircmathresult < 315
+        \pgftransformrotate{90}
+    \fi\fi
+
+    % draw inner symbol
+    \pgftext[center,x=0,y=0]{\textsf{FFT}}
+}
+
+%% Amplifier
+\pgfcircdeclarebipolescaled{blocks}
+{}
+{
+    \ifpgf@circuit@boxed
+        \ctikzvalof{bipoles/twoport/width}
+    \else
+        \ctikzvalof{bipoles/amp/width}
+    \fi
+}
+{amp}
+{
+    \ifpgf@circuit@boxed
+        \ctikzvalof{bipoles/twoport/width}
+    \else
+        \ctikzvalof{bipoles/amp/width}
+    \fi
+}
+{
+    \ifpgf@circuit@boxed
+        \ctikzvalof{bipoles/twoport/width}
+    \else
+        \ctikzvalof{bipoles/amp/width}
+    \fi
+}
+{
+    \pgf@circ@res@step = \ctikzvalof{bipoles/amp/width}\pgf@circ@scaled@Rlen
+
+    \ifpgf@circuit@dashed
+        \pgfsetdash{{0.1cm}{0.1cm}}{0cm}
+    \fi
+
+    % draw outer box
+    \ifpgf@circuit@boxed
+        \pgf@circ@setlinewidth{bipoles}{\pgfstartlinewidth}
+        \pgfnode{blockbox}{center}{}{pgf@box}{\pgfusepath{draw}}
+        \pgf@circ@draworfill
+    \fi
+
+    % draw input arrow
+    \ifpgf@circuit@inputarrow
+        {
+            \advance \pgf@circ@res@left by -.5\ctikzvalof{bipoles/thickness}\pgfstartlinewidth
+            \pgftransformshift{\pgfpoint{\pgf@circ@res@left}{0pt}}
+            \pgfnode{inputarrow}{tip}{}{pgf@inputarrow}{\pgfusepath{fill}}
+        }
+    \fi
+
+    \ifpgf@circuit@boxed
+        \pgfsetlinewidth{\pgfstartlinewidth}
+        \pgfsetdash{}{0pt}	% draw solid line for inner symbol if no box is drawn
+        \pgf@circ@res@step=.7\pgf@circ@res@step % scale amp symbol when inside a box
+    \else
+        \pgf@circ@setlinewidth{bipoles}{\pgfstartlinewidth}
+    \fi
+
+    \pgfsetarrows{-} %never draw arrows
+
+    \pgfpathmoveto{\pgfpoint{-0.5\pgf@circ@res@step}{0.55\pgf@circ@res@step}}
+    \pgfpathlineto{\pgfpoint{0.5\pgf@circ@res@step}{0}}
+    \pgfpathlineto{\pgfpoint{-0.5\pgf@circ@res@step}{-0.55\pgf@circ@res@step}}
+
+    \pgfpathclose
+    \pgf@circ@draworfill
+
+    % draw inner text
+    \pgftext[center,x=-0.12\pgf@circ@res@step,y=0]{\ctikzvalof{bipoles/twoport/text}}
+}
+
+
+%% variable amplifier
+\pgfcircdeclarebipolescaled{blocks}
+{}
+{
+    \ifpgf@circuit@boxed
+        \ctikzvalof{bipoles/twoport/width}
+    \else
+        \ctikzvalof{bipoles/amp/width}
+    \fi
+}
+{vamp}
+{
+    \ifpgf@circuit@boxed
+        \ctikzvalof{bipoles/twoport/width}
+    \else
+        \ctikzvalof{bipoles/amp/width}
+    \fi
+}
+{
+    \ifpgf@circuit@boxed
+        \ctikzvalof{bipoles/twoport/width}
+    \else
+        \ctikzvalof{bipoles/amp/width}
+    \fi
+}
+{
+    \pgf@circ@res@step = \ctikzvalof{bipoles/amp/width}\pgf@circ@scaled@Rlen
+
+    \ifpgf@circuit@dashed
+        \pgfsetdash{{0.1cm}{0.1cm}}{0cm}
+    \fi
+
+    % draw outer box
+    \ifpgf@circuit@boxed
+        \pgfnode{blockbox}{center}{}{pgf@box}{\pgfusepath{draw}}
+    \fi
+
+    % draw input arrow
+    \ifpgf@circuit@inputarrow
+        {
+            \advance \pgf@circ@res@left by -.5\ctikzvalof{bipoles/thickness}\pgfstartlinewidth
+            \pgftransformshift{\pgfpoint{\pgf@circ@res@left}{0pt}}
+            \pgfnode{inputarrow}{tip}{}{pgf@inputarrow}{\pgfusepath{fill}}
+        }
+    \fi
+
+    \ifpgf@circuit@boxed
+        \pgfsetlinewidth{\pgfstartlinewidth}
+        \pgfsetdash{}{0pt}	% draw solid line for inner symbol if no box is drawn
+        \pgf@circ@res@step=.7\pgf@circ@res@step % scale amp symbol when inside a box
+    \else
+        \pgf@circ@setlinewidth{bipoles}{\pgfstartlinewidth}
+    \fi
+
+
+    \pgfsetdash{}{0pt}	% always draw solid line for inner symbol
+    \pgfsetarrows{-} %never draw arrows
+
+    \pgfpathmoveto{\pgfpoint{-0.5\pgf@circ@res@step}{0.55\pgf@circ@res@step}}
+    \pgfpathlineto{\pgfpoint{0.5\pgf@circ@res@step}{0}}
+    \pgfpathlineto{\pgfpoint{-0.5\pgf@circ@res@step}{-0.55\pgf@circ@res@step}}
+
+    \pgfpathclose
+    \pgf@circ@draworfill
+
+    % draw inner text
+    \pgftext[center,x=-0.12\pgf@circ@res@step,y=0]{\ctikzvalof{bipoles/twoport/text}}
+
+    % draw arrow
+    \pgfsetlinewidth{\pgfstartlinewidth}
+    \pgfsetarrowsend{latex}
+    \pgfpathmoveto{\pgfpoint{-0.8\pgf@circ@res@step}{-0.5\pgf@circ@res@step}}
+    \pgfpathlineto{\pgfpoint{0.6\pgf@circ@res@step}{0.6\pgf@circ@res@step}}
+    \pgfusepath{draw}
+}
+
+%% pi attenuator
+\pgfcircdeclarebipolescaled{blocks}
+{}
+{\ctikzvalof{bipoles/piattenuator/width}}
+{piattenuator}
+{\ctikzvalof{bipoles/piattenuator/width}}
+{\ctikzvalof{bipoles/piattenuator/width}}
+{
+    \pgf@circ@res@step = \ctikzvalof{bipoles/piattenuator/width}\pgf@circ@scaled@Rlen
+    \divide \pgf@circ@res@step by 2
+
+    \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@zero}}
+    \pgf@circ@res@other = \pgf@circ@res@left
+    \advance\pgf@circ@res@other by \pgf@circ@res@step
+
+    \ifpgf@circuit@dashed
+        \pgfsetdash{{0.1cm}{0.1cm}}{0cm}
+    \fi
+
+    % draw outer box
+    \pgf@circ@twoportbox
+
+    \ifpgf@circuit@inputarrow
+        {
+            \advance \pgf@circ@res@left by -.5\ctikzvalof{bipoles/thickness}\pgfstartlinewidth
+            \pgftransformshift{\pgfpoint{\pgf@circ@res@left}{0pt}}
+            \pgfnode{inputarrow}{tip}{}{pgf@inputarrow}{\pgfusepath{fill}}
+        }
+    \fi
+
+    % rotate inner symbol
+    \def\pgfcircmathresult{\expandafter\pgf@circ@stripdecimals\pgf@circ@direction\pgf@nil}
+    \ifnum \pgfcircmathresult > 45 \ifnum \pgfcircmathresult < 135
+        \pgftransformrotate{270}
+    \fi\fi
+    \ifnum \pgfcircmathresult > 225 \ifnum \pgfcircmathresult < 315
+        \pgftransformrotate{90}
+    \fi\fi
+
+    % draw inner symbol
+    \pgfsetdash{}{0pt}	% always draw solid line for inner symbol
+    \pgfsetarrows{-} %never draw arrows
+    \pgfsetlinewidth{\pgfstartlinewidth}
+    \pgfpathmoveto{\pgfpoint{0.4\pgf@circ@res@left}{0.4\pgf@circ@res@down}}
+    \pgfpathlineto{\pgfpoint{0.4\pgf@circ@res@left}{0.4\pgf@circ@res@up}}
+    \pgfusepath{draw}
+    \pgfpathmoveto{\pgfpoint{0.4\pgf@circ@res@right}{0.4\pgf@circ@res@down}}
+    \pgfpathlineto{\pgfpoint{0.4\pgf@circ@res@right}{0.4\pgf@circ@res@up}}
+    \pgfusepath{draw}
+    \pgfpathmoveto{\pgfpoint{0.6\pgf@circ@res@left}{0.4\pgf@circ@res@up}}
+    \pgfpathlineto{\pgfpoint{0.6\pgf@circ@res@right}{0.4\pgf@circ@res@up}}
+    \pgfusepath{draw}
+}
+
+%% variable pi attenuator
+\pgfcircdeclarebipolescaled{blocks}
+{}
+{\ctikzvalof{bipoles/vpiattenuator/width}}
+{vpiattenuator}
+{\ctikzvalof{bipoles/vpiattenuator/width}}
+{\ctikzvalof{bipoles/vpiattenuator/width}}
+{
+    \pgf@circ@res@step = \ctikzvalof{bipoles/vpiattenuator/width}\pgf@circ@scaled@Rlen
+    \divide \pgf@circ@res@step by 2
+
+    \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@zero}}
+    \pgf@circ@res@other = \pgf@circ@res@left
+    \advance\pgf@circ@res@other by \pgf@circ@res@step
+
+    \ifpgf@circuit@dashed
+        \pgfsetdash{{0.1cm}{0.1cm}}{0cm}
+    \fi
+
+    % draw outer box
+    \pgf@circ@twoportbox
+
+    \ifpgf@circuit@inputarrow
+        {
+            \advance \pgf@circ@res@left by -.5\ctikzvalof{bipoles/thickness}\pgfstartlinewidth
+            \pgftransformshift{\pgfpoint{\pgf@circ@res@left}{0pt}}
+            \pgfnode{inputarrow}{tip}{}{pgf@inputarrow}{\pgfusepath{fill}}
+        }
+    \fi
+
+    % rotate inner symbol
+    \def\pgfcircmathresult{\expandafter\pgf@circ@stripdecimals\pgf@circ@direction\pgf@nil}
+    \ifnum \pgfcircmathresult > 45 \ifnum \pgfcircmathresult < 135
+        \pgftransformrotate{270}
+    \fi\fi
+    \ifnum \pgfcircmathresult > 225 \ifnum \pgfcircmathresult < 315
+        \pgftransformrotate{90}
+    \fi\fi
+
+    % draw inner symbol
+    \pgfsetdash{}{0pt}	% always draw solid line for inner symbol
+    \pgfsetarrows{-} %never draw arrows
+    \pgfsetlinewidth{\pgfstartlinewidth}
+    \pgfpathmoveto{\pgfpoint{0.4\pgf@circ@res@left}{0.4\pgf@circ@res@down}}
+    \pgfpathlineto{\pgfpoint{0.4\pgf@circ@res@left}{0.4\pgf@circ@res@up}}
+    \pgfusepath{draw}
+    \pgfpathmoveto{\pgfpoint{0.4\pgf@circ@res@right}{0.4\pgf@circ@res@down}}
+    \pgfpathlineto{\pgfpoint{0.4\pgf@circ@res@right}{0.4\pgf@circ@res@up}}
+    \pgfusepath{draw}
+    \pgfpathmoveto{\pgfpoint{0.6\pgf@circ@res@left}{0.4\pgf@circ@res@up}}
+    \pgfpathlineto{\pgfpoint{0.6\pgf@circ@res@right}{0.4\pgf@circ@res@up}}
+    \pgfusepath{draw}
+
+    \pgfsetarrowsend{latex}
+    \pgfpathmoveto{\pgfpoint{0.7\pgf@circ@res@left}{0.5\pgf@circ@res@down}}
+    \pgfpathlineto{\pgfpoint{0.7\pgf@circ@res@right}{0.8\pgf@circ@res@up}}
+    \pgfusepath{draw}
+}
+
+%% T attenuator
+\pgfcircdeclarebipolescaled{blocks}
+{}
+{\ctikzvalof{bipoles/tattenuator/width}}
+{tattenuator}
+{\ctikzvalof{bipoles/tattenuator/width}}
+{\ctikzvalof{bipoles/tattenuator/width}}
+{
+    \pgf@circ@res@step = \ctikzvalof{bipoles/tattenuator/width}\pgf@circ@scaled@Rlen
+    \divide \pgf@circ@res@step by 2
+
+    \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@zero}}
+    \pgf@circ@res@other = \pgf@circ@res@left
+    \advance\pgf@circ@res@other by \pgf@circ@res@step
+
+    \ifpgf@circuit@dashed
+        \pgfsetdash{{0.1cm}{0.1cm}}{0cm}
+    \fi
+
+    % draw outer box
+    \pgf@circ@twoportbox
+
+    \ifpgf@circuit@inputarrow
+        {
+            \advance \pgf@circ@res@left by -.5\ctikzvalof{bipoles/thickness}\pgfstartlinewidth
+            \pgftransformshift{\pgfpoint{\pgf@circ@res@left}{0pt}}
+            \pgfnode{inputarrow}{tip}{}{pgf@inputarrow}{\pgfusepath{fill}}
+        }
+    \fi
+
+    % rotate inner symbol
+    \def\pgfcircmathresult{\expandafter\pgf@circ@stripdecimals\pgf@circ@direction\pgf@nil}
+    \ifnum \pgfcircmathresult > 45 \ifnum \pgfcircmathresult < 135
+        \pgftransformrotate{270}
+    \fi\fi
+    \ifnum \pgfcircmathresult > 225 \ifnum \pgfcircmathresult < 315
+        \pgftransformrotate{90}
+    \fi\fi
+
+    % draw inner symbol
+    \pgfsetdash{}{0pt}	% always draw solid line for inner symbol
+    \pgfsetarrows{-} %never draw arrows
+    \pgfsetlinewidth{\pgfstartlinewidth}
+    \pgfpathmoveto{\pgfpoint{0pt}{0.4\pgf@circ@res@down}}
+    \pgfpathlineto{\pgfpoint{0pt}{0.4\pgf@circ@res@up}}
+    \pgfusepath{draw}
+    \pgfpathmoveto{\pgfpoint{0.6\pgf@circ@res@left}{0.4\pgf@circ@res@up}}
+    \pgfpathlineto{\pgfpoint{0.6\pgf@circ@res@right}{0.4\pgf@circ@res@up}}
+    \pgfusepath{draw}
+}
+
+%% variable T attenuator
+\pgfcircdeclarebipolescaled{blocks}
+{}
+{\ctikzvalof{bipoles/vtattenuator/width}}
+{vtattenuator}
+{\ctikzvalof{bipoles/vtattenuator/width}}
+{\ctikzvalof{bipoles/vtattenuator/width}}
+{
+    \pgf@circ@res@step = \ctikzvalof{bipoles/vtattenuator/width}\pgf@circ@scaled@Rlen
+    \divide \pgf@circ@res@step by 2
+
+    \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@zero}}
+    \pgf@circ@res@other = \pgf@circ@res@left
+    \advance\pgf@circ@res@other by \pgf@circ@res@step
+
+    \ifpgf@circuit@dashed
+        \pgfsetdash{{0.1cm}{0.1cm}}{0cm}
+    \fi
+
+    % draw outer box
+    \pgf@circ@twoportbox
+
+    \ifpgf@circuit@inputarrow
+        {
+            \advance \pgf@circ@res@left by -.5\ctikzvalof{bipoles/thickness}\pgfstartlinewidth
+            \pgftransformshift{\pgfpoint{\pgf@circ@res@left}{0pt}}
+            \pgfnode{inputarrow}{tip}{}{pgf@inputarrow}{\pgfusepath{fill}}
+        }
+    \fi
+
+    % rotate inner symbol
+    \def\pgfcircmathresult{\expandafter\pgf@circ@stripdecimals\pgf@circ@direction\pgf@nil}
+    \ifnum \pgfcircmathresult > 45 \ifnum \pgfcircmathresult < 135
+        \pgftransformrotate{270}
+    \fi\fi
+    \ifnum \pgfcircmathresult > 225 \ifnum \pgfcircmathresult < 315
+        \pgftransformrotate{90}
+    \fi\fi
+
+    % draw inner symbol
+    \pgfsetdash{}{0pt}	% always draw solid line for inner symbol
+    \pgfsetarrows{-} %never draw arrows
+    \pgfsetlinewidth{\pgfstartlinewidth}
+    \pgfpathmoveto{\pgfpoint{0pt}{0.4\pgf@circ@res@down}}
+    \pgfpathlineto{\pgfpoint{0pt}{0.4\pgf@circ@res@up}}
+    \pgfusepath{draw}
+    \pgfpathmoveto{\pgfpoint{0.6\pgf@circ@res@left}{0.4\pgf@circ@res@up}}
+    \pgfpathlineto{\pgfpoint{0.6\pgf@circ@res@right}{0.4\pgf@circ@res@up}}
+    \pgfusepath{draw}
+
+    \pgfsetarrowsend{latex}
+    \pgfpathmoveto{\pgfpoint{0.7\pgf@circ@res@left}{0.5\pgf@circ@res@down}}
+    \pgfpathlineto{\pgfpoint{0.7\pgf@circ@res@right}{0.8\pgf@circ@res@up}}
+    \pgfusepath{draw}
+}
+
+%% phase shifter
+\pgfcircdeclarebipolescaled{blocks}
+{}
+{\ctikzvalof{bipoles/phaseshifter/width}}
+{phaseshifter}
+{\ctikzvalof{bipoles/phaseshifter/width}}
+{\ctikzvalof{bipoles/phaseshifter/width}}
+{
+    \pgf@circ@res@step = \ctikzvalof{bipoles/phaseshifter/width}\pgf@circ@scaled@Rlen
+    \divide \pgf@circ@res@step by 2
+
+    \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@zero}}
+    \pgf@circ@res@other = \pgf@circ@res@left
+    \advance\pgf@circ@res@other by \pgf@circ@res@step
+
+    \ifpgf@circuit@dashed
+        \pgfsetdash{{0.1cm}{0.1cm}}{0cm}
+    \fi
+
+    % draw outer box
+    \pgf@circ@twoportbox
+
+    \ifpgf@circuit@inputarrow
+        {
+            \advance \pgf@circ@res@left by -.5\ctikzvalof{bipoles/thickness}\pgfstartlinewidth
+            \pgftransformshift{\pgfpoint{\pgf@circ@res@left}{0pt}}
+            \pgfnode{inputarrow}{tip}{}{pgf@inputarrow}{\pgfusepath{fill}}
+        }
+    \fi
+
+    % rotate inner symbol
+    \def\pgfcircmathresult{\expandafter\pgf@circ@stripdecimals\pgf@circ@direction\pgf@nil}
+    \ifnum \pgfcircmathresult > 45 \ifnum \pgfcircmathresult < 135
+        \pgftransformrotate{270}
+    \fi\fi
+    \ifnum \pgfcircmathresult > 135 \ifnum \pgfcircmathresult < 225
+        \pgftransformrotate{180}
+    \fi\fi
+    \ifnum \pgfcircmathresult > 225 \ifnum \pgfcircmathresult < 315
+        \pgftransformrotate{90}
+    \fi\fi
+
+    % inner symbol
+    \pgftext[center,x=0,y=0]{\Large$\varphi$}
+}
+
+%% variable phase shifter
+\pgfcircdeclarebipolescaled{blocks}
+{}
+{\ctikzvalof{bipoles/phaseshifter/width}}
+{vphaseshifter}
+{\ctikzvalof{bipoles/vphaseshifter/width}}
+{\ctikzvalof{bipoles/vphaseshifter/width}}
+{
+    \pgf@circ@res@step = \ctikzvalof{bipoles/vphaseshifter/width}\pgf@circ@scaled@Rlen
+    \divide \pgf@circ@res@step by 2
+
+    \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@zero}}
+    \pgf@circ@res@other = \pgf@circ@res@left
+    \advance\pgf@circ@res@other by \pgf@circ@res@step
+
+    \ifpgf@circuit@dashed
+        \pgfsetdash{{0.1cm}{0.1cm}}{0cm}
+    \fi
+
+    % draw outer box
+    \pgf@circ@twoportbox
+
+    \ifpgf@circuit@inputarrow
+        {
+            \advance \pgf@circ@res@left by -.5\ctikzvalof{bipoles/thickness}\pgfstartlinewidth
+            \pgftransformshift{\pgfpoint{\pgf@circ@res@left}{0pt}}
+            \pgfnode{inputarrow}{tip}{}{pgf@inputarrow}{\pgfusepath{fill}}
+        }
+    \fi
+
+    % rotate inner symbol
+    \def\pgfcircmathresult{\expandafter\pgf@circ@stripdecimals\pgf@circ@direction\pgf@nil}
+    \ifnum \pgfcircmathresult > 45 \ifnum \pgfcircmathresult < 135
+        \pgftransformrotate{270}
+    \fi\fi
+    \ifnum \pgfcircmathresult > 135 \ifnum \pgfcircmathresult < 225
+        \pgftransformrotate{180}
+    \fi\fi
+    \ifnum \pgfcircmathresult > 225 \ifnum \pgfcircmathresult < 315
+        \pgftransformrotate{90}
+    \fi\fi
+
+    % inner symbol
+    \pgftext[center,x=0,y=0]{\Large$\varphi$}
+
+    \pgfsetdash{}{0pt}	% always draw solid line for inner symbol
+    \pgfsetlinewidth{\pgfstartlinewidth}
+    \pgfsetarrowsend{latex}
+    \pgfpathmoveto{\pgfpoint{0.75\pgf@circ@res@left}{0.65\pgf@circ@res@down}}
+    \pgfpathlineto{\pgfpoint{0.7\pgf@circ@res@right}{0.65\pgf@circ@res@up}}
+    \pgfusepath{draw}
+}
+
+%% detector
+\pgfcircdeclarebipolescaled{blocks}
+{}
+{\ctikzvalof{bipoles/detector/width}}
+{detector}
+{\ctikzvalof{bipoles/detector/width}}
+{\ctikzvalof{bipoles/detector/width}}
+{
+    \pgf@circ@res@step = \ctikzvalof{bipoles/detector/width}\pgf@circ@scaled@Rlen
+    \divide \pgf@circ@res@step by 2
+
+    \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@zero}}
+    \pgf@circ@res@other = \pgf@circ@res@left
+    \advance\pgf@circ@res@other by \pgf@circ@res@step
+
+    \ifpgf@circuit@dashed
+        \pgfsetdash{{0.1cm}{0.1cm}}{0cm}
+    \fi
+
+    % draw outer box
+    \pgf@circ@twoportbox
+
+    \ifpgf@circuit@inputarrow
+        {
+            \advance \pgf@circ@res@left by -.5\ctikzvalof{bipoles/thickness}\pgfstartlinewidth
+            \pgftransformshift{\pgfpoint{\pgf@circ@res@left}{0pt}}
+            \pgfnode{inputarrow}{tip}{}{pgf@inputarrow}{\pgfusepath{fill}}
+        }
+    \fi
+
+    % draw inner stuff
+    \pgfsetdash{}{0pt}	% always draw solid line for inner symbol
+    \pgfsetarrows{-} %never draw arrows
+    \pgfsetlinewidth{0.8\pgfstartlinewidth}
+    \pgfpathmoveto{\pgfpoint{0.75\pgf@circ@res@left}{0}}
+    \pgfpathlineto{\pgfpoint{0.75\pgf@circ@res@right}{0}}
+    \pgfusepath{draw}
+
+    \ifpgf@circuit@fulldiode
+        \pgfmathparse{2\pgf@circ@res@up / \pgf@circ@scaled@Rlen / \ctikzvalof{bipoles/generic/width}}
+        \pgftransformscale{\pgfmathresult}
+        \pgfnode{fulldiodeshape}{center}{}{pgf@fulldiode}{\pgfusepath{fill}}
+    \else
+        \pgfmathparse{2\pgf@circ@res@up / \pgf@circ@scaled@Rlen / \ctikzvalof{bipoles/resistor/width}}
+        \pgftransformscale{\pgfmathresult}
+        \pgfnode{emptydiodeshape}{center}{}{pgf@emptydiode}{\pgfusepath{fill}}
+    \fi
+
+}
+
+%% single phase ac/dc converter
+\pgfcircdeclarebipolescaled{blocks}
+{
+    \anchor{dc1}{
+        \northeast
+        \pgf@y=.4\pgf@y
+    }
+    \anchor{dc2}{
+        \northeast
+        \pgf@y=-.4\pgf@y
+    }
+}
+{\ctikzvalof{bipoles/sacdc/width}}
+{sacdc}
+{\ctikzvalof{bipoles/sacdc/width}}
+{\ctikzvalof{bipoles/sacdc/width}}
+{
+    \pgf@circ@res@step = \ctikzvalof{bipoles/sacdc/width}\pgf@circ@scaled@Rlen
+    \divide \pgf@circ@res@step by 2
+
+    \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@zero}}
+    \pgf@circ@res@other = \pgf@circ@res@left
+    \advance\pgf@circ@res@other by \pgf@circ@res@step
+
+    \ifpgf@circuit@dashed
+        \pgfsetdash{{0.1cm}{0.1cm}}{0cm}
+    \fi
+
+    % draw outer box
+    \pgf@circ@twoportbox
+
+    \ifpgf@circuit@inputarrow
+        {
+            \advance \pgf@circ@res@left by -.5\ctikzvalof{bipoles/thickness}\pgfstartlinewidth
+            \pgftransformshift{\pgfpoint{\pgf@circ@res@left}{0pt}}
+            \pgfnode{inputarrow}{tip}{}{pgf@inputarrow}{\pgfusepath{fill}}
+        }
+    \fi
+
+    % rotate inner symbol
+    \def\pgfcircmathresult{\expandafter\pgf@circ@stripdecimals\pgf@circ@direction\pgf@nil}
+    \ifnum \pgfcircmathresult > 45 \ifnum \pgfcircmathresult < 135
+        \pgftransformrotate{270}
+    \fi\fi
+    \ifnum \pgfcircmathresult > 134 \ifnum \pgfcircmathresult < 225  % 134 degree, because >= 135 is not possible
+        \pgftransformrotate{180}
+    \fi\fi
+    \ifnum \pgfcircmathresult > 225 \ifnum \pgfcircmathresult < 315
+        \pgftransformrotate{90}
+    \fi\fi
+
+    % draw inner symbol
+    \pgfsetdash{}{0pt}	% always draw solid line for inner symbol
+    \pgfsetarrows{-} %never draw arrows
+    \pgfsetlinewidth{\pgfstartlinewidth}
+    \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@down}}
+    \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@up}}
+    \pgfusepath{draw}
+
+    % draw sin wave
+    \pgfpathmoveto{\pgfpoint{-.76\pgf@circ@res@step}{.5\pgf@circ@res@step}}
+    \pgfpathsine{\pgfpoint{.17\pgf@circ@res@step}{.17\pgf@circ@res@step}}
+    \pgfpathcosine{\pgfpoint{.17\pgf@circ@res@step}{-.17\pgf@circ@res@step}}
+    \pgfpathsine{\pgfpoint{.17\pgf@circ@res@step}{-.17\pgf@circ@res@step}}
+    \pgfpathcosine{\pgfpoint{.17\pgf@circ@res@step}{.17\pgf@circ@res@step}}
+    \pgfusepath{draw}
+
+    % draw equal sign
+    \pgfpathmoveto{\pgfpoint{.2\pgf@circ@res@step}{-.375\pgf@circ@res@step}}
+    \pgfpathlineto{\pgfpoint{0.7\pgf@circ@res@step}{-0.375\pgf@circ@res@step}}
+    \pgfusepath{draw}
+    \pgfpathmoveto{\pgfpoint{.2\pgf@circ@res@step}{-.625\pgf@circ@res@step}}
+    \pgfpathlineto{\pgfpoint{0.7\pgf@circ@res@step}{-0.625\pgf@circ@res@step}}
+    \pgfusepath{draw}
+}
+
+
+
+%% single phase dc/ac converter
+\pgfcircdeclarebipolescaled{blocks}
+{
+    \anchor{dc1}{
+        \northeast
+        \pgf@y=.4\pgf@y
+        \pgf@x=-\pgf@x
+    }
+    \anchor{dc2}{
+        \northeast
+        \pgf@y=-.4\pgf@y
+        \pgf@x=-\pgf@x
+    }
+}
+{\ctikzvalof{bipoles/sdcac/width}}
+{sdcac}
+{\ctikzvalof{bipoles/sdcac/width}}
+{\ctikzvalof{bipoles/sdcac/width}}
+{
+    \pgf@circ@res@step = \ctikzvalof{bipoles/sdcac/width}\pgf@circ@scaled@Rlen
+    \divide \pgf@circ@res@step by 2
+
+    \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@zero}}
+    \pgf@circ@res@other = \pgf@circ@res@left
+    \advance\pgf@circ@res@other by \pgf@circ@res@step
+
+    \ifpgf@circuit@dashed
+        \pgfsetdash{{0.1cm}{0.1cm}}{0cm}
+    \fi
+
+    % draw outer box
+    \pgf@circ@twoportbox
+
+    \ifpgf@circuit@inputarrow
+        {
+            \advance \pgf@circ@res@left by -.5\ctikzvalof{bipoles/thickness}\pgfstartlinewidth
+            \pgftransformshift{\pgfpoint{\pgf@circ@res@left}{0pt}}
+            \pgfnode{inputarrow}{tip}{}{pgf@inputarrow}{\pgfusepath{fill}}
+        }
+    \fi
+
+    % rotate inner symbol
+    \def\pgfcircmathresult{\expandafter\pgf@circ@stripdecimals\pgf@circ@direction\pgf@nil}
+    \ifnum \pgfcircmathresult > 45 \ifnum \pgfcircmathresult < 135
+        \pgftransformrotate{270}
+    \fi\fi
+    \ifnum \pgfcircmathresult > 134 \ifnum \pgfcircmathresult < 225  % 134 degree, because >= 135 is not possible
+        \pgftransformrotate{180}
+    \fi\fi
+    \ifnum \pgfcircmathresult > 225 \ifnum \pgfcircmathresult < 315
+        \pgftransformrotate{90}
+    \fi\fi
+
+    % draw inner symbol
+    \pgfsetdash{}{0pt}	% always draw solid line for inner symbol
+    \pgfsetarrows{-} %never draw arrows
+    \pgfsetlinewidth{\pgfstartlinewidth}
+    \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@down}}
+    \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@up}}
+    \pgfusepath{draw}
+
+    % draw sin wave
+    \pgfpathmoveto{\pgfpoint{.14\pgf@circ@res@step}{-.5\pgf@circ@res@step}}
+    \pgfpathsine{\pgfpoint{.17\pgf@circ@res@step}{.17\pgf@circ@res@step}}
+    \pgfpathcosine{\pgfpoint{.17\pgf@circ@res@step}{-.17\pgf@circ@res@step}}
+    \pgfpathsine{\pgfpoint{.17\pgf@circ@res@step}{-.17\pgf@circ@res@step}}
+    \pgfpathcosine{\pgfpoint{.17\pgf@circ@res@step}{.17\pgf@circ@res@step}}
+    \pgfusepath{draw}
+
+    % draw equal sign
+    \pgfpathmoveto{\pgfpoint{-.2\pgf@circ@res@step}{.375\pgf@circ@res@step}}
+    \pgfpathlineto{\pgfpoint{-0.7\pgf@circ@res@step}{0.375\pgf@circ@res@step}}
+    \pgfusepath{draw}
+    \pgfpathmoveto{\pgfpoint{-.2\pgf@circ@res@step}{.625\pgf@circ@res@step}}
+    \pgfpathlineto{\pgfpoint{-0.7\pgf@circ@res@step}{0.625\pgf@circ@res@step}}
+    \pgfusepath{draw}
+}
+
+
+%% threephase ac/dc converter
+\pgfcircdeclarebipolescaled{blocks}
+{
+    \anchor{dc1}{
+        \northeast
+        \pgf@y=.4\pgf@y
+    }
+    \anchor{dc2}{
+        \northeast
+        \pgf@y=-.4\pgf@y
+    }
+    \anchor{ac1}{
+        \northeast
+        \pgf@y=.6\pgf@y
+        \pgf@x=-\pgf@x
+    }
+    \anchor{ac2}{
+        \northeast
+        \pgf@y=0\pgf@y
+        \pgf@x=-\pgf@x
+    }
+    \anchor{ac3}{
+        \northeast
+        \pgf@y=-.6\pgf@y
+        \pgf@x=-\pgf@x
+    }
+}
+{\ctikzvalof{bipoles/tacdc/width}}
+{tacdc}
+{\ctikzvalof{bipoles/tacdc/width}}
+{\ctikzvalof{bipoles/tacdc/width}}
+{
+    \pgf@circ@res@step = \ctikzvalof{bipoles/tacdc/width}\pgf@circ@scaled@Rlen
+    \divide \pgf@circ@res@step by 2
+
+    \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@zero}}
+    \pgf@circ@res@other = \pgf@circ@res@left
+    \advance\pgf@circ@res@other by \pgf@circ@res@step
+
+    \ifpgf@circuit@dashed
+        \pgfsetdash{{0.1cm}{0.1cm}}{0cm}
+    \fi
+
+    % draw outer box
+    \pgf@circ@twoportbox
+
+    \ifpgf@circuit@inputarrow
+        {
+            \advance \pgf@circ@res@left by -.5\ctikzvalof{bipoles/thickness}\pgfstartlinewidth
+            \pgftransformshift{\pgfpoint{\pgf@circ@res@left}{0pt}}
+            \pgfnode{inputarrow}{tip}{}{pgf@inputarrow}{\pgfusepath{fill}}
+        }
+    \fi
+
+    % rotate inner symbol
+    \def\pgfcircmathresult{\expandafter\pgf@circ@stripdecimals\pgf@circ@direction\pgf@nil}
+    \ifnum \pgfcircmathresult > 45 \ifnum \pgfcircmathresult < 135
+        \pgftransformrotate{270}
+    \fi\fi
+    \ifnum \pgfcircmathresult > 134 \ifnum \pgfcircmathresult < 225  % 134 degree, because >= 135 is not possible
+        \pgftransformrotate{180}
+    \fi\fi
+    \ifnum \pgfcircmathresult > 225 \ifnum \pgfcircmathresult < 315
+        \pgftransformrotate{90}
+    \fi\fi
+
+    % draw inner symbol
+    \pgfsetdash{}{0pt}	% always draw solid line for inner symbol
+    \pgfsetarrows{-} %never draw arrows
+    \pgfsetlinewidth{\pgfstartlinewidth}
+    \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@down}}
+    \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@up}}
+    \pgfusepath{draw}
+
+    % draw sin waves
+    \pgfpathmoveto{\pgfpoint{-.76\pgf@circ@res@step}{.65\pgf@circ@res@step}}
+    \pgfpathsine{\pgfpoint{.17\pgf@circ@res@step}{.17\pgf@circ@res@step}}
+    \pgfpathcosine{\pgfpoint{.17\pgf@circ@res@step}{-.17\pgf@circ@res@step}}
+    \pgfpathsine{\pgfpoint{.17\pgf@circ@res@step}{-.17\pgf@circ@res@step}}
+    \pgfpathcosine{\pgfpoint{.17\pgf@circ@res@step}{.17\pgf@circ@res@step}}
+    \pgfusepath{draw}
+    \pgfpathmoveto{\pgfpoint{-.76\pgf@circ@res@step}{.5\pgf@circ@res@step}}
+    \pgfpathsine{\pgfpoint{.17\pgf@circ@res@step}{.17\pgf@circ@res@step}}
+    \pgfpathcosine{\pgfpoint{.17\pgf@circ@res@step}{-.17\pgf@circ@res@step}}
+    \pgfpathsine{\pgfpoint{.17\pgf@circ@res@step}{-.17\pgf@circ@res@step}}
+    \pgfpathcosine{\pgfpoint{.17\pgf@circ@res@step}{.17\pgf@circ@res@step}}
+    \pgfusepath{draw}
+    \pgfpathmoveto{\pgfpoint{-.76\pgf@circ@res@step}{.35\pgf@circ@res@step}}
+    \pgfpathsine{\pgfpoint{.17\pgf@circ@res@step}{.17\pgf@circ@res@step}}
+    \pgfpathcosine{\pgfpoint{.17\pgf@circ@res@step}{-.17\pgf@circ@res@step}}
+    \pgfpathsine{\pgfpoint{.17\pgf@circ@res@step}{-.17\pgf@circ@res@step}}
+    \pgfpathcosine{\pgfpoint{.17\pgf@circ@res@step}{.17\pgf@circ@res@step}}
+    \pgfusepath{draw}
+
+
+
+
+    % draw equal sign
+    \pgfpathmoveto{\pgfpoint{.2\pgf@circ@res@step}{-.375\pgf@circ@res@step}}
+    \pgfpathlineto{\pgfpoint{0.7\pgf@circ@res@step}{-0.375\pgf@circ@res@step}}
+    \pgfusepath{draw}
+    \pgfpathmoveto{\pgfpoint{.2\pgf@circ@res@step}{-.625\pgf@circ@res@step}}
+    \pgfpathlineto{\pgfpoint{0.7\pgf@circ@res@step}{-0.625\pgf@circ@res@step}}
+    \pgfusepath{draw}
+}
+
+
+%% threephase dc/ac converter
+\pgfcircdeclarebipolescaled{blocks}
+{
+    \anchor{dc1}{
+        \northeast
+        \pgf@y=.4\pgf@y
+        \pgf@x=-\pgf@x
+    }
+    \anchor{dc2}{
+        \northeast
+        \pgf@y=-.4\pgf@y
+        \pgf@x=-\pgf@x
+    }
+    \anchor{ac1}{
+        \northeast
+        \pgf@y=.6\pgf@y
+    }
+    \anchor{ac2}{
+        \northeast
+        \pgf@y=0\pgf@y
+    }
+    \anchor{ac3}{
+        \northeast
+        \pgf@y=-.6\pgf@y
+    }
+}
+{\ctikzvalof{bipoles/tdcac/width}}
+{tdcac}
+{\ctikzvalof{bipoles/tdcac/width}}
+{\ctikzvalof{bipoles/tdcac/width}}
+{
+    \pgf@circ@res@step = \ctikzvalof{bipoles/tdcac/width}\pgf@circ@scaled@Rlen
+    \divide \pgf@circ@res@step by 2
+
+    \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@zero}}
+    \pgf@circ@res@other = \pgf@circ@res@left
+    \advance\pgf@circ@res@other by \pgf@circ@res@step
+
+    \ifpgf@circuit@dashed
+        \pgfsetdash{{0.1cm}{0.1cm}}{0cm}
+    \fi
+
+    % draw outer box
+    \pgf@circ@twoportbox
+
+    \ifpgf@circuit@inputarrow
+        {
+            \advance \pgf@circ@res@left by -.5\ctikzvalof{bipoles/thickness}\pgfstartlinewidth
+            \pgftransformshift{\pgfpoint{\pgf@circ@res@left}{0pt}}
+            \pgfnode{inputarrow}{tip}{}{pgf@inputarrow}{\pgfusepath{fill}}
+        }
+    \fi
+
+    % rotate inner symbol
+    \def\pgfcircmathresult{\expandafter\pgf@circ@stripdecimals\pgf@circ@direction\pgf@nil}
+    \ifnum \pgfcircmathresult > 45 \ifnum \pgfcircmathresult < 135
+        \pgftransformrotate{270}
+    \fi\fi
+    \ifnum \pgfcircmathresult > 134 \ifnum \pgfcircmathresult < 225  % 134 degree, because >= 135 is not possible
+        \pgftransformrotate{180}
+    \fi\fi
+    \ifnum \pgfcircmathresult > 225 \ifnum \pgfcircmathresult < 315
+        \pgftransformrotate{90}
+    \fi\fi
+
+    % draw inner symbol
+    \pgfsetdash{}{0pt}	% always draw solid line for inner symbol
+    \pgfsetarrows{-} %never draw arrows
+    \pgfsetlinewidth{\pgfstartlinewidth}
+    \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@down}}
+    \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@up}}
+    \pgfusepath{draw}
+
+    % draw sin waves
+    \pgfpathmoveto{\pgfpoint{.14\pgf@circ@res@step}{-.65\pgf@circ@res@step}}
+    \pgfpathsine{\pgfpoint{.17\pgf@circ@res@step}{.17\pgf@circ@res@step}}
+    \pgfpathcosine{\pgfpoint{.17\pgf@circ@res@step}{-.17\pgf@circ@res@step}}
+    \pgfpathsine{\pgfpoint{.17\pgf@circ@res@step}{-.17\pgf@circ@res@step}}
+    \pgfpathcosine{\pgfpoint{.17\pgf@circ@res@step}{.17\pgf@circ@res@step}}
+    \pgfusepath{draw}
+    \pgfpathmoveto{\pgfpoint{.14\pgf@circ@res@step}{-.5\pgf@circ@res@step}}
+    \pgfpathsine{\pgfpoint{.17\pgf@circ@res@step}{.17\pgf@circ@res@step}}
+    \pgfpathcosine{\pgfpoint{.17\pgf@circ@res@step}{-.17\pgf@circ@res@step}}
+    \pgfpathsine{\pgfpoint{.17\pgf@circ@res@step}{-.17\pgf@circ@res@step}}
+    \pgfpathcosine{\pgfpoint{.17\pgf@circ@res@step}{.17\pgf@circ@res@step}}
+    \pgfusepath{draw}
+    \pgfpathmoveto{\pgfpoint{.14\pgf@circ@res@step}{-.35\pgf@circ@res@step}}
+    \pgfpathsine{\pgfpoint{.17\pgf@circ@res@step}{.17\pgf@circ@res@step}}
+    \pgfpathcosine{\pgfpoint{.17\pgf@circ@res@step}{-.17\pgf@circ@res@step}}
+    \pgfpathsine{\pgfpoint{.17\pgf@circ@res@step}{-.17\pgf@circ@res@step}}
+    \pgfpathcosine{\pgfpoint{.17\pgf@circ@res@step}{.17\pgf@circ@res@step}}
+    \pgfusepath{draw}
+
+
+
+
+    % draw equal sign
+    \pgfpathmoveto{\pgfpoint{-.2\pgf@circ@res@step}{.375\pgf@circ@res@step}}
+    \pgfpathlineto{\pgfpoint{-0.7\pgf@circ@res@step}{0.375\pgf@circ@res@step}}
+    \pgfusepath{draw}
+    \pgfpathmoveto{\pgfpoint{-.2\pgf@circ@res@step}{.625\pgf@circ@res@step}}
+    \pgfpathlineto{\pgfpoint{-0.7\pgf@circ@res@step}{0.625\pgf@circ@res@step}}
+    \pgfusepath{draw}
+}
+% %>>>
+
+%% Path definitions for Blocks%<<<
+
+\pgfcirc@activate@bipole@simple{l}{twoport}
+\pgfcirc@activate@bipole@simple{l}{twoportsplit}
+\pgfcirc@activate@bipole@simple{l}{vco}
+\pgfcirc@activate@bipole@simple{l}{bandpass}
+\pgfcirc@activate@bipole@simple{l}{bandstop}
+\pgfcirc@activate@bipole@simple{l}{highpass}
+\pgfcirc@activate@bipole@simple{l}{lowpass}
+\pgfcirc@activate@bipole@simple{l}{allpass}
+\pgfcirc@activate@bipole@simple{l}{adc}
+\pgfcirc@activate@bipole@simple{l}{dac}
+\pgfcirc@activate@bipole@simple{l}{dsp}
+\pgfcirc@activate@bipole@simple{l}{fft}
+\pgfcirc@activate@bipole@simple{l}{amp}
+\pgfcirc@activate@bipole@simple{l}{vamp}
+\pgfcirc@activate@bipole@simple{l}{piattenuator}
+\pgfcirc@activate@bipole@simple{l}{vpiattenuator}
+\pgfcirc@activate@bipole@simple{l}{tattenuator}
+\pgfcirc@activate@bipole@simple{l}{vtattenuator}
+\pgfcirc@activate@bipole@simple{l}{phaseshifter}
+\pgfcirc@activate@bipole@simple{l}{vphaseshifter}
+\pgfcirc@activate@bipole@simple{l}{detector}
+\pgfcirc@activate@bipole@simple{l}{sacdc}
+\pgfcirc@activate@bipole@simple{l}{sdcac}
+\pgfcirc@activate@bipole@simple{l}{tacdc}
+\pgfcirc@activate@bipole@simple{l}{tdcac}
+% %>>>
+
+%% Node shapes for  Block elements%<<<
 
 \pgfdeclareshape{mixer}
 {
@@ -1054,25 +2854,25 @@
     \anchor{west}{
         \northwest
         \pgf@y=0pt
-    }    
+    }
     \anchor{left}{
         \northwest
         \pgf@y=0pt
     }
-    \anchor{south west}{ 
-        \northwest 
+    \anchor{south west}{
+        \northwest
         \pgf@y=-\pgf@y
     }
     \anchor{north east}{
-        \northwest 
+        \northwest
         \pgf@x=-\pgf@x
         \relax
     }
-    \anchor{north west}{ 
-        \northwest 
+    \anchor{north west}{
+        \northwest
     }
-    \anchor{south east}{ 
-        \northwest 
+    \anchor{south east}{
+        \northwest
         \pgf@x=-\pgf@x
         \pgf@y=-\pgf@y
     }
@@ -1086,13 +2886,13 @@
         \pgf@circ@scaled@Rlen=\scaledRlen
 
         \pgf@circ@res@step=\ctikzvalof{quadpoles/gridnode/width}\pgf@circ@scaled@Rlen
-    
+
         \northwest
         \pgf@circ@res@up = \pgf@y
         \pgf@circ@res@down = -\pgf@y
         \pgf@circ@res@right = -\pgf@x
         \pgf@circ@res@left = \pgf@x
-        
+
         \pgf@circ@res@step = \ctikzvalof{quadpoles/gridnode/width}\pgf@circ@scaled@Rlen
         \divide \pgf@circ@res@step by 2
 
@@ -1106,8 +2906,8 @@
 
         % draw outer box
         \pgf@circ@twoportbox
-        
-        
+
+
         \ifpgf@circuit@inputarrow
             {
                 \advance \pgf@circ@res@left by -.5\ctikzvalof{bipoles/thickness}\pgfstartlinewidth
@@ -1115,34 +2915,34 @@
                 \pgfnode{inputarrow}{tip}{}{pgf@inputarrow}{\pgfusepath{fill}}
             }
         \fi
-    
+
         \pgfsetdash{}{0pt}	% always draw solid line for inner symbol
         \pgfsetarrows{-} %never draw arrows
         \pgfsetlinewidth{0.05mm}
-        
+
         % draw grid
         \foreach \line in {-1,-.5,...,1}
         {
             \pgfpathmoveto{\pgfpoint{\line\pgf@circ@res@right}{\pgf@circ@res@up}}
             \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{\line\pgf@circ@res@up}}
-            
+
             \pgfpathmoveto{\pgfpoint{\line\pgf@circ@res@right}{\pgf@circ@res@up}}
             \pgfpathlineto{\pgfpoint{\pgf@circ@res@left}{\line\pgf@circ@res@down}}
         }
-        
+
         %prevent from draw the inner cross twice
         \foreach \line in {-.5,0,...,.5}
         {
             \pgfpathmoveto{\pgfpoint{\line\pgf@circ@res@right}{\pgf@circ@res@down}}
             \pgfpathlineto{\pgfpoint{\pgf@circ@res@left}{\line\pgf@circ@res@up}}
-            
+
             \pgfpathmoveto{\pgfpoint{\line\pgf@circ@res@right}{\pgf@circ@res@down}}
             \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{\line\pgf@circ@res@down}}
         }
         \pgfusepath{draw}
     }
 }
-    
+
 
 % Wilkinson divider
 \pgfdeclareshape{wilkinson}{
@@ -1733,7 +3533,7 @@
 	\pgfpathmoveto{\pgfpoint{0.5\pgf@circ@res@right}{0.25\pgf@circ@res@down}}
 	\pgfpathlineto{\pgfpoint{0.5\pgf@circ@res@left}{0.25\pgf@circ@res@down}}
 	\pgfusepath{draw}
-	
+
     \pgfpathmoveto{\pgfpoint{\pgf@circ@res@zero}{\pgf@circ@res@up}}
 	\pgfpathlineto{\pgfpoint{\pgf@circ@res@zero}{0.35\pgf@circ@res@up}}
 	\pgfpathlineto{\pgfpoint{0.25\pgf@circ@res@right}{0.1\pgf@circ@res@up}}
@@ -1741,3 +3541,6 @@
 
     }
 }
+% %>>>
+
+% vim: set fdm=marker fmr=%<<<,%>>>:

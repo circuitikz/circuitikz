@@ -1,7 +1,7 @@
-% Copyright 2018-2020 by Romano Giannetti
-% Copyright 2015-2020 by Stefan Lindner
-% Copyright 2013-2020 by Stefan Erhardt
-% Copyright 2007-2020 by Massimo Redaelli
+% Copyright 2018-2021 by Romano Giannetti
+% Copyright 2015-2021 by Stefan Lindner
+% Copyright 2013-2021 by Stefan Erhardt
+% Copyright 2007-2021 by Massimo Redaelli
 %
 % This file may be distributed and/or modified
 %
@@ -12,268 +12,262 @@
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Tripoles
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-%%%%%%%%%%%%%
-%% switches
-%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Logic Ports
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-% Legacy spdt
-\pgfdeclareshape{spdt}{
-    \savedmacro{\ctikzclass}{\edef\ctikzclass{switches}}
-    \saveddimen{\scaledRlen}{\pgfmathsetlength{\pgf@x}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}}
-    \savedanchor\northwest{%
-        \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
-        \pgf@y=\ctikzvalof{tripoles/spdt/height}\pgf@circ@scaled@Rlen
-        \pgf@y=.5\pgf@y
-        \pgf@x=-\ctikzvalof{tripoles/spdt/width}\pgf@circ@scaled@Rlen
-        \pgf@x=.5\pgf@x
-    }
-    \anchor{left}{%
-        \northwest
-        \pgf@y=0pt
-    }
-    \anchor{in}{
-        \northwest
-        \pgf@y=0pt
-    }
-    \anchor{out 1}{
-        \northwest
-        \pgf@x=-\pgf@x
-    }
-    \anchor{out 2}{
-        \northwest
-        \pgf@x=-\pgf@x
-        \pgf@y=-\pgf@y
-    }
-    \anchor{center}{
-        \pgf@y=0pt
-        \pgf@x=0pt
-    }
-    \anchor{east}{
-        \northwest
-        \pgf@y=0pt
-        \pgf@x=-\pgf@x
-    }
-    \anchor{west}{
-        \northwest
-        \pgf@y=0pt
-    }
-    \anchor{south}{
-        \northwest
-        \pgf@x=0pt
-        \pgf@y=-\pgf@y
-    }
-    \anchor{north}{
-        \northwest
-        \pgf@x=0pt
-    }
-    \anchor{south west}{
-        \northwest
-        \pgf@y=-\pgf@y
-    }
-    \anchor{north east}{
-        \northwest
-        \pgf@x=-\pgf@x
-    }
-    \anchor{north west}{
-        \northwest
-    }
-    \anchor{south east}{
-        \northwest
-        \pgf@x=-\pgf@x
-        \pgf@y=-\pgf@y
-    }
-    \backgroundpath{
-        \pgfsetcolor{\ctikzvalof{color}}
+%% Settings for Logic ports%<<<1
+%% beware that the third option is in IEEE ports in pgfcircmultipoles.tex
 
-        \northwest
-        \pgf@circ@res@up = \pgf@y
-        \pgf@circ@res@down = -\pgf@y
-        \pgf@circ@res@right = -\pgf@x
-        \pgf@circ@res@left = \pgf@x
-        \pgf@circ@res@other = \ctikzvalof{tripoles/spdt/margin}\pgf@circ@res@left
+% switches for logic gates
+%
+\pgfkeys{/tikz/number inputs/.initial=0}
+\pgfkeys{/tikz/number inputs/.default=0}
 
+\newif\ifpgf@circuit@europeanlogicport
+\ctikzset{logic ports/.is choice}
+\ctikzset{logic ports/european/.code= {\pgf@circuit@europeanlogicporttrue
+    \tikzset{and port/.style={shape=european and port}}%
+    \tikzset{or port/.style={shape=european or port}}%
+    \tikzset{xor port/.style={shape=european xor port}}%
+    \tikzset{buffer port/.style={shape=european buffer port}}%
+    \tikzset{not port/.style={shape=european not port}}%
+    \tikzset{nand port/.style={shape=european nand port}}%
+    \tikzset{nor port/.style={shape=european nor port}}%
+    \tikzset{xnor port/.style={shape=european xnor port}}%
+    % there is no Schmitt ports in european style (yet)
+    \tikzset{schmitt port/.style={shape=schmitt}}%
+    \tikzset{invschmitt port/.style={shape=invschmitt}}%
+}}
+\ctikzset{logic ports/american/.code= {\pgf@circuit@europeanlogicportfalse
+    \tikzset{and port/.style={shape=american and port}}%
+    \tikzset{or port/.style={shape=american or port}}%
+    \tikzset{xor port/.style={shape=american xor port}}%
+    \tikzset{buffer port/.style={shape=american buffer port}}%
+    \tikzset{not port/.style={shape=american not port}}%
+    \tikzset{nand port/.style={shape=american nand port}}%
+    \tikzset{nor port/.style={shape=american nor port}}%
+    \tikzset{xnor port/.style={shape=american xnor port}}%
+    \tikzset{schmitt port/.style={shape=schmitt}}%
+    \tikzset{invschmitt port/.style={shape=invschmitt}}%
+}}
 
-        \pgfpathmoveto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@up}}
-        \pgfpathlineto{\pgfpoint{-\pgf@circ@res@other}{\pgf@circ@res@up}}
-        \pgfpathmoveto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@down}}
-        \pgfpathlineto{\pgfpoint{-\pgf@circ@res@other}{\pgf@circ@res@down}}
+\ctikzset{logic ports origin/.is choice}
+\ctikzset{logic ports origin/legacy/.code={
+    \ctikzset{tripoles/american and port/origin/.initial=0.8}%
+    \ctikzset{tripoles/american nand port/origin/.initial=0.8}%
+    \ctikzset{tripoles/american nor port/origin/.initial=0.8}%
+    \ctikzset{tripoles/american or port/origin/.initial=0.8}%
+    \ctikzset{tripoles/american xor port/origin/.initial=0.8}%
+    \ctikzset{tripoles/american xnor port/origin/.initial=0.8}%
+    \ctikzset{tripoles/european and port/origin/.initial=0.8}%
+    \ctikzset{tripoles/european nand port/origin/.initial=0.8}%
+    \ctikzset{tripoles/european or port/origin/.initial=0.8}%
+    \ctikzset{tripoles/european nor port/origin/.initial=0.8}%
+    \ctikzset{tripoles/european xor port/origin/.initial=0.8}%
+    \ctikzset{tripoles/european xnor port/origin/.initial=0.8}%
+    \ctikzset{tripoles/european buffer port/origin/.initial=0.8}%
+    \ctikzset{tripoles/european not port/origin/.initial=0.8}%
+    }%
+}
+\ctikzset{logic ports origin/center/.code={%
+    \ctikzset{tripoles/american and port/origin/.initial=0}%
+    \ctikzset{tripoles/american nand port/origin/.initial=0}%
+    \ctikzset{tripoles/american nor port/origin/.initial=0}%
+    \ctikzset{tripoles/american or port/origin/.initial=0}%
+    \ctikzset{tripoles/american xor port/origin/.initial=0}%
+    \ctikzset{tripoles/american xnor port/origin/.initial=0}%
+    \ctikzset{tripoles/european and port/origin/.initial=0}%
+    \ctikzset{tripoles/european nand port/origin/.initial=0}%
+    \ctikzset{tripoles/european or port/origin/.initial=0}%
+    \ctikzset{tripoles/european nor port/origin/.initial=0}%
+    \ctikzset{tripoles/european xor port/origin/.initial=0}%
+    \ctikzset{tripoles/european xnor port/origin/.initial=0}%
+    \ctikzset{tripoles/european buffer port/origin/.initial=0}%
+    \ctikzset{tripoles/european not port/origin/.initial=0}%
+    }%
+}
 
-        \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{0pt}}
-        \pgfpathlineto{\pgfpoint{\pgf@circ@res@other}{0pt}}
+\newif\ifpgfcirc@roundy@or@shapes\pgfcirc@roundy@or@shapesfalse
+\ctikzset{american or shape/.is choice}
+\ctikzset{american or shape/roundy/.code={\pgfcirc@roundy@or@shapestrue}}
+\ctikzset{american or shape/pointy/.code={\pgfcirc@roundy@or@shapesfalse}}
 
-        \pgfusepath{draw}
+\newif\ifpgfcirc@draw@input@leads\pgfcirc@draw@input@leadstrue
+\ctikzset{logic ports draw input leads/.is choice}
+\ctikzset{logic ports draw input leads/true/.code={\pgfcirc@draw@input@leadstrue}}
+\ctikzset{logic ports draw input leads/false/.code={\pgfcirc@draw@input@leadsfalse}}
+\tikzset{input leads/.code={\pgfcirc@draw@input@leadstrue}}
+\tikzset{no input leads/.code={\pgfcirc@draw@input@leadsfalse}}
 
-        \pgfscope
-            \pgftransformshift{\pgfpoint{-\pgf@circ@res@other}{\pgf@circ@res@up}}
-            \pgfnode{ocirc}{center}{}{spdt1}{\pgfusepath{stroke}}
-        \endpgfscope
-        \pgfscope
-            \pgftransformshift{\pgfpoint{-\pgf@circ@res@other}{\pgf@circ@res@down}}
-            \pgfnode{ocirc}{center}{}{}{\pgfusepath{stroke}}
-        \endpgfscope
-        \pgfscope
-            \pgftransformshift{\pgfpoint{\pgf@circ@res@other}{0pt}}
-            \pgfnode{ocirc}{center}{}{spdt2}{\pgfusepath{stroke}}
-        \endpgfscope
+\newif\ifpgfcirc@draw@output@leads\pgfcirc@draw@output@leadstrue
+\ctikzset{logic ports draw output leads/.is choice}
+\ctikzset{logic ports draw output leads/true/.code={\pgfcirc@draw@output@leadstrue}}
+\ctikzset{logic ports draw output leads/false/.code={\pgfcirc@draw@output@leadsfalse}}
+\tikzset{output leads/.code={\pgfcirc@draw@output@leadstrue}}
+\tikzset{no output leads/.code={\pgfcirc@draw@output@leadsfalse}}
 
-        \pgfscope
-            \pgfpathmoveto{\pgfpointshapeborder{spdt2}{\pgfpointorigin}}
-            \pgfpathlineto{
-                \pgfpointadd{\pgfpointshapeborder{spdt1}{\pgfpoint{-\pgf@circ@res@other}{-100pt}}}
-                {\pgfpoint{-.05\pgf@circ@res@up}{-.05\pgf@circ@res@up}}
-            }
-            \pgf@circ@setlinewidth{tripoles}{\pgflinewidth}
-            \pgfusepath{draw}
-        \endpgfscope
-    }
+\ctikzset{logic ports draw leads/.is choice}
+\ctikzset{logic ports draw leads/true/.code={\pgfcirc@draw@output@leadstrue\pgfcirc@draw@input@leadstrue}}
+\ctikzset{logic ports draw leads/false/.code={\pgfcirc@draw@output@leadsfalse\pgfcirc@draw@input@leadsfalse}}
+\tikzset{all leads/.code={\pgfcirc@draw@output@leadstrue\pgfcirc@draw@input@leadstrue}}
+\tikzset{no leads/.code={\pgfcirc@draw@output@leadsfalse\pgfcirc@draw@input@leadsfalse}}
+
+% adding a different style of xnor port
+% see https://github.com/circuitikz/circuitikz/issues/467
+\ctikzset{european xnor style/.is choice}
+\ctikzset{european xnor style/default/.code={%
+    \pgfcircdeclareeurologicport{xnor}{$=1$}{\pgf@circ@res@count}{not}}%
+}
+\ctikzset{european xnor style/direct/.code={%
+    \pgfcircdeclareeurologicport{xnor}{$=$}{\pgf@circ@res@count}{}}%
 }
 
 
-% cute switch "node" shapes, matching with cute "to" shapes
-% #1 -> name
-% #2 -> barposition
-% #3 -> arrowcode
-\long\def\pgfcircdeclarecutespdt#1#2#3{
-    \pgfdeclareshape{#1}
-    {
-        \savedmacro{\ctikzclass}{\edef\ctikzclass{switches}}
-        \saveddimen{\scaledRlen}{\pgfmathsetlength{\pgf@x}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}}
-        \savedanchor\northwest{%
-            \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
-            \pgf@y=\ctikzvalof{bipoles/cuteswitch/height}\pgf@circ@scaled@Rlen
-            \pgf@y=.5\pgf@y
-            \pgf@x=-\ctikzvalof{tripoles/spdt/width}\pgf@circ@scaled@Rlen
-            \pgf@x=.25\pgf@x
-        }
-        \savedanchor\midlever{
-            % these values are calculated when we create the definition of the shape.
-            \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
-            \pgf@y=\ctikzvalof{bipoles/cuteswitch/height}\pgf@circ@scaled@Rlen
-            \pgf@circ@res@temp=\ctikzvalof{nodes width}\pgf@circ@scaled@Rlen
-            \pgf@circ@res@temp=\ctikzvalof{bipoles/cuteswitch/thickness}\pgf@circ@res@temp
-            \pgf@circ@res@down = -.5\pgf@y
-            \pgf@circ@res@up = .5\pgf@y
-            \pgfextracty{\pgf@circ@res@other}{#2}
-            \pgf@x=0pt
-            \pgf@y=.5\pgf@circ@res@other
-        }
-        % radius of the connector
-        % This is the radius of the "ocirc" shape (see pgfcircshapes.tex)
-        \saveddimen{\radius}{\pgfmathsetlength\pgf@x{\pgf@circ@Rlen*\ctikzvalof{nodes width}}}
-        % shapename
-        \savedmacro{\thisshape}{\def\thisshape{\tikz@fig@name}}
-        % shape type
-        \savedmacro{\cshape}{\def\cshape{\ctikzvalof{bipoles/cuteswitch/shape}}}
-        % mid of the lever, to stack switches
-        \anchor{mid}{\midlever}
-        % center anchors
-        \anchor{cin}{ \northwest \pgf@y=0pt}
-        \anchor{cout 1}{ \northwest \pgf@x=-\pgf@x }
-        \anchor{cout 2}{ \northwest \pgf@x=-\pgf@x \pgf@y=-\pgf@y }
-        % horizontal angles
-        \anchor{in}{ \northwest \pgf@y=0pt\advance\pgf@x by -\radius}
-        \anchor{out 1}{ \northwest \pgf@x=-\pgf@x \advance\pgf@x by \radius}
-        \anchor{out 2}{ \northwest \pgf@x=-\pgf@x \advance\pgf@x by \radius \pgf@y=-\pgf@y }
+% old, legacy keys that should be killed over
+\ctikzset{bipoles/buffer/height/.initial=1}
+\ctikzset{bipoles/buffer/width/.initial=1}
+\ctikzset{bipoles/not port/width/.initial=1}
+\ctikzset{bipoles/not port/height/.initial=.8}
+\ctikzset{bipoles/not port/circle width/.initial=.15}
 
-        \anchor{center}{ \pgf@y=0pt \pgf@x=0pt }
-        \anchor{east}{ \northwest \pgf@y=0pt \pgf@x=-\pgf@x  }
-        \anchor{west}{ \northwest \pgf@y=0pt }
-        \anchor{south}{ \northwest \pgf@x=0pt \pgf@y=-\pgf@y }
-        \anchor{north}{ \northwest \pgf@x=0pt }
-        \anchor{south west}{ \northwest \pgf@y=-\pgf@y }
-        \anchor{north east}{ \northwest \pgf@x=-\pgf@x }
-        \anchor{north west}{ \northwest }
-        \anchor{south east}{ \northwest \pgf@x=-\pgf@x \pgf@y=-\pgf@y }
+\ctikzset{tripoles/american and port/width/.initial=1.1}
+\ctikzset{tripoles/american and port/height/.initial=.8}
+\ctikzset{tripoles/american and port/port width/.initial=.7}
+\ctikzset{tripoles/american and port/input height/.initial=.5}
+\ctikzset{tripoles/american nand port/width/.initial=1.1}
+\ctikzset{tripoles/american nand port/height/.initial=.8}
+\ctikzset{tripoles/american nand port/port width/.initial=.7}
+\ctikzset{tripoles/american nand port/circle width/.initial=.15}
+\ctikzset{tripoles/american nand port/input height/.initial=.5}
+\ctikzset{tripoles/american or port/width/.initial=1.1}
+\ctikzset{tripoles/american or port/height/.initial=.8}
+\ctikzset{tripoles/american or port/port width/.initial=.7}
+\ctikzset{tripoles/american or port/input height/.initial=.5}
+\ctikzset{tripoles/american or port/input skip/.initial=.25}
+\ctikzset{tripoles/american or port/aaa/.initial=.6}
+\ctikzset{tripoles/american or port/bbb/.initial=.4}
+\ctikzset{tripoles/american or port/ccc/.initial=.5}
+\ctikzset{tripoles/american or port/ddd/.initial=.0}
+\ctikzset{tripoles/american nor port/width/.initial=1.1}
+\ctikzset{tripoles/american nor port/height/.initial=.8}
+\ctikzset{tripoles/american nor port/port width/.initial=.7}
+\ctikzset{tripoles/american nor port/input height/.initial=.5}
+\ctikzset{tripoles/american nor port/input skip/.initial=.25}
+\ctikzset{tripoles/american nor port/circle width/.initial=.15}
+\ctikzset{tripoles/american nor port/aaa/.initial=.6}
+\ctikzset{tripoles/american nor port/bbb/.initial=.4}
+\ctikzset{tripoles/american nor port/ccc/.initial=.5}
+\ctikzset{tripoles/american nor port/ddd/.initial=.0}
+\ctikzset{tripoles/american xor port/width/.initial=1.1}
+\ctikzset{tripoles/american xor port/height/.initial=.8}
+\ctikzset{tripoles/american xor port/port width/.initial=.7}
+\ctikzset{tripoles/american xor port/input height/.initial=.5}
+\ctikzset{tripoles/american xor port/input skip/.initial=.15}
+\ctikzset{tripoles/american xor port/distance/.initial=.1}
+\ctikzset{tripoles/american xnor port/width/.initial=1.1}
+\ctikzset{tripoles/american xnor port/height/.initial=.8}
+\ctikzset{tripoles/american xnor port/port width/.initial=.7}
+\ctikzset{tripoles/american xnor port/input height/.initial=.5}
+\ctikzset{tripoles/american xnor port/input skip/.initial=.15}
+\ctikzset{tripoles/american xnor port/distance/.initial=.1}
+\ctikzset{tripoles/american xnor port/circle width/.initial=.15}
+\ctikzset{tripoles/american and port/origin/.initial=0.8}
+\ctikzset{tripoles/american and port/inputs/.initial=2}
+% variable number of inputs
+\ctikzset{tripoles/american nand port/origin/.initial=0.8}
+\ctikzset{tripoles/american nand port/inputs/.initial=2}
+\ctikzset{tripoles/american nor port/origin/.initial=0.8}
+\ctikzset{tripoles/american nor port/inputs/.initial=2}
+\ctikzset{tripoles/american nor port/angle/.initial=70}
+\ctikzset{tripoles/american nor port/inner/.initial=0.3}
+\ctikzset{tripoles/american or port/origin/.initial=0.8}
+\ctikzset{tripoles/american or port/inputs/.initial=2}
+\ctikzset{tripoles/american or port/angle/.initial=70}
+\ctikzset{tripoles/american or port/inner/.initial=0.3}
+\ctikzset{tripoles/american xor port/origin/.initial=0.8}
+\ctikzset{tripoles/american xor port/inputs/.initial=2}
+\ctikzset{tripoles/american xor port/angle/.initial=70}
+\ctikzset{tripoles/american xor port/inner/.initial=0.3}
+\ctikzset{tripoles/american xnor port/origin/.initial=0.8}
+\ctikzset{tripoles/american xnor port/inputs/.initial=2}
+\ctikzset{tripoles/american xnor port/angle/.initial=70}
+\ctikzset{tripoles/american xnor port/inner/.initial=0.3}
 
-        \backgroundpath{
-            \pgfsetcolor{\ctikzvalof{color}}
-            \northwest
-            \pgf@circ@res@up = \pgf@y
-            \pgf@circ@res@down = -\pgf@y
-            \pgf@circ@res@right = -\pgf@x
-            \pgf@circ@res@left = \pgf@x
+\ctikzset{tripoles/european and port/width/.initial=1.4}
+\ctikzset{tripoles/european and port/height/.initial=.65}
+\ctikzset{tripoles/european and port/reserved/.initial=.6}
+\ctikzset{tripoles/european and port/input height/.initial=.6}
+\ctikzset{tripoles/european or port/width/.initial=1.4}
+\ctikzset{tripoles/european or port/height/.initial=.65}
+\ctikzset{tripoles/european or port/reserved/.initial=.6}
+\ctikzset{tripoles/european or port/input height/.initial=.6}
+\ctikzset{tripoles/european xor port/width/.initial=1.4}
+\ctikzset{tripoles/european xor port/height/.initial=.65}
+\ctikzset{tripoles/european xor port/reserved/.initial=.6}
+\ctikzset{tripoles/european xor port/input height/.initial=.6}
+\ctikzset{tripoles/european nand port/width/.initial=1.4}
+\ctikzset{tripoles/european nand port/not height/.initial=.3}
+\ctikzset{tripoles/european nand port/not width/.initial=.8}
+\ctikzset{tripoles/european nand port/height/.initial=.65}
+\ctikzset{tripoles/european nand port/reserved/.initial=.6}
+\ctikzset{tripoles/european nand port/input height/.initial=.6}
+\ctikzset{tripoles/european buffer port/width/.initial=1.4}
+\ctikzset{tripoles/european buffer port/not height/.initial=.3}
+\ctikzset{tripoles/european buffer port/not width/.initial=.8}
+\ctikzset{tripoles/european buffer port/height/.initial=.65}
+\ctikzset{tripoles/european buffer port/reserved/.initial=.6}
+\ctikzset{tripoles/european buffer port/input height/.initial=0}
+\ctikzset{tripoles/european not port/width/.initial=1.4}
+\ctikzset{tripoles/european not port/not height/.initial=.3}
+\ctikzset{tripoles/european not port/not width/.initial=.8}
+\ctikzset{tripoles/european not port/height/.initial=.65}
+\ctikzset{tripoles/european not port/reserved/.initial=.6}
+\ctikzset{tripoles/european not port/input height/.initial=0}
+\ctikzset{tripoles/european xnor port/width/.initial=1.4}
+\ctikzset{tripoles/european xnor port/not height/.initial=.3}
+\ctikzset{tripoles/european xnor port/not width/.initial=.8}
+\ctikzset{tripoles/european xnor port/height/.initial=.65}
+\ctikzset{tripoles/european xnor port/reserved/.initial=.6}
+\ctikzset{tripoles/european xnor port/input height/.initial=.6}
+\ctikzset{tripoles/european nor port/width/.initial=1.4}
+\ctikzset{tripoles/european nor port/not height/.initial=.3}
+\ctikzset{tripoles/european nor port/not width/.initial=.8}
+\ctikzset{tripoles/european nor port/height/.initial=.65}
+\ctikzset{tripoles/european nor port/reserved/.initial=.6}
+\ctikzset{tripoles/european nor port/input height/.initial=.6}
+% variable number of inputs
+\ctikzset{tripoles/european and port/origin/.initial=0.8}
+\ctikzset{tripoles/european and port/inputs/.initial=2}
+\ctikzset{tripoles/european nand port/origin/.initial=0.8}
+\ctikzset{tripoles/european nand port/inputs/.initial=2}
+\ctikzset{tripoles/european or port/origin/.initial=0.8}
+\ctikzset{tripoles/european or port/inputs/.initial=2}
+\ctikzset{tripoles/european nor port/origin/.initial=0.8}
+\ctikzset{tripoles/european nor port/inputs/.initial=2}
+\ctikzset{tripoles/european xor port/origin/.initial=0.8}
+\ctikzset{tripoles/european xor port/inputs/.initial=2}
+\ctikzset{tripoles/european xnor port/origin/.initial=0.8}
+\ctikzset{tripoles/european xnor port/inputs/.initial=2}
+\ctikzset{tripoles/european buffer port/origin/.initial=0.8}
+\ctikzset{tripoles/european buffer port/inputs/.initial=1}%
+\ctikzset{tripoles/european not port/origin/.initial=0.8}
+\ctikzset{tripoles/european not port/inputs/.initial=1}%
+%%% parameters that are not used anymore after multi-input
+%%% gates --- left for compatibility of source code.
+\ctikzset{tripoles/american xor port/aaa/.initial=.6}
+\ctikzset{tripoles/american xor port/bbb/.initial=.4}
+\ctikzset{tripoles/american xor port/ccc/.initial=.5}
+\ctikzset{tripoles/american xor port/ddd/.initial=.0}
+\ctikzset{tripoles/american xnor port/aaa/.initial=.6}
+\ctikzset{tripoles/american xnor port/bbb/.initial=.4}
+\ctikzset{tripoles/american xnor port/ccc/.initial=.5}
+\ctikzset{tripoles/american xnor port/ddd/.initial=.0}
+%%>>>
 
-            \pgfscope
-            % This is the radius of the "ocirc" shape (see pgfcircshapes.tex)
-            \pgf@circ@res@temp=\radius\relax
-            \pgf@circ@res@temp=\ctikzvalof{bipoles/cuteswitch/thickness}\pgf@circ@res@temp
-            \pgfsetlinewidth{2\pgf@circ@res@temp}
-            \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{0pt}}
-            \pgfpathlineto{#2}
-            \pgfsetroundcap\pgfusepath{draw}
-            \endpgfscope
-            \pgfscope % arrow
-            #3
-            \endpgfscope
-            % terminals
-            \pgfscope
-            \pgftransformshift{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@up}}
-            \pgfnode{\cshape}{center}{}{\thisshape-out 1}{\pgfusepath{stroke}}
-            \endpgfscope
-            \pgfscope
-            \pgftransformshift{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@down}}
-            \pgfnode{\cshape}{center}{}{\thisshape-out 2}{\pgfusepath{stroke}}
-            \endpgfscope
-            \pgfscope
-            \pgftransformshift{\pgfpoint{\pgf@circ@res@left}{0pt}}
-            \pgfnode{\cshape}{center}{}{\thisshape-in}{\pgfusepath{stroke}}
-            \endpgfscope
-
-        }
-    }
-}
-
-\pgfcircdeclarecutespdt{cute spdt up}
-{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@up-1.5\pgf@circ@res@temp}}
-{}
-
-\pgfcircdeclarecutespdt{cute spdt mid}
-{\pgfpoint{\pgf@circ@res@right}{0pt}}
-{}
-
-\pgfcircdeclarecutespdt{cute spdt down}
-{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@down+1.5\pgf@circ@res@temp}}
-{}
-
-\pgfcircdeclarecutespdt{cute spdt up arrow}
-{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@up-1.5\pgf@circ@res@temp}}
-{
-    \pgf@circ@setlinewidth{bipoles}{\pgflinewidth}
-    \pgftransformshift{\pgfpoint{\pgf@circ@res@left}{0pt}} % in node
-    \pgfpathmoveto{\pgfpointpolar{70}{1.5\pgf@circ@res@right}}
-    \pgfpatharc{70}{-50}{1.5\pgf@circ@res@right}
-    \pgfsetarrowsend{latexslim}
-    \pgfusepath{draw}
-}
-
-\pgfcircdeclarecutespdt{cute spdt mid arrow}
-{\pgfpoint{\pgf@circ@res@right}{0pt}}
-{
-    \pgf@circ@setlinewidth{bipoles}{\pgflinewidth}
-    \pgftransformshift{\pgfpoint{\pgf@circ@res@left}{0pt}} % in node
-    \pgfsetarrowsstart{latexslim}
-    \pgfpathmoveto{\pgfpointpolar{-60}{1.5\pgf@circ@res@right}}
-    \pgfpatharc{-60}{60}{1.5\pgf@circ@res@right}
-    \pgfsetarrowsend{latexslim}
-    \pgfusepath{draw}
-}
-
-\pgfcircdeclarecutespdt{cute spdt down arrow}
-{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@down+1.5\pgf@circ@res@temp}}
-{
-    \pgf@circ@setlinewidth{bipoles}{\pgflinewidth}
-    \pgftransformshift{\pgfpoint{\pgf@circ@res@left}{0pt}} % in node
-    \pgfpathmoveto{\pgfpointpolar{-50}{1.5\pgf@circ@res@right}}
-    \pgfpatharc{-50}{70}{1.5\pgf@circ@res@right}
-    \pgfsetarrowsend{latexslim}
-    \pgfusepath{draw}
-}
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%
-%%       Logic ports
+%% Node shapes for Logic ports%<<<
 %%
 %% Code from John Kormylo at tex.stackexchange.com
 %% See https://tex.stackexchange.com/questions/372993/is-it-possible-to-implement-multiple-input-logic-ports-with-circuitikz
@@ -1566,10 +1560,1722 @@
 \pgfcircdeclareeurologicport{xnor}{$=1$}{\pgf@circ@res@count}{not}
 
 %% end european logic ports
+% %>>>
+
+%% IEEE standard logic ports module%<<<
+
+%%
+%% Original multi-input code from John Kormylo at tex.stackexchange.com
+%% Help by TheTeXnician <38565529+TheTeXnician@users.noreply.github.com>
+%% Suggested idea and example code by Jason Sachs <jmsachs@gmail.com>
+%% Please see https://github.com/circuitikz/circuitikz/issues/383 for a lot of details
+%% Most of the code, all errors and bugs by Romano Giannetti <romano.giannetti@gmail.com>
+%% Everything is in the same place here --- more or less; first step to move towards
+%% a module interface for circutikz
+%%
+
+% base settings for ieeestd ports.
+
+\ctikzset{ieeestd ports/.is family}
+% baselen is relative to pgfcirc@Rlen as ever; scaled if the class says so.
+% the value of 0.4 is the standard pin distance for a port with height=num pins
+% and matches the chip distance
+\ctikzset{ieeestd ports/baselen/.initial=0.4}
+% these are in term of baselen; width depends on height (fixed proportions)
+\ctikzset{ieeestd ports/height/.initial=2}
+\ctikzset{ieeestd ports/pin length/.initial=0.7}
+% the standard "not" circle should be 1/6.5 of height (diameter);
+% so radius/baselen=1/3.25/2    --- using 0.1 and no scaling is as a pole
+\ctikzset{ieeestd ports/not radius/.initial=0.154}
+\ctikzset{ieeestd ports/not radius fill/.initial=1}% change ony if you know why
+% the suggested xnor distance is is 1.24, so 1.25/3.25/2
+% xor/xnor leads go full in in IEEE; let this be optional
+\ctikzset{ieeestd ports/xor bar distance/.initial=0.192}%
+\ctikzset{ieeestd ports/xor leads in/.initial=1}%
+%
+% base size of a small external schmitt symbol
+%
+\ctikzset{ieeestd ports/schmitt symbol size/.initial=0.3}%
+%
+% input management
+% we are using the same /tikz/number inputs than the legacy ports
+%
+\tikzset{/tikz/inner inputs/.initial=0} % using 0 means that all inputs are inner
+%
+% integrate with the other logic ports
+%
+%
+\newif\ifpgf@circuit@ieeelogicport\pgf@circuit@ieeelogicportfalse
+\ctikzset{logic ports/ieee/.code= {%
+    \pgf@circuit@ieeelogicporttrue
+    \pgf@circuit@europeanlogicportfalse
+    \tikzset{and port/.style={shape=ieeestd and port}}%
+    \tikzset{or port/.style={shape=ieeestd or port}}%
+    \tikzset{xor port/.style={shape=ieeestd xor port}}%
+    \tikzset{buffer port/.style={shape=ieeestd buffer port}}%
+    \tikzset{not port/.style={shape=ieeestd not port}}%
+    \tikzset{nand port/.style={shape=ieeestd nand port}}%
+    \tikzset{nor port/.style={shape=ieeestd nor port}}%
+    \tikzset{xnor port/.style={shape=ieeestd xnor port}}%
+    \tikzset{schmitt port/.style={shape=ieeestd schmitt port}}%
+    \tikzset{invschmitt port/.style={shape=ieeestd invschmitt port}}%
+}}
+% add code to be compatible with the other ports
+\ctikzset{logic ports/european/.add code={\pgf@circuit@ieeelogicportfalse}}
+\ctikzset{logic ports/american/.add code={\pgf@circuit@ieeelogicportfalse}}
+\tikzset{ieee ports/.style = {\circuitikzbasekey/logic ports = ieee}}
+%
+% the base angle for the or port. See the drawings. This will not change with height
+%
+\pgfmathsetmacro{\pgf@circ@orangle}{atan(3.25/6.5)}
+% \typeout{ANGLE-IS\space\pgf@circ@orangle}
+\def\pgf@circ@ieeeport@input#1% #1 = \pgfmathcounter
+{%
+    \ifnum#1>\inputs
+        \PackageError{circuitikz}{%
+            You requested input pin #1 for logic port shape \thisshape\space \MessageBreak
+            which has been defined with \inputs\space pins%
+        }{Please check the manual about logic ports; if you press return I'll try to continue}
+    \fi
+    \pgfmathsetlength{\pgf@circ@res@up}{(\inputs/2)*\pind+0.5*\pind}% pin "0", above the rack/port
+    \pgfextractx{\pgf@circ@res@left}{\bodyleft}
+    \pgf@circ@res@step=\pind
+    \pgf@y=\pgf@circ@res@up\advance\pgf@y by -#1\pgf@circ@res@step\relax
+    \pgf@x=\pgf@circ@res@left\advance\pgf@x by -\pinlen
+}%
+
+% #1 = \pgfmathcounter #2=type
+% type is 1 for and,nand; 2 for or,nor; 3 for xor,xnor
+\def\pgf@circ@ieeeport@baseinput#1#2%
+{%
+    \ifnum#1>\inputs
+        \PackageError{circuitikz}{%
+            You requested border input pin #1 for logic port shape \thisshape\space \MessageBreak
+            which has been defined with \inputs\space pins%
+        }{Please check the manual about logic ports; if you press return I'll try to continue}
+    \fi
+    % Find the vertical position (this is the same for any port)
+    \pgfmathsetlength{\pgf@circ@res@up}{(\inputs/2)*\pind+0.5*\pind}% pin "0", above the rack/port
+    \pgf@circ@res@step=\pind\advance\pgf@circ@res@up by -#1\pgf@circ@res@step\relax
+    % rack (extended) pins; they are the same for all the ports
+    % call K = (inputs-inner)/2, rounded up; pins on the rack are:
+    %      above: 1..K (included)
+    %      below: inputs-K..inputs
+    % Find the pins on the rack; they are 1...
+    \pgf@circ@count@a=\numexpr (\inputs - \inners)/2\relax       % =K; numexpr rounds up!
+    \pgf@circ@count@b=\numexpr \inputs - \pgf@circ@count@a +1 \relax % =inputs - K +1
+    % border anchors for rack should be ok
+    \pgfextractx{\pgf@circ@res@left}{\topleft}
+    \pgfextractx{\pgf@circ@res@right}{\bodyleft}
+    \pgf@y=\pgf@circ@res@up\pgf@x=\pgf@circ@res@left
+    % we have finished if we are in the rack
+    \ifnum #1 > \pgf@circ@count@a \ifnum #1 < \pgf@circ@count@b
+        % we are on the inner ports; we have to do the hard work here
+        % and and nand
+        \ifnum #2=1
+            \relax % It's an and/nand, all border ports are on the rack line
+        \fi
+        % or and nor
+        \ifnum #2=2
+            \pgfmathsetlength{\pgf@x}{\pgf@circ@res@right-2*\stdH*(1-cos(atan(\pgf@circ@res@up/(2*\stdH))))}
+        \fi
+        % xor and xnor
+        \ifnum #2=3\relax
+            \pgfmathsetlength{\pgf@x}{\pgf@circ@res@right-\xorbar-2*\stdH*(1-cos(atan(\pgf@circ@res@up/(2*\stdH))))}
+        \fi
+    \fi\fi
+}%
+% inner base ports for xor types port
+% #1 = \pgfmathcounter #2=type
+% type is 1 for and,nand; 2 for or,nor; 3 for xor,xnor
+\def\pgf@circ@ieeeport@innerbaseinput#1%
+{%
+    \ifnum#1>\inputs
+        \PackageError{circuitikz}{%
+            You requested border input pin #1 for logic port shape \thisshape\space \MessageBreak
+            which has been defined with \inputs\space pins%
+        }{Please check the manual about logic ports; if you press return I'll try to continue}
+    \fi
+    % Find the vertical position (this is the same for any port)
+    \pgfmathsetlength{\pgf@circ@res@up}{(\inputs/2)*\pind+0.5*\pind}% pin "0", above the rack/port
+    \pgf@circ@res@step=\pind\advance\pgf@circ@res@up by -#1\pgf@circ@res@step\relax
+    % rack (extended) pins; they are the same for all the ports
+    % call K = (inputs-inner)/2, rounded up; pins on the rack are:
+    %      above: 1..K (included)
+    %      below: inputs-K..inputs
+    % Find the pins on the rack; they are 1...
+    \pgf@circ@count@a=\numexpr (\inputs - \inners)/2\relax       % =K; numexpr rounds up!
+    \pgf@circ@count@b=\numexpr \inputs - \pgf@circ@count@a +1 \relax % =inputs - K +1
+    % border anchors for rack should be ok
+    \pgfextractx{\pgf@circ@res@left}{\topleft}
+    \pgfextractx{\pgf@circ@res@right}{\bodyleft}
+    \pgf@y=\pgf@circ@res@up\pgf@x=\pgf@circ@res@left
+    % we have finished if we are in the rack
+    \ifnum #1 > \pgf@circ@count@a \ifnum #1 < \pgf@circ@count@b
+        % we are on the inner ports; we have to do the hard work here
+        \pgfmathsetlength{\pgf@x}{\pgf@circ@res@right-2*\stdH*(1-cos(atan(\pgf@circ@res@up/(2*\stdH))))}
+    \fi\fi
+}%
+
+%%% macro to find basic lenghts --- they leave it in \pgf@circ@res@temp
+\def\pgf@circ@ieeestd@baselen{%
+    \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}*\pgf@circ@Rlen}
+    \pgfmathsetlength{\pgf@circ@res@temp}{\ctikzvalof{ieeestd ports/baselen}*\pgf@circ@scaled@Rlen}
+}
+\def\pgf@circ@ieeestd@stdH{%
+    \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}*\pgf@circ@Rlen}
+    \pgfmathsetlength{\pgf@circ@res@temp}{0.5*\ctikzvalof{ieeestd ports/baselen}*
+        \ctikzvalof{ieeestd ports/height}*\pgf@circ@scaled@Rlen}
+}
+\def\pgf@circ@ieeestd@pinlen{%
+    \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}*\pgf@circ@Rlen}
+    \pgfmathsetlength{\pgf@circ@res@temp}{\ctikzvalof{ieeestd ports/baselen}*
+        \ctikzvalof{ieeestd ports/pin length}*\pgf@circ@scaled@Rlen}
+}
+\def\pgf@circ@ieeestd@xorbar{%
+    \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}*\pgf@circ@Rlen}
+    \pgfmathsetlength{\pgf@circ@res@temp}{\ctikzvalof{ieeestd ports/baselen}*
+        \ctikzvalof{ieeestd ports/xor bar distance}*\pgf@circ@scaled@Rlen}
+}
+%% Not circle
+\def\pgf@circ@notradius{
+    \pgf@circ@ieeestd@stdH % got the standard length. Notice that his is 3.25H for IEEE
+    \pgfmathsetlength{\pgf@circ@res@temp}{\ctikzvalof{ieeestd ports/not radius}*\pgf@circ@res@temp}
+    % \typeout{NOTRADIUS\space\the\pgf@circ@res@temp}
+}
+%% Find (in ...@other) the height of the rack
+\def\pgf@circ@findrackH{%
+    \pgf@circ@count@a=\pgfkeysvalueof{/tikz/number inputs}\relax%
+    \pgf@circ@count@b=\pgfkeysvalueof{/tikz/inner inputs}\relax%
+    \ifnum\pgf@circ@count@a=0 \pgf@circ@count@a=2\fi  % default pins
+    \ifnum\pgf@circ@count@a<2 \pgf@circ@count@a=2\fi %
+    \ifnum\pgf@circ@count@b=0 \pgf@circ@count@b=\pgf@circ@count@a\fi%
+    \pgf@circ@ieeestd@stdH
+    \multiply\pgf@circ@res@temp by 2\relax% full height
+    \divide\pgf@circ@res@temp by \pgf@circ@count@b % the pin spacing
+    \pgfmathsetlength{\pgf@circ@res@other}{(\pgf@circ@count@a/2)*\pgf@circ@res@temp} %top of the rack/port
+    % \typeout{RACK-\thisshape\space\the\pgf@circ@res@other}
+}
+%%
+\def\pgf@circ@find@ieeeport@up{% leave it in up
+    % Normal port limits
+    \pgf@circ@ieeestd@stdH
+    \pgfmathsetlength{\pgf@circ@res@up}{\pgf@circ@res@temp}
+    % rack top size
+    \pgf@circ@findrackH
+    \ifdim\pgf@circ@res@other > \pgf@circ@res@up
+        \pgf@circ@res@up=\pgf@circ@res@other
+    \else
+    \fi
+}
+\def\pgf@circ@find@ieeeport@left#1{% leave it in left; #1 is type
+    % Normal port limits
+    \pgf@circ@ieeestd@stdH
+    \pgfmathsetlength{\pgf@circ@res@left}{8*\pgf@circ@res@temp/6.5}
+    \pgf@circ@res@right=\pgf@circ@res@left % save the border value
+    \pgf@circ@res@step=\pgf@circ@res@temp % save the stdH value
+    \pgf@circ@ieeestd@pinlen\advance\pgf@circ@res@left by \pgf@circ@res@temp
+    % \typeout{LEFT1-\thisshape\space L\space\the\pgf@circ@res@left\space R\space\the\pgf@circ@res@right}
+    % this is the normal left border
+    % For the or or xor port, the limit can be the pointy thing (in case the
+    % pinlen is zero or too small)
+    % add to the body margin the or/nor peak:
+    \ifnum #1 > 1\relax% "or", "nor", "xor", "xnor" gates.
+        \pgfmathsetlength{\pgf@circ@res@other}{2*\pgf@circ@res@step*(1-cos(\pgf@circ@orangle))}
+        \advance\pgf@circ@res@right by \pgf@circ@res@other
+        % \typeout{LEFT2-\thisshape\space L\space\the\pgf@circ@res@left\space R\space\the\pgf@circ@res@right}
+    \fi
+    % add to the body margin the xor/xnor distance
+    \ifnum #1 = 3\relax% "xor" or "xnor" gates.
+        \pgf@circ@ieeestd@xorbar
+        \advance\pgf@circ@res@right by \pgf@circ@res@temp
+        % \typeout{LEFT3-\thisshape\space L\space\the\pgf@circ@res@left\space R\space\the\pgf@circ@res@right}
+    \fi
+    % and if this exceeds the normal margin, this is it
+    % \typeout{LEFT4-\thisshape\space L\space\the\pgf@circ@res@left\space R\space\the\pgf@circ@res@right}
+    \ifdim \pgf@circ@res@right > \pgf@circ@res@left
+        \pgf@circ@res@left=\pgf@circ@res@right
+    \fi
+    % \typeout{LEFT5-\thisshape\space L\space\the\pgf@circ@res@left\space R\space\the\pgf@circ@res@right}
+    \pgf@circ@res@left=-\pgf@circ@res@left
+}
+\def\pgf@circ@find@ieeeport@right#1{% leave it in right; #1 is plain or negated
+    % Normal port limits
+    \pgf@circ@ieeestd@stdH
+    \pgfmathsetlength{\pgf@circ@res@right}{8*\pgf@circ@res@temp/6.5}
+    \pgf@circ@notradius
+    \pgfmathsetlength{\pgf@circ@res@other}{\pgf@circ@res@right+2*#1*\pgf@circ@res@temp}
+    \pgf@circ@ieeestd@pinlen\advance\pgf@circ@res@right by \pgf@circ@res@temp
+    \ifdim\pgf@circ@res@other > \pgf@circ@res@right
+        \pgf@circ@res@right=\pgf@circ@res@other
+    \fi
+}
+\def\pgf@circ@find@ieeeport@not@right#1{% leave it in right; #1 is plain or negated
+    % Normal port limits
+    \pgf@circ@ieeestd@stdH
+    % notice 0.8660254 is cos(30)
+    \pgfmathsetlength{\pgf@circ@res@right}{0.8660254*\pgf@circ@res@temp}
+    \pgf@circ@notradius
+    \pgfmathsetlength{\pgf@circ@res@other}{\pgf@circ@res@right+2*#1*\pgf@circ@res@temp}
+    \pgf@circ@ieeestd@pinlen\advance\pgf@circ@res@right by \pgf@circ@res@temp
+    \ifdim\pgf@circ@res@other > \pgf@circ@res@right
+        \pgf@circ@res@right=\pgf@circ@res@other
+    \fi
+}
+
+
+%%% ieeestd multi-input ports
+%%% #1: name
+%%% #2: type: 1 for and,nand; 2 for or,nor; 3 for xor,xnor
+%%% #3: polarity: 0 for direct, 1 for inverted (not at the output)
+%%% #4: drawing for the port
+\long\def\pgfcircdeclareieeeport#1#2#3#4{%
+    \pgfdeclareshape{ieeestd #1 port}%
+    {%
+        \savedmacro{\ctikzclass}{\edef\ctikzclass{logic ports}}
+        \saveddimen{\scaledRlen}{\pgfmathsetlength{\pgf@x}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}}
+        \savedmacro{\thisshape}{\def\thisshape{\tikz@fig@name}}
+        \saveddimen{\baselen}{%
+            \pgf@circ@ieeestd@baselen\pgf@x=\pgf@circ@res@temp
+        }
+        \saveddimen{\stdH}{% This is HALF the height of the inner port
+            \pgf@circ@ieeestd@stdH\pgf@x=\pgf@circ@res@temp
+        }
+        \saveddimen{\notdiameter}{
+            \pgf@circ@notradius\pgf@x=2\pgf@circ@res@temp
+        }
+        \saveddimen{\pind}{% pin distance;
+            \pgf@circ@count@a=\pgfkeysvalueof{/tikz/number inputs}\relax%
+            \pgf@circ@count@b=\pgfkeysvalueof{/tikz/inner inputs}\relax%
+            \ifnum\pgf@circ@count@a=0 \pgf@circ@count@a=2\fi  % default pins
+            \ifnum\pgf@circ@count@a<2 \pgf@circ@count@a=2\fi %
+            \ifnum\pgf@circ@count@b=0 \pgf@circ@count@b=\pgf@circ@count@a\fi%
+            \pgf@circ@ieeestd@stdH\pgf@x=2\pgf@circ@res@temp % full height
+            \divide\pgf@x by \pgf@circ@count@b
+        }
+        \saveddimen{\pinlen}{%
+            \pgf@circ@ieeestd@pinlen\pgf@x=\pgf@circ@res@temp
+        }
+        \saveddimen{\xorbar}{%
+            \pgf@circ@ieeestd@xorbar\pgf@x=\pgf@circ@res@temp
+        }
+        % anchors for the body (no pins included here)
+        \savedanchor{\bodyleft}{% This DOES NOT take into account the pointy or/xor thing
+            \pgf@circ@ieeestd@stdH
+            \pgfmathsetlength{\pgf@x}{-8*\pgf@circ@res@temp/6.5}
+            \pgfmathsetlength{\pgf@y}{\pgf@circ@res@temp}
+        }
+        \savedanchor{\topleft}{%
+            \pgf@circ@ieeestd@xorbar\pgf@circ@res@right=\pgf@circ@res@temp % save \xorbar
+            \pgf@circ@ieeestd@stdH
+            \pgf@circ@res@other=0pt\relax
+            \ifnum #2 = 2\relax% "or" or "nor" gates.
+                \pgfmathsetlength{\pgf@circ@res@other}{2*\pgf@circ@res@temp*(1-cos(\pgf@circ@orangle))}
+            \fi
+            \ifnum #2 = 3\relax% "xor" or "xnor" gates.
+                \pgfmathsetlength{\pgf@circ@res@other}{2*\pgf@circ@res@temp*(1-cos(\pgf@circ@orangle))
+                    +\pgf@circ@res@right}
+            \fi
+            \pgfmathsetlength{\pgf@x}{-8*\pgf@circ@res@temp/6.5-\pgf@circ@res@other}
+            \pgfmathsetlength{\pgf@y}{\pgf@circ@res@temp}
+        }
+        \savedanchor{\bodyright}{% This DOES NOT take into account the "NOT" circle
+            \pgf@circ@ieeestd@stdH
+            \pgfmathsetlength{\pgf@x}{8*\pgf@circ@res@temp/6.5}
+            \pgfmathsetlength{\pgf@y}{-\pgf@circ@res@temp}
+        }
+        \savedanchor{\bottomright}{% This DOES take into account the "NOT" circle
+            \pgf@circ@notradius\pgf@circ@res@other=\pgf@circ@res@temp
+            \pgf@circ@ieeestd@stdH
+            % #3 is =1 if the port is a negated output one
+            \pgfmathsetlength{\pgf@x}{8*\pgf@circ@res@temp/6.5+#3*2*\pgf@circ@res@other}
+            \pgfmathsetlength{\pgf@y}{-\pgf@circ@res@temp}
+        }
+        % geographical anchors --- must be rectangulars!
+        \savedanchor{\northwest}{%
+            \pgf@circ@find@ieeeport@up
+            \pgf@circ@find@ieeeport@left{#2}
+            % \typeout{ANCH5-\thisshape\space L\space\the\pgf@circ@res@left\space U\space\the\pgf@circ@res@up}
+            \pgf@x=\pgf@circ@res@left
+            \pgf@y=\pgf@circ@res@up
+        }
+        \savedanchor{\southwest}{%
+            \pgf@circ@find@ieeeport@up
+            \pgf@circ@find@ieeeport@left{#2}
+            \pgf@x=\pgf@circ@res@left
+            \pgf@y=-\pgf@circ@res@up
+        }
+        \savedanchor{\southeast}{%
+            \pgf@circ@find@ieeeport@up
+            \pgf@circ@find@ieeeport@right{#3}
+            \pgf@x=\pgf@circ@res@right
+            \pgf@y=-\pgf@circ@res@up
+        }
+        \savedanchor{\northeast}{%
+            \pgf@circ@find@ieeeport@up
+            \pgf@circ@find@ieeeport@right{#3}
+            \pgf@x=\pgf@circ@res@right
+            \pgf@y=\pgf@circ@res@up
+        }
+        \savedmacro\inputs{% get number of inputs
+            \pgf@circ@count@a=\pgfkeysvalueof{/tikz/number inputs}\relax
+            \ifnum\pgf@circ@count@a=0\pgf@circ@count@a=2\fi    % default
+            \ifnum\pgf@circ@count@a<2 \pgf@circ@count@a=2\fi   % minimum pins
+            % \ifnum\pgf@circ@count@a>16 \pgf@circ@count@a=16\fi
+            \def\inputs{\the\pgf@circ@count@a}%
+        }%
+        \savedmacro\inners{% get number of "inner" inputs (for racks)
+            \pgf@circ@count@a=\pgfkeysvalueof{/tikz/number inputs}\relax
+            \pgf@circ@count@b=\pgfkeysvalueof{/tikz/inner inputs}\relax
+            \ifnum\pgf@circ@count@a=0 \pgf@circ@count@a=2\fi  % default pins
+            \ifnum\pgf@circ@count@a<2 \pgf@circ@count@a=2\fi  % minimum pins
+            \ifnum\pgf@circ@count@b=0 \pgf@circ@count@b=\pgf@circ@count@a\fi
+            % \typeout{INNER is \the\pgf@circ@count@b}%
+            % \ifnum\pgf@circ@count@a>16 \pgf@circ@count@a=16\fi
+            \def\inners{\the\pgf@circ@count@b}%
+        }%
+        \anchor{center}{\pgfpointorigin}
+        \anchor{text}{
+            \ifpgf@circ@center@text
+                \pgfpoint{-.5\wd\pgfnodeparttextbox}{\dimexpr.5\dp\pgfnodeparttextbox-.5\ht\pgfnodeparttextbox}
+            \else
+                \pgf@circ@ieeestd@stdH
+                \pgfmathsetlength{\pgf@circ@res@left}{-8*\pgf@circ@res@temp/6.5} % left border
+                \pgfpoint{\pgf@circ@res@left + \ctikzvalof{left text distance}}{\dimexpr.5\dp\pgfnodeparttextbox-.5\ht\pgfnodeparttextbox}
+            \fi
+        }
+        % create input anchors
+        \expandafter\pgfutil@g@addto@macro\csname pgf@sh@s@ieeestd #1 port\endcsname{%
+            \pgf@circ@count@a=\inputs
+            \pgfmathloop%
+            \ifnum\pgfmathcounter>\pgf@circ@count@a%
+            \else%
+            %\pgfutil@ifundefined{pgf@anchor@american #1 port@in \pgfmathcounter}{%
+            \expandafter\xdef\csname pgf@anchor@ieeestd #1 port@in \pgfmathcounter\endcsname{%
+                \noexpand\pgf@circ@ieeeport@input{\pgfmathcounter}% defined above
+            }%
+            \expandafter\xdef\csname pgf@anchor@ieeestd #1 port@bin \pgfmathcounter\endcsname{%
+                \noexpand\pgf@circ@ieeeport@baseinput{\pgfmathcounter}{#2}% defined above
+            }%
+            \ifnum #2 = 3\relax % xor/xnor inner border pins
+                \expandafter\xdef\csname pgf@anchor@ieeestd #1 port@ibin \pgfmathcounter\endcsname{%
+                    \noexpand\pgf@circ@ieeeport@innerbaseinput{\pgfmathcounter}% defined above
+                }%
+            \fi
+            %}{}%
+            \repeatpgfmathloop%
+        }
+        % output anchor
+        \anchor{out}{%
+            \pgfextractx{\pgf@circ@res@other}{\bodyright}   %body border, without not ball
+            \advance\pgf@circ@res@other by\pinlen
+            \pgfextractx{\pgf@circ@res@temp}{\bottomright}   %body + ball border
+            \ifdim \pgf@circ@res@temp > \pgf@circ@res@other
+                \pgf@circ@res@other = \pgf@circ@res@temp % do not enter in the ball...
+            \fi
+            \pgf@x=\pgf@circ@res@other\pgf@y=0pt
+        }
+        \anchor{bout}{\bottomright\pgf@y=0pt}
+
+        \anchor{body right}{\bodyright\pgf@y=0pt}
+        \anchor{right}{\bottomright\pgf@y=0pt}
+        \anchor{body left}{\bodyleft\pgf@y=0pt}% central edge of the body
+        \anchor{left}{% central edge of the component
+            \bodyleft\pgf@y=0pt
+            \ifnum #2=3\relax
+                \advance\pgf@x by -\xorbar
+            \fi
+        }
+        \anchor{up}{%
+            \bodyleft
+            \ifnum #2 > 1 % pointy shapes
+                \pgf@circ@ieeestd@stdH
+                % horizontal coordinate where the right semicircle starts
+                \pgfmathsetlength{\pgf@circ@res@other}{-8*\pgf@circ@res@temp/6.5+2*\pgf@circ@res@temp*cos(\pgf@circ@orangle)}
+                % vertical drop of the circle at the above coordinate
+                \pgfmathsetlength{\pgf@circ@res@step}{2*\pgf@circ@res@temp*(1-cos(atan(\pgf@circ@res@other/(2*\pgf@circ@res@temp))))}
+                \advance \pgf@y by -\pgf@circ@res@step
+            \fi
+            \pgf@x=0pt
+        }
+        \anchor{down}{%
+            \bodyleft
+            \ifnum #2 > 1 % pointy shapes
+                \pgf@circ@ieeestd@stdH
+                % horizontal coordinate where the right semicircle starts
+                \pgfmathsetlength{\pgf@circ@res@other}{-8*\pgf@circ@res@temp/6.5+2*\pgf@circ@res@temp*cos(\pgf@circ@orangle)}
+                % vertical drop of the circle at the above coordinate
+                \pgfmathsetlength{\pgf@circ@res@step}{2*\pgf@circ@res@temp*(1-cos(atan(\pgf@circ@res@other/(2*\pgf@circ@res@temp))))}
+                \advance \pgf@y by -\pgf@circ@res@step
+            \fi
+            \pgf@y=-\pgf@y\pgf@x=0pt
+        }
+
+        % geographical anchors
+        \anchor{nw}{\northwest}
+        \anchor{ne}{\northeast}
+        \anchor{se}{\southeast}
+        \anchor{sw}{\southwest}
+        \anchor{north west}{\northwest}
+        \anchor{north east}{\northeast}
+        \anchor{south east}{\southeast}
+        \anchor{south west}{\southwest}
+        % over 0,0 even if asymmetric
+        % will break if the geocoords are not rectangular
+        \anchor{n}{\northwest\pgf@x=0pt\relax}
+        \anchor{e}{\northeast\pgf@y=0pt\relax}
+        \anchor{s}{\southwest\pgf@x=0pt\relax}
+        \anchor{w}{\northwest\pgf@y=0pt\relax}
+        \anchor{north}{\northwest\pgf@x=0pt\relax}
+        \anchor{east}{\northeast\pgf@y=0pt\relax}
+        \anchor{south}{\southwest\pgf@x=0pt\relax}
+        \anchor{west}{\northwest\pgf@y=0pt\relax}
+
+        \backgroundpath{
+            \pgfscope
+                \pgfsetcolor{\ctikzvalof{color}}
+                #4
+            \endpgfscope
+            % output lead:
+            \pgfextractx{\pgf@circ@res@right}{\bottomright} %body+ball border
+            \pgfextractx{\pgf@circ@res@other}{\bodyright}   %body border, without "not" ball
+            \advance\pgf@circ@res@other by \pinlen\relax
+            \ifdim \pgf@circ@res@other > \pgf@circ@res@right
+                \ifpgfcirc@draw@output@leads
+                    \pgfpathmoveto{\pgfpoint{\pgf@circ@res@right}{0pt}}
+                    \pgfpathlineto{\pgfpoint{\pgf@circ@res@other}{0pt}}
+                    \pgfusepath{draw}
+                \fi
+            \fi
+            \ifnum #3=1\relax\pgfscope
+                \pgftransformshift{\pgfpoint{\pgf@circ@res@right}{0pt}}
+                \pgfnode{notcirc}{east}{}{\thisshape-not}{\pgfusepath{stroke}}
+            \endpgfscope\fi
+        }
+    }
+}
+
+%%% #1 direct name #2 negated name #3 type #4 drawing (without output)
+\long\def\pgfcircdeclareieeeportpair#1#2#3#4{%
+    \pgfcircdeclareieeeport{#1}{#3}{0}{#4}% direct
+    \pgfcircdeclareieeeport{#2}{#3}{1}{#4}% negated
+}
+%
+% ieeestd "and" and "nand"
+%
+\pgfcircdeclareieeeportpair{and}{nand}{1}{%
+    \pgf@circ@count@a = \inputs\relax
+    \pgfmathsetlength{\pgf@circ@res@up}{(\inputs/2)*\pind} %top of the rack/port
+    \pgfmathsetlength{\pgf@circ@res@temp}{\pgf@circ@res@up+0.5*\pind}
+    \pgfextractx{\pgf@circ@res@left}{\bodyleft}
+    \pgfextracty{\pgf@circ@res@down}{\bodyleft}
+    \ifpgfcirc@draw@input@leads
+        %input leads --- all the same for AND ports
+        \loop\ifnum\pgf@circ@count@a>0
+        \advance\pgf@circ@res@temp by -\pind
+        \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@temp}}%
+        \pgfpathlineto{\pgfpoint{\pgf@circ@res@left-\pinlen}{\pgf@circ@res@temp}}%
+        \advance\pgf@circ@count@a by -1
+        \repeat
+    \fi
+    \pgfusepath{draw}
+    %% Body. let's start from the top left
+    \pgfscope
+        \pgf@circ@setlinewidth{tripoles}{\pgflinewidth}
+        \pgfpathmoveto{\pgfpoint{-8*\stdH/6.5}{\stdH}}
+        \pgfpathlineto{\pgfpoint{1.5*\stdH/6.5}{\stdH}}
+        \pgfpatharc{90}{-90}{\stdH}
+        \pgfpathlineto{\pgfpoint{-8*\stdH/6.5}{-\stdH}}
+        \pgfpathclose
+        \pgf@circ@draworfill
+        % rack now; skip if not needed.
+        % \typeout{WHAT\space \inputs\space \inners}
+        \ifnum\inputs>\inners
+            \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@up}}
+            \pgfpathlineto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@down}}
+            \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{-\pgf@circ@res@down}}
+            \pgfpathlineto{\pgfpoint{\pgf@circ@res@left}{-\pgf@circ@res@up}}
+            \pgfusepath{draw}
+        \fi
+    \endpgfscope
+}
+%
+% or/nor and xor/xnor are practically the same. Let factor out everything
+% the argument #1 is put just before the drawing of the inner pins
+% the argument #2 is put after the drawing of the body
+%
+\long\def\pgf@circ@ieeeport@orxor#1#2{%
+    \pgf@circ@count@a = \inputs\relax
+    \pgfmathsetlength{\pgf@circ@res@up}{(\inputs/2)*\pind} %top of the rack/port
+    \pgfmathsetlength{\pgf@circ@res@temp}{\pgf@circ@res@up+0.5*\pind}
+    \pgfextractx{\pgf@circ@res@left}{\bodyleft}
+    \pgfextracty{\pgf@circ@res@down}{\bodyleft}
+    % rack (extended) pins; they are the same for all the ports
+    % call K = (inputs-inner)/2, rounded up; pins on the rack are:
+    %      above: 1..K (included)
+    %      below: inputs-K..inputs
+    % Find the pins on the rack; they are 1...
+    \pgf@circ@count@b=\numexpr (\inputs - \inners)/2\relax       % =K; numexpr rounds up!
+    \pgf@circ@count@c=\numexpr \inputs - \pgf@circ@count@b +1 \relax % =inputs - K +1
+    \ifpgfcirc@draw@input@leads
+        %input leads --- for or ports
+        \loop\ifnum\pgf@circ@count@a>0
+        \pgfextractx{\pgf@circ@res@right}{\topleft}
+        \advance\pgf@circ@res@temp by -\pind
+        % this is the height; let's find the "right" position
+        \ifnum \pgf@circ@count@a > \pgf@circ@count@b \ifnum \pgf@circ@count@a < \pgf@circ@count@c
+            % inner pins
+            % \typeout{INNER\space\pgf@circ@count@a}
+            \pgfmathsetlength{\pgf@circ@res@right}{\pgf@circ@res@left-2*\stdH*(1-cos(atan(\pgf@circ@res@temp/(2*\stdH))))}
+            % hook for xor/xnor
+            #1
+        \fi\fi
+        \pgfpathmoveto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@temp}}%
+        \pgfpathlineto{\pgfpoint{\pgf@circ@res@left-\pinlen}{\pgf@circ@res@temp}}%
+        \pgfusepath{draw}
+        \advance\pgf@circ@count@a by -1
+        \repeat
+    \fi
+    %% Body. let's start from the top left
+    \pgfscope
+        \pgf@circ@setlinewidth{tripoles}{\pgflinewidth}
+        % it should start here, but with this trick the close comes out better.
+        % \pgfpathmoveto{\pgfpoint{-8*\stdH/6.5-2*\stdH*(1-cos(\pgf@circ@orangle))}{\stdH}}
+        \pgfpathmoveto{\pgfpoint{-8*\stdH/6.5}{\stdH}}
+        \pgfpathlineto{\pgfpoint{8*\stdH/6.5-2*\stdH*cos(\pgf@circ@orangle)}{\stdH}} %
+        \pgfpatharcto{2*\stdH}{2*\stdH}{0}{0}{0}{\pgfpoint{8*\stdH/6.5}{0pt}}
+        \pgfpatharcto{2*\stdH}{2*\stdH}{0}{0}{0}{\pgfpoint{8*\stdH/6.5-2*\stdH*cos(\pgf@circ@orangle)}{-\stdH}}
+        \pgfpathlineto{\pgfpoint{-8*\stdH/6.5-2*\stdH*(1-cos(\pgf@circ@orangle))}{-\stdH}}
+        %% this should be 2 and 2; but the round part is not a perfect circle that way
+        %% so the 2.15 is ajusted "by taste" to touch the anchors exactly.
+        \pgfpatharcto{2*\stdH}{2.2*\stdH}{0}{0}{1}{\pgfpoint{-8*\stdH/6.5-2*\stdH*(1-cos(\pgf@circ@orangle))}{\stdH}}
+        \pgfpathclose
+        \pgf@circ@draworfill
+        % hook for xor/xnor
+        #2
+        % rack now; skip if not needed.
+        % \typeout{WHAT\space \inputs\space \inners}
+        \ifnum\inputs>\inners
+            \pgfextractx{\pgf@circ@res@left}{\topleft}
+            \pgfextracty{\pgf@circ@res@down}{\topleft}
+            \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@up}}
+            \pgfpathlineto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@down}}
+            \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{-\pgf@circ@res@down}}
+            \pgfpathlineto{\pgfpoint{\pgf@circ@res@left}{-\pgf@circ@res@up}}
+            \pgfusepath{draw}
+        \fi
+    \endpgfscope
+}
+%
+% ieeestd "or" and "nor"
+%
+\pgfcircdeclareieeeportpair{or}{nor}{2}{%
+    \pgf@circ@ieeeport@orxor{}{}
+}
+\pgfcircdeclareieeeportpair{xor}{xnor}{3}{%
+    \pgf@circ@ieeeport@orxor{
+        \edef\@@tmp{\ctikzvalof{ieeestd ports/xor leads in}}
+        \ifnum\@@tmp=0\relax
+            % move pin start to the left to leave the xor gap free (not standard)
+            \advance\pgf@circ@res@right by -\xorbar
+        \fi
+        }{%
+        % add the xor/xnor bar
+        \pgfpathmoveto{\pgfpoint{-\xorbar-8*\stdH/6.5-2*\stdH*(1-cos(\pgf@circ@orangle))}{-\stdH}}
+        % see the comment on the main body about the 2.2
+        \pgfpatharcto{2*\stdH}{2.2*\stdH}{0}{0}{1}{\pgfpoint{-\xorbar -8*\stdH/6.5-2*\stdH*(1-cos(\pgf@circ@orangle))}{\stdH}}
+        \pgfusepath{draw}
+    }
+}
+%
+% Buffer and inverters
+%
+% #1: name
+% #2: polarity
+% #3: content
+\long\def\pgfcircdeclareieeebufferport#1#2#3{%
+    \pgfdeclareshape{ieeestd #1 port}%
+    {%
+        \savedmacro{\ctikzclass}{\edef\ctikzclass{logic ports}}
+        \saveddimen{\scaledRlen}{\pgfmathsetlength{\pgf@x}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}}
+        \savedmacro{\thisshape}{\def\thisshape{\tikz@fig@name}}
+        \saveddimen{\baselen}{%
+            \pgf@circ@ieeestd@baselen\pgf@x=\pgf@circ@res@temp
+        }
+        \saveddimen{\stdH}{% This is HALF the height of the inner port
+            \pgf@circ@ieeestd@stdH\pgf@x=\pgf@circ@res@temp
+        }
+        \saveddimen{\notdiameter}{
+            \pgf@circ@notradius\pgf@x=2\pgf@circ@res@temp
+        }
+        \saveddimen{\pinlen}{%
+            \pgf@circ@ieeestd@pinlen\pgf@x=\pgf@circ@res@temp
+        }
+        % anchors for the body (no pins included here)
+        % Notice that 0.8660254 is cos(30)
+        \savedanchor{\bodyleft}{% This DOES NOT take into account the pointy or/xor thing
+            \pgf@circ@ieeestd@stdH
+            \pgfmathsetlength{\pgf@x}{-0.8660254*\pgf@circ@res@temp}
+            \pgfmathsetlength{\pgf@y}{\pgf@circ@res@temp}
+        }
+        \savedanchor{\topleft}{%
+            \pgf@circ@ieeestd@stdH
+            \pgfmathsetlength{\pgf@x}{-0.8660254*\pgf@circ@res@temp}
+            \pgfmathsetlength{\pgf@y}{\pgf@circ@res@temp}
+        }
+        \savedanchor{\bodyright}{% This DOES NOT take into account the "NOT" circle
+            \pgf@circ@ieeestd@stdH
+            \pgfmathsetlength{\pgf@x}{0.8660254*\pgf@circ@res@temp}
+            \pgfmathsetlength{\pgf@y}{\pgf@circ@res@temp}
+        }
+        \savedanchor{\bottomright}{% This DOES take into account the "NOT" circle
+            \pgf@circ@notradius\pgf@circ@res@other=\pgf@circ@res@temp
+            \pgf@circ@ieeestd@stdH
+            % #2 is =1 if the port is a negated output one
+            \pgfmathsetlength{\pgf@x}{0.8660254*\pgf@circ@res@temp+#2*2*\pgf@circ@res@other}
+            \pgfmathsetlength{\pgf@y}{-\pgf@circ@res@temp}
+        }
+        % geographical anchors --- must be rectangulars!
+        \savedanchor{\northwest}{%
+            \pgf@circ@ieeestd@stdH
+            \pgfmathsetlength{\pgf@x}{-0.8660254*\pgf@circ@res@temp}
+            \pgfmathsetlength{\pgf@y}{\pgf@circ@res@temp}
+        }
+        \savedanchor{\southwest}{%
+            \pgf@circ@ieeestd@stdH
+            \pgfmathsetlength{\pgf@x}{-0.8660254*\pgf@circ@res@temp}
+            \pgfmathsetlength{\pgf@y}{-\pgf@circ@res@temp}
+        }
+        \savedanchor{\southeast}{%
+            \pgf@circ@ieeestd@stdH
+            \pgf@circ@res@up=\pgf@circ@res@temp
+            \pgf@circ@find@ieeeport@not@right{#2}
+            \pgf@x=\pgf@circ@res@right
+            \pgf@y=-\pgf@circ@res@up
+        }
+        \savedanchor{\northeast}{%
+            \pgf@circ@ieeestd@stdH
+            \pgf@circ@res@up=\pgf@circ@res@temp
+            \pgf@circ@find@ieeeport@not@right{#2}
+            \pgf@x=\pgf@circ@res@right
+            \pgf@y=\pgf@circ@res@up
+        }
+        \anchor{center}{\pgfpointorigin}
+        \anchor{text}{
+            \ifpgf@circ@center@text
+                \pgfpoint{-.5\wd\pgfnodeparttextbox}{\dimexpr.5\dp\pgfnodeparttextbox-.5\ht\pgfnodeparttextbox}
+            \else
+                \pgf@circ@ieeestd@stdH
+                \pgfpoint{-0.8660254*\pgf@circ@res@temp + \ctikzvalof{left text distance}}{\dimexpr.5\dp\pgfnodeparttextbox-.5\ht\pgfnodeparttextbox}
+            \fi
+        }
+        % input anchors
+        \anchor{in}{\bodyleft\pgf@y=0pt\advance\pgf@x by-\pinlen}
+        \anchor{in 1}{\bodyleft\pgf@y=0pt\advance\pgf@x by-\pinlen}
+        \anchor{bin}{\bodyleft\pgf@y=0pt\relax}
+        \anchor{bin 1}{\bodyleft\pgf@y=0pt\relax}
+        % output anchors
+        \anchor{out}{%
+            \pgfextractx{\pgf@circ@res@other}{\bodyright}   %body border, without not ball
+            \advance\pgf@circ@res@other by\pinlen
+            \pgfextractx{\pgf@circ@res@temp}{\bottomright}   %body + ball border
+            \ifdim \pgf@circ@res@temp > \pgf@circ@res@other
+                \pgf@circ@res@other = \pgf@circ@res@temp % do not enter in the ball...
+            \fi
+            \pgf@x=\pgf@circ@res@other\pgf@y=0pt
+        }
+        \anchor{bout}{\bottomright\pgf@y=0pt}
+
+        \anchor{body right}{\bodyright\pgf@y=0pt}
+        \anchor{right}{\bottomright\pgf@y=0pt}
+        \anchor{body left}{\bodyleft\pgf@y=0pt}% central edge of the body
+        \anchor{left}{\bodyleft\pgf@y=0pt}
+        \anchor{up}{%
+            \bodyleft
+            \pgf@y=+0.5\pgf@y\pgf@x=0pt
+        }
+        \anchor{down}{%
+            \bodyleft
+            \pgf@y=-0.5\pgf@y\pgf@x=0pt
+        }
+        % this is for when it's used as a bipole
+        % we use the enclosing rectangle (see below)
+        \anchorborder{%
+            %% This (commented out) is the correct border anchor. But if we use the correct
+            %% border anchor there is no horizontal space for the label ;-) because
+            %% the triangle is too steep. So we will use a simple square border
+            %%
+            %% find the border anchor of a triangle (like a not port or an
+            %% amplifier) ---
+            %%
+            %%      -----^ up
+            %%     I --- |
+            %%     I    -|--
+            %%left I     |  ---    right
+            %% ----I-----|-------I-----
+            %%
+            %%
+            %\pgf@xa=\pgf@x
+            %% it's simmetrical w/ vertical side, use only positive y
+            %\pgfmathsetmacro{\@@switchy}{ifthenelse(\pgf@y>0,1,-1)}
+            %\pgfmathsetlength{\pgf@ya}{abs(\pgf@y)}
+            %\pgfextracty{\pgf@circ@res@up}{\bodyleft}
+            %\pgfextractx{\pgf@circ@res@left}{\bodyleft}
+            %\pgfextractx{\pgf@circ@res@right}{\bodyright}
+            %% limit angle for the left (vertical) side
+            %\pgfmathsetmacro{\@@phimax}{atan2(\pgf@circ@res@up,\pgf@circ@res@left)}
+            %\pgfmathsetmacro{\@@phi}{atan2(\pgf@ya,\pgf@xa)}
+            %\pgfmathsetmacro{\@@leftside}{ifthenelse(\@@phi>\@@phimax,1,0)}
+            %% find the border
+            %\ifnum\@@leftside>0
+            %    % vertical side
+            %    \pgfpointborderrectangle{\pgfpoint{\pgf@xa}{\pgf@ya}}
+            %        {\pgfpoint{-\pgf@circ@res@left}{\pgf@circ@res@up}}
+            %\else
+            %    % triangle upper line
+            %    \pgfpointintersectionoflines
+            %        {\pgfpointorigin}{\pgfqpoint{\pgf@xa}{\pgf@ya}}
+            %        {\pgfqpoint{\pgf@circ@res@left}{\pgf@circ@res@up}}{\pgfqpoint{\pgf@circ@res@right}{0pt}}
+            %\fi
+            %% readjust y sign
+            %\pgf@y=\@@switchy\pgf@y
+            %
+            % this is the square border to position the path label with a bit of horizontal space
+            %
+            \pgf@xa=\pgf@x
+            \pgf@ya=\pgf@y
+            \pgfextracty{\pgf@circ@res@up}{\bodyleft}
+            \pgfextractx{\pgf@circ@res@left}{\bodyleft}
+            \pgfpointborderrectangle{\pgfpoint{\pgf@xa}{\pgf@ya}}
+                {\pgfpoint{-\pgf@circ@res@left}{\pgf@circ@res@up}}
+        }
+        % geographical anchors
+        \anchor{nw}{\northwest}
+        \anchor{ne}{\northeast}
+        \anchor{se}{\southeast}
+        \anchor{sw}{\southwest}
+        \anchor{north west}{\northwest}
+        \anchor{north east}{\northeast}
+        \anchor{south east}{\southeast}
+        \anchor{south west}{\southwest}
+        % over 0,0 even if asymmetric
+        % will break if the geocoords are not rectangular
+        \anchor{n}{\northwest\pgf@x=0pt\relax}
+        \anchor{e}{\northeast\pgf@y=0pt\relax}
+        \anchor{s}{\southwest\pgf@x=0pt\relax}
+        \anchor{w}{\northwest\pgf@y=0pt\relax}
+        \anchor{north}{\northwest\pgf@x=0pt\relax}
+        \anchor{east}{\northeast\pgf@y=0pt\relax}
+        \anchor{south}{\southwest\pgf@x=0pt\relax}
+        \anchor{west}{\northwest\pgf@y=0pt\relax}
+
+        \backgroundpath{
+            \pgfscope
+                \pgfsetcolor{\ctikzvalof{color}}
+                #3
+            \endpgfscope
+            % output lead:
+            \pgfextractx{\pgf@circ@res@right}{\bottomright} %body+ball border
+            \pgfextractx{\pgf@circ@res@other}{\bodyright}   %body border, without "not" ball
+            \advance\pgf@circ@res@other by \pinlen\relax
+            \ifdim \pgf@circ@res@other > \pgf@circ@res@right
+                \ifpgfcirc@draw@output@leads
+                    \pgfpathmoveto{\pgfpoint{\pgf@circ@res@right}{0pt}}
+                    \pgfpathlineto{\pgfpoint{\pgf@circ@res@other}{0pt}}
+                    \pgfusepath{draw}
+                \fi
+            \fi
+            \ifnum #2=1\relax\pgfscope
+                \pgftransformshift{\pgfpoint{\pgf@circ@res@right}{0pt}}
+                \pgfnode{notcirc}{east}{}{\thisshape-not}{\pgfusepath{stroke}}
+            \endpgfscope\fi
+        }
+    }
+}
+
+%%% #1 direct name #2 negated name #3 drawing (without output)
+\long\def\pgfcircdeclareieeebufferportpair#1#2#3{%
+    \pgfcircdeclareieeebufferport{#1}{0}{#3}% direct
+    \pgfcircdeclareieeebufferport{#2}{1}{#3}% negated
+}
+
+\pgfcircdeclareieeebufferportpair{buffer}{not}{%
+    \pgfextractx{\pgf@circ@res@left}{\bodyleft}
+    \pgfextracty{\pgf@circ@res@up}{\bodyleft}
+    \pgfextractx{\pgf@circ@res@right}{\bodyright}
+    % \draw input pin
+    \ifpgfcirc@draw@input@leads
+        \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{0pt}}
+        \pgfpathlineto{\pgfpoint{\pgf@circ@res@left-\pinlen}{0pt}}
+        \pgfusepath{draw}
+    \fi
+    \pgfscope
+        \pgf@circ@setlinewidth{tripoles}{\pgflinewidth}
+        \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@up}}
+        \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{0pt}}
+        \pgfpathlineto{\pgfpoint{\pgf@circ@res@left}{-\pgf@circ@res@up}}
+        \pgfpathclose
+        \pgf@circ@draworfill
+    \endpgfscope
+}
+
+\pgfcircdeclareieeebufferportpair{schmitt}{invschmitt}{%
+    \pgfextractx{\pgf@circ@res@left}{\bodyleft}
+    \pgfextracty{\pgf@circ@res@up}{\bodyleft}
+    \pgfextractx{\pgf@circ@res@right}{\bodyright}
+    % \draw input pin
+    \ifpgfcirc@draw@input@leads
+        \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{0pt}}
+        \pgfpathlineto{\pgfpoint{\pgf@circ@res@left-\pinlen}{0pt}}
+        \pgfusepath{draw}
+    \fi
+    \pgfscope
+        \pgf@circ@setlinewidth{tripoles}{\pgflinewidth}
+        \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@up}}
+        \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{0pt}}
+        \pgfpathlineto{\pgfpoint{\pgf@circ@res@left}{-\pgf@circ@res@up}}
+        \pgfpathclose
+        \pgf@circ@draworfill
+    \endpgfscope
+    % draw schmitt symbol in normal line thickness
+    \pgfpathmoveto{\pgfpoint{0.75*\pgf@circ@res@left}{-0.25*\pgf@circ@res@up}}
+    \pgfpathlineto{\pgfpoint{0.50*\pgf@circ@res@left}{-0.25*\pgf@circ@res@up}}
+    \pgfpathlineto{\pgfpoint{0.50*\pgf@circ@res@left}{0.25*\pgf@circ@res@up}}
+    \pgfpathlineto{\pgfpoint{0.00*\pgf@circ@res@left}{0.25*\pgf@circ@res@up}}
+    \pgfpathmoveto{\pgfpoint{0.25*\pgf@circ@res@left}{0.25*\pgf@circ@res@up}}
+    \pgfpathlineto{\pgfpoint{0.25*\pgf@circ@res@left}{-0.25*\pgf@circ@res@up}}
+    \pgfpathlineto{\pgfpoint{0.5*\pgf@circ@res@left}{-0.25*\pgf@circ@res@up}}
+    \pgfusepath{draw}
+}
+
+
+\pgfdeclareshape{schmitt symbol}{
+    \savedmacro{\ctikzclass}{\edef\ctikzclass{logic ports}}
+    \anchor{center}{\pgfpointorigin}
+    \savedanchor\northwest{%
+        \pgf@circ@ieeestd@stdH
+        \pgf@y=\ctikzvalof{ieeestd ports/schmitt symbol size}\pgf@circ@res@temp
+        \pgf@x=-1.5\pgf@y
+    }
+    \anchor{center}{\pgf@y=0pt \pgf@x=0pt}
+    \anchor{east}{\northwest\pgf@y=0pt\pgf@x=-\pgf@x}
+    \anchor{e}{\northwest\pgf@y=0pt \pgf@x=-\pgf@x}
+    \anchor{west}{\northwest\pgf@y=0pt}
+    \anchor{w}{\northwest \pgf@y=0pt}
+    \anchor{south}{\northwest \pgf@x=0pt\pgf@y=-\pgf@y}
+    \anchor{s}{\northwest\pgf@x=0pt\pgf@y=-\pgf@y}
+    \anchor{north}{\northwest\pgf@x=0pt}
+    \anchor{n}{\northwest\pgf@x=0pt}
+    \anchor{south west}{\northwest\pgf@y=-\pgf@y}
+    \anchor{north east}{\northwest\pgf@x=-\pgf@x}
+    \anchor{north west}{\northwest}
+    \anchor{south east}{\northwest\pgf@x=-\pgf@x\pgf@y=-\pgf@y}
+    \backgroundpath{
+        \pgfscope
+            \pgfsetcolor{\ctikzvalof{color}}
+            \pgfextractx{\pgf@circ@res@left}{\northwest}
+            \pgfextracty{\pgf@circ@res@up}{\northwest}
+            \pgf@circ@res@left=0.7\pgf@circ@res@left
+            \pgf@circ@res@up=0.7\pgf@circ@res@up
+            \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{-\pgf@circ@res@up}}
+            \pgfpathlineto{\pgfpoint{\pgf@circ@res@left/3}{-\pgf@circ@res@up}}
+            \pgfpathlineto{\pgfpoint{\pgf@circ@res@left/3}{\pgf@circ@res@up}}
+            \pgfpathlineto{\pgfpoint{-\pgf@circ@res@left}{\pgf@circ@res@up}}
+            \pgfpathmoveto{\pgfpoint{-\pgf@circ@res@left/3}{\pgf@circ@res@up}}
+            \pgfpathlineto{\pgfpoint{-\pgf@circ@res@left/3}{-\pgf@circ@res@up}}
+            \pgfpathlineto{\pgfpoint{\pgf@circ@res@left}{-\pgf@circ@res@up}}
+            \pgfusepath{draw}
+        \endpgfscope
+    }
+}
+
+\pgfdeclareshape{notcirc}{
+    \savedmacro{\ctikzclass}{\edef\ctikzclass{logic ports}}
+    \anchor{center}{\pgfpointorigin}
+    \savedanchor\northwest{%
+        \pgf@circ@notradius
+        \pgf@y=\pgf@circ@res@temp
+        \pgf@x=-\pgf@y
+    }
+    \anchor{center}{\pgf@y=0pt \pgf@x=0pt}
+    \anchor{right}{\northwest\pgf@y=0pt\pgf@x=-\pgf@x}
+    \anchor{east}{\northwest\pgf@y=0pt\pgf@x=-\pgf@x}
+    \anchor{e}{\northwest\pgf@y=0pt \pgf@x=-\pgf@x}
+    \anchor{left}{\northwest\pgf@y=0pt}
+    \anchor{west}{\northwest\pgf@y=0pt}
+    \anchor{w}{\northwest \pgf@y=0pt}
+    \anchor{south}{\northwest \pgf@x=0pt\pgf@y=-\pgf@y}
+    \anchor{s}{\northwest\pgf@x=0pt\pgf@y=-\pgf@y}
+    \anchor{north}{\northwest\pgf@x=0pt}
+    \anchor{n}{\northwest\pgf@x=0pt}
+    \anchor{south west}{\northwest\pgf@y=-\pgf@y}
+    \anchor{north east}{\northwest\pgf@x=-\pgf@x}
+    \anchor{north west}{\northwest}
+    \anchor{south east}{\northwest\pgf@x=-\pgf@x\pgf@y=-\pgf@y}
+    \anchorborder{
+        \pgf@circ@res@left=\pgf@x
+        \pgf@circ@res@up=\pgf@y
+        \northwest\pgf@circ@res@temp=\pgf@y
+        \pgfpointborderellipse{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@up}}%
+        {\pgfpoint{\pgf@circ@res@temp}{\pgf@circ@res@temp}}
+    }
+    \behindforegroundpath{
+        \pgfscope
+            \northwest\pgf@circ@res@temp=\pgf@y
+            \pgfsetcolor{\ctikzvalof{color}}
+            \pgf@circ@setlinewidth{tripoles}{\pgflinewidth}
+            \pgfpathcircle{\pgfpointorigin}{\pgf@circ@res@temp}
+            \ifx\tikz@fillcolor\pgfutil@empty
+                % set the default fill color to white
+                \pgfsetfillcolor{white}
+                % ...but override it if the class is defined!
+                \pgf@circ@setifdefinedfill{draw, fill}{draw, fill}
+            \else
+                \pgfsetfillcolor{\tikz@fillcolor}
+            \fi
+            \pgfsetfillopacity{\ctikzvalof{ieeestd ports/not radius fill}}% normally 1.0
+            \pgfusepath{draw,fill}
+        \endpgfscope
+    }
+}
+
+%%%% Transmission gates
+% tgates are only ieee style for now
+\tikzset{%
+    tgate/.style ={shape=ieee tgate},
+    double tgate/.style ={shape=ieee double tgate},
+}
+\ctikzset{tgate scale/.initial=0.7}
+% Buffer and inverters
+%
+% #1: name
+% #2: 1: one-not, 2:double-not
+% #3: content
+\long\def\pgfcircdeclareieeetgate#1#2#3{%
+    \pgfdeclareshape{ieee #1}%
+    {%
+        \savedmacro{\ctikzclass}{\edef\ctikzclass{logic ports}}
+        \saveddimen{\scaledRlen}{\pgfmathsetlength{\pgf@x}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}}
+        \savedmacro{\thisshape}{\def\thisshape{\tikz@fig@name}}
+        \saveddimen{\baselen}{%
+            \pgf@circ@ieeestd@baselen\pgf@x=\pgf@circ@res@temp
+        }
+        \saveddimen{\stdH}{% This is HALF the height of the inner port
+            \pgf@circ@ieeestd@stdH\pgf@x=\pgf@circ@res@temp
+        }
+        \saveddimen{\notdiameter}{
+            \pgf@circ@notradius\pgf@x=2\pgf@circ@res@temp
+        }
+        \saveddimen{\notradius}{
+            \pgf@circ@notradius\pgf@x=\pgf@circ@res@temp
+        }
+        \saveddimen{\pinlen}{%
+            \pgf@circ@ieeestd@pinlen\pgf@x=\pgf@circ@res@temp
+        }
+        % anchors for the body (no pins included here)
+        % Notice that 0.8660254 is cos(30)
+        \savedanchor{\bodyleft}{% This DOES NOT take into account the pointy or/xor thing
+            \pgf@circ@ieeestd@stdH
+            \pgfmathsetlength{\pgf@x}{-2*0.8660254*\pgf@circ@res@temp*\ctikzvalof{tgate scale}}
+            \pgfmathsetlength{\pgf@y}{#2*\pgf@circ@res@temp*\ctikzvalof{tgate scale}}
+        }
+        \savedanchor{\topleft}{%
+            \pgf@circ@ieeestd@stdH
+            \pgfmathsetlength{\pgf@x}{-2*0.8660254*\pgf@circ@res@temp*\ctikzvalof{tgate scale}}
+            \pgfmathsetlength{\pgf@y}{#2*\pgf@circ@res@temp*\ctikzvalof{tgate scale}}
+        }
+        \savedanchor{\bodyright}{%
+            \pgf@circ@ieeestd@stdH
+            \pgfmathsetlength{\pgf@x}{2*0.8660254*\pgf@circ@res@temp*\ctikzvalof{tgate scale}}
+            \pgfmathsetlength{\pgf@y}{#2*\pgf@circ@res@temp*\ctikzvalof{tgate scale}}
+        }
+        \savedanchor{\bottomright}{% Here it is the same as \bodyright
+            \pgf@circ@ieeestd@stdH
+            \pgfmathsetlength{\pgf@x}{2*0.8660254*\pgf@circ@res@temp*\ctikzvalof{tgate scale}}
+            \pgfmathsetlength{\pgf@y}{#2*\pgf@circ@res@temp*\ctikzvalof{tgate scale}}
+        }
+        % geographical anchors --- must be rectangulars!
+        \savedanchor{\northwest}{%
+            \pgf@circ@ieeestd@stdH
+            \pgfmathsetlength{\pgf@x}{-2*0.8660254*\pgf@circ@res@temp*\ctikzvalof{tgate scale}}
+            \pgfmathsetlength{\pgf@y}{#2*\pgf@circ@res@temp*\ctikzvalof{tgate scale}}
+        }
+        \savedanchor{\southwest}{%
+            \pgf@circ@ieeestd@stdH
+            \pgfmathsetlength{\pgf@x}{-2*0.8660254*\pgf@circ@res@temp*\ctikzvalof{tgate scale}}
+            \pgfmathsetlength{\pgf@y}{-#2*\pgf@circ@res@temp*\ctikzvalof{tgate scale}}
+        }
+        \savedanchor{\southeast}{%
+            \pgf@circ@ieeestd@stdH
+            \pgfmathsetlength{\pgf@x}{2*0.8660254*\pgf@circ@res@temp*\ctikzvalof{tgate scale}}
+            \pgfmathsetlength{\pgf@y}{-#2*\pgf@circ@res@temp*\ctikzvalof{tgate scale}}
+        }
+        \savedanchor{\northeast}{%
+            \pgf@circ@ieeestd@stdH
+            \pgfmathsetlength{\pgf@x}{2*0.8660254*\pgf@circ@res@temp*\ctikzvalof{tgate scale}}
+            \pgfmathsetlength{\pgf@y}{#2*\pgf@circ@res@temp*\ctikzvalof{tgate scale}}
+        }
+        \anchor{center}{\pgfpointorigin}
+        \anchor{text}{
+            \ifpgf@circ@center@text
+                \pgfpoint{-.5\wd\pgfnodeparttextbox}{\dimexpr.5\dp\pgfnodeparttextbox-.5\ht\pgfnodeparttextbox}
+            \else
+                \pgf@circ@ieeestd@stdH
+                \pgfpoint{-0.8660254*\pgf@circ@res@temp + \ctikzvalof{left text distance}}{\dimexpr.5\dp\pgfnodeparttextbox-.5\ht\pgfnodeparttextbox}
+            \fi
+        }
+        % input anchors
+        \anchor{in}{\bodyleft\pgf@y=0pt\advance\pgf@x by-\pinlen}
+        \anchor{in 1}{\bodyleft\pgf@y=0pt\advance\pgf@x by-\pinlen}
+        \anchor{bin}{\bodyleft\pgf@y=0pt\relax}
+        \anchor{bin 1}{\bodyleft\pgf@y=0pt\relax}
+        % gates
+        \anchor{gate}{\bodyleft\pgf@circ@res@up=\pgf@y
+            \pgf@x=0pt\pgfmathsetlength{\pgf@y}{-(#2-1)*0.5*\pgf@circ@res@up-\pinlen}}
+        \anchor{bgate}{\bodyleft\pgf@circ@res@up=\pgf@y
+            \pgf@x=0pt\pgfmathsetlength{\pgf@y}{-(#2-1)*0.5*\pgf@circ@res@up}}
+        % gate (up) (2.1547 = 1+1/cos(30)
+        \anchor{notgate}{\bodyleft\pgf@circ@res@up=\pgf@y
+            \pgf@x=0pt\relax
+            \pgfmathsetlength{\pgf@circ@res@temp}{2.1547*\notradius}
+            \ifdim\pinlen>\pgf@circ@res@temp
+                \pgfmathsetlength{\pgf@y}{(#2-1)*0.5*\pgf@circ@res@up+\pinlen}
+            \else
+                \pgf@y=\pgf@circ@res@temp
+            \fi
+        }
+        \anchor{bnotgate}{\bodyleft\pgf@circ@res@up=\pgf@y
+            \pgf@x=0pt\pgfmathsetlength{\pgf@y}{(#2-1)*0.5*\pgf@circ@res@up+2.1547*\notradius}}
+
+        % output anchors
+        \anchor{out}{%
+            \pgfextractx{\pgf@circ@res@other}{\bodyright}   %body border, without not ball
+            \advance\pgf@circ@res@other by\pinlen
+            \pgfextractx{\pgf@circ@res@temp}{\bottomright}   %body + ball border
+            \ifdim \pgf@circ@res@temp > \pgf@circ@res@other
+                \pgf@circ@res@other = \pgf@circ@res@temp % do not enter in the ball...
+            \fi
+            \pgf@x=\pgf@circ@res@other\pgf@y=0pt
+        }
+        \anchor{bout}{\bottomright\pgf@y=0pt}
+
+        \anchor{body right}{\bodyright\pgf@y=0pt}
+        \anchor{right}{\bottomright\pgf@y=0pt}
+        \anchor{body left}{\bodyleft\pgf@y=0pt}% central edge of the body
+        \anchor{left}{\bodyleft\pgf@y=0pt}
+        \anchor{up}{%
+            \bodyleft
+            \pgf@x=0pt
+            \ifnum#2=1\relax
+                \pgf@y=0pt
+            \else
+                \pgf@y=.5\pgf@y
+            \fi
+            \advance\pgf@y by \notdiameter
+        }
+        \anchor{down}{%
+            \bodyleft
+            \pgf@x=0pt
+            \ifnum#2=1\relax
+                \pgf@y=0pt
+            \else
+                \pgf@y=-.5\pgf@y
+            \fi
+        }
+        % this is for when it's used as a bipole
+        % we use the enclosing rectangle (see below)
+        \anchorborder{%
+            %
+            % this is the square border to position the path label with a bit of horizontal space
+            %
+            \pgf@xa=\pgf@x
+            \pgf@ya=\pgf@y
+            \pgfextracty{\pgf@circ@res@up}{\bodyleft}
+            \pgfextractx{\pgf@circ@res@left}{\bodyleft}
+            \pgfpointborderrectangle{\pgfpoint{\pgf@xa}{\pgf@ya}}
+                {\pgfpoint{-\pgf@circ@res@left}{\pgf@circ@res@up}}
+        }
+        % geographical anchors
+        \anchor{nw}{\northwest}
+        \anchor{ne}{\northeast}
+        \anchor{se}{\southeast}
+        \anchor{sw}{\southwest}
+        \anchor{north west}{\northwest}
+        \anchor{north east}{\northeast}
+        \anchor{south east}{\southeast}
+        \anchor{south west}{\southwest}
+        % over 0,0 even if asymmetric
+        % will break if the geocoords are not rectangular
+        \anchor{n}{\northwest\pgf@x=0pt\relax}
+        \anchor{e}{\northeast\pgf@y=0pt\relax}
+        \anchor{s}{\southwest\pgf@x=0pt\relax}
+        \anchor{w}{\northwest\pgf@y=0pt\relax}
+        \anchor{north}{\northwest\pgf@x=0pt\relax}
+        \anchor{east}{\northeast\pgf@y=0pt\relax}
+        \anchor{south}{\southwest\pgf@x=0pt\relax}
+        \anchor{west}{\northwest\pgf@y=0pt\relax}
+
+        \backgroundpath{
+            \pgfscope
+                \pgfsetcolor{\ctikzvalof{color}}
+                \pgfextractx{\pgf@circ@res@left}{\bodyleft}
+                \pgfextracty{\pgf@circ@res@up}{\bodyleft}
+                \pgfextractx{\pgf@circ@res@right}{\bodyright}
+                % \draw input pins
+                \ifpgfcirc@draw@input@leads
+                    \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{0pt}}
+                    \pgfpathlineto{\pgfpoint{\pgf@circ@res@left-\pinlen}{0pt}}
+                    % gate (down)
+                    \pgfpathmoveto{\pgfpoint{0pt}{-(#2-1)*0.5*\pgf@circ@res@up}}
+                    \pgfpathlineto{\pgfpoint{0pt}{-(#2-1)*0.5*\pgf@circ@res@up-\pinlen}}
+                    % gate (up) (2.1547 = 1+1/cos(30)
+                    \pgfmathsetlength{\pgf@circ@res@temp}{2.1547*\notradius}
+                    \ifdim\pinlen>\pgf@circ@res@temp
+                        \pgfpathmoveto{\pgfpoint{0pt}{(#2-1)*0.5*\pgf@circ@res@up+\pgf@circ@res@temp}}
+                        \pgfpathlineto{\pgfpoint{0pt}{(#2-1)*0.5*\pgf@circ@res@up+\pinlen}}
+                    \fi
+                    \pgfusepath{draw}
+                \fi
+                #3
+            \endpgfscope
+            % output lead:
+            \pgfextractx{\pgf@circ@res@right}{\bottomright} %body+ball border
+            \pgfextractx{\pgf@circ@res@other}{\bodyright}   %body border, without "not" ball
+            \advance\pgf@circ@res@other by \pinlen\relax
+            \ifdim \pgf@circ@res@other > \pgf@circ@res@right
+                \ifpgfcirc@draw@output@leads
+                    \pgfpathmoveto{\pgfpoint{\pgf@circ@res@right}{0pt}}
+                    \pgfpathlineto{\pgfpoint{\pgf@circ@res@other}{0pt}}
+                    \pgfusepath{draw}
+                \fi
+            \fi
+        }
+    }
+}
+
+\pgfcircdeclareieeetgate{tgate}{1}{%
+    \pgfscope
+        \pgf@circ@setlinewidth{tripoles}{\pgflinewidth}
+        \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@up}}
+        \pgfpathlineto{\pgfpoint{0pt}{0pt}}
+        \pgfpathlineto{\pgfpoint{\pgf@circ@res@left}{-\pgf@circ@res@up}}
+        \pgfpathclose
+        \pgf@circ@draworfill
+        \pgfpathmoveto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@up}}
+        \pgfpathlineto{\pgfpoint{0pt}{0pt}}
+        \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{-\pgf@circ@res@up}}
+        \pgfpathclose
+        \pgf@circ@draworfill
+    \endpgfscope
+    \pgfscope
+        % 1.1547 is 1/cos(30)
+        \pgftransformshift{\pgfpoint{0pt}{1.1547*\notradius}}
+        \pgfnode{notcirc}{center}{}{\thisshape-not}{\pgfusepath{stroke}}
+    \endpgfscope
+}
+
+\pgfcircdeclareieeetgate{double tgate}{2}{%
+    \pgfscope
+        \pgf@circ@setlinewidth{tripoles}{\pgflinewidth}
+        \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@up}}
+        \pgfpathlineto{\pgfpoint{0pt}{.5\pgf@circ@res@up}}
+        \pgfpathlineto{\pgfpoint{\pgf@circ@res@left}{0pt}}
+        \pgfpathclose
+        \pgf@circ@draworfill
+        \pgfpathmoveto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@up}}
+        \pgfpathlineto{\pgfpoint{0pt}{.5\pgf@circ@res@up}}
+        \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{0pt}}
+        \pgfpathclose
+        \pgf@circ@draworfill
+        % bottom triangles
+        \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{-\pgf@circ@res@up}}
+        \pgfpathlineto{\pgfpoint{0pt}{-.5\pgf@circ@res@up}}
+        \pgfpathlineto{\pgfpoint{\pgf@circ@res@left}{0pt}}
+        \pgfpathclose
+        \pgf@circ@draworfill
+        \pgfpathmoveto{\pgfpoint{\pgf@circ@res@right}{-\pgf@circ@res@up}}
+        \pgfpathlineto{\pgfpoint{0pt}{-.5\pgf@circ@res@up}}
+        \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{0pt}}
+        \pgfpathclose
+        \pgf@circ@draworfill
+    \endpgfscope
+    \pgfscope
+        % 1.1547 is 1/cos(30)
+        \pgftransformshift{\pgfpoint{0pt}{.5*\pgf@circ@res@up+1.1547*\notradius}}
+        \pgfnode{notcirc}{center}{}{\thisshape-not}{\pgfusepath{stroke}}
+    \endpgfscope
+}% %>>>
+
+%% Path-style definitions for logical ports%<<<
+%
+% create path-style element for one input --- one output logical ports
+%
+\def\pgfcirc@port@node@to@path#1#2{%
+    %
+    % add a logic port path style component --- we need to suppress leads
+    % and use the correct center
+    %
+    \pgfcirc@node@to@path{#1}{#2}{/tikz/no leads, \circuitikzbasekey/logic ports origin=center}%
+}
+\pgfcirc@port@node@to@path{not port}{inline not}
+\pgfcirc@port@node@to@path{buffer port}{inline buffer}
+\pgfcirc@port@node@to@path{schmitt port}{inline schmitt}
+\pgfcirc@port@node@to@path{invschmitt port}{inline invschmitt}
+
+\pgfcirc@port@node@to@path{tgate}{inline tgate}
+\pgfcirc@port@node@to@path{double tgate}{inline double tgate}
+% %>>>
 
 %%%%%%%%%%%%%%%%%%%%%%%%
 %% Transistors
 %%%%%%%%%%%%%%%%%%%%%%%%
+
+% Settings for Transistors %<<<1
+
+\newif\ifpgf@circuit@trans@depletiontype
+\pgf@circuit@trans@depletiontypefalse
+
+\newif\ifpgf@circuit@mos@arrows
+\ctikzset{tripoles/mos style/.is choice}
+\ctikzset{tripoles/mos style/no arrows/.code={\pgf@circuit@mos@arrowsfalse}}
+\ctikzset{tripoles/mos style/arrows/.code={\pgf@circuit@mos@arrowstrue}}
+\pgfkeys{/tikz/arrowmos/.add code={}{\pgf@circuit@mos@arrowstrue}}
+\pgfkeys{/tikz/noarrowmos/.add code={}{\pgf@circuit@mos@arrowsfalse}}
+
+% Fixed label positions
+\newif\ifpgf@circuit@transisors@fixlabels
+\pgf@circuit@transisors@fixlabelstrue
+\pgfkeys{/tikz/center transistors text/.add code={}{\pgf@circuit@transisors@fixlabelstrue}}
+\ctikzset{fix transistors text/.add code={}{\pgf@circuit@transisors@fixlabelstrue}}
+\pgfkeys{/tikz/legacy transistors text/.add code={}{\pgf@circuit@transisors@fixlabelsfalse}}
+\ctikzset{legacy transistors text/.add code={}{\pgf@circuit@transisors@fixlabelsfalse}}
+
+% Option solderdot for fet
+\newif\ifpgf@circuit@fet@solderdot
+\pgfkeys{/tikz/solderdot/.add code={}{\pgf@circuit@fet@solderdottrue}}
+\ctikzset{solderdot/.add code={}{\pgf@circuit@fet@solderdottrue}}
+\pgfkeys{/tikz/nosolderdot/.add code={}{\pgf@circuit@fet@solderdotfalse}}
+\ctikzset{nosolderdot/.add code={}{\pgf@circuit@fet@solderdotfalse}}
+
+% Option bodydiode for fet
+\newif\ifpgf@circuit@fet@bodydiode
+\pgfkeys{/tikz/bodydiode/.add code={}{\pgf@circuit@fet@bodydiodetrue}}
+\ctikzset{bodydiode/.add code={}{\pgf@circuit@fet@bodydiodetrue}}
+\pgfkeys{/tikz/nobodydiode/.add code={}{\pgf@circuit@fet@bodydiodefalse}}
+\ctikzset{nobodydiode/.add code={}{\pgf@circuit@fet@bodydiodefalse}}
+
+% Option draw fet without gate connection
+\newif\ifpgf@circuit@bpt@drawgate
+\pgf@circuit@bpt@drawgatetrue
+\pgfkeys{/tikz/nogate/.add code={}{\pgf@circuit@bpt@drawgatefalse}}
+\ctikzset{nogate/.add code={}{\pgf@circuit@bpt@drawgatefalse}}
+\pgfkeys{/tikz/nobase/.add code={}{\pgf@circuit@bpt@drawgatefalse}}
+\ctikzset{nobase/.add code={}{\pgf@circuit@bpt@drawgatefalse}}
+
+% Option draw bpt with schottky base
+\newif\ifpgf@circuit@bpt@schottky
+\pgf@circuit@bpt@schottkyfalse
+\pgfkeys{/tikz/schottky base/.add code={}{\pgf@circuit@bpt@schottkytrue}}
+\ctikzset{schottky base/.add code={}{\pgf@circuit@bpt@schottkytrue}}
+\pgfkeys{/tikz/no schottky base/.add code={}{\pgf@circuit@bpt@schottkyfalse}}
+\ctikzset{no schottky base/.add code={}{\pgf@circuit@bpt@schottkyfalse}}
+\ctikzset{tripoles/schottky base size/.initial=0.05}
+
+% Option draw bpt without base connection
+\newif\ifpgf@circuit@bpt@drawbase
+\pgf@circuit@bpt@drawbasetrue
+\pgfkeys{/tikz/nobase/.add code={}{\pgf@circuit@bpt@drawbasefalse}}
+\ctikzset{nobase/.add code={}{\pgf@circuit@bpt@drawbasefalse}}
+\pgfkeys{/tikz/nogate/.add code={}{\pgf@circuit@bpt@drawbasefalse}}
+\ctikzset{nogate/.add code={}{\pgf@circuit@bpt@drawbasefalse}}
+
+% Option draw bpt with optical input
+\newif\ifpgf@circuit@bpt@drawphoto
+\pgf@circuit@bpt@drawphotofalse
+\pgfkeys{/tikz/photo/.add code={}{\pgf@circuit@bpt@drawphototrue}}
+\ctikzset{photo/.add code={}{\pgf@circuit@bpt@drawphototrue}}
+\pgfkeys{/tikz/photo/.add code={}{\pgf@circuit@bpt@drawphototrue}}
+\ctikzset{photo/.add code={}{\pgf@circuit@bpt@drawphototrue}}
+
+% Option draw fet without bulk connection -- Added by Burak Kelleci
+\newif\ifpgf@circuit@bpt@drawbulk
+\pgfkeys{/tikz/bulk/.add code={}{\pgf@circuit@bpt@drawbulktrue}}
+\ctikzset{bulk/.add code={}{\pgf@circuit@bpt@drawbulktrue}}
+\pgfkeys{/tikz/nobulk/.add code={}{\pgf@circuit@bpt@drawbulkfalse}}
+\ctikzset{nobulk/.add code={}{\pgf@circuit@bpt@drawbulkfalse}}
+
+% Option draw pmos with empty circle
+\newif\ifpgf@circuit@pmos@emptycircle
+\pgf@circuit@pmos@emptycirclefalse
+\ctikzset{tripoles/pmos style/.is choice}
+\pgfkeys{/tikz/emptycircle/.add code={}{\pgf@circuit@pmos@emptycircletrue}}
+\ctikzset{tripoles/pmos style/emptycircle/.add code={}{\pgf@circuit@pmos@emptycircletrue}}
+% Option draw pmos with no circle
+\newif\ifpgf@circuit@pmos@nocircle
+\pgf@circuit@pmos@nocirclefalse
+\pgfkeys{/tikz/nocircle/.add code={}{\pgf@circuit@pmos@nocircletrue}}
+\ctikzset{tripoles/pmos style/nocircle/.add code={}{\pgf@circuit@pmos@nocircletrue}}
+% back to normal
+\pgfkeys{/tikz/fullcircle/.add code={}{\pgf@circuit@pmos@emptycirclefalse\pgf@circuit@pmos@nocirclefalse}}
+\ctikzset{tripoles/pmos style/fullcircle/.add code={}{\pgf@circuit@pmos@emptycirclefalse\pgf@circuit@pmos@nocirclefalse}}
+% arrows at the end, the correct way
+\newif\ifpgf@circuit@trans@arrowatend
+\pgf@circuit@trans@arrowatendfalse
+\ctikzset{transistors/arrow pos/.is choice}
+\ctikzset{transistors/arrow pos/legacy/.code={\pgf@circuit@trans@arrowatendfalse}}
+\ctikzset{transistors/arrow pos/end/.code={\pgf@circuit@trans@arrowatendtrue}}
+
+\newif\ifpgf@circuit@trans@ntype
+\pgf@circuit@trans@ntypetrue %default true
+%\newif\ifpgf@circuit@trans@ptype
+%\ctikzset{tripoles/nmos/.add code={\pgf@circuit@trans@ntypetrue}}
+\ctikzset{tripoles/nmos/width/.initial=.7}
+\ctikzset{tripoles/nmos/gate height/.initial=.35}
+\ctikzset{tripoles/nmos/base height/.initial=.5}
+\ctikzset{tripoles/nmos/conn height/.initial=0}
+\ctikzset{tripoles/nmos/height/.initial=1.1}
+\ctikzset{tripoles/nmos/base width/.initial=.5}
+\ctikzset{tripoles/nmos/gate width/.initial=.62}
+\ctikzset{tripoles/nmos/arrow pos/.initial=.6}
+\ctikzset{tripoles/nmos/bodydiode scale/.initial=.3}
+\ctikzset{tripoles/nmos/bodydiode distance/.initial=.3}
+\ctikzset{tripoles/nmos/bodydiode conn/.initial=.6}
+\ctikzset{tripoles/nmos/curr direction/.initial=1}
+
+\ctikzset{tripoles/pmos/width/.initial=.7}
+\ctikzset{tripoles/pmos/gate height/.initial=.35}
+\ctikzset{tripoles/pmos/base height/.initial=.5}
+\ctikzset{tripoles/pmos/conn height/.initial=0}
+\ctikzset{tripoles/pmos/height/.initial=1.1}
+\ctikzset{tripoles/pmos/base width/.initial=.5}
+\ctikzset{tripoles/pmos/gate width/.initial=.62}
+\ctikzset{tripoles/pmos/arrow pos/.initial=.4}
+\ctikzset{tripoles/pmos/bodydiode scale/.initial=.3}
+\ctikzset{tripoles/pmos/bodydiode distance/.initial=.3}
+\ctikzset{tripoles/pmos/bodydiode conn/.initial=.6}
+\ctikzset{tripoles/pmos/curr direction/.initial=-1}
+
+\ctikzset{tripoles/nmosd/width/.initial=.7}
+\ctikzset{tripoles/nmosd/gate height/.initial=.35}
+\ctikzset{tripoles/nmosd/base height/.initial=.5}
+\ctikzset{tripoles/nmosd/conn height/.initial=0}
+\ctikzset{tripoles/nmosd/height/.initial=1.1}
+\ctikzset{tripoles/nmosd/base width/.initial=.5}
+\ctikzset{tripoles/nmosd/gate width/.initial=.62}
+\ctikzset{tripoles/nmosd/arrow pos/.initial=.6}
+\ctikzset{tripoles/nmosd/bodydiode scale/.initial=.3}
+\ctikzset{tripoles/nmosd/bodydiode distance/.initial=.3}
+\ctikzset{tripoles/nmosd/bodydiode conn/.initial=.6}
+\ctikzset{tripoles/nmosd/curr direction/.initial=1}
+\ctikzset{tripoles/nmosd/depletion width/.initial=.1}
+\ctikzset{tripoles/nmosd/depletion color/.initial=default}
+
+\ctikzset{tripoles/pmosd/width/.initial=.7}
+\ctikzset{tripoles/pmosd/gate height/.initial=.35}
+\ctikzset{tripoles/pmosd/base height/.initial=.5}
+\ctikzset{tripoles/pmosd/conn height/.initial=0}
+\ctikzset{tripoles/pmosd/height/.initial=1.1}
+\ctikzset{tripoles/pmosd/base width/.initial=.5}
+\ctikzset{tripoles/pmosd/gate width/.initial=.62}
+\ctikzset{tripoles/pmosd/arrow pos/.initial=.4}
+\ctikzset{tripoles/pmosd/bodydiode scale/.initial=.3}
+\ctikzset{tripoles/pmosd/bodydiode distance/.initial=.3}
+\ctikzset{tripoles/pmosd/bodydiode conn/.initial=.6}
+\ctikzset{tripoles/pmosd/curr direction/.initial=-1}
+\ctikzset{tripoles/pmosd/depletion width/.initial=.1}
+\ctikzset{tripoles/pmosd/depletion color/.initial=default}
+\ctikzset{tripoles/hemt/width/.initial=.7}
+\ctikzset{tripoles/hemt/gate height/.initial=.35}
+\ctikzset{tripoles/hemt/base height/.initial=.5}
+\ctikzset{tripoles/hemt/conn height/.initial=0}
+\ctikzset{tripoles/hemt/height/.initial=1.1}
+\ctikzset{tripoles/hemt/base width/.initial=.5}
+\ctikzset{tripoles/hemt/gate width/.initial=.62}
+\ctikzset{tripoles/hemt/bodydiode scale/.initial=.3}
+\ctikzset{tripoles/hemt/bodydiode distance/.initial=.3}
+\ctikzset{tripoles/hemt/bodydiode conn/.initial=.6}
+\ctikzset{tripoles/hemt/curr direction/.initial=1}
+
+\ctikzset{tripoles/nfet/width/.initial=.7}
+\ctikzset{tripoles/nfet/gate height/.initial=.35}
+\ctikzset{tripoles/nfet/base height/.initial=.5}
+\ctikzset{tripoles/nfet/conn height/.initial=0}
+\ctikzset{tripoles/nfet/height/.initial=1.1}
+\ctikzset{tripoles/nfet/base width/.initial=.5}
+\ctikzset{tripoles/nfet/gate width/.initial=.62}
+\ctikzset{tripoles/nfet/bodydiode scale/.initial=.3}
+\ctikzset{tripoles/nfet/bodydiode distance/.initial=.3}
+\ctikzset{tripoles/nfet/bodydiode conn/.initial=.6}
+\ctikzset{tripoles/nfet/curr direction/.initial=1}
+
+\ctikzset{tripoles/pfet/width/.initial=.7}
+\ctikzset{tripoles/pfet/gate height/.initial=.35}
+\ctikzset{tripoles/pfet/base height/.initial=.5}
+\ctikzset{tripoles/pfet/conn height/.initial=0}
+\ctikzset{tripoles/pfet/height/.initial=1.1}
+\ctikzset{tripoles/pfet/base width/.initial=.5}
+\ctikzset{tripoles/pfet/gate width/.initial=.62}
+\ctikzset{tripoles/pfet/bodydiode scale/.initial=.3}
+\ctikzset{tripoles/pfet/bodydiode distance/.initial=.3}
+\ctikzset{tripoles/pfet/bodydiode conn/.initial=.6}
+\ctikzset{tripoles/pfet/curr direction/.initial=-1}
+
+\ctikzset{tripoles/nfetd/width/.initial=.7}
+\ctikzset{tripoles/nfetd/gate height/.initial=.35}
+\ctikzset{tripoles/nfetd/base height/.initial=.5}
+\ctikzset{tripoles/nfetd/conn height/.initial=0}
+\ctikzset{tripoles/nfetd/height/.initial=1.1}
+\ctikzset{tripoles/nfetd/base width/.initial=.5}
+\ctikzset{tripoles/nfetd/gate width/.initial=.62}
+\ctikzset{tripoles/nfetd/bodydiode scale/.initial=.3}
+\ctikzset{tripoles/nfetd/bodydiode distance/.initial=.3}
+\ctikzset{tripoles/nfetd/bodydiode conn/.initial=.6}
+\ctikzset{tripoles/nfetd/curr direction/.initial=1}
+
+\ctikzset{tripoles/pfetd/width/.initial=.7}
+\ctikzset{tripoles/pfetd/gate height/.initial=.35}
+\ctikzset{tripoles/pfetd/base height/.initial=.5}
+\ctikzset{tripoles/pfetd/conn height/.initial=0}
+\ctikzset{tripoles/pfetd/height/.initial=1.1}
+\ctikzset{tripoles/pfetd/base width/.initial=.5}
+\ctikzset{tripoles/pfetd/gate width/.initial=.62}
+\ctikzset{tripoles/pfetd/bodydiode scale/.initial=.3}
+\ctikzset{tripoles/pfetd/bodydiode distance/.initial=.3}
+\ctikzset{tripoles/pfetd/bodydiode conn/.initial=.6}
+\ctikzset{tripoles/pfetd/curr direction/.initial=-1}
+
+\ctikzset{tripoles/nigfete/width/.initial=.7}
+\ctikzset{tripoles/nigfete/gate height/.initial=.35}
+\ctikzset{tripoles/nigfete/base height/.initial=.5}
+\ctikzset{tripoles/nigfete/conn height/.initial=.35}
+\ctikzset{tripoles/nigfete/height/.initial=1.1}
+\ctikzset{tripoles/nigfete/base width/.initial=.5}
+\ctikzset{tripoles/nigfete/gate width/.initial=.62}
+\ctikzset{tripoles/nigfete/bodydiode scale/.initial=.3}
+\ctikzset{tripoles/nigfete/bodydiode distance/.initial=.3}
+\ctikzset{tripoles/nigfete/bodydiode conn/.initial=.6}
+\ctikzset{tripoles/nigfete/curr direction/.initial=1}
+
+\ctikzset{tripoles/nigfetd/width/.initial=.7}
+\ctikzset{tripoles/nigfetd/gate height/.initial=.35}
+\ctikzset{tripoles/nigfetd/base height/.initial=.5}
+\ctikzset{tripoles/nigfetd/conn height/.initial=.35}
+\ctikzset{tripoles/nigfetd/height/.initial=1.1}
+\ctikzset{tripoles/nigfetd/base width/.initial=.5}
+\ctikzset{tripoles/nigfetd/gate width/.initial=.62}
+\ctikzset{tripoles/nigfetd/bodydiode scale/.initial=.3}
+\ctikzset{tripoles/nigfetd/bodydiode distance/.initial=.3}
+\ctikzset{tripoles/nigfetd/bodydiode conn/.initial=.6}
+\ctikzset{tripoles/nigfetd/curr direction/.initial=1}
+
+\ctikzset{tripoles/nigfetebulk/width/.initial=.7}
+\ctikzset{tripoles/nigfetebulk/gate height/.initial=.35}
+\ctikzset{tripoles/nigfetebulk/base height/.initial=.5}
+\ctikzset{tripoles/nigfetebulk/conn height/.initial=.35}
+\ctikzset{tripoles/nigfetebulk/height/.initial=1.1}
+\ctikzset{tripoles/nigfetebulk/base width/.initial=.5}
+\ctikzset{tripoles/nigfetebulk/gate width/.initial=.62}
+\ctikzset{tripoles/nigfetebulk/bodydiode scale/.initial=.3}
+\ctikzset{tripoles/nigfetebulk/bodydiode distance/.initial=.3}
+\ctikzset{tripoles/nigfetebulk/bodydiode conn/.initial=.6}
+\ctikzset{tripoles/nigfetebulk/curr direction/.initial=1}
+
+\ctikzset{tripoles/pigfete/width/.initial=.7}
+\ctikzset{tripoles/pigfete/gate height/.initial=.35}
+\ctikzset{tripoles/pigfete/base height/.initial=.5}
+\ctikzset{tripoles/pigfete/conn height/.initial=.35}
+\ctikzset{tripoles/pigfete/height/.initial=1.1}
+\ctikzset{tripoles/pigfete/base width/.initial=.5}
+\ctikzset{tripoles/pigfete/gate width/.initial=.62}
+\ctikzset{tripoles/pigfete/bodydiode scale/.initial=.3}
+\ctikzset{tripoles/pigfete/bodydiode distance/.initial=.3}
+\ctikzset{tripoles/pigfete/bodydiode conn/.initial=.6}
+\ctikzset{tripoles/pigfete/curr direction/.initial=-1}
+
+\ctikzset{tripoles/pigfetd/width/.initial=.7}
+\ctikzset{tripoles/pigfetd/gate height/.initial=.35}
+\ctikzset{tripoles/pigfetd/base height/.initial=.5}
+\ctikzset{tripoles/pigfetd/conn height/.initial=.35}
+\ctikzset{tripoles/pigfetd/height/.initial=1.1}
+\ctikzset{tripoles/pigfetd/base width/.initial=.5}
+\ctikzset{tripoles/pigfetd/gate width/.initial=.62}
+\ctikzset{tripoles/pigfetd/bodydiode scale/.initial=.3}
+\ctikzset{tripoles/pigfetd/bodydiode distance/.initial=.3}
+\ctikzset{tripoles/pigfetd/bodydiode conn/.initial=.6}
+\ctikzset{tripoles/pigfetd/curr direction/.initial=-1}
+
+\ctikzset{tripoles/pigfetebulk/width/.initial=.7}
+\ctikzset{tripoles/pigfetebulk/gate height/.initial=.35}
+\ctikzset{tripoles/pigfetebulk/conn height/.initial=.35}
+\ctikzset{tripoles/pigfetebulk/base height/.initial=.5}
+\ctikzset{tripoles/pigfetebulk/height/.initial=1.1}
+\ctikzset{tripoles/pigfetebulk/base width/.initial=.5}
+\ctikzset{tripoles/pigfetebulk/gate width/.initial=.62}
+\ctikzset{tripoles/pigfetebulk/bodydiode scale/.initial=.3}
+\ctikzset{tripoles/pigfetebulk/bodydiode distance/.initial=.3}
+\ctikzset{tripoles/pigfetebulk/bodydiode conn/.initial=.6}
+\ctikzset{tripoles/pigfetebulk/curr direction/.initial=-1}
+
+\ctikzset{tripoles/npn/width/.initial=.6}
+\ctikzset{tripoles/npn/base height/.initial=.45}
+\ctikzset{tripoles/npn/base height 2/.initial=.15}
+\ctikzset{tripoles/npn/base height/.initial=.4}
+\ctikzset{tripoles/npn/conn height/.initial=0}
+\ctikzset{tripoles/npn/height/.initial=1.1}
+\ctikzset{tripoles/npn/base width/.initial=.5}
+\ctikzset{tripoles/npn/arrow pos/.initial=.5}
+\ctikzset{tripoles/npn/bodydiode scale/.initial=.3}
+\ctikzset{tripoles/npn/bodydiode distance/.initial=.3}
+\ctikzset{tripoles/npn/bodydiode conn/.initial=.6}
+\ctikzset{tripoles/npn/curr direction/.initial=1}
+
+\ctikzset{tripoles/pnp/width/.initial=.6}
+\ctikzset{tripoles/pnp/base height/.initial=.45}
+\ctikzset{tripoles/pnp/base height 2/.initial=.15}
+\ctikzset{tripoles/pnp/base height/.initial=.4}
+\ctikzset{tripoles/pnp/conn height/.initial=0}
+\ctikzset{tripoles/pnp/height/.initial=1.1}
+\ctikzset{tripoles/pnp/base width/.initial=.5}
+\ctikzset{tripoles/pnp/arrow pos/.initial=.5}
+\ctikzset{tripoles/pnp/bodydiode scale/.initial=.3}
+\ctikzset{tripoles/pnp/bodydiode distance/.initial=.3}
+\ctikzset{tripoles/pnp/bodydiode conn/.initial=.6}
+\ctikzset{tripoles/pnp/curr direction/.initial=-1}
+
+\ctikzset{tripoles/pigbt/width/.initial=.6}
+\ctikzset{tripoles/pigbt/gate height/.initial=.45}
+\ctikzset{tripoles/pigbt/gate height 2/.initial=.15}
+\ctikzset{tripoles/pigbt/base height/.initial=.4}
+\ctikzset{tripoles/pigbt/outer base height/.initial=.4}
+\ctikzset{tripoles/pigbt/outer base thickness/.initial=1}
+\ctikzset{tripoles/pigbt/conn height/.initial=0}
+\ctikzset{tripoles/pigbt/height/.initial=1.1}
+\ctikzset{tripoles/pigbt/gate width/.initial=.62}
+\ctikzset{tripoles/pigbt/base width/.initial=.5}
+\ctikzset{tripoles/pigbt/bodydiode scale/.initial=.3}
+\ctikzset{tripoles/pigbt/bodydiode distance/.initial=.3}
+\ctikzset{tripoles/pigbt/bodydiode conn/.initial=.6}
+\ctikzset{tripoles/pigbt/curr direction/.initial=-1}
+
+\ctikzset{tripoles/nigbt/width/.initial=.6}
+\ctikzset{tripoles/nigbt/gate height/.initial=.45}
+\ctikzset{tripoles/nigbt/gate height 2/.initial=.15}
+\ctikzset{tripoles/nigbt/base height/.initial=.4}
+\ctikzset{tripoles/nigbt/outer base height/.initial=.4}
+\ctikzset{tripoles/nigbt/outer base thickness/.initial=1}
+\ctikzset{tripoles/nigbt/conn height/.initial=0}
+\ctikzset{tripoles/nigbt/height/.initial=1.1}
+\ctikzset{tripoles/nigbt/gate width/.initial=.62}
+\ctikzset{tripoles/nigbt/base width/.initial=.5}
+\ctikzset{tripoles/nigbt/bodydiode scale/.initial=.3}
+\ctikzset{tripoles/nigbt/bodydiode distance/.initial=.3}
+\ctikzset{tripoles/nigbt/bodydiode conn/.initial=.6}
+\ctikzset{tripoles/nigbt/curr direction/.initial=1}
+
+\ctikzset{tripoles/Lpigbt/width/.initial=.6}
+\ctikzset{tripoles/Lpigbt/gate height/.initial=.45}
+\ctikzset{tripoles/Lpigbt/gate height 2/.initial=.15}
+\ctikzset{tripoles/Lpigbt/base height/.initial=.4}
+\ctikzset{tripoles/Lpigbt/outer base height/.initial=.4}
+\ctikzset{tripoles/Lpigbt/outer base thickness/.initial=1}
+\ctikzset{tripoles/Lpigbt/conn height/.initial=.4}
+\ctikzset{tripoles/Lpigbt/height/.initial=1.1}
+\ctikzset{tripoles/Lpigbt/gate width/.initial=.62}
+\ctikzset{tripoles/Lpigbt/base width/.initial=.5}
+\ctikzset{tripoles/Lpigbt/bodydiode scale/.initial=.3}
+\ctikzset{tripoles/Lpigbt/bodydiode distance/.initial=.3}
+\ctikzset{tripoles/Lpigbt/bodydiode conn/.initial=.6}
+\ctikzset{tripoles/Lpigbt/curr direction/.initial=-1}
+
+\ctikzset{tripoles/Lnigbt/width/.initial=.6}
+\ctikzset{tripoles/Lnigbt/gate height/.initial=.45}
+\ctikzset{tripoles/Lnigbt/gate height 2/.initial=.15}
+\ctikzset{tripoles/Lnigbt/base height/.initial=.4}
+\ctikzset{tripoles/Lnigbt/outer base height/.initial=.4}
+\ctikzset{tripoles/Lnigbt/outer base thickness/.initial=1}
+\ctikzset{tripoles/Lnigbt/conn height/.initial=.4}
+\ctikzset{tripoles/Lnigbt/height/.initial=1.1}
+\ctikzset{tripoles/Lnigbt/gate width/.initial=.62}
+\ctikzset{tripoles/Lnigbt/base width/.initial=.5}
+\ctikzset{tripoles/Lnigbt/bodydiode scale/.initial=.3}
+\ctikzset{tripoles/Lnigbt/bodydiode distance/.initial=.3}
+\ctikzset{tripoles/Lnigbt/bodydiode conn/.initial=.6}
+\ctikzset{tripoles/Lnigbt/curr direction/.initial=1}
+
+\ctikzset{tripoles/igbt/outer base height/.code={
+    \ctikzset{tripoles/nigbt/outer base height/.initial=#1}
+    \ctikzset{tripoles/pigbt/outer base height/.initial=#1}
+    \ctikzset{tripoles/Lnigbt/outer base height/.initial=#1}
+    \ctikzset{tripoles/Lpigbt/outer base height/.initial=#1}
+    \ctikzset{tripoles/Lnigbt/conn height/.initial=#1}
+    \ctikzset{tripoles/Lpigbt/conn height/.initial=#1}
+}}
+\ctikzset{tripoles/igbt/outer base thickness/.code={
+    \ctikzset{tripoles/nigbt/outer base thickness=#1}
+    \ctikzset{tripoles/pigbt/outer base thickness=#1}
+    \ctikzset{tripoles/Lnigbt/outer base thickness=#1}
+    \ctikzset{tripoles/Lpigbt/outer base thickness=#1}
+}}
+
+\ctikzset{tripoles/njfet/width/.initial=.7}
+\ctikzset{tripoles/njfet/gate height/.initial=.5}
+\ctikzset{tripoles/njfet/gate height 2/.initial=.35}
+\ctikzset{tripoles/njfet/gate width/.initial=.5}
+\ctikzset{tripoles/njfet/conn height/.initial=.35}
+\ctikzset{tripoles/njfet/height/.initial=1.1}
+\ctikzset{tripoles/njfet/bodydiode scale/.initial=.3}
+\ctikzset{tripoles/njfet/bodydiode distance/.initial=.3}
+\ctikzset{tripoles/njfet/bodydiode conn/.initial=.6}
+\ctikzset{tripoles/njfet/curr direction/.initial=1}
+
+\ctikzset{tripoles/pjfet/width/.initial=.7}
+\ctikzset{tripoles/pjfet/gate height/.initial=.5}
+\ctikzset{tripoles/pjfet/gate height 2/.initial=.35}
+\ctikzset{tripoles/pjfet/gate width/.initial=.5}
+\ctikzset{tripoles/pjfet/conn height/.initial=.35}
+\ctikzset{tripoles/pjfet/height/.initial=1.1}
+\ctikzset{tripoles/pjfet/bodydiode scale/.initial=.3}
+\ctikzset{tripoles/pjfet/bodydiode distance/.initial=.3}
+\ctikzset{tripoles/pjfet/bodydiode conn/.initial=.6}
+\ctikzset{tripoles/pjfet/curr direction/.initial=-1}
+
+\ctikzset{tripoles/isfet/width/.initial=1}
+\ctikzset{tripoles/isfet/gate height/.initial=.35}
+\ctikzset{tripoles/isfet/base height/.initial=.5}
+\ctikzset{tripoles/isfet/height/.initial=1.1}
+\ctikzset{tripoles/isfet/base width/.initial=.3}
+\ctikzset{tripoles/isfet/gate width/.initial=.5}
+\ctikzset{tripoles/isfet/conn height/.initial=0}
+\ctikzset{tripoles/isfet/wave width/.initial=.16}
+\ctikzset{tripoles/isfet/wave amp/.initial=.06}
+\ctikzset{tripoles/isfet/waves y sep/.initial=.22}
+\ctikzset{tripoles/isfet/waves x sep/.initial=.8}
+\ctikzset{tripoles/isfet/bodydiode scale/.initial=.3}
+\ctikzset{tripoles/isfet/bodydiode distance/.initial=.3}
+\ctikzset{tripoles/isfet/bodydiode conn/.initial=.6}
+\ctikzset{tripoles/isfet/curr direction/.initial=1}
+%
+% multi-emitter and multi-collector BJTs by Romano Giannetti
+%
+\ctikzset{tripoles/bjt/emitters/.initial=1}
+\ctikzset{tripoles/bjt/collectors/.initial=1}
+\pgfkeys{/tikz/emitters/.add code={}{\ctikzset{tripoles/bjt/emitters=#1}}}
+\pgfkeys{/tikz/collectors/.add code={}{\ctikzset{tripoles/bjt/collectors=#1}}}
+\ctikzset{tripoles/bjt/pins width/.initial=0.3}
+\pgfkeys{/tikz/bjt pins width/.add code={}{\ctikzset{tripoles/bjt/pins width=#1}}}
+\ctikzset{tripoles/bjt/multi height/.initial=.5}
+\pgfkeys{/tikz/bjt multi height/.add code={}{\ctikzset{tripoles/bjt/multi height/.initial=#1}}}
+%
+\ctikzset{tripoles/bjt/width/.initial=.3}
+\ctikzset{tripoles/bjt/base height 2/.initial=.4}
+\ctikzset{tripoles/bjt/base height/.initial=1.1}
+\ctikzset{tripoles/bjt/height/.initial=.4}
+\ctikzset{tripoles/bjt/base width/.initial=1}
+\ctikzset{tripoles/bjt/arrow pos/.initial=.5}
+% do NOT touch these two!
+\ctikzset{tripoles/bjt/npn/curr direction/.initial=1}
+\ctikzset{tripoles/bjt/pnp/curr direction/.initial=-1}
+
 
 %
 % definitions for transistor circles
@@ -1587,6 +3293,9 @@
 \newif\ifpgf@circ@trcircle\pgf@circ@trcirclefalse
 \ctikzset{tr circle/.is if=pgf@circ@trcircle}
 \tikzset{tr circle/.is if=pgf@circ@trcircle}
+%%>>>
+
+%% definitions of transistor shapes%<<<
 %
 % add a circle to the transistor:
 %
@@ -3565,63 +5274,161 @@
 }
 
 % end of transistors
+% %>>>
 
-%%%%%%%%%%%%%
-%% Switches
-%%%%%%%%%%%%%
+%% Transistor's path definitions%<<<
 
-\pgfcircdeclarebipole{
-	\anchor{out 1}{
-		\northeast
-		\pgf@y=0cm
-	}
-	\anchor{out 2}{
-		\northeast
-		\pgf@y=.8\pgf@y
-	}
-}
-{\ctikzvalof{tripoles/toggleswitch/height 2}}
-{toggleswitch}
-{\ctikzvalof{tripoles/toggleswitch/height}}
-{\ctikzvalof{tripoles/toggleswitch/width}}
-{
-
-    \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{0pt}}
-    \pgfpathlineto{\pgfpoint{.3\pgf@circ@res@left}{0pt}}
-    \pgfusepath{draw}
-    \pgfscope
-        \pgfpathmoveto{\pgfpoint{.3\pgf@circ@res@left}{0pt}}
-        \pgf@circ@setlinewidth{bipoles}{\pgfstartlinewidth}
-        \pgfpathlineto{\pgfpoint{.7\pgf@circ@res@right}{.5\pgf@circ@res@up}}
-        \pgfusepath{draw}
-    \endpgfscope
-
-    \pgfpathmoveto{\pgfpoint{\pgf@circ@res@right}{0pt}}
-    \pgfpathlineto{\pgfpoint{.5\pgf@circ@res@right}{0}}
-
-    \pgfpathmoveto{\pgfpoint{\pgf@circ@res@right}{.8\pgf@circ@res@up}}
-    \pgfpathlineto{\pgfpoint{.5\pgf@circ@res@right}{.8\pgf@circ@res@up}}
-    \pgfpathlineto{\pgfpoint{.5\pgf@circ@res@right}{.15\pgf@circ@res@up}}
-    \pgfusepath{draw}
-
-
-    \pgfpathmoveto{\pgfpoint{.2\pgf@circ@res@left}{\pgf@circ@res@up}}
-    \pgfpathlineto{\pgfpoint{.2\pgf@circ@res@right}{\pgf@circ@res@up}}
-    \pgfusepath{draw}
-
-    \pgfsetdash{{.08\pgf@circ@res@up}{.04\pgf@circ@res@up}{.7\pgf@circ@res@up}{.04\pgf@circ@res@up}{.8\pgf@circ@res@up}}{0cm}
-    \pgfpathmoveto{\pgfpoint{0}{\pgf@circ@res@up}}
-    \pgfpathlineto{\pgfpoint{0}{.8\pgf@circ@res@up}}
-    \pgfpathlineto{\pgfpoint{.2\pgf@circ@res@left}{.6\pgf@circ@res@up}}
-    \pgfpathlineto{\pgfpoint{0}{.4\pgf@circ@res@up}}
-    \pgfpathlineto{\pgfpoint{0}{.2\pgf@circ@res@up}}
-    \pgfusepath{draw}
-    \pgfsetdash{}{0cm}
-}
+\pgf@circ@definetranspath{nmos}
+\pgf@circ@definetranspath{pmos}
+\pgf@circ@definetranspath{nmosd}
+\pgf@circ@definetranspath{pmosd}
+\pgf@circ@definetranspath{hemt}
+\pgf@circ@definetranspath{npn}
+\pgf@circ@definetranspath{pnp}
+\pgf@circ@definetranspath{nfet}
+\pgf@circ@definetranspath{nigfete}
+\pgf@circ@definetranspath{nigfetd}
+\pgf@circ@definetranspath{nigfetebulk}
+\pgf@circ@definetranspath{pfet}
+\pgf@circ@definetranspath{pigfete}
+\pgf@circ@definetranspath{pigfetd}
+\pgf@circ@definetranspath{pigfetebulk}
+\pgf@circ@definetranspath{njfet}
+\pgf@circ@definetranspath{pjfet}
+\pgf@circ@definetranspath{pigbt}
+\pgf@circ@definetranspath{nigbt}
+\pgf@circ@definetranspath{Lpigbt}
+\pgf@circ@definetranspath{Lnigbt}% %>>>
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Amplifiers
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% Settings for Amplifiers%<<<1
+%
+% switches for op amps
+% changing input polarity
+%
+\newif\ifpgf@circuit@oa@iplusup\pgf@circuit@oa@iplusupfalse
+\pgfkeys{/tikz/noinv input up/.add code={}{\pgf@circuit@oa@iplusuptrue}}
+\ctikzset{noinv input up/.add code={}{\pgf@circuit@oa@iplusuptrue}}
+\pgfkeys{/tikz/noinv input down/.add code={}{\pgf@circuit@oa@iplusupfalse}}
+\ctikzset{noinv input down/.add code={}{\pgf@circuit@oa@iplusupfalse}}
+%
+% changing output polarity (for fully diff objects)
+%
+\newif\ifpgf@circuit@oa@oplusup\pgf@circuit@oa@oplusuptrue
+\pgfkeys{/tikz/noinv output up/.add code={}{\pgf@circuit@oa@oplusuptrue}}
+\ctikzset{noinv output up/.add code={}{\pgf@circuit@oa@oplusuptrue}}
+\pgfkeys{/tikz/noinv output down/.add code={}{\pgf@circuit@oa@oplusupfalse}}
+\ctikzset{noinv output down/.add code={}{\pgf@circuit@oa@oplusupfalse}}
+
+% Operational amplifier
+\ctikzset{tripoles/op amp/width/.initial=1.7}              % Total width
+\ctikzset{tripoles/op amp/port width/.initial=.7}          % Terminals length
+\ctikzset{tripoles/op amp/height/.initial=1.4}             % Total height
+\ctikzset{tripoles/op amp/input height/.initial=.5}        % Input port vertical separation
+\ctikzset{tripoles/op amp/up pos/.initial=.45}             % Top and bottom anchor position
+\ctikzset{tripoles/op amp/font/.initial=\pgf@circ@font@tenbm}  % Absolute font size needed!
+
+% Fully differential operational amplifier
+\ctikzset{tripoles/fd op amp/width/.initial=1.7}           % Total width
+\ctikzset{tripoles/fd op amp/port width/.initial=.7}       % Terminals length
+\ctikzset{tripoles/fd op amp/height/.initial=1.4}          % Total height
+\ctikzset{tripoles/fd op amp/input height/.initial=.5}     % Input port vertical separation
+\ctikzset{tripoles/fd op amp/output height/.initial=.5}    % Output port vertical separation
+\ctikzset{tripoles/fd op amp/up pos/.initial=.45}          % Top and bottom anchor position
+\ctikzset{tripoles/fd op amp/font/.initial=\pgf@circ@font@tenbm}  % Absolute font size needed!
+
+\ctikzset{tripoles/en amp/width/.initial=1.7}
+\ctikzset{tripoles/en amp/port width/.initial=.7}
+\ctikzset{tripoles/en amp/height/.initial=1.6}
+\ctikzset{tripoles/en amp/input height/.initial=.3}
+\ctikzset{tripoles/en amp/up pos/.initial=.45}
+\ctikzset{tripoles/en amp/font/.initial=\pgf@circ@font@tenbm}   % Absolute font size needed!
+\ctikzset{tripoles/en amp/font2/.initial=\pgf@circ@font@twelve}  % Absolute font size needed!
+\ctikzset{tripoles/en amp/text/.initial={$\mathstrut{\triangleright}\,{\infty}$}}
+\tikzset{
+    en amp text/.code = {%
+        \ctikzsetvalof{tripoles/en amp/text}{#1}%
+    },
+    en amp text A/.code = {%
+        \ctikzsetvalof{tripoles/en amp/text}{$\mathstrut{\triangleright}\,\mathrm{A}$}%
+    },
+}
+
+% Transconductance amplifier
+\ctikzset{tripoles/gm amp/width/.initial=1.7}              % Total width
+\ctikzset{tripoles/gm amp/port width/.initial=.7}          % Terminals length
+\ctikzset{tripoles/gm amp/height/.initial=1.4}             % Left side of the trapezoid
+\ctikzset{tripoles/gm amp/height 2/.initial=0.5}           % Right side of the trapezoid
+\ctikzset{tripoles/gm amp/input height/.initial=.5}        % Input port vertical separation
+\ctikzset{tripoles/gm amp/up pos/.initial=.45}             % Top and bottom anchor position
+\ctikzset{tripoles/gm amp/font/.initial=\pgf@circ@font@tenbm}  % Absolute font size needed!
+
+% Instrumentation amplifier
+\ctikzset{tripoles/inst amp/width/.initial=1.7}            % Total width
+\ctikzset{tripoles/inst amp/port width/.initial=.7}        % Terminals length
+\ctikzset{tripoles/inst amp/height/.initial=1.4}           % Left side of the trapezoid
+\ctikzset{tripoles/inst amp/height 2/.initial=0.6}         % Right side of the trapezoid
+\ctikzset{tripoles/inst amp/input height/.initial=.5}      % Input ports vertical separation
+\ctikzset{tripoles/inst amp/up pos/.initial=.4}            % Top and bottom anchor position
+\ctikzset{tripoles/inst amp/refv pos/.initial=.7}          % Top and bottom voltage reference position
+\ctikzset{tripoles/inst amp/font/.initial=\pgf@circ@font@tenbm}  % Absolute font size needed!
+
+% Instrumentation amplifier with differential output
+\ctikzset{tripoles/fd inst amp/width/.initial=1.7}         % Total width
+\ctikzset{tripoles/fd inst amp/port width/.initial=.7}     % Terminals length
+\ctikzset{tripoles/fd inst amp/height/.initial=1.4}        % Left side of the trapezoid
+\ctikzset{tripoles/fd inst amp/height 2/.initial=0.6}      % Right side of the trapezoid
+\ctikzset{tripoles/fd inst amp/input height/.initial=.5}   % Input ports vertical separation
+\ctikzset{tripoles/fd inst amp/output height/.initial=.5}  % Output ports vertical separation
+\ctikzset{tripoles/fd inst amp/up pos/.initial=.4}         % Top and bottom anchor position
+\ctikzset{tripoles/fd inst amp/refv pos/.initial=.7}       % Top and bottom voltage reference position
+\ctikzset{tripoles/fd inst amp/font/.initial=\pgf@circ@font@tenbm}  % Absolute font size needed!
+
+% Instrumentation amplifier with gain resistor terminals
+\ctikzset{tripoles/inst amp ra/width/.initial=2.4}         % Total width
+\ctikzset{tripoles/inst amp ra/port width/.initial=.7}     % Terminals length
+\ctikzset{tripoles/inst amp ra/height/.initial=2.9}        % Left side of the trapezoid
+\ctikzset{tripoles/inst amp ra/height 2/.initial=0.4}      % Right side of the trapezoid
+\ctikzset{tripoles/inst amp ra/input height/.initial=.7}   % Input ports vertical separation
+\ctikzset{tripoles/inst amp ra/up pos/.initial=.4}         % Top and bottom anchor position
+\ctikzset{tripoles/inst amp ra/refv pos/.initial=.7}       % Top and bottom voltage reference position
+\ctikzset{tripoles/inst amp ra/ra pos/.initial=.6}         % Gain resistor terminals vertical separation
+\ctikzset{tripoles/inst amp ra/font/.initial=\pgf@circ@font@tenbm}  % Absolute font size needed!
+
+% Plain amplifier
+\ctikzset{tripoles/plain amp/width/.initial=1.7}           % Total width
+\ctikzset{tripoles/plain amp/port width/.initial=.7}       % Terminals length
+\ctikzset{tripoles/plain amp/height/.initial=1.4}          % Total height
+\ctikzset{tripoles/plain amp/input height/.initial=.5}     % Input ports vertical separation
+\ctikzset{tripoles/plain amp/up pos/.initial=.45}          % Top and bottom anchor position
+
+% changing fonts and symbols of amplifiers
+\ctikzset{amplifiers/symbol font/.code={%
+        \ctikzset{tripoles/inst amp ra/font=#1}%
+        \ctikzset{tripoles/fd inst amp/font=#1}%
+        \ctikzset{tripoles/inst amp/font=#1}%
+        \ctikzset{tripoles/gm amp/font=#1}%
+        \ctikzset{tripoles/en amp/font=#1}%
+        \ctikzset{tripoles/fd op amp/font=#1}%
+        \ctikzset{tripoles/op amp/font=#1}%
+}}
+\ctikzset{amplifiers/plus/.initial={$+$}}
+\ctikzset{amplifiers/minus/.initial={$-$}}
+\tikzset{amp symbol font/.code={%
+        \ctikzset{amplifiers/symbol font={#1}}%
+    }
+}
+\tikzset{amp plus/.code={\ctikzsetvalof{amplifiers/plus}{#1}}}
+\tikzset{amp minus/.code={\ctikzsetvalof{amplifiers/minus}{#1}}}
+\def\pgf@circ@ampli@plus{\ctikzvalof{amplifiers/plus}}
+\def\pgf@circ@ampli@minus{\ctikzvalof{amplifiers/minus}}
+%%>>>
+
+%% Nodes for amplifiers%<<<
 %% operational and instrumentation amplifiers
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \pgfdeclareshape{op amp}
 {
@@ -5706,152 +7513,43 @@
 
         \pgfusepath{draw}
     }
-}
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%% electromechanical device (motor/generator)
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+}% %>>>
 
-\pgfdeclareshape{elmech}
-{
-    \savedmacro{\ctikzclass}{\edef\ctikzclass{electromechanicals}}
-    \saveddimen{\scaledRlen}{\pgfmathsetlength{\pgf@x}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}}
-    \savedanchor\northwest{
-        \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
-        \pgf@y=\ctikzvalof{tripoles/elmech/height}\pgf@circ@scaled@Rlen
-        \pgf@y=.5\pgf@y
-        \pgf@x=-\ctikzvalof{tripoles/elmech/width}\pgf@circ@scaled@Rlen
-        \pgf@x=.5\pgf@x
-    }
-    \anchor{center}{
-        \pgfpointorigin
-    }
-    \anchor{text}{
-        \pgfpointorigin
-        \advance \pgf@x by -.5\wd\pgfnodeparttextbox
-        \advance \pgf@y by -.5\ht\pgfnodeparttextbox
-    }
-    \anchor{left}{%
-        \northwest
-        \pgf@y=0pt
-    }
-    \anchor{right}{%
-        \northwest
-        \pgf@y=0pt
-        \pgf@x=-\pgf@x
-    }
-    \anchor{top}{
-        \northwest
-        \pgf@x=0pt
-    }
-    \anchor{pathstart}{
-        \northwest
-        \pgf@x=0pt
-    }
-    \anchor{pathend}{
-        \northwest
-        \pgf@x=0pt
-        \pgf@y=-\pgf@y
-    }
-    \anchor{bottom}{
-        \northwest
-        \pgf@x=0pt
-        \pgf@y=-\pgf@y
-    }
-    \anchor{center}{
-        \pgf@y=0pt
-        \pgf@x=0pt
-    }
-    \anchor{east}{
-        \northwest
-        \pgf@y=0pt
-        \pgf@x=-\pgf@x
-    }
-    \anchor{west}{
-        \northwest
-        \pgf@y=0pt
-    }
-    \anchor{south}{
-        \northwest
-        \pgf@x=0pt
-        \pgf@y=-\pgf@y
-    }
-    \anchor{north}{
-        \northwest
-        \pgf@x=0pt
-    }
-    \anchor{south west}{ \northwest \pgf@y=-\pgf@y }
-    \anchor{north east}{ \northwest \pgf@x=-\pgf@x }
-    \anchor{north west}{ \northwest }
-    \anchor{south east}{ \northwest \pgf@x=-\pgf@x \pgf@y=-\pgf@y }
-    \anchorborder{%
-        \@tempdima=\pgf@x\@tempdimb=\pgf@y
-        \northwest\pgf@circ@res@other=-\pgf@x
-        \pgfpointborderellipse{\pgfqpoint{\@tempdima}{\@tempdimb}}{\pgfqpoint{\pgf@circ@res@other}{\pgf@circ@res@other}}
-    }
-    \anchor{block north west}{\northwest\pgf@x=0.5\pgf@x}
-    \anchor{block south west}{\northwest\pgf@x=0.5\pgf@x\pgf@y=-\pgf@y}
-    \anchor{block north east}{\northwest\pgf@x=-0.5\pgf@x}
-    \anchor{block south east}{\northwest\pgf@x=-0.5\pgf@x\pgf@y=-\pgf@y}
-    \anchor{block up right}{
-        \northwest
-        % remember that pgf@x is negative
-        % center of the block is at 0.5*H+W*cos(30)/2
-        \pgf@y=\dimexpr0.5\pgf@y - 0.433\pgf@x\relax
-        \pgf@x=-0.5\pgf@x
-    }
-    \anchor{block up left}{
-        \northwest
-        % remember that pgf@x is negative
-        % center of the block is at 0.5*H+W*cos(30)/2
-        \pgf@y=\dimexpr0.5\pgf@y - 0.433\pgf@x\relax
-        \pgf@x=0.5\pgf@x
-    }
-    \anchor{block down right}{
-        \northwest
-        % remember that pgf@x is negative
-        % center of the block is at 0.5*H+W*cos(30)/2
-        \pgf@y=\dimexpr0.5\pgf@y - 0.433\pgf@x\relax
-        \pgf@y=-\pgf@y
-        \pgf@x=-0.5\pgf@x
-    }
-    \anchor{block down left}{
-        \northwest
-        % remember that pgf@x is negative
-        % center of the block is at 0.5*H+W*cos(30)/2
-        \pgf@y=\dimexpr0.5\pgf@y - 0.433\pgf@x\relax
-        \pgf@y=-\pgf@y
-        \pgf@x=0.5\pgf@x
-    }
-    \behindbackgroundpath{
-        \pgfsetcolor{\ctikzvalof{color}}
-        \pgf@circ@scaled@Rlen=\scaledRlen
-        \pgf@circ@res@step=\ctikzvalof{tripoles/elmech/width}\pgf@circ@scaled@Rlen
-        \pgf@circ@res@up=\ctikzvalof{tripoles/elmech/height}\pgf@circ@scaled@Rlen
-        \pgfscope
-            \pgfstartlinewidth=\pgflinewidth
-            \pgf@circ@setlinewidth{bipoles}{\pgfstartlinewidth}
-            \pgfscope % clip the bar: whole size minus the circle
-                \pgfpathrectanglecorners{\pgfpoint{-.5\pgf@circ@res@step}{-.5\pgf@circ@res@up}}{\pgfpoint{.5\pgf@circ@res@step}{.5\pgf@circ@res@up}}
-                \pgfpathcircle{\pgfpoint{0}{0}} {0.5\pgf@circ@res@step}
-                \pgfseteorule
-                \pgfusepath{clip}
-                \pgfpathrectangle{\pgfpoint{-.25\pgf@circ@res@step}{-.5\pgf@circ@res@up}}{\pgfpoint{.5\pgf@circ@res@step}{\pgf@circ@res@up}}
-                \pgfsetfillcolor{\ctikzvalof{color}}
-                \pgfusepath{fill, draw}
-            \endpgfscope
-            \pgfpathcircle{\pgfpoint{0}{0}} {0.5\pgf@circ@res@step}
-            \ifx\tikz@fillcolor\pgfutil@empty
-                % set the default fill color to white
-                \pgfsetfillcolor{white}
-                % ...but override it if the class is defined!
-                \pgf@circ@setifdefinedfill{draw, fill}{draw, fill}
-            \else
-                \pgfsetfillcolor{\tikz@fillcolor}
-                \pgfusepath{draw, fill}
-            \fi
-        \endpgfscope
-    }
-}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Tubes and magnetron
+%%%%%%%%%%%%%%%%%%%%%%%%
+
+% Settings Electronic tubes: diodetube, triode, tetrode and pentode%<<<1
+\ctikzset{tubes/width/.initial=1}                    % relative width
+\ctikzset{tubes/height/.initial=1.4}                 % relative height
+\ctikzset{tubes/tube radius/.initial=0.40}           % radius of tube circle
+\ctikzset{tubes/anode distance/.initial=0.40}        % distance from center
+\ctikzset{tubes/anode width/.initial=0.40}           % width of an anode/plate
+\ctikzset{tubes/grid protrusion/.initial=0.25}       % distance from center
+\ctikzset{tubes/grid dashes/.initial=5}              % number of grid dashes
+\ctikzset{tubes/grid separation/.initial=0.2}        % separation between grids
+\ctikzset{tubes/grid shift/.initial=0.0}             % y shift grids from center
+\ctikzset{tubes/cathode distance/.initial=0.40}      % distance from grid
+\ctikzset{tubes/cathode width/.initial=0.40}         % width of an cathode
+\ctikzset{tubes/cathode corners/.initial=0.06}       % corners of the cathode wire
+\ctikzset{tubes/cathode right extend/.initial=0.075} % extension at the right side
+\ctikzset{tubes/filament distance/.initial=0.1}      % distance from cathode
+\ctikzset{tubes/filament angle/.initial=15}          % Angle from centerpoint
+
+\ctikzset{/tikz/circuitikz/tripoles/magnetron/width/.initial=1}
+
+\newif\ifpgf@circuit@tubes@filament\pgf@circuit@tubes@filamentfalse
+\pgfkeys{/tikz/filament/.add code={}{\pgf@circuit@tubes@filamenttrue}}
+\ctikzset{tubes/filament/.add code={}{\pgf@circuit@tubes@filamenttrue}}
+\newif\ifpgf@circuit@tubes@nocathode\pgf@circuit@tubes@nocathodefalse
+\pgfkeys{/tikz/nocathode/.add code={}{\pgf@circuit@tubes@nocathodetrue}}
+\ctikzset{tubes/nocathode/.add code={}{\pgf@circuit@tubes@nocathodetrue}}
+\newif\ifpgf@circuit@tubes@fullcathode\pgf@circuit@tubes@fullcathodefalse
+\pgfkeys{/tikz/fullcathode/.add code={}{\pgf@circuit@tubes@fullcathodetrue}}
+\ctikzset{tubes/fullcathode/.add code={}{\pgf@circuit@tubes@fullcathodetrue}}%
+%>>>
+
+%% Node shapes for tubes & co%<<<
 
 %%%%%%%%%%%%%%%%%%%
 %% Magnetron
@@ -6427,6 +8125,7 @@
 	\pgfpathlineto{\pgfpoint{\pgf@circ@res@temp}{\pgfutil@tempdima-2*\ctikzvalof{tubes/grid separation}\pgf@circ@res@up}}
 	\pgfpathlineto{\pgfpoint{\ctikzvalof{tubes/cathode width}\pgf@circ@res@right-0.4142136*\ctikzvalof{tubes/cathode corners}\pgf@circ@res@right}{-\ctikzvalof{tubes/cathode distance}\pgf@circ@res@up-0.4142136*\ctikzvalof{tubes/cathode corners}\pgf@circ@res@up}}
 
-}
+}% %>>>
 
 \endinput
+% vim: set fdm=marker fmr=%<<<,%>>>:

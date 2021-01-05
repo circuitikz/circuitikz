@@ -4,6 +4,7 @@ The major changes among the different circuitikz versions are listed here. See <
 * Version 1.2.8 (unreleased)
 
     - Fixed a typo in manual (thanks to @muzimuzhi on GitHub)
+    - The Mother of All Code Refactoring: no real changes (modulo errors)
 
 * Version 1.2.7 (2020-12-27)
 
