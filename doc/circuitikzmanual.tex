@@ -5805,14 +5805,28 @@ The position of annotations and labels can be adjusted with \verb|_|  and \verb|
 \end{circuitikz}
 \end{LTXexample}
 
-\textbf{Caveat:} notice that the way in which \texttt{circuitikz} processes the options, there will be problems if the label (or annotation, voltage, or current) contains one of the characters $=$ (equal) or $,$ (comma), giving unexpected errors and wrong output.
-These two characters must be protected from the option parser using an \verb|\mbox| command, or redefining the characters with a \TeX\ \verb|\def|:
+\textbf{Caveat:} when \TikZ{} processes the options, there will be problems if the label (or annotation, voltage, or current) contains one of the characters $=$ (equal) or $,$ (comma) --- because the parser search for those two characters to delimit the arguments, giving unexpected errors and wrong output.
+These two characters can be protected from the option parser using an extra set of braces.
 
 \begin{LTXexample}[varwidth=true]
-    \def\eq{=}
     \begin{circuitikz}
         % the following will fail:
-        % \draw (0,0) to[R, l={$R=3}] (3,0);
+        % \draw (0,0) to[R, l=$R=3$]
+        \draw (0,0) to[R, l={$R=3$}] (3,0);
+        \draw (0,0) to[R={$R=3$}] (0,3);
+        \draw (3,3) to[R={$R,3$}] (3,0);
+        % this works, but it has wrong spacing
+        \draw (0,3) to[R, l=$R{=}3$] (3,3);
+    \end{circuitikz}
+\end{LTXexample}
+
+\textbf{(Even more) Caveat:} up to version \texttt{1.2.7}, due to the way in which \Circuitikz{} used to processes the options, even that was not sufficient, so you must protect that tokens even more, for example using an \verb|\mbox| command, or redefining the characters with a \TeX\ \verb|\def|:
+
+\begin{LTXexample}[varwidth=true]
+    \begin{circuitikz}
+        \def\eq{=}
+        % the following will fail up to 1.2.7:
+        % \draw (0,0) to[R, l={$R=3$}] (3,0);
         \draw (0,0) to[R, l=\mbox{$R=3$}] (3,0);
         \draw (0,0) to[R, l=$R\eq3$] (0,3);
         \draw (3,3) to[R, l=\mbox{$R,3$}] (3,0);
@@ -5820,6 +5834,7 @@ These two characters must be protected from the option parser using an \verb|\mb
         \draw (0,3) to[R, l=$R{=}3$] (3,3);
     \end{circuitikz}
 \end{LTXexample}
+
 
 \noindent The default orientation of labels is controlled by the options \texttt{smartlabels}, \texttt{rotatelabels} and \texttt{straightlabels} (or the corresponding \texttt{label/align} keys). Here are examples to see the differences:
 \begin{LTXexample}[varwidth=true]
@@ -7553,9 +7568,11 @@ Just substitute every occurrence of the environment \verb!circuitikz! with \verb
 
 \faqQ I cannot write \verb!to[R = $R_1=12V$]! nor \verb!to[ospst = open, 3s]!: I get errors.
 
-\faqA It is a limitation of the parser, joined with a suboptimal processing by \Circuitikz{} of the passing of the argument of keys.
+\faqA It is a limitation of the parser, joined with a suboptimal processing by \Circuitikz{} (up to \texttt{1.2.7}) of the passing of the argument of keys.
 
-Use for example \verb|\mbox{}| or define \verb|\def{\eq}{=}| and use \verb!to[R = $R_1\eq 12V$]!, or try to protect commas and equal signs like \verb!to[ospst = open{,} 3s]! or \verb|ospst=\mbox{open, 3s}| instead; see caveat in section~\ref{sec:labels-and-annotations}.
+You should protect commas and equal signs like in  \verb!to[R = {$R_1=12V$}]! nor \verb!to[ospst = {open, 3s}]!.
+
+In versions up to \texttt{1.2.7}, use for example \verb|\mbox{}| or define \verb|\def{\eq}{=}| and use \verb!to[R = $R_1\eq 12V$]!, or try to protect commas and equal signs like \verb!to[ospst = open{,} 3s]! or \verb|ospst=\mbox{open, 3s}| instead; see caveat in section~\ref{sec:labels-and-annotations}.
 
 \subsection{Global scaling and rotating}\label{faqs:scale-and-rotate}
 
