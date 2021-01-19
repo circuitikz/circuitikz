@@ -1,12 +1,12 @@
 <!--- CircuiTikz - Changelog --->
 The major changes among the different circuitikz versions are listed here. See <https://github.com/circuitikz/circuitikz/commits> for a full list of changes.
 
-* Version 1.3.0 (unreleased)
+* Version 1.3.0 (2021-01-19)
 
-    - Bumped minor version due to the big rewrite
-    - Fixed a long standing problem with labels and similar decoration with equal signs and commas
-    - Fixed a typo in manual (thanks to @muzimuzhi on GitHub)
+    - Fixed a long-standing problem with labels and similar decoration with equal signs and commas
+    - Fixed a typo in the manual (thanks to @muzimuzhi on GitHub)
     - The Mother of All Code Refactoring: no real changes (modulo errors)
+    - Added a rollback point to 1.2.7
 
 * Version 1.2.7 (2020-12-27)
 
