@@ -1,6 +1,10 @@
 <!--- CircuiTikz - Changelog --->
 The major changes among the different circuitikz versions are listed here. See <https://github.com/circuitikz/circuitikz/commits> for a full list of changes.
 
+* Version 1.3.1 (unreleased)
+
+    - Fixed a bug in "fuse" and "afuse" fill
+
 * Version 1.3.0 (2021-01-19)
 
     - Fixed a long-standing problem with labels and similar decoration with equal signs and commas
