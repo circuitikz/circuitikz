@@ -4,6 +4,7 @@ The major changes among the different circuitikz versions are listed here. See <
 * Version 1.3.1 (unreleased)
 
     - Fixed a bug in "fuse" and "afuse" fill
+    - Remove the voltage direction warning. Nobody really ever cared
 
 * Version 1.3.0 (2021-01-19)
 
