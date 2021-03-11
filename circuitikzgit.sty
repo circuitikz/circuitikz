@@ -12,8 +12,8 @@
 
 \NeedsTeXFormat{LaTeX2e}
 
-\def\pgfcircversion{1.3.1-8b2f6ce}
-\def\pgfcircversiondate{2021/02/20}
+\def\pgfcircversion{1.3.2-unreleased-d378c48}
+\def\pgfcircversiondate{2021/03/11}
 
 \ProvidesPackage{circuitikzgit}
 [\pgfcircversiondate{} The CircuiTikz circuit drawing package version \pgfcircversion]
@@ -17865,7 +17865,9 @@
 \ctikzset{bipoles/bandpass/width/.initial=.7}
 \ctikzset{bipoles/bandstop/width/.initial=.7}
 \ctikzset{bipoles/highpass/width/.initial=.7}
+\ctikzset{bipoles/highpass2/width/.initial=.7}
 \ctikzset{bipoles/lowpass/width/.initial=.7}
+\ctikzset{bipoles/lowpass2/width/.initial=.7}
 \ctikzset{bipoles/allpass/width/.initial=.7}
 \ctikzset{bipoles/adc/width/.initial=.7}
 \ctikzset{bipoles/dac/width/.initial=.7}
@@ -18318,6 +18320,70 @@
     \pgfusepath{draw}
 }
 
+%% highpass2 filter ---simplyfied with just two waves
+\pgfcircdeclarebipolescaled{blocks}
+{}
+{\ctikzvalof{bipoles/highpass2/width}}
+{highpass2}
+{\ctikzvalof{bipoles/highpass2/width}}
+{\ctikzvalof{bipoles/highpass2/width}}
+{
+    \pgf@circ@res@step = \ctikzvalof{bipoles/highpass2/width}\pgf@circ@scaled@Rlen
+    \divide \pgf@circ@res@step by 2
+
+    \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@zero}}
+    \pgf@circ@res@other = \pgf@circ@res@left
+    \advance\pgf@circ@res@other by \pgf@circ@res@step
+
+    \ifpgf@circuit@dashed
+        \pgfsetdash{{0.1cm}{0.1cm}}{0cm}
+    \fi
+
+    % draw outer box
+    \pgf@circ@twoportbox
+
+    \ifpgf@circuit@inputarrow
+        {
+            \advance \pgf@circ@res@left by -.5\ctikzvalof{bipoles/thickness}\pgfstartlinewidth
+            \pgftransformshift{\pgfpoint{\pgf@circ@res@left}{0pt}}
+            \pgfnode{inputarrow}{tip}{}{pgf@inputarrow}{\pgfusepath{fill}}
+        }
+    \fi
+
+    % rotate inner symbol
+    \def\pgfcircmathresult{\expandafter\pgf@circ@stripdecimals\pgf@circ@direction\pgf@nil}
+    \ifnum \pgfcircmathresult > 45 \ifnum \pgfcircmathresult < 135
+        \pgftransformrotate{270}
+    \fi\fi
+    \ifnum \pgfcircmathresult > 134 \ifnum \pgfcircmathresult < 225  % 134 degree, because >= 135 is not possible
+        \pgftransformrotate{180}
+    \fi\fi
+    \ifnum \pgfcircmathresult > 224 \ifnum \pgfcircmathresult < 315
+        \pgftransformrotate{90}
+    \fi\fi
+
+    % draw inner symbol
+    \pgfsetdash{}{0pt}	% always draw solid line for inner symbol
+    \pgfsetarrows{-} %never draw arrows
+    \pgfsetlinewidth{\pgfstartlinewidth}
+    \pgfpathmoveto{\pgfpoint{-0.5\pgf@circ@res@step}{0.25\pgf@circ@res@step}}
+    \pgfpathsine{\pgfpoint{.25\pgf@circ@res@step}{.25\pgf@circ@res@step}}
+    \pgfpathcosine{\pgfpoint{.25\pgf@circ@res@step}{-.25\pgf@circ@res@step}}
+    \pgfpathsine{\pgfpoint{.25\pgf@circ@res@step}{-.25\pgf@circ@res@step}}
+    \pgfpathcosine{\pgfpoint{.25\pgf@circ@res@step}{.25\pgf@circ@res@step}}
+    \pgfusepath{draw}
+
+    \pgfpathmoveto{\pgfpoint{-0.5\pgf@circ@res@step}{-0.25\pgf@circ@res@step}}
+    \pgfpathsine{\pgfpoint{.25\pgf@circ@res@step}{.25\pgf@circ@res@step}}
+    \pgfpathcosine{\pgfpoint{.25\pgf@circ@res@step}{-.25\pgf@circ@res@step}}
+    \pgfpathsine{\pgfpoint{.25\pgf@circ@res@step}{-.25\pgf@circ@res@step}}
+    \pgfpathcosine{\pgfpoint{.25\pgf@circ@res@step}{.25\pgf@circ@res@step}}
+    \pgfusepath{draw}
+    \pgfpathmoveto{\pgfpoint{-0.3\pgf@circ@res@step}{-0.5\pgf@circ@res@step}}
+    \pgfpathlineto{\pgfpoint{0.3\pgf@circ@res@step}{-0.1\pgf@circ@res@step}}
+    \pgfusepath{draw}
+}
+
 %% lowpass filter
 \pgfcircdeclarebipolescaled{blocks}
 {}
@@ -18385,6 +18451,70 @@
     \pgfusepath{draw}
 
     \pgfpathmoveto{\pgfpoint{-0.5\pgf@circ@res@step}{-0.5\pgf@circ@res@step}}
+    \pgfpathsine{\pgfpoint{.25\pgf@circ@res@step}{.25\pgf@circ@res@step}}
+    \pgfpathcosine{\pgfpoint{.25\pgf@circ@res@step}{-.25\pgf@circ@res@step}}
+    \pgfpathsine{\pgfpoint{.25\pgf@circ@res@step}{-.25\pgf@circ@res@step}}
+    \pgfpathcosine{\pgfpoint{.25\pgf@circ@res@step}{.25\pgf@circ@res@step}}
+    \pgfusepath{draw}
+}
+
+%% lowpass2 filter: simplyfied with just two waves
+\pgfcircdeclarebipolescaled{blocks}
+{}
+{\ctikzvalof{bipoles/lowpass2/width}}
+{lowpass2}
+{\ctikzvalof{bipoles/lowpass2/width}}
+{\ctikzvalof{bipoles/lowpass2/width}}
+{
+    \pgf@circ@res@step = \ctikzvalof{bipoles/lowpass2/width}\pgf@circ@scaled@Rlen
+    \divide \pgf@circ@res@step by 2
+
+    \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@zero}}
+    \pgf@circ@res@other = \pgf@circ@res@left
+    \advance\pgf@circ@res@other by \pgf@circ@res@step
+
+    \ifpgf@circuit@dashed
+        \pgfsetdash{{0.1cm}{0.1cm}}{0cm}
+    \fi
+
+    % draw outer box
+    \pgf@circ@twoportbox
+
+    \ifpgf@circuit@inputarrow
+        {
+            \advance \pgf@circ@res@left by -.5\ctikzvalof{bipoles/thickness}\pgfstartlinewidth
+            \pgftransformshift{\pgfpoint{\pgf@circ@res@left}{0pt}}
+            \pgfnode{inputarrow}{tip}{}{pgf@inputarrow}{\pgfusepath{fill}}
+        }
+    \fi
+
+    % rotate inner symbol
+    \def\pgfcircmathresult{\expandafter\pgf@circ@stripdecimals\pgf@circ@direction\pgf@nil}
+    \ifnum \pgfcircmathresult > 45 \ifnum \pgfcircmathresult < 135
+        \pgftransformrotate{270}
+    \fi\fi
+    \ifnum \pgfcircmathresult > 134 \ifnum \pgfcircmathresult < 225  % 134 degree, because >= 135 is not possible
+        \pgftransformrotate{180}
+    \fi\fi
+    \ifnum \pgfcircmathresult > 224 \ifnum \pgfcircmathresult < 315
+        \pgftransformrotate{90}
+    \fi\fi
+
+    % draw inner symbol
+    \pgfsetdash{}{0pt}	% always draw solid line for inner symbol
+    \pgfsetarrows{-} %never draw arrows
+    \pgfsetlinewidth{\pgfstartlinewidth}
+    \pgfpathmoveto{\pgfpoint{-0.5\pgf@circ@res@step}{0.25\pgf@circ@res@step}}
+    \pgfpathsine{\pgfpoint{.25\pgf@circ@res@step}{.25\pgf@circ@res@step}}
+    \pgfpathcosine{\pgfpoint{.25\pgf@circ@res@step}{-.25\pgf@circ@res@step}}
+    \pgfpathsine{\pgfpoint{.25\pgf@circ@res@step}{-.25\pgf@circ@res@step}}
+    \pgfpathcosine{\pgfpoint{.25\pgf@circ@res@step}{.25\pgf@circ@res@step}}
+    \pgfusepath{draw}
+    \pgfpathmoveto{\pgfpoint{-0.3\pgf@circ@res@step}{0.1\pgf@circ@res@step}}
+    \pgfpathlineto{\pgfpoint{0.3\pgf@circ@res@step}{0.5\pgf@circ@res@step}}
+    \pgfusepath{draw}
+
+    \pgfpathmoveto{\pgfpoint{-0.5\pgf@circ@res@step}{-0.25\pgf@circ@res@step}}
     \pgfpathsine{\pgfpoint{.25\pgf@circ@res@step}{.25\pgf@circ@res@step}}
     \pgfpathcosine{\pgfpoint{.25\pgf@circ@res@step}{-.25\pgf@circ@res@step}}
     \pgfpathsine{\pgfpoint{.25\pgf@circ@res@step}{-.25\pgf@circ@res@step}}
@@ -19569,7 +19699,9 @@
 \pgfcirc@activate@bipole@simple{l}{bandpass}
 \pgfcirc@activate@bipole@simple{l}{bandstop}
 \pgfcirc@activate@bipole@simple{l}{highpass}
+\pgfcirc@activate@bipole@simple{l}{highpass2}
 \pgfcirc@activate@bipole@simple{l}{lowpass}
+\pgfcirc@activate@bipole@simple{l}{lowpass2}
 \pgfcirc@activate@bipole@simple{l}{allpass}
 \pgfcirc@activate@bipole@simple{l}{adc}
 \pgfcirc@activate@bipole@simple{l}{dac}
