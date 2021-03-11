@@ -1,6 +1,10 @@
 <!--- CircuiTikz - Changelog --->
 The major changes among the different circuitikz versions are listed here. See <https://github.com/circuitikz/circuitikz/commits> for a full list of changes.
 
+* Version 1.3.2 (unreleased)
+
+    - Added the simplified (2-waves) highpass and lowpass blocks
+
 * Version 1.3.1 (2021-02-20)
 
     - Fixed a bug in "fuse" and "afuse" fill
