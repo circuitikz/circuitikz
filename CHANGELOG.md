@@ -4,6 +4,7 @@ The major changes among the different circuitikz versions are listed here. See <
 * Version 1.3.2 (unreleased)
 
     - Added the simplified (2-waves) highpass and lowpass blocks
+    - Added graphene FETs (suggested by Cees Keyer)
 
 * Version 1.3.1 (2021-02-20)
 
