@@ -12,7 +12,7 @@
 
 \NeedsTeXFormat{LaTeX2e}
 
-\def\pgfcircversion{1.3.2-unreleased-cc8ac64}
+\def\pgfcircversion{1.3.2-unreleased-fe736db}
 \def\pgfcircversiondate{2021/03/13}
 
 \ProvidesPackage{circuitikzgit}
@@ -12747,9 +12747,39 @@
             \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
             \pgf@x=-\ctikzvalof{tripoles/#1/width}\pgf@circ@scaled@Rlen
         }
-        \savedanchor\right{%center right -- added by Burak Kelleci % this is really 0,0
-            \pgf@y=0pt
-            \pgf@x=0pt
+        \savedanchor\right{
+            \pgf@x=0pt\pgf@y=0pt
+            \ifpgf@circ@trcircle
+            % repeat the \circleradius computation (GRRRR)
+                \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
+                % repeat the extrabodydiodelen (grrr)
+                \ifpgf@circuit@fet@bodydiode
+                    % try to put the text to the right of the flyback diode
+                    \pgfmathsetlength{\pgf@circ@res@other}{(
+                        \ctikzvalof{tripoles/#1/bodydiode distance}*
+                        \ctikzvalof{tripoles/#1/width} +
+                        \ctikzvalof{tripoles/#1/bodydiode scale}*
+                        \ctikzvalof{bipoles/diode/height}/2
+                    )*\pgf@circ@scaled@Rlen}
+                \else
+                    \pgf@circ@res@other=0pt\relax
+                \fi
+                % left
+                \pgf@xa=-\ctikzvalof{tripoles/#1/width}\pgf@circ@scaled@Rlen
+                \pgf@xa=\circlebase\pgf@xa % this is the base point of the circle
+                % northeast
+                \pgf@yb=\ctikzvalof{tripoles/#1/height}\pgf@circ@scaled@Rlen % y of the left point of circle
+                \pgf@yb=.5\pgf@yb
+                \pgf@xb=\pgf@circ@res@other % this is the x of the right points of the circle
+                %
+                \pgf@yb=\ctikzvalof{tripoles/#1/bodydiode conn}\pgf@yb %this is #3 of the circle
+                % find the radius of the circle
+                \pgfmathsetlength{\pgf@circ@res@other}{((\pgf@xb)-(\pgf@xa)+(\pgf@yb)*(\pgf@yb)/((\pgf@xb)-(\pgf@xa)))/2*\scalecircleradius}
+                % repeat the circleleft computation
+                \pgf@xa=-\ctikzvalof{tripoles/#1/width}\pgf@circ@scaled@Rlen
+                \pgf@xb=\circlebase\pgf@xa
+                \pgfmathsetlength{\pgf@x}{\pgf@xb+2*\pgf@circ@res@other}
+            \fi
         }
         \anchor{text}{
             \northeast
@@ -12797,8 +12827,7 @@
             \pgf@y=0pt
         }
         \anchor{right}{
-            \northeast
-            \pgf@y=0pt
+            \right
         }
         \anchor{south}{
             \northeast
