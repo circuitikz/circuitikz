@@ -12,8 +12,8 @@
 
 \NeedsTeXFormat{LaTeX2e}
 
-\def\pgfcircversion{1.3.2-unreleased-074e2a4}
-\def\pgfcircversiondate{2021/03/12}
+\def\pgfcircversion{1.3.2-unreleased-cc8ac64}
+\def\pgfcircversiondate{2021/03/13}
 
 \ProvidesPackage{circuitikzgit}
 [\pgfcircversiondate{} The CircuiTikz circuit drawing package version \pgfcircversion]
@@ -12570,6 +12570,38 @@
 \ctikzset{tripoles/isfet/bodydiode conn/.initial=.6}
 \ctikzset{tripoles/isfet/curr direction/.initial=1}
 %
+% graphene FET
+%
+\ctikzset{tripoles/pgfet/width/.initial=.6}
+\ctikzset{tripoles/pgfet/gate height/.initial=.5}
+\ctikzset{tripoles/pgfet/gate height 2/.initial=0.25}  % must be "gate height"/2
+\ctikzset{tripoles/pgfet/base height/.initial=.5}  % must be "gate height"
+\ctikzset{tripoles/pgfet/outer base height/.initial=.25} % must be "gate height 2"
+\ctikzset{tripoles/pgfet/outer base thickness/.initial=1}
+\ctikzset{tripoles/pgfet/conn height/.initial=0}
+\ctikzset{tripoles/pgfet/height/.initial=1.1}
+\ctikzset{tripoles/pgfet/gate width/.initial=.5}
+\ctikzset{tripoles/pgfet/base width/.initial=0.36084} % must be "gate height"*cos(60)/(2*width)
+\ctikzset{tripoles/pgfet/bodydiode scale/.initial=.3}
+\ctikzset{tripoles/pgfet/bodydiode distance/.initial=.6}
+\ctikzset{tripoles/pgfet/bodydiode conn/.initial=.6}
+\ctikzset{tripoles/pgfet/curr direction/.initial=-1}
+
+\ctikzset{tripoles/ngfet/width/.initial=.6}
+\ctikzset{tripoles/ngfet/gate height/.initial=.5}
+\ctikzset{tripoles/ngfet/gate height 2/.initial=0.25}  % must be "gate height"/2
+\ctikzset{tripoles/ngfet/base height/.initial=.5}  % must be "gate height"
+\ctikzset{tripoles/ngfet/outer base height/.initial=.25} % must be "gate height 2"
+\ctikzset{tripoles/ngfet/outer base thickness/.initial=1}
+\ctikzset{tripoles/ngfet/conn height/.initial=0}
+\ctikzset{tripoles/ngfet/height/.initial=1.1}
+\ctikzset{tripoles/ngfet/gate width/.initial=.5}
+\ctikzset{tripoles/ngfet/base width/.initial=0.36084} % must be "gate height"*cos(60)/(2*width)
+\ctikzset{tripoles/ngfet/bodydiode scale/.initial=.3}
+\ctikzset{tripoles/ngfet/bodydiode distance/.initial=.6}
+\ctikzset{tripoles/ngfet/bodydiode conn/.initial=.6}
+\ctikzset{tripoles/ngfet/curr direction/.initial=1}
+%
 % multi-emitter and multi-collector BJTs by Romano Giannetti
 %
 \ctikzset{tripoles/bjt/emitters/.initial=1}
@@ -13623,6 +13655,187 @@
 \declareigbt{nigbt}
 \declareigbt{Lnigbt}
 \declareigbt{Lpigbt}
+
+% Graphene FET, See https://github.com/circuitikz/circuitikz/issues/496
+\long\def\declaregfet#1{
+    \pgfcircdeclaretransistor{#1}{
+        \anchor{inner up}{
+            \northeast
+            \pgf@y=\ctikzvalof{tripoles/#1/gate height}\pgf@y
+        }
+        \anchor{inner down}{
+            \northeast
+            \pgf@y=-\ctikzvalof{tripoles/#1/gate height}\pgf@y
+        }
+        \anchor{outer hex up}{
+            \left
+            \pgf@xa=\ctikzvalof{tripoles/#1/base width}\pgf@x
+            \northeast
+            \pgf@y=\ctikzvalof{tripoles/#1/gate height 2}\pgf@y
+            \pgf@x=-\pgf@xa
+        }
+        \anchor{outer hex down}{
+            \left
+            \pgf@xa=\ctikzvalof{tripoles/#1/base width}\pgf@x
+            \northeast
+            \pgf@y=\ctikzvalof{tripoles/#1/gate height 2}\pgf@y
+            \pgf@y=-\pgf@y
+            \pgf@x=-\pgf@xa
+        }
+        \anchor{inner hex up}{
+            \left
+            \pgf@xa=\ctikzvalof{tripoles/#1/base width}\pgf@x
+            \northeast
+            \pgf@y=\ctikzvalof{tripoles/#1/gate height 2}\pgf@y
+            \pgf@x=\pgf@xa
+        }
+        \anchor{inner hex down}{
+            \left
+            \pgf@xa=\ctikzvalof{tripoles/#1/base width}\pgf@x
+            \northeast
+            \pgf@y=\ctikzvalof{tripoles/#1/gate height 2}\pgf@y
+            \pgf@y=-\pgf@y
+            \pgf@x=\pgf@xa
+        }
+        \anchor{right}{
+            \northeast\pgf@y=0pt\relax
+            \pgfmathsetlength{\pgf@xa}{\ctikzvalof{tripoles/#1/base width}*
+                \ctikzvalof{tripoles/#1/width}*\pgf@circ@scaled@Rlen}
+            \advance \pgf@x by \pgf@xa
+        }
+        \anchor{text}{% need a different text: no circle, shift to the right
+            \northeast
+            \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
+            \ifpgf@circuit@transisors@fixlabels
+                \ifpgf@circuit@fet@bodydiode
+                    \advance \pgf@x by \extrabodydiodelen
+                \else
+                    \pgfmathsetlength{\pgf@xa}{\ctikzvalof{tripoles/#1/base width}*
+                        \ctikzvalof{tripoles/#1/width}*\pgf@circ@scaled@Rlen}
+                    \advance \pgf@x by \pgf@xa
+                \fi
+                % no circle for gfets
+                % add a bit of space to avoid central (substrate) terminal if drawn
+                \advance\pgf@x by 0.05\pgf@circ@scaled@Rlen\relax
+                \pgf@y=\dimexpr.5\dp\pgfnodeparttextbox-.5\ht\pgfnodeparttextbox\relax
+            \else
+                \pgf@y=.7\pgf@y
+                \pgf@x= \pgf@circ@scaled@Rlen
+                \pgf@x=0.1\pgf@x
+            \fi
+        }
+    }
+    {
+        % no circle for gfets (clearly!)
+        %draw upper connection to hexagon
+        \pgfpathmoveto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@up+\pgfverticaltransformationadjustment*.5*\pgflinewidth}}
+        \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}
+            {\ctikzvalof{tripoles/#1/gate height}\pgf@circ@res@up}}
+        \pgfpathmoveto{\pgfpoint{\pgf@circ@res@right}
+            {\ctikzvalof{tripoles/#1/gate height}\pgf@circ@res@down}}
+        \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@down-\pgfverticaltransformationadjustment*.5*\pgflinewidth}}
+        \pgfusepath{draw}
+        % draw (fillable) hexagon
+        \pgfscope
+            \pgfpathmoveto{\pgfpoint
+                {\ctikzvalof{tripoles/#1/base width}\pgf@circ@res@left}
+                {\ctikzvalof{tripoles/#1/gate height 2}\pgf@circ@res@up}}
+            \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}
+                {\ctikzvalof{tripoles/#1/gate height}\pgf@circ@res@up}}
+            \pgfpathlineto{\pgfpoint
+                 {-\ctikzvalof{tripoles/#1/base width}\pgf@circ@res@left}
+                 {\ctikzvalof{tripoles/#1/gate height 2}\pgf@circ@res@up}}
+            \pgfpathlineto{\pgfpoint
+                 {-\ctikzvalof{tripoles/#1/base width}\pgf@circ@res@left}
+                 {\ctikzvalof{tripoles/#1/gate height 2}\pgf@circ@res@down}}
+            \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}
+                 {\ctikzvalof{tripoles/#1/gate height}\pgf@circ@res@down}}
+            \pgfpathlineto{\pgfpoint
+                {\ctikzvalof{tripoles/#1/base width}\pgf@circ@res@left}
+                {-\ctikzvalof{tripoles/#1/gate height 2}\pgf@circ@res@up}}
+            \pgfpathclose
+            \pgf@circ@draworfill
+        \endpgfscope
+        %draw thicker gate lines
+        \pgfscope
+            \pgfscope
+                \pgfpathmoveto{\pgfpoint
+                    {\ctikzvalof{tripoles/#1/gate width}\pgf@circ@res@left}
+                {\ctikzvalof{tripoles/#1/outer base height}\pgf@circ@res@up+\pgfverticaltransformationadjustment*.5\pgflinewidth}}
+                \pgfpathlineto{\pgfpoint
+                    {\ctikzvalof{tripoles/#1/gate width}\pgf@circ@res@left}
+                {\ctikzvalof{tripoles/#1/outer base height}\pgf@circ@res@down-\pgfverticaltransformationadjustment*.5\pgflinewidth}}
+                % set the normal thickness
+                \pgf@circ@setlinewidth{tripoles}{\pgflinewidth}
+                \edef\@@extrat{\ctikzvalof{tripoles/#1/outer base thickness}}
+                \pgfsetlinewidth{\@@extrat\pgflinewidth}
+                \pgfusepath{draw}
+            \endpgfscope
+            \pgfpathmoveto{\pgfpoint
+                {\ctikzvalof{tripoles/#1/base width}\pgf@circ@res@left}
+            {\ctikzvalof{tripoles/#1/base height}\pgf@circ@res@up+\pgfverticaltransformationadjustment*.5\pgflinewidth}}
+            \pgfpathlineto{\pgfpoint
+                {\ctikzvalof{tripoles/#1/base width}\pgf@circ@res@left}
+            {\ctikzvalof{tripoles/#1/base height}\pgf@circ@res@down-\pgfverticaltransformationadjustment*.5\pgflinewidth}}
+            \pgf@circ@setlinewidth{tripoles}{\pgflinewidth}
+            \pgfusepath{draw}
+        \endpgfscope
+        %draw arrow depending on type of transistor
+        \pgfscope
+            \pgfslopedattimetrue
+            \pgfallowupsidedownattimetrue
+            \pgfresetnontranslationattimefalse
+            \ifpgf@circuit@trans@arrowatend
+                \ifpgf@circuit@trans@ntype
+                    \edef\@@anchor{btip}\edef\@@pos{1.0}
+                \else
+                    \edef\@@anchor{tip}\edef\@@pos{1.0}
+                \fi
+            \else
+                \edef\@@anchor{center}\edef\@@pos{0.5}
+            \fi
+            \ifpgf@circuit@trans@ntype
+                \pgftransformlineattime{\@@pos}{%
+                    \pgfpoint%
+                    {\ctikzvalof{tripoles/#1/base width}\pgf@circ@res@left}%
+                    {\ctikzvalof{tripoles/#1/gate height 2}\pgf@circ@res@down}%
+                    }{%
+                    \pgfpoint{\pgf@circ@res@right}%
+                    {\ctikzvalof{tripoles/#1/gate height}\pgf@circ@res@down}%
+                }
+            \else
+                \pgftransformlineattime{\@@pos}{%
+                    \pgfpoint{\pgf@circ@res@right}%
+                    {\ctikzvalof{tripoles/#1/gate height}\pgf@circ@res@up}%
+                    }{%
+                    \pgfpoint{\ctikzvalof{tripoles/#1/base width}\pgf@circ@res@left}%
+                    {\ctikzvalof{tripoles/#1/gate height 2}\pgf@circ@res@up}%
+                }
+            \fi
+            \pgfnode{trarrow}{\@@anchor}{}{}{\pgfusepath{stroke}}
+        \endpgfscope
+        %draw gate
+        \ifpgf@circuit@trans@ntype
+            \pgfpathmoveto{\pgfpoint
+                {\ctikzvalof{tripoles/#1/gate width}\pgf@circ@res@left}
+            {\ctikzvalof{tripoles/#1/conn height}\pgf@circ@res@down}}
+            \pgfpathlineto{\pgfpoint{\pgf@circ@res@left-\pgfhorizontaltransformationadjustment*.5*\pgflinewidth}%
+            {\ctikzvalof{tripoles/#1/conn height}\pgf@circ@res@down}}
+        \else
+            \pgfpathmoveto{\pgfpoint
+                {\ctikzvalof{tripoles/#1/gate width}\pgf@circ@res@left}
+            {\ctikzvalof{tripoles/#1/conn height}\pgf@circ@res@up}}
+            \pgfpathlineto{\pgfpoint{\pgf@circ@res@left-\pgfhorizontaltransformationadjustment*.5*\pgflinewidth}%
+            {\ctikzvalof{tripoles/#1/conn height}\pgf@circ@res@up}}
+        \fi
+        \pgfusepath{draw}
+    }
+}
+
+\declaregfet{pgfet}
+\declaregfet{ngfet}
+
+% Plain MOSes
 
 \pgfcircdeclaretransistor{nmos}{
         \anchor{inner up}{
