@@ -6,6 +6,7 @@ The major changes among the different circuitikz versions are listed here. See <
     - Added the simplified (2-waves) highpass and lowpass blocks
     - Added graphene FETs (suggested by Cees Keyer)
     - Added left/right anchors to transistors
+    - Fixed a bug in flip-flops (https://tex.stackexchange.com/q/587213/38080)
 
 * Version 1.3.1 (2021-02-20)
 
