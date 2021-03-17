@@ -233,9 +233,11 @@ instead of \texttt{circuitikz}. This is also advantageous for ``future resilienc
 \end{itemize}
 
 \subsection{Incompatible packages}
-\TikZ's own \texttt{circuit} library, which is based on \Circuitikz, (re?)defines several styles used by this library. In order to have them work together you can use the \texttt{compatibility} package option, which basically prefixes the names of all \Circuitikz\ \texttt{to[]} styles with an asterisk.
+\TikZ's own \texttt{circuit} library, which was based on \Circuitikz, (re?)defines several styles used by this library. In order to have them work together you can use the \texttt{compatibility} package option, which basically prefixes the names of all \Circuitikz\ \texttt{to[]} styles with an asterisk.
 
 So, if loaded with said option, one must write \verb!(0,0) to[*R] (2,0)! and, for transistors on a path, \verb!(0,0) to[*Tnmos] (2,0)!, and so on (but \verb!(0,0) node[nmos] {}!). See example at page~\pageref{ex:compatibility}.
+
+Anyway, the compatibility code is a \emph{best effort} task and only very lightly tested --- the authors advice is to choose one or the other,  without mixing them.
 
 Another thing to take into account is that any \TikZ{} figure (and \Circuitikz{} ones qualify) \textbf{will} have problems if you use the \texttt{babel} package with a language that changes active characters (most of them). The solution is normally to add the line \verb|\usetikzlibrary{babel}| in your preamble, after loading \TikZ{} or \Circuitikz. This will normally solve the problem; some language also requires using \verb|\deactivatequoting| or the option \texttt{shorthands=off} for \texttt{babel}. Please check the documentation of \TikZ{} or this question \href{https://tex.stackexchange.com/questions/166772/problem-with-babel-and-tikz-using-draw}{on \TeX{} stackexchange site}.
 
@@ -1719,7 +1721,7 @@ The anchor is positioned just on the corner of the segmented line crossing the c
 
 \subsubsection{Resistive components customization}
 
-You can change the scale of these components (all the resistive bipoles together) by setting the key \texttt{resistors/scale} (default \texttt{1.0}).  Similarly, you can change the widths by setting \texttt{resistors/width} (default \texttt{0.8}).
+\paragraph{Geometry.} You can change the scale of these components (all the resistive bipoles together) by setting the key \texttt{resistors/scale} (default \texttt{1.0}).  Similarly, you can change the widths by setting \texttt{resistors/width} (default \texttt{0.8}).
 
 You can change the width of these components (all the resistive bipoles together) by setting the key \texttt{resistors/width}  to something different from the default \texttt{0.8}.
 
@@ -1736,6 +1738,20 @@ For the american style resistors, you can change the number of ``zig-zags'' by s
    \draw (0,-1.5) to[R, l=$R$] ++(4,0);
 \end{circuitikz}
 \end{LTXexample}
+
+\paragraph{Arrows.\label{sec:tunablearrows}} You can change the arrow tips used in tunable resistors (\texttt{vR}, \texttt{tgeneric}) with the key \texttt{bipoles/tunable arrow}  and in potentiometers with the key \texttt{bipoles/wiper arrow} (default \texttt{latexslim} for both). You can change that globally or locally, as ever. The tip specification is the one you can find in the \TikZ{} manual (``Arrow Tip Specifications'').
+
+\begin{LTXexample}[varwidth, basicstyle=\small\ttfamily]
+    \begin{circuitikz}[american]
+        % globally all the potentiometers
+        \ctikzset{bipoles/wiper arrow={Kite[open]}}
+        \draw (0,0) to[tgeneric] ++(2,0)
+        % set locally on this variable resistor
+        to[vR, bipoles/tunable arrow={Bar}] ++(0,-2)
+        to[pR] ++(-2,0);
+    \end{circuitikz}
+\end{LTXexample}
+
 
 \subsection{Capacitors and inductors: dynamical bipoles}
 
@@ -1763,6 +1779,8 @@ For capacitive sensors, see section~\ref{sec:sensors-anchors}.
 \subsubsection{Capacitors customizations}
 
 You can change the scale of the capacitors by setting the key \texttt{capacitors/scale}  to something different from the default \texttt{1.0}.
+
+Variable capacitors arrow tips follow the settings  of resistors, see section~\ref{sec:tunablearrows}.
 
 \subsubsection{Inductors}
 
@@ -1826,6 +1844,8 @@ Chokes (which comes only in the \texttt{cute} style) can have single and double 
     \draw (0,-3) to[cute choke, onelinechoke] ++(3,0);
 \end{circuitikz}
 \end{LTXexample}
+
+Variable inductors arrow tips follow the settings  of resistors, see section~\ref{sec:tunablearrows}.
 
 \subsubsection{Inductors anchors}
 
