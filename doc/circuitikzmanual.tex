@@ -1788,16 +1788,15 @@ If the \texttt{cuteinductors} option is active (default behaviour), or the style
 \begin{groupdesc}
     \ctikzset{inductor=cute}
     \circuitdescbip[cuteinductor]{L}{Inductor}{cute inductor}(midtap/90/0.1)
-    \circuitdescbip[cutechoke]{cute choke}{Choke}{}
-    \circuitdescbip[vcuteinductor]{vL}{Variable inductor}{variable cute inductor}
-    \circuitdescbip[scuteinductor]{sL}{Inductive sensor}{cute inductive sensor}( label/0/0.3 )
+    \circuitdescbip[vcuteinductor]{vL}{Variable inductor}{variable cute inductor}(core west/135/0.1, core east/45/0.1)
+    \circuitdescbip[scuteinductor]{sL}{Inductive sensor}{cute inductive sensor}(label/0/0.3)
 \end{groupdesc}
 
 If the \texttt{americaninductors} option is active (or the style \texttt{[american inductors]} is used), the inductors are displayed as follows:
 \begin{groupdesc}
     \ctikzset{inductor=american}
     \circuitdescbip[americaninductor]{L}{Inductor}{american inductor}(midtap/90/0.3)
-    \circuitdescbip[vamericaninductor]{vL}{Variable inductor}{variable american inductor}
+    \circuitdescbip[vamericaninductor]{vL}{Variable inductor}{variable american inductor}(core west/135/0.1, core east/45/0.1)
     \circuitdescbip[samericaninductor]{sL}{Inductive sensor}{american inductive sensor}( label/0/0.3 )
 \end{groupdesc}
 
@@ -1805,11 +1804,16 @@ Finally, if the \texttt{europeaninductors} option is active (or the style \textt
 \begin{groupdesc}
     \ctikzset{inductor=european}
     \circuitdescbip[fullgeneric]{L}{Inductor}{european inductor}(midtap/90/0.1)
-    \circuitdescbip[tfullgeneric]{vL}{Variable inductor}{variable european inductor}
+    \circuitdescbip[tfullgeneric]{vL}{Variable inductor}{variable european inductor}(core west/135/0.1, core east/45/0.1)
     \circuitdescbip[sfullgeneric]{sL}{Inductive sensor}{european inductive sensor}( label/0/0.3 )
     \ctikzset{inductor=cute} % back to default
 \end{groupdesc}
 
+For historical reasons, \emph{chokes} comes only in the \texttt{cute}. You can use the \texttt{core west} and \texttt{core east} anchors (see~\ref{sec:inductors-core-anchors}) to build your own core lines for the other inductors.
+
+\begin{groupdesc}
+    \circuitdescbip[cutechoke]{cute choke}{Choke}{}
+\end{groupdesc}
 
 \subsubsection{Inductors customizations}\label{sec:tweak-l}
 
@@ -1822,7 +1826,7 @@ Moreover, you can change the number of ``coils'' drawn by setting the key
 
 \begin{LTXexample}[varwidth=true]
 \begin{circuitikz}[
-        longL/.style = {cute choke, inductors/scale=0.75,
+        longL/.style = {cute inductor, inductors/scale=0.75,
         inductors/width=1.6, inductors/coils=9}]
    \draw (0,1.5) to[L, l=$L$] ++(4,0);
    \draw (0,0) to[longL, l=$L$] ++(4,0);
@@ -1831,7 +1835,7 @@ Moreover, you can change the number of ``coils'' drawn by setting the key
 \end{circuitikz}
 \end{LTXexample}
 
-Chokes (which comes only in the \texttt{cute} style) can have single and double lines, and can have the line thickness adjust (the value is relative to the thickness of the inductor).
+\paragraph{Chokes} can have single and double lines, and can have the line thickness adjusted (the value is relative to the thickness of the inductor). In general, you should use the anchors (see~\ref{sec:inductors-core-anchors}) to add core lines to inductors.
 
 \begin{LTXexample}[varwidth=true]
 \begin{circuitikz}[american]
@@ -1851,6 +1855,7 @@ Variable inductors arrow tips follow the settings  of resistors, see section~\re
 
 For inductive sensors, see section~\ref{sec:sensors-anchors}.
 
+\paragraph{Taps.}
 Inductors have an additional anchor, called \texttt{midtap}, that connects to the center of the coil ``wire''. Notice that this anchor could be on one side or the other of the component, depending on the number of loops of the element; if you need a fixed position, you can use the geographical anchors.
 
 \begin{LTXexample}[varwidth=true, basicstyle=\small\ttfamily]
@@ -1866,6 +1871,26 @@ to[L, loops=6, name=D] ++(2,0);
   \node[circle, fill=red, inner sep=1pt] at (\i.midtap){};
 \end{circuitikz}
 \end{LTXexample}
+
+\paragraph{Core anchors.}\label{sec:inductors-core-anchors}
+Inductors have additional anchors to add core lines (for historical reasons, there is a \texttt{cute choke} component also, but to use inductors in the chosen style you better use these anchors). The anchors are called \texttt{core west} and \texttt{core east} and they are positioned at a distance that you can tweak with the \texttt{\textbackslash ctikzset} key \texttt{bipoles/inductors/core distance} (default \texttt{2pt}).
+
+\begin{LTXexample}[varwidth, basicstyle=\small\ttfamily]
+    \begin{circuitikz}[]
+        \ctikzset{american}
+        \draw (0,3) to[L, name=myL] ++(2,0);
+        \draw[thick] (myL.core west) -- (myL.core east);
+        \ctikzset{cute inductors}
+        \draw (0,1.5) to[L, name=myL] ++(2,0);
+        \draw[densely dashed] (myL.core west) -- (myL.core east);
+        \ctikzset{european, bipoles/inductors/core distance=4pt}
+        \draw (0,0) to[L, name=myL] ++(2,0);
+        \draw[thick, double] (myL.core west) -- (myL.core east);
+    \end{circuitikz}
+\end{LTXexample}
+
+Notice that the core lines will \textbf{not} change the position of labels. You have to move them by hand if needed (or position them on the other side).
+
 
 \subsection{Diodes and such}
 
