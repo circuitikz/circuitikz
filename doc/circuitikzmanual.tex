@@ -282,6 +282,7 @@ The \texttt{use fpu reciprocal} key seems to have no side effects, but given tha
 Here, we will provide a list of incompabilitys between different version of circuitikz. We will try to hold this list short, but sometimes it is easier to break with old syntax than including a lot of switches and compatibility layers.
 You can check the used version at your local installation using the macro \verb!\pgfcircversion{}!.
 \begin{itemize}
+    \item Version 1.3.3 fixes the direction of the arrows in tunable elements; before this version, they were more or less random, now the arrow goes from bottom left to top right. You have the option to go back to the old behavior with \texttt{\textbackslash ctikzset\{bipoles/fix tunable direction=false\}}. As a compensation for the fuss, now the arrows are configurable. To learn more, see the FAQ:~\ref{faq:tunable-arrow}.
     \item Version 1.3.1 removes the warning if you do not specify a voltage direction.
     \item After 1.2.7 a big code reorganization (which by the way fixed some bug) has been made; no changes should be visible, but a fallback point at 1.2.7 has been added.
     \item You \textbf{must} upgrade to v1.2.7 or newer if you use a \TikZ{} 3.1.8 or 3.1.8a (but better upgrade both packages to the current version).
@@ -7651,6 +7652,32 @@ In versions up to \texttt{1.2.7}, use for example \verb|\mbox{}| or define \verb
 \faqQ I tried to put a diode in a \texttt{pic}, but it's coming out badly rotated.
 
 \faqA Yes, it's a known bug (or misfeature, or limitation, or a fact of life). See section~\ref{sec:bugs}. \Circuitikz{} is not compatible with \texttt{pic}s at this point.
+
+\subsection{Tunable components}\label{faq:tunable-arrow}
+
+\faqQ The direction of the arrows in variable resistors or capacitors changed!
+
+\faqA Yes, it changed in \texttt{v1.3.3}.
+
+Version 1.3.3 fixes the direction of the arrows in tunable elements; before this version, they were more or less random, now the arrow goes from bottom left to top right. You have the option to go back to the old behavior with \texttt{\textbackslash ctikzset\{bipoles/fix tunable direction=false\}}. As a compensation for the fuss, now the arrows are configurable.
+
+
+\begin{LTXexample}[pos=t, basicstyle=\small\ttfamily]
+\begin{circuitikz}[european]
+    \draw (1,0) node{new default} (4,0) node{old default} (7,0) node{new!};
+    \foreach [count=\i] \comp in
+    {variable american resistor, variable european resistor,
+        variable cute inductor, variable american inductor, tfullgeneric,
+        variable capacitor} {
+        \draw (0,-\i) node[left]{\texttt{\comp}} to[\comp, name=E] ++(2,0);
+        \ctikzset{bipoles/fix tunable direction=false}
+        \draw (3,-\i) to[\comp, name=E] ++(2,0);
+        \ctikzset{bipoles/fix tunable direction=true, bipoles/tunable arrow={Bar}}
+        \draw (6,-\i) to[\comp, name=E] ++(2,0);
+    }
+\end{circuitikz}
+\end{LTXexample}
+
 
 \section{Defining new components}
 

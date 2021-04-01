@@ -5,6 +5,7 @@ The major changes among the different CircuiTikZ versions are listed here. See <
 
     - Added options to change arrow tips on variable resistors, inductors and capacitors
     - Added anchors to inductance to add core lines
+    - Fixed the default direction of tunable arrows (with an option to go back to old ones)
 
 * Version 1.3.2 (2021-03-14)
 
