@@ -1883,18 +1883,18 @@ Inductors have additional anchors to add core lines (for historical reasons, the
 \begin{LTXexample}[varwidth, basicstyle=\small\ttfamily]
     \begin{circuitikz}[]
         \ctikzset{american}
-        \draw (0,3) to[L, name=myL] ++(2,0);
+        \draw (0,3) to[L=$L$, name=myL] ++(2,0);
         \draw[thick] (myL.core west) -- (myL.core east);
         \ctikzset{cute inductors}
-        \draw (0,1.5) to[L, name=myL] ++(2,0);
+        \draw (0,1.5) to[L=$L$, name=myL] ++(2,0);
         \draw[densely dashed] (myL.core west) -- (myL.core east);
         \ctikzset{european, bipoles/inductors/core distance=4pt}
-        \draw (0,0) to[L, name=myL] ++(2,0);
+        \draw (0,0) to[L=$L$, name=myL, label distance=2pt] ++(2,0);
         \draw[thick, double] (myL.core west) -- (myL.core east);
     \end{circuitikz}
 \end{LTXexample}
 
-Notice that the core lines will \textbf{not} change the position of labels. You have to move them by hand if needed (or position them on the other side).
+Notice that the core lines will \textbf{not} change the position of labels. You have to move them by hand if needed (or position them on the other side); see~\ref{sec:adjust-label-position}.
 
 
 \subsection{Diodes and such}
@@ -5812,7 +5812,7 @@ A couple of examples are shown below.
 
 
 
-\section{Labels and similar annotations}
+\section{Labels, voltages and currents}
 
 \begin{LTXexample}[varwidth=true]
 \begin{circuitikz}
@@ -5863,7 +5863,8 @@ Long names/styles for the bipoles can be used:
 \label{sec:labels-and-annotations}
 Since Version 0.7, beside the original label (\texttt{l})  option, there is a new option to place a second label, called annotation (\texttt{a}) at each bipole.
 
-The position of annotations and labels can be adjusted with \verb|_|  and \verb|^|.
+\subsubsection{Label and annotation position.}
+When drawing a component left-to-right, the label \texttt{l} is by default above the component, and the annotation \texttt{a} is by default below it. The position of annotations and labels can be adjusted adding the characters \verb|_| or \verb|^| to the key.
 
 \begin{LTXexample}[varwidth=true]
 \begin{circuitikz}
@@ -5877,7 +5878,39 @@ The position of annotations and labels can be adjusted with \verb|_|  and \verb|
 \end{circuitikz}
 \end{LTXexample}
 
-\textbf{Caveat:} when \TikZ{} processes the options, there will be problems if the label (or annotation, voltage, or current) contains one of the characters $=$ (equal) or $,$ (comma) --- because the parser search for those two characters to delimit the arguments, giving unexpected errors and wrong output.
+For passive components, you can use \texttt{type=text} as a shortcut for \texttt{type, l=text}:
+
+\begin{LTXexample}[varwidth=true]
+\begin{circuitikz}
+   \draw (0,0) to[R=$R_1$,a=1<\kilo\ohm>] (2,0);
+\end{circuitikz}
+\end{LTXexample}
+
+Notice though that in active component (sources of either voltage or current) the shortcut will set the voltage (\texttt{v}) or current (\texttt{i}) property.
+
+\paragraph{Adjust label and annotation position.}\label{sec:adjust-label-position}
+Normally the package will guess a good position for the label or annotation; if you do not like it,
+you can add\footnote{Since version \texttt{1.3.3}} (or remove, with negative values) distance using the keys \texttt{label position} and \texttt{annotation distance}.
+
+\begin{LTXexample}[varwidth=true, basicstyle=\small\ttfamily]
+\begin{circuitikz}
+    \draw (0,0) to[sR, l=$R$, label distance=-4pt] (2,0)
+    to [sR, l=$R$] (4,0);
+\end{circuitikz}
+\end{LTXexample}
+
+\begin{LTXexample}[varwidth=true, basicstyle=\small\ttfamily]
+\begin{circuitikz}[american]
+    \ctikzset{bipoles/inductors/core distance=4pt}
+    \draw (0,1) to[L=$L$, name=myL] ++(2,0);
+    \draw[thick, double] (myL.core west) -- (myL.core east);
+    \draw (0,0) to[L=$L$, name=myL, label distance=2pt] ++(2,0);
+    \draw[thick, double] (myL.core west) -- (myL.core east);
+\end{circuitikz}
+\end{LTXexample}
+
+\subsubsection{Special symbols in labels and annotations.}
+When \TikZ{} processes the options, there will be problems if the label (or annotation, voltage, or current) contains one of the characters $=$ (equal) or $,$ (comma) --- because the parser search for those two characters to delimit the arguments, giving unexpected errors and wrong output.
 These two characters can be protected from the option parser using an extra set of braces.
 
 \begin{LTXexample}[varwidth=true]
@@ -5892,7 +5925,7 @@ These two characters can be protected from the option parser using an extra set 
     \end{circuitikz}
 \end{LTXexample}
 
-\textbf{(Even more) Caveat:} up to version \texttt{1.2.7}, due to the way in which \Circuitikz{} used to processes the options, even that was not sufficient, so you must protect that tokens even more, for example using an \verb|\mbox| command, or redefining the characters with a \TeX\ \verb|\def|:
+\textbf{Caveat:} up to version \texttt{1.2.7}, due to the way in which \Circuitikz{} used to processes the options, even that was not sufficient, so you must protect that tokens even more, for example using an \verb|\mbox| command, or redefining the characters with a \TeX\ \verb|\def|:
 
 \begin{LTXexample}[varwidth=true]
     \begin{circuitikz}
@@ -5908,7 +5941,8 @@ These two characters can be protected from the option parser using an extra set 
 \end{LTXexample}
 
 
-\noindent The default orientation of labels is controlled by the options \texttt{smartlabels}, \texttt{rotatelabels} and \texttt{straightlabels} (or the corresponding \texttt{label/align} keys). Here are examples to see the differences:
+\subsubsection{Labels and annotation orientation.}
+The default orientation of labels is controlled by the options \texttt{smartlabels}, \texttt{rotatelabels} and \texttt{straightlabels} (or the corresponding \texttt{label/align} keys). Here are examples to see the differences:
 \begin{LTXexample}[varwidth=true]
 \begin{circuitikz}
 \ctikzset{label/align = straight}
