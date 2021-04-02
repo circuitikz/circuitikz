@@ -14,9 +14,19 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %% Generic macro and flags for bipoles %<<<
+% Fixing tunable directions
 \newif\ifpgf@circ@fixtunable@dir
 \ctikzset{bipoles/fix tunable direction/.is if=pgf@circ@fixtunable@dir}
 \ctikzset{bipoles/fix tunable direction=true}
+% tunable arrows
+\ctikzset{bipoles/tunable end arrow/.initial={latexslim}}
+\ctikzset{bipoles/tunable start arrow/.initial={}}
+\ctikzset{bipoles/wiper end arrow/.initial={latexslim}}
+\ctikzset{bipoles/wiper start arrow/.initial={}}
+\def\pgfcirc@set@arrow#1{%
+        \pgfsetarrowsend{\ctikzvalof{bipoles/#1 end arrow}}%
+        \pgfsetarrowsstart{\ctikzvalof{bipoles/#1 start arrow}}%
+}
 %>>>
 
 
@@ -112,9 +122,6 @@
 % crossing wires
 \ctikzset{bipoles/crossing/size/.initial=.2}
 
-% tunable arrows
-\ctikzset{bipoles/tunable arrow/.initial={latexslim}}
-\ctikzset{bipoles/wiper arrow/.initial={latexslim}}
 %%>>>
 
 %% Shapes for generic, resistives and wires components %<<<
@@ -280,7 +287,7 @@
     \pgf@circ@setlinewidth{bipoles}{\pgfstartlinewidth}
     \pgf@circ@draworfill
     \pgfscope
-        \pgfsetarrowsend{\ctikzvalof{bipoles/tunable arrow}}
+        \pgfcirc@set@arrow{tunable}
         \ifpgf@circ@fixtunable@dir
             \pgfpathmoveto{\pgfpoint{.5\pgf@circ@res@left}{\pgf@circ@res@down}}
             \pgfpathlineto{\pgfpoint{-.5\pgf@circ@res@left}{\pgf@circ@res@up}}
@@ -509,7 +516,7 @@
     \endpgfscope
     \pgfscope
         %\pgfsetlinewidth{\pgfstartlinewidth}
-        \pgfsetarrowsend{\ctikzvalof{bipoles/wiper arrow}}
+        \pgfcirc@set@arrow{wiper}
         \pgfextractx{\pgf@circ@res@other}{\wiper}
         \pgfpathmoveto{\pgfpoint{\pgf@circ@res@other}{\pgf@circ@res@up}}
         \pgfpathlineto{\pgfpoint{\pgf@circ@res@other}{-\pgf@circ@res@down}}
@@ -577,7 +584,7 @@
     \pgf@circ@zigzag{.5}
 
     \pgfscope
-        \pgfsetarrowsend{\ctikzvalof{bipoles/tunable arrow}}
+        \pgfcirc@set@arrow{tunable}
         \ifpgf@circ@fixtunable@dir
             \pgfpathmoveto{\pgfpoint{-.4\pgf@circ@res@other}{\pgf@circ@res@down}}
             \pgfpathlineto{\pgfpoint{.4\pgf@circ@res@other}{\pgf@circ@res@up}}
@@ -615,7 +622,7 @@
 
     \pgfscope
         %\pgfsetlinewidth{\pgfstartlinewidth}
-        \pgfsetarrowsend{\ctikzvalof{bipoles/wiper arrow}}
+        \pgfcirc@set@arrow{wiper}
         \pgfextractx{\pgf@circ@res@other}{\wiper}
         \pgfpathmoveto{\pgfpoint{\pgf@circ@res@other}{\pgf@circ@res@up}}
         \pgfpathlineto{\pgfpoint{\pgf@circ@res@other}{-\pgf@circ@res@down}}
@@ -878,7 +885,7 @@
     \pgfusepath{draw}
 
     \pgfscope
-        \pgfsetarrowsend{\ctikzvalof{bipoles/tunable arrow}}
+        \pgfcirc@set@arrow{tunable}
         \ifpgf@circ@fixtunable@dir
             \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@down}}
             \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@up}}
@@ -1222,7 +1229,7 @@
     {(\ctikzvalof{bipoles/vcuteinductor/width}*\scaledRlen+\pgfhorizontaltransformationadjustment\pgflinewidth+(\ctikzvalof{bipoles/vcuteinductor/coils}-1)*2*\pgf@circ@res@other)/\ctikzvalof{bipoles/vcuteinductor/coils}/2}
 
     \pgfscope
-        \pgfsetarrowsend{\ctikzvalof{bipoles/tunable arrow}}
+        \pgfcirc@set@arrow{tunable}
         \pgfpathmoveto{\pgfpoint{.4\pgf@circ@res@left}{\pgf@circ@res@down}}
         \pgfpathlineto{\pgfpoint{.4\pgf@circ@res@right}{\pgf@circ@res@up}}
         \pgfusepath{draw}
@@ -1369,7 +1376,7 @@
     \pgfusepath{stroke}
 
     \pgfscope
-        \pgfsetarrowsend{\ctikzvalof{bipoles/tunable arrow}}
+        \pgfcirc@set@arrow{tunable}
         \pgfpathmoveto{\pgfpoint{.4\pgf@circ@res@left}{\pgf@circ@res@down}}
         \pgfpathlineto{\pgfpoint{-.4\pgf@circ@res@left}{\pgf@circ@res@up}}
         \pgfusepath{draw}
@@ -1443,7 +1450,7 @@
     \pgfusepath{draw,fill}
 
     \pgfscope
-        \pgfsetarrowsend{\ctikzvalof{bipoles/tunable arrow}}
+        \pgfcirc@set@arrow{tunable}
         \ifpgf@circ@fixtunable@dir
             \pgfpathmoveto{\pgfpoint{.5\pgf@circ@res@left}{\pgf@circ@res@down}}
             \pgfpathlineto{\pgfpoint{-.5\pgf@circ@res@left}{\pgf@circ@res@up}}
