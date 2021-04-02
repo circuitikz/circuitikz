@@ -10,7 +10,7 @@
 %
 % See the files gpl-3.0_license.txt and lppl-1-3c_license.txt for more details.
 
-\def\pgfcircversion{1.3.3-unreleased-104ee8e}
+\def\pgfcircversion{1.3.3-unreleased-1f7b598}
 \def\pgfcircversiondate{2021/04/02}
 \writestatus{loading}{\pgfcircversiondate{} The CircuiTikz circuit drawing package version \pgfcircversion}
 
@@ -23168,6 +23168,11 @@
         \ctikzset{bipole annotation style/.append style={#1}}
 }}
 
+\ctikzset{label distance/.initial={0pt}}
+\ctikzset{annotation distance/.initial={0pt}}
+\tikzset{label distance/.code={\ctikzset{label distance={#1}}}}
+\tikzset{annotation distance/.code={\ctikzset{annotation distance={#1}}}}
+
 %% Options
 \ctikzset{label/.style = { l={#1} } }
 \ctikzset{l/.code = {
@@ -23320,13 +23325,13 @@
         % scale the distances in function of zoom, so that they are not
         % dependent on it but on font size. Thanks to @marmot
         % https://tex.stackexchange.com/a/476018/38080
-        % the coeffcient is adjusted so that the distance is more or less
+        % the coefficient is adjusted so that the distance is more or less
         % the same for rotated labels and straight ones (although it will
         % depend on the font, so it's not exact).
         \pgfgettransformentries{\tmpa}{\tmpb}{\tmpc}{\tmpd}{\tmp}{\tmp}%
         \pgfmathsetmacro{\myscale}{sqrt(abs(\tmpa*\tmpd-\tmpb*\tmpc))}% abs should not be needed
         % \typeout{ROT\tmpa\space\tmpb\space\tmpc\space\tmpd\space\myscale}
-        \pgfmathsetlength\pgf@circ@res@temp{1.5*\pgf@circ@ls/\myscale}
+        \pgfmathsetlength\pgf@circ@res@temp{1.5*\pgf@circ@ls/\myscale+\ctikzvalof{#1 distance}/\myscale}
         \ifnum \ctikzvalof{bipole/#1/position}>0
         %we need some more space for placement below, due to mid-anchor
             \else % we do not have <= in \ifnum...
@@ -23365,7 +23370,7 @@
         \pgfgettransformentries{\tmpa}{\tmpb}{\tmpc}{\tmpd}{\tmp}{\tmp}%
         \pgfmathsetmacro{\myscale}{sqrt(abs(\tmpa*\tmpd-\tmpb*\tmpc))}% abs should not be needed
         % \typeout{ROT\tmpa\space\tmpb\space\tmpc\space\tmpd\space\myscale}
-        \pgfmathsetlength\pgf@circ@res@temp{\pgf@circ@ls/\myscale}
+        \pgfmathsetlength\pgf@circ@res@temp{\pgf@circ@ls/\myscale+\ctikzvalof{#1 distance}/\myscale}
         \pgfmathadd{\pgf@circ@labanc}{90}
         \pgfmathround{\pgfmathresult}
         \def\pgf@circ@labanctext{\pgf@circ@labanc}
