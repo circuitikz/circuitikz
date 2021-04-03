@@ -12,8 +12,8 @@
 
 \NeedsTeXFormat{LaTeX2e}
 
-\def\pgfcircversion{1.3.3-unreleased-1f7b598}
-\def\pgfcircversiondate{2021/04/02}
+\def\pgfcircversion{1.3.3-unreleased-e02e6f2}
+\def\pgfcircversiondate{2021/04/03}
 
 \ProvidesPackage{circuitikzgit}
 [\pgfcircversiondate{} The CircuiTikz circuit drawing package version \pgfcircversion]
@@ -396,7 +396,9 @@
 \newdimen \pgfstartlinewidth
 %%>>>
 
-% arrow tips, ported over old arrows library (deprecated)%<<<1
+% arrow tips macros and utilities %<<<1
+
+% the default arrow is latexslim, which has been ported over old arrows library (deprecated)
 % see https://tex.stackexchange.com/questions/234084/latex-arrow-tip-with-arrows-meta-library
 % this was the original definition of latex' tips, renamed to avoid clashes
 %
@@ -428,6 +430,36 @@
 }
 
 \pgfarrowsdeclarereversed{latexslim reversed}{latexslim reversed}{latexslim}{latexslim}
+
+% select the arrows using available defaults.
+\def\pgfcirc@arrow@default{default}
+% choose the arrows to use. Use #2 and #3 if the key is equal to "default"
+% arguments: type, default start, default end
+\def\pgfcirc@set@arrows#1#2#3{%
+        \pgfkeysifdefined{\circuitikzbasekey/#1 start arrow}%
+            {\edef\@@start{\ctikzvalof{#1 start arrow}}}%
+            {\edef\@@start{\pgfcirc@arrow@default}}
+        \pgfkeysifdefined{\circuitikzbasekey/#1 end arrow}%
+            {\edef\@@end{\ctikzvalof{#1 end arrow}}}%
+            {\edef\@@end{\pgfcirc@arrow@default}}
+        \ifx\@@start\pgfcirc@arrow@default
+            \pgfsetarrowsstart{#2}%
+        \else
+            \pgfsetarrowsstart{\@@start}%
+        \fi
+        \ifx\@@end\pgfcirc@arrow@default
+            \pgfsetarrowsend{#3}%
+        \else
+            \pgfsetarrowsend{\@@end}%
+        \fi
+}
+
+\def\pgf@circ@declare@family@arrows#1{%
+    \ctikzset{#1 start arrow/.initial={default}}
+    \ctikzset{#1 end arrow/.initial={default}}
+    \tikzset{#1 start arrow/.style={\circuitikzbasekey/#1 start arrow={##1}}}
+    \tikzset{#1 end arrow/.style={\circuitikzbasekey/#1 end arrow={##1}}}
+}
 %%>>>
 
 %% Macros to do things depending on the class%<<<1
@@ -3654,15 +3686,10 @@
 \newif\ifpgf@circ@fixtunable@dir
 \ctikzset{bipoles/fix tunable direction/.is if=pgf@circ@fixtunable@dir}
 \ctikzset{bipoles/fix tunable direction=true}
-% tunable arrows
-\ctikzset{bipoles/tunable end arrow/.initial={latexslim}}
-\ctikzset{bipoles/tunable start arrow/.initial={}}
-\ctikzset{bipoles/wiper end arrow/.initial={latexslim}}
-\ctikzset{bipoles/wiper start arrow/.initial={}}
-\def\pgfcirc@set@arrow#1{%
-        \pgfsetarrowsend{\ctikzvalof{bipoles/#1 end arrow}}%
-        \pgfsetarrowsstart{\ctikzvalof{bipoles/#1 start arrow}}%
-}
+% choosing several arrows
+\pgf@circ@declare@family@arrows{tunable}
+\pgf@circ@declare@family@arrows{wiper}
+\pgf@circ@declare@family@arrows{switch}
 %>>>
 
 
@@ -3923,7 +3950,7 @@
     \pgf@circ@setlinewidth{bipoles}{\pgfstartlinewidth}
     \pgf@circ@draworfill
     \pgfscope
-        \pgfcirc@set@arrow{tunable}
+        \pgfcirc@set@arrows{tunable}{}{latexslim}
         \ifpgf@circ@fixtunable@dir
             \pgfpathmoveto{\pgfpoint{.5\pgf@circ@res@left}{\pgf@circ@res@down}}
             \pgfpathlineto{\pgfpoint{-.5\pgf@circ@res@left}{\pgf@circ@res@up}}
@@ -4152,7 +4179,7 @@
     \endpgfscope
     \pgfscope
         %\pgfsetlinewidth{\pgfstartlinewidth}
-        \pgfcirc@set@arrow{wiper}
+        \pgfcirc@set@arrows{wiper}{}{latexslim}
         \pgfextractx{\pgf@circ@res@other}{\wiper}
         \pgfpathmoveto{\pgfpoint{\pgf@circ@res@other}{\pgf@circ@res@up}}
         \pgfpathlineto{\pgfpoint{\pgf@circ@res@other}{-\pgf@circ@res@down}}
@@ -4220,7 +4247,7 @@
     \pgf@circ@zigzag{.5}
 
     \pgfscope
-        \pgfcirc@set@arrow{tunable}
+        \pgfcirc@set@arrows{tunable}{}{latexslim}
         \ifpgf@circ@fixtunable@dir
             \pgfpathmoveto{\pgfpoint{-.4\pgf@circ@res@other}{\pgf@circ@res@down}}
             \pgfpathlineto{\pgfpoint{.4\pgf@circ@res@other}{\pgf@circ@res@up}}
@@ -4258,7 +4285,7 @@
 
     \pgfscope
         %\pgfsetlinewidth{\pgfstartlinewidth}
-        \pgfcirc@set@arrow{wiper}
+        \pgfcirc@set@arrows{wiper}{}{latexslim}
         \pgfextractx{\pgf@circ@res@other}{\wiper}
         \pgfpathmoveto{\pgfpoint{\pgf@circ@res@other}{\pgf@circ@res@up}}
         \pgfpathlineto{\pgfpoint{\pgf@circ@res@other}{-\pgf@circ@res@down}}
@@ -4521,7 +4548,7 @@
     \pgfusepath{draw}
 
     \pgfscope
-        \pgfcirc@set@arrow{tunable}
+        \pgfcirc@set@arrows{tunable}{}{latexslim}
         \ifpgf@circ@fixtunable@dir
             \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@down}}
             \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@up}}
@@ -4865,7 +4892,7 @@
     {(\ctikzvalof{bipoles/vcuteinductor/width}*\scaledRlen+\pgfhorizontaltransformationadjustment\pgflinewidth+(\ctikzvalof{bipoles/vcuteinductor/coils}-1)*2*\pgf@circ@res@other)/\ctikzvalof{bipoles/vcuteinductor/coils}/2}
 
     \pgfscope
-        \pgfcirc@set@arrow{tunable}
+        \pgfcirc@set@arrows{tunable}{}{latexslim}
         \pgfpathmoveto{\pgfpoint{.4\pgf@circ@res@left}{\pgf@circ@res@down}}
         \pgfpathlineto{\pgfpoint{.4\pgf@circ@res@right}{\pgf@circ@res@up}}
         \pgfusepath{draw}
@@ -5012,7 +5039,7 @@
     \pgfusepath{stroke}
 
     \pgfscope
-        \pgfcirc@set@arrow{tunable}
+        \pgfcirc@set@arrows{tunable}{}{latexslim}
         \pgfpathmoveto{\pgfpoint{.4\pgf@circ@res@left}{\pgf@circ@res@down}}
         \pgfpathlineto{\pgfpoint{-.4\pgf@circ@res@left}{\pgf@circ@res@up}}
         \pgfusepath{draw}
@@ -5086,7 +5113,7 @@
     \pgfusepath{draw,fill}
 
     \pgfscope
-        \pgfcirc@set@arrow{tunable}
+        \pgfcirc@set@arrows{tunable}{}{latexslim}
         \ifpgf@circ@fixtunable@dir
             \pgfpathmoveto{\pgfpoint{.5\pgf@circ@res@left}{\pgf@circ@res@down}}
             \pgfpathlineto{\pgfpoint{-.5\pgf@circ@res@left}{\pgf@circ@res@up}}
@@ -7490,7 +7517,7 @@
         \pgftransformshift{\pgfpoint{\pgf@circ@res@left}{0pt}}
         \pgfpathmoveto{\pgfpointpolar{90}{1.2\pgf@circ@res@right}}
         \pgfpatharc{90}{-20}{1.2\pgf@circ@res@right}
-        \pgfsetarrowsend{latexslim}
+        \pgfcirc@set@arrows{switch}{}{latexslim}
         \pgfsetbeveljoin
         \pgfusepath{draw}
     \endpgfscope
@@ -7514,7 +7541,7 @@
         \pgftransformshift{\pgfpoint{\pgf@circ@res@left}{0pt}}
         \pgfpathmoveto{\pgfpointpolar{-10}{1.2\pgf@circ@res@right}}
         \pgfpatharc{-10}{90}{1.2\pgf@circ@res@right}
-        \pgfsetarrowsend{latexslim}
+        \pgfcirc@set@arrows{switch}{}{latexslim}
         \pgfsetbeveljoin
         \pgfusepath{draw}
     \endpgfscope
@@ -7772,7 +7799,7 @@
     \pgftransformshift{\pgfpoint{\pgf@circ@res@left}{0pt}} % in node
     \pgfpathmoveto{\pgfpointpolar{70}{1.2\pgf@circ@res@right}}
     \pgfpatharc{70}{-10}{1.2\pgf@circ@res@right}
-    \pgfsetarrowsend{latexslim}
+    \pgfcirc@set@arrows{switch}{}{latexslim}
     \pgfusepath{draw}
     }
 
@@ -7784,7 +7811,7 @@
     \pgftransformshift{\pgfpoint{\pgf@circ@res@left}{0pt}} % in node
     \pgfpathmoveto{\pgfpointpolar{-10}{1.2\pgf@circ@res@right}}
     \pgfpatharc{-10}{60}{1.2\pgf@circ@res@right}
-    \pgfsetarrowsend{latexslim}
+    \pgfcirc@set@arrows{switch}{}{latexslim}
     \pgfusepath{draw}
     }
 
@@ -8071,7 +8098,7 @@
     \pgftransformshift{\pgfpoint{\pgf@circ@res@left}{0pt}} % in node
     \pgfpathmoveto{\pgfpointpolar{70}{1.5\pgf@circ@res@right}}
     \pgfpatharc{70}{-50}{1.5\pgf@circ@res@right}
-    \pgfsetarrowsend{latexslim}
+    \pgfcirc@set@arrows{switch}{}{latexslim}
     \pgfusepath{draw}
 }
 
@@ -8080,10 +8107,9 @@
 {
     \pgf@circ@setlinewidth{bipoles}{\pgflinewidth}
     \pgftransformshift{\pgfpoint{\pgf@circ@res@left}{0pt}} % in node
-    \pgfsetarrowsstart{latexslim}
+    \pgfcirc@set@arrows{switch}{latexslim}{latexslim}
     \pgfpathmoveto{\pgfpointpolar{-60}{1.5\pgf@circ@res@right}}
     \pgfpatharc{-60}{60}{1.5\pgf@circ@res@right}
-    \pgfsetarrowsend{latexslim}
     \pgfusepath{draw}
 }
 
@@ -8094,7 +8120,7 @@
     \pgftransformshift{\pgfpoint{\pgf@circ@res@left}{0pt}} % in node
     \pgfpathmoveto{\pgfpointpolar{-50}{1.5\pgf@circ@res@right}}
     \pgfpatharc{-50}{70}{1.5\pgf@circ@res@right}
-    \pgfsetarrowsend{latexslim}
+    \pgfcirc@set@arrows{switch}{}{latexslim}
     \pgfusepath{draw}
 }
 % %>>>
@@ -22185,13 +22211,29 @@
 
         \ifpgf@circ@rotaryarrow
             \pgfscope % arrow
-                \ifpgf@circ@rotaryarrow@ccw\pgfsetarrowsstart{latexslim}\fi
+                \pgfcirc@set@arrows{switch}{\ifpgf@circ@rotaryarrow@ccw latexslim\fi}{\ifpgf@circ@rotaryarrow@cw latexslim\fi}
                 \pgf@circ@setlinewidth{bipoles}{\pgflinewidth}
                 \pgftransformshift{\pgfpoint{\pgf@circ@res@left}{0pt}} % center of cin node
                 \pgftransformrotate{\wiper}
                 \pgfpathmoveto{\pgfpointpolar{50}{1.0\pgf@circ@res@right}}
                 \pgfpatharc{50}{-50}{1.0\pgf@circ@res@right}
-                \ifpgf@circ@rotaryarrow@cw\pgfsetarrowsend{latexslim}\fi
+                \ifpgf@circ@rotaryarrow@ccw
+                    \ifpgf@circ@rotaryarrow@cw
+                        % both here, maintain values
+                        \relax
+                    \else
+                        % only ccw: remove end arrow
+                        \pgfsetarrowsend{}
+                    \fi
+                \else
+                    \ifpgf@circ@rotaryarrow@cw
+                        % only cw: remove start arrow
+                        \pgfsetarrowsstart{}
+                    \else
+                        % none: shouldn't happen
+                        \relax
+                    \fi
+                \fi
                 \pgfusepath{draw}
             \endpgfscope
         \fi
