@@ -730,13 +730,29 @@
 
         \ifpgf@circ@rotaryarrow
             \pgfscope % arrow
-                \ifpgf@circ@rotaryarrow@ccw\pgfsetarrowsstart{latexslim}\fi
+                \pgfcirc@set@arrows{switch}{\ifpgf@circ@rotaryarrow@ccw latexslim\fi}{\ifpgf@circ@rotaryarrow@cw latexslim\fi}
                 \pgf@circ@setlinewidth{bipoles}{\pgflinewidth}
                 \pgftransformshift{\pgfpoint{\pgf@circ@res@left}{0pt}} % center of cin node
                 \pgftransformrotate{\wiper}
                 \pgfpathmoveto{\pgfpointpolar{50}{1.0\pgf@circ@res@right}}
                 \pgfpatharc{50}{-50}{1.0\pgf@circ@res@right}
-                \ifpgf@circ@rotaryarrow@cw\pgfsetarrowsend{latexslim}\fi
+                \ifpgf@circ@rotaryarrow@ccw
+                    \ifpgf@circ@rotaryarrow@cw
+                        % both here, maintain values
+                        \relax
+                    \else
+                        % only ccw: remove end arrow
+                        \pgfsetarrowsend{}
+                    \fi
+                \else
+                    \ifpgf@circ@rotaryarrow@cw
+                        % only cw: remove start arrow
+                        \pgfsetarrowsstart{}
+                    \else
+                        % none: shouldn't happen
+                        \relax
+                    \fi
+                \fi
                 \pgfusepath{draw}
             \endpgfscope
         \fi
