@@ -67,7 +67,9 @@
 \newdimen \pgfstartlinewidth
 %%>>>
 
-% arrow tips, ported over old arrows library (deprecated)%<<<1
+% arrow tips macros and utilities %<<<1
+
+% the default arrow is latexslim, which has been ported over old arrows library (deprecated)
 % see https://tex.stackexchange.com/questions/234084/latex-arrow-tip-with-arrows-meta-library
 % this was the original definition of latex' tips, renamed to avoid clashes
 %
@@ -99,6 +101,36 @@
 }
 
 \pgfarrowsdeclarereversed{latexslim reversed}{latexslim reversed}{latexslim}{latexslim}
+
+% select the arrows using available defaults.
+\def\pgfcirc@arrow@default{default}
+% choose the arrows to use. Use #2 and #3 if the key is equal to "default"
+% arguments: type, default start, default end
+\def\pgfcirc@set@arrows#1#2#3{%
+        \pgfkeysifdefined{\circuitikzbasekey/#1 start arrow}%
+            {\edef\@@start{\ctikzvalof{#1 start arrow}}}%
+            {\edef\@@start{\pgfcirc@arrow@default}}
+        \pgfkeysifdefined{\circuitikzbasekey/#1 end arrow}%
+            {\edef\@@end{\ctikzvalof{#1 end arrow}}}%
+            {\edef\@@end{\pgfcirc@arrow@default}}
+        \ifx\@@start\pgfcirc@arrow@default
+            \pgfsetarrowsstart{#2}%
+        \else
+            \pgfsetarrowsstart{\@@start}%
+        \fi
+        \ifx\@@end\pgfcirc@arrow@default
+            \pgfsetarrowsend{#3}%
+        \else
+            \pgfsetarrowsend{\@@end}%
+        \fi
+}
+
+\def\pgf@circ@declare@family@arrows#1{%
+    \ctikzset{#1 start arrow/.initial={default}}
+    \ctikzset{#1 end arrow/.initial={default}}
+    \tikzset{#1 start arrow/.style={\circuitikzbasekey/#1 start arrow={##1}}}
+    \tikzset{#1 end arrow/.style={\circuitikzbasekey/#1 end arrow={##1}}}
+}
 %%>>>
 
 %% Macros to do things depending on the class%<<<1
