@@ -1,13 +1,19 @@
 <!--- CircuiTikz - Changelog --->
 The major changes among the different CircuiTikZ versions are listed here. See <https://github.com/circuitikz/circuitikz/commits> for a full list of changes.
 
-* Version 1.3.3 (unreleased)
+* Version 1.3.3 (2021-04-04)
+
+    Several usability additions in this version, and one small fix that could
+    change the look of your circuit (without affecting correctness). Some of the
+    arrow shapes are now configurable.
 
     - Added options to fine-tune the position of labels and annotations
-    - Added options to change arrow tips on variable resistors, inductors and capacitor as well as in potentiometers
-    - Added options to change arrow tips on switches 
+    - Added options to change arrow tips on variable resistors, inductors and
+      capacitors as well as in potentiometers
+    - Added options to change arrow tips on switches
     - Added anchors to inductance to add core lines
-    - Fixed the default direction of tunable arrows (with an option to go back to the old ones)
+    - Fixed the default direction of tunable arrows (with an option to go back to
+      the old ones)
 
 * Version 1.3.2 (2021-03-14)
 
