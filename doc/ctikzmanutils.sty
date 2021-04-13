@@ -11,14 +11,31 @@
 % See the files gpl-3.0_license.txt and lppl-1-3c_license.txt for more details.
 
 \NeedsTeXFormat{LaTeX2e}
-\ProvidesPackage{ctikzmanutils}[2019/07/26 utilities for formatting circuitikz manual]
+\ProvidesPackage{ctikzmanutils}[2021/04/13 utilities for formatting circuitikz manual]
 \RequirePackage{ifthen}
 \RequirePackage{xparse}
 \RequirePackage{showexpl}
 \RequirePackage{ragged2e}
+\RequirePackage{textcomp}
+\RequirePackage{booktabs}
+\renewcommand{\arraystretch}{1.2}
+\RequirePackage{a4wide}	% smaller borders
+\RequirePackage{titling}
+\RequirePackage{titlesec}
+% clear page on section break
+\newcommand{\sectionbreak}{\clearpage}
+\setcounter{secnumdepth}{4}
+\setcounter{tocdepth}{4}
 % for some example we need them...
 \usetikzlibrary{calc,fit, decorations, decorations.pathmorphing}
 \RequirePackage{upgreek}
+%
+% Thanks https://tex.stackexchange.com/a/57172/38080
+% make the listing line number invisible to copy and paste
+% it seems that sometimes it works, sometimes no!
+%
+\RequirePackage{accsupp}
+\newcommand{\emptyaccsupp}[1]{\BeginAccSupp{ActualText={}}#1\EndAccSupp{}}%
 %
 % The following trick is used to silence showexpl a bit, so that the
 % logs are readable...
@@ -27,11 +44,57 @@
 \let\SX@Info=\relax % silence showexpl a bit...
 \makeatother
 %
-\lstset{pos=l,width=-99pt, overhang=0pt,hsep=\columnsep,vsep=\bigskipamount,
-    rframe=single,numbers=left,numberstyle=\tiny,numbersep=.3em, xleftmargin=1em,
-    columns=flexible, language=[LaTeX]TEX,breaklines=true,
-    basicstyle=\normalsize\ttfamily,tabsize=3}
+\RequirePackage{showexpl}
+\lstset{frameround=fttt}
+\lstloadlanguages{TeX}
+\lstset{pos=l,
+    % width=-99pt,
+    overhang=0pt,
+    hsep=\columnsep,
+    vsep=\bigskipamount,
+    rframe=single,
+    xleftmargin=1em,
+    columns=flexible,
+    language=[LaTeX]TEX,
+    breaklines=true,
+    basicstyle=\small\ttfamily,
+    numbers=left,
+    numbersep=.3em,
+    numberstyle=\tiny\emptyaccsupp,
+    tabsize=3}
 
+\newcommand{\email}[1]{\href{mailto:#1}{#1}}
+\long\def\comment#1{}
+
+\RequirePackage{framed}
+\RequirePackage{xtab}
+\RequirePackage{hyperref}
+\hypersetup{
+    pdftitle={CircuiTikZ \pgfcircversion\ - manual}, % title
+    pdfauthor={Massimo Redaelli, Stefan Lindner, Stefan Erhardt, Romano Giannetti}, % authors
+    pdfsubject={CircuiTikZ manual},   % subject of the document
+    pdfkeywords={},   % list of keywords
+    colorlinks=true,  % false: boxed links; true: colored links
+    linkcolor=blue,   % color of internal links
+    citecolor=blue,   % color of links to bibliography
+    filecolor=blue,   % color of file links
+    urlcolor=blue     % color of external links
+}
+
+% There are a lot of boxes in the document; let's try to give TeX
+% a bit of leverage... do not use parindent (which looks strange between examples)
+% and add stretch between paragraph, to avoid a lot of sections and subsections
+% starting at the end of the page.
+\parindent=0pt
+\parskip=4pt plus 6pt minus 2pt
+%
+% names
+%
+\def\TikZ{Ti\emph{k}Z}
+\def\Circuitikz{Circui\TikZ}
+\def\ConTeXt{Con\TeX t}
+%
+% Start of special macros for component descriptions
 %
 % draw the shape without affecting anything
 \newcommand{\drawphantomshape}[1] {%
