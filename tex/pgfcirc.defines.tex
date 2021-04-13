@@ -208,6 +208,17 @@
 }
 % use \pgf@circ@setlinewidth{none}{\pgflinewidth} if there is no legacy case
 \ctikzset{none/thickness/.initial=1.0} % do not touch
+
+% set thickness relative to current thickness if exists class and key
+\def\pgf@circ@set@relative@thickness#1{%
+    \ifdefined\ctikzclass
+        \pgfkeysifdefined{\circuitikzbasekey/\ctikzclass/#1}
+        {% yes, it's defined
+            \pgfsetlinewidth{\ctikzvalof{\ctikzclass/#1}\pgflinewidth}%
+        }{}
+    \fi
+}
+
 %%>>>
 
 %% font changes compatible with plain/LaTeX/ConTeXt%<<<1
@@ -635,14 +646,17 @@
 \ctikzset{resistors/scale/.initial=1.0}
 \ctikzset{resistors/fill/.initial=none}
 \ctikzset{resistors/thickness/.initial=none}
+\ctikzset{resistors/modifier thickness/.initial=1}% relative to main thickness
 
 \ctikzset{capacitors/scale/.initial=1.0}
 \ctikzset{capacitors/fill/.initial=none}
 \ctikzset{capacitors/thickness/.initial=none}
+\ctikzset{capacitors/modifier thickness/.initial=1}
 
 \ctikzset{inductors/scale/.initial=1.0}
 \ctikzset{inductors/fill/.initial=none}
 \ctikzset{inductors/thickness/.initial=none}
+\ctikzset{inductors/modifier thickness/.initial=1}
 
 \ctikzset{diodes/scale/.initial=1.0}
 \ctikzset{diodes/fill/.initial=none}
