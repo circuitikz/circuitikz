@@ -10,7 +10,7 @@
 %
 % See the files gpl-3.0_license.txt and lppl-1-3c_license.txt for more details.
 
-\def\pgfcircversion{1.3.3-c70a2f6}
+\def\pgfcircversion{1.3.4-unreleased-b71411b}
 \def\pgfcircversiondate{2021/04/13}
 \writestatus{loading}{\pgfcircversiondate{} The CircuiTikz circuit drawing package version \pgfcircversion}
 
@@ -242,6 +242,17 @@
 }
 % use \pgf@circ@setlinewidth{none}{\pgflinewidth} if there is no legacy case
 \ctikzset{none/thickness/.initial=1.0} % do not touch
+
+% set thickness relative to current thickness if exists class and key
+\def\pgf@circ@set@relative@thickness#1{%
+    \ifdefined\ctikzclass
+        \pgfkeysifdefined{\circuitikzbasekey/\ctikzclass/#1}
+        {% yes, it's defined
+            \pgfsetlinewidth{\ctikzvalof{\ctikzclass/#1}\pgflinewidth}%
+        }{}
+    \fi
+}
+
 %%>>>
 
 %% font changes compatible with plain/LaTeX/ConTeXt%<<<1
@@ -669,14 +680,17 @@
 \ctikzset{resistors/scale/.initial=1.0}
 \ctikzset{resistors/fill/.initial=none}
 \ctikzset{resistors/thickness/.initial=none}
+\ctikzset{resistors/modifier thickness/.initial=1}% relative to main thickness
 
 \ctikzset{capacitors/scale/.initial=1.0}
 \ctikzset{capacitors/fill/.initial=none}
 \ctikzset{capacitors/thickness/.initial=none}
+\ctikzset{capacitors/modifier thickness/.initial=1}
 
 \ctikzset{inductors/scale/.initial=1.0}
 \ctikzset{inductors/fill/.initial=none}
 \ctikzset{inductors/thickness/.initial=none}
+\ctikzset{inductors/modifier thickness/.initial=1}
 
 \ctikzset{diodes/scale/.initial=1.0}
 \ctikzset{diodes/fill/.initial=none}
@@ -3389,6 +3403,7 @@
 \pgf@circ@declare@family@arrows{tunable}
 \pgf@circ@declare@family@arrows{wiper}
 \pgf@circ@declare@family@arrows{switch}
+
 %>>>
 
 
@@ -3649,6 +3664,7 @@
     \pgf@circ@setlinewidth{bipoles}{\pgfstartlinewidth}
     \pgf@circ@draworfill
     \pgfscope
+        \pgf@circ@set@relative@thickness{modifier thickness}
         \pgfcirc@set@arrows{tunable}{}{latexslim}
         \ifpgf@circ@fixtunable@dir
             \pgfpathmoveto{\pgfpoint{.5\pgf@circ@res@left}{\pgf@circ@res@down}}
@@ -3737,6 +3753,8 @@
     \endpgfscope
 }
 
+
+
 %% Thermistor
 \pgfcircdeclarebipolescaled{resistors}
 {% anchor for labelling the type of dependency
@@ -3752,18 +3770,14 @@
 {\ctikzvalof{bipoles/thermistor/height}}
 {\ctikzvalof{bipoles/thermistor/width}}
 {
-    \pgfscope
     \pgfpathrectanglecorners{\pgfpoint{\pgf@circ@res@left}{\ctikzvalof{bipoles/thermistor/main}\pgf@circ@res@up}}{\pgfpoint{\pgf@circ@res@right}{-\ctikzvalof{bipoles/thermistor/main}\pgf@circ@res@up}}
     \pgf@circ@setlinewidth{bipoles}{\pgfstartlinewidth}
     \pgf@circ@draworfill
-    \endpgfscope
-
-    %\pgfscope
+    \pgf@circ@set@relative@thickness{modifier thickness}
     \pgfpathmoveto{\pgfpoint{-\pgf@circ@res@left}{-\pgf@circ@res@down}}
     \pgfpathlineto{\pgfpoint{.4\pgf@circ@res@left}{1.2\pgf@circ@res@down}}
     \pgfpathlineto{\pgfpoint{\pgf@circ@res@left}{1.2\pgf@circ@res@down}}
     \pgfusepath{draw}
-    %\endpgfscope
 }
 
 %% Thermistor PTC
@@ -3778,11 +3792,12 @@
         \pgfpathrectanglecorners{\pgfpoint{\pgf@circ@res@left}{\ctikzvalof{bipoles/thermistorptc/main}\pgf@circ@res@up}}{\pgfpoint{\pgf@circ@res@right}{-\ctikzvalof{bipoles/thermistorptc/main}\pgf@circ@res@up}}
         \pgf@circ@setlinewidth{bipoles}{\pgfstartlinewidth}
         \pgf@circ@draworfill
+        \pgf@circ@set@relative@thickness{modifier thickness}
+        \pgfpathmoveto{\pgfpoint{-\pgf@circ@res@left}{\pgf@circ@res@up}}
+        \pgfpathlineto{\pgfpoint{.4\pgf@circ@res@left}{-\pgf@circ@res@up}}
+        \pgfpathlineto{\pgfpoint{\pgf@circ@res@left}{-\pgf@circ@res@up}}
+        \pgfusepath{draw}
     \endpgfscope
-    \pgfpathmoveto{\pgfpoint{-\pgf@circ@res@left}{\pgf@circ@res@up}}
-    \pgfpathlineto{\pgfpoint{.4\pgf@circ@res@left}{-\pgf@circ@res@up}}
-    \pgfpathlineto{\pgfpoint{\pgf@circ@res@left}{-\pgf@circ@res@up}}
-    \pgfusepath{draw}
 
     \pgfsetlinewidth{\pgfstartlinewidth}
     \pgftext[top,x=.85\pgf@circ@res@left,y=.75\pgf@circ@res@down]{\pgf@circ@font@tiny$\vartheta$}
@@ -3807,12 +3822,12 @@
         \pgfpathrectanglecorners{\pgfpoint{\pgf@circ@res@left}{\ctikzvalof{bipoles/thermistorntc/main}\pgf@circ@res@up}}{\pgfpoint{\pgf@circ@res@right}{-\ctikzvalof{bipoles/thermistorntc/main}\pgf@circ@res@up}}
         \pgf@circ@setlinewidth{bipoles}{\pgfstartlinewidth}
         \pgf@circ@draworfill
+        \pgf@circ@set@relative@thickness{modifier thickness}
+        \pgfpathmoveto{\pgfpoint{-\pgf@circ@res@left}{\pgf@circ@res@up}}
+        \pgfpathlineto{\pgfpoint{.4\pgf@circ@res@left}{-\pgf@circ@res@up}}
+        \pgfpathlineto{\pgfpoint{\pgf@circ@res@left}{-\pgf@circ@res@up}}
+        \pgfusepath{draw}
     \endpgfscope
-
-    \pgfpathmoveto{\pgfpoint{-\pgf@circ@res@left}{\pgf@circ@res@up}}
-    \pgfpathlineto{\pgfpoint{.4\pgf@circ@res@left}{-\pgf@circ@res@up}}
-    \pgfpathlineto{\pgfpoint{\pgf@circ@res@left}{-\pgf@circ@res@up}}
-    \pgfusepath{draw}
 
     \pgfsetlinewidth{\pgfstartlinewidth}
     \pgftext[top,x=.85\pgf@circ@res@left,y=.75\pgf@circ@res@down]{\pgf@circ@font@tiny$\vartheta$}
@@ -3839,12 +3854,12 @@
         \pgfpathrectanglecorners{\pgfpoint{\pgf@circ@res@left}{\ctikzvalof{bipoles/varistor/main}\pgf@circ@res@up}}{\pgfpoint{\pgf@circ@res@right}{-\ctikzvalof{bipoles/varistor/main}\pgf@circ@res@up}}
         \pgf@circ@setlinewidth{bipoles}{\pgfstartlinewidth}
         \pgf@circ@draworfill
+        \pgf@circ@set@relative@thickness{modifier thickness}
+        \pgfpathmoveto{\pgfpoint{-\pgf@circ@res@left}{-\pgf@circ@res@down}}
+        \pgfpathlineto{\pgfpoint{.4\pgf@circ@res@left}{\pgf@circ@res@down}}
+        \pgfpathlineto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@down}}
+        \pgfusepath{draw}
     \endpgfscope
-
-    \pgfpathmoveto{\pgfpoint{-\pgf@circ@res@left}{-\pgf@circ@res@down}}
-    \pgfpathlineto{\pgfpoint{.4\pgf@circ@res@left}{\pgf@circ@res@down}}
-    \pgfpathlineto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@down}}
-    \pgfusepath{draw}
 
     \pgftext[top,x=.65\pgf@circ@res@left,y=1.2\pgf@circ@res@down]{{\pgf@circ@font@tiny\textsf{U}}}
 }
@@ -3946,6 +3961,7 @@
     \pgf@circ@zigzag{.5}
 
     \pgfscope
+        \pgf@circ@set@relative@thickness{modifier thickness}
         \pgfcirc@set@arrows{tunable}{}{latexslim}
         \ifpgf@circ@fixtunable@dir
             \pgfpathmoveto{\pgfpoint{-.4\pgf@circ@res@other}{\pgf@circ@res@down}}
@@ -3984,6 +4000,7 @@
 
     \pgfscope
         %\pgfsetlinewidth{\pgfstartlinewidth}
+        \pgf@circ@set@relative@thickness{modifier thickness}
         \pgfcirc@set@arrows{wiper}{}{latexslim}
         \pgfextractx{\pgf@circ@res@other}{\wiper}
         \pgfpathmoveto{\pgfpoint{\pgf@circ@res@other}{\pgf@circ@res@up}}
@@ -4009,6 +4026,7 @@
     \pgf@circ@zigzag{.5}
 
     \pgfscope
+        \pgf@circ@set@relative@thickness{modifier thickness}
         \pgfpathmoveto{\pgfpoint{.4\pgf@circ@res@other}{\pgf@circ@res@up}}
         \pgfpathlineto{\pgfpoint{-.4\pgf@circ@res@other}{\pgf@circ@res@down}}
         \pgfpathlineto{\pgfpoint{-.9\pgf@circ@res@other}{\pgf@circ@res@down}}
@@ -4137,6 +4155,7 @@
     \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@down}}
     \pgfusepath{draw}
     \pgfscope
+        \pgf@circ@set@relative@thickness{modifier thickness}
         \pgfpathmoveto{\pgfpoint{2.6\pgf@circ@res@right}{\pgf@circ@res@up}}
         \pgfpathlineto{\pgfpoint{-2.6\pgf@circ@res@right}{1.2\pgf@circ@res@down}}
         \pgfpathlineto{\pgfpoint{-4.4\pgf@circ@res@right}{1.2\pgf@circ@res@down}}
@@ -4247,6 +4266,7 @@
     \pgfusepath{draw}
 
     \pgfscope
+        \pgf@circ@set@relative@thickness{modifier thickness}
         \pgfcirc@set@arrows{tunable}{}{latexslim}
         \ifpgf@circ@fixtunable@dir
             \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@down}}
@@ -4492,6 +4512,7 @@
     \pgfsetbeveljoin
     \pgfusepath{stroke}
     \pgfscope
+        \pgf@circ@set@relative@thickness{modifier thickness}
         \pgfpathmoveto{\pgfpoint{.8\pgf@circ@res@right}{2\pgf@circ@res@up}}
         \pgfpathlineto{\pgfpoint{-.8\pgf@circ@res@right}{2.6\pgf@circ@res@down}}
         \pgfpathlineto{\pgfpoint{-1.6\pgf@circ@res@right}{2.6\pgf@circ@res@down}}
@@ -4591,6 +4612,7 @@
     {(\ctikzvalof{bipoles/vcuteinductor/width}*\scaledRlen+\pgfhorizontaltransformationadjustment\pgflinewidth+(\ctikzvalof{bipoles/vcuteinductor/coils}-1)*2*\pgf@circ@res@other)/\ctikzvalof{bipoles/vcuteinductor/coils}/2}
 
     \pgfscope
+        \pgf@circ@set@relative@thickness{modifier thickness}
         \pgfcirc@set@arrows{tunable}{}{latexslim}
         \pgfpathmoveto{\pgfpoint{.4\pgf@circ@res@left}{\pgf@circ@res@down}}
         \pgfpathlineto{\pgfpoint{.4\pgf@circ@res@right}{\pgf@circ@res@up}}
@@ -4687,6 +4709,7 @@
     \pgfsetbeveljoin
     \pgfusepath{stroke}
     \pgfscope
+        \pgf@circ@set@relative@thickness{modifier thickness}
         \pgfpathmoveto{\pgfpoint{.8\pgf@circ@res@right}{2\pgf@circ@res@up}}
         \pgfpathlineto{\pgfpoint{-.8\pgf@circ@res@right}{2.6\pgf@circ@res@down}}
         \pgfpathlineto{\pgfpoint{-1.6\pgf@circ@res@right}{2.6\pgf@circ@res@down}}
@@ -4738,6 +4761,7 @@
     \pgfusepath{stroke}
 
     \pgfscope
+        \pgf@circ@set@relative@thickness{modifier thickness}
         \pgfcirc@set@arrows{tunable}{}{latexslim}
         \pgfpathmoveto{\pgfpoint{.4\pgf@circ@res@left}{\pgf@circ@res@down}}
         \pgfpathlineto{\pgfpoint{-.4\pgf@circ@res@left}{\pgf@circ@res@up}}
@@ -4779,12 +4803,13 @@
     \pgfpathrectanglecorners{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@up}}{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@down}}
     \pgf@circ@setlinewidth{bipoles}{\pgfstartlinewidth}
     \pgfusepath{draw,fill}
-    %\pgfscope
-    \pgfpathmoveto{\pgfpoint{-\pgf@circ@res@left}{-2\pgf@circ@res@down}}
-    \pgfpathlineto{\pgfpoint{.4\pgf@circ@res@left}{2\pgf@circ@res@down}}
-    \pgfpathlineto{\pgfpoint{\pgf@circ@res@left}{2\pgf@circ@res@down}}
-    \pgfusepath{draw}
-    %\endpgfscope
+    \pgfscope
+        \pgf@circ@set@relative@thickness{modifier thickness}
+        \pgfpathmoveto{\pgfpoint{-\pgf@circ@res@left}{-2\pgf@circ@res@down}}
+        \pgfpathlineto{\pgfpoint{.4\pgf@circ@res@left}{2\pgf@circ@res@down}}
+        \pgfpathlineto{\pgfpoint{\pgf@circ@res@left}{2\pgf@circ@res@down}}
+        \pgfusepath{draw}
+    \endpgfscope
 }
 
 %% Generic full tunable
@@ -4812,6 +4837,7 @@
     \pgfusepath{draw,fill}
 
     \pgfscope
+        \pgf@circ@set@relative@thickness{modifier thickness}
         \pgfcirc@set@arrows{tunable}{}{latexslim}
         \ifpgf@circ@fixtunable@dir
             \pgfpathmoveto{\pgfpoint{.5\pgf@circ@res@left}{\pgf@circ@res@down}}
