@@ -19,10 +19,6 @@
 %
 
 \documentclass[a4paper, titlepage]{article}
-\usepackage{a4wide}	% smaller borders
-\usepackage{titling}
-\usepackage{titlesec}
-\newcommand{\sectionbreak}{\clearpage}
 
 \def\modern{
 	\usepackage{fontspec}
@@ -39,7 +35,7 @@
 \usepackage[siunitx, RPvoltages]{circuitikz}
 % Let this be the same as the chosen voltage direction for coherence
 \def\chosenvoltoption{RPvoltages}
-
+%
 \usepackage{ifxetex,ifluatex}
 \ifxetex
 	\modern
@@ -56,75 +52,14 @@
 \def\tightlist{} % needed for latest pandoc-versions(pandoc used for including changelog)
 \usepackage{microtype}
 
-\sisetup{load=derived} % loading \siemens
-\usepackage{showexpl}
-%
-% The following trick is used to silence showexpl a bit, so that the
-% logs are readable...
-%
-\makeatletter
-\let\SX@Info=\relax % silence showexpl a bit...
-\makeatother
-%
-\lstset{
-    pos=l,
-    width=-99pt,
-    overhang=0pt,
-    hsep=\columnsep,
-    vsep=\bigskipamount,
-    rframe=single,
-    numbers=left,
-    numberstyle=\tiny,
-    numbersep=.3em,
-    xleftmargin=1em,
-    columns=flexible,
-    language=[LaTeX]TEX,breaklines=true,
-    basicstyle=\normalsize\ttfamily,tabsize=3
-}
-
-\usepackage{booktabs}
-\renewcommand{\arraystretch}{1.2}
-
-\usepackage{framed, xtab}
-\usepackage{hyperref}
-\hypersetup{
-    bookmarks=false,         % show bookmarks bar?
-    pdftitle={CircuiTikZ \pgfcircversion\ - manual}, % title
-    pdfauthor={Massimo Redaelli, Stefan Lindner, Stefan Erhardt, Romano Giannetti}, % authors
-    pdfsubject={CircuiTikZ manual},   % subject of the document
-    pdfkeywords={},   % list of keywords
-    colorlinks=true,  % false: boxed links; true: colored links
-    linkcolor=blue,   % color of internal links
-    citecolor=blue,   % color of links to bibliography
-    filecolor=blue,   % color of file links
-    urlcolor=blue     % color of external links
-}
-\usepackage{imakeidx}
-\usepackage{textcomp}
-\makeindex[title=Index of the components, intoc=true]
-
 % Local utilities packages
 \usepackage{ctikzmanutils}
+%
 
-\newcommand{\email}[1]{\href{mailto:#1}{#1}}
-\long\def\comment#1{}
-
-% There are a lot of boxes in the document; let's try to give TeX
-% a bit of leverage... do not use parindent (which looks strange between examples)
-% and add stretch between paragraph, to avoid a lot of sections and subsections
-% starting at the end of the page.
-\parindent=0pt
-\parskip=4pt plus 6pt minus 2pt
+\usepackage{imakeidx}
+\makeindex[title=Index of the components, intoc=true]
 
 \begin{document}
-\setcounter{secnumdepth}{4}
-\setcounter{tocdepth}{4}
-
-\def\TikZ{Ti\emph{k}Z}
-\def\Circuitikz{Circui\TikZ}
-\def\ConTeXt{Con\TeX t}
-\lstset{frameround=fttt}
-\lstloadlanguages{TeX}
 
 \title{\Circuitikz \\{\large version \pgfcircversion{} (\pgfcircversiondate)}}
 \author{Massimo A. Redaelli (\email{m.redaelli@gmail.com})\\
@@ -506,7 +441,7 @@ One of the problems with this circuit is that we would like to have the current 
 
 Finally, we would like to add voltages indication for carrying out the current formulas; as the default position of the voltage signs seems a bit cramped to me, I am adding the \texttt{voltage shift} parameter to make a bit more space for it\dots
 
-\begin{LTXexample}[varwidth=true, basicstyle=\small\ttfamily]
+\begin{LTXexample}[varwidth=true]
 \begin{circuitikz}[american, voltage shift=0.5]
     \draw (0,0)
     to[isource, l=$I_0$, v=$V_0$] (0,3)
@@ -520,7 +455,7 @@ Finally, we would like to add voltages indication for carrying out the current f
 
 \emph{Et voilá!}. Remember that this is still \LaTeX, which means that you have done a description of your circuit, which is, in a lot of way, independent of the visualization of it. If you ever have to adapt the circuit to, say, a journal that force European style and flows instead of currents, you just change a couple of things and you have what seems a completely different diagram:
 
-\begin{LTXexample}[varwidth=true, basicstyle=\small\ttfamily]
+\begin{LTXexample}[varwidth=true]
 \begin{circuitikz}[european, voltage shift=0.5]
     \draw (0,0)
     to[isourceC, l=$I_0$, v=$V_0$] (0,3)
@@ -534,7 +469,7 @@ Finally, we would like to add voltages indication for carrying out the current f
 
 And finally, this is still \TikZ, so that you can freely mix other graphics element to the circuit.
 
-\begin{LTXexample}[varwidth=true, basicstyle=\small\ttfamily]
+\begin{LTXexample}[varwidth=true]
 \begin{circuitikz}[american, voltage shift=0.5]
     \draw (0,0)
     to[isource, l=$I_0$, v=$V_0$] (0,3)
@@ -644,7 +579,7 @@ We will start connecting the first transistor with the power supply with a coupl
 
 After that, let's add the input part. I will use a named node here, to refer to it to add the input source. Notice how the ground node is positioned: the coordinate \texttt{(in |- GND)} is the point with the horizontal coordinate of \texttt{(in)}  and the vertical one of \texttt{(GND)}, lining it up with the ground of the capacitor $C_1$ (you can think it as ``the point on the vertical of \texttt{in} and the horizontal of \texttt{GND}'').
 
-\begin{LTXexample}[varwidth=true, basicstyle=\small\ttfamily]
+\begin{LTXexample}[varwidth=true]
 \begin{circuitikz}[american, scale=0.7, transform shape]
 \draw (0,0) node[nmos,](Q1){\killdepth{Q1}};
 \draw (Q1.S) to[R, l2^=$R_S$ and \SI{5}{k\ohm}]
@@ -883,7 +818,7 @@ I want a reusable block, so I will start from a coordinate and then use only rel
 
 Now we can add the ``and'' gates. For example, we can add the gates to the right like this:
 
-\begin{LTXexample}[varwidth=true, basicstyle=\small\ttfamily]
+\begin{LTXexample}[varwidth=true]
 \begin{circuitikz}[]
     \draw (0,0) node[sr-ff](FF){} (FF.bup)
     node[above]{SR-FF};
@@ -897,7 +832,7 @@ Now we can add the ``and'' gates. For example, we can add the gates to the right
 You can notice a pair of things here: first of all, the use of the \texttt{anchor=out} in the port, to tell \TikZ{} that we want the node moved so that the \texttt{out} anchor is the reference one. The second one is that we have repeated the absolute shift (the \texttt{++(-1, 0)}) twice. This is a bad practice; it is much better to have the ``free'' parameters of a schematic just stated once, so that we can change them in just one point.
 
 You can of course use a macro, like \verb|\newcommand{\andshift}{(-1,0)}| but it is much more elegant to do something like this:
-\begin{LTXexample}[varwidth=true, basicstyle=\small\ttfamily]
+\begin{LTXexample}[varwidth=true]
 \begin{circuitikz}[]
     \draw (0,0) node[sr-ff](FF){} (FF.bup)
     node[above]{SR-FF};
@@ -912,7 +847,7 @@ In this snippet, the coordinate \texttt{(FF.pin 3 -| AND1.out)} is the \TikZ{} w
 
 Now we can add the not port. Since version~\texttt{1.1.3} you can use a path-style not port, so you can just say: this:
 
-\begin{LTXexample}[varwidth=true, basicstyle=\small\ttfamily]
+\begin{LTXexample}[varwidth=true]
 \begin{circuitikz}[scale=0.8, transform shape]
 \draw (0,0) node[sr-ff](FF){} (FF.bup)
     node[above]{SR-FF} (FF.pin 1) -- ++(-1,0)
@@ -1138,7 +1073,7 @@ You can see from the example below (notice the blue curve using a spline line). 
 In the last (green) example, you can see a workaround using local path and the key \texttt{current point is local} that will work for older (and do not create problem in newer) versions.
 
 
-\begin{LTXexample}[varwidth=true, basicstyle=\small\ttfamily, pos=t]
+\begin{LTXexample}[varwidth=true, pos=t]
 Plotted using Ti\emph{k}Z version \pgfversion{} and CircuiTi\emph{k}Z version \pgfcircversion{}.
 
 \begin{tikzpicture}
@@ -1196,7 +1131,7 @@ can be interpreted as the length of a resistor (including reasonable connections
         to[short, o-*] (1,0)
         to[R=20<\ohm>, *-*] (1,2)
         to[R=10<\ohm>, v=$v_x$] (3,2) -- (4,2)
-        to[cI=$\frac{\siemens}{5} v_x$, *-*] (4,0) -- (3,0)
+        to[cI=$\frac{\si{\siemens}}{5} v_x$, *-*] (4,0) -- (3,0)
         to[R=5<\ohm>, *-*] (3,2)
   (3,0) -- (1,0)
   (1,2) to[short, -o] (0,2) node[anchor=east]{A}
@@ -1299,7 +1234,7 @@ Most path-style components can be used as a node-style components; to access the
 
 Mirroring and flipping of node components is obtained by using the \TikZ\ keys \texttt{xscale} and \texttt{yscale}. Notice that this parameters affect also text labels, so they need to be un-scaled by hand.
 
-\begin{LTXexample}[varwidth=true, basicstyle=\small\ttfamily]
+\begin{LTXexample}[varwidth=true]
 \begin{circuitikz}[scale=0.7, transform shape]
     \draw (0,3) node[op amp]{OA1};
     \draw (3,3) node[op amp, xscale=-1]{OA2};
@@ -1315,7 +1250,7 @@ and \verb|\ctikzflipxy{}|, that can be used to ``un-rotate'' the text of nodes d
 \texttt{xscale=-1, yscale=-1}).
 In other formats they are undefined; contributions to fill the gap are welcome.
 
-\begin{LTXexample}[varwidth=true, basicstyle=\small\ttfamily]
+\begin{LTXexample}[varwidth=true]
 \begin{circuitikz}[scale=0.7, transform shape]
     \draw (0,3) node[op amp]{OA1};
     \draw (3,3) node[op amp, xscale=-1]{\ctikzflipx{OA2}};
@@ -1525,11 +1460,11 @@ The best option is to start from \texttt{ctikzstyle-legacy.tex} and edit your st
 
 Basically, to write the style \texttt{example}, you edit a file named \texttt{ctikzstyle-romano.tex} with will define and enact Ti\emph{k}Z style with name \texttt{example circuit style}; basically it has to be something along this:
 
-\lstinputlisting[frame=single, framesep=10pt, basicstyle=\small\ttfamily]{ctikzstyle-example.tex}
+\lstinputlisting[frame=single, framesep=10pt]{ctikzstyle-example.tex}
 
 This kind of style will \emph{add} to the existing style.  If you want to have a style that \emph{substitute} the current style, you should do like this:
 
-\begin{lstlisting}[frame=single, framesep=10pt, basicstyle=\small\ttfamily]
+\begin{lstlisting}[frame=single, framesep=10pt]
 \ctikzloadstyle{legacy}% start from a know state
 \tikzset{romano circuit style/.style={%
 legacy circuit style, % load the legacy style
@@ -1616,7 +1551,7 @@ However, arrows in \TikZ{} are in the same class with the line thickness, so the
 
 If you want that the arrows behave like the legacy symbols (which are shapes), \emph{only in the arrow definitions}, you can use the special length parameter \verb|\scaledwidth|\footnote{Thanks to @Schrödinger's cat on \href{https://tex.stackexchange.com/a/506249/38080}{\TeX{} stackexchange site}} in the arrow definition, which correspond to the width of the legacy \texttt{vcc} or \texttt{vee}. Compare the effects on the following circuit.
 
-\begin{LTXexample}[pos=t, basicstyle=\small\ttfamily]
+\begin{LTXexample}[pos=t]
 \ctikzset{%
     monopoles/vcc/arrow={Triangle[width=0.8*\scaledwidth, length=\scaledwidth]},
     monopoles/vee/arrow={Triangle[width=6pt, length=8pt]},
@@ -1686,7 +1621,7 @@ Other miscellaneous resistor-like devices:
 Since version \texttt{0.9.5}, you can control the position of the wiper in potentiometers using the key \texttt{wiper pos}, which is a number in the range $[0,1]$. The default middle position is \texttt{wiper pos=0.5}.
 
 
-\begin{LTXexample}[varwidth, basicstyle=\small\ttfamily]
+\begin{LTXexample}[varwidth]
 \begin{circuitikz}[american]
     \ctikzset{resistors/width=1.5, resistors/zigs=9}
     \draw (0,0) to[pR, name=A] ++(0,-4);
@@ -1738,7 +1673,7 @@ For the american style resistors, you can change the number of ``zig-zags'' by s
 
 We can call \emph{modifiers} the elements that are added to the basic shape to express some characteristics of the component; for example the arrows for the variable resistors or the bar for the sensors. Normally the thickness of this elements is the same as the one chosen for the component\footnote{Due to a bug in versions before 1.3.4, that didn't happen for thermistors}. You can change their thickness with the class key \texttt{modifier thickness} which is relative to the main component thickness.
 
-\begin{LTXexample}[varwidth, basicstyle=\small\ttfamily]
+\begin{LTXexample}[varwidth]
 \begin{circuitikz}[american]
     \draw (0,2) to[vR] ++(2,0) to[sR] ++(2,0);
     \ctikzset{resistors/thickness=4}
@@ -1753,7 +1688,7 @@ Also you can change the start arrow with the corresponding \texttt{tunable start
 
 You can change that globally or locally, as ever. The tip specification is the one you can find in the \TikZ{} manual (``Arrow Tip Specifications'').
 
-\begin{LTXexample}[varwidth, basicstyle=\small\ttfamily]
+\begin{LTXexample}[varwidth]
     \begin{circuitikz}[american]
         % globally all the potentiometrs
         \ctikzset{wiper end arrow={Kite[open]}}
@@ -1872,7 +1807,7 @@ For inductive sensors, see section~\ref{sec:sensors-anchors}.
 \paragraph{Taps.}
 Inductors have an additional anchor, called \texttt{midtap}, that connects to the center of the coil ``wire''. Notice that this anchor could be on one side or the other of the component, depending on the number of loops of the element; if you need a fixed position, you can use the geographical anchors.
 
-\begin{LTXexample}[varwidth=true, basicstyle=\small\ttfamily]
+\begin{LTXexample}[varwidth=true]
 \begin{circuitikz}[
     loops/.style={circuitikz/inductors/coils=#1}]
 \ctikzset{cute inductors}
@@ -1889,7 +1824,7 @@ to[L, loops=6, name=D] ++(2,0);
 \paragraph{Core anchors.}\label{sec:inductors-core-anchors}
 Inductors have additional anchors to add core lines (for historical reasons, there is a \texttt{cute choke} component also, but to use inductors in the chosen style you better use these anchors). The anchors are called \texttt{core west} and \texttt{core east} and they are positioned at a distance that you can tweak with the \texttt{\textbackslash ctikzset} key \texttt{bipoles/inductors/core distance} (default \texttt{2pt}).
 
-\begin{LTXexample}[varwidth, basicstyle=\small\ttfamily]
+\begin{LTXexample}[varwidth]
     \begin{circuitikz}[]
         \ctikzset{american}
         \draw (0,3) to[L=$L$, name=myL] ++(2,0);
@@ -2180,7 +2115,7 @@ Moreover, you can move the two symbols nearer of farther away by twiddling \text
 
 You can do the same with the \texttt{american controlled voltage sources}, substituting \texttt{cvsourceam} to \texttt{vsourceam} (notice the initial ``\texttt{c}'').
 
-\begin{LTXexample}[varwidth=true, basicstyle=\small\ttfamily]
+\begin{LTXexample}[varwidth=true]
 \begin{circuitikz}[american]
    \ctikzset{bipoles/vsourceam/inner plus={\tiny $+$}}
    \ctikzset{bipoles/vsourceam/inner minus={\tiny $-$}}
@@ -2235,7 +2170,7 @@ The \texttt{rmeter}, \texttt{rmaterwa}, and \texttt{smeter} have the same behavi
 However, if you prefer that the \texttt{oscope}, \texttt{rmeter}, \texttt{smeter}  and \texttt{rmeterwa} instruments rotate the text or the diagram,
 you can use the key or style \texttt{rotated instruments} (the default style is \texttt{straight instruments}).
 
-\begin{LTXexample}[varwidth=true, basicstyle=\small\ttfamily]
+\begin{LTXexample}[varwidth=true]
     \begin{circuitikz}[scale=0.8, transform shape]
     \ctikzset{rotated instruments} % new default
     \draw (0,0) to[oscope] ++(0:3);
@@ -2737,7 +2672,7 @@ The Wilkinson divider has:
 
 The couplers have:
 
-\begin{LTXexample}[varwidth=true, basicstyle=\small\ttfamily]
+\begin{LTXexample}[varwidth=true]
 \begin{circuitikz} \draw (0,1.5) %bounding box
   (0,0) node[coupler] (c) {\SI{10}{dB}}
   (c.left down) to[short,-o] ++(-0.5,0)
@@ -2941,7 +2876,7 @@ In versions before \texttt{0.9.7}, transistors text (the node text) was position
 
 Notice the use of the utility functions \verb|\ctikzflip{|\texttt{\textsl{x,y,xy}}\verb|}| as explained in section~\ref{sec:mirroring-and-flipping}.
 
-\begin{LTXexample}[varwidth=true, basicstyle=\small\ttfamily]
+\begin{LTXexample}[varwidth=true]
 \begin{circuitikz}[scale=0.8, transform shape]
     \draw (0,0) node [npn]{T1}
     ++(1.2,0) node [npn, xscale=-1]{\ctikzflipx{T1}}
@@ -2990,7 +2925,7 @@ You can go back to the no-arrows mos with \texttt{noarrowmos} locally or with
 
 To add the circle to a single transistor, you use the \texttt{tr circle} keys in the node; if you want all of your transistors with a circle, you can set the property \texttt{tr circle} with a \verb|\ctikzset| command (it will respect normal grouping, of course); in that case, you can use \texttt{tr circle=false} to locally disable them.
 
-\begin{LTXexample}[varwidth=true, basicstyle=\small\ttfamily]
+\begin{LTXexample}[varwidth=true]
 \begin{circuitikz}[]
     \draw (0,2) node[npn]{} (2,2) node[npn, tr circle](Q){};
     % collector connected to housing
@@ -3018,7 +2953,7 @@ As you can see in the next example, the text for the diode is moved if a bodydio
 
 You can use the \texttt{body ...} anchors to add more or different things to the transistors in addition (or instead) of the flyback diode.
 
-\begin{LTXexample}[varwidth=true, basicstyle=\small\ttfamily]
+\begin{LTXexample}[varwidth=true]
 \def\snubb#1#2{% add a snubber to a transistor
     \draw (#1.body C #2) to[short, *-, nodes width=0.02]
     ++(0.3,0) coordinate(tmp) to [R, resistors/scale=0.3]
@@ -3057,7 +2992,7 @@ You can change the size of the Schottky ``hook'' changing the parameter \texttt{
 \paragraph{IGBT outer base.}
 Normally, in bipolar IGBTs the outer base is the same size (height) of the inner one, and of the same thickness (which will depend on the class thickness value). You can change this by setting (via \verb|\ctikzset`|) the keys \texttt{tripoles/igbt/outer base height} (default \texttt{0.4}, the same as \texttt{base height}), and \texttt{tripoles/igbt/outer base thickness} (default \texttt{1.0}), which will be relative to the class thickness.
 
-\begin{LTXexample}[varwidth=true, pos=t, basicstyle=\small\ttfamily]
+\begin{LTXexample}[varwidth=true, pos=t]
 \begin{circuitikz}
     \draw (0,0)
     -- ++(1,0) node[nigbt, anchor=B](B){} (B.nobase)
@@ -3181,7 +3116,7 @@ The anchors are present even there is no circle, so you can use them to draw dif
 
 The position of the circle on collector and emitter by default is the one shown above; the position along the base can be adjusted in most transistors using the \verb|\ctikzset| parameter \texttt{transistor circle/default base in} (by default \texttt{\ctikzvalof{transistor circle/default base in}}); \texttt{njfet} and \texttt{pjfet} use \texttt{transistor circle/njfet base in} (default \texttt{\ctikzvalof{transistor circle/njfet base in}}; the same for \texttt{pjfet}) and, finally, \texttt{isfet} uses \texttt{transistor circle/isfet base in} (default \texttt{\ctikzvalof{transistor circle/isfet base in}}). You can change the resulting size of the circle by setting to something different to \texttt{1.0} the parameter \texttt{transistor circle/scale circle radius} --- that will move the anchors too; for example:
 
-\begin{LTXexample}[varwidth=true, basicstyle=\small\ttfamily]
+\begin{LTXexample}[varwidth=true]
 \begin{circuitikz}[scale=1.5, transform shape]
     \draw (0,0) node[npn, tr circle](Q1){};
     \node [circ] at (Q1.circle C){};
@@ -3206,7 +3141,7 @@ The position of the circle on collector and emitter by default is the one shown 
     \footnotetext{Follows the syntax of the pattern sequence \texttt{\textbackslash pgfsetdash} --- see \TikZ{} manual for details; phase is always zero. Basically you pass pairs of dash-length -- blank-length dimensions, see the examples.}
 \end{center}
 
-\begin{LTXexample}[varwidth=true, basicstyle=\small\ttfamily]
+\begin{LTXexample}[varwidth=true]
 \begin{circuitikz}[]
     \draw (0,2) node[npn, tr circle](Q1){};
     \ctikzset{transistor circle/relative thickness=2}
@@ -3221,7 +3156,7 @@ The position of the circle on collector and emitter by default is the one shown 
 
 Finally, using the class style you can do quite interesting things.
 
-\begin{LTXexample}[varwidth=true, basicstyle=\small\ttfamily]
+\begin{LTXexample}[varwidth=true]
 \begin{circuitikz}[]
     \ctikzset{transistors/thickness=4, transistors/fill=cyan!30,
         transistor circle/relative thickness=0.25,}
@@ -3328,7 +3263,7 @@ The additional anchors \texttt{vcenter} (vertical geometric center of the collec
 
 A complete example of multiple terminal transistor application is the following PNP double current mirror circuit.
 
-\begin{LTXexample}[varwidth=true, basicstyle=\small\ttfamily]
+\begin{LTXexample}[varwidth=true]
 \begin{circuitikz}
     \ctikzset{transistors/arrow pos=end}
     \draw (0,0) node[bjtpnp, xscale=-1](Q1){%
@@ -3573,7 +3508,7 @@ The dynode element can be heavily customized. The parameters are the following (
 \end{center}
 
 
-\begin{LTXexample}[varwidth=true, basicstyle=\small\ttfamily]
+\begin{LTXexample}[varwidth=true]
 \begin{circuitikz}[american] \ctikzset{tubes/thickness=4}
     \draw (0,0) to[R] (2,0) node[dynode]{} to[R,-*] (4,0);
     \ctikzset{monopoles/dynode/.cd,
@@ -3584,7 +3519,7 @@ The dynode element can be heavily customized. The parameters are the following (
 
 You can use styles and the parameters to create different types of electrodes:
 
-\begin{LTXexample}[varwidth=true, basicstyle=\small\ttfamily]
+\begin{LTXexample}[varwidth=true]
 \begin{circuitikz}[american] \ctikzset{tubes/thickness=4}
     \tikzset{anode/.style={dynode,
             circuitikz/monopoles/dynode/arc angle=90},
@@ -3816,7 +3751,7 @@ Moreover, you can access the two internal coils (inductances); if your transform
 \end{circuitikz}
 \end{quote}
 
-\begin{LTXexample}[varwidth=true, basicstyle=\small\ttfamily]
+\begin{LTXexample}[varwidth=true]
 \begin{circuitikz}
 \draw (0,0) node[ground](GND){} to [sV] ++(0,2) -- ++(1,0)
     node[transformer, circuitikz/inductors/coils=6,
@@ -3889,7 +3824,7 @@ Since \texttt{0.9.6}, you can tweak the style of each of the coils of the transf
 changing the value of the two styles \texttt{transformer L1} and \texttt{transformer L2};
 the default for both are \texttt{\{\}}, that means inherit the inductors style in force.
 
-\begin{LTXexample}[pos=t, basicstyle=\small\ttfamily]
+\begin{LTXexample}[pos=t]
 \begin{circuitikz}[american]
     \begin{scope}
         \ctikzset{transformer L1/.style={inductors/coils=1, inductors/width=0.2}}
@@ -3913,7 +3848,7 @@ the default for both are \texttt{\{\}}, that means inherit the inductors style i
 
 \textbf{Caveat:} the size of the transformer is independent from the styles for \texttt{L1} and \texttt{L2}, so they follow whatever the parameters for the inductances were before applying  them. In other words, the size of the transformer  could result too small if you are not careful.
 
-\begin{LTXexample}[varwidth, basicstyle=\small\ttfamily]
+\begin{LTXexample}[varwidth]
 \begin{circuitikz}
     \ctikzset{transformer L1/.style={inductors/width=1.8, inductors/coils=13}}
     % too small!
@@ -3926,7 +3861,7 @@ the default for both are \texttt{\{\}}, that means inherit the inductors style i
 
 You can obviously define a style for a ``non-standard'' transformer. For example, you can have a current transformer\footnote{Suggested by Alex Pacini on \href{https://github.com/circuitikz/circuitikz/issues/297}{GitHub}} defined like this:
 
-\begin{LTXexample}[varwidth, basicstyle=\small\ttfamily]
+\begin{LTXexample}[varwidth]
 \begin{circuitikz}[
     TA core/.style={transformer core,
         % at tikz level, you have to use circuitikz/ explicitly
@@ -4045,7 +3980,7 @@ The instrumentation amplifier with resistance terminals (\texttt{inst amp ra}) d
 
 Amplifiers have also ``border'' anchors (just add \texttt{b}, without space, to the anchor, like \texttt{b+} or \texttt{bin up} and so on). These can be useful to add ``internal components''  or to modify the component. Also the \texttt{leftedge} anchors (on the border midway between input) is available.
 
-\begin{LTXexample}[varwidth=true, basicstyle=\small\ttfamily]
+\begin{LTXexample}[varwidth=true]
 \begin{circuitikz}[]
     \draw (0,2.2) node[op amp](OA){IA1};
     \node[oosourceshape, rotate=90, scale=0.5]
@@ -4091,7 +4026,7 @@ The font used is set in several keys, but you can change it globally with \verb|
 \end{lstlisting}
 to have plus and minus symbols that are bigger and blue.
 
-\begin{LTXexample}[varwidth=true, basicstyle=\small\ttfamily]
+\begin{LTXexample}[varwidth=true]
 \begin{circuitikz}[]
     % change in this circuit only
     \tikzset{amp symbol font={\color{blue}\small\boldmath}}
@@ -4107,7 +4042,7 @@ to have plus and minus symbols that are bigger and blue.
 
 If you want different symbols for input and output you can use a null symbol and put them manually using the border anchors.
 
-\begin{LTXexample}[varwidth=true, basicstyle=\small\ttfamily]
+\begin{LTXexample}[varwidth=true]
 \begin{circuitikz}[]
     \ctikzset{amplifiers/plus={}}
     \ctikzset{amplifiers/minus={}}
@@ -4122,7 +4057,7 @@ If you want different symbols for input and output you can use a null symbol and
 The amplifier label (given as the text  of the node) is normally more or less centered in the shape (in the case of the triangular shape, it is shifted a bit to the left to \emph{seem} visually centered); since version \texttt{1.1.0} you can move it at the left side plus a fixed offset setting the key \texttt{component text} or the style with the same name to \texttt{left}; by default the key is \texttt{center}.
 You can change the offset with the key \texttt{left text distance} (default \texttt{0.3em}; you must use a length here). These parameters are shared with IEEE-style logic ports.
 
-\begin{LTXexample}[varwidth=true, basicstyle=\small\ttfamily]
+\begin{LTXexample}[varwidth=true]
 \begin{circuitikz}[]
     \draw (0,2.5) node[plain amp]{\texttt{741}};
     \draw (3,2.5)
@@ -4239,7 +4174,7 @@ But notice that the ``A'' is also flipped by the \texttt{xscale} parameter. So t
 If you need a different kind of amplifier, you can use the \texttt{muxdemux}
 (see section~\ref{sec:muxdemuxes}) shape for defining one that suits your needs (you need version \texttt{1.0.0} for this to work).
 
-\begin{LTXexample}[varwidth=true, basicstyle=\small\ttfamily]
+\begin{LTXexample}[varwidth=true]
 \tikzset{tdax/.style={muxdemux,
         muxdemux def={NL=2, Lh=3, NR=1, Rh=0,
         NB=4, NT=5}, font=\scriptsize\ttfamily}}
@@ -4424,7 +4359,7 @@ To add arrows, you can use the styles \texttt{rotary switch -} (no arrow, whatev
 Notice that the defaults of the styles are the same as the default values of the parameters, but that if you change globally the defaults using the keys mentioned above, you only change the defaults for the ``bare'' component \texttt{rotaryswitch}, not for the styles.
 
 
-\begin{LTXexample}[varwidth=true, pos=t, basicstyle=\small\ttfamily]
+\begin{LTXexample}[varwidth=true, pos=t]
 \begin{circuitikz}
 \ctikzset{multipoles/rotary/arrow=both}
 \draw (0,0) -- ++(1,0) node[rotary switch <-=8 in 120 wiper 40, anchor=in](A){};
@@ -4483,7 +4418,7 @@ The code for the diagram at the left, above, without the markings for the anchor
 
 One possible application for the angled and the ``on square'' anchors is that you can use them to move radially from the output poles, for example for adding numbers:
 
-\begin{LTXexample}[varwidth=true, basicstyle=\small\ttfamily]
+\begin{LTXexample}[varwidth=true]
 \begin{circuitikz}
 \draw (0,0) node[rotary switch=13 in 120 wiper 0](S){};
 \foreach \i in {1,...,13} % requires "calc"
@@ -4494,7 +4429,7 @@ One possible application for the angled and the ``on square'' anchors is that yo
 
 Finally, notice that the value of width for the rotary switches is taken from the one for the ``cute switches'' which in turn is taken from the width of traditional  \texttt{spdt} switch, so that they match (notice that the ``center'' anchor is better centered in the rotary switch, so you have to explicitly align them).
 
-\begin{LTXexample}[varwidth=true, basicstyle=\small\ttfamily]
+\begin{LTXexample}[varwidth=true]
 \begin{circuitikz}
     \draw (0,0) node[color=blue, rotary switch=2 in 35 wiper 30,
         anchor=in](R){};
@@ -4537,7 +4472,7 @@ Also you can change the start arrow with the corresponding \texttt{switchable st
 
 You can change that globally or locally, as ever. The tip specification is the one you can find in the \TikZ{} manual (``Arrow Tip Specifications'').
 
-\begin{LTXexample}[varwidth=true, basicstyle=\small\ttfamily]
+\begin{LTXexample}[varwidth=true]
 \begin{circuitikz}
     \draw (0,2) to[cspst] ++(2,0)
         node[cute spdt up arrow, anchor=in]{};
@@ -4551,7 +4486,7 @@ You can change that globally or locally, as ever. The tip specification is the o
 
 \paragraph{Rotary switch arrows.} You can change the rotary switch arrow shape in the same way as you change the ones in regular switches. Notice however that if you set either \texttt{switch end arrow} or \texttt{switch start arrow} they will be followed only if you have set both arrows with \texttt{<->} or equivalent, otherwise just one will be used.
 
-\begin{LTXexample}[varwidth=true, pos=t, basicstyle=\small\ttfamily]
+\begin{LTXexample}[varwidth=true, pos=t]
 \begin{circuitikz}
 \ctikzset{multipoles/rotary/arrow=both}
 \draw (0,0) -- ++(1,0) node[rotary switch <-=8 in 120 wiper 40, anchor=in](A){};
@@ -4658,7 +4593,7 @@ The one-input, one-output ports have a handy path-style equivalent; they are the
 
 Those ports follows the current selected style, although you can change it on the fly (even if it has not a lot of sense); you can apply labels, annotations and (again, not a lot of sense) voltages to them. The assigned value is typeset as if it were the main text of the node.
 
-\begin{LTXexample}[varwidth=true, basicstyle=\small\ttfamily]
+\begin{LTXexample}[varwidth=true]
 \begin{circuitikz}[american]
     \ctikzset{logic ports=ieee}
     \draw (0,0) to[inline not=I1, l=label, v=$\Delta V$] ++(2,0);
@@ -4879,7 +4814,7 @@ In the case of \textsc{not}, there are only \texttt{in} and \texttt{out} (althou
 
 This last circuit could be drawn also (and probably in a more natural manner) using the path-style components:
 
-\begin{LTXexample}[varwidth=true, basicstyle=\small\ttfamily]
+\begin{LTXexample}[varwidth=true]
 \begin{circuitikz}[american]
     \draw (0,0) node[ground]{} to[C] ++(0,1.5)
     coordinate(c)
@@ -4900,7 +4835,7 @@ The rest of this section will assume you have issued the command \verb|\ctikzset
 
 IEEE standard logic gates have a basic difference with the legacy ones: the proportions of their shapes does not change when you change the size, so you can't have a ``tall'' port or a ``squatty'' ones. The two-inputs gates, by default, have their default size designed so that they match the chips component (see~\ref{sec:chips}).
 
-\begin{LTXexample}[varwidth=true, basicstyle=\small\ttfamily]
+\begin{LTXexample}[varwidth=true]
 \begin{circuitikz}
     \draw (0,0) node[dipchip](C){IC} (C.pin 8)
         node[or port, anchor=in 1,
@@ -4910,7 +4845,7 @@ IEEE standard logic gates have a basic difference with the legacy ones: the prop
 
 If you need, say, a 4-inputs port, the port will look like this:
 
-\begin{LTXexample}[varwidth=true, basicstyle=\small\ttfamily]
+\begin{LTXexample}[varwidth=true]
 \begin{circuitikz}
     \draw (0,0) node[dipchip](C){IC} (C.pin 8)
         node[or port, anchor=in 1, number inputs=4,
@@ -4921,7 +4856,7 @@ If you need, say, a 4-inputs port, the port will look like this:
 \dots and in this case it is clear that it does not match. With standard ports, there are two possibilities.
 The first one is to scale the port; if you set the port height so that it has the same size (see ``IEEE logic gates customization'' below for details)  as the number of ports, they will match again.
 
-\begin{LTXexample}[varwidth=true, basicstyle=\small\ttfamily]
+\begin{LTXexample}[varwidth=true]
 \begin{circuitikz}
     \draw (0,0) node[dipchip](C){IC} (C.pin 8)
         node[or port, anchor=in 1,
@@ -4933,7 +4868,7 @@ The first one is to scale the port; if you set the port height so that it has th
 
 But then the size of the port is quite ``unusual''. The solution is technical literature is to use what we can call a ``rack'' for the inputs; basically, only a certain number of pins are kept on the port, and the other are put on an extended input line.
 
-\begin{LTXexample}[varwidth=true, basicstyle=\small\ttfamily]
+\begin{LTXexample}[varwidth=true]
 \begin{circuitikz}
     \draw (0,0) node[dipchip](C){IC} (C.pin 8)
         node[or port, anchor=in 1,
@@ -4950,7 +4885,7 @@ When using the \texttt{inner inputs} key, keep in mind the rule of thumbs:
 \end{itemize}
 For example, look at the following example; given that we are asking an odd number of pins on the rack, some of the inputs are drawn on the port's border, resulting in a less-than-ideal diagram.
 
-\begin{LTXexample}[varwidth=true, basicstyle=\small\ttfamily]
+\begin{LTXexample}[varwidth=true]
 \begin{circuitikz}
     \draw (0,0) node[dipchip](C){IC} (C.pin 8)
         node[or port, anchor=in 1,
@@ -4962,7 +4897,7 @@ For example, look at the following example; given that we are asking an odd numb
 
 In this case, if you don't like the solution, the better approach is to let the gate grow a bit.
 
-\begin{LTXexample}[varwidth=true, basicstyle=\small\ttfamily]
+\begin{LTXexample}[varwidth=true]
 \begin{circuitikz}
     \draw (0,0) node[dipchip](C){IC} (C.pin 8)
         node[or port, anchor=in 1,
@@ -4975,7 +4910,7 @@ In this case, if you don't like the solution, the better approach is to let the 
 
 The good thing about the rack mechanism is that you can have quite big ports without problems.
 
-\begin{LTXexample}[varwidth=true, pos=t, basicstyle=\small\ttfamily]
+\begin{LTXexample}[varwidth=true, pos=t]
 \begin{circuitikz}[scale=0.75, transform shape]
     \draw node[nor port, number inputs=32, inner inputs=2,
                rotate=90](A){\rotatebox{-90}{IC1A}};
@@ -4984,7 +4919,7 @@ The good thing about the rack mechanism is that you can have quite big ports wit
 
 You can use the additional elements (the \texttt{notcirc} and the \texttt{schmitt symbol} to obtain circuits like the following ones (well, a bit of a mix of conventions, but...):
 
-\begin{LTXexample}[varwidth=true, basicstyle=\small\ttfamily]
+\begin{LTXexample}[varwidth=true]
 \begin{circuitikz}
     \draw (0,0) node[and port](A){A} (A.out)
     node[buffer port, anchor=in,
@@ -5002,7 +4937,7 @@ Notice the key \texttt{component text=left} that moves the label near to the lef
 
 \paragraph{Stacking and aligning IEEE standard gates.} The standard gates are designed so that they stacks up nicely when positioned using the external leads as anchors. Notice that the ports \textbf{do} have different sizes, but the leads lengths are designed to counter the differences.
 
-\begin{LTXexample}[varwidth=true, basicstyle=\small\ttfamily]
+\begin{LTXexample}[varwidth=true]
 \begin{circuitikz}
     \draw
     (0,0) node[and port, anchor=in 1]{A1}
@@ -5023,7 +4958,7 @@ The length of the external leads can be changed by the user, but notice that if 
 
 The single input ports (\texttt{not port}, \texttt{buffer port} and their Schmitt equivalent) are smaller that the six standard ports, so they are not kept aligned by default; the just have the same distance at the input side. For the not ports, the \texttt{left} position of the text results often in a better look (the centered text in the triangle seems to be much more at the right).
 
-\begin{LTXexample}[varwidth=true, basicstyle=\small\ttfamily]
+\begin{LTXexample}[varwidth=true]
 \begin{circuitikz}
     \ctikzset{component text=left}
     \draw (0,0) node[nand port, anchor=in 1]{A1}
@@ -5059,7 +4994,7 @@ There are several parameters that can be used to customize the IEEE standard por
 
 For example, using a \texttt{not radius} of \texttt{0.1} will give a ``not ball'' of the same size of a connecting pole, as it is in the legacy ports.
 
-\begin{LTXexample}[varwidth=true, basicstyle=\small\ttfamily]
+\begin{LTXexample}[varwidth=true]
 \begin{circuitikz}
     \draw (0,2) node[xnor port](P){}
         (P.out) to[short, -o] ++(1,0);
@@ -5072,7 +5007,7 @@ For example, using a \texttt{not radius} of \texttt{0.1} will give a ``not ball'
 
 In addition to the specific parameters, you can also apply to these ports the boolean style \texttt{no input leads}  as in legacy ones (this simply \emph{does not draw} the input leads, but the anchors stays where they should):
 
-\begin{LTXexample}[varwidth=true, basicstyle=\small\ttfamily]
+\begin{LTXexample}[varwidth=true]
 \begin{circuitikz}
 \draw (0,0) node[nand port,
       number inputs=5, no input leads,](B){Pn};
@@ -5083,7 +5018,7 @@ In addition to the specific parameters, you can also apply to these ports the bo
 
 Changing the leads length must be done with a bit of care, because if the length is shorter than the port left or right extrusions strange things can happen (yes, a 4-inputs xnor gates is not so well defined\dots but it's a nice example to show):
 
-\begin{LTXexample}[varwidth=true, basicstyle=\small\ttfamily]
+\begin{LTXexample}[varwidth=true]
 \begin{circuitikz}
     \ctikzset{ieeestd ports/pin length=0.2}
     \draw (0,0) node[xnor port,
@@ -5196,7 +5131,7 @@ European logic port are the same class as american and IEEE-style ones, and they
 
 \paragraph{European logic port customization} Normally the European-style logic port with inverted output are marked with a small triangle; if you want you can change it with the key \texttt{tripoles/european not symbol}; its default is \texttt{triangle} but you can set it to \texttt{circle} like in the following example. As you can see, the circle size is the same as the circuit poles; if you prefer the size used in the IEEE standard ports, you can use set it to \texttt{ieee circle}.
 
-\begin{LTXexample}[varwidth=true, basicstyle=\small\ttfamily]
+\begin{LTXexample}[varwidth=true]
 \begin{circuitikz}[european]
     \draw (0,3) node[nand port](A){}
         (A.out) to[short, *-o] ++(0.5,0);
@@ -5212,7 +5147,7 @@ European logic port are the same class as american and IEEE-style ones, and they
 In some standard, the \texttt{xnor} port is different --- without the negation at the end and with just an $=$ sign.\footnote{Suggested by user \texttt{Schlepptop} on GitHub.}
 You can switch to this if you like, with the key \texttt{european xnor style} that can be \texttt{default} or \texttt{direct}.
 
-\begin{LTXexample}[varwidth=true, basicstyle=\small\ttfamily]
+\begin{LTXexample}[varwidth=true]
 \begin{circuitikz}[european]
     \draw (0,0) node[xnor port]{};
     \ctikzset{european xnor style=direct}
@@ -5415,7 +5350,7 @@ Normally the symbols on the flip-flop are un-rotated when you rotate the symbol,
 
 You can also change the size of the wedge, with the key \texttt{multipoles/flipflop/clock wedge size} (default value \texttt{0.2}).
 
-\begin{LTXexample}[varwidth=true, basicstyle=\small\ttfamily]
+\begin{LTXexample}[varwidth=true]
     \begin{circuitikz}[]
     \draw (0,0) node[flipflop JK]{JK};
     \ctikzset{multipoles/flipflop/clock wedge size=0.1}
@@ -5427,7 +5362,7 @@ You can also change the size of the wedge, with the key \texttt{multipoles/flipf
 
 Flip-flops ``not circles'' follows the current logic port setting (either if you choose \texttt{ieee ports}, or if you are using \texttt{european ports} with \texttt{european not symbol} set to \texttt{cirle} or \texttt{ieee circle}.
 
-\begin{LTXexample}[varwidth=true, basicstyle=\small\ttfamily]
+\begin{LTXexample}[varwidth=true]
 \begin{circuitikz}[]
 \ctikzset{logic ports=european,
     tripoles/european not symbol=ieee circle}
@@ -5530,7 +5465,7 @@ The default values are $\texttt{Lh}=8$, $\texttt{Rh}=6$, $\texttt{w}=3$ and no i
 \end{description}
 All the distances are multiple of \texttt{multipoles/muxdemux/base len} (default \texttt{0.4}, to be set with \verb|\ctikzset|), which is relative to the basic length. That value has been chosen so that, if you have a numbers of pins which is equal to the effective distance where they are spread (which is \texttt{Lh} without inset, $\texttt{Lh}- (\texttt{inset Lh})$ with an inset), then the distance is the same as the default pin distance in chips, as shown in the next circuit. In the same drawing you can see the effect of \texttt{square pins} parameters (without it, the rightmost bottom lead of the \texttt{mux 4by2} shape will not connect with the below one).
 
-\begin{LTXexample}[varwidth=true, basicstyle=\small\ttfamily]
+\begin{LTXexample}[varwidth=true]
 \begin{circuitikz}
     \tikzset{mux 4by2/.style={muxdemux,
         muxdemux def={Lh=4, NL=4, Rh=3,
@@ -5845,7 +5780,7 @@ You can change several parameters to adjust the displays:
 
 A couple of examples are shown below.
 
-\begin{LTXexample}[varwidth=true, pos=b, basicstyle=\small\ttfamily]
+\begin{LTXexample}[varwidth=true, pos=b]
 \begin{circuitikz}[scale=0.5]
 \ctikzset{seven seg/width=0.2, seven seg/thickness=2pt}
 \foreach \i in {0,...,15} \path (\i,0)
@@ -5941,14 +5876,14 @@ Notice though that in active component (sources of either voltage or current) th
 Normally the package will guess a good position for the label or annotation; if you do not like it,
 you can add\footnote{Since version \texttt{1.3.3}} (or remove, with negative values) distance using the keys \texttt{label position} and \texttt{annotation distance}.
 
-\begin{LTXexample}[varwidth=true, basicstyle=\small\ttfamily]
+\begin{LTXexample}[varwidth=true]
 \begin{circuitikz}
     \draw (0,0) to[sR, l=$R$, label distance=-4pt] (2,0)
     to [sR, l=$R$] (4,0);
 \end{circuitikz}
 \end{LTXexample}
 
-\begin{LTXexample}[varwidth=true, basicstyle=\small\ttfamily]
+\begin{LTXexample}[varwidth=true]
 \begin{circuitikz}[american]
     \ctikzset{bipoles/inductors/core distance=4pt}
     \draw (0,1) to[L=$L$, name=myL] ++(2,0);
@@ -6717,7 +6652,7 @@ where the annotation will be in normal font (it has been reset!) and red, or app
 The available styles and commands are \texttt{bipole label style}, \texttt{bipole annotation style}, \texttt{bipole voltage style}, \texttt{bipole current style}, and \texttt{bipole flow style}. The following example shows a bit of everything.
 
 
-\begin{LTXexample}[pos=t, basicstyle=\small\ttfamily ]
+\begin{LTXexample}[pos=t ]
 \begin{circuitikz}[american]
     \ctikzset{bipole annotation style/.style={font=\tiny}}
     \ctikzset{bipole current style/.style={font=\small\sffamily}}
@@ -6735,7 +6670,7 @@ The available styles and commands are \texttt{bipole label style}, \texttt{bipol
 Since 0.9.5, you can access all the labels nodes\footnote{The access to \texttt{label}s and \texttt{annotation}s was present before, but not documented.} using special node names. So, if you use \texttt{name} to give a name to the bipole node, you can access also the following nodes: \texttt{namelabel} (notice: no space nor any other symbol between \texttt{name} and \texttt{label}!), \texttt{nameannotation}, \texttt{namevoltage}, \texttt{namecurrent} and \texttt{nameflow}. Notice that the node names are available only if the bipole has an anchor or an annotation, of course.
 
 \begin{LTXexample}[varwidth=true,
-            pos=t, basicstyle=\small\ttfamily
+            pos=t
     ]
 \newcommand{\marknode}[2][45]{%
     \node[circle, draw, red, inner sep=1pt,
@@ -6759,7 +6694,7 @@ If you want to have more access to the label positioning algorithm, since \textt
 Those values are available only if the dipole declares a \texttt{l} or \texttt{a} keys; if you want them without any label you need to declare a blank one (like for example \texttt{l=\textasciitilde}).
 The following example gives an idea of the values of those macro for the three types of label positioning strategies.
 
-\begin{LTXexample}[varwidth=true, pos=t, basicstyle=\small\ttfamily]
+\begin{LTXexample}[varwidth=true, pos=t]
 \newcommand{\marklabann}[3][45]{% [angle] {node label} {type: label or annotation}
 \node[circle, draw, blue, inner sep=1pt,
 pin={[draw, blue, font=\tiny, align=left]#1:{#2 \\ dir: \ctikzgetdirection{#2#3} \\
@@ -6788,7 +6723,7 @@ Normally, voltages and flow and currents are drawn into the path of the bipoles,
 
 For example, you can do something like this:
 
-\begin{LTXexample}[varwidth=true, basicstyle=\small\ttfamily]
+\begin{LTXexample}[varwidth=true]
 \begin{circuitikz}[]
     \draw (0,1) to[R, v=$v$] ++(3,0);
     \draw (0,0) to[R, v, name=R, voltage/bump b=3] ++(3,0);
@@ -6800,7 +6735,7 @@ For example, you can do something like this:
 
 Or, for example, to have a different voltage style; normally you would define a macro:
 
-\begin{LTXexample}[varwidth=true, basicstyle=\small\ttfamily]
+\begin{LTXexample}[varwidth=true]
 \begin{circuitikz}[voltage shift=0.5]
     \def\eurVPM#1#2{% node, label
         \draw [thin, -{Stealth[width=8pt]}, shorten >=5pt,
@@ -6942,7 +6877,7 @@ When the anchors are activated, there are additional macros that you can use:
 
 For example, you could like the voltage label oriented with the bipole:
 
-\begin{LTXexample}[varwidth=true, basicstyle=\small\ttfamily]
+\begin{LTXexample}[varwidth=true]
 \begin{circuitikz}[]
     \def\myvv#1#2{%
     \draw [thin, blue, ->,]
@@ -6973,7 +6908,7 @@ lray/.style={decorate, decoration={
 
 You can then define a kind of ``power flow'' style:
 
-\begin{LTXexample}[varwidth=true, basicstyle=\small\ttfamily]
+\begin{LTXexample}[varwidth=true]
 \begin{circuitikz}[]
     \newcommand\myff[3][blue]{% [opt: color] node label
         \draw [lray, #1, ] (#2-Ffrom) -- (#2-Fto)
@@ -7143,7 +7078,7 @@ You can add nodes to the bipoles, positioned at the coordinates surrounding the 
 These bipole nodes are added after the path is drawn, as every node in Ti\emph{k}Z --- this is the reason why they are always filled (with the main color the normal nodes, with white the open ones), in order to ``hide'' the wire below. You can override the fill color if you want; but notice that if you draw things in two different paths, you will have ``strange'' results; notice that in the second line of resistors the second wire is starting from the center of the white \texttt{ocirc} of the previous path.
 
 \begin{LTXexample}[varwidth=true,
-        pos=t, basicstyle=\small\ttfamily
+        pos=t
     ]
 \begin{circuitikz}
     \draw (0,0) to[R, *-o] ++(2,0) to[R, -d] ++(2,0)
@@ -7262,7 +7197,7 @@ There are several predefined shorthand as the above; in the following pages you 
 
 Anyway, \emph{if you know what you are doing}, you can change it with the key \texttt{poles/open fill opacity} (with \verb|\ctikzset|) or the style \texttt{open poles opacity}. Notice that you will have artifacts if you don't use the border anchors of the poles to connect wires, and you need to do that by hand.
 
-\begin{LTXexample}[pos=t, basicstyle=\small\ttfamily]
+\begin{LTXexample}[pos=t]
 \begin{circuitikz}[scale=3, transform shape]
     \fill[cyan] (0,0) rectangle (4.1,-0.6);
     \tikzset{open poles opacity=0.5}
@@ -7457,7 +7392,7 @@ Since version 0.9.0, you can also fill most shapes with a color (the manual spec
 
 This fill color will override any color defined by the style (see section~\ref{sec:styling-fillcolor}). If you want to override a style fill color with no-fill for a specific component, you need to override the style --- it's a bit unfortunate but it should be an exceptional thing anyway:
 
-\begin{LTXexample}[varwidth=true, basicstyle=\small\ttfamily]
+\begin{LTXexample}[varwidth=true]
 \begin{circuitikz}
     \ctikzset{logic ports/fill=cyan!30!white}
     \draw[red] (-0.5,3) -- (-0.5, -1);
@@ -7565,7 +7500,7 @@ But really, your circuit definition is buggy, so the best thing to do is fix tha
 
 Nodes, in \TikZ, have normally a non-zero size even when they are empty; moreover, connections are supposed to join the border of nodes. Please study the following (pure \TikZ, not \Circuitikz)
 
-\begin{LTXexample}[varwidth=true, basicstyle=\small\ttfamily]
+\begin{LTXexample}[varwidth=true]
 \begin{tikzpicture}
     \path (1,1) node (A){}; % empty node at (1,1)
     \draw (1,0) -- (A) -- (2,1); % surprise!
@@ -7574,7 +7509,7 @@ Nodes, in \TikZ, have normally a non-zero size even when they are empty; moreove
 
 The gap is there because the node has a non-zero size (more in detail, its \texttt{inner sep} is by default different from zero. You can see it easily if you draw the node shape:
 
-\begin{LTXexample}[varwidth=true, basicstyle=\small\ttfamily]
+\begin{LTXexample}[varwidth=true]
 \begin{tikzpicture}
     \path (1,1) node [draw=red](A){};
     \draw (1,0) -- (A) -- (2,1);
@@ -7583,7 +7518,7 @@ The gap is there because the node has a non-zero size (more in detail, its \text
 
 The problem is that you was want to name a coordinate, you should use a \texttt{coordinate}, \textbf{not} a node!
 
-\begin{LTXexample}[varwidth=true, basicstyle=\small\ttfamily]
+\begin{LTXexample}[varwidth=true]
 \begin{tikzpicture}
     \path (1,1) coordinate (A); % give a name to (1,1)
     \draw (1,0) -- (A) -- (2,1);% now it's ok!
@@ -7592,7 +7527,7 @@ The problem is that you was want to name a coordinate, you should use a \texttt{
 
 Now, before version \texttt{1.2.1} (and since around \texttt{0.6}), \Circuitikz{} was detecting  when a connection was between nodes and sort-of added a \texttt{node.center} movement to the path. That in turn generated the need of hacks to draw the correct joining of lines, because that kind of movement broke the continuity of the path, like in this example:
 
-\begin{LTXexample}[varwidth=true, basicstyle=\small\ttfamily]
+\begin{LTXexample}[varwidth=true]
     \begin{tikzpicture}[line width=4pt]
     \path (1,1) node (A){};
     \draw (1,0) -- (A.center) (A) (A.center) -- (2,1);
@@ -7609,7 +7544,7 @@ So finally it was decided\footnote{well, Romano decided, so you can blame him. \
 
 \faqQ How can I make part of the wires dashed (or colored)? This does not work:
 
-\begin{LTXexample}[varwidth=true, basicstyle=\small\ttfamily]
+\begin{LTXexample}[varwidth=true]
 \begin{circuitikz}
     \draw (0,0) to[R] ++(2,0)
     to[short, dashed, red] ++(1,0)
@@ -7619,7 +7554,7 @@ So finally it was decided\footnote{well, Romano decided, so you can blame him. \
 
 Nor this one, which is even stranger:
 
-\begin{LTXexample}[varwidth=true, basicstyle=\small\ttfamily]
+\begin{LTXexample}[varwidth=true]
 \begin{circuitikz}
     \draw (0,0) to[R] ++(2,0)
     [dashed, red] -- ++(1,0)
@@ -7629,7 +7564,7 @@ Nor this one, which is even stranger:
 
 \faqA This is an effect on how \TikZ{} builds and draws path. As explained in the \TikZ{} manual,\footnote{in 3.1.5b, section~14, ``syntax for path specification''} most path options are globally valid for the whole path; color and dash/dot is one of this. You have two options in this case. The first one is to use two paths.
 
-\begin{LTXexample}[varwidth=true, basicstyle=\small\ttfamily]
+\begin{LTXexample}[varwidth=true]
 \begin{circuitikz}
     \draw (0,0) to[R] ++(2,0) coordinate(a);
     \draw [dashed, red] (a) -- ++(1,0) coordinate(b);
@@ -7641,7 +7576,7 @@ The other one is to use \texttt{edge} operations\footnote{I took the idea form \
 
 So, for example:
 
-\begin{LTXexample}[varwidth=true, basicstyle=\small\ttfamily]
+\begin{LTXexample}[varwidth=true]
 \begin{circuitikz}
     \draw (0,0) to[R] ++(2,0)
     edge[dashed, red] ++(1,0)
@@ -7652,7 +7587,7 @@ So, for example:
 
 The only problem with this approach is that the \texttt{edge}s are added \emph{after} the nodes, so it can create problems with nodes (look carefully!):
 
-\begin{LTXexample}[varwidth=true, basicstyle=\small\ttfamily]
+\begin{LTXexample}[varwidth=true]
 \begin{circuitikz}
     \draw (0,0) to[R,-o] ++(2,0)
     edge[dashed, red] ++(1,0)
@@ -7662,7 +7597,7 @@ The only problem with this approach is that the \texttt{edge}s are added \emph{a
 
 So it's better, in this case, to add the nodes manually after the path (there is no perfect solution!)
 
-\begin{LTXexample}[varwidth=true, basicstyle=\small\ttfamily]
+\begin{LTXexample}[varwidth=true]
 \begin{circuitikz}
     \draw (0,0) to[R] ++(2,0) coordinate(a)
     edge[dashed, red] ++(1,0)
@@ -7674,7 +7609,7 @@ So it's better, in this case, to add the nodes manually after the path (there is
 
 A more complex example can be seen (look at the comments!) in the following circuit.
 
-\begin{LTXexample}[varwidth=true, basicstyle=\small\ttfamily]
+\begin{LTXexample}[varwidth=true]
 \begin{circuitikz}[american]
     \draw (0,0) to[R, v=$v_1$] ++(2,0)
         edge[dashed] ++(1,0)
@@ -7749,7 +7684,7 @@ In versions up to \texttt{1.2.7}, use for example \verb|\mbox{}| or define \verb
 Version 1.3.3 fixes the direction of the arrows in tunable elements; before this version, they were more or less random, now the arrow goes from bottom left to top right. You have the option to go back to the old behavior with \texttt{\textbackslash ctikzset\{bipoles/fix tunable direction=false\}}. As a compensation for the fuss, now the arrows are configurable.
 
 
-\begin{LTXexample}[pos=t, basicstyle=\small\ttfamily]
+\begin{LTXexample}[pos=t]
 \begin{circuitikz}[european]
     \draw (1,0) node{new default} (4,0) node{old default} (7,0) node{new!};
     \foreach [count=\i] \comp in
@@ -8069,7 +8004,7 @@ Here a series of example, contributed by several people, is shown with their cod
         to[short, o-*] (1,0)
         to[R=20<\ohm>, *-*] (1,2)
         to[R=10<\ohm>, v=$v_x$] (3,2) -- (4,2)
-        to[cI=$\frac{\siemens}{5} v_x$, *-*] (4,0) -- (3,0)
+        to[cI=$\frac{\si{\siemens}}{5} v_x$, *-*] (4,0) -- (3,0)
         to[R=5<\ohm>, *-*] (3,2)
   (3,0) -- (1,0)
   (1,2) to[short, -o] (0,2) node[anchor=east]{A}
@@ -8116,8 +8051,8 @@ Here a series of example, contributed by several people, is shown with their cod
         to [R, l=1<\kilo\ohm>] (4,-1.5);
 
    \begin{scope}[xshift=6.5cm, yshift=.5cm]
-    \draw [->] (-2,0) -- (2.5,0) node[anchor=west] {$v_1/\volt$};
-    \draw [->] (0,-2) -- (0,2) node[anchor=west] {$i_1/\SI{}{\milli\ampere}$} ;
+       \draw [->] (-2,0) -- (2.5,0) node[anchor=west] {$v_1/\si{\volt}$};
+    \draw [->] (0,-2) -- (0,2) node[anchor=west] {$i_1/\si{\milli\ampere}$} ;
     \draw (-1,0) node[anchor=north] {-2} (1,0) node[anchor=south] {2}
           (0,1) node[anchor=west] {4} (0,-1) node[anchor=east] {-4}
           (2,0) node[anchor=north west] {4}
