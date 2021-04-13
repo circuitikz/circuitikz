@@ -1,6 +1,11 @@
 <!--- CircuiTikz - Changelog --->
 The major changes among the different CircuiTikZ versions are listed here. See <https://github.com/circuitikz/circuitikz/commits> for a full list of changes.
 
+* Version 1.3.4 (unreleased)
+
+    - Added separate configuration for the line thickness of resistors, capacitors, and inductors modifiers
+    - Fixed a bug in thermistor not respecting their class line thickness
+
 * Version 1.3.3 (2021-04-04)
 
     Several usability additions in this version, and one small fix that could
