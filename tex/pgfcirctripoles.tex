@@ -2881,6 +2881,15 @@
 \ctikzset{no schottky base/.add code={}{\pgf@circuit@bpt@schottkyfalse}}
 \ctikzset{tripoles/schottky base size/.initial=0.05}
 
+% Option to add ferroelectric symbol
+\newif\ifpgf@circuit@tr@ferroel
+\pgf@circuit@tr@ferroelfalse
+\pgfkeys{/tikz/ferroel gate/.add code={}{\pgf@circuit@tr@ferroeltrue}}
+\ctikzset{ferroel gate/.add code={}{\pgf@circuit@tr@ferroeltrue}}
+\pgfkeys{/tikz/no ferroel gate/.add code={}{\pgf@circuit@tr@ferroelfalse}}
+\ctikzset{no ferroel gate/.add code={}{\pgf@circuit@tr@ferroelfalse}}
+
+
 % Option draw bpt without base connection
 \newif\ifpgf@circuit@bpt@drawbase
 \pgf@circuit@bpt@drawbasetrue
@@ -3352,6 +3361,32 @@
         \pgf@circ@draworfill
     \endpgfscope
     \fi
+}
+
+\def\pgfcirc@ferroelectric#1#2{% #1 -> transistor type, #2 horizontal enlargment (prop to ...@left),
+    \ifpgf@circuit@tr@ferroel\pgfscope
+        \pgf@circ@setlinewidth{tripoles}{\pgflinewidth}
+        \pgf@circ@set@relative@thickness{modifier thickness}
+        % base-gate center and width of the sigmoid
+        \pgfmathsetlength{\pgf@circ@res@other}
+        {0.5*(\ctikzvalof{tripoles/#1/gate width}+\ctikzvalof{tripoles/#1/base width}-(#2))*\pgf@circ@res@left}
+        \pgfmathsetlength{\pgf@circ@res@temp}
+        {1.2*abs(\ctikzvalof{tripoles/#1/gate width}-\ctikzvalof{tripoles/#1/base width}+0.5*(#2))*\pgf@circ@res@left}
+        \pgfsetcornersarced{\pgfpoint{-0.2\pgf@circ@res@temp}{-0.2\pgf@circ@res@temp}}
+        \pgfpathmoveto{\pgfpoint
+            {\pgf@circ@res@other+\pgf@circ@res@temp}
+            {1.1*\ctikzvalof{tripoles/#1/base height}*\pgf@circ@res@up}}
+        \pgfpathlineto{\pgfpoint
+            {\pgf@circ@res@other+\pgf@circ@res@temp}
+            {0.5*\ctikzvalof{tripoles/#1/base height}*\pgf@circ@res@up}}
+        \pgfpathlineto{\pgfpoint
+            {\pgf@circ@res@other-\pgf@circ@res@temp}
+            {0.5*\ctikzvalof{tripoles/#1/base height}*\pgf@circ@res@down}}
+        \pgfpathlineto{\pgfpoint
+            {\pgf@circ@res@other-\pgf@circ@res@temp}
+            {1.1*\ctikzvalof{tripoles/#1/base height}*\pgf@circ@res@down}}
+        \pgfusepath{draw}
+    \endpgfscope\fi
 }
 
 \long\def\pgfcircdeclaretransistor#1#2#3{
@@ -4636,6 +4671,8 @@
                 {\pgf@circ@res@up+\pgf@circ@res@down}}
         \pgfusepath{draw}
     \fi
+
+    \pgfcirc@ferroelectric{nmos}{0}
 }
 
 \pgfcircdeclaretransistor{pmos}{
@@ -4738,6 +4775,8 @@
         \fi
         \pgfusepath{draw,fill}
     \fi
+
+    \pgfcirc@ferroelectric{pmos}{0}
 }
 
 %%% depletion MOSFET (simplified symbols)
@@ -4864,6 +4903,8 @@
                 {\pgf@circ@res@up+\pgf@circ@res@down}}
         \pgfusepath{draw}
     \fi
+
+    \pgfcirc@ferroelectric{nmosd}{\ctikzvalof{tripoles/nmosd/depletion width}}
 }
 
 \pgfcircdeclaretransistor{pmosd}{
@@ -4983,6 +5024,8 @@
         \fi
         \pgfusepath{draw,fill}
     \fi
+
+    \pgfcirc@ferroelectric{pmosd}{\ctikzvalof{tripoles/pmosd/depletion width}}
 }
 %% HEMT FET Transistor
 \pgfcircdeclaretransistor{hemt}{
@@ -5134,21 +5177,23 @@
         \pgfnode{trarrow}{\@@anchor}{}{}{\pgfusepath{stroke}}
     \endpgfscope
 
-% GATE CONNECTION
-\ifpgf@circuit@bpt@drawgate
-    \ifpgf@circuit@trans@ntype
-        \pgfpathmoveto{\pgfpoint
-            {\ctikzvalof{tripoles/#1/gate width}\pgf@circ@res@left}
-        {\ctikzvalof{tripoles/#1/conn height}\pgf@circ@res@down}}
-        \pgfpathlineto{\pgfpoint{\pgf@circ@res@left-\pgfhorizontaltransformationadjustment*.5*\pgflinewidth}{\ctikzvalof{tripoles/#1/conn height}\pgf@circ@res@down}}
-    \else
-        \pgfpathmoveto{\pgfpoint
-            {\ctikzvalof{tripoles/#1/gate width}\pgf@circ@res@left}
-        {-\ctikzvalof{tripoles/#1/conn height}\pgf@circ@res@down}}
-        \pgfpathlineto{\pgfpoint{\pgf@circ@res@left-\pgfhorizontaltransformationadjustment*.5*\pgflinewidth}{-\ctikzvalof{tripoles/#1/conn height}\pgf@circ@res@down}}
+    % GATE CONNECTION
+    \ifpgf@circuit@bpt@drawgate
+        \ifpgf@circuit@trans@ntype
+            \pgfpathmoveto{\pgfpoint
+                {\ctikzvalof{tripoles/#1/gate width}\pgf@circ@res@left}
+            {\ctikzvalof{tripoles/#1/conn height}\pgf@circ@res@down}}
+            \pgfpathlineto{\pgfpoint{\pgf@circ@res@left-\pgfhorizontaltransformationadjustment*.5*\pgflinewidth}{\ctikzvalof{tripoles/#1/conn height}\pgf@circ@res@down}}
+        \else
+            \pgfpathmoveto{\pgfpoint
+                {\ctikzvalof{tripoles/#1/gate width}\pgf@circ@res@left}
+            {-\ctikzvalof{tripoles/#1/conn height}\pgf@circ@res@down}}
+            \pgfpathlineto{\pgfpoint{\pgf@circ@res@left-\pgfhorizontaltransformationadjustment*.5*\pgflinewidth}{-\ctikzvalof{tripoles/#1/conn height}\pgf@circ@res@down}}
+        \fi
+        \pgfusepath{draw}
     \fi
-    \pgfusepath{draw}
-\fi
+
+    \pgfcirc@ferroelectric{#1}{0}
 
 }
 
