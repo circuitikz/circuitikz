@@ -937,6 +937,47 @@
         \pgf@circ@draworfill
     \endpgfscope
 }
+
+% Ferroelectric capacitor, suggested by Mayeul Cantan
+% (see https://github.com/circuitikz/circuitikz/issues/515)
+\pgfcircdeclarebipolescaled{capacitors}
+{
+    \anchor{curve right}{\southwest\pgf@x=-1.8\pgf@x\pgf@y=\pgf@y}%
+    \anchor{curve left}{\southwest\pgf@x=1.8\pgf@x\pgf@y=-\pgf@y}%
+    \anchor{kink right}{\southwest\pgf@x=-1.8\pgf@x\pgf@y=0.5\pgf@y}%
+    \anchor{kink left}{\southwest\pgf@x=1.8\pgf@x\pgf@y=-0.5\pgf@y}%
+    \pgfcirc@border@extend@full{1.8}{1}{1.8}{1}
+}
+{\ctikzvalof{bipoles/capacitor/height}}
+{ferrocap}
+{\ctikzvalof{bipoles/capacitor/height}}
+{\ctikzvalof{bipoles/capacitor/width}}
+{
+    \pgfscope
+        \pgfpathrectanglecorners
+        {\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@up}}
+        {\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@down}}
+        \pgf@circ@maybefill
+    \endpgfscope
+
+    \pgf@circ@setlinewidth{bipoles}{\pgfstartlinewidth}
+    \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@up}}
+    \pgfpathlineto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@down}}
+
+    \pgfpathmoveto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@up}}
+    \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@down}}
+    \pgfusepath{draw}
+    \pgfscope
+        \pgf@circ@set@relative@thickness{modifier thickness}
+        \pgfsetcornersarced{\pgfpoint{0.2\pgf@circ@res@right}{0.2\pgf@circ@res@up}}
+        \pgfpathmoveto{\pgfpoint{-1.8\pgf@circ@res@right}{\pgf@circ@res@up}}
+        \pgfpathlineto{\pgfpoint{-1.8\pgf@circ@res@right}{0.5\pgf@circ@res@up}}
+        \pgfpathlineto{\pgfpoint{1.8\pgf@circ@res@right}{0.5\pgf@circ@res@down}}
+        \pgfpathlineto{\pgfpoint{1.8\pgf@circ@res@right}{\pgf@circ@res@down}}
+        \pgfusepath{draw}
+    \endpgfscope
+}
+
 % %>>>
 
 %% Paths for capacitors%<<<
@@ -956,6 +997,8 @@
 \pgfcirc@style@to@style{piezoelectric}{PZ}
 \pgfcirc@activate@bipole{l}{capacitivesens}{capacitivesens}{capacitive sensor}
 \pgfcirc@style@to@style{capacitive sensor}{sC}
+\pgfcirc@activate@bipole@simple{l}{ferrocap}
+\pgfcirc@style@to@style{ferrocap}{feC}
 % %>>>
 
 %%%%%%%%%%%%%%%
