@@ -3393,6 +3393,54 @@
     \endpgfscope\fi
 }
 
+\ctikzset{tr gap fill/.initial=none}
+\tikzset{tr gap fill/.style={\circuitikzbasekey/tr gap fill={#1}}}
+% fill the gap in relevant transistors
+\def\pgfcirc@fillgategap#1{% #1 transistor type
+    \edef\@@@none{none}\edef\@@@color{\ctikzvalof{tr gap fill}}% always exists
+    \ifx\@@@none\@@@color\relax\else
+        \begingroup % save the value of @res: other, step, temp
+        \edef\@@@doit{1}% draw it, set to zero if we give up
+        % ok, we have the color here. we have to get center position, with and height
+        % normally is gate height; but in igbt is outer base height (grrrr)
+        \pgfkeysifdefined{\circuitikzbasekey/tripoles/#1/outer base height}{
+            % yes, it's an IGBT
+            \pgfmathsetlength{\pgf@circ@res@other}{\ctikzvalof{tripoles/#1/outer base height}*\pgf@circ@res@up}
+        }{
+            %no. Let's try with gate height
+             \pgfkeysifdefined{\circuitikzbasekey/tripoles/#1/gate height}{
+                 % yes, go for it
+                \pgfmathsetlength{\pgf@circ@res@other}{\ctikzvalof{tripoles/#1/gate height}*\pgf@circ@res@up}
+            }{
+                %no, give up, let value to 0
+                \edef\@@@doit{0}
+            }
+        }
+        % now we have to find x1 and x2: these are base width and gate width
+        % if do not have one of that, bail out.
+        \pgfkeysifdefined{\circuitikzbasekey/tripoles/#1/gate width}{
+                \pgfmathsetlength{\pgf@circ@res@temp}{\ctikzvalof{tripoles/#1/gate width}*\pgf@circ@res@left}
+            }{
+                \edef\@@@doit{0}
+            }
+        \pgfkeysifdefined{\circuitikzbasekey/tripoles/#1/base width}{
+                \pgfmathsetlength{\pgf@circ@res@step}{\ctikzvalof{tripoles/#1/base width}*\pgf@circ@res@left}
+            }{
+                \edef\@@@doit{0}
+            }
+        % if found, draw it.
+        \ifnum\@@@doit>0\relax
+            \pgfscope
+                \pgfsetfillcolor{\@@@color}
+                \pgfsetcolor{\@@@color}
+                \pgfpathrectanglecorners{\pgfpoint{\pgf@circ@res@temp}{\pgf@circ@res@other}}{\pgfpoint{\pgf@circ@res@step}{-\pgf@circ@res@other}}
+                \pgfusepath{fill, draw}
+            \endpgfscope
+        \fi
+        \endgroup
+    \fi
+}
+
 \long\def\pgfcircdeclaretransistor#1#2#3{
     \pgfdeclareshape{#1}
     {
@@ -4327,6 +4375,8 @@
     {
         % add the circle if requested (before everything else, so we can fill it)
         \pgfcirc@transistorcircle
+        % fill the gap color if requested
+        \pgfcirc@fillgategap{#1}
         %draw upper connection
         \pgfpathmoveto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@up+\pgfverticaltransformationadjustment*.5*\pgflinewidth}}
         \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}
@@ -4618,6 +4668,8 @@
     }{%
     % add the circle if requested (before everything else, so we can fill it)
     \pgfcirc@transistorcircle
+    % fill the gap color if requested
+    \pgfcirc@fillgategap{nmos}
 
     \pgfpathmoveto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@up+\pgfverticaltransformationadjustment*.5*\pgflinewidth}}
     \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}
@@ -4707,6 +4759,9 @@
     }{%
     % add the circle if requested (before everything else, so we can fill it)
     \pgfcirc@transistorcircle
+    % fill the gap color if requested
+    \pgfcirc@fillgategap{nmos}
+
     \pgfpathmoveto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@up+\pgfverticaltransformationadjustment*.5*\pgflinewidth}}
     \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}
     {\ctikzvalof{tripoles/pmos/gate height}\pgf@circ@res@up}}
@@ -4841,6 +4896,8 @@
     % draw depletion channel
     % add the circle if requested (before everything else, so we can fill it)
     \pgfcirc@transistorcircle
+    % fill the gap color if requested
+    \pgfcirc@fillgategap{nmos}
     \pgfscope
         \pgfpathrectanglecorners
         {\pgfpoint
@@ -4945,6 +5002,8 @@
     }{%
     % add the circle if requested (before everything else, so we can fill it)
     \pgfcirc@transistorcircle
+    % fill the gap color if requested
+    \pgfcirc@fillgategap{nmos}
     % draw depletion channel
     \pgfscope
         \pgfpathrectanglecorners
@@ -5099,6 +5158,8 @@
     \pgftransformationadjustments
     % add the circle if requested (before everything else, so we can fill it)
     \pgfcirc@transistorcircle
+    % fill the gap color if requested
+    \pgfcirc@fillgategap{#1}
 
     %top connection
     \pgfpathmoveto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@up+\pgfverticaltransformationadjustment*.5*\pgflinewidth}}

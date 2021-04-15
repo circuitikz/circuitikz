@@ -5,6 +5,7 @@ The major changes among the different CircuiTikZ versions are listed here. See <
 
     - Added separate configuration for the line thickness of resistors, capacitors, and inductors modifiers
     - Added ferroelectric capacitors and mos/fet (suggested by Mayeul Cantan, https://github.com/circuitikz/circuitikz/issues/515)
+    - Added an option to fill the gate gap in MOSes, FETs and IGBTs with a color
     - Added a "centergap" anchor for transistors
     - Fixed a bug in thermistor not respecting their class line thickness
     - Fixes in the manual (copy and paste of snippet without numbers, correct old usage of siunitx, factor out repetitions in the preamble; thanks to Ulrike Fischer:
