@@ -2824,7 +2824,7 @@ To show that a device is optional, you can dash it. The inner symbol will be kep
     \circuitdesc{npn,photo}{photo npn}{}( nobase/0/0.4 )
     \circuitdesc{pnp,photo}{photo pnp}{}
     \circuitdesc{nigbt}{nigbt}{Q}
-    \circuitdesc{pigbt}{pigbt}{}
+    \circuitdesc{pigbt}{pigbt}{}(centergap/0/0.5)
     \circuitdesc{Lnigbt}{Lnigbt}{Q}
     \circuitdesc{Lpigbt}{Lpigbt}{}
     \circuitdesc{Lpigbt, bodydiode}{Lpigbt}{Q}(body C in/-60/0.2, body E in/60/0.2,body C out/0/0.3, body E out/-0/0.3)
@@ -2845,7 +2845,7 @@ Basically they are the same as the normal \texttt{npn} and \texttt{pnp}, and the
 
 \begin{groupdesc}
     \circuitdesc{nmos}{nmos}{Q}( G/180/0.2,D/0/0.2,S/0/0.2 )
-    \circuitdesc{pmos}{pmos}{}
+    \circuitdesc{pmos}{pmos}{}(centergap/0/0.5)
     \circuitdesc{nmosd}{nmos depletion}{Q}( G/180/0.2,D/0/0.2,S/0/0.2 )
     \circuitdesc{pmosd}{pmos depletion}{}
     \circuitdesc{hemt}{hemt}{}
@@ -2858,12 +2858,12 @@ Basically they are the same as the normal \texttt{npn} and \texttt{pnp}, and the
     \circuitdesc{nfet}{nfet}{Q}
     \circuitdesc{nfetd}{nfet depletion}{Q}
     \circuitdesc{nigfete}{nigfete}{Q}
-    \circuitdesc{nigfete,solderdot}{nigfete}{}
+    \circuitdesc{nigfete,solderdot}{nigfete}{}(centergap/0/0.5)
     \circuitdesc{nigfetebulk}{nigfetebulk}{}
-    \circuitdesc{nigfetd}{nigfetd}{}
+    \circuitdesc{nigfetd}{nigfetd}{}(centergap/0/0.5)
     \circuitdesc{pfet}{pfet}{Q}
     \circuitdesc{pfetd}{pfet depletion}{Q}
-    \circuitdesc{pigfete}{pigfete}{}
+    \circuitdesc{pigfete}{pigfete}{}(centergap/0/0.5)
     \circuitdesc{pigfetebulk}{pigfetebulk}{}
     \circuitdesc{pigfetd}{pigfetd}{}
 \end{groupdesc}
@@ -3321,7 +3321,6 @@ A complete example of multiple terminal transistor application is the following 
 Here is one composite example (please notice that the \texttt{xscale=-1} style would also reflect the label of the transistors, so here a new node is added and its text is used, instead of that of \texttt{pnp1}):
 
 \begin{LTXexample}[varwidth=true]
-  % \begin{circuitikz} [legacy transistors label]\draw
   \begin{circuitikz} []\draw
   (0,0) node[pnp] (pnp2) {Q2}
   (pnp2.B) node[pnp, xscale=-1, anchor=B] (pnp1) {}
@@ -3334,9 +3333,9 @@ Here is one composite example (please notice that the \texttt{xscale=-1} style w
 ;\end{circuitikz}
 \end{LTXexample}
 
-Notice that the text labels of transistors are somewhat buggy. It is better to se explicit anchors to set transistor's names.
+Notice that the text labels of transistors are outside the bounding box of the component (that is, the set of geographical anchors). If it is a problem, use a separate text node to set the transistor's label.
+Of course, transistors like other components can be reflected vertically:
 
-Similarly, transistors like other components can be reflected vertically:
 \begin{LTXexample}[varwidth=true]
 \begin{circuitikz} \draw
   (0,0) node[pigfete, yscale=-1] (pigfete)  {}
@@ -3345,6 +3344,19 @@ Similarly, transistors like other components can be reflected vertically:
   (pigfete.D) node[anchor=south] {D}
   (pigfete.S) node[anchor=north] {S}
 ;\end{circuitikz}
+\end{LTXexample}
+
+Finally, double-gated components (MOSes, FETs, IGBTs) have an extra anchor \texttt{centergap} positioned in the middle of the ``gate capacitor'' or base.
+\begin{LTXexample}[varwidth=true]
+    \begin{circuitikz}
+        \node [nmos](A) at (0,3) {};
+        \node [nfet](B) at (0,1.5) {};
+        \node [pigbt](C) at (0,0) {};
+        \foreach \myn in {A, B, C}
+            \draw[color=red] (\myn.centergap)
+                node[ocirc]{} -- ++(1,0)
+                node[right, font=\tiny]{centergap};
+    \end{circuitikz}
 \end{LTXexample}
 
 \subsubsection{Transistor paths}\label{sec:transasbip}

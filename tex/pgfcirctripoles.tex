@@ -3230,6 +3230,7 @@
 \ctikzset{tripoles/njfet/gate height/.initial=.5}
 \ctikzset{tripoles/njfet/gate height 2/.initial=.35}
 \ctikzset{tripoles/njfet/gate width/.initial=.5}
+\ctikzset{tripoles/njfet/base width/.initial=.5}
 \ctikzset{tripoles/njfet/conn height/.initial=.35}
 \ctikzset{tripoles/njfet/height/.initial=1.1}
 \ctikzset{tripoles/njfet/bodydiode scale/.initial=.3}
@@ -3241,6 +3242,7 @@
 \ctikzset{tripoles/pjfet/gate height/.initial=.5}
 \ctikzset{tripoles/pjfet/gate height 2/.initial=.35}
 \ctikzset{tripoles/pjfet/gate width/.initial=.5}
+\ctikzset{tripoles/pjfet/base width/.initial=.5}
 \ctikzset{tripoles/pjfet/conn height/.initial=.35}
 \ctikzset{tripoles/pjfet/height/.initial=1.1}
 \ctikzset{tripoles/pjfet/bodydiode scale/.initial=.3}
@@ -3363,6 +3365,8 @@
     \fi
 }
 
+% add a ferroelectric squish to transistors
+
 \def\pgfcirc@ferroelectric#1#2{% #1 -> transistor type, #2 horizontal enlargment (prop to ...@left),
     \ifpgf@circuit@tr@ferroel\pgfscope
         \pgf@circ@setlinewidth{tripoles}{\pgflinewidth}
@@ -3453,6 +3457,22 @@
         \anchor{circle center}{
             \pgf@y=0pt\pgf@x=\circleleft\advance\pgf@x by\circleradius
         }
+        \savedanchor{\centergap}{% this is the center position between gate and base
+            % get "left"
+            \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
+            \pgf@xa=-\ctikzvalof{tripoles/#1/width}\pgf@circ@scaled@Rlen
+            \pgfkeysifdefined{\circuitikzbasekey/tripoles/#1/gate width}{
+                % yes, we have a separated gate
+                \pgfmathsetlength{\pgf@x}
+                {0.5*(\ctikzvalof{tripoles/#1/gate width}+\ctikzvalof{tripoles/#1/base width})*\pgf@xa}
+            }{
+                % no, use just the base
+                \pgfmathsetlength{\pgf@x}
+                {\ctikzvalof{tripoles/#1/base width}*\pgf@xa}
+            }
+            \pgf@y=0pt\relax
+        }
+        \anchor{centergap}{\centergap}
         \anchor{center}{
             \pgfpointorigin
         }
