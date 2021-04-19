@@ -7,6 +7,7 @@ The major changes among the different CircuiTikZ versions are listed here. See <
     - Fixed a bug in thermistor not respecting their class line thickness
     - Fixes in the manual (copy and paste of snippet without numbers, correct old usage of siunitx, factor out repetitions in the preamble)
     - Fixed a bug introduced in 1.3.3 that would reduce compatibility with the `circuits` internal library
+    - Added the option "nogate" ti the hemt symbol
 
 * Version 1.3.3 (2021-04-04)
 
