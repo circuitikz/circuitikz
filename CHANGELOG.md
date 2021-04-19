@@ -6,12 +6,15 @@ The major changes among the different CircuiTikZ versions are listed here. See <
     - Added separate configuration for the line thickness of resistors, capacitors, and inductors modifiers
     - Fixed a bug in thermistor not respecting their class line thickness
     - Fixes in the manual (copy and paste of snippet without numbers, correct old usage of siunitx, factor out repetitions in the preamble)
+    - Fixed a bug introduced in 1.3.3 that would reduce compatibility with the `circuits` internal library
 
 * Version 1.3.3 (2021-04-04)
 
     Several usability additions in this version, and one small fix that could
     change the look of your circuit (without affecting correctness). Some of the
     arrow shapes are now configurable.
+
+    Do not use this version, there is a bug with the new "label distance" key. 
 
     - Added options to fine-tune the position of labels and annotations
     - Added options to change arrow tips on variable resistors, inductors and
