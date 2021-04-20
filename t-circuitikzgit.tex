@@ -10,7 +10,7 @@
 %
 % See the files gpl-3.0_license.txt and lppl-1-3c_license.txt for more details.
 
-\def\pgfcircversion{1.3.4-unreleased-068fd35}
+\def\pgfcircversion{1.3.4-unreleased-7d93cd6}
 \def\pgfcircversiondate{2021/04/20}
 \writestatus{loading}{\pgfcircversiondate{} The CircuiTikz circuit drawing package version \pgfcircversion}
 
@@ -737,6 +737,7 @@
 \ctikzset{transistors/scale/.initial=1.0}
 \ctikzset{transistors/fill/.initial=none}
 \ctikzset{transistors/thickness/.initial=none}
+\ctikzset{transistors/modifier thickness/.initial=1}% relative to main thickness
 
 \ctikzset{tubes/scale/.initial=1.0}
 \ctikzset{tubes/fill/.initial=none}
@@ -4318,6 +4319,47 @@
         \pgf@circ@draworfill
     \endpgfscope
 }
+
+% Ferroelectric capacitor, suggested by Mayeul Cantan
+% (see https://github.com/circuitikz/circuitikz/issues/515)
+\pgfcircdeclarebipolescaled{capacitors}
+{
+    \anchor{curve right}{\southwest\pgf@x=-1.8\pgf@x\pgf@y=\pgf@y}%
+    \anchor{curve left}{\southwest\pgf@x=1.8\pgf@x\pgf@y=-\pgf@y}%
+    \anchor{kink right}{\southwest\pgf@x=-1.8\pgf@x\pgf@y=0.5\pgf@y}%
+    \anchor{kink left}{\southwest\pgf@x=1.8\pgf@x\pgf@y=-0.5\pgf@y}%
+    \pgfcirc@border@extend@full{1.8}{1}{1.8}{1}
+}
+{\ctikzvalof{bipoles/capacitor/height}}
+{ferrocap}
+{\ctikzvalof{bipoles/capacitor/height}}
+{\ctikzvalof{bipoles/capacitor/width}}
+{
+    \pgfscope
+        \pgfpathrectanglecorners
+        {\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@up}}
+        {\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@down}}
+        \pgf@circ@maybefill
+    \endpgfscope
+
+    \pgf@circ@setlinewidth{bipoles}{\pgfstartlinewidth}
+    \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@up}}
+    \pgfpathlineto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@down}}
+
+    \pgfpathmoveto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@up}}
+    \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@down}}
+    \pgfusepath{draw}
+    \pgfscope
+        \pgf@circ@set@relative@thickness{modifier thickness}
+        \pgfsetcornersarced{\pgfpoint{0.2\pgf@circ@res@right}{0.2\pgf@circ@res@up}}
+        \pgfpathmoveto{\pgfpoint{-1.8\pgf@circ@res@right}{\pgf@circ@res@up}}
+        \pgfpathlineto{\pgfpoint{-1.8\pgf@circ@res@right}{0.5\pgf@circ@res@up}}
+        \pgfpathlineto{\pgfpoint{1.8\pgf@circ@res@right}{0.5\pgf@circ@res@down}}
+        \pgfpathlineto{\pgfpoint{1.8\pgf@circ@res@right}{\pgf@circ@res@down}}
+        \pgfusepath{draw}
+    \endpgfscope
+}
+
 % %>>>
 
 %% Paths for capacitors%<<<
@@ -4337,6 +4379,8 @@
 \pgfcirc@style@to@style{piezoelectric}{PZ}
 \pgfcirc@activate@bipole{l}{capacitivesens}{capacitivesens}{capacitive sensor}
 \pgfcirc@style@to@style{capacitive sensor}{sC}
+\pgfcirc@activate@bipole@simple{l}{ferrocap}
+\pgfcirc@style@to@style{ferrocap}{feC}
 % %>>>
 
 %%%%%%%%%%%%%%%
@@ -12024,6 +12068,15 @@
 \ctikzset{no schottky base/.add code={}{\pgf@circuit@bpt@schottkyfalse}}
 \ctikzset{tripoles/schottky base size/.initial=0.05}
 
+% Option to add ferroelectric symbol
+\newif\ifpgf@circuit@tr@ferroel
+\pgf@circuit@tr@ferroelfalse
+\pgfkeys{/tikz/ferroel gate/.add code={}{\pgf@circuit@tr@ferroeltrue}}
+\ctikzset{ferroel gate/.add code={}{\pgf@circuit@tr@ferroeltrue}}
+\pgfkeys{/tikz/no ferroel gate/.add code={}{\pgf@circuit@tr@ferroelfalse}}
+\ctikzset{no ferroel gate/.add code={}{\pgf@circuit@tr@ferroelfalse}}
+
+
 % Option draw bpt without base connection
 \newif\ifpgf@circuit@bpt@drawbase
 \pgf@circuit@bpt@drawbasetrue
@@ -12364,6 +12417,7 @@
 \ctikzset{tripoles/njfet/gate height/.initial=.5}
 \ctikzset{tripoles/njfet/gate height 2/.initial=.35}
 \ctikzset{tripoles/njfet/gate width/.initial=.5}
+\ctikzset{tripoles/njfet/base width/.initial=.5}
 \ctikzset{tripoles/njfet/conn height/.initial=.35}
 \ctikzset{tripoles/njfet/height/.initial=1.1}
 \ctikzset{tripoles/njfet/bodydiode scale/.initial=.3}
@@ -12375,6 +12429,7 @@
 \ctikzset{tripoles/pjfet/gate height/.initial=.5}
 \ctikzset{tripoles/pjfet/gate height 2/.initial=.35}
 \ctikzset{tripoles/pjfet/gate width/.initial=.5}
+\ctikzset{tripoles/pjfet/base width/.initial=.5}
 \ctikzset{tripoles/pjfet/conn height/.initial=.35}
 \ctikzset{tripoles/pjfet/height/.initial=1.1}
 \ctikzset{tripoles/pjfet/bodydiode scale/.initial=.3}
@@ -12497,6 +12552,82 @@
     \fi
 }
 
+% add a ferroelectric squish to transistors
+
+\def\pgfcirc@ferroelectric#1#2{% #1 -> transistor type, #2 horizontal enlargment (prop to ...@left),
+    \ifpgf@circuit@tr@ferroel\pgfscope
+        \pgf@circ@setlinewidth{tripoles}{\pgflinewidth}
+        \pgf@circ@set@relative@thickness{modifier thickness}
+        % base-gate center and width of the sigmoid
+        \pgfmathsetlength{\pgf@circ@res@other}
+        {0.5*(\ctikzvalof{tripoles/#1/gate width}+\ctikzvalof{tripoles/#1/base width}-(#2))*\pgf@circ@res@left}
+        \pgfmathsetlength{\pgf@circ@res@temp}
+        {1.2*abs(\ctikzvalof{tripoles/#1/gate width}-\ctikzvalof{tripoles/#1/base width}+0.5*(#2))*\pgf@circ@res@left}
+        \pgfsetcornersarced{\pgfpoint{-0.2\pgf@circ@res@temp}{-0.2\pgf@circ@res@temp}}
+        \pgfpathmoveto{\pgfpoint
+            {\pgf@circ@res@other+\pgf@circ@res@temp}
+            {1.1*\ctikzvalof{tripoles/#1/base height}*\pgf@circ@res@up}}
+        \pgfpathlineto{\pgfpoint
+            {\pgf@circ@res@other+\pgf@circ@res@temp}
+            {0.5*\ctikzvalof{tripoles/#1/base height}*\pgf@circ@res@up}}
+        \pgfpathlineto{\pgfpoint
+            {\pgf@circ@res@other-\pgf@circ@res@temp}
+            {0.5*\ctikzvalof{tripoles/#1/base height}*\pgf@circ@res@down}}
+        \pgfpathlineto{\pgfpoint
+            {\pgf@circ@res@other-\pgf@circ@res@temp}
+            {1.1*\ctikzvalof{tripoles/#1/base height}*\pgf@circ@res@down}}
+        \pgfusepath{draw}
+    \endpgfscope\fi
+}
+
+\ctikzset{tr gap fill/.initial=none}
+\tikzset{tr gap fill/.style={\circuitikzbasekey/tr gap fill={#1}}}
+% fill the gap in relevant transistors
+\def\pgfcirc@fillgategap#1{% #1 transistor type
+    \edef\@@@none{none}\edef\@@@color{\ctikzvalof{tr gap fill}}% always exists
+    \ifx\@@@none\@@@color\relax\else
+        \begingroup % save the value of @res: other, step, temp
+        \edef\@@@doit{1}% draw it, set to zero if we give up
+        % ok, we have the color here. we have to get center position, with and height
+        % normally is gate height; but in igbt is outer base height (grrrr)
+        \pgfkeysifdefined{\circuitikzbasekey/tripoles/#1/outer base height}{
+            % yes, it's an IGBT
+            \pgfmathsetlength{\pgf@circ@res@other}{\ctikzvalof{tripoles/#1/outer base height}*\pgf@circ@res@up}
+        }{
+            %no. Let's try with gate height
+             \pgfkeysifdefined{\circuitikzbasekey/tripoles/#1/gate height}{
+                 % yes, go for it
+                \pgfmathsetlength{\pgf@circ@res@other}{\ctikzvalof{tripoles/#1/gate height}*\pgf@circ@res@up}
+            }{
+                %no, give up, let value to 0
+                \edef\@@@doit{0}
+            }
+        }
+        % now we have to find x1 and x2: these are base width and gate width
+        % if do not have one of that, bail out.
+        \pgfkeysifdefined{\circuitikzbasekey/tripoles/#1/gate width}{
+                \pgfmathsetlength{\pgf@circ@res@temp}{\ctikzvalof{tripoles/#1/gate width}*\pgf@circ@res@left}
+            }{
+                \edef\@@@doit{0}
+            }
+        \pgfkeysifdefined{\circuitikzbasekey/tripoles/#1/base width}{
+                \pgfmathsetlength{\pgf@circ@res@step}{\ctikzvalof{tripoles/#1/base width}*\pgf@circ@res@left}
+            }{
+                \edef\@@@doit{0}
+            }
+        % if found, draw it.
+        \ifnum\@@@doit>0\relax
+            \pgfscope
+                \pgfsetfillcolor{\@@@color}
+                \pgfsetcolor{\@@@color}
+                \pgfpathrectanglecorners{\pgfpoint{\pgf@circ@res@temp}{\pgf@circ@res@other}}{\pgfpoint{\pgf@circ@res@step}{-\pgf@circ@res@other}}
+                \pgfusepath{fill, draw}
+            \endpgfscope
+        \fi
+        \endgroup
+    \fi
+}
+
 \long\def\pgfcircdeclaretransistor#1#2#3{
     \pgfdeclareshape{#1}
     {
@@ -12561,6 +12692,22 @@
         \anchor{circle center}{
             \pgf@y=0pt\pgf@x=\circleleft\advance\pgf@x by\circleradius
         }
+        \savedanchor{\centergap}{% this is the center position between gate and base
+            % get "left"
+            \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
+            \pgf@xa=-\ctikzvalof{tripoles/#1/width}\pgf@circ@scaled@Rlen
+            \pgfkeysifdefined{\circuitikzbasekey/tripoles/#1/gate width}{
+                % yes, we have a separated gate
+                \pgfmathsetlength{\pgf@x}
+                {0.5*(\ctikzvalof{tripoles/#1/gate width}+\ctikzvalof{tripoles/#1/base width})*\pgf@xa}
+            }{
+                % no, use just the base
+                \pgfmathsetlength{\pgf@x}
+                {\ctikzvalof{tripoles/#1/base width}*\pgf@xa}
+            }
+            \pgf@y=0pt\relax
+        }
+        \anchor{centergap}{\centergap}
         \anchor{center}{
             \pgfpointorigin
         }
@@ -13415,6 +13562,8 @@
     {
         % add the circle if requested (before everything else, so we can fill it)
         \pgfcirc@transistorcircle
+        % fill the gap color if requested
+        \pgfcirc@fillgategap{#1}
         %draw upper connection
         \pgfpathmoveto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@up+\pgfverticaltransformationadjustment*.5*\pgflinewidth}}
         \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}
@@ -13706,6 +13855,8 @@
     }{%
     % add the circle if requested (before everything else, so we can fill it)
     \pgfcirc@transistorcircle
+    % fill the gap color if requested
+    \pgfcirc@fillgategap{nmos}
 
     \pgfpathmoveto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@up+\pgfverticaltransformationadjustment*.5*\pgflinewidth}}
     \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}
@@ -13779,6 +13930,8 @@
                 {\pgf@circ@res@up+\pgf@circ@res@down}}
         \pgfusepath{draw}
     \fi
+
+    \pgfcirc@ferroelectric{nmos}{0}
 }
 
 \pgfcircdeclaretransistor{pmos}{
@@ -13793,6 +13946,9 @@
     }{%
     % add the circle if requested (before everything else, so we can fill it)
     \pgfcirc@transistorcircle
+    % fill the gap color if requested
+    \pgfcirc@fillgategap{nmos}
+
     \pgfpathmoveto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@up+\pgfverticaltransformationadjustment*.5*\pgflinewidth}}
     \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}
     {\ctikzvalof{tripoles/pmos/gate height}\pgf@circ@res@up}}
@@ -13881,6 +14037,8 @@
         \fi
         \pgfusepath{draw,fill}
     \fi
+
+    \pgfcirc@ferroelectric{pmos}{0}
 }
 
 %%% depletion MOSFET (simplified symbols)
@@ -13925,6 +14083,8 @@
     % draw depletion channel
     % add the circle if requested (before everything else, so we can fill it)
     \pgfcirc@transistorcircle
+    % fill the gap color if requested
+    \pgfcirc@fillgategap{nmos}
     \pgfscope
         \pgfpathrectanglecorners
         {\pgfpoint
@@ -14007,6 +14167,8 @@
                 {\pgf@circ@res@up+\pgf@circ@res@down}}
         \pgfusepath{draw}
     \fi
+
+    \pgfcirc@ferroelectric{nmosd}{\ctikzvalof{tripoles/nmosd/depletion width}}
 }
 
 \pgfcircdeclaretransistor{pmosd}{
@@ -14027,6 +14189,8 @@
     }{%
     % add the circle if requested (before everything else, so we can fill it)
     \pgfcirc@transistorcircle
+    % fill the gap color if requested
+    \pgfcirc@fillgategap{nmos}
     % draw depletion channel
     \pgfscope
         \pgfpathrectanglecorners
@@ -14126,6 +14290,8 @@
         \fi
         \pgfusepath{draw,fill}
     \fi
+
+    \pgfcirc@ferroelectric{pmosd}{\ctikzvalof{tripoles/pmosd/depletion width}}
 }
 %% HEMT FET Transistor
 \pgfcircdeclaretransistor{hemt}{
@@ -14179,6 +14345,8 @@
     \pgftransformationadjustments
     % add the circle if requested (before everything else, so we can fill it)
     \pgfcirc@transistorcircle
+    % fill the gap color if requested
+    \pgfcirc@fillgategap{#1}
 
     %top connection
     \pgfpathmoveto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@up+\pgfverticaltransformationadjustment*.5*\pgflinewidth}}
@@ -14277,21 +14445,23 @@
         \pgfnode{trarrow}{\@@anchor}{}{}{\pgfusepath{stroke}}
     \endpgfscope
 
-% GATE CONNECTION
-\ifpgf@circuit@bpt@drawgate
-    \ifpgf@circuit@trans@ntype
-        \pgfpathmoveto{\pgfpoint
-            {\ctikzvalof{tripoles/#1/gate width}\pgf@circ@res@left}
-        {\ctikzvalof{tripoles/#1/conn height}\pgf@circ@res@down}}
-        \pgfpathlineto{\pgfpoint{\pgf@circ@res@left-\pgfhorizontaltransformationadjustment*.5*\pgflinewidth}{\ctikzvalof{tripoles/#1/conn height}\pgf@circ@res@down}}
-    \else
-        \pgfpathmoveto{\pgfpoint
-            {\ctikzvalof{tripoles/#1/gate width}\pgf@circ@res@left}
-        {-\ctikzvalof{tripoles/#1/conn height}\pgf@circ@res@down}}
-        \pgfpathlineto{\pgfpoint{\pgf@circ@res@left-\pgfhorizontaltransformationadjustment*.5*\pgflinewidth}{-\ctikzvalof{tripoles/#1/conn height}\pgf@circ@res@down}}
+    % GATE CONNECTION
+    \ifpgf@circuit@bpt@drawgate
+        \ifpgf@circuit@trans@ntype
+            \pgfpathmoveto{\pgfpoint
+                {\ctikzvalof{tripoles/#1/gate width}\pgf@circ@res@left}
+            {\ctikzvalof{tripoles/#1/conn height}\pgf@circ@res@down}}
+            \pgfpathlineto{\pgfpoint{\pgf@circ@res@left-\pgfhorizontaltransformationadjustment*.5*\pgflinewidth}{\ctikzvalof{tripoles/#1/conn height}\pgf@circ@res@down}}
+        \else
+            \pgfpathmoveto{\pgfpoint
+                {\ctikzvalof{tripoles/#1/gate width}\pgf@circ@res@left}
+            {-\ctikzvalof{tripoles/#1/conn height}\pgf@circ@res@down}}
+            \pgfpathlineto{\pgfpoint{\pgf@circ@res@left-\pgfhorizontaltransformationadjustment*.5*\pgflinewidth}{-\ctikzvalof{tripoles/#1/conn height}\pgf@circ@res@down}}
+        \fi
+        \pgfusepath{draw}
     \fi
-    \pgfusepath{draw}
-\fi
+
+    \pgfcirc@ferroelectric{#1}{0}
 
 }
 
