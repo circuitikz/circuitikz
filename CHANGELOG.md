@@ -1,17 +1,19 @@
 <!--- CircuiTikz - Changelog --->
 The major changes among the different CircuiTikZ versions are listed here. See <https://github.com/circuitikz/circuitikz/commits> for a full list of changes.
 
-* Version 1.3.4 (unreleased)
+* Version 1.3.4 (2021-04-20)
+
+    New things, like configurable modifier thickness, ferroelectric devices, and several transistor tweaks. Importantly, a bug that hindered compatibility with the internal Ti*k*Z `circuits` library (introduced in 1.3.3) has been fixed.
 
     - Added separate configuration for the line thickness of resistors, capacitors, and inductors modifiers
-    - Added ferroelectric capacitors and mos/fet (suggested by Mayeul Cantan, https://github.com/circuitikz/circuitikz/issues/515)
+    - Added ferroelectric capacitors and ferroelectric gate MOS/FETs (suggested by Mayeul Cantan, https://github.com/circuitikz/circuitikz/issues/515)
     - Added an option to fill the gate gap in MOSes, FETs and IGBTs with a color
     - Added a "centergap" anchor for transistors
-    - Fixed a bug in thermistor not respecting their class line thickness
-    - Fixes in the manual (copy and paste of snippet without numbers, correct old usage of siunitx, factor out repetitions in the preamble; thanks to Ulrike Fischer:
+    - Added the option "nogate" to the `hemt` symbol
+    - Fixed a bug in thermistors not respecting their class line thickness
+    - Fixes in the manual (copy and paste of snippets without numbers, correct old usage of `siunitx`, factor out repetitions in the preamble; thanks to Ulrike Fischer:
     https://tex.stackexchange.com/a/57160/38080)
-    - Fixed a bug introduced in 1.3.3 that would reduce compatibility with the `circuits` internal library
-    - Added the option "nogate" to the hemt symbol
+    - Fixed a bug introduced in 1.3.3 that would reduce compatibility with the `circuits` internal library; reported by JetherReis (https://github.com/circuitikz/circuitikz/issues/519)
 
 * Version 1.3.3 (2021-04-04)
 
@@ -19,7 +21,7 @@ The major changes among the different CircuiTikZ versions are listed here. See <
     change the look of your circuit (without affecting correctness). Some of the
     arrow shapes are now configurable.
 
-    Do not use this version, there is a bug with the new "label distance" key. 
+    Do not use this version, there is a bug with the new "label distance" key.
 
     - Added options to fine-tune the position of labels and annotations
     - Added options to change arrow tips on variable resistors, inductors and
