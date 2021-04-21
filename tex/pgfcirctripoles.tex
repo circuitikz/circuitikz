@@ -3231,7 +3231,9 @@
 \ctikzset{tripoles/njfet/gate height 2/.initial=.35}
 \ctikzset{tripoles/njfet/gate width/.initial=.5}
 \ctikzset{tripoles/njfet/base width/.initial=.5}
-\ctikzset{tripoles/njfet/conn height/.initial=.35}
+\ctikzset{tripoles/njfet/conn height/.initial=.35}% at the exterior
+\ctikzset{tripoles/njfet/union height/.initial=.35}% at the gate
+\ctikzset{tripoles/njfet/conn kink/.initial=1}% 1=no kink
 \ctikzset{tripoles/njfet/height/.initial=1.1}
 \ctikzset{tripoles/njfet/bodydiode scale/.initial=.3}
 \ctikzset{tripoles/njfet/bodydiode distance/.initial=.3}
@@ -3244,11 +3246,41 @@
 \ctikzset{tripoles/pjfet/gate width/.initial=.5}
 \ctikzset{tripoles/pjfet/base width/.initial=.5}
 \ctikzset{tripoles/pjfet/conn height/.initial=.35}
+\ctikzset{tripoles/pjfet/union height/.initial=.35}% at the gate
+\ctikzset{tripoles/pjfet/conn kink/.initial=1}% 1=no kink
 \ctikzset{tripoles/pjfet/height/.initial=1.1}
 \ctikzset{tripoles/pjfet/bodydiode scale/.initial=.3}
 \ctikzset{tripoles/pjfet/bodydiode distance/.initial=.3}
 \ctikzset{tripoles/pjfet/bodydiode conn/.initial=.6}
 \ctikzset{tripoles/pjfet/curr direction/.initial=-1}
+
+\ctikzset{tripoles/nujt/width/.initial=.7}
+\ctikzset{tripoles/nujt/gate height/.initial=.5}
+\ctikzset{tripoles/nujt/gate height 2/.initial=.35}
+\ctikzset{tripoles/nujt/gate width/.initial=.5}
+\ctikzset{tripoles/nujt/base width/.initial=.5}
+\ctikzset{tripoles/nujt/conn height/.initial=.35}
+\ctikzset{tripoles/nujt/union height/.initial=0}% at the gate
+\ctikzset{tripoles/nujt/conn kink/.initial=.82}% to match the circle position
+\ctikzset{tripoles/nujt/height/.initial=1.1}
+\ctikzset{tripoles/nujt/bodydiode scale/.initial=.3}
+\ctikzset{tripoles/nujt/bodydiode distance/.initial=.3}
+\ctikzset{tripoles/nujt/bodydiode conn/.initial=.6}
+\ctikzset{tripoles/nujt/curr direction/.initial=1}
+
+\ctikzset{tripoles/pujt/width/.initial=.7}
+\ctikzset{tripoles/pujt/gate height/.initial=.5}
+\ctikzset{tripoles/pujt/gate height 2/.initial=.35}
+\ctikzset{tripoles/pujt/gate width/.initial=.5}
+\ctikzset{tripoles/pujt/base width/.initial=.5}
+\ctikzset{tripoles/pujt/conn height/.initial=.35}
+\ctikzset{tripoles/pujt/union height/.initial=0}% at the gate
+\ctikzset{tripoles/pujt/conn kink/.initial=.82}% to match the circle position
+\ctikzset{tripoles/pujt/height/.initial=1.1}
+\ctikzset{tripoles/pujt/bodydiode scale/.initial=.3}
+\ctikzset{tripoles/pujt/bodydiode distance/.initial=.3}
+\ctikzset{tripoles/pujt/bodydiode conn/.initial=.6}
+\ctikzset{tripoles/pujt/curr direction/.initial=-1}
 
 \ctikzset{tripoles/isfet/width/.initial=1}
 \ctikzset{tripoles/isfet/gate height/.initial=.35}
@@ -5429,6 +5461,13 @@
                 \northeast
                 \pgf@y=-\ctikzvalof{tripoles/#1/gate height 2}\pgf@y
             }
+            \anchor{kink}{
+                \northeast
+                \pgf@ya=-\ctikzvalof{tripoles/#1/gate height 2}\pgf@y
+                \left
+                \pgf@y=\ctikzvalof{tripoles/#1/curr direction}\pgf@ya
+                \pgf@x=\ctikzvalof{tripoles/#1/conn kink}\pgf@x
+            }
             % extra anchors (or override)
             #2
         }{%
@@ -5486,19 +5525,33 @@
             \fi
             % find x1, x2 and y for the base arrow
             \ifnum\@@dir>0
-                \pgf@circ@res@step=\pgf@circ@res@left
+                \pgf@circ@res@step=\ctikzvalof{tripoles/#1/conn kink}\pgf@circ@res@left
                 \pgf@circ@res@other=\ctikzvalof{tripoles/#1/gate width}\pgf@circ@res@left
+                \pgf@circ@res@zero=\ctikzvalof{tripoles/#1/union height}\pgf@circ@res@down
                 \pgf@circ@res@temp=\ctikzvalof{tripoles/#1/gate height 2}\pgf@circ@res@down
             \else
                 \pgf@circ@res@step=\ctikzvalof{tripoles/#1/gate width}\pgf@circ@res@left
-                \pgf@circ@res@other=\pgf@circ@res@left
-                \pgf@circ@res@temp=\ctikzvalof{tripoles/#1/gate height 2}\pgf@circ@res@up
+                \pgf@circ@res@other=\ctikzvalof{tripoles/#1/conn kink}\pgf@circ@res@left
+                \pgf@circ@res@zero=\ctikzvalof{tripoles/#1/gate height 2}\pgf@circ@res@up
+                \pgf@circ@res@temp=\ctikzvalof{tripoles/#1/union height}\pgf@circ@res@up
             \fi
             %
             % gate line (called emitter in UJT)
             %
             \pgfpathmoveto{\pgfpoint{\pgf@circ@res@step}{\pgf@circ@res@temp}}
-            \pgfpathlineto{\pgfpoint{\pgf@circ@res@other}{\pgf@circ@res@temp}}
+            \pgfpathlineto{\pgfpoint{\pgf@circ@res@other}{\pgf@circ@res@zero}}
+            %
+            % horizontal gate line
+            %
+            \ifpgf@circuit@bpt@drawgate
+                \ifnum\@@dir>0
+                    \pgfpathmoveto{\pgfpoint{\pgf@circ@res@step}{\pgf@circ@res@temp}}
+                    \pgfpathlineto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@temp}}
+                \else
+                    \pgfpathmoveto{\pgfpoint{\pgf@circ@res@other}{\pgf@circ@res@zero}}
+                    \pgfpathlineto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@zero}}
+                \fi
+            \fi
             \pgfusepath{draw}
             %
             % gate arrows (called emitter in UJT)
@@ -5506,7 +5559,7 @@
             \pgftransformlineattime{\@@pos}{%
                 \pgfpoint{\pgf@circ@res@step}{\pgf@circ@res@temp}
                 }{%
-                \pgfpoint{\pgf@circ@res@other}{\pgf@circ@res@temp}
+                \pgfpoint{\pgf@circ@res@other}{\pgf@circ@res@zero}
             }
             \pgfnode{trarrow}{\@@anchor}{}{}{\pgfusepath{stroke}}
             %
@@ -5523,6 +5576,30 @@
 
 \pgfcircdeclarejunctiontransistor{njfet}{}{}
 \pgfcircdeclarejunctiontransistor{pjfet}{}{}
+
+\def\@ujtanchoroverride#1{
+    \savedanchor{\ujtrealemitter}{
+        \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
+        \pgf@y=\ctikzvalof{tripoles/#1/height}\pgf@circ@scaled@Rlen
+        \pgf@y=.5\pgf@y %north anchor height
+        % kink AND conn height, they're the same
+        \pgf@y=-\ctikzvalof{tripoles/#1/gate height 2}\pgf@y
+        \pgf@y=\ctikzvalof{tripoles/#1/curr direction}\pgf@y
+        % horizontal
+        \pgf@x=-\ctikzvalof{tripoles/#1/width}\pgf@circ@scaled@Rlen % left
+        \ifpgf@circuit@bpt@drawgate\else
+            \pgf@x=\ctikzvalof{tripoles/#1/conn kink}\pgf@x
+        \fi
+    }
+    \anchor{E}{\ujtrealemitter}
+    \anchor{emitter}{\ujtrealemitter}
+    \anchor{B2}{\northeast\pgf@y=-\pgf@y}
+    \anchor{B1}{\northeast}
+}
+
+
+\pgfcircdeclarejunctiontransistor{nujt}{\@ujtanchoroverride{nujt}}{}
+\pgfcircdeclarejunctiontransistor{pujt}{\@ujtanchoroverride{pujt}}{}
 
 
 \pgfdeclaretransistorwrapperaddbulk{isfet}{
