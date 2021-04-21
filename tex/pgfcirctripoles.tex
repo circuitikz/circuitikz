@@ -5417,138 +5417,113 @@
     \fi
 }
 
-\pgfcircdeclaretransistor{njfet}{
-        \anchor{inner up}{
-            \northeast
-            \pgf@y=\ctikzvalof{tripoles/njfet/gate height 2}\pgf@y
-        }
-        \anchor{inner down}{
-            \northeast
-            \pgf@y=-\ctikzvalof{tripoles/njfet/gate height 2}\pgf@y
-        }
-    }{%
-    % add the circle if requested (before everything else, so we can fill it)
-    \pgfcirc@transistorcircle
-    \pgfpathmoveto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@up+\pgfverticaltransformationadjustment*.5*\pgflinewidth}}
-    \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}
-    {\ctikzvalof{tripoles/njfet/gate height 2}\pgf@circ@res@up}}
-    \pgfpathlineto{\pgfpoint
-        {\ctikzvalof{tripoles/njfet/gate width}\pgf@circ@res@left}
-    {\ctikzvalof{tripoles/njfet/gate height 2}\pgf@circ@res@up}}
+%%% uni-junction transistors: jfets, ujts
 
-    \pgfpathmoveto{\pgfpoint
-        {\ctikzvalof{tripoles/njfet/gate width}\pgf@circ@res@left}
-    {\ctikzvalof{tripoles/njfet/gate height 2}\pgf@circ@res@down}}
-    \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}
-    {\ctikzvalof{tripoles/njfet/gate height 2}\pgf@circ@res@down}}
-    \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@down-\pgfverticaltransformationadjustment*.5*\pgflinewidth}}
-    \pgfusepath{draw}
+\long\def\pgfcircdeclarejunctiontransistor#1#2#3{% name, extra anchors, extra draw
+    \pgfcircdeclaretransistor{#1}{
+            \anchor{inner up}{
+                \northeast
+                \pgf@y=\ctikzvalof{tripoles/#1/gate height 2}\pgf@y
+            }
+            \anchor{inner down}{
+                \northeast
+                \pgf@y=-\ctikzvalof{tripoles/#1/gate height 2}\pgf@y
+            }
+            % extra anchors (or override)
+            #2
+        }{%
+        % add the circle if requested (before everything else, so we can fill it)
+        \pgfcirc@transistorcircle
 
-    \pgfscope
-        \pgfpathmoveto{\pgfpoint
-            {\ctikzvalof{tripoles/njfet/gate width}\pgf@circ@res@left}
-        {\ctikzvalof{tripoles/njfet/gate height}\pgf@circ@res@up}}
+        % get direction
+        \edef\@@dir{\ctikzvalof{tripoles/#1/curr direction}}
+
+        % draw drain/source connections: up
+        \pgfpathmoveto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@up+\pgfverticaltransformationadjustment*.5*\pgflinewidth}}
+        \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}
+        {\ctikzvalof{tripoles/#1/gate height 2}\pgf@circ@res@up}}
         \pgfpathlineto{\pgfpoint
-            {\ctikzvalof{tripoles/njfet/gate width}\pgf@circ@res@left}
-        {\ctikzvalof{tripoles/njfet/gate height}\pgf@circ@res@down}}
-        \pgf@circ@setlinewidth{tripoles}{\pgflinewidth}
+            {\ctikzvalof{tripoles/#1/gate width}\pgf@circ@res@left}
+        {\ctikzvalof{tripoles/#1/gate height 2}\pgf@circ@res@up}}
+
+        % down
+        \pgfpathmoveto{\pgfpoint
+            {\ctikzvalof{tripoles/#1/gate width}\pgf@circ@res@left}
+        {\ctikzvalof{tripoles/#1/gate height 2}\pgf@circ@res@down}}
+        \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}
+        {\ctikzvalof{tripoles/#1/gate height 2}\pgf@circ@res@down}}
+        \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@down-\pgfverticaltransformationadjustment*.5*\pgflinewidth}}
         \pgfusepath{draw}
-    \endpgfscope
 
-    % arrow
-    \pgfscope
-        \pgfslopedattimetrue
-        \pgfallowupsidedownattimetrue
-        \pgfresetnontranslationattimefalse
-        \ifpgf@circuit@trans@arrowatend
-            \edef\@@anchor{tip}\edef\@@pos{1.0}
-        \else
-            \edef\@@anchor{center}\edef\@@pos{0.6}
-        \fi
-        \pgftransformlineattime{\@@pos}{%
-            \pgfpoint{\pgf@circ@res@left}%
-            {\ctikzvalof{tripoles/njfet/gate height 2}\pgf@circ@res@down}%
-            }{%
-            \pgfpoint
-            {\ctikzvalof{tripoles/njfet/gate width}\pgf@circ@res@left}%
-            {\ctikzvalof{tripoles/njfet/gate height 2}\pgf@circ@res@down}%
-        }
-        \pgfnode{trarrow}{\@@anchor}{}{}{\pgfusepath{stroke}}
-    \endpgfscope
+        \pgfscope
+            \pgfpathmoveto{\pgfpoint
+                {\ctikzvalof{tripoles/#1/gate width}\pgf@circ@res@left}
+            {\ctikzvalof{tripoles/#1/gate height}\pgf@circ@res@up}}
+            \pgfpathlineto{\pgfpoint
+                {\ctikzvalof{tripoles/#1/gate width}\pgf@circ@res@left}
+            {\ctikzvalof{tripoles/#1/gate height}\pgf@circ@res@down}}
+            \pgf@circ@setlinewidth{tripoles}{\pgflinewidth}
+            \pgfusepath{draw}
+        \endpgfscope
 
-    \pgfpathmoveto{\pgfpoint
-        {\ctikzvalof{tripoles/njfet/gate width}\pgf@circ@res@left}
-    {\ctikzvalof{tripoles/njfet/gate height 2}\pgf@circ@res@down}}
-    \pgfpathlineto{\pgfpoint{\pgf@circ@res@left-\pgfhorizontaltransformationadjustment*.5*\pgflinewidth}
-    {\ctikzvalof{tripoles/njfet/gate height 2}\pgf@circ@res@down}}
-    \pgfusepath{draw}
+        % arrow
+        \pgfscope
+            \pgfslopedattimetrue
+            \pgfallowupsidedownattimetrue
+            \pgfresetnontranslationattimefalse
+            \ifpgf@circuit@trans@arrowatend
+                \ifnum\@@dir>0
+                    \edef\@@anchor{tip}\edef\@@pos{1.0}
+                \else
+                    \edef\@@anchor{btip}\edef\@@pos{1.0}
+                \fi
+            \else
+                \ifnum\@@dir>0
+                    \edef\@@anchor{center}\edef\@@pos{0.6}
+                \else
+                    \edef\@@anchor{center}\edef\@@pos{0.4}
+                \fi
+            \fi
+            % find x1, x2 and y for the base arrow
+            \ifnum\@@dir>0
+                \pgf@circ@res@step=\pgf@circ@res@left
+                \pgf@circ@res@other=\ctikzvalof{tripoles/#1/gate width}\pgf@circ@res@left
+                \pgf@circ@res@temp=\ctikzvalof{tripoles/#1/gate height 2}\pgf@circ@res@down
+            \else
+                \pgf@circ@res@step=\ctikzvalof{tripoles/#1/gate width}\pgf@circ@res@left
+                \pgf@circ@res@other=\pgf@circ@res@left
+                \pgf@circ@res@temp=\ctikzvalof{tripoles/#1/gate height 2}\pgf@circ@res@up
+            \fi
+            %
+            % gate line (called emitter in UJT)
+            %
+            \pgfpathmoveto{\pgfpoint{\pgf@circ@res@step}{\pgf@circ@res@temp}}
+            \pgfpathlineto{\pgfpoint{\pgf@circ@res@other}{\pgf@circ@res@temp}}
+            \pgfusepath{draw}
+            %
+            % gate arrows (called emitter in UJT)
+            %
+            \pgftransformlineattime{\@@pos}{%
+                \pgfpoint{\pgf@circ@res@step}{\pgf@circ@res@temp}
+                }{%
+                \pgfpoint{\pgf@circ@res@other}{\pgf@circ@res@temp}
+            }
+            \pgfnode{trarrow}{\@@anchor}{}{}{\pgfusepath{stroke}}
+            %
+            % gate line (called emitter in UJT)
+            %
+        \endpgfscope
+
+        % extra drawings
+        #3
+    }
 }
 
-\pgfcircdeclaretransistor{pjfet}{
-        \anchor{inner up}{
-            \northeast
-            \pgf@y=\ctikzvalof{tripoles/pjfet/gate height 2}\pgf@y
-        }
-        \anchor{inner down}{
-            \northeast
-            \pgf@y=-\ctikzvalof{tripoles/pjfet/gate height 2}\pgf@y
-        }
-    }{%
-    % add the circle if requested (before everything else, so we can fill it)
-    \pgfcirc@transistorcircle
-    \pgfpathmoveto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@up+\pgfverticaltransformationadjustment*.5*\pgflinewidth}}
-    \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}
-    {\ctikzvalof{tripoles/pjfet/gate height 2}\pgf@circ@res@up}}
-    \pgfpathlineto{\pgfpoint
-        {\ctikzvalof{tripoles/pjfet/gate width}\pgf@circ@res@left}
-    {\ctikzvalof{tripoles/pjfet/gate height 2}\pgf@circ@res@up}}
+% NJFET and PJFET
 
-    \pgfpathmoveto{\pgfpoint
-        {\ctikzvalof{tripoles/pjfet/gate width}\pgf@circ@res@left}
-    {\ctikzvalof{tripoles/pjfet/gate height 2}\pgf@circ@res@down}}
-    \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}
-    {\ctikzvalof{tripoles/pjfet/gate height 2}\pgf@circ@res@down}}
-    \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@down-\pgfverticaltransformationadjustment*.5*\pgflinewidth}}
-    \pgfusepath{draw}
+\pgfcircdeclarejunctiontransistor{njfet}{}{}
+\pgfcircdeclarejunctiontransistor{pjfet}{}{}
 
-    \pgfscope
-        \pgfpathmoveto{\pgfpoint
-            {\ctikzvalof{tripoles/pjfet/gate width}\pgf@circ@res@left}
-        {\ctikzvalof{tripoles/pjfet/gate height}\pgf@circ@res@up}}
-        \pgfpathlineto{\pgfpoint
-            {\ctikzvalof{tripoles/pjfet/gate width}\pgf@circ@res@left}
-        {\ctikzvalof{tripoles/pjfet/gate height}\pgf@circ@res@down}}
-        \pgf@circ@setlinewidth{tripoles}{\pgflinewidth}
-        \pgfusepath{draw}
-    \endpgfscope
-
-    \pgfscope
-        \pgfslopedattimetrue
-        \pgfallowupsidedownattimetrue
-        \pgfresetnontranslationattimefalse
-        \ifpgf@circuit@trans@arrowatend
-            \edef\@@anchor{btip}\edef\@@pos{1.0}
-        \else
-            \edef\@@anchor{center}\edef\@@pos{0.4}
-        \fi
-        \pgftransformlineattime{\@@pos}{%
-            \pgfpoint%
-            {\ctikzvalof{tripoles/pjfet/gate width}\pgf@circ@res@left}%
-            {\ctikzvalof{tripoles/pjfet/gate height 2}\pgf@circ@res@up}%
-            }{%
-            \pgfpoint{\pgf@circ@res@left}%
-            {\ctikzvalof{tripoles/pjfet/gate height 2}\pgf@circ@res@up}%
-        }
-        \pgfnode{trarrow}{\@@anchor}{}{}{\pgfusepath{stroke}}
-    \endpgfscope
-
-    \pgfpathmoveto{\pgfpoint
-        {\ctikzvalof{tripoles/pjfet/gate width}\pgf@circ@res@left}
-    {\ctikzvalof{tripoles/pjfet/gate height 2}\pgf@circ@res@up}}
-    \pgfpathlineto{\pgfpoint{\pgf@circ@res@left-\pgfhorizontaltransformationadjustment*.5*\pgflinewidth}
-    {\ctikzvalof{tripoles/pjfet/gate height 2}\pgf@circ@res@up}}
-    \pgfusepath{draw}
-}
 
 \pgfdeclaretransistorwrapperaddbulk{isfet}{
     }{%
