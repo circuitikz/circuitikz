@@ -1,6 +1,10 @@
 <!--- CircuiTikz - Changelog --->
 The major changes among the different CircuiTikZ versions are listed here. See <https://github.com/circuitikz/circuitikz/commits> for a full list of changes.
 
+* Version 1.3.5 (unreleased)
+
+    - Added UJT transistors (suggested by JetherReis, https://github.com/circuitikz/circuitikz/issues/522)
+
 * Version 1.3.4 (2021-04-20)
 
     New things, like configurable modifier thickness, ferroelectric devices, and several transistor tweaks. Importantly, a bug that hindered compatibility with the internal Ti*k*Z `circuits` library (introduced in 1.3.3) has been fixed.
