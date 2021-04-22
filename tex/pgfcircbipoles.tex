@@ -3563,120 +3563,74 @@
     \pgfusepath{draw}
 }
 
-%% Black thyristor
-\pgfcircdeclarebipolescaled{diodes}
-{
-    \anchor{gate}{\northeast}
-    \anchor{anode}{\southwest\pgf@y=0cm}
-    \anchor{G}{\northeast}
-    \anchor{cathode}{\northeast\pgf@y=0cm }
-}
-{\ctikzvalof{tripoles/thyristor/height 2}}
-{fullthyristor}
-{\ctikzvalof{tripoles/thyristor/height}}
-{\ctikzvalof{tripoles/thyristor/width}}
-{
 
-    \pgf@circ@setlinewidth{bipoles}{\pgfstartlinewidth}
+\def\pgfcircdeclarethyristor#1#2#3{%name, fill (0-> black; 1-empty), extra code
+    \pgfcircdeclarebipolescaled{diodes}
+    {
+        \anchor{gate}{\northeast}
+        \anchor{anode}{\southwest\pgf@y=0cm}
+        \anchor{G}{\northeast}
+        \anchor{cathode}{\northeast\pgf@y=0cm }
+    }
+    {\ctikzvalof{tripoles/thyristor/height 2}}
+    {#1}
+    {\ctikzvalof{tripoles/thyristor/height}}
+    {\ctikzvalof{tripoles/thyristor/width}}
+    {
+        \pgf@circ@res@other = \ctikzvalof{tripoles/thyristor/diode width left}\pgf@circ@res@left
+        \pgf@circ@res@step = \ctikzvalof{tripoles/thyristor/diode width right}\pgf@circ@res@right
 
-    \pgf@circ@res@other = \ctikzvalof{tripoles/thyristor/diode width left}\pgf@circ@res@left
-    \pgf@circ@res@step = \ctikzvalof{tripoles/thyristor/diode width right}\pgf@circ@res@right
-
-    \pgfscope
-        \pgftransformxshift{\pgf@circ@res@other}
-        \pgfpathmoveto{\pgfpoint{\pgf@circ@res@step-\pgf@circ@res@other}{0pt}}
-
-        \pgfpathlineto{\pgfpoint{0pt}{-\pgf@circ@res@down}}
-        \pgfpathlineto{\pgfpoint{0pt}{\pgf@circ@res@down}}
-        \pgfpathlineto{\pgfpoint{\pgf@circ@res@step-\pgf@circ@res@other}{0pt}}
-        \pgfusepath{draw,fill}
-
-        \pgfsetlinewidth{\pgfstartlinewidth}
-
-        \pgfpathmoveto{\pgfpoint{\pgf@circ@res@step-\pgf@circ@res@other}{0pt}}
-        \pgfpathlineto{\pgfpoint{2*\pgf@circ@res@step-2*\pgf@circ@res@other}{\ctikzvalof{tripoles/thyristor/diode height}\pgf@circ@res@up}}
-        \pgfpathlineto{\pgfpoint{2*\pgf@circ@res@step-2*\pgf@circ@res@other}{\pgf@circ@res@up}}
-        \pgfusepath{draw}
-    \endpgfscope
-
-    \pgfpathmoveto{\pgfpoint{\pgf@circ@res@step}{\pgf@circ@res@down}}
-    \pgfpathlineto{\pgfpoint{\pgf@circ@res@step}{-\pgf@circ@res@down}}
-
-    \pgfusepath{draw}
-
-    \pgfsetlinewidth{\pgfstartlinewidth}
-
-    \pgfpathmoveto{\pgfpoint{\pgf@circ@res@other}{0pt}}
-    \pgfpathlineto{\pgfpoint{\pgf@circ@res@left}{0pt}}
-
-    \pgfpathmoveto{\pgfpoint{\pgf@circ@res@step}{0pt}}
-    \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{0pt}}
-
-    \pgfusepath{draw}
-
-}
-
-%% Empty thyristor
-
-\pgfcircdeclarebipolescaled{diodes}
-{
-    \anchor{gate}{\northeast}
-    \anchor{anode}{\southwest\pgf@y=0cm}
-    \anchor{G}{\northeast}
-    \anchor{cathode}{\northeast\pgf@y=0cm }
-}
-{\ctikzvalof{tripoles/thyristor/height 2}}
-{emptythyristor}
-{\ctikzvalof{tripoles/thyristor/height}}
-{\ctikzvalof{tripoles/thyristor/width}}
-{
-
-    \pgf@circ@setlinewidth{bipoles}{\pgfstartlinewidth}
-
-    \pgf@circ@res@other = \ctikzvalof{tripoles/thyristor/diode width left}\pgf@circ@res@left
-    \pgf@circ@res@step = \ctikzvalof{tripoles/thyristor/diode width right}\pgf@circ@res@right
-
-    \pgfscope
-        \pgftransformxshift{\pgf@circ@res@other}
-        \pgfpathmoveto{\pgfpoint{\pgf@circ@res@step-\pgf@circ@res@other}{0pt}}
-
-        \pgfpathlineto{\pgfpoint{0pt}{-\pgf@circ@res@down}}
-        \pgfpathlineto{\pgfpoint{0pt}{\pgf@circ@res@down}}
-        \pgfpathclose
-        \pgf@circ@draworfill
         \pgfscope
-            % to allow filling, we need to draw explicitily the stroke here.
-            \pgfsetlinewidth{\pgfstartlinewidth}
-            \ifpgf@circuit@bipole@strokedsymbol
-                \pgfpathmoveto{\pgfpoint{\pgf@circ@res@step-\pgf@circ@res@other}{0pt}}
-                \pgfpathlineto{\pgfpoint{0pt}{0pt}}
-                \pgfusepath{draw}
+            % draw the thick parts here (shifted horizontally)
+            \pgf@circ@setlinewidth{bipoles}{\pgfstartlinewidth}
+            % draw the basic triangle
+            \pgfpathmoveto{\pgfpoint{\pgf@circ@res@step}{0pt}}
+
+            \pgfpathlineto{\pgfpoint{\pgf@circ@res@other}{-\pgf@circ@res@down}}
+            \pgfpathlineto{\pgfpoint{\pgf@circ@res@other}{\pgf@circ@res@down}}
+            \pgfpathlineto{\pgfpoint{\pgf@circ@res@step}{0pt}}
+            \pgfpathclose
+            \ifnum#2=0\relax
+                \pgfusepath{draw,fill}
+            \else
+                \pgf@circ@draworfill
             \fi
+            % draw the vertical bar
+            \pgfpathmoveto{\pgfpoint{\pgf@circ@res@step}{\pgf@circ@res@down}}
+            \pgfpathlineto{\pgfpoint{\pgf@circ@res@step}{-\pgf@circ@res@down}}
+            \pgfusepath{draw}
         \endpgfscope
 
-        \pgfsetlinewidth{\pgfstartlinewidth}
+        % back to normal linewidth
+        % stroke if needed
+        \ifpgf@circuit@bipole@strokedsymbol
+            \pgfpathmoveto{\pgfpoint{\pgf@circ@res@step}{0pt}}
+            \pgfpathlineto{\pgfpoint{\pgf@circ@res@other}{0pt}}
+        \fi
 
-        \pgfpathmoveto{\pgfpoint{\pgf@circ@res@step-\pgf@circ@res@other}{0pt}}
-        \pgfpathlineto{\pgfpoint{2*\pgf@circ@res@step-2*\pgf@circ@res@other}{\ctikzvalof{tripoles/thyristor/diode height}\pgf@circ@res@up}}
-        \pgfpathlineto{\pgfpoint{2*\pgf@circ@res@step-2*\pgf@circ@res@other}{\pgf@circ@res@up}}
+        % draw the gate thing
+        \pgfpathmoveto{\pgfpoint{\pgf@circ@res@step}{0pt}}
+        \pgfpathlineto{\pgfpoint{2*\pgf@circ@res@step-\pgf@circ@res@other}{\ctikzvalof{tripoles/thyristor/diode height}\pgf@circ@res@up}}
+        \pgfpathlineto{\pgfpoint{2*\pgf@circ@res@step-\pgf@circ@res@other}{\pgf@circ@res@up}}
+        % additional code here
+        #3
+
+        % draw the leads in/out
+        \pgfpathmoveto{\pgfpoint{\pgf@circ@res@other}{0pt}}
+        \pgfpathlineto{\pgfpoint{\pgf@circ@res@left}{0pt}}
+
+        \pgfpathmoveto{\pgfpoint{\pgf@circ@res@step}{0pt}}
+        \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{0pt}}
+
         \pgfusepath{draw}
-    \endpgfscope
-
-    \pgfpathmoveto{\pgfpoint{\pgf@circ@res@step}{\pgf@circ@res@down}}
-    \pgfpathlineto{\pgfpoint{\pgf@circ@res@step}{-\pgf@circ@res@down}}
-
-    \pgfusepath{draw}
-
-    \pgfsetlinewidth{\pgfstartlinewidth}
-
-    \pgfpathmoveto{\pgfpoint{\pgf@circ@res@other}{0pt}}
-    \pgfpathlineto{\pgfpoint{\pgf@circ@res@left}{0pt}}
-
-    \pgfpathmoveto{\pgfpoint{\pgf@circ@res@step}{0pt}}
-    \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{0pt}}
-
-    \pgfusepath{draw}
+    }
 }
+
+%% Black thyristor
+\pgfcircdeclarethyristor{fullthyristor}{0}{}
+%% Empty thyristor
+\pgfcircdeclarethyristor{emptythyristor}{1}{}
+
 
 %% Empty triac
 \pgfcircdeclarebipolescaled{diodes}
