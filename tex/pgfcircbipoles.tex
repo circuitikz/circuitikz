@@ -22,6 +22,7 @@
 \pgf@circ@declare@family@arrows{tunable}
 \pgf@circ@declare@family@arrows{wiper}
 \pgf@circ@declare@family@arrows{switch}
+\pgf@circ@declare@family@arrows{gto gate}
 
 %>>>
 
@@ -2987,12 +2988,46 @@
 \ctikzset{bipoles/bidirectionaldiode/diode width right/.initial=.3}
 \ctikzset{bipoles/varcap/height/.initial=.50}
 \ctikzset{bipoles/varcap/width/.initial=.45}
+
 \ctikzset{tripoles/thyristor/height/.initial=1.10}
 \ctikzset{tripoles/thyristor/height 2/.initial=.5}
 \ctikzset{tripoles/thyristor/width/.initial=1.0}
 \ctikzset{tripoles/thyristor/diode height/.initial=.5}
 \ctikzset{tripoles/thyristor/diode width left/.initial=.4}
 \ctikzset{tripoles/thyristor/diode width right/.initial=.3}
+\ctikzset{tripoles/thyristor/gate height/.initial=0.0} % legacy 0
+\ctikzset{tripoles/thyristor/gate kink/.initial=1.0} % legacy 1.0
+\ctikzset{tripoles/thyristor/gto space up/.initial=0.5} % legacy 0.5
+\ctikzset{tripoles/thyristor/gto space down/.initial=0.0} % legacy 0.0
+\ctikzset{tripoles/thyristor/gto bar width/.initial=0.2} % legacy 0.2
+
+\ctikzset{thyristor style/.is choice}
+\ctikzset{thyristor style/legacy/.code={%
+    \ctikzset{tripoles/thyristor/height=1.1}%
+    \ctikzset{tripoles/thyristor/height 2=.5}%
+    \ctikzset{tripoles/thyristor/width=1.0}%
+    \ctikzset{tripoles/thyristor/diode height=.5}%
+    \ctikzset{tripoles/thyristor/diode width left=.4}%
+    \ctikzset{tripoles/thyristor/diode width right=.3}%
+    \ctikzset{tripoles/thyristor/gate height=0.0}%
+    \ctikzset{tripoles/thyristor/gate kink=1.0}%
+    \ctikzset{tripoles/thyristor/gto space up=0.5}%
+    \ctikzset{tripoles/thyristor/gto space down=0.0}%
+    \ctikzset{tripoles/thyristor/gto bar width=0.2}%
+}}
+\ctikzset{thyristor style/compact/.code={%
+    \ctikzset{tripoles/thyristor/height=0.8}% legacy 1.1
+    \ctikzset{tripoles/thyristor/height 2=.5}%
+    \ctikzset{tripoles/thyristor/width=1.0}%
+    \ctikzset{tripoles/thyristor/diode height=.5}%
+    \ctikzset{tripoles/thyristor/diode width left=.4}%
+    \ctikzset{tripoles/thyristor/diode width right=.4}%legacy 0.3
+    \ctikzset{tripoles/thyristor/gate height=0.5}% legacy 0
+    \ctikzset{tripoles/thyristor/gate kink=0.7}% legacy 1.0
+    \ctikzset{tripoles/thyristor/gto space up=0.25}% legacy 0.5
+    \ctikzset{tripoles/thyristor/gto space down=0.25}% legacy 0.0
+    \ctikzset{tripoles/thyristor/gto bar width=0.2}%
+}}
 
 \ctikzset{tripoles/triac/height/.initial=1.1}
 \ctikzset{tripoles/triac/width/.initial=1}
@@ -3567,9 +3602,10 @@
 \def\pgfcircdeclarethyristor#1#2#3{%name, fill (0-> black; 1-empty), extra code
     \pgfcircdeclarebipolescaled{diodes}
     {
-        \anchor{gate}{\northeast}
+        \savedmacro{\gatekink}{\edef\gatekink{\ctikzvalof{tripoles/thyristor/gate kink}}}
+        \anchor{gate}{\northeast\pgf@x=\gatekink\pgf@x}
+        \anchor{G}{\northeast\pgf@x=\gatekink\pgf@x}
         \anchor{anode}{\southwest\pgf@y=0cm}
-        \anchor{G}{\northeast}
         \anchor{cathode}{\northeast\pgf@y=0cm }
     }
     {\ctikzvalof{tripoles/thyristor/height 2}}
@@ -3606,13 +3642,10 @@
         \ifpgf@circuit@bipole@strokedsymbol
             \pgfpathmoveto{\pgfpoint{\pgf@circ@res@step}{0pt}}
             \pgfpathlineto{\pgfpoint{\pgf@circ@res@other}{0pt}}
+            \pgfusepath{draw}
         \fi
 
-        % draw the gate thing
-        \pgfpathmoveto{\pgfpoint{\pgf@circ@res@step}{0pt}}
-        \pgfpathlineto{\pgfpoint{2*\pgf@circ@res@step-\pgf@circ@res@other}{\ctikzvalof{tripoles/thyristor/diode height}\pgf@circ@res@up}}
-        \pgfpathlineto{\pgfpoint{2*\pgf@circ@res@step-\pgf@circ@res@other}{\pgf@circ@res@up}}
-        % additional code here
+        % draw the gate thing;
         #3
 
         % draw the leads in/out
@@ -3626,10 +3659,99 @@
     }
 }
 
+\def\pgfcirc@thyristor@simplegate{%
+    \pgfpathmoveto{\pgfpoint
+        {\pgf@circ@res@step}
+        {\ctikzvalof{tripoles/thyristor/gate height}*\ctikzvalof{tripoles/thyristor/diode height}*\pgf@circ@res@up}
+    }
+    \pgfpathlineto{\pgfpoint
+        {\ctikzvalof{tripoles/thyristor/gate kink}*\pgf@circ@res@right}
+        {\ctikzvalof{tripoles/thyristor/diode height}\pgf@circ@res@up}
+    }
+    \pgfpathlineto{\pgfpoint
+        {\ctikzvalof{tripoles/thyristor/gate kink}*\pgf@circ@res@right}
+        {\pgf@circ@res@up}
+    }
+    \pgfusepath{draw}
+}
+
 %% Black thyristor
-\pgfcircdeclarethyristor{fullthyristor}{0}{}
+\pgfcircdeclarethyristor{fullthyristor}{0}{\pgfcirc@thyristor@simplegate}
 %% Empty thyristor
-\pgfcircdeclarethyristor{emptythyristor}{1}{}
+\pgfcircdeclarethyristor{emptythyristor}{1}{\pgfcirc@thyristor@simplegate}
+%% black and empty GTO (standard: double line symbol, no arrow)
+
+\def\pgfcirc@doublegate@gto@add{
+    % connection to gate terminal
+    \pgfpathmoveto{\pgfpoint
+        {\ctikzvalof{tripoles/thyristor/gate kink}*\pgf@circ@res@right}
+        {\ctikzvalof{tripoles/thyristor/diode height}*\pgf@circ@res@up -
+        \ctikzvalof{tripoles/thyristor/gto space down}*\ctikzvalof{tripoles/thyristor/diode height}*\pgf@circ@res@up}
+    }
+    \pgfpathlineto{\pgfpoint
+        {\ctikzvalof{tripoles/thyristor/gate kink}*\pgf@circ@res@right}
+        {\pgf@circ@res@up}
+    }
+    \pgfusepath{draw}
+    \pgfscope
+    \pgfcirc@set@arrows{gto gate}{}{}
+    % \pgfsetarrowsstart{latexslim}
+    % first (lower) gto line: from body to gate
+    \pgfpathmoveto{\pgfpoint
+        {\pgf@circ@res@step}
+        {(\ctikzvalof{tripoles/thyristor/gate height}-\ctikzvalof{tripoles/thyristor/gto space down})
+            *\ctikzvalof{tripoles/thyristor/diode height}*\pgf@circ@res@up}
+    }
+    \pgfpathlineto{\pgfpoint
+        {\ctikzvalof{tripoles/thyristor/gate kink}*\pgf@circ@res@right}
+        {\ctikzvalof{tripoles/thyristor/diode height}*\pgf@circ@res@up -
+        \ctikzvalof{tripoles/thyristor/gto space down}*\ctikzvalof{tripoles/thyristor/diode height}*\pgf@circ@res@up}
+    }
+    \pgfusepath{draw}
+    % second (higher) gto line: from gate to body
+    \pgfpathmoveto{\pgfpoint
+        {\ctikzvalof{tripoles/thyristor/gate kink}*\pgf@circ@res@right}
+        {\ctikzvalof{tripoles/thyristor/diode height}*\pgf@circ@res@up +
+        \ctikzvalof{tripoles/thyristor/gto space up}*\ctikzvalof{tripoles/thyristor/diode height}*\pgf@circ@res@up}
+    }
+    \pgfpathlineto{\pgfpoint
+        {\pgf@circ@res@step}
+        {(\ctikzvalof{tripoles/thyristor/gate height}+\ctikzvalof{tripoles/thyristor/gto space up})
+            *\ctikzvalof{tripoles/thyristor/diode height}*\pgf@circ@res@up}
+    }
+    \pgfusepath{draw}
+    \endpgfscope
+}
+\pgfcircdeclarethyristor{fullgto}{0}{\pgfcirc@doublegate@gto@add}
+\pgfcircdeclarethyristor{emptygto}{1}{\pgfcirc@doublegate@gto@add}
+
+\def\pgfcirc@bargate@gto@add{%
+    \pgfpathmoveto{\pgfpoint
+        {\pgf@circ@res@step}
+        {\ctikzvalof{tripoles/thyristor/gate height}*\ctikzvalof{tripoles/thyristor/diode height}*\pgf@circ@res@up}
+    }
+    \pgfpathlineto{\pgfpoint
+        {\ctikzvalof{tripoles/thyristor/gate kink}*\pgf@circ@res@right}
+        {\ctikzvalof{tripoles/thyristor/diode height}\pgf@circ@res@up}
+    }
+    \pgfpathlineto{\pgfpoint
+        {\ctikzvalof{tripoles/thyristor/gate kink}*\pgf@circ@res@right}
+        {\pgf@circ@res@up}
+    }
+    % draw bar line.
+    \pgfpathmoveto{\pgfpoint
+        {(\ctikzvalof{tripoles/thyristor/gate kink}-\ctikzvalof{tripoles/thyristor/gto bar width})*\pgf@circ@res@right}
+        {(1+\ctikzvalof{tripoles/thyristor/diode height})*0.5*\pgf@circ@res@up}
+    }
+    \pgfpathlineto{\pgfpoint
+        {(\ctikzvalof{tripoles/thyristor/gate kink}+\ctikzvalof{tripoles/thyristor/gto bar width})*\pgf@circ@res@right}
+        {(1+\ctikzvalof{tripoles/thyristor/diode height})*0.5*\pgf@circ@res@up}
+    }
+    \pgfusepath{draw}
+}
+
+\pgfcircdeclarethyristor{fullgtobar}{0}{\pgfcirc@bargate@gto@add}
+\pgfcircdeclarethyristor{emptygtobar}{1}{\pgfcirc@bargate@gto@add}
 
 
 %% Empty triac
@@ -3746,6 +3868,10 @@
     \pgfcirc@style@to@style{#1 bidirectionaldiode}{biD#2}
     \pgfcirc@activate@bipole{l}{#1thyristor}{#1thyristor}{#1 thyristor}
     \pgfcirc@style@to@style{#1 thyristor}{Ty#2}
+    \pgfcirc@activate@bipole{l}{#1gto}{#1gto}{#1 gto}
+    \pgfcirc@style@to@style{#1 gto}{GTO#2}
+    \pgfcirc@activate@bipole{l}{#1gtobar}{#1gtobar}{#1 gtobar}
+    \pgfcirc@style@to@style{#1 gtobar}{GTOb#2}
     \pgfcirc@activate@bipole{l}{#1triac}{#1triac}{#1 triac}
     \pgfcirc@style@to@style{#1 triac}{Tr#2}
 }
@@ -3772,6 +3898,10 @@
     \pgfcirc@style@to@style{#1 bidirectionaldiode}{biD#2}
     \pgfcirc@node@to@style{l}{emptythyristor}{#1 thyristor}{\circuitikzbasekey/bipole/is strokedsymbol=true}
     \pgfcirc@style@to@style{#1 thyristor}{Ty#2}
+    \pgfcirc@node@to@style{l}{emptygto}{#1 gto}{\circuitikzbasekey/bipole/is strokedsymbol=true}
+    \pgfcirc@style@to@style{#1 gto}{GTO#2}
+    \pgfcirc@node@to@style{l}{emptygtobar}{#1 gtobar}{\circuitikzbasekey/bipole/is strokedsymbol=true}
+    \pgfcirc@style@to@style{#1 gtobar}{GTOb#2}
     \pgfcirc@node@to@style{l}{emptytriac}{#1 triac}{\circuitikzbasekey/bipole/is strokedsymbol=true}
     \pgfcirc@style@to@style{#1 triac}{Tr#2}
 }
@@ -3798,6 +3928,10 @@
 \pgfcirc@style@to@style{bidirectionaldiode}{biD}
 \pgfcirc@style@to@style{\pgfcircdiodestylemacro thyristor}{thyristor}
 \pgfcirc@style@to@style{thyristor}{Ty}
+\pgfcirc@style@to@style{\pgfcircdiodestylemacro gto}{gto}
+\pgfcirc@style@to@style{gto}{GTO}
+\pgfcirc@style@to@style{\pgfcircdiodestylemacro gtobar}{gtobar}
+\pgfcirc@style@to@style{gtobar}{GTOb}
 \pgfcirc@style@to@style{\pgfcircdiodestylemacro triac}{triac}
 \pgfcirc@style@to@style{triac}{Tr}
 % %>>>
