@@ -3001,6 +3001,12 @@
 \ctikzset{tripoles/thyristor/gto space down/.initial=0.0} % legacy 0.0
 \ctikzset{tripoles/thyristor/gto bar width/.initial=0.2} % legacy 0.2
 
+\ctikzset{tripoles/triac/height/.initial=1.1}
+\ctikzset{tripoles/triac/width/.initial=1}
+\ctikzset{tripoles/triac/diode width left/.initial=.3}
+\ctikzset{tripoles/triac/diode width right/.initial=.3}
+\ctikzset{tripoles/triac/gate kink/.initial=1}
+
 \ctikzset{thyristor style/.is choice}
 \ctikzset{thyristor style/legacy/.code={%
     \ctikzset{tripoles/thyristor/height=1.1}%
@@ -3014,6 +3020,7 @@
     \ctikzset{tripoles/thyristor/gto space up=0.5}%
     \ctikzset{tripoles/thyristor/gto space down=0.0}%
     \ctikzset{tripoles/thyristor/gto bar width=0.2}%
+    \ctikzset{tripoles/triac/gate kink=1}%
 }}
 \ctikzset{thyristor style/compact/.code={%
     \ctikzset{tripoles/thyristor/height=0.8}% legacy 1.1
@@ -3027,12 +3034,9 @@
     \ctikzset{tripoles/thyristor/gto space up=0.25}% legacy 0.5
     \ctikzset{tripoles/thyristor/gto space down=0.25}% legacy 0.0
     \ctikzset{tripoles/thyristor/gto bar width=0.2}%
+    \ctikzset{tripoles/triac/gate kink=.7}%
 }}
 
-\ctikzset{tripoles/triac/height/.initial=1.1}
-\ctikzset{tripoles/triac/width/.initial=1}
-\ctikzset{tripoles/triac/diode width left/.initial=.3}
-\ctikzset{tripoles/triac/diode width right/.initial=.3}
 %
 % Flipping arrows in LED and photodiodes
 %
@@ -3758,9 +3762,10 @@
 \def\pgfcircdeclaretriac#1#2{%name, fill (0-> black; 1-empty)
     \pgfcircdeclarebipolescaled{diodes}
     {
-        \anchor{gate}{\northeast}
+        \savedmacro{\gatekink}{\edef\gatekink{\ctikzvalof{tripoles/triac/gate kink}}}
+        \anchor{gate}{\northeast\pgf@x=\gatekink\pgf@x}
+        \anchor{G}{\northeast\pgf@x=\gatekink\pgf@x}
         \anchor{anode}{\southwest\pgf@y=0cm}
-        \anchor{G}{\northeast}
         \anchor{cathode}{\northeast\pgf@y=0cm }
     }
     {\ctikzvalof{tripoles/triac/height}}
@@ -3794,8 +3799,10 @@
 
         % draw gate
         \pgfpathmoveto{\pgfpoint{\pgf@circ@res@step}{-0.707*(\pgf@circ@res@other-\pgf@circ@res@step)}} % sqrt(1/2)
-        \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{-1.414*(\pgf@circ@res@other-\pgf@circ@res@step)}} % sqrt(1/2)
-        \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@up}} % sqrt(1/2)
+        \pgfpathlineto{\pgfpoint
+            {\ctikzvalof{tripoles/triac/gate kink}*\pgf@circ@res@right}
+            {-1.414*(\pgf@circ@res@other-\pgf@circ@res@step)}} % sqrt(1/2)
+        \pgfpathlineto{\pgfpoint{\ctikzvalof{tripoles/triac/gate kink}*\pgf@circ@res@right}{\pgf@circ@res@up}} % sqrt(1/2)
 
         % draw leads
         \pgfpathmoveto{\pgfpoint{\pgf@circ@res@other}{0pt}}
