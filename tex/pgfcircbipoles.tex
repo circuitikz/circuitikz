@@ -3783,7 +3783,35 @@
 \pgfcircdeclarethyristor{emptyput}{1}{-1}{\pgfcirc@thyristor@anodegate}
 %% black and empty GTO (standard: double line symbol, no arrow)
 
+\def\pgfcirc@anodebargate@gto@add{%
+    \pgfpathmoveto{\pgfpoint
+        {\pgf@circ@res@other}
+        {\ctikzvalof{tripoles/thyristor/gate height}*\ctikzvalof{tripoles/thyristor/diode height}*\pgf@circ@res@up}
+    }
+    \pgfpathlineto{\pgfpoint
+        {\ctikzvalof{tripoles/thyristor/gate kink}*\pgf@circ@res@left}
+        {\ctikzvalof{tripoles/thyristor/diode height}\pgf@circ@res@up}
+    }
+    \pgfpathlineto{\pgfpoint
+        {\ctikzvalof{tripoles/thyristor/gate kink}*\pgf@circ@res@left}
+        {\pgf@circ@res@up}
+    }
+    % draw bar line.
+    \pgfpathmoveto{\pgfpoint
+        {(\ctikzvalof{tripoles/thyristor/gate kink}-\ctikzvalof{tripoles/thyristor/gto bar width})*\pgf@circ@res@left}
+        {(1+\ctikzvalof{tripoles/thyristor/diode height})*0.5*\pgf@circ@res@up}
+    }
+    \pgfpathlineto{\pgfpoint
+        {(\ctikzvalof{tripoles/thyristor/gate kink}+\ctikzvalof{tripoles/thyristor/gto bar width})*\pgf@circ@res@left}
+        {(1+\ctikzvalof{tripoles/thyristor/diode height})*0.5*\pgf@circ@res@up}
+    }
+    \pgfusepath{draw}
+}
 
+\pgfcircdeclarethyristor{fullagtobar}{0}{-1}{\pgfcirc@anodebargate@gto@add}
+\pgfcircdeclarethyristor{emptyagtobar}{1}{-1}{\pgfcirc@anodebargate@gto@add}
+
+% Triacs
 
 \def\pgfcircdeclaretriac#1#2{%name, fill (0-> black; 1-empty)
     \pgfcircdeclarebipolescaled{diodes}
@@ -3876,6 +3904,8 @@
     \pgfcirc@style@to@style{#1 gto}{GTO#2}
     \pgfcirc@activate@bipole{l}{#1gtobar}{#1gtobar}{#1 gtobar}
     \pgfcirc@style@to@style{#1 gtobar}{GTOb#2}
+    \pgfcirc@activate@bipole{l}{#1agtobar}{#1agtobar}{#1 agtobar}
+    \pgfcirc@style@to@style{#1 agtobar}{aGTOb#2}
     \pgfcirc@activate@bipole{l}{#1triac}{#1triac}{#1 triac}
     \pgfcirc@style@to@style{#1 triac}{Tr#2}
 }
@@ -3908,6 +3938,8 @@
     \pgfcirc@style@to@style{#1 gto}{GTO#2}
     \pgfcirc@node@to@style{l}{emptygtobar}{#1 gtobar}{\circuitikzbasekey/bipole/is strokedsymbol=true}
     \pgfcirc@style@to@style{#1 gtobar}{GTOb#2}
+    \pgfcirc@node@to@style{l}{emptyagtobar}{#1 agtobar}{\circuitikzbasekey/bipole/is strokedsymbol=true}
+    \pgfcirc@style@to@style{#1 agtobar}{aGTOb#2}
     \pgfcirc@node@to@style{l}{emptytriac}{#1 triac}{\circuitikzbasekey/bipole/is strokedsymbol=true}
     \pgfcirc@style@to@style{#1 triac}{Tr#2}
 }
@@ -3940,6 +3972,8 @@
 \pgfcirc@style@to@style{gto}{GTO}
 \pgfcirc@style@to@style{\pgfcircdiodestylemacro gtobar}{gtobar}
 \pgfcirc@style@to@style{gtobar}{GTOb}
+\pgfcirc@style@to@style{\pgfcircdiodestylemacro agtobar}{agtobar}
+\pgfcirc@style@to@style{agtobar}{aGTOb}
 \pgfcirc@style@to@style{\pgfcircdiodestylemacro triac}{triac}
 \pgfcirc@style@to@style{triac}{Tr}
 % %>>>
