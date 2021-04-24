@@ -3605,12 +3605,12 @@
 %%% Thyristors in general
 
 
-\def\pgfcircdeclarethyristor#1#2#3{%name, fill (0-> black; 1-empty), extra code
+\def\pgfcircdeclarethyristor#1#2#3#4{%name, fill (0-> black; 1-empty), gate position (1: catode, -1: anode), extra code
     \pgfcircdeclarebipolescaled{diodes}
     {
         \savedmacro{\gatekink}{\edef\gatekink{\ctikzvalof{tripoles/thyristor/gate kink}}}
-        \anchor{gate}{\northeast\pgf@x=\gatekink\pgf@x}
-        \anchor{G}{\northeast\pgf@x=\gatekink\pgf@x}
+        \anchor{gate}{\northeast\pgf@x=\gatekink\pgf@x\pgf@x=#3\pgf@x}
+        \anchor{G}{\northeast\pgf@x=\gatekink\pgf@x\pgf@x=#3\pgf@x}
         \anchor{anode}{\southwest\pgf@y=0cm}
         \anchor{cathode}{\northeast\pgf@y=0cm }
     }
@@ -3652,7 +3652,7 @@
         \fi
 
         % draw the gate thing;
-        #3
+        #4
 
         % draw the leads in/out
         \pgfpathmoveto{\pgfpoint{\pgf@circ@res@other}{0pt}}
@@ -3682,9 +3682,9 @@
 }
 
 %% Black thyristor
-\pgfcircdeclarethyristor{fullthyristor}{0}{\pgfcirc@thyristor@simplegate}
+\pgfcircdeclarethyristor{fullthyristor}{0}{1}{\pgfcirc@thyristor@simplegate}
 %% Empty thyristor
-\pgfcircdeclarethyristor{emptythyristor}{1}{\pgfcirc@thyristor@simplegate}
+\pgfcircdeclarethyristor{emptythyristor}{1}{1}{\pgfcirc@thyristor@simplegate}
 %% black and empty GTO (standard: double line symbol, no arrow)
 
 \def\pgfcirc@doublegate@gto@add{
@@ -3728,8 +3728,8 @@
     \pgfusepath{draw}
     \endpgfscope
 }
-\pgfcircdeclarethyristor{fullgto}{0}{\pgfcirc@doublegate@gto@add}
-\pgfcircdeclarethyristor{emptygto}{1}{\pgfcirc@doublegate@gto@add}
+\pgfcircdeclarethyristor{fullgto}{0}{1}{\pgfcirc@doublegate@gto@add}
+\pgfcircdeclarethyristor{emptygto}{1}{1}{\pgfcirc@doublegate@gto@add}
 
 \def\pgfcirc@bargate@gto@add{%
     \pgfpathmoveto{\pgfpoint
@@ -3756,8 +3756,34 @@
     \pgfusepath{draw}
 }
 
-\pgfcircdeclarethyristor{fullgtobar}{0}{\pgfcirc@bargate@gto@add}
-\pgfcircdeclarethyristor{emptygtobar}{1}{\pgfcirc@bargate@gto@add}
+\pgfcircdeclarethyristor{fullgtobar}{0}{1}{\pgfcirc@bargate@gto@add}
+\pgfcircdeclarethyristor{emptygtobar}{1}{1}{\pgfcirc@bargate@gto@add}
+
+%% Thyristors with anode-connected gate
+
+\def\pgfcirc@thyristor@anodegate{%
+    \pgfpathmoveto{\pgfpoint
+        {\pgf@circ@res@other}
+        {\ctikzvalof{tripoles/thyristor/gate height}*\ctikzvalof{tripoles/thyristor/diode height}*\pgf@circ@res@up}
+    }
+    \pgfpathlineto{\pgfpoint
+        {\ctikzvalof{tripoles/thyristor/gate kink}*\pgf@circ@res@left}
+        {\ctikzvalof{tripoles/thyristor/diode height}\pgf@circ@res@up}
+    }
+    \pgfpathlineto{\pgfpoint
+        {\ctikzvalof{tripoles/thyristor/gate kink}*\pgf@circ@res@left}
+        {\pgf@circ@res@up}
+    }
+    \pgfusepath{draw}
+}
+
+%% Black PUT
+\pgfcircdeclarethyristor{fullput}{0}{-1}{\pgfcirc@thyristor@anodegate}
+%% Empty PUT
+\pgfcircdeclarethyristor{emptyput}{1}{-1}{\pgfcirc@thyristor@anodegate}
+%% black and empty GTO (standard: double line symbol, no arrow)
+
+
 
 \def\pgfcircdeclaretriac#1#2{%name, fill (0-> black; 1-empty)
     \pgfcircdeclarebipolescaled{diodes}
@@ -3844,6 +3870,8 @@
     \pgfcirc@style@to@style{#1 bidirectionaldiode}{biD#2}
     \pgfcirc@activate@bipole{l}{#1thyristor}{#1thyristor}{#1 thyristor}
     \pgfcirc@style@to@style{#1 thyristor}{Ty#2}
+    \pgfcirc@activate@bipole{l}{#1put}{#1put}{#1 put}
+    \pgfcirc@style@to@style{#1 put}{PUT#2}
     \pgfcirc@activate@bipole{l}{#1gto}{#1gto}{#1 gto}
     \pgfcirc@style@to@style{#1 gto}{GTO#2}
     \pgfcirc@activate@bipole{l}{#1gtobar}{#1gtobar}{#1 gtobar}
@@ -3874,6 +3902,8 @@
     \pgfcirc@style@to@style{#1 bidirectionaldiode}{biD#2}
     \pgfcirc@node@to@style{l}{emptythyristor}{#1 thyristor}{\circuitikzbasekey/bipole/is strokedsymbol=true}
     \pgfcirc@style@to@style{#1 thyristor}{Ty#2}
+    \pgfcirc@node@to@style{l}{emptyput}{#1 put}{\circuitikzbasekey/bipole/is strokedsymbol=true}
+    \pgfcirc@style@to@style{#1 put}{PUT#2}
     \pgfcirc@node@to@style{l}{emptygto}{#1 gto}{\circuitikzbasekey/bipole/is strokedsymbol=true}
     \pgfcirc@style@to@style{#1 gto}{GTO#2}
     \pgfcirc@node@to@style{l}{emptygtobar}{#1 gtobar}{\circuitikzbasekey/bipole/is strokedsymbol=true}
@@ -3904,6 +3934,8 @@
 \pgfcirc@style@to@style{bidirectionaldiode}{biD}
 \pgfcirc@style@to@style{\pgfcircdiodestylemacro thyristor}{thyristor}
 \pgfcirc@style@to@style{thyristor}{Ty}
+\pgfcirc@style@to@style{\pgfcircdiodestylemacro put}{put}
+\pgfcirc@style@to@style{put}{PUT}
 \pgfcirc@style@to@style{\pgfcircdiodestylemacro gto}{gto}
 \pgfcirc@style@to@style{gto}{GTO}
 \pgfcirc@style@to@style{\pgfcircdiodestylemacro gtobar}{gtobar}
