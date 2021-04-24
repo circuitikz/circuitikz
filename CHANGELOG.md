@@ -3,6 +3,8 @@ The major changes among the different CircuiTikZ versions are listed here. See <
 
 * Version 1.3.5 (unreleased)
 
+    Power electronics devices are the main characters in this release: PUT, GTOs, a new style for thyristors.
+
     - Added UJT transistors and GTO devices (suggested by JetherReis, https://github.com/circuitikz/circuitikz/issues/522)
     - Added (as an option) a different, more compact style for thyristor-type devices.
 
