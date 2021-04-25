@@ -1396,7 +1396,7 @@ Old textbooks used the two-color style quite extensively, filling with a kind of
 
 You can change the line thickness for any class of component in an independent way. The default standard thickness of components is defined on a loose ``legacy'' category (like \texttt{bipoles}, \texttt{tripoles} and so on, see section~\ref{sec:legacy-thickness}); to override that you set the key \texttt{\emph{class}/thickness} to any number. The default is \texttt{none}, which means that the old way of selecting thickness is used.
 
-For example, \emph{amplifiers} have the legacy class of \texttt{tripoles}, as well as transistors and tubes.By default they are drawn with thickness 2 (relative to the base linewidth). To change them to be thicker, you can for example add to the previous style
+For example, \emph{amplifiers} have the legacy class of \texttt{tripoles}, as well as transistors and tubes. By default they are drawn with thickness 2 (relative to the base linewidth). To change them to be thicker, you can for example add to the previous style
 
 \begin{lstlisting}
     \ctikzset{amplifier/thickness=4}
@@ -1467,13 +1467,21 @@ This kind of style will \emph{add} to the existing style.  If you want to have a
 \begin{lstlisting}[frame=single, framesep=10pt]
 \ctikzloadstyle{legacy}% start from a know state
 \tikzset{romano circuit style/.style={%
-legacy circuit style, % load the legacy style
-\circuitikzbasekey/.cd,%
-% Resistors
-resistors/scale=0.8,
+    legacy circuit style, % load the legacy style
+    \circuitikzbasekey/.cd,%
+    % Resistors
+    resistors/scale=0.8,
 [...]
 \end{lstlisting}
 
+If you want to add a setting to your style file that has been recently added to the package (for example, the thyristor compact shapes added in \texttt{1.3.5}), but you want that your style file is still compatible with older versions of \Circuitikz, you can use the \texttt{.try} statement:
+
+\begin{lstlisting}[frame=single, framesep=10pt]
+    % Diodes
+    diodes/scale=0.6,
+    diodes/thickness=1.0,
+    thyristor style/.try=compact,
+\end{lstlisting}
 
 \subsection{Grounds and supply voltages}
 
@@ -1903,20 +1911,52 @@ These shapes have no exact node-style counterpart, because the stroke line is bu
     \circuitdescbip*[emptyvarcap]{stroke varcap}{Stroke varcap}{VC-}
 \end{groupdesc}
 
-\subsubsection{Tripole-like diodes}\label{sec:othertrip} The following tripoles are entered with the usual command, of the form \texttt{to[Tr, \dots]}.
+\subsubsection{Tripole-like diodes}\label{sec:othertrip} The following tripoles are entered with the usual command, of the form \texttt{to[Tr, \dots]}. In the following list you can see the traditional, or \texttt{legacy}, shape of the Thyristors-type devices.
 
 
 \begin{groupdesc}
+    \ctikzset{thyristor style=legacy}
+    \circuitdescbip[fulldiode] {full diode}{Full diode}{D*}
+    \circuitdescbip*[emptydiode] {stroke diode}{Stroke diode}{D-}
     \circuitdescbip*[emptytriac]{triac}{Standard triac (shape depends on package option)}{Tr}( G/0/0.3, anode/-90/0.2, cathode/-90/0.2)
     \circuitdescbip*[emptytriac]{empty triac}{Empty triac}{Tro}( gate/0/0.3 )
     \circuitdescbip[fulltriac]{full triac}{Full triac}{Tr*}
-    \circuitdescbip*[emptythyristor]{thyristor}{Standard thyristor (shape depends on package option)}{Ty}( G/0/0.3, anode/-90/0.2, cathode/-90/0.2)
+    \circuitdescbip*[emptythyristor]{thyristor}{Standard thyristor (shape depends on package option)}{Ty}( G/0/0.3, gate/45/0.3, anode/-90/0.2, cathode/-90/0.2)
     \circuitdescbip*[emptythyristor]{empty thyristor}{Empty thyristor}{Tyo}
     \circuitdescbip[fullthyristor]{full thyristor}{Full thyristor}{Ty*}
     \circuitdescbip*[emptythyristor]{stroke thyristor}{Stroke thyristor}{Ty-}
+    \circuitdescbip*[emptyput]{put}{Standard Programmable Unipolar Transistor\footnotemark (shape depends on package option)}{PUT}( G/0/0.3, gate/45/0.3, anode/-90/0.2, cathode/-90/0.2)
+    \footnotetext{This components, and the GTO family, has been suggested by \href{https://github.com/circuitikz/circuitikz/issues/522}{GitHub user JetherReis}.}
+    \circuitdescbip*[emptyput]{empty put}{Empty PUT}{PUTo}
+    \circuitdescbip[fullput]{full put}{Full PUT}{PUT*}
+    \circuitdescbip*[emptyput]{stroke put}{Stroke PUT}{PUT-}
+    \circuitdescbip*[emptygto]{gto}{Standard GTO (shape depends on package option)}{GTO}( G/0/0.3, gate/45/0.3, anode/-90/0.2, cathode/-90/0.2)
+    \circuitdescbip*[emptygto]{empty gto}{Empty GTO}{GTOo}
+    \circuitdescbip[fullgto]{full gto}{Full GTO}{GTO*}
+    \circuitdescbip*[emptygto]{stroke gto}{Stroke GTO}{GTO-}
+    \circuitdescbip*[emptygtobar]{gtobar}{Standard GTO with bar-type gate (shape depends on package option)}{GTOb}( G/0/0.3, gate/45/0.3, anode/-90/0.2, cathode/-90/0.2)
+    \circuitdescbip*[emptygtobar]{empty gtobar}{Empty GTO, bar-type}{GTObo}
+    \circuitdescbip[fullgtobar]{full gtobar}{Full GTO, bar-type}{GTOb*}
+    \circuitdescbip*[emptygtobar]{stroke gtobar}{Stroke GTO, bar type}{GTOb-}
+    \circuitdescbip*[emptyagtobar]{agtobar}{Standard GTO with bar-type gate on anode (shape depends on package option)}{aGTOb}( G/0/0.3, gate/45/0.3, anode/-90/0.2, cathode/-90/0.2)
+    \circuitdescbip*[emptyagtobar]{empty agtobar}{Empty GTO, bar-type on anode}{aGTObo}
+    \circuitdescbip[fullagtobar]{full agtobar}{Full GTO, bar-type on anode}{aGTOb*}
+    \circuitdescbip*[emptyagtobar]{stroke agtobar}{Stroke GTO, bar-type on anode}{aGTOb-}
 \end{groupdesc}
 
-\subsubsection{Triacs anchors}
+For basically stylistical reasons, there is a different, more compact, shape available for them, activated with the key \texttt{thyristor style=compact} (the default is \texttt{legacy}). All the devices above are present, we will show here just the automatic version for shortness.
+
+\begin{groupdesc}
+    \ctikzset{thyristor style=compact}
+    \circuitdescbip*[emptytriac]{triac}{Standard triac (shape depends on package option)}{Tr}(G/0/0.3, anode/-90/0.2, cathode/-90/0.2)
+    \circuitdescbip*[emptythyristor]{thyristor}{Standard thyristor (shape depends on package option)}{Ty}(G/0/0.3, gate/45/0.3, anode/-90/0.2, cathode/-90/0.2)
+    \circuitdescbip*[emptyput]{put}{Standard Programmable Unipolar Transistor (shape depends on package option)}{PUT}( G/0/0.3, gate/45/0.3, anode/-90/0.2, cathode/-90/0.2)
+    \circuitdescbip*[emptygto]{gto}{Standard gto (shape depends on package option)}{GTO}(G/0/0.3, gate/45/0.3, anode/-90/0.2, cathode/-90/0.2)
+    \circuitdescbip*[emptygtobar]{gtobar}{Standard GTO  with a bar symbol on the gate (shape depends on package option)}{GTOb}( G/0/0.3, gate/45/0.3, anode/-90/0.2, cathode/-90/0.2)
+    \circuitdescbip*[emptyagtobar]{agtobar}{Standard GTO with bar-type gate on anode (shape depends on package option)}{aGTOb}( G/0/0.3, gate/45/0.3, anode/-90/0.2, cathode/-90/0.2)
+\end{groupdesc}
+
+\subsubsection{Thyristors anchors and customization}
 
 When inserting a thrystor, a triac or a potentiometer, one needs to refer to the third node-gate (\texttt{gate} or \texttt{G}) for the former two; wiper (\texttt{wiper} or \texttt{W}) for the latter one. This is done by giving a name to the bipole:
 \label{bipole-naming}
@@ -1927,6 +1967,20 @@ When inserting a thrystor, a triac or a potentiometer, one needs to refer to the
   \draw[dashed] (TRI.G) -| (POT.wiper)
 ;\end{circuitikz}
 \end{LTXexample}
+
+As commented above, you can change the shape of these devices (globally or locally) setting the key \texttt{thyristor style=compact} (the default is \texttt{legacy}). Additionally, normally the plain \texttt{GTO} symbols come without the arrows, but you can add them using a syntax similar to the one explained in section~\ref{sec:tunablearrows} using the arrow group \texttt{gto gate}.
+
+\begin{LTXexample}[varwidth=true]
+    \begin{circuitikz}[]
+        \ctikzset{thyristor style=compact}
+        \draw (0,0) to[GTO=$G_1$] ++(0,-3);
+        \ctikzset{gto gate end arrow=latexslim}
+        \draw (2,0) to[GTO*=$G_2$, mirror] ++(0,-3);
+        \draw (4,0) to[GTOb-=$G_2$, mirror] ++(0,-3);
+    \end{circuitikz}
+\end{LTXexample}
+
+Notice that you can set both \texttt{gto gate end arrow} and \texttt{gto gate start arrow} --- choosing just one of the two you can decide the ``rotation'' direction of the symbol. There is little space though, so don't overdo it.
 
 \subsubsection{Diode customizations}\label{sec:tweak-d}
 
@@ -2868,13 +2922,23 @@ Basically they are the same as the normal \texttt{npn} and \texttt{pnp}, and the
     \circuitdesc{pigfetd}{pigfetd}{}
 \end{groupdesc}
 
-\textsc{njfet} and \textsc{pjfet} have been incorporated based on code provided by Danilo Piazzalunga:
+\textsc{JFET} are also available\footnote{based on code provided by Danilo Piazzalunga}, both n-type and p-type.
+
 \begin{groupdesc}
-    \circuitdesc{njfet}{njfet}{Q}
-    \circuitdesc{pjfet}{pjfet}{}
+    \circuitdesc{njfet}{n-type JFET}{Q}(G/-135/0.2,D/0/0.2,S/0/0.2)
+    \circuitdesc{pjfet}{p-type JFET}{}(G/-135/0.2,D/0/0.2,S/0/0.2)
 \end{groupdesc}
 
-\textsc{isfet}
+\textsc{UJT} transistors\footnote{sugged by \href{https://github.com/circuitikz/circuitikz/issues/522}{user JetherReis on GitHub}.} have a different anchor names although \textbf{most} of the others, like \texttt{D} and \texttt{G}, work also (the exception is \texttt{E} and \texttt{emitter}!). Notice that if used with \texttt{nobase}, the anchor \texttt{E} follows the wire, while \texttt{G} is fixed (as is \texttt{kink}).
+
+\begin{groupdesc}
+    \circuitdesc{nujt}{n-type UJT}{Q}(G/-135/0.2,B1/0/0.2,B2/0/0.2 , kink/90/0.4, E/135/0.2)
+    \circuitdesc{pujt}{p-type UJT}{Q}(G/-135/0.2,B1/0/0.2,B2/0/0.2 , kink/90/0.4, E/135/0.2)
+    \circuitdesc{nujt, nobase}{n-type UJT with nobase option}{Q}(G/-135/0.2,B1/0/0.2,B2/0/0.2 , kink/90/0.4, E/135/0.2)
+\end{groupdesc}
+
+\textsc{isfet}:
+
 \begin{groupdesc}
     \circuitdesc{isfet}{isfet}{Q}
 \end{groupdesc}
@@ -3041,6 +3105,26 @@ Normally, in bipolar IGBTs the outer base is the same size (height) of the inner
     -- ++(1,0) node[Lnigbt, anchor=B](B){} (B.nobase)
     -- ++(1,0) node[Lpigbt, anchor=B](B){} (B.nobase)
     ;
+\end{circuitikz}
+\end{LTXexample}
+
+\paragraph{UJT transistors.}\label{sec:ujt} They look better if you use \texttt{transistors/arrow pos=end}, especially if you use them with \texttt{tr circle}. If you use the key \texttt{nobase} with UJTs, the horizontal part of the controlling terminal is not drawn; notice that this \emph{will} move the \texttt{E} or \texttt{emitter} anchor, but not the generic ones like \texttt{G}.
+
+\begin{LTXexample}[varwidth=true, basicstyle=\footnotesize\ttfamily]
+\begin{circuitikz}[scale=0.8]
+    \draw (0,5) node[nujt]{} ++(2,0) node[pujt]{}
+    ++(2,0) node[nujt, tr circle]{} ++(2,0)
+    node[pujt, tr circle]{};
+    \ctikzset{transistors/arrow pos=end}
+    \draw (0,2.5) node[nujt](A){} ++(2,0) node[pujt]{}
+    ++(2,0) node[nujt, tr circle]{} ++(2,0)
+    node[pujt, tr circle](C){};
+    \draw (0,0) node[nujt, nobase](B){} ++(2,0)
+    node[pujt, nobase]{} ++(2,0)
+    node[nujt, tr circle, nobase]{} ++(2,0)
+    node[pujt, tr circle, nobase](D){};
+    % "E" anchor follows the nobase option:
+    \draw[red] (A.E) |- (B.E) (C.E) |- (D.E);
 \end{circuitikz}
 \end{LTXexample}
 
@@ -3370,6 +3454,9 @@ Finally, double-gated components (MOSes, FETs, IGBTs) have an extra anchor \text
                 node[right, font=\tiny]{centergap};
     \end{circuitikz}
 \end{LTXexample}
+
+For UJT transistors anchors, see section~\ref{sec:ujt}.
+
 
 \subsubsection{Transistor paths}\label{sec:transasbip}
 

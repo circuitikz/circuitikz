@@ -1,6 +1,13 @@
 <!--- CircuiTikz - Changelog --->
 The major changes among the different CircuiTikZ versions are listed here. See <https://github.com/circuitikz/circuitikz/commits> for a full list of changes.
 
+* Version 1.3.5 (unreleased)
+
+    Power electronics devices are the main characters in this release: PUT, GTOs, a new style for thyristors.
+
+    - Added UJT transistors and GTO devices (suggested by JetherReis, https://github.com/circuitikz/circuitikz/issues/522)
+    - Added (as an option) a different, more compact style for thyristor-type devices.
+
 * Version 1.3.4 (2021-04-20)
 
     New things, like configurable modifier thickness, ferroelectric devices, and several transistor tweaks. Importantly, a bug that hindered compatibility with the internal Ti*k*Z `circuits` library (introduced in 1.3.3) has been fixed.
