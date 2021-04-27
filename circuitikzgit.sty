@@ -12,8 +12,8 @@
 
 \NeedsTeXFormat{LaTeX2e}
 
-\def\pgfcircversion{1.3.5-unreleased-d9deac1}
-\def\pgfcircversiondate{2021/04/25}
+\def\pgfcircversion{1.3.5-unreleased-c58cff5}
+\def\pgfcircversiondate{2021/04/27}
 
 \ProvidesPackage{circuitikzgit}
 [\pgfcircversiondate{} The CircuiTikz circuit drawing package version \pgfcircversion]
@@ -18650,6 +18650,7 @@
 % powerelectronic blocks
 \ctikzset{bipoles/sacdc/width/.initial=.7}
 \ctikzset{bipoles/sdcac/width/.initial=.7}
+\ctikzset{bipoles/sdcdc/width/.initial=.7}
 \ctikzset{bipoles/tacdc/width/.initial=.7}
 \ctikzset{bipoles/tdcac/width/.initial=.7}
 \ctikzset{quadpoles/gridnode/width/.initial=.7} %not sure if quadpole?
@@ -20130,6 +20131,84 @@
 }
 
 
+%% dc/dc converter
+\pgfcircdeclarebipolescaled{blocks}
+{
+    \anchor{dc1}{
+        \northeast
+        \pgf@y=.4\pgf@y
+        \pgf@x=-\pgf@x
+    }
+    \anchor{dc2}{
+        \northeast
+        \pgf@y=-.4\pgf@y
+        \pgf@x=-\pgf@x
+    }
+}
+{\ctikzvalof{bipoles/sdcdc/width}}
+{sdcdc}
+{\ctikzvalof{bipoles/sdcdc/width}}
+{\ctikzvalof{bipoles/sdcdc/width}}
+{
+    \pgf@circ@res@step = \ctikzvalof{bipoles/sdcdc/width}\pgf@circ@scaled@Rlen
+    \divide \pgf@circ@res@step by 2
+
+    \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@zero}}
+    \pgf@circ@res@other = \pgf@circ@res@left
+    \advance\pgf@circ@res@other by \pgf@circ@res@step
+
+    \ifpgf@circuit@dashed
+        \pgfsetdash{{0.1cm}{0.1cm}}{0cm}
+    \fi
+
+    % draw outer box
+    \pgf@circ@twoportbox
+
+    \ifpgf@circuit@inputarrow
+        {
+            \advance \pgf@circ@res@left by -.5\ctikzvalof{bipoles/thickness}\pgfstartlinewidth
+            \pgftransformshift{\pgfpoint{\pgf@circ@res@left}{0pt}}
+            \pgfnode{inputarrow}{tip}{}{pgf@inputarrow}{\pgfusepath{fill}}
+        }
+    \fi
+
+    % rotate inner symbol
+    \def\pgfcircmathresult{\expandafter\pgf@circ@stripdecimals\pgf@circ@direction\pgf@nil}
+    \ifnum \pgfcircmathresult > 45 \ifnum \pgfcircmathresult < 135
+        \pgftransformrotate{270}
+    \fi\fi
+    \ifnum \pgfcircmathresult > 134 \ifnum \pgfcircmathresult < 225  % 134 degree, because >= 135 is not possible
+        \pgftransformrotate{180}
+    \fi\fi
+    \ifnum \pgfcircmathresult > 225 \ifnum \pgfcircmathresult < 315
+        \pgftransformrotate{90}
+    \fi\fi
+
+    % draw inner symbol
+    \pgfsetdash{}{0pt}	% always draw solid line for inner symbol
+    \pgfsetarrows{-} %never draw arrows
+    \pgfsetlinewidth{\pgfstartlinewidth}
+    \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@down}}
+    \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@up}}
+    \pgfusepath{draw}
+
+    % draw equal sign
+    \pgfpathmoveto{\pgfpoint{.2\pgf@circ@res@step}{-.375\pgf@circ@res@step}}
+    \pgfpathlineto{\pgfpoint{0.7\pgf@circ@res@step}{-0.375\pgf@circ@res@step}}
+    \pgfusepath{draw}
+    \pgfpathmoveto{\pgfpoint{.2\pgf@circ@res@step}{-.625\pgf@circ@res@step}}
+    \pgfpathlineto{\pgfpoint{0.7\pgf@circ@res@step}{-0.625\pgf@circ@res@step}}
+    \pgfusepath{draw}
+
+    % draw equal sign
+    \pgfpathmoveto{\pgfpoint{-.2\pgf@circ@res@step}{.375\pgf@circ@res@step}}
+    \pgfpathlineto{\pgfpoint{-0.7\pgf@circ@res@step}{0.375\pgf@circ@res@step}}
+    \pgfusepath{draw}
+    \pgfpathmoveto{\pgfpoint{-.2\pgf@circ@res@step}{.625\pgf@circ@res@step}}
+    \pgfpathlineto{\pgfpoint{-0.7\pgf@circ@res@step}{0.625\pgf@circ@res@step}}
+    \pgfusepath{draw}
+}
+
 
 %% single phase dc/ac converter
 \pgfcircdeclarebipolescaled{blocks}
@@ -20450,6 +20529,7 @@
 \pgfcirc@activate@bipole@simple{l}{detector}
 \pgfcirc@activate@bipole@simple{l}{sacdc}
 \pgfcirc@activate@bipole@simple{l}{sdcac}
+\pgfcirc@activate@bipole@simple{l}{sdcdc}
 \pgfcirc@activate@bipole@simple{l}{tacdc}
 \pgfcirc@activate@bipole@simple{l}{tdcac}
 % %>>>
