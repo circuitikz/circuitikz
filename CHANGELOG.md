@@ -7,6 +7,7 @@ The major changes among the different CircuiTikZ versions are listed here. See <
 
     - Added UJT transistors and GTO devices (suggested by JetherReis, https://github.com/circuitikz/circuitikz/issues/522)
     - Added (as an option) a different, more compact style for thyristor-type devices.
+    - Added a DC/DC converter block for symmetry (suggested by Pratched, https://github.com/circuitikz/circuitikz/issues/529)
 
 * Version 1.3.4 (2021-04-20)
 
