@@ -4,25 +4,27 @@ The major changes among the different CircuiTikZ versions are listed here. See <
 * Version 1.3.5 (unreleased)
 
     Power electronics devices are the main characters in this release: PUT, GTOs, a new style for thyristors.
+    Fixed a nasty bug in rotary switches "in" anchor positioning in some cases.
 
-    - Added UJT transistors and GTO devices (suggested by JetherReis, https://github.com/circuitikz/circuitikz/issues/522)
+    - Added UJT transistors and GTO devices ([suggested by JetherReis](https://github.com/circuitikz/circuitikz/issues/522))
     - Added (as an option) a different, more compact style for thyristor-type devices.
-    - Added a DC/DC converter block for symmetry (suggested by Pratched, https://github.com/circuitikz/circuitikz/issues/529)
+    - Added a DC/DC converter block for symmetry ([suggested by Pratched](https://github.com/circuitikz/circuitikz/issues/529))
     - In the manual, separate the component usage chapter from the big component list
+    - Fix wrong rotary switch "in" anchors for switches with more than 180 degrees coverage ([see bug](https://github.com/circuitikz/circuitikz/issues/532))
 
 * Version 1.3.4 (2021-04-20)
 
-    New things, like configurable modifier thickness, ferroelectric devices, and several transistor tweaks. Importantly, a bug that hindered compatibility with the internal Ti*k*Z `circuits` library (introduced in 1.3.3) has been fixed.
+    New things, like configurable modifier thickness, ferroelectric devices, and several transistor tweaks.
+    Importantly, a bug that hindered compatibility with the internal Ti*k*Z `circuits` library (introduced in 1.3.3) has been fixed.
 
     - Added separate configuration for the line thickness of resistors, capacitors, and inductors modifiers
-    - Added ferroelectric capacitors and ferroelectric gate MOS/FETs (suggested by Mayeul Cantan, https://github.com/circuitikz/circuitikz/issues/515)
+    - Added ferroelectric capacitors and ferroelectric gate MOS/FETs ([suggested by Mayeul Cantan](https://github.com/circuitikz/circuitikz/issues/515))
     - Added an option to fill the gate gap in MOSes, FETs and IGBTs with a color
     - Added a "centergap" anchor for transistors
     - Added the option "nogate" to the `hemt` symbol
     - Fixed a bug in thermistors not respecting their class line thickness
-    - Fixes in the manual (copy and paste of snippets without numbers, correct old usage of `siunitx`, factor out repetitions in the preamble; thanks to Ulrike Fischer:
-    https://tex.stackexchange.com/a/57160/38080)
-    - Fixed a bug introduced in 1.3.3 that would reduce compatibility with the `circuits` internal library; reported by JetherReis (https://github.com/circuitikz/circuitikz/issues/519)
+    - Fixes in the manual (copy and paste of snippets without numbers, correct old usage of `siunitx`, factor out repetitions in the preamble; [thanks to Ulrike Fischer](https://tex.stackexchange.com/a/57160/38080).
+    - Fixed a bug introduced in 1.3.3 that would reduce compatibility with the `circuits` internal library; [reported by JetherReis]( https://github.com/circuitikz/circuitikz/issues/519))
 
 * Version 1.3.3 (2021-04-04)
 
@@ -45,7 +47,7 @@ The major changes among the different CircuiTikZ versions are listed here. See <
     - Added the simplified (2-waves) highpass and lowpass blocks
     - Added graphene FETs (suggested by Cees Keyer)
     - Added left/right anchors to transistors
-    - Fixed a bug in flip-flops (https://tex.stackexchange.com/q/587213/38080)
+    - Fixed a [bug in flip-flops](https://tex.stackexchange.com/q/587213/38080)
 
 * Version 1.3.1 (2021-02-20)
 
