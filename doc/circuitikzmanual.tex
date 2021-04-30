@@ -2224,6 +2224,45 @@ You can do the same with the \texttt{american controlled voltage sources}, subst
 
 You can change the scale of all the instruments (including the current loops) by setting the key \texttt{instruments/scale} to something different from the default \texttt{1.0}.
 
+\paragraph{Oscilloscope waveform.} You can change the waveform shown in the oscilloscope ``screen''\footnote{Suggested by \href{https://tex.stackexchange.com/q/595062/38080}{Mario Tafur on TeX.SX}}. To change it, you just set the key \texttt{bipoles/oscope/waveform} to one of the available shape. You have available the shapes in the following list (the default is \texttt{ramps}):
+
+\begin{LTXexample}[pos=t, basicstyle=\small\ttfamily]
+\begin{circuitikz}
+    \foreach [count=\i] \wvf in {ramps, sin, square, triangle, lissajous, zero, none} {
+        \ctikzset{bipoles/oscope/waveform=\wvf}
+        \draw ({2*\i},1.4) node[oscopeshape](O){}
+              ({2*\i},0.65) node[anchor=base]{\texttt{\wvf}};
+    }
+    \ctikzset{bipoles/oscope/width=1.0}
+    \foreach [count=\i] \wvf in {ramps, sin, square, triangle, lissajous, zero, none} {
+        \ctikzset{bipoles/oscope/waveform=\wvf}
+        \draw ({2*\i},0) node[oscopeshape]{};
+    }
+\end{circuitikz}
+\end{LTXexample}
+
+If you want more or different shapes, you can define your owns, but you have to use low-level \texttt{pgf} commands (see part IX, ``The Basic Layer'', in the PGF/\TikZ{} manual). The code is executed into a \verb|\pgfscope| \dots \verb|\endpgfscope| environment, and it must use the path built with a \verb|\pgfusepath|. The coordinates have been scaled so that the external box of the scope is a rectangle between \texttt{(-1cm, -1cm)} and \texttt{(1cm, 1cm)}; the oscilloscope grid is fixed and painted between \texttt{(-0.75cm, -0.5cm)} and \texttt{(0,75cm, 0.5cm)}. If you stretch the scope with the \texttt{\dots width} or \texttt{\dots height} keys, the drawing will be stretched too.
+
+\begin{LTXexample}[varwidth=t, basicstyle=\small\ttfamily]
+    \ctikzset{%
+    bipoles/oscope/waveform/mywave/.code={%
+        \pgfsetcolor{red}
+        \pgfpathmoveto{\pgfpoint{-.75cm}{-.5cm}}
+        \pgfpathlineto{\pgfpoint{.75cm}{.5cm}}
+        \pgfusepath{draw}
+        \pgfsetcolor{green}
+        \pgfpathmoveto{\pgfpoint{-.75cm}{.5cm}}
+        \pgfpathlineto{\pgfpoint{.75cm}{-.5cm}}
+        \pgfusepath{draw}
+    }}
+    \begin{circuitikz}
+        \ctikzset{bipoles/oscope/waveform=mywave}
+        \draw (0,0) node[oscopeshape]{};
+    \end{circuitikz}
+\end{LTXexample}
+
+
+
 \subsubsection{Rotation-invariant elements}
 
 The \texttt{oscope} element will not rotate the ``graph'' shown with the component:

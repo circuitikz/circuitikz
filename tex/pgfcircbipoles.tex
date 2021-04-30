@@ -4787,6 +4787,62 @@
 }
 
 % oscilloscope, suggested by @nobrl https://github.com/circuitikz/circuitikz/issues/176
+%
+% oscilloscope waveforms
+
+\ctikzset{%
+    bipoles/oscope/waveform/sin/.code={%
+        \pgfpathmoveto{\pgfpoint{-0.6cm}{0cm}}
+        \pgfpathsine{\pgfpoint{0.3cm}{0.4cm}}
+        \pgfpathcosine{\pgfpoint{0.3cm}{-0.4cm}}
+        \pgfpathsine{\pgfpoint{0.3cm}{-0.4cm}}
+        \pgfpathcosine{\pgfpoint{0.3cm}{0.4cm}}
+        \pgfusepath{draw}
+    },
+    bipoles/oscope/waveform/ramps/.code={%
+        \pgfpathmoveto{\pgfpoint{-0.75cm}{-0.25cm}}
+        \pgfpathlineto{\pgfpoint{-0.05cm}{0.25cm}}
+        \pgfpathlineto{\pgfpoint{-0.05cm}{-0.25cm}}
+        \pgfpathlineto{\pgfpoint{0.65cm}{0.25cm}}
+        \pgfpathlineto{\pgfpoint{0.65cm}{-0.25cm}}
+        \pgfusepath{draw}
+    },
+    bipoles/oscope/waveform/square/.code={%
+        \pgfpathmoveto{\pgfpoint{-0.75cm}{-0.25cm}}
+        \pgfpathlineto{\pgfpoint{-0.6cm}{-0.25cm}}
+        \pgfpathlineto{\pgfpoint{-0.6cm}{0.25cm}}
+        \pgfpathlineto{\pgfpoint{0cm}{0.25cm}}
+        \pgfpathlineto{\pgfpoint{0cm}{-0.25cm}}
+        \pgfpathlineto{\pgfpoint{0.6cm}{-0.25cm}}
+        \pgfpathlineto{\pgfpoint{0.6cm}{0.25cm}}
+        \pgfpathlineto{\pgfpoint{0.75cm}{0.25cm}}
+        \pgfusepath{draw}
+    },
+    bipoles/oscope/waveform/triangle/.code={%
+        \pgfpathmoveto{\pgfpoint{-0.75cm}{0cm}}
+        \pgfpathlineto{\pgfpoint{-0.6cm}{-0.25cm}}
+        \pgfpathlineto{\pgfpoint{-0.3cm}{0.25cm}}
+        \pgfpathlineto{\pgfpoint{0cm}{-0.25cm}}
+        \pgfpathlineto{\pgfpoint{0.3cm}{0.25cm}}
+        \pgfpathlineto{\pgfpoint{0.6cm}{-0.25cm}}
+        \pgfpathlineto{\pgfpoint{0.75cm}{0cm}}
+        \pgfusepath{draw}
+    },
+    bipoles/oscope/waveform/zero/.code={
+        \pgfpathmoveto{\pgfpoint{-0.75cm}{0cm}}
+        \pgfpathlineto{\pgfpoint{0.75cm}{0cm}}
+        \pgfusepath{draw}
+        },%
+    bipoles/oscope/waveform/lissajous/.code={%
+        \pgfpathellipse{\pgfpoint{0cm}{0cm}}
+            {\pgfpoint{0.5cm}{0.35cm}}{\pgfpoint{-0.3cm}{0.2cm}}
+        \pgfusepath{draw}
+    },
+    bipoles/oscope/waveform/none/.code={},%
+}
+% default waveform (backward compatible)
+\ctikzset{bipoles/oscope/waveform/.initial=ramps}
+
 \pgfcircdeclarebipolescaled{instruments}
 {
     \anchor{in 1}{\southwest\pgf@y=0.75\pgf@y\pgf@x=0.4\pgf@x}
@@ -4812,8 +4868,6 @@
     \pgfscope
         \pgfsetcornersarced{\pgfpoint{\pgf@circ@res@step}{\pgf@circ@res@step}}
         \pgfpathrectanglecorners{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@down}}{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@up}}
-        % this would create a round (analog?) scope...
-        % \pgfpathellipse{\pgfpointorigin}{\pgfpoint{0}{\pgf@circ@res@up}}{\pgfpoint{\pgf@circ@res@left}{0}}
         \pgf@circ@draworfill
     \endpgfscope
     % get the rotation
@@ -4830,23 +4884,24 @@
         \pgfscope
             \pgfsetlinewidth{0.5\pgfstartlinewidth}
             \pgfpathmoveto{\pgfpoint{0.75\pgf@circ@res@left}{0.25\pgf@circ@res@down}}
-            \pgfpathgrid[stepx=\pgf@circ@res@step, stepy=\pgf@circ@res@step]%
+            % the "almost one" make the grid complete most of the time --- beware of antialiasing
+            \pgfpathgrid[stepx=0.995\pgf@circ@res@step, stepy=0.995\pgf@circ@res@step]%
             {\pgfpoint{0.75\pgf@circ@res@left}{0.5\pgf@circ@res@down}}
             {\pgfpoint{0.75\pgf@circ@res@right}{0.5\pgf@circ@res@up}}
             \pgfsetstrokeopacity{0.5}
             \pgfusepath{draw}
         \endpgfscope
-        % function displayed, thanks to
-        \pgf@circ@setlinewidth{bipoles}{\pgfstartlinewidth}
-        \pgfpathmoveto{\pgfpoint{0.75\pgf@circ@res@left}{0.25\pgf@circ@res@down}}
-        \pgfpathlineto{\pgfpoint{0.05\pgf@circ@res@left}{0.25\pgf@circ@res@up}}
-        \pgfpathlineto{\pgfpoint{0.05\pgf@circ@res@left}{0.25\pgf@circ@res@down}}
-        \pgfpathlineto{\pgfpoint{0.65\pgf@circ@res@right}{0.25\pgf@circ@res@up}}
-        \pgfpathlineto{\pgfpoint{0.65\pgf@circ@res@right}{0.25\pgf@circ@res@down}}
-        \pgfusepath{draw}
+        % function displayed
+        \pgfscope
+            \pgfmathsetmacro{\@@scalex}{\pgf@circ@res@right/1cm}
+            \pgfmathsetmacro{\@@scaley}{\pgf@circ@res@up/1cm}
+            \pgftransformxscale{\@@scalex}
+            \pgftransformyscale{\@@scaley}
+            \pgf@circ@setlinewidth{bipoles}{\pgfstartlinewidth}
+            \pgfkeys{\circuitikzbasekey/bipoles/oscope/waveform/\ctikzvalof{bipoles/oscope/waveform}}
+        \endpgfscope
     \endpgfscope
 }
-
 % generic round meter with always horizontal text, no arrow
 \pgfcircdeclarebipolescaled{instruments}
 {}
