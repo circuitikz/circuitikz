@@ -89,4 +89,35 @@
     }}}%
 }
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% subcircuits (experimental)
+%%
+%% introduced by Romano Giannetti around April 2021
+%%
+%%
+\newbox\ctikz@scratchbox
+\long\def\ctikzsubcircuitdef#1#2#3{%
+    \expandafter\gdef\csname #1@Anchor\endcsname{}
+    \expandafter\gdef\csname #1@setanchors\endcsname{
+        \setbox\ctikz@scratchbox=\hbox{%
+        \begin{circuitikz}
+        \draw (0,0) \csname#1\endcsname{T-#1}{};
+        \foreach [count=\i] \anchor in {#2}
+        % reference anchor is -center
+        \draw (0,{2-\i/2}) let \p1 = ($(T-#1-subckt@reference)-(T-#1-\anchor)$) in
+            node[right]{\anchor: \x1,\y1 \expandafter\xdef\csname #1@Anchor\anchor\endcsname{++(\x1,\y1)}};
+        \end{circuitikz}
+        }
+    }
+    \expandafter\gdef\csname#1\endcsname##1##2{\csname#1aux\endcsname{##1}{\csname #1@Anchor##2\endcsname}}
+    \expandafter\gdef\csname#1aux\endcsname##1##2{%
+    % move to the anchor
+    ##2
+    % reference anchor should be -reference
+    coordinate (##1-subckt@reference)
+    #3
+    }
+}
+\long\def\ctikzsubcircuitactivate#1{\csname #1@setanchors\endcsname}
+
 \endinput

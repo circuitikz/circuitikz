@@ -4,15 +4,17 @@ The major changes among the different CircuiTikZ versions are listed here. See <
 * Version 1.3.5 (unreleased)
 
     Power electronics devices are the main characters in this release: PUT, GTOs, a new style for thyristors.
+    Additionally, an **experimental** support for subcircuits has been added; it could change in future.
     Fixed a nasty bug in rotary switches "in" anchor positioning in some cases.
 
+    - Added support for creating and using sub-circuits
     - Added UJT transistors and GTO devices ([suggested by JetherReis](https://github.com/circuitikz/circuitikz/issues/522))
     - Added (as an option) a different, more compact style for thyristor-type devices.
+    - Added a photovoltaic module ([suggested by André Alves](https://github.com/circuitikz/circuitikz/issues/524))
     - Added a DC/DC converter block for symmetry ([suggested by Pratched](https://github.com/circuitikz/circuitikz/issues/529))
     - Added the possibility to change the waveforms shown in the oscilloscope ([suggested by Mario Tafur](https://tex.stackexchange.com/q/595062/38080))
     - In the manual, separate the component usage chapter from the big component list
     - Fix wrong rotary switch "in" anchors for switches with more than 180 degrees coverage ([see bug](https://github.com/circuitikz/circuitikz/issues/532))
-    - Added a photovoltaic module ([suggested by André Alves](https://github.com/circuitikz/circuitikz/issues/524))
 
 * Version 1.3.4 (2021-04-20)
 
