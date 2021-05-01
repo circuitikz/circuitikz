@@ -12,6 +12,7 @@ The major changes among the different CircuiTikZ versions are listed here. See <
     - Added the possibility to change the waveforms shown in the oscilloscope ([suggested by Mario Tafur](https://tex.stackexchange.com/q/595062/38080))
     - In the manual, separate the component usage chapter from the big component list
     - Fix wrong rotary switch "in" anchors for switches with more than 180 degrees coverage ([see bug](https://github.com/circuitikz/circuitikz/issues/532))
+    - Added a photovoltaic module ([suggested by André Alves](https://github.com/circuitikz/circuitikz/issues/524))
 
 * Version 1.3.4 (2021-04-20)
 
