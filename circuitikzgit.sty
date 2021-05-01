@@ -12,8 +12,8 @@
 
 \NeedsTeXFormat{LaTeX2e}
 
-\def\pgfcircversion{1.3.5-unreleased-0d6e0da}
-\def\pgfcircversiondate{2021/04/30}
+\def\pgfcircversion{1.3.5-unreleased-dab1bf7}
+\def\pgfcircversiondate{2021/05/01}
 
 \ProvidesPackage{circuitikzgit}
 [\pgfcircversiondate{} The CircuiTikz circuit drawing package version \pgfcircversion]
@@ -5279,6 +5279,8 @@
 \ctikzset{bipoles/esource/width/.initial=.60}
 \ctikzset{bipoles/pvsource/height/.initial=.60}
 \ctikzset{bipoles/pvsource/width/.initial=.60}
+\ctikzset{bipoles/pvmodule/height/.initial=.60}
+\ctikzset{bipoles/pvmodule/width/.initial=1.20}
 \ctikzset{bipoles/isource/height/.initial=.60}
 \ctikzset{bipoles/isource/width/.initial=.60}
 \ctikzset{bipoles/oosource/height/.initial=.60}
@@ -5600,7 +5602,6 @@
     \endpgfscope
 }
 
-
 %% PV Source
 \pgfcircdeclarebipolescaled{sources}
 {}
@@ -5640,6 +5641,35 @@
         \pgfusepath{draw}
     \endpgfscope
 
+}
+
+%% PV Module - contributed by Andre Alves
+\pgfcircdeclarebipolescaled{sources}
+{}
+{\ctikzvalof{bipoles/pvmodule/height}}
+{pvmodule}
+{\ctikzvalof{bipoles/pvmodule/height}}
+{\ctikzvalof{bipoles/pvmodule/width}}
+{
+
+    % Draw rectangle
+    \pgf@circ@setlinewidth{bipoles}{\pgfstartlinewidth}
+    \pgfpathmoveto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@up}}
+    \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@down}}
+    \pgfpathlineto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@down}}
+    \pgfpathlineto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@up}}
+    \pgfpathclose
+    \pgf@circ@draworfill
+
+    % Draw triangle
+  	\pgfpathmoveto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@up}}
+  	\pgfpathlineto{\pgfpoint{0.5\pgf@circ@res@right}{0}}
+  	\pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@down}}
+  	\pgfpathmoveto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@up}}
+  	\pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@down}}
+    \pgf@circ@draworfill
+
+  	\pgfusepath{draw}
 }
 
 %% Empty Source
@@ -6548,6 +6578,10 @@
 \pgfcirc@style@to@style{triangle voltage source}{tV}
 
 \pgfcirc@activate@bipole@simple@opt{v}{pvsource}{%
+    \circuitikzbasekey/bipole/is voltage=true,
+    \circuitikzbasekey/bipole/is voltageoutsideofsymbol=true}
+
+\pgfcirc@activate@bipole@simple@opt{v}{pvmodule}{%
     \circuitikzbasekey/bipole/is voltage=true,
     \circuitikzbasekey/bipole/is voltageoutsideofsymbol=true}
 
