@@ -1472,6 +1472,7 @@ This kind of style will \emph{add} to the existing style.  If you want to have a
     % Resistors
     resistors/scale=0.8,
 [...]
+    }}
 \end{lstlisting}
 
 If you want to add a setting to your style file that has been recently added to the package (for example, the thyristor compact shapes added in \texttt{1.3.5}), but you want that your style file is still compatible with older versions of \Circuitikz, you can use the \texttt{.try} statement:
@@ -1482,6 +1483,164 @@ If you want to add a setting to your style file that has been recently added to 
     diodes/thickness=1.0,
     thyristor style/.try=compact,
 \end{lstlisting}
+
+\subsection{Subcircuits}
+
+Starting from version \texttt{1.3.5}, there is an \textbf{experimental}\footnote{That means that in future releases the interface can change; use it at your risk and if you need it to continue working as-is, please use the \href{https://circuitikz.github.io/circuitikz/}{GitHub project page} and download and save the \texttt{circuitikzgit.sty} file for future-proof use!} support for generating sub-circuits, or circuits blocks. The creation and use of subcircuits is somewhat limited, to keep them simple and easy to define and maintain.
+
+
+A subcircuit is basically a path (and just one path!) of generic \TikZ{} instructions, with a series of accessible coordinates that behave more or less like anchors in the ``real'' shapes. The basic limitation is that a subcircuit can be moved, replicated and placed around but it can't be easily personalized. Even if scaling and rotation is in principle possible, it is not easily done. Nevertheless, they can be quite useful to build complex components and reusable blocks.
+
+\subsubsection{Subcircuit definition}
+
+To define a block you use the \verb|\ctikzsubcircuitdef| macro; this macro has 3 arguments:
+\begin{itemize}
+    \item the first argument is the name of the subcircuit, and it must form a valid TeX command name when prepended with a backslash: so just letters (no spaces, nor numbers, nor symbols like underscores etc.);
+    \item the second one is a comma-separated list of anchors names; here you can use whatever you can use for naming a coordinate or a node (so it's much more relaxed that the first one);
+    \item finally, the commands that will draw the circuit. You must suppose you are in a \verb|\draw| command, with the start coordinate already set-up. You can (and should) use \verb|#1| as the name of the current node, and you \emph{must} define the coordinates of all the anchors listed before as \texttt{coordinate(\#-\emph{anchorname})}. You should \textbf{not} finish the path here and use \textbf{only relative coordinates or named ones} .
+\end{itemize}
+
+Let's see that with an example:
+
+\ctikzsubcircuitdef{optovishay}{in 1, out 1, in 2, out 2, center}{%
+    % reference anchor is -center
+    coordinate(#1-center)
+    (#1-center) +(-1.2,-1) rectangle +(1.2,1)
+    (#1-center) ++(-1.2,0.8) coordinate (#1-in 1)
+    (#1-center) ++(-1.2,-0.8) coordinate (#1-in 2)
+    (#1-center) ++(1.2,0.8) coordinate (#1-out 1)
+    (#1-center) ++(1.2,-0.8) coordinate (#1-out 2)
+    (#1-center) ++(0,1) coordinate (#1-up)
+    (#1-in 1) -- ++(0.5,0) coordinate(#1-tmp)
+        to[leD*, diodes/scale=0.6, led arrows from cathode]
+        (#1-tmp|- #1-in 2) -- (#1-in 2)
+    (#1-out 1) -- ++(-0.5,0) coordinate(#1-tmp)
+        to[pD*, diodes/scale=0.4, mirror]  ++(0,-0.5)
+        edge[densely dashed] ++(0,-0.533) ++(0,-0.566)
+        to[pD*, diodes/scale=0.4,mirror] (#1-tmp|- #1-out 2) -- (#1-out 2)
+    % leave the position of the path at the center
+    (#1-center)
+}
+\begin{lstlisting}
+\ctikzsubcircuitdef{optovishay}{in 1, out 1, in 2, out 2, center}{%
+    % reference anchor is -center
+    coordinate(#1-center)
+    (#1-center) +(-1.2,-1) rectangle +(1.2,1)
+    (#1-center) ++(-1.2,0.8) coordinate (#1-in 1)
+    (#1-center) ++(-1.2,-0.8) coordinate (#1-in 2)
+    (#1-center) ++(1.2,0.8) coordinate (#1-out 1)
+    (#1-center) ++(1.2,-0.8) coordinate (#1-out 2)
+    (#1-center) ++(0,1) coordinate (#1-up)
+    (#1-in 1) -- ++(0.5,0) coordinate(#1-tmp)
+        to[leD*, diodes/scale=0.6, led arrows from cathode]
+        (#1-tmp|- #1-in 2) -- (#1-in 2)
+    (#1-out 1) -- ++(-0.5,0) coordinate(#1-tmp)
+        to[pD*, diodes/scale=0.4, mirror]  ++(0,-0.5)
+        edge[densely dashed] ++(0,-0.533) ++(0,-0.566)
+        to[pD*, diodes/scale=0.4,mirror] (#1-tmp|- #1-out 2) -- (#1-out 2)
+    % leave the position of the path at the center
+    (#1-center)
+}
+\end{lstlisting}
+
+Our element is a symbol for an optocoupler; in this case is the symbol used for once cell of the double \href{https://www.vishay.com/docs/84639/vo1263aa.pdf}{Vishay vo1263 device}.
+
+The name of the subcircuit is \texttt{optovishay} --- notice we can use only letters here, upper or lowercase, and nothing more.
+Then we have a series of anchor names; here we can use letters, numbers, spaces and some symbol --- but avoid the dot (\texttt{.}) and the hyphen (\texttt{-}).
+Additionally, the anchor named \texttt{subckt@reference} is reserved and shouldn't be used.
+If you use spaces, be on the safe side and \emph{never} use two or more consecutive spaces.
+
+After that, you have to draw your subcircuit as if you where into a \verb|\draw| command, starting from a generic point.
+In this case, we decide to draw the circuit around this generic point so that it will result to be the center of the block; so as a first thing, we ``mark'' the position of the center anchor, with \texttt{coordinate(\#1-center)}.
+The \texttt{\#1} will be substituted with the specific name of the subcircuit's instance later --- so if you then call one instance of the optocoupler \texttt{opto1}, that coordinate will be called \texttt{opto1-center}.
+
+We continue by defining all our anchors (there is no need to do that at the start, but it's handy because then you can use them).
+You \textbf{must} define all the anchors!
+
+\textbf{Important}: all the coordinates used must be either relative, or named in the form \texttt{\#1-something}; absolute coordinate will not work when instantiating the block.
+The block is thought to be used inside a path specification, so the idea is not to end the path --- that means that changing line styles or colors is at best difficult.
+You can still use \texttt{edge}s, though (see~\ref{faqs:dashed}).
+
+After that, we draw our circuit; in this case a LED and a couple of smaller photodiodes will do.
+We also define a coordinate \texttt{-up} (you can define more coordinates, in addition to the anchors, or name elements with \texttt{name=\#1-\emph{something}} for later access) for adding text.
+
+\subsubsection{Using the subcircuit}
+
+To use the subcircuit, an additional step is needed. Somewhere you have to \emph{activate} it. This is needed to calculate the relative positions of anchors using the current set of style parameters. The normal place is to activate it just before usage; to do that you use the command \verb|\ctikzsubcircuitactivate| with the name of the subcircuit. That will define a new command, \texttt{\textbackslash\emph{nameofthesubcircuit}} that you can use then in your paths.
+
+So to check your subcircuit while defining it you can use this simple snippet:
+\begin{LTXexample}[varwidth=true]
+\ctikzsubcircuitactivate{optovishay}
+\begin{tikzpicture}
+    \draw (0,0) \optovishay{one}{};
+    \node [above] at (one-up) {O1};
+    \draw[color=blue] (one-out 1) -- ++(1,0)
+        \optovishay{two}{in 1};
+    \node [above] at (two-up) {O2};
+\end{tikzpicture}
+\end{LTXexample}
+
+\paragraph{Scaling, flipping and rotating subcircuits}
+
+To scale and rotate a subcircuit you have to include it into a \texttt{scope} with the appropriate \texttt{scale} and rotation commands. Notice that, as in general in \Circuitikz, global scales that affect rotation works only if \texttt{transform shape} is issued (see~\ref{sec:bugs}); nesting \texttt{transform shape} normally works, but it has been really lightly tested.
+
+\begin{LTXexample}[varwidth=true]
+\ctikzsubcircuitactivate{optovishay}
+\begin{tikzpicture}[scale=0.8, transform shape]
+    \draw (0,0) \optovishay{three}{};
+    \draw (three-out 1) -- ++(0.5,0) coordinate(here);
+    \begin{scope}[xscale=-1,rotate=-45,transform shape]
+        \draw (here) \optovishay{four}{out 1};
+    \end{scope}
+    \draw[blue] (three-out 2) -| (four-out 2);
+\end{tikzpicture}
+\end{LTXexample}
+
+\subsubsection{Parameters in subcircuits}
+
+There are no additional parameters definable for subcircuit shapes; this is a bit of a pity, because sometime they could be useful, especially for labels of objects.
+Given the need to use \texttt{transform shape} to translate and rotate them, though, it is better not to add invariant-direction things (like text) into the subcircuit, unless you are sure you will just translate them.
+One possibility is to use additional macros and anchors for positioning, like in the following example.
+
+Suppose you have defined
+
+\begin{lstlisting}
+    \ctikzsubcircuitdef{divider}{in, out}{%
+        coordinate (#1-in) to[R, l=~, name=#1-rh, -*] ++(2,0)
+        coordinate(#1-tmp) to[R, l=~, name=#1-rl] ++(0,-2)
+        node[tlground]{} (#1-tmp) --++(0.5,0) coordinate(#1-out)
+    }
+\end{lstlisting}
+
+\ctikzsubcircuitdef{divider}{in, out}{%
+    coordinate (#1-in) to[R, l=~, name=#1-rh, -*] ++(2,0)
+    coordinate(#1-tmp) to[R, l=~, name=#1-rl] ++(0,-2)
+    node[tlground]{} (#1-tmp) --++(0.5,0) coordinate(#1-out)
+}
+
+then you can additionally define:
+
+\begin{lstlisting}
+    \newcommand{\mydiv}[4]{
+        \divider{#1}{#2} (#1-rh.n) node[above]{#3}
+        (#1-rl.n) node[right]{#4} (#1-out)
+    }
+\end{lstlisting}
+
+\newcommand{\mydiv}[4]{
+    \divider{#1}{#2} (#1-rh.n) node[above]{#3}
+    (#1-rl.n) node[right]{#4} (#1-out)
+}
+
+And finally do:
+\begin{LTXexample}[varwidth=true]
+\ctikzsubcircuitactivate{divider}
+\begin{tikzpicture}
+    \draw (0,0) \mydiv{a}{in}{$R_1$}{$R_2$};
+    \draw (a-out) -- \mydiv{b}{in}{$R_3$}{$R_4$};
+\end{tikzpicture}
+\end{LTXexample}
+
 
 \section{The components: list}
 
