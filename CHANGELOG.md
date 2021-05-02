@@ -1,10 +1,11 @@
 <!--- CircuiTikz - Changelog --->
 The major changes among the different CircuiTikZ versions are listed here. See <https://github.com/circuitikz/circuitikz/commits> for a full list of changes.
 
-* Version 1.3.5 (unreleased)
+* Version 1.3.5 (2021-05-02)
 
-    Power electronics devices are the main characters in this release: PUT, GTOs, a new style for thyristors.
-    Additionally, an **experimental** support for subcircuits has been added; it could change in future.
+    Power electronics devices are the main characters in this release: PUT, GTOs, a new style for thyristors, and a photovoltaic module.
+    Additionally, an **experimental** support for subcircuits has been added;
+    it could change in the future.
     Fixed a nasty bug in rotary switches "in" anchor positioning in some cases.
 
     - Added support for creating and using sub-circuits
