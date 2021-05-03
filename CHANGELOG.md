@@ -1,6 +1,10 @@
 <!--- CircuiTikz - Changelog --->
 The major changes among the different CircuiTikZ versions are listed here. See <https://github.com/circuitikz/circuitikz/commits> for a full list of changes.
 
+* version 1.3.6 (unreleased)
+
+    - Fixed a bug in the plotting of `inst amp ra` terminals.
+
 * Version 1.3.5 (2021-05-02)
 
     Power electronics devices are the main characters in this release: PUT, GTOs, a new style for thyristors, and a photovoltaic module.
