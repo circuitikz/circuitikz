@@ -219,8 +219,10 @@ The \texttt{use fpu reciprocal} key seems to have no side effects, but given tha
 Here, we will provide a list of incompabilitys between different version of \Circuitikz. We will try to hold this list short, but sometimes it is easier to break with old syntax than including a lot of switches and compatibility layers. In general, changes that would invalidate a circuit (changes of polarity of components and so on) are almost always protected by a flag; the same is not true for purely aesthetic changes.
 If unsure, you can check the version at your local installation using the macro \verb!\pgfcircversion{}!.
 \begin{itemize}
+    \item Version 1.3.6 fixes several problems with the stacked labels; the most important change is that now the bracing of arguments is respected as in version 1.3.0 for the other labels. The special treatment in stacked labels (and only in stacked labels!) for the (still experimental\footnote{and, really, not advised\dots}) \texttt{siunitx} compact syntax \texttt{<...>} has been removed: it was completely buggy before, and silently ignored, now will throw an error.
     \item Version 1.3.3 fixes the direction of the arrows in tunable elements; before this version, they were more or less random, now the arrow goes from bottom left to top right. You have the option to go back to the old behavior with \texttt{\textbackslash ctikzset\{bipoles/fix tunable direction=false\}}. As a compensation for the fuss, now the arrows are configurable. To learn more, see the FAQ:~\ref{faq:tunable-arrow}.
     \item Version 1.3.1 removes the warning if you do not specify a voltage direction.
+    \item Version 1.3.0 fixes the buggy stripping of braces from labels and annotations (see~\ref{sec:bracing-of-labels}.
     \item After 1.2.7 a big code reorganization (which had the collateral effect of fixing some bug) has been made; no changes should be visible, but a fallback point at 1.2.7 has been added.
     \item You \textbf{must} upgrade to v1.2.7 or newer if you use a \TikZ{} 3.1.8 or 3.1.8a (but better upgrade both packages to the current version). You can check the \TikZ{} version installed using the macro \verb|\pgfversion|.
     \item After v1.2.1: \textbf{Important:} the routine that implements the \texttt{to[...]} component positioning has been rewritten. That should enhance the line joins in paths, and it's safer, but it can potentially change some old behavior.
@@ -6240,7 +6242,7 @@ you can add\footnote{Since version \texttt{1.3.3}} (or remove, with negative val
 \end{circuitikz}
 \end{LTXexample}
 
-\subsubsection{Special symbols in labels and annotations.}
+\subsubsection{Special symbols in labels and annotations.}\label{sec:bracing-of-labels}
 When \TikZ{} processes the options, there will be problems if the label (or annotation, voltage, or current) contains one of the characters $=$ (equal) or $,$ (comma) --- because the parser search for those two characters to delimit the arguments, giving unexpected errors and wrong output.
 These two characters can be protected from the option parser using an extra set of braces.
 
@@ -6302,29 +6304,39 @@ The default orientation of labels is controlled by the options \texttt{smartlabe
 \end{circuitikz}
 \end{LTXexample}
 
-You also can use stacked (two lines) labels.  The example should be self-explanatory: the two lines are specified as \texttt{l2=}\emph{line1}\texttt{ and }\emph{line2}. You can use the keys \texttt{l2 halign} to control horizontal position (\texttt{l}eft, \texttt{c}enter, \texttt{r}ight) and \texttt{l2 valign} to control the vertical one (\texttt{b}ottom, \texttt{c}center, \texttt{t}op).
+\subsubsection{Stacked (two lines) labels.}
+You also can use stacked (two lines) labels.  The example should be self-explanatory: the two lines are specified as \texttt{l2=}\emph{line1}\texttt{ and }\emph{line2}. You can use the keys \texttt{l2 halign} to control horizontal position (\texttt{l}eft, \texttt{c}enter, \texttt{r}ight) and \texttt{l2 valign} to control the vertical one (\texttt{b}ottom, \texttt{c}enter, \texttt{t}op). The default values for alignement are thought for vertical components (where the stacke labels are more natural), in other positions you have to force them.
 
+Notice that you \textbf{can't use} the compact \texttt{<...>} notation for \texttt{siunitx} with stacked labels. Before \texttt{v1.3.6} the label was ignored, but that has been converted into an error.
 
-\begin{LTXexample}[varwidth=true]
-    \begin{circuitikz}[ american, ]
-        %
-        % default is l2 halign=l, l2 valign=c
-        %
-        \draw (0,0) to[R, l2_=$R_{CC}$ and \SI{4.7}{k\ohm},            , l2 valign=t] (2,0);
-        \draw (0,0) to[R, l2_=$R_{CC}$ and \SI{4.7}{k\ohm},            ,            ] (0,2);
-        \draw (0,0) to[R, l2_=$R_{CC}$ and \SI{4.7}{k\ohm}, l2 halign=c, l2 valign=b] (-2,0);
-        \draw (0,0) to[R, l2_=$R_{CC}$ and \SI{4.7}{k\ohm}, l2 halign=r, l2 valign=c] (0, -2);
-    \end{circuitikz}
+Since \texttt{v1.3.6} you have the same possibility with the \texttt{annotation} (just use \texttt{a2=...}, \verb|a2_=...|, \texttt{a2 valign} and so on. Notice that the default position for stacked annotation is \texttt{v2 halign=l}.
+
+%
+% This is hacky --- better not to publish it for now
+%
+% \begin{circuitikz}[]
+%     \draw (0,2) to [R, l2= {A=B} and X, l2 valign=b, l2 halign=c] ++(2,0) to[L, l2=A and X \\ {C=Z}] ++(0,-2);
+% \end{circuitikz}
+
+\begin{LTXexample}[varwidth=true, pos=t, keepspaces, basicstyle=\footnotesize\ttfamily]
+\begin{circuitikz}[american]
+    %
+    % default for l2 is: l2 halign=l, l2 valign=c. DO NOT USE the <...> notation
+    %
+    \draw (0,0) to[R, l2_=$R_{CC}$ and \SI{4.7}{k\ohm},            , l2 valign=t] ++(2,0);
+    \draw (0,0) to[R, l2_=$R_{CC}$ and \SI{4.7}{k\ohm},            ,            ] ++(0,2);
+    \draw (0,0) to[R, l2_=$R_{CC}$ and \SI{4.7}{k\ohm}, l2 halign=c, l2 valign=b] ++(-2,0);
+    \draw (0,0) to[R, l2_=$R_{CC}$ and \SI{4.7}{k\ohm}, l2 halign=r, l2 valign=c] ++(0,-2);
+    \draw (5,0) to[R, l2^=$R_{CC}$ and \SI{4.7}{k\ohm}, l2 halign=c, l2 valign=b] ++(2,0);
+    \draw (5,0) to[R, l2^=$R_{CC}$ and \SI{4.7}{k\ohm}, l2 halign=c,            ] ++(0,2);
+    \draw (5,0) to[R, l2^=$R_{CC}$ and \SI{4.7}{k\ohm},            , l2 valign=t] ++(-2,0);
+    \draw (5,0) to[R, l2^=$R_{CC}$ and \SI{4.7}{k\ohm}, l2 halign=c, l2 valign=t] ++(0,-2);
+    \draw (10,2) to[R, l2={A=B} and X, a2={C=D} and Y] ++(0,-4);
+\end{circuitikz}
 \end{LTXexample}
 
-\begin{LTXexample}[varwidth=true]
-    \begin{circuitikz}[ american, ]
-        \draw (0,0) to[R, l2^=$R_{CC}$ and \SI{4.7}{k\ohm}, l2 halign=c, l2 valign=b] (2,0);
-        \draw (0,0) to[R, l2^=$R_{CC}$ and \SI{4.7}{k\ohm}, l2 halign=c,            ] (0,2);
-        \draw (0,0) to[R, l2^=$R_{CC}$ and \SI{4.7}{k\ohm},            , l2 valign=t] (-2,0);
-        \draw (0,0) to[R, l2^=$R_{CC}$ and \SI{4.7}{k\ohm}, l2 halign=c, l2 valign=t](0, -3);
-    \end{circuitikz}
-\end{LTXexample}
+For extra options about labels and annotations, please refer to section~\ref{sec:ornament-style}
+
 
 \subsection{Currents and voltages}\label{curr-and-volt}
 
@@ -6971,7 +6983,7 @@ This could be especially useful if you define a style, to use like this:
 
 
 
-\subsection{Changing the style of labels and text ornaments}
+\subsection{Changing the style of labels, voltages, and other text ornaments}\label{sec:ornament-style}
 
 Since version \texttt{0.9.5}, it is possible to change the style of bipole text ornaments (labels, annotations, voltages etc) by using the appropriate styles or keys.
 The basic style applied to the text are defined in the \texttt{/tikz/circuitikz} key directory and applied to every node that contains the text; you can also change them locally by using the \texttt{tikz} direct keys in local scopes.
