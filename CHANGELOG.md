@@ -1,9 +1,10 @@
 <!--- CircuiTikz - Changelog --->
 The major changes among the different CircuiTikZ versions are listed here. See <https://github.com/circuitikz/circuitikz/commits> for a full list of changes.
 
-* version 1.3.6 (unreleased)
+* version 1.3.6 (2021-05-09)
 
-    Mainly a bugfix release; fixing a bug in the `l2` stacked labels means that old constructs that were failing silently can give an error now. Sorry. To componsate, I added stacked annotation (for symmetry).
+    Mainly a bugfix release; fixing a bug in the `l2` stacked labels means that old constructs that were failing silently can give an error now. Sorry.
+    To compensate, I added stacked annotation (for symmetry).
 
     - Added stacked annotations for symmetry with stacked labels.
     - Fixed a bug in the plotting of `inst amp ra` terminals.
