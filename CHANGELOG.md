@@ -1,6 +1,10 @@
 <!--- CircuiTikz - Changelog --->
 The major changes among the different CircuiTikZ versions are listed here. See <https://github.com/circuitikz/circuitikz/commits> for a full list of changes.
 
+* version 1.3.7 (unreleased)
+
+    - Documentation fixes and small enhancements
+
 * version 1.3.6 (2021-05-09)
 
     Mainly a bugfix release; fixing a bug in the `l2` stacked labels means that old constructs that were failing silently can give an error now. Sorry.
