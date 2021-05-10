@@ -1499,7 +1499,7 @@ To define a block you use the \verb|\ctikzsubcircuitdef| macro; this macro has 3
 \begin{itemize}
     \item the first argument is the name of the subcircuit, and it must form a valid TeX command name when prepended with a backslash: so just letters (no spaces, nor numbers, nor symbols like underscores etc.);
     \item the second one is a comma-separated list of anchors names; here you can use whatever you can use for naming a coordinate or a node (so it's much more relaxed that the first one);
-    \item finally, the commands that will draw the circuit. You must suppose you are in a \verb|\draw| command, with the start coordinate already set-up. You can (and should) use \verb|#1| as the name of the current node, and you \emph{must} define the coordinates of all the anchors listed before as \texttt{coordinate(\#-\emph{anchorname})}. You should \textbf{not} finish the path here and use \textbf{only relative coordinates or named ones} .
+\item finally, the commands that will draw the circuit. You must suppose you are in a \verb|\draw| command, with the start coordinate already set-up. You can (and should) use \verb|#1| as the name of the current node, and you \emph{must} define the coordinates of all the anchors listed before as \texttt{coordinate(\#1-\emph{anchorname})}. You should \textbf{not} finish the path here and use \textbf{only relative coordinates} or \textbf{named ones}.
 \end{itemize}
 
 Let's see that with an example:
@@ -1545,7 +1545,7 @@ Let's see that with an example:
 }
 \end{lstlisting}
 
-Our element is a symbol for an optocoupler; in this case is the symbol used for once cell of the double \href{https://www.vishay.com/docs/84639/vo1263aa.pdf}{Vishay vo1263 device}.
+Our element is a symbol for an optocoupler; in this case is the symbol used for one cell of the double \href{https://www.vishay.com/docs/84639/vo1263aa.pdf}{Vishay vo1263 device}.
 
 The name of the subcircuit is \texttt{optovishay} --- notice we can use only letters here, upper or lowercase, and nothing more.
 Then we have a series of anchor names; here we can use letters, numbers, spaces and some symbol --- but avoid the dot (\texttt{.}) and the hyphen (\texttt{-}).
@@ -4518,7 +4518,7 @@ But notice that the ``A'' is also flipped by the \texttt{xscale} parameter. So t
 \end{LTXexample}
 
 
-\subsubsection{Designing your own amplifier}
+\subsubsection{Designing your own amplifier}\label{sec:muxdemux-amplis}
 
 If you need a different kind of amplifier, you can use the \texttt{muxdemux}
 (see section~\ref{sec:muxdemuxes}) shape for defining one that suits your needs (you need version \texttt{1.0.0} for this to work).
@@ -5905,7 +5905,11 @@ The code that implemented the printing of the numbers (which in \texttt{muxdemux
 }
 \end{lstlisting}
 
-You can use these shapes  to draw a lot of symbols that are unavailable; using a bit of \LaTeX{} command trickery you can use them quite naturally too... For example, this was used before the introduction of the \texttt{double tgate} symbol in \texttt{1.2.4} (see ~\ref{sec:passgate}:
+\subsubsection{Mux-Demux special usage}
+
+You can use these shapes  to draw a lot of symbols that are unavailable; using a bit of \LaTeX{} command trickery you can use them quite naturally too\dots. Examples with personalized amplifier shapes are listed in section~\ref{sec:muxdemux-amplis}.
+
+As an additional example, this was used before the introduction of the \texttt{double tgate} symbol in \texttt{1.2.4} (see ~\ref{sec:passgate}):
 
 \begin{LTXexample}[varwidth=true]
 \def\tgate#1{
@@ -5921,6 +5925,43 @@ You can use these shapes  to draw a lot of symbols that are unavailable; using a
     \draw (A-RL.bpin 1) -- (B-RL.tpin 1);
 \end{circuitikz}
 \end{LTXexample}
+
+Finally, you can play with them to create chips that have generic numbers of pins on the four sides, as in the following example (asked on \href{https://tex.stackexchange.com/q/596320/38080}{TeX.Stackexchange}):
+
+
+\begin{LTXexample}[varwidth=true]
+\begin{tikzpicture}[scale=0.8, transform shape]
+    \tikzset{ic555/.style={muxdemux,
+            muxdemux def={Lh=10, NL=5, Rh=10, NR=5,
+            NB=2, w=6, NT=2, square pins=1},
+        no input leads, external pins width=0.4,
+        circuitikz/muxdemuxes/fill=blue!10}
+    }
+    \node [ic555, font=\small\ttfamily,align=center](A)
+        at (0,0) {555\\Astable};
+    % left pins
+    \foreach \rawpin/\npin/\label in
+        {2/7/Discharge, 4/2/Trigger, 5/6/Threshold} {
+        \draw (A.lpin \rawpin) -- (A.blpin \rawpin)
+            node[midway, blue, font=\small, above]{\npin}
+            node[right, font=\small]{\label};
+    }
+    % top pins
+    \foreach \rawpin/\npin in {1/8, 2/4} {
+        \draw (A.tpin \rawpin) -- (A.btpin \rawpin)
+            node[midway, blue, font=\small, left]{\npin};
+    }
+    % bottom pins
+    \foreach \rawpin/\npin in {1/5, 2/1} {
+        \draw (A.bpin \rawpin) -- (A.bbpin \rawpin)
+            node[midway, blue, font=\small, left]{\npin};
+    }
+    % finally, left
+    \draw (A.rpin 3) -- (A.brpin 3)
+        node[midway, blue, font=\small, above]{3};
+\end{tikzpicture}
+\end{LTXexample}
+
 
 \subsection{Chips (integrated circuits)}\label{sec:chips}
 
