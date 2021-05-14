@@ -486,7 +486,165 @@ And finally, this is still \TikZ, so that you can freely mix other graphics elem
 \end{LTXexample}
 
 \clearpage
-\subsection{A more complex tutorial: circuits, Romano style.}
+
+\subsection{A non-inverting op-amp amplifier}
+
+\begin{minipage}[t]{0.55\linewidth}
+Let's now try to draw a non-inverting amplifier based on op-amps; the canonical implementation can be, for example, \href{https://www.electronics-tutorials.ws/opamp/opamp_3.html}{this one from ``electronics tutorials''}.
+Obviously, the style and form of drawing a circuit is often a matter of personal tastes and, maybe even more important, of the details you are focusing on; drawing a non-inverting amplifier will be different if you are drawing it to \emph{explain how it works} or if you are simply using it in a more complex circuit, assuming its operation well known by the reader. Anyway, the final objective is to have a circuit like the one on the right, drawn so that it is easy to reuse.
+\end{minipage}\hfill
+\begin{minipage}[t]{0.4\linewidth}
+\begin{circuitikz}[baseline=(OA.+), ]
+    \ctikzset{amplifiers/fill=cyan!20, component text=left}
+    \draw (0,0) node[above]{$v_i$} to[short, o-] ++(1,0)
+    node[op amp, noinv input up, anchor=+](OA){\texttt{OA1}}
+    (OA.-) -- ++(0,-1) coordinate(FB)
+    to[R=$R_1$] ++(0,-2) node[ground]{}
+    (FB) to[R=$R_2$, *-] (FB -| OA.out) -- (OA.out)
+    to [short, *-o] ++(1,0) node[above]{$v_o$}
+    ;
+\end{circuitikz}
+\end{minipage}
+
+We have to start the drawing from a generic point. Given that the idea is to have a reusable block, instead of positioning the op-amp and build around it, we will start from the input ``pole'':
+
+\begin{LTXexample}[varwidth=true]
+\begin{circuitikz}[]
+    \draw (0,0) node[above]{$v_i$} to[short, o-] ++(1,0)
+    node[op amp, noinv input up, anchor=+](OA){\texttt{OA1}}
+    ;
+\end{circuitikz}
+\end{LTXexample}
+
+In this snippet, notice that the only absolute coordinate is the first one; that will enable us to ``copy and paste'' the circuit in several places, or create a macro for it. We position a text node above it, and then draw a wire with a pole to a relative \texttt{(1,0)} coordinate: in other word, we \emph{move} 1~unit to the right drawing a short-circuit, which is the same as a wire. The usage of \texttt{to[short...]} simplifies the position of the pole, but notice that we could have also written:
+\begin{lstlisting}[numbers=none]
+    \draw (0,0) node[above]{$v_i$} node[ocirc]{} -- ++(1,0) ...
+\end{lstlisting}
+with the same result.
+
+The second step is to position the op-amp. We can check the manual and see the component's description (section~\ref{sec:amplifiers}):
+\begin{groupdesc}
+    \circuitdesc*{op amp}{Operational amplifier}{}( +/180/0.2, -/180/0.2, out/0/
+0.2, up/90/0.2, down/-90/0.2 )
+\end{groupdesc}
+where we notice the type of the component (it is a node-type component, so we have to use
+\texttt{node} to position it) and the available ``anchors'': points we can use to position the shape or to connect to. Not all the anchors are \emph{explicitly} printed in the description box; you should read further in the manual and you'll see a ``\emph{component} anchors'' (\ref{sec:amplifiers-anchors}) section with the relevant information.
+
+Anyway, the op-amp must be connected with the \texttt{+}  anchor to our input wire, so we say \texttt{anchor=+} in the option lists; this shifts the whole element so that the named anchor will lie at the current position of the path. Moreover, normally the shape has the inverting input on the bottom side, and we want it the other way around, so we use also \texttt{noinv input up} in the keys defining the node. We could also have flipped the shape with \texttt{yscale=-1}, but in this case we should have considered the effects on anchors and on the text; see section~\ref{sec:mirroring-and-flipping}.
+
+Now we can draw the resistors; let's start with $R_1$. We will draw it going down vertically from the \texttt{-} anchor --- we have named the node \texttt{OA} so that will be \texttt{OA.-}. We will need to connect the $R_2$ also, so we do the following:
+\begin{itemize}
+    \item draw a wire going down, and mark a point where we want the feedback resistor to connect;
+    \item then draw $R_1$ and finally
+    \item draw the ground node.
+\end{itemize}
+
+\begin{LTXexample}[varwidth=true]
+\begin{circuitikz}[scale=0.8, transform shape]
+    \draw (0,0) node[above]{$v_i$} to[short, o-] ++(1,0)
+    node[op amp, noinv input up, anchor=+](OA){\texttt{OA1}}
+    (OA.-) -- ++(0,-1) coordinate(FB)
+    to[R=$R_1$] ++(0,-2) node[ground]{}
+    ;
+\end{circuitikz}
+\end{LTXexample}
+
+We only miss the feedback resistor now. We will use \emph{orthogonal coordinates}, writing:
+\begin{lstlisting}[numbers=none]
+    \draw (FB) to[R=$R_2$] (FB -| OA.out) -- (OA.out)
+\end{lstlisting}
+
+The meaning is the following:
+\begin{itemize}
+    \item move the current point to the coordinate named \texttt{FB};
+    \item put a resistor, with label $R_2$, from here \textbf{to}\dots
+    \item the coordinates which is on the horizontal of \texttt{FB} and on the vertical of \texttt{OA.out}: the \texttt{-|} coordinate operation is quite mnemonic;
+    \item then continue drawing to \texttt{OA.out}.
+\end{itemize}
+
+You can use a separate \verb|\draw| command or just continue the path you were writing; the choice is just personal preference, but be warned that it can affect the drawing of poles (see section~\ref{sec:bipole-nodes} about this if you notice strange things).
+
+Finally, we add the output and a couple of nodes:
+
+\begin{LTXexample}[varwidth=true]
+\begin{circuitikz}[scale=0.8, transform shape]
+    \draw (0,0) node[above]{$v_i$} to[short, o-] ++(1,0)
+    node[op amp, noinv input up, anchor=+](OA){\texttt{OA1}}
+    (OA.-) -- ++(0,-1) coordinate(FB)
+    to[R=$R_1$] ++(0,-2) node[ground]{}
+    (FB) to[R=$R_2$, *-] (FB -| OA.out) -- (OA.out)
+    to [short, *-o] ++(1,0) node[above]{$v_o$}
+    ;
+\end{circuitikz}
+\end{LTXexample}
+
+The last step to obtain the final look is to add a bit of styling. We want the op-amp filled with a light cyan color, and we prefer to have the label aligned with the left side of the device:
+
+\begin{LTXexample}[varwidth=true]
+\ctikzset{amplifiers/fill=cyan!20, component text=left}
+\begin{circuitikz}[scale=0.8, transform shape]
+    \draw (0,0) node[above]{$v_i$} to[short, o-] ++(1,0)
+    node[op amp, noinv input up, anchor=+](OA){\texttt{OA1}}
+    (OA.-) -- ++(0,-1) coordinate(FB)
+    to[R=$R_1$] ++(0,-2) node[ground]{}
+    (FB) to[R=$R_2$, *-] (FB -| OA.out) -- (OA.out)
+    to [short, *-o] ++(1,0) node[above]{$v_o$}
+    ;
+\end{circuitikz}
+\end{LTXexample}
+
+The \verb|\ctikzset| command choosing the style is better placed in the preamble, though. Style should be coherent for all the document body, so avoiding stating it for every circuit is normally the best strategy.
+
+\subsubsection{Reusing the circuit: the easy way}
+\begingroup % to keep changes local
+
+The easiest way to reuse the circuit is to put it in a macro. This is a very flexible way of doing it; the only drawback is that the only easy way to position it is using the first coordinate: you will not be able to move the component using ``anchors''; that is more complex and will need the use of subcircuits (but you will loose parameters\dots see section~\ref{sec:subcircuits}.
+
+Defining a macro for our amplifier could be as easy as this:
+
+\ctikzset{amplifiers/fill=cyan!20, component text=left}
+\newcommand\myNIA[4]{%1: name of this amplifier, %2 start coordinate, %3 R1, %4 R2
+    \draw #2 coordinate(#1-in) to[short] ++(1,0)
+    node[op amp, noinv input up, anchor=+](#1-OA){\texttt{#1}}
+    (#1-OA.-) -- ++(0,-1) coordinate(#1-FB)
+    to[R=#3] ++(0,-2) node[ground]{}
+    (#1-FB) to[R=#4, *-] (#1-FB -| #1-OA.out) -- (#1-OA.out)
+    to [short, *-] ++(1,0) coordinate(#1-out)
+    ;
+}
+\begin{lstlisting}
+\newcommand\myNIA[4]{%1: name of this amplifier, %2 start coordinate, %3 R1, %4 R2
+    \draw #2 coordinate(#1-in) to[short] ++(1,0)
+    node[op amp, noinv input up, anchor=+](#1-OA){\texttt{#1}}
+    (#1-OA.-) -- ++(0,-1) coordinate(#1-FB)
+    to[R=#3] ++(0,-2) node[ground]{}
+    (#1-FB) to[R=#4, *-] (#1-FB -| #1-OA.out) -- (#1-OA.out)
+    to [short, *-] ++(1,0) coordinate(#1-out)
+    ;
+}
+\end{lstlisting}
+
+We remove the open poles (it's better to draw them at the end to avoid artefacts) and then we make the names of the coordinates and of the nodes unique, by prepending a parameter that we will provide at every invocation. Then we remove the labels (for simplicity here) and add a couple of coordinates that we will be able to use from the outside when building our circuit.
+
+And we can use it like in the following:
+
+\begin{LTXexample}[varwidth=true]
+\begin{circuitikz}[scale=0.7, transform shape]
+    \myNIA{OA1}{(0,0)}{$R_1$}{$R_2$}
+    % start drawing from the output of OA1
+    \myNIA{OA2}{(OA1-out)}{$R_3$}{$R_4$}
+    \node [ocirc] at (OA1-in) {};
+    \node [above] at (OA1-in) {$v_i$};
+    \node [ocirc] at (OA2-out){};
+    \node [ocirc] at (OA1-in) {$v_o$};
+    \draw (OA1-out) -| (OA2-in);
+\end{circuitikz}
+\end{LTXexample}
+
+\endgroup % remove the changes of the op-amp tutorial subsection
+\clearpage
+
+\subsection{A transistor-based amplifier}
 \begingroup % do not propagate to the rest of the manual
 
 The idea is to draw a two-stage amplifier for a lesson, or exercise, on the different qualities of BJT and MOSFET transistors.
@@ -722,7 +880,7 @@ and you will obtain the following diagram with the exact same code (I just remov
 \endgroup
 
 \clearpage
-\subsection{Tutorial: a logic circuit}
+\subsection{A logic circuit}
 
 \begingroup % let's keep the tutorial thing separated.
 \tikzset{sr-ff/.style={flipflop, flipflop def={
@@ -1486,7 +1644,7 @@ If you want to add a setting to your style file that has been recently added to 
     thyristor style/.try=compact,
 \end{lstlisting}
 
-\subsection{Subcircuits}
+\subsection{Subcircuits}\label{sec:subcircuits}
 
 Starting from version \texttt{1.3.5}, there is an \textbf{experimental}\footnote{That means that in future releases the interface can change; use it at your risk and if you need it to continue working as-is, please use the \href{https://circuitikz.github.io/circuitikz/}{GitHub project page} and download and save the \texttt{circuitikzgit.sty} file for future-proof use!} support for generating sub-circuits, or circuits blocks. The creation and use of subcircuits is somewhat limited, to keep them simple and easy to define and maintain.
 
@@ -4227,7 +4385,7 @@ You can obviously define a style for a ``non-standard'' transformer. For example
 
 Remember that the default \texttt{pgfkeys} directory is \texttt{/tikz} for nodes and for the options of the environment, so you \emph{have} to use the full path (with \texttt{circuitikz/}) there.
 
-\subsection{Amplifiers}
+\subsection{Amplifiers}\label{sec:amplifiers}
 
 \begin{groupdesc}
     \circuitdesc*{op amp}{Operational amplifier}{}( +/180/0.2, -/180/0.2, out/0/0.2, up/90/0.2, down/-90/0.2 )
@@ -4243,7 +4401,7 @@ Remember that the default \texttt{pgfkeys} directory is \texttt{/tikz} for nodes
     \circuitdesc*{buffer}{Buffer}{}(in/180/0.2, out/0/0.2, center/-30/0.6, bin/145/0.1, bout/45/0.3)
 \end{groupdesc}
 
-\subsubsection{Amplifiers anchors}
+\subsubsection{Amplifiers anchors}\label{sec:amplifiers-anchors}
 
 The op amp defines the inverting input (\texttt{-}), the non-inverting input (\texttt{+}) and the output (\texttt{out}) anchors:
 
@@ -4342,7 +4500,7 @@ Amplifiers have also ``border'' anchors (just add \texttt{b}, without space, to 
 \end{circuitikz}
 \end{LTXexample}
 
-\subsubsection{Amplifiers customization}
+\subsubsection{Amplifiers customization}\label{sec:amplifiers-customization}
 
 You can scale the amplifiers using the key \texttt{amplifiers/scale} and setting it to something different from \texttt{1.0}. The font used for symbols will not scale, so it's your responsibility to change it if the need arises.
 
