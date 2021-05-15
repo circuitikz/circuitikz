@@ -3,6 +3,7 @@ The major changes among the different CircuiTikZ versions are listed here. See <
 
 * version 1.3.7 (unreleased)
 
+    - New tutorial:  drawing a circuit around an operational amplifier
     - Documentation fixes and small enhancements
 
 * version 1.3.6 (2021-05-09)
