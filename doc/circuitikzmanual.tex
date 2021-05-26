@@ -2465,17 +2465,18 @@ Notice that if you choose the dashed style, the noise sources are fillable:
 		\footnotetext{Added by André Alves in \texttt{v1.3.5}}
     \circuitdescbip*[oosource]{ioosource}{Double Zero style current source}{}
     \circuitdescbip*[oosource]{voosource}{Double Zero style voltage source}{}
-    \circuitdescbip*[oosourcetrans]{oosourcetrans}{transformer source}{}
+    \circuitdescbip*[oosourcetrans]{oosourcetrans}{transformer source\footnotemark}{}
+        \footnotetext{The \texttt{oosourcetrans} and \texttt{ooosource} componentes have benn added by \href{https://github.com/circuitikz/circuitikz/pull/397}{user \texttt{@olfline} on GitHub}}.
     \circuitdescbip*[ooosource]{ooosource}{transformer with three windings}{}(left/175/0.2, right/5/0.5, prim1/130/.2, prim2/-130/.2, sec1/45/.2, sec2/60/.2, sec3/90/.2, tert1/0/.2, tert2/-45/.2, tert3/-90/.2)
 \end{groupdesc}
 
-The transformershapes vector group options can be specified for the primary (prim$=<value>$), the secondary (sec$=<value>$) and tertiary (tert$=<value>$) three-phase vector groups: \textbf{delta}, \textbf{wye} and \textbf{zig}.
+The transformer shapes vector group options can be specified for the primary (\texttt{prim=\emph{value}}), the secondary (\texttt{sec=\emph{value}}) and tertiary (\texttt{tert=\emph{value}}) three-phase vector groups: the value can be one of \texttt{delta}, \texttt{wye} and \texttt{zig}.
 
 \begin{LTXexample}[varwidth=true]
 \begin{circuitikz}
-    \draw (0,0) to[oosourcetrans,prim=zig,sec=delta,o-] ++(2,0)
+    \draw (0,0) to[oosourcetrans, prim=zig, sec=delta, o-] ++(2,0)
     to[oosourcetrans, prim=delta, sec=wye,-o] ++(0,-2)
-    to[ooosource, prim=wye,sec=zig,tert=delta] (0,0);
+    to[ooosource, prim=wye, sec=zig, tert=delta] (0,0);
 \end{circuitikz}
 \end{LTXexample}
 
@@ -2498,12 +2499,42 @@ The size of the broken part of the DC current source is configurable by changing
 
 \subsubsection{Sources customizations}\label{sec:tweak-sources}
 
+\paragraph{Size.}
 You can change the scale of the batteries by setting the key \texttt{batteries/scale}, for the controlled (dependent) sources with \texttt{csources/scale}, and for all the other independent sources and generators with \texttt{sources/scale}, to something different from the default \texttt{1.0}.
 
-The symbols drawn into the \texttt{american voltage source}\footnote{Since version \texttt{1.1.0}, thanks to the suggestions and discussion
-\href{https://tex.stackexchange.com/questions/538723/circuitikz-what-should-i-do-to-put-the-and-on-the-appropriate-places-like-t}{in this TeX.SX question}.} can be changed by using the \verb|\ctikzset|  keys \texttt{bipoles/vsourceam/inner plus} and \texttt{bipoles/vsourceam/inner minus} (by default they are \verb|$+$| and \verb|$-$| respectively, in the current font), and move them nearer of farther away by twiddling \texttt{bipoles/vsourceam/margin} (default \texttt{0.7}, less means nearer).
+Notice that the size of the double-circle sources (and of the triple-circle one) are tuned so that the full source occupy more or less the same horizontal space than one of the single-circle one; obviously, the circle are much smaller. If you want to have the same circle radius, you have to scale (locally!) those sources by one factor that is \texttt{1.5384} ($1/0.65$) for \texttt{oosource}, \texttt{1.6667} ($1/0.6$) for \texttt{oosourcetrans}, and \texttt{1.8182} ($1/0.55$) for \texttt{ooosource}.
 
-Moreover, you can move the two symbols nearer of farther away by twiddling \texttt{bipoles/vsourceam/margin} (default \texttt{0.7}, less means nearer).
+\begin{LTXexample}[varwidth=true]
+\begin{circuitikz}
+    \draw[color=red] (0,0) to[esource] ++(3,0);
+    \draw (0,0) to[oosourcetrans, prim=delta, sec=wye,
+        sources/scale=1.667] ++(3,0);
+\end{circuitikz}
+\end{LTXexample}
+
+\paragraph{Waveform symbols.}
+Internal symbols of sinusoidal, triangular and square sources are drawn with the same line thickness as the component by default. You can modify this by setting the key \texttt{sources/symbols/thickness} for independent sources and the corresponding \texttt{csource/...} for dependent ones. The value used here is relative to the component (i.e. the circle) value.
+
+Normally the symbol is oriented in the same direction as the line, and rotate rigidly with the component; you can change this orientation using the key \texttt{sources/symbols/rotate} or \texttt{csource/...}. The default value is \texttt{90} which correspond to the ``line'' direction (remember, path component are defined as horizontal ones).
+In instead of an angle value you use \texttt{auto}, the symbol will be rotated so that the waveform is always vertical, similar to what happens in instruments:
+
+\begin{LTXexample}[varwidth=true]
+\begin{circuitikz}
+    \draw (0,1) to[sqV] ++(3,0)
+        to[sqV] ++(1,-1)
+        to[sqV] ++(0,-3);
+    \ctikzset{sources/symbol/rotate=auto}
+    \ctikzset{sources/symbol/rotate=auto, sources/symbol/thickness=3}
+    \draw[color=red] (0,0) to[sqV] ++(3,0)
+        to[sqV] ++(0,-3)
+        to[sqV] (0,0);
+\end{circuitikz}
+\end{LTXexample}
+
+
+\paragraph{Polarity symbols.}
+The symbols drawn into the \texttt{american voltage source}\footnote{Since version \texttt{1.1.0}, thanks to the suggestions and discussion
+\href{https://tex.stackexchange.com/questions/538723/circuitikz-what-should-i-do-to-put-the-and-on-the-appropriate-places-like-t}{in this TeX.SX question}.} can be changed by using the \verb|\ctikzset|  keys \texttt{bipoles/vsourceam/inner plus} and \texttt{.../inner minus} (by default they are \verb|$+$| and \verb|$-$| respectively, in the current font), and move them nearer of farther away by twiddling \texttt{bipoles/vsourceam/margin} (default \texttt{0.7}, less means nearer).
 
 You can do the same with the \texttt{american controlled voltage sources}, substituting \texttt{cvsourceam} to \texttt{vsourceam} (notice the initial ``\texttt{c}'').
 
@@ -2518,6 +2549,27 @@ You can do the same with the \texttt{american controlled voltage sources}, subst
    bipoles/vsourceam/inner minus={\color{blue}\tiny $\ominus$},
    bipoles/vsourceam/margin=0.5]
    ++(0,-3) to[short, -*] (0,0) node[ground]{};
+\end{circuitikz}
+\end{LTXexample}
+
+\paragraph{Three-phase symbols.}
+The three-phase symbols \texttt{delta}, \texttt{wye}, and \texttt{zig} follows the line thickness exactly as
+the waveform ones (see above). Additionally, you can scale them up and down by changing the value of the keys
+\texttt{sources/symbol/delta scale}, \texttt{.../wye scale}, and \texttt{.../zig scale} (default \texttt{1}).
+
+\begin{LTXexample}[varwidth=true]
+\begin{circuitikz}[scale=1.8, transform shape]
+    \tikzset{myoosource/.style={ooosource,
+        prim=wye, sec=delta, tert=zig,
+        }}
+    \draw (0,2) to[myoosource] ++(2,0);
+    \ctikzset{%
+        sources/symbol/thickness=0.5,
+        sources/symbol/delta scale=1.2,
+        sources/symbol/wye scale=1.4,
+        sources/symbol/zig scale=1.3,
+    }
+    \draw (0,0) to[myoosource] ++(2,0);
 \end{circuitikz}
 \end{LTXexample}
 
