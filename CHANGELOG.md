@@ -1,7 +1,9 @@
 <!--- CircuiTikz - Changelog --->
 The major changes among the different CircuiTikZ versions are listed here. See <https://github.com/circuitikz/circuitikz/commits> for a full list of changes.
 
-* version 1.3.7 (unreleased)
+* version 1.3.7 (2021-06-01)
+
+    Minor release, mainly documentation upgrades.
 
     - New options for the line thickness, rotation and size of symbols drawn in sources
     - New tutorial:  drawing a circuit around an operational amplifier
