@@ -142,6 +142,23 @@
 %%    <macro> is undefined <false> is executed. If the list contains only one
 %%    element and that is `all' <true> is executed.
 
+\long\def\pgf@circ@ifempty#1%
+  {%
+    \if\relax\detokenize{#1}\relax
+      \expandafter\pgfutil@firstoftwo
+    \else
+      \expandafter\pgfutil@secondoftwo
+    \fi
+  }
+\long\def\pgf@circ@ifblank#1%
+  {%
+    \if\relax\detokenize\expandafter{\pgfutil@gobble#1.}\relax
+      \expandafter\pgfutil@firstoftwo
+    \else
+      \expandafter\pgfutil@secondoftwo
+    \fi
+  }
+
 % set the catcode of our marker
 \chardef\pgf@circ@temp=\the\catcode`\Q
 \catcode`\Q=3
@@ -198,16 +215,20 @@
 % does set the flag, else continue sanitizing.
 \def\pgf@circ@set@list@sanitize@a#1%
   {%
-    \expandafter\pgfutil@ifempty\expandafter
+    \expandafter\pgf@circ@ifempty\expandafter
       % if this is empty no marker was found
       {\pgf@circ@set@list@gobbletomarker#1Q}
       {%
-        % \pgfutil@trimspaces uses \romannumeral to trim up to one set of spaces
-        % and needs exactly two steps of expansion
-        \expandafter\expandafter\expandafter
-        \pgf@circ@set@list@sanitize@b
-        \expandafter\expandafter\expandafter
-          {\pgfutil@trimspaces{#1}}%
+        \pgf@circ@ifblank{#1}
+          {}% ignore blank entries
+          {%
+            % \pgfutil@trimspaces uses \romannumeral to trim up to one set of
+            % spaces and needs exactly two steps of expansion
+            \expandafter\expandafter\expandafter
+            \pgf@circ@set@list@sanitize@b
+            \expandafter\expandafter\expandafter
+              {\pgfutil@trimspaces{#1}}%
+          }%
       }
       {%
         % panic, there was a marker found in a list element. We'll recover by
@@ -216,20 +237,13 @@
         % macro to relax and we exploit this to expandable set a flag and
         % gobbling the result.
         \expandafter\pgfutil@gobble\csname pgf@circ@error@marker\endcsname
-        % get the next element
-        \pgf@circ@set@list@sanitize
       }%
+    % get the next element
+    \pgf@circ@set@list@sanitize
   }
 % we'll protect any element from further expanding using \unexpanded and place
 % the marker after the element, and ignore empty/blank elements
-\def\pgf@circ@set@list@sanitize@b#1%
-  {%
-    \pgfutil@ifempty{#1}%
-      {}% ignore empty/blank elements
-      {\pgfutil@unexpanded{#1}Q}%
-    % get next element
-    \pgf@circ@set@list@sanitize
-  }
+\def\pgf@circ@set@list@sanitize@b#1{\pgfutil@unexpanded{#1}Q}
 
 % flag for special value
 \def\pgf@circ@all@flag{QallQ}
