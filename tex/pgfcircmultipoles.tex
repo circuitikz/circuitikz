@@ -18,6 +18,9 @@
 %
 \ctikzset{multipoles/thickness/.initial=2}
 \ctikzset{multipoles/font/.initial=\pgf@circ@font@tiny}
+\ctikzset{multipoles/draw only pins/.initial={all}}
+\pgfqkeys{/tikz}
+  {draw only pins/.add code={}{\ctikzset{multipoles/draw only pins={#1}}}}
 % DIP (dual in line package) chips
 \ctikzset{multipoles/dipchip/width/.initial=1.2}
 \ctikzset{multipoles/dipchip/num pins/.initial=8}
@@ -116,6 +119,18 @@
 
 % DIP (dual in line package) chips
 
+% helper macro to set the anchors inside a loop (to expand the current count)
+\pgfutil@protected\def\pgf@circ@pin@anchor#1%
+  {%
+    \anchor{pin #1}
+      {%
+        \pgf@circ@if@num@in@list\pgf@circ@pins@list{#1}
+          {\pgf@circ@dippinanchor{#1}{1}}
+          {\pgf@circ@dippinanchor{#1}{0}}%
+      }%
+    \anchor{bpin #1}{\pgf@circ@dippinanchor{#1}{0}}%
+  }
+
 \pgfdeclareshape{dipchip}{
     \savedmacro{\ctikzclass}{\edef\ctikzclass{chips}}
     \saveddimen{\scaledRlen}{\pgfmathsetlength{\pgf@x}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}}
@@ -123,6 +138,14 @@
             \pgf@circ@count@a=\ctikzvalof{multipoles/dipchip/num pins}%
             \def\numpins{\the\pgf@circ@count@a}
     }
+    \savedmacro\pgf@circ@pins@list
+      {%
+        \pgfkeysgetvalue
+          {\circuitikzbasekey/multipoles/draw only pins}\pgf@circ@temp
+        \expandafter\pgf@circ@set@list
+          \expandafter\pgf@circ@pins@list
+          \expandafter{\pgf@circ@temp}%
+      }%
     \savedanchor\centerpoint{%
         \pgf@x=-.5\wd\pgfnodeparttextbox%
         \pgf@y=-.5\ht\pgfnodeparttextbox%
@@ -172,6 +195,15 @@
     \anchor{east}{\northwest\pgf@x=-\pgf@x\pgf@y=0pt }
     \anchor{south}{\northwest\pgf@x=0pt\pgf@y=-\pgf@y}
     \anchor{west}{\northwest\pgf@y=0pt }
+    \pgf@circ@count@a=\ctikzvalof{multipoles/dipchip/num pins}%
+    \pgfmathloop
+      \ifnum\pgf@circ@count@a>0
+        % we will create two anchors per pin: the "normal one" like `pin 1` for the
+        % electrical contact, and the "border one" like `bpin 1` for labels.
+        % they will coincide if `external pins width` is set to 0.
+      \expandafter\pgf@circ@pin@anchor\expandafter{\the\pgf@circ@count@a}%
+      \advance\pgf@circ@count@a by -1\relax
+    \repeatpgfmathloop
     % start drawing
     \backgroundpath{%
         \northwest
@@ -283,11 +315,25 @@
                         \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{-\pgf@circ@res@temp+\pgf@circ@res@up+(\pgf@circ@dip@pin@shift-\the\pgf@circ@count@a)*\pgf@circ@res@step}}
                     \else
                         % left side pins
-                        \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@up+(\pgf@circ@dip@pin@shift-\the\pgf@circ@count@a)*\pgf@circ@res@step}}
-                        \pgfpathlineto{\pgfpoint{\pgf@circ@res@left-\pgf@circ@res@other}{\pgf@circ@res@up+(\pgf@circ@dip@pin@shift-\the\pgf@circ@count@a)*\pgf@circ@res@step}}
+                        \pgf@circ@if@num@in@list\pgf@circ@pins@list\pgf@circ@count@a
+                          {%
+                            \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@up+(\pgf@circ@dip@pin@shift-\the\pgf@circ@count@a)*\pgf@circ@res@step}}
+                            \pgfpathlineto{\pgfpoint{\pgf@circ@res@left-\pgf@circ@res@other}{\pgf@circ@res@up+(\pgf@circ@dip@pin@shift-\the\pgf@circ@count@a)*\pgf@circ@res@step}}
+                          }
+                          {%
+                            \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@up+(\pgf@circ@dip@pin@shift-\the\pgf@circ@count@a)*\pgf@circ@res@step}}
+                            \pgfpathlineto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@up+(\pgf@circ@dip@pin@shift-\the\pgf@circ@count@a)*\pgf@circ@res@step}}
+                          }%
                         % right side pins
-                        \pgfpathmoveto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@up+(\pgf@circ@dip@pin@shift-\the\pgf@circ@count@a)*\pgf@circ@res@step}}
-                        \pgfpathlineto{\pgfpoint{\pgf@circ@res@right+\pgf@circ@res@other}{\pgf@circ@res@up+(\pgf@circ@dip@pin@shift-\the\pgf@circ@count@a)*\pgf@circ@res@step}}
+                        \pgf@circ@if@num@in@list\pgf@circ@pins@list{\numpins+1-\pgf@circ@count@a}
+                          {%
+                            \pgfpathmoveto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@up+(\pgf@circ@dip@pin@shift-\the\pgf@circ@count@a)*\pgf@circ@res@step}}
+                            \pgfpathlineto{\pgfpoint{\pgf@circ@res@right+\pgf@circ@res@other}{\pgf@circ@res@up+(\pgf@circ@dip@pin@shift-\the\pgf@circ@count@a)*\pgf@circ@res@step}}
+                          }
+                          {%
+                            \pgfpathmoveto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@up+(\pgf@circ@dip@pin@shift-\the\pgf@circ@count@a)*\pgf@circ@res@step}}
+                            \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@up+(\pgf@circ@dip@pin@shift-\the\pgf@circ@count@a)*\pgf@circ@res@step}}
+                          }%
                     \fi
                     \advance\pgf@circ@count@a by -1\relax%
                 \repeatpgfmathloop
