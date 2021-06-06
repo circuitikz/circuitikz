@@ -122,13 +122,14 @@
 % helper macro to set the anchors inside a loop (to expand the current count)
 \pgfutil@protected\def\pgf@circ@pin@anchor#1%
   {%
-    \anchor{pin #1}
+    \expandafter\gdef\csname pgf@anchor@dipchip@pin #1\endcsname
       {%
         \pgf@circ@if@num@in@list\pgf@circ@pins@list{#1}
           {\pgf@circ@dippinanchor{#1}{1}}
           {\pgf@circ@dippinanchor{#1}{0}}%
       }%
-    \anchor{bpin #1}{\pgf@circ@dippinanchor{#1}{0}}%
+    \expandafter\gdef\csname pgf@anchor@dipchip@bpin #1\endcsname
+      {\pgf@circ@dippinanchor{#1}{0}}%
   }
 
 \pgfdeclareshape{dipchip}{
@@ -195,15 +196,6 @@
     \anchor{east}{\northwest\pgf@x=-\pgf@x\pgf@y=0pt }
     \anchor{south}{\northwest\pgf@x=0pt\pgf@y=-\pgf@y}
     \anchor{west}{\northwest\pgf@y=0pt }
-    \pgf@circ@count@a=\ctikzvalof{multipoles/dipchip/num pins}%
-    \pgfmathloop
-      \ifnum\pgf@circ@count@a>0
-        % we will create two anchors per pin: the "normal one" like `pin 1` for the
-        % electrical contact, and the "border one" like `bpin 1` for labels.
-        % they will coincide if `external pins width` is set to 0.
-      \expandafter\pgf@circ@pin@anchor\expandafter{\the\pgf@circ@count@a}%
-      \advance\pgf@circ@count@a by -1\relax
-    \repeatpgfmathloop
     % start drawing
     \backgroundpath{%
         \northwest
@@ -341,6 +333,17 @@
             \endpgfscope
             \fi
             \fi
+        }%
+        \pgfutil@g@addto@macro\pgf@sh@s@dipchip{%
+          \pgf@circ@count@a=\numpins
+          \pgfmathloop
+            \ifnum\pgf@circ@count@a>0
+              % we will create two anchors per pin: the "normal one" like `pin 1` for the
+              % electrical contact, and the "border one" like `bpin 1` for labels.
+              % they will coincide if `external pins width` is set to 0.
+            \expandafter\pgf@circ@pin@anchor\expandafter{\the\pgf@circ@count@a}%
+            \advance\pgf@circ@count@a by -1\relax
+          \repeatpgfmathloop
         }%
         }
 
