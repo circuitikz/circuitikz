@@ -290,43 +290,44 @@
                 \pgfsetlinewidth{\ctikzvalof{multipoles/external pins thickness}\pgflinewidth}
                 \pgf@circ@count@a=\numpins\relax
                 \divide\pgf@circ@count@a by 2 \pgf@circ@count@b=\pgf@circ@count@a
+                \edef\padfrac{\ctikzvalof{multipoles/external pad fraction}}
+                \ifnum\padfrac>0
+                    \pgf@circ@res@temp=\pgf@circ@res@step\divide\pgf@circ@res@temp by \padfrac
+                \fi
                 \pgfmathloop%
                 \ifnum\pgf@circ@count@a>0
-                    \edef\padfrac{\ctikzvalof{multipoles/external pad fraction}}
-                    \ifnum\padfrac>0
-                        \pgf@circ@res@temp=\pgf@circ@res@step\divide\pgf@circ@res@temp by \padfrac
-                        % left side pads
-                        \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@temp+\pgf@circ@res@up+(\pgf@circ@dip@pin@shift-\the\pgf@circ@count@a)*\pgf@circ@res@step}}
-                        \pgfpathlineto{\pgfpoint{\pgf@circ@res@left-\pgf@circ@res@other}{\pgf@circ@res@temp+\pgf@circ@res@up+(\pgf@circ@dip@pin@shift-\the\pgf@circ@count@a)*\pgf@circ@res@step}}
-                        \pgfpathlineto{\pgfpoint{\pgf@circ@res@left-\pgf@circ@res@other}{-\pgf@circ@res@temp+\pgf@circ@res@up+(\pgf@circ@dip@pin@shift-\the\pgf@circ@count@a)*\pgf@circ@res@step}}
-                        \pgfpathlineto{\pgfpoint{\pgf@circ@res@left}{-\pgf@circ@res@temp+\pgf@circ@res@up+(\pgf@circ@dip@pin@shift-\the\pgf@circ@count@a)*\pgf@circ@res@step}}
-                        % right side pads
-                        \pgfpathmoveto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@temp+\pgf@circ@res@up+(\pgf@circ@dip@pin@shift-\the\pgf@circ@count@a)*\pgf@circ@res@step}}
-                        \pgfpathlineto{\pgfpoint{\pgf@circ@res@right+\pgf@circ@res@other}{\pgf@circ@res@temp+\pgf@circ@res@up+(\pgf@circ@dip@pin@shift-\the\pgf@circ@count@a)*\pgf@circ@res@step}}
-                        \pgfpathlineto{\pgfpoint{\pgf@circ@res@right+\pgf@circ@res@other}{-\pgf@circ@res@temp+\pgf@circ@res@up+(\pgf@circ@dip@pin@shift-\the\pgf@circ@count@a)*\pgf@circ@res@step}}
-                        \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{-\pgf@circ@res@temp+\pgf@circ@res@up+(\pgf@circ@dip@pin@shift-\the\pgf@circ@count@a)*\pgf@circ@res@step}}
-                    \else
-                        % left side pins
-                        \pgf@circ@if@num@in@list\pgf@circ@pins@list\pgf@circ@count@a
-                          {%
-                            \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@up+(\pgf@circ@dip@pin@shift-\the\pgf@circ@count@a)*\pgf@circ@res@step}}
-                            \pgfpathlineto{\pgfpoint{\pgf@circ@res@left-\pgf@circ@res@other}{\pgf@circ@res@up+(\pgf@circ@dip@pin@shift-\the\pgf@circ@count@a)*\pgf@circ@res@step}}
-                          }
-                          {%
-                            \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@up+(\pgf@circ@dip@pin@shift-\the\pgf@circ@count@a)*\pgf@circ@res@step}}
-                            \pgfpathlineto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@up+(\pgf@circ@dip@pin@shift-\the\pgf@circ@count@a)*\pgf@circ@res@step}}
-                          }%
-                        % right side pins
-                        \pgf@circ@if@num@in@list\pgf@circ@pins@list{\numpins+1-\pgf@circ@count@a}
-                          {%
-                            \pgfpathmoveto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@up+(\pgf@circ@dip@pin@shift-\the\pgf@circ@count@a)*\pgf@circ@res@step}}
-                            \pgfpathlineto{\pgfpoint{\pgf@circ@res@right+\pgf@circ@res@other}{\pgf@circ@res@up+(\pgf@circ@dip@pin@shift-\the\pgf@circ@count@a)*\pgf@circ@res@step}}
-                          }
-                          {%
-                            \pgfpathmoveto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@up+(\pgf@circ@dip@pin@shift-\the\pgf@circ@count@a)*\pgf@circ@res@step}}
-                            \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@up+(\pgf@circ@dip@pin@shift-\the\pgf@circ@count@a)*\pgf@circ@res@step}}
-                          }%
-                    \fi
+                    % left side
+                    \pgf@circ@if@num@in@list\pgf@circ@pins@list\pgf@circ@count@a
+                      {%
+                        \ifnum\padfrac>0
+                          % pads
+                          \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@temp+\pgf@circ@res@up+(\pgf@circ@dip@pin@shift-\the\pgf@circ@count@a)*\pgf@circ@res@step}}
+                          \pgfpathlineto{\pgfpoint{\pgf@circ@res@left-\pgf@circ@res@other}{\pgf@circ@res@temp+\pgf@circ@res@up+(\pgf@circ@dip@pin@shift-\the\pgf@circ@count@a)*\pgf@circ@res@step}}
+                          \pgfpathlineto{\pgfpoint{\pgf@circ@res@left-\pgf@circ@res@other}{-\pgf@circ@res@temp+\pgf@circ@res@up+(\pgf@circ@dip@pin@shift-\the\pgf@circ@count@a)*\pgf@circ@res@step}}
+                          \pgfpathlineto{\pgfpoint{\pgf@circ@res@left}{-\pgf@circ@res@temp+\pgf@circ@res@up+(\pgf@circ@dip@pin@shift-\the\pgf@circ@count@a)*\pgf@circ@res@step}}
+                        \else
+                          % pins
+                          \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@up+(\pgf@circ@dip@pin@shift-\the\pgf@circ@count@a)*\pgf@circ@res@step}}
+                          \pgfpathlineto{\pgfpoint{\pgf@circ@res@left-\pgf@circ@res@other}{\pgf@circ@res@up+(\pgf@circ@dip@pin@shift-\the\pgf@circ@count@a)*\pgf@circ@res@step}}
+                        \fi
+                      }
+                      {}%
+                    % right side
+                    \pgf@circ@if@num@in@list\pgf@circ@pins@list{\numpins+1-\pgf@circ@count@a}
+                      {%
+                        \ifnum\padfrac>0
+                          % pads
+                          \pgfpathmoveto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@temp+\pgf@circ@res@up+(\pgf@circ@dip@pin@shift-\the\pgf@circ@count@a)*\pgf@circ@res@step}}
+                          \pgfpathlineto{\pgfpoint{\pgf@circ@res@right+\pgf@circ@res@other}{\pgf@circ@res@temp+\pgf@circ@res@up+(\pgf@circ@dip@pin@shift-\the\pgf@circ@count@a)*\pgf@circ@res@step}}
+                          \pgfpathlineto{\pgfpoint{\pgf@circ@res@right+\pgf@circ@res@other}{-\pgf@circ@res@temp+\pgf@circ@res@up+(\pgf@circ@dip@pin@shift-\the\pgf@circ@count@a)*\pgf@circ@res@step}}
+                          \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{-\pgf@circ@res@temp+\pgf@circ@res@up+(\pgf@circ@dip@pin@shift-\the\pgf@circ@count@a)*\pgf@circ@res@step}}
+                        \else
+                          % pins
+                          \pgfpathmoveto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@up+(\pgf@circ@dip@pin@shift-\the\pgf@circ@count@a)*\pgf@circ@res@step}}
+                          \pgfpathlineto{\pgfpoint{\pgf@circ@res@right+\pgf@circ@res@other}{\pgf@circ@res@up+(\pgf@circ@dip@pin@shift-\the\pgf@circ@count@a)*\pgf@circ@res@step}}
+                        \fi
+                      }
+                      {}%
                     \advance\pgf@circ@count@a by -1\relax%
                 \repeatpgfmathloop
                 \pgfusepath{stroke}
