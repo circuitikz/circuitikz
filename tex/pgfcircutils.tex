@@ -120,28 +120,20 @@
 }
 \long\def\ctikzsubcircuitactivate#1{\csname #1@setanchors\endcsname}
 
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%% list handling
-%%
-%% The list implementation here has a few limitations. Those are:
-%%  1. not long, so no \par in the lists (but many used functions in pgfutil
-%%     aren't long as well)
-%%  2. list elements can't contain a Q with category code 3 (but the used
-%%     function \pgfutil@trimspaces doesn't support them as well, and this
-%%     should be a very rare token anyway)
-%%  3. list elements can't contain the token \pgf@circ@set@list as that is used
-%%     as the end marker
+%% Basic utility macros
 %%
 %% Functions provided here are:
-%%  \pgf@circ@set@list<macro>{<csv-list>}
-%%    Parses the <csv-list> and stores the result inside <macro> (local
-%%    assignment)
-%%  \pgf@circ@if@num@in@list<macro>{<value>}{<true>}{<false>}
-%%    Checks whether <value> (numeric value, evaluated once with \numexpr) is
-%%    found inside the list stored in <macro>. There are two special cases: If
-%%    <macro> is undefined <false> is executed. If the list contains only one
-%%    element and that is `all' <true> is executed.
+%%  \pgf@circ@ifempty{<argument>}{<true>}{<false>}
+%%    Tests whether <argument> is completely empty.
+%%  \pgf@circ@ifblank{<argument>}{<true>}{<false>}
+%%    Tests whether <argument> is either empty or only contains spaces.
+%%  \pgf@circ@trimspaces@do{<argument>}{<next>}
+%%    Trims at most one space from either end of <argument> and forwards the
+%%    result to <next> as <next>{<trimmed argument>}
 
+% these two are pretty standard code
 \long\def\pgf@circ@ifempty#1%
   {%
     \if\relax\detokenize{#1}\relax
@@ -158,6 +150,46 @@
       \expandafter\pgfutil@secondoftwo
     \fi
   }
+
+% \pgfutil@trimspaces needs two expansions. The first expansion we'll do during
+% the definition.
+\def\pgf@circ@trimspaces@do#1%
+  {%
+    \def\pgf@circ@trimspaces@do##1%
+      {\expandafter\pgf@circ@trimspaces@do@\expandafter{#1}}%
+  }
+\expandafter\pgf@circ@trimspaces@do\expandafter{\pgfutil@trimspaces{#1}}
+\def\pgf@circ@trimspaces@do@#1#2{#2{#1}}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% list handling
+%%
+%% The list implementation here has a few limitations. Those are:
+%%  1. not long, so no \par in the lists (but many used functions in pgfutil
+%%     aren't long as well)
+%%  2. list elements can't contain a Q with category code 3 (but the used
+%%     function \pgfutil@trimspaces doesn't support them as well, and this
+%%     should be a very rare token anyway)
+%%  3. list elements can't contain the token \pgf@circ@set@list as that is used
+%%     as the end marker
+%%  4. currently these lists are meant for numeric data (hence only
+%%     \pgf@circ@if@num@in@list is provided as a test), as a result there is
+%%     another limitation for the data here. If the list element contains no
+%%     hyphen '-', the element will be stored without further processing
+%%     'as-is' (well, after trimming spaces). If there is a hyphen we assume
+%%     well-behaved input data and will interpret this as a num-range without
+%%     further tests.
+%%
+%% Functions provided here are:
+%%  \pgf@circ@set@list<macro>{<csv-list>}
+%%    Parses the <csv-list> and stores the result inside <macro> (local
+%%    assignment). If a num-range given as <start - stop> (with or without
+%%    spaces) is found it will be expanded to <start>,<start+1>,...,<stop>.
+%%  \pgf@circ@if@num@in@list<macro>{<value>}{<true>}{<false>}
+%%    Checks whether <value> (numeric value, evaluated once with \numexpr) is
+%%    found inside the list stored in <macro>. There are two special cases: If
+%%    <macro> is undefined <false> is executed. If the list contains only one
+%%    element and that is `all' <true> is executed.
 
 % set the catcode of our marker
 \chardef\pgf@circ@temp=\the\catcode`\Q
@@ -221,14 +253,7 @@
       {%
         \pgf@circ@ifblank{#1}
           {}% ignore blank entries
-          {%
-            % \pgfutil@trimspaces uses \romannumeral to trim up to one set of
-            % spaces and needs exactly two steps of expansion
-            \expandafter\expandafter\expandafter
-            \pgf@circ@set@list@sanitize@b
-            \expandafter\expandafter\expandafter
-              {\pgfutil@trimspaces{#1}}%
-          }%
+          {\pgf@circ@trimspaces@do{#1}\pgf@circ@set@list@sanitize@b}%
       }
       {%
         % panic, there was a marker found in a list element. We'll recover by
@@ -243,7 +268,43 @@
   }
 % we'll protect any element from further expanding using \unexpanded and place
 % the marker after the element, and ignore empty/blank elements
-\def\pgf@circ@set@list@sanitize@b#1{\pgfutil@unexpanded{#1}Q}
+\def\pgf@circ@set@list@sanitize@b#1%
+  {%
+    \expandafter\pgf@circ@ifempty\expandafter
+      % if this is empty no hyphen is found
+      {\pgf@circ@gobbletohyphen#1-}
+      {\pgfutil@unexpanded{#1}Q}
+      {\pgf@circ@set@list@parse@range{#1}}%
+  }
+\def\pgf@circ@gobbletohyphen#1-{}
+\def\pgf@circ@set@list@parse@range#1%
+  {%
+    \pgf@circ@set@list@parse@range@a#1Q%
+    \pgfutil@gobbletwo Q{#1}% place the original argument here for recovery
+  }
+\def\pgf@circ@set@list@parse@range@a#1-#2Q%
+  {%
+    \expandafter\pgf@circ@set@list@parse@range@b
+      \the\numexpr#1\expandafter Q\the\numexpr#2Q%
+  }
+\def\pgf@circ@set@list@parse@range@b#1Q#2Q%
+  {%
+    \ifnum#1<#2
+      \pgf@circ@set@list@range{#1}{#2}%
+    \else
+      \expandafter\pgf@circ@set@list@parse@range@norange
+    \fi
+  }
+\def\pgf@circ@set@list@parse@range@norange#1Q#2{\pgfutil@unexpanded{#2}Q}
+\def\pgf@circ@set@list@range#1#2%
+  {%
+    #1Q%
+    \ifnum#1<#2
+      \expandafter\pgfutil@secondoftwo
+    \fi
+    \pgfutil@gobble
+    {\expandafter\pgf@circ@set@list@range\expandafter{\the\numexpr#1+1}{#2}}%
+  }
 
 % flag for special value
 \def\pgf@circ@all@flag{QallQ}
