@@ -1,6 +1,10 @@
 <!--- CircuiTikz - Changelog --->
 The major changes among the different CircuiTikZ versions are listed here. See <https://github.com/circuitikz/circuitikz/commits> for a full list of changes.
 
+* Version 1.3.8 (unreleased)
+
+    - Make `dipchip` and `qfpchip` respect `no input leads` option
+
 * version 1.3.7 (2021-06-01)
 
     Minor release, mainly documentation upgrades.
