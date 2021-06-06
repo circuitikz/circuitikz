@@ -277,11 +277,7 @@
       {\pgf@circ@set@list@parse@range{#1}}%
   }
 \def\pgf@circ@gobbletohyphen#1-{}
-\def\pgf@circ@set@list@parse@range#1%
-  {%
-    \pgf@circ@set@list@parse@range@a#1Q%
-    \pgfutil@gobbletwo Q{#1}% place the original argument here for recovery
-  }
+\def\pgf@circ@set@list@parse@range#1{\pgf@circ@set@list@parse@range@a#1Q}
 \def\pgf@circ@set@list@parse@range@a#1-#2Q%
   {%
     \expandafter\pgf@circ@set@list@parse@range@b
@@ -290,9 +286,16 @@
 \def\pgf@circ@set@list@parse@range@b#1Q#2Q%
   {%
     \ifnum#1<#2
+      % expand to the range from #1 to #2 (inclusive)
       \pgf@circ@set@list@range{#1}{#2}%
     \else
-      \expandafter\pgf@circ@set@list@parse@range@norange
+      \ifnum#2<#1
+        % if #2 is smaller than #1 just swap the order
+        \pgf@circ@set@list@range{#2}{#1}%
+      \else
+        % last case, they are equal, so just put the result here
+        #1Q%
+      \fi
     \fi
   }
 \def\pgf@circ@set@list@parse@range@norange#1Q#2{\pgfutil@unexpanded{#2}Q}
