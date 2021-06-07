@@ -18,6 +18,9 @@
 %
 \ctikzset{multipoles/thickness/.initial=2}
 \ctikzset{multipoles/font/.initial=\pgf@circ@font@tiny}
+\ctikzset{multipoles/draw only pins/.initial={all}}
+\pgfqkeys{/tikz}
+  {draw only pins/.add code={}{\ctikzset{multipoles/draw only pins={#1}}}}
 % DIP (dual in line package) chips
 \ctikzset{multipoles/dipchip/width/.initial=1.2}
 \ctikzset{multipoles/dipchip/num pins/.initial=8}
@@ -113,8 +116,22 @@
 % Thanks also to John Kormylo https://tex.stackexchange.com/a/372996/38080
 % a lot of thanks to @marmot  for the un-rotation hint
 % https://tex.stackexchange.com/a/473571/38080
+% modifications for 'draw only pins' by Jonathan P. Spratte
 
 % DIP (dual in line package) chips
+
+% helper macro to set the anchors inside a loop (to expand the current count)
+\pgfutil@protected\def\pgf@circ@pin@anchor#1%
+  {%
+    \expandafter\gdef\csname pgf@anchor@dipchip@pin #1\endcsname
+      {%
+        \pgf@circ@if@num@in@list\pgf@circ@pins@list{#1}
+          {\pgf@circ@dippinanchor{#1}{1}}
+          {\pgf@circ@dippinanchor{#1}{0}}%
+      }%
+    \expandafter\gdef\csname pgf@anchor@dipchip@bpin #1\endcsname
+      {\pgf@circ@dippinanchor{#1}{0}}%
+  }
 
 \pgfdeclareshape{dipchip}{
     \savedmacro{\ctikzclass}{\edef\ctikzclass{chips}}
@@ -123,6 +140,14 @@
             \pgf@circ@count@a=\ctikzvalof{multipoles/dipchip/num pins}%
             \def\numpins{\the\pgf@circ@count@a}
     }
+    \savedmacro\pgf@circ@pins@list
+      {%
+        \pgfkeysgetvalue
+          {\circuitikzbasekey/multipoles/draw only pins}\pgf@circ@temp
+        \expandafter\pgf@circ@set@list
+          \expandafter\pgf@circ@pins@list
+          \expandafter{\pgf@circ@temp}%
+      }%
     \savedanchor\centerpoint{%
         \pgf@x=-.5\wd\pgfnodeparttextbox%
         \pgf@y=-.5\ht\pgfnodeparttextbox%
@@ -266,29 +291,44 @@
                 \pgfsetlinewidth{\ctikzvalof{multipoles/external pins thickness}\pgflinewidth}
                 \pgf@circ@count@a=\numpins\relax
                 \divide\pgf@circ@count@a by 2 \pgf@circ@count@b=\pgf@circ@count@a
+                \edef\padfrac{\ctikzvalof{multipoles/external pad fraction}}
+                \ifnum\padfrac>0
+                    \pgf@circ@res@temp=\pgf@circ@res@step\divide\pgf@circ@res@temp by \padfrac
+                \fi
                 \pgfmathloop%
                 \ifnum\pgf@circ@count@a>0
-                    \edef\padfrac{\ctikzvalof{multipoles/external pad fraction}}
-                    \ifnum\padfrac>0
-                        \pgf@circ@res@temp=\pgf@circ@res@step\divide\pgf@circ@res@temp by \padfrac
-                        % left side pads
-                        \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@temp+\pgf@circ@res@up+(\pgf@circ@dip@pin@shift-\the\pgf@circ@count@a)*\pgf@circ@res@step}}
-                        \pgfpathlineto{\pgfpoint{\pgf@circ@res@left-\pgf@circ@res@other}{\pgf@circ@res@temp+\pgf@circ@res@up+(\pgf@circ@dip@pin@shift-\the\pgf@circ@count@a)*\pgf@circ@res@step}}
-                        \pgfpathlineto{\pgfpoint{\pgf@circ@res@left-\pgf@circ@res@other}{-\pgf@circ@res@temp+\pgf@circ@res@up+(\pgf@circ@dip@pin@shift-\the\pgf@circ@count@a)*\pgf@circ@res@step}}
-                        \pgfpathlineto{\pgfpoint{\pgf@circ@res@left}{-\pgf@circ@res@temp+\pgf@circ@res@up+(\pgf@circ@dip@pin@shift-\the\pgf@circ@count@a)*\pgf@circ@res@step}}
-                        % right side pads
-                        \pgfpathmoveto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@temp+\pgf@circ@res@up+(\pgf@circ@dip@pin@shift-\the\pgf@circ@count@a)*\pgf@circ@res@step}}
-                        \pgfpathlineto{\pgfpoint{\pgf@circ@res@right+\pgf@circ@res@other}{\pgf@circ@res@temp+\pgf@circ@res@up+(\pgf@circ@dip@pin@shift-\the\pgf@circ@count@a)*\pgf@circ@res@step}}
-                        \pgfpathlineto{\pgfpoint{\pgf@circ@res@right+\pgf@circ@res@other}{-\pgf@circ@res@temp+\pgf@circ@res@up+(\pgf@circ@dip@pin@shift-\the\pgf@circ@count@a)*\pgf@circ@res@step}}
-                        \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{-\pgf@circ@res@temp+\pgf@circ@res@up+(\pgf@circ@dip@pin@shift-\the\pgf@circ@count@a)*\pgf@circ@res@step}}
-                    \else
-                        % left side pins
-                        \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@up+(\pgf@circ@dip@pin@shift-\the\pgf@circ@count@a)*\pgf@circ@res@step}}
-                        \pgfpathlineto{\pgfpoint{\pgf@circ@res@left-\pgf@circ@res@other}{\pgf@circ@res@up+(\pgf@circ@dip@pin@shift-\the\pgf@circ@count@a)*\pgf@circ@res@step}}
-                        % right side pins
-                        \pgfpathmoveto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@up+(\pgf@circ@dip@pin@shift-\the\pgf@circ@count@a)*\pgf@circ@res@step}}
-                        \pgfpathlineto{\pgfpoint{\pgf@circ@res@right+\pgf@circ@res@other}{\pgf@circ@res@up+(\pgf@circ@dip@pin@shift-\the\pgf@circ@count@a)*\pgf@circ@res@step}}
-                    \fi
+                    % left side
+                    \pgf@circ@if@num@in@list\pgf@circ@pins@list\pgf@circ@count@a
+                      {%
+                        \ifnum\padfrac>0
+                          % pads
+                          \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@temp+\pgf@circ@res@up+(\pgf@circ@dip@pin@shift-\the\pgf@circ@count@a)*\pgf@circ@res@step}}
+                          \pgfpathlineto{\pgfpoint{\pgf@circ@res@left-\pgf@circ@res@other}{\pgf@circ@res@temp+\pgf@circ@res@up+(\pgf@circ@dip@pin@shift-\the\pgf@circ@count@a)*\pgf@circ@res@step}}
+                          \pgfpathlineto{\pgfpoint{\pgf@circ@res@left-\pgf@circ@res@other}{-\pgf@circ@res@temp+\pgf@circ@res@up+(\pgf@circ@dip@pin@shift-\the\pgf@circ@count@a)*\pgf@circ@res@step}}
+                          \pgfpathlineto{\pgfpoint{\pgf@circ@res@left}{-\pgf@circ@res@temp+\pgf@circ@res@up+(\pgf@circ@dip@pin@shift-\the\pgf@circ@count@a)*\pgf@circ@res@step}}
+                        \else
+                          % pins
+                          \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@up+(\pgf@circ@dip@pin@shift-\the\pgf@circ@count@a)*\pgf@circ@res@step}}
+                          \pgfpathlineto{\pgfpoint{\pgf@circ@res@left-\pgf@circ@res@other}{\pgf@circ@res@up+(\pgf@circ@dip@pin@shift-\the\pgf@circ@count@a)*\pgf@circ@res@step}}
+                        \fi
+                      }
+                      {}%
+                    % right side
+                    \pgf@circ@if@num@in@list\pgf@circ@pins@list{\numpins+1-\pgf@circ@count@a}
+                      {%
+                        \ifnum\padfrac>0
+                          % pads
+                          \pgfpathmoveto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@temp+\pgf@circ@res@up+(\pgf@circ@dip@pin@shift-\the\pgf@circ@count@a)*\pgf@circ@res@step}}
+                          \pgfpathlineto{\pgfpoint{\pgf@circ@res@right+\pgf@circ@res@other}{\pgf@circ@res@temp+\pgf@circ@res@up+(\pgf@circ@dip@pin@shift-\the\pgf@circ@count@a)*\pgf@circ@res@step}}
+                          \pgfpathlineto{\pgfpoint{\pgf@circ@res@right+\pgf@circ@res@other}{-\pgf@circ@res@temp+\pgf@circ@res@up+(\pgf@circ@dip@pin@shift-\the\pgf@circ@count@a)*\pgf@circ@res@step}}
+                          \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{-\pgf@circ@res@temp+\pgf@circ@res@up+(\pgf@circ@dip@pin@shift-\the\pgf@circ@count@a)*\pgf@circ@res@step}}
+                        \else
+                          % pins
+                          \pgfpathmoveto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@up+(\pgf@circ@dip@pin@shift-\the\pgf@circ@count@a)*\pgf@circ@res@step}}
+                          \pgfpathlineto{\pgfpoint{\pgf@circ@res@right+\pgf@circ@res@other}{\pgf@circ@res@up+(\pgf@circ@dip@pin@shift-\the\pgf@circ@count@a)*\pgf@circ@res@step}}
+                        \fi
+                      }
+                      {}%
                     \advance\pgf@circ@count@a by -1\relax%
                 \repeatpgfmathloop
                 \pgfusepath{stroke}
@@ -296,25 +336,17 @@
             \fi
             \fi
         }%
-        % \pgf@sh@s@<name of the shape here> contains all the code for the shape
-        % and is executed just before a node is drawn.
         \pgfutil@g@addto@macro\pgf@sh@s@dipchip{%
-            % Start with the maximum pin number and go backwards.
-            \pgf@circ@count@a=\numpins\relax
-            \pgfmathloop%
+          \pgf@circ@count@a=\numpins
+          \pgfmathloop
             \ifnum\pgf@circ@count@a>0
-                % we will create two anchors per pin: the "normal one" like `pin 1` for the
-                % electrical contact, and the "border one" like `bpin 1` for labels.
-                % they will coincide if `external pins width` is set to 0.
-                \expandafter\xdef\csname pgf@anchor@dipchip@pin\space\the\pgf@circ@count@a\endcsname{%
-                    \noexpand\pgf@circ@dippinanchor{\the\pgf@circ@count@a}{1}%
-                }
-                \expandafter\xdef\csname pgf@anchor@dipchip@bpin\space\the\pgf@circ@count@a\endcsname{%
-                    \noexpand\pgf@circ@dippinanchor{\the\pgf@circ@count@a}{0}%
-                }
-                \advance\pgf@circ@count@a by -1\relax%
-                \repeatpgfmathloop%
-            }%
+              % we will create two anchors per pin: the "normal one" like `pin 1` for the
+              % electrical contact, and the "border one" like `bpin 1` for labels.
+              % they will coincide if `external pins width` is set to 0.
+            \expandafter\pgf@circ@pin@anchor\expandafter{\the\pgf@circ@count@a}%
+            \advance\pgf@circ@count@a by -1\relax
+          \repeatpgfmathloop
+        }%
         }
 
 % QFP (quad flat package) chips
