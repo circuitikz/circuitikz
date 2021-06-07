@@ -10,7 +10,7 @@
 %
 % See the files gpl-3.0_license.txt and lppl-1-3c_license.txt for more details.
 
-\def\pgfcircversion{1.3.8-unreleased-098c462}
+\def\pgfcircversion{1.3.8-unreleased-1630d56}
 \def\pgfcircversiondate{2021/06/07}
 \writestatus{loading}{\pgfcircversiondate{} The CircuiTikz circuit drawing package version \pgfcircversion}
 
@@ -1030,6 +1030,263 @@
     }
 }
 \long\def\ctikzsubcircuitactivate#1{\csname #1@setanchors\endcsname}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Basic utility macros
+%%
+%% Functions provided here are:
+%%  \pgf@circ@ifempty{<argument>}{<true>}{<false>}
+%%    Tests whether <argument> is completely empty.
+%%  \pgf@circ@ifblank{<argument>}{<true>}{<false>}
+%%    Tests whether <argument> is either empty or only contains spaces.
+%%  \pgf@circ@trimspaces@do{<argument>}{<next>}
+%%    Trims at most one space from either end of <argument> and forwards the
+%%    result to <next> as <next>{<trimmed argument>}
+
+% these two are pretty standard code
+\long\def\pgf@circ@ifempty#1%
+  {%
+    \if\relax\detokenize{#1}\relax
+      \expandafter\pgfutil@firstoftwo
+    \else
+      \expandafter\pgfutil@secondoftwo
+    \fi
+  }
+\long\def\pgf@circ@ifblank#1%
+  {%
+    \if\relax\detokenize\expandafter{\pgfutil@gobble#1.}\relax
+      \expandafter\pgfutil@firstoftwo
+    \else
+      \expandafter\pgfutil@secondoftwo
+    \fi
+  }
+
+% \pgfutil@trimspaces needs two expansions. The first expansion we'll do during
+% the definition.
+\def\pgf@circ@trimspaces@do#1%
+  {%
+    \def\pgf@circ@trimspaces@do##1%
+      {\expandafter\pgf@circ@trimspaces@do@\expandafter{#1}}%
+  }
+\expandafter\pgf@circ@trimspaces@do\expandafter{\pgfutil@trimspaces{#1}}
+\def\pgf@circ@trimspaces@do@#1#2{#2{#1}}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% list handling
+%%
+%% Contribution by Jonathan P. Spratte (blame him!)
+%%
+%% The list implementation here has a few limitations. Those are:
+%%  1. not long, so no \par in the lists (but many used functions in pgfutil
+%%     aren't long as well)
+%%  2. list elements can't contain a Q with category code 3 (but the used
+%%     function \pgfutil@trimspaces doesn't support them as well, and this
+%%     should be a very rare token anyway)
+%%  3. list elements can't contain the token \pgf@circ@set@list as that is used
+%%     as the end marker
+%%  4. currently these lists are meant for numeric data (hence only
+%%     \pgf@circ@if@num@in@list is provided as a test), as a result there is
+%%     another limitation for the data here. If the list element contains no
+%%     hyphen '-', the element will be stored without further processing
+%%     'as-is' (well, after trimming spaces). If there is a hyphen we assume
+%%     well-behaved input data and will interpret this as a num-range without
+%%     further tests.
+%%
+%% Functions provided here are:
+%%  \pgf@circ@set@list<macro>{<csv-list>}
+%%    Parses the <csv-list> and stores the result inside <macro> (local
+%%    assignment). If a num-range given as <start - stop> (with or without
+%%    spaces) is found it will be expanded to <start>,<start+1>,...,<stop>.
+%%  \pgf@circ@if@num@in@list<macro>{<value>}{<true>}{<false>}
+%%    Checks whether <value> (numeric value, evaluated once with \numexpr) is
+%%    found inside the list stored in <macro>. There are two special cases: If
+%%    <macro> is undefined <false> is executed. If the list contains only one
+%%    element and that is `all' <true> is executed.
+
+% set the catcode of our marker
+\chardef\pgf@circ@temp=\the\catcode`\Q
+\catcode`\Q=3
+
+% lists will have the structure
+% <marker><element 1><marker>...<element n><marker>
+% As marker we use a Q with category 3. Under the assumption that no list
+% element does ever contain that token we can set the elements without braces,
+% allowing us to use \pgfutil@in@ to search for elements (see above). The other
+% token that isn't allowed to show up in the list is \pgf@circ@set@list, that we
+% use as another marker during parsing.
+% The other big restriction in this implementation is that lists can't contain a
+% \par (but \pgfutil@in@ doesn't support that anyway so there is not much
+% sense in supporting it here)
+\pgfutil@protected\def\pgf@circ@set@list#1#2%
+  {%
+    % clear the error flag
+    \let\pgf@circ@error@marker\pgf@circ@undefined
+    % set the list
+    \edef#1%
+      {Q\pgf@circ@set@list@sanitize#2,\pgf@circ@set@list,\pgf@circ@set@list}%
+    % there was an error, throw the error message, recovery was already done by
+    % ignoring the offending elements.
+    \ifx\pgf@circ@error@marker\relax
+      \begingroup
+        \newlinechar`\^^J
+        \pgfutil@packageerror{circuitikz}
+          {%
+            Unallowed marker found in list^^J%
+            \pgfutil@unexpanded{#2}.^^J%
+            Offending elements were ignored.%
+          }
+          {Lists can't contain a Q with category code 3}%
+      \endgroup
+    \fi
+  }
+% just a utility for the <marker> test
+\def\pgf@circ@set@list@gobbletomarker#1Q{}
+% quick way to check whether list parsing is done by gobbling up to a marker, in
+% this case the marker is \pgf@circ@set@list
+\def\pgf@circ@set@list@sanitize@checkend#1\pgf@circ@set@list{}
+% will only be called after the last element is handled, will gobble the
+% remainder of the current sanitizing step
+\def\pgf@circ@set@list@sanitize@end\pgf@circ@set@list#1\pgf@circ@set@list{}
+% grabs the next list element, checks whether we're done, and if not sanitizes
+% it (meaning stripping spaces from either end and placing the <marker>).
+\def\pgf@circ@set@list@sanitize#1,%
+  {%
+    \pgf@circ@set@list@sanitize@checkend
+      #1\pgf@circ@set@list@sanitize@end\pgf@circ@set@list
+    \pgf@circ@set@list@sanitize@a{#1}%
+  }
+% testing whether a list element contains the used <marker> expandably, if it
+% does set the flag, else continue sanitizing.
+\def\pgf@circ@set@list@sanitize@a#1%
+  {%
+    \expandafter\pgf@circ@ifempty\expandafter
+      % if this is empty no marker was found
+      {\pgf@circ@set@list@gobbletomarker#1Q}
+      {%
+        \pgf@circ@ifblank{#1}
+          {}% ignore blank entries
+          {\pgf@circ@trimspaces@do{#1}\pgf@circ@set@list@sanitize@b}%
+      }
+      {%
+        % panic, there was a marker found in a list element. We'll recover by
+        % ignoring the current element after setting a flag. When we do
+        % \csname ...\endcsname on an undefined macro name TeX will let that
+        % macro to relax and we exploit this to expandable set a flag and
+        % gobbling the result.
+        \expandafter\pgfutil@gobble\csname pgf@circ@error@marker\endcsname
+      }%
+    % get the next element
+    \pgf@circ@set@list@sanitize
+  }
+% we'll protect any element from further expanding using \unexpanded and place
+% the marker after the element, and ignore empty/blank elements
+\def\pgf@circ@set@list@sanitize@b#1%
+  {%
+    \expandafter\pgf@circ@ifempty\expandafter
+      % if this is empty no hyphen is found
+      {\pgf@circ@gobbletohyphen#1-}
+      {\pgfutil@unexpanded{#1}Q}
+      {\pgf@circ@set@list@parse@range{#1}}%
+  }
+\def\pgf@circ@gobbletohyphen#1-{}
+\def\pgf@circ@set@list@parse@range#1{\pgf@circ@set@list@parse@range@a#1Q}
+\def\pgf@circ@set@list@parse@range@a#1-#2Q%
+  {%
+    \expandafter\pgf@circ@set@list@parse@range@b
+      \the\numexpr#1\expandafter Q\the\numexpr#2Q%
+  }
+\def\pgf@circ@set@list@parse@range@b#1Q#2Q%
+  {%
+    \ifnum#1<#2
+      % expand to the range from #1 to #2 (inclusive)
+      \pgf@circ@set@list@range{#1}{#2}%
+    \else
+      \ifnum#2<#1
+        % if #2 is smaller than #1 just swap the order
+        \pgf@circ@set@list@range{#2}{#1}%
+      \else
+        % last case, they are equal, so just put the result here
+        #1Q%
+      \fi
+    \fi
+  }
+\def\pgf@circ@set@list@parse@range@norange#1Q#2{\pgfutil@unexpanded{#2}Q}
+\def\pgf@circ@set@list@range#1#2%
+  {%
+    #1Q%
+    \ifnum#1<#2
+      \expandafter\pgfutil@secondoftwo
+    \fi
+    \pgfutil@gobble
+    {\expandafter\pgf@circ@set@list@range\expandafter{\the\numexpr#1+1}{#2}}%
+  }
+
+% flag for special value
+\def\pgf@circ@all@flag{QallQ}
+\pgfutil@protected\def\pgf@circ@if@num@in@list#1#2%
+  {%
+    % test whether the list macro is defined, if it isn't result is false
+    \pgfutil@ifx\pgf@circ@undefined#1%
+      {\pgfutil@secondoftwo}
+      {%
+        % test whether the list macro is just the special value 'all', if so
+        % true, else search (and start that by evaluating a numexpr)
+        \pgfutil@ifx\pgf@circ@all@flag#1%
+          {\pgfutil@firstoftwo}
+          {%
+            \expandafter\pgf@circ@if@num@in@list@a\expandafter
+              {\the\numexpr#2}%
+              #1%
+          }%
+      }%
+  }
+% next step is expanding the list macro
+\pgfutil@protected\def\pgf@circ@if@num@in@list@a#1#2%
+  {\expandafter\pgf@circ@if@num@in@list@b\expandafter{#2}{#1}}
+% now use \pgfutil@in@ to check whether there is the searched list element
+\pgfutil@protected\def\pgf@circ@if@num@in@list@b#1#2%
+  {%
+    \begingroup
+      % put the <marker> around the number to make sure only full matches are
+      % found. \pgfutil@in@ will set \ifpgfutil@in@ to true if it finds a match
+      \pgfutil@in@{Q#2Q}{#1}%
+      \expandafter
+    \endgroup
+    \ifpgfutil@in@
+      \expandafter\pgfutil@firstoftwo
+    \else
+      \expandafter\pgfutil@secondoftwo
+    \fi
+  }
+
+% reset the catcode of Q
+\catcode`\Q=\pgf@circ@temp
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% temporary fix for old TikZ versions (remove me)
+%%
+%% All blame to Romano Giannetti for this code!
+%%
+%% This tries to be smart and provide \pgfutil@unexpanded and \pgfutil@ifx if
+%% PGF doesn't provide them.
+
+\ifx\pgfutil@unexpanded\pgf@circ@undefined
+  \ifpgfutil@format@is@context
+    \let\pgfutil@unexpanded\normalunexpanded
+  \else
+    \let\pgfutil@unexpanded\unexpanded
+  \fi
+\fi
+
+\ifx\pgfutil@ifx\pgf@circ@undefined
+  \long\def\pgfutil@ifx#1#2{%
+    \ifx#1#2%
+      \expandafter\pgfutil@firstoftwo
+    \else
+      \expandafter\pgfutil@secondoftwo
+    \fi}
+\fi
 
 %%%---------- close: tex/pgfcircutils
 %%%%%%%%%%% Springe nach tex/pgfcircpath
@@ -21799,6 +22056,9 @@
 %
 \ctikzset{multipoles/thickness/.initial=2}
 \ctikzset{multipoles/font/.initial=\pgf@circ@font@tiny}
+\ctikzset{multipoles/draw only pins/.initial={all}}
+\pgfqkeys{/tikz}
+  {draw only pins/.add code={}{\ctikzset{multipoles/draw only pins={#1}}}}
 % DIP (dual in line package) chips
 \ctikzset{multipoles/dipchip/width/.initial=1.2}
 \ctikzset{multipoles/dipchip/num pins/.initial=8}
@@ -21894,8 +22154,22 @@
 % Thanks also to John Kormylo https://tex.stackexchange.com/a/372996/38080
 % a lot of thanks to @marmot  for the un-rotation hint
 % https://tex.stackexchange.com/a/473571/38080
+% modifications for 'draw only pins' by Jonathan P. Spratte
 
 % DIP (dual in line package) chips
+
+% helper macro to set the anchors inside a loop (to expand the current count)
+\pgfutil@protected\def\pgf@circ@pin@anchor#1%
+  {%
+    \expandafter\gdef\csname pgf@anchor@dipchip@pin #1\endcsname
+      {%
+        \pgf@circ@if@num@in@list\pgf@circ@pins@list{#1}
+          {\pgf@circ@dippinanchor{#1}{1}}
+          {\pgf@circ@dippinanchor{#1}{0}}%
+      }%
+    \expandafter\gdef\csname pgf@anchor@dipchip@bpin #1\endcsname
+      {\pgf@circ@dippinanchor{#1}{0}}%
+  }
 
 \pgfdeclareshape{dipchip}{
     \savedmacro{\ctikzclass}{\edef\ctikzclass{chips}}
@@ -21904,6 +22178,14 @@
             \pgf@circ@count@a=\ctikzvalof{multipoles/dipchip/num pins}%
             \def\numpins{\the\pgf@circ@count@a}
     }
+    \savedmacro\pgf@circ@pins@list
+      {%
+        \pgfkeysgetvalue
+          {\circuitikzbasekey/multipoles/draw only pins}\pgf@circ@temp
+        \expandafter\pgf@circ@set@list
+          \expandafter\pgf@circ@pins@list
+          \expandafter{\pgf@circ@temp}%
+      }%
     \savedanchor\centerpoint{%
         \pgf@x=-.5\wd\pgfnodeparttextbox%
         \pgf@y=-.5\ht\pgfnodeparttextbox%
@@ -22047,29 +22329,44 @@
                 \pgfsetlinewidth{\ctikzvalof{multipoles/external pins thickness}\pgflinewidth}
                 \pgf@circ@count@a=\numpins\relax
                 \divide\pgf@circ@count@a by 2 \pgf@circ@count@b=\pgf@circ@count@a
+                \edef\padfrac{\ctikzvalof{multipoles/external pad fraction}}
+                \ifnum\padfrac>0
+                    \pgf@circ@res@temp=\pgf@circ@res@step\divide\pgf@circ@res@temp by \padfrac
+                \fi
                 \pgfmathloop%
                 \ifnum\pgf@circ@count@a>0
-                    \edef\padfrac{\ctikzvalof{multipoles/external pad fraction}}
-                    \ifnum\padfrac>0
-                        \pgf@circ@res@temp=\pgf@circ@res@step\divide\pgf@circ@res@temp by \padfrac
-                        % left side pads
-                        \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@temp+\pgf@circ@res@up+(\pgf@circ@dip@pin@shift-\the\pgf@circ@count@a)*\pgf@circ@res@step}}
-                        \pgfpathlineto{\pgfpoint{\pgf@circ@res@left-\pgf@circ@res@other}{\pgf@circ@res@temp+\pgf@circ@res@up+(\pgf@circ@dip@pin@shift-\the\pgf@circ@count@a)*\pgf@circ@res@step}}
-                        \pgfpathlineto{\pgfpoint{\pgf@circ@res@left-\pgf@circ@res@other}{-\pgf@circ@res@temp+\pgf@circ@res@up+(\pgf@circ@dip@pin@shift-\the\pgf@circ@count@a)*\pgf@circ@res@step}}
-                        \pgfpathlineto{\pgfpoint{\pgf@circ@res@left}{-\pgf@circ@res@temp+\pgf@circ@res@up+(\pgf@circ@dip@pin@shift-\the\pgf@circ@count@a)*\pgf@circ@res@step}}
-                        % right side pads
-                        \pgfpathmoveto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@temp+\pgf@circ@res@up+(\pgf@circ@dip@pin@shift-\the\pgf@circ@count@a)*\pgf@circ@res@step}}
-                        \pgfpathlineto{\pgfpoint{\pgf@circ@res@right+\pgf@circ@res@other}{\pgf@circ@res@temp+\pgf@circ@res@up+(\pgf@circ@dip@pin@shift-\the\pgf@circ@count@a)*\pgf@circ@res@step}}
-                        \pgfpathlineto{\pgfpoint{\pgf@circ@res@right+\pgf@circ@res@other}{-\pgf@circ@res@temp+\pgf@circ@res@up+(\pgf@circ@dip@pin@shift-\the\pgf@circ@count@a)*\pgf@circ@res@step}}
-                        \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{-\pgf@circ@res@temp+\pgf@circ@res@up+(\pgf@circ@dip@pin@shift-\the\pgf@circ@count@a)*\pgf@circ@res@step}}
-                    \else
-                        % left side pins
-                        \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@up+(\pgf@circ@dip@pin@shift-\the\pgf@circ@count@a)*\pgf@circ@res@step}}
-                        \pgfpathlineto{\pgfpoint{\pgf@circ@res@left-\pgf@circ@res@other}{\pgf@circ@res@up+(\pgf@circ@dip@pin@shift-\the\pgf@circ@count@a)*\pgf@circ@res@step}}
-                        % right side pins
-                        \pgfpathmoveto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@up+(\pgf@circ@dip@pin@shift-\the\pgf@circ@count@a)*\pgf@circ@res@step}}
-                        \pgfpathlineto{\pgfpoint{\pgf@circ@res@right+\pgf@circ@res@other}{\pgf@circ@res@up+(\pgf@circ@dip@pin@shift-\the\pgf@circ@count@a)*\pgf@circ@res@step}}
-                    \fi
+                    % left side
+                    \pgf@circ@if@num@in@list\pgf@circ@pins@list\pgf@circ@count@a
+                      {%
+                        \ifnum\padfrac>0
+                          % pads
+                          \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@temp+\pgf@circ@res@up+(\pgf@circ@dip@pin@shift-\the\pgf@circ@count@a)*\pgf@circ@res@step}}
+                          \pgfpathlineto{\pgfpoint{\pgf@circ@res@left-\pgf@circ@res@other}{\pgf@circ@res@temp+\pgf@circ@res@up+(\pgf@circ@dip@pin@shift-\the\pgf@circ@count@a)*\pgf@circ@res@step}}
+                          \pgfpathlineto{\pgfpoint{\pgf@circ@res@left-\pgf@circ@res@other}{-\pgf@circ@res@temp+\pgf@circ@res@up+(\pgf@circ@dip@pin@shift-\the\pgf@circ@count@a)*\pgf@circ@res@step}}
+                          \pgfpathlineto{\pgfpoint{\pgf@circ@res@left}{-\pgf@circ@res@temp+\pgf@circ@res@up+(\pgf@circ@dip@pin@shift-\the\pgf@circ@count@a)*\pgf@circ@res@step}}
+                        \else
+                          % pins
+                          \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@up+(\pgf@circ@dip@pin@shift-\the\pgf@circ@count@a)*\pgf@circ@res@step}}
+                          \pgfpathlineto{\pgfpoint{\pgf@circ@res@left-\pgf@circ@res@other}{\pgf@circ@res@up+(\pgf@circ@dip@pin@shift-\the\pgf@circ@count@a)*\pgf@circ@res@step}}
+                        \fi
+                      }
+                      {}%
+                    % right side
+                    \pgf@circ@if@num@in@list\pgf@circ@pins@list{\numpins+1-\pgf@circ@count@a}
+                      {%
+                        \ifnum\padfrac>0
+                          % pads
+                          \pgfpathmoveto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@temp+\pgf@circ@res@up+(\pgf@circ@dip@pin@shift-\the\pgf@circ@count@a)*\pgf@circ@res@step}}
+                          \pgfpathlineto{\pgfpoint{\pgf@circ@res@right+\pgf@circ@res@other}{\pgf@circ@res@temp+\pgf@circ@res@up+(\pgf@circ@dip@pin@shift-\the\pgf@circ@count@a)*\pgf@circ@res@step}}
+                          \pgfpathlineto{\pgfpoint{\pgf@circ@res@right+\pgf@circ@res@other}{-\pgf@circ@res@temp+\pgf@circ@res@up+(\pgf@circ@dip@pin@shift-\the\pgf@circ@count@a)*\pgf@circ@res@step}}
+                          \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{-\pgf@circ@res@temp+\pgf@circ@res@up+(\pgf@circ@dip@pin@shift-\the\pgf@circ@count@a)*\pgf@circ@res@step}}
+                        \else
+                          % pins
+                          \pgfpathmoveto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@up+(\pgf@circ@dip@pin@shift-\the\pgf@circ@count@a)*\pgf@circ@res@step}}
+                          \pgfpathlineto{\pgfpoint{\pgf@circ@res@right+\pgf@circ@res@other}{\pgf@circ@res@up+(\pgf@circ@dip@pin@shift-\the\pgf@circ@count@a)*\pgf@circ@res@step}}
+                        \fi
+                      }
+                      {}%
                     \advance\pgf@circ@count@a by -1\relax%
                 \repeatpgfmathloop
                 \pgfusepath{stroke}
@@ -22077,25 +22374,17 @@
             \fi
             \fi
         }%
-        % \pgf@sh@s@<name of the shape here> contains all the code for the shape
-        % and is executed just before a node is drawn.
         \pgfutil@g@addto@macro\pgf@sh@s@dipchip{%
-            % Start with the maximum pin number and go backwards.
-            \pgf@circ@count@a=\numpins\relax
-            \pgfmathloop%
+          \pgf@circ@count@a=\numpins
+          \pgfmathloop
             \ifnum\pgf@circ@count@a>0
-                % we will create two anchors per pin: the "normal one" like `pin 1` for the
-                % electrical contact, and the "border one" like `bpin 1` for labels.
-                % they will coincide if `external pins width` is set to 0.
-                \expandafter\xdef\csname pgf@anchor@dipchip@pin\space\the\pgf@circ@count@a\endcsname{%
-                    \noexpand\pgf@circ@dippinanchor{\the\pgf@circ@count@a}{1}%
-                }
-                \expandafter\xdef\csname pgf@anchor@dipchip@bpin\space\the\pgf@circ@count@a\endcsname{%
-                    \noexpand\pgf@circ@dippinanchor{\the\pgf@circ@count@a}{0}%
-                }
-                \advance\pgf@circ@count@a by -1\relax%
-                \repeatpgfmathloop%
-            }%
+              % we will create two anchors per pin: the "normal one" like `pin 1` for the
+              % electrical contact, and the "border one" like `bpin 1` for labels.
+              % they will coincide if `external pins width` is set to 0.
+            \expandafter\pgf@circ@pin@anchor\expandafter{\the\pgf@circ@count@a}%
+            \advance\pgf@circ@count@a by -1\relax
+          \repeatpgfmathloop
+        }%
         }
 
 % QFP (quad flat package) chips
