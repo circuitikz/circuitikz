@@ -6185,36 +6185,20 @@ Finally, you can play with them to create chips that have generic numbers of pin
 
 You can scale chips with the key \texttt{chips/scale}. As ever, that will \textbf{not} scale text size of the labels, when they are printed.
 
+The line thickness of the main shape is controlled by \texttt{multipoles/thickness} (default 2) and the one of the external pins/pads with \texttt{multipoles/external pins thickness} (default 1).
+
 You can customize the DIP chip with the key \texttt{multipoles/dipchip/width} (with a default of \texttt{1.2}) and  the key \texttt{multipoles/dipchip/pin spacing} (default \texttt{0.4}) that are expressed in fraction of basic lengths (see section~\ref{sec:components-size}).
 The height of the chip will be equal to half the numbers of pins multiplied by the spacing, plus one spacing for the borders.
 
 For the QFP chips, you can only chose the pin spacing with \texttt{multipoles/qfpchip/pin spacing} key.
 
-The pins of the chip can be ``hidden'' (that is, just a spot in the border, optionally marked with a number) or ``stick out'' with a thin lead by setting \texttt{multipoles/external pins width} greater than 0 (default value is \texttt{0.2}, so you'll have leads as shown above).
-Moreover, you can transform the thin lead into a pad by setting the key \texttt{multipoles/external pad fraction} to something different form 0 (default is \texttt{0}); the value expresses the fraction of the pin spacing space that the pad will use on both sides of the pin.
-
-Also, you can suppress the drawing of the pins, by using the style \texttt{no inputs leads} (that can be reverted with \texttt{input leads}). The main difference between setting \texttt{external pins width} to \texttt{0} or using \texttt{no inputs lead} is that in the first case the normal pin anchors and the border anchors will coincide, and in the second case they will not move and stay where they should have been if the leads were drawn.
-
-
 The number of pins is settable with the key \texttt{num pins}.
 \textbf{Please notice} that the number of pins \textbf{must} be \emph{even} for \texttt{dipchip}s and \emph{multiple of 4} for \texttt{qfpchip}s, otherwise havoc will ensue.
 
+The pins of the chip can be ``hidden'' (that is, just a spot in the border, optionally marked with a number) or ``stick out'' with a thin lead by setting \texttt{multipoles/external pins width} greater than 0 (default value is \texttt{0.2}, so you'll have leads as shown above).
+Moreover, you can transform the thin lead into a pad by setting the key \texttt{multipoles/external pad fraction} to something different form 0 (default is \texttt{0}); the value expresses the fraction of the pin spacing space that the pad will use on both sides of the pin.
+
 You can, if you want, avoid printing the numbers of the pin with \texttt{hide numbers} (default \texttt{show numbers}) if you prefer positioning them yourself (see the next section for the anchors you can use).
-The font used for the pins is adjustable with the key \texttt{multipoles/font} (default \verb|\tiny|)
-For special use you can suppress the orientation mark with the key \texttt{no topmark} (default \texttt{topmark}).
-
-The line thickness of the main shape is controlled by \texttt{multipoles/thickness} (default 2) and the one of the external pins/pads with \texttt{multipoles/external pins thickness} (default 1).
-
-You can draw only selected pins and leave out the rest by setting
-\texttt{multipoles/draw only pins}. This key accepts a comma separated list of
-pin numbers or ranges of pin numbers (a range is given as
-\texttt{$\langle$start$\rangle$ - $\langle$end$\rangle$}, ends are inclusive).
-The numbers will not be expanded in any way, except those given as ends of
-ranges. A special value (and the initial one) is \texttt{all}, in which case all
-pins are drawn. The anchors will be adjusted, such that each \texttt{pin
-\textit{n}} will be placed at the end of the pins which are drawn, and coincide
-with the \texttt{bpin \textit{n}} anchors for the suppressed pins. Currently
-only \texttt{dipchip} supports this.
 
 \begin{LTXexample}[varwidth=true]
     \begin{circuitikz}
@@ -6232,15 +6216,22 @@ only \texttt{dipchip} supports this.
     \end{circuitikz}
 \end{LTXexample}
 
+
+Also, you can suppress the drawing of the pins, by using the style \texttt{no inputs leads} (that can be reverted with \texttt{input leads}). The main difference between setting \texttt{external pins width} to \texttt{0} or using \texttt{no inputs lead} is that in the first case the normal pin anchors and the border anchors will coincide, and in the second case they will not move and stay where they should have been if the leads were drawn.
+
+For special use you can suppress the orientation mark with the key \texttt{no topmark} (default \texttt{topmark}).
+
 \begin{LTXexample}[varwidth=true]
     \begin{circuitikz}
         \draw (0,0) node[dipchip,
-          num pins=8,
+          num pins=8, no topmark,
           external pins width=0.0](C){IC1};
         \draw (C.pin 1) -- ++(-0.5,0) to[R]
           ++(0,-1.5) node[ground]{};
     \end{circuitikz}
 \end{LTXexample}
+
+The font used for the pins is adjustable with the key \texttt{multipoles/font} (default \verb|\tiny|)
 
 \begin{LTXexample}[varwidth=true]
     \begin{circuitikz}
@@ -6253,15 +6244,36 @@ only \texttt{dipchip} supports this.
     \end{circuitikz}
 \end{LTXexample}
 
+You can draw only selected pins and leave out the rest by setting
+\texttt{multipoles/draw only pins}\footnote{Added by
+\href{https://github.com/circuitikz/circuitikz/pull/550}{Jonathan P. Spratte in \texttt{v1.3.8}}}.
+This key accepts a comma separated list of
+pin numbers or ranges of pin numbers (a range is given as
+\texttt{$\langle$start$\rangle$ - $\langle$end$\rangle$}, ends are inclusive).
+The numbers will not be expanded in any way, except those given as ends of
+ranges. A special value (and the initial one) is \texttt{all}, in which case all
+pins are drawn. The anchors will be adjusted, such that each \texttt{pin
+\textit{n}} will be placed at the end of the pins which are drawn, and coincide
+with the \texttt{bpin \textit{n}} anchors for the suppressed pins.
+
+
 \begin{LTXexample}[varwidth=true]
     \begin{circuitikz}
-        \draw (0,0) node[dipchip,
-          num pins=8,
-          draw only pins={1, 3, 5-8}](C){IC1};
+        \draw (0,3) node[dipchip,
+        num pins=8,
+        draw only pins={1, 3, 5-8}](C){IC1};
         \draw (C.pin 1) -- ++(-0.5,0) to[R]
-          ++(0,-1.5) node[ground]{};
-        \foreach \x in {1,...,8}
-          \draw[red] (C.pin \x) circle[radius=2pt];
+        ++(0,-1.5) node[ground]{};
+        \foreach \x in {1,...,8} {
+            \draw[red] (C.pin \x) circle[radius=2pt];
+            \draw[blue] (C.pin \x) circle[radius=1pt];
+        }
+        \draw (0, 0) node[qfpchip, draw only pins={1-2, 6, 8, 4},
+             external pad fraction=4, num pins=12](Q){};
+        \foreach \x in {1,...,12} {
+            \draw[red] (Q.pin \x) circle[radius=2pt];
+            \draw[blue] (Q.pin \x) circle[radius=1pt];
+        }
     \end{circuitikz}
 \end{LTXexample}
 
