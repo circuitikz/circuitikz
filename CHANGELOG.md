@@ -3,9 +3,9 @@ The major changes among the different CircuiTikZ versions are listed here. See <
 
 * Version 1.3.8 (unreleased)
 
-    The big news of this release is the ability to selectively draw the pins of the integrated circuit symbols.
+    The big news of this release is the ability to selectively draw the pins of the integrated circuit and mux-demuxes symbols.
 
-    - Add `draw only pins` feature to `dipchip` and `qfpchip`, thanks to [Jonathan P. Spratte](https://github.com/circuitikz/circuitikz/pull/550)
+    - Add `draw only pins` feature to `dipchip` and `qfpchip`, thanks to [Jonathan P. Spratte](https://github.com/circuitikz/circuitikz/pull/550), and a similar option to control the pins of `muxdemux`
     - Make `dipchip` and `qfpchip` respect `no input leads` option
 
 * version 1.3.7 (2021-06-01)
