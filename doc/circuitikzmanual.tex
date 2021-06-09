@@ -60,7 +60,9 @@
 \makeindex[title=Index of the components, intoc=true]
 
 \begin{document}
-
+% change numbering to roman to avoid a duplicate hyperref target on page 1
+% Thanks to Ulrike Fischer for helping here
+\pagenumbering{roman}
 \title{\Circuitikz \\{\large version \pgfcircversion{} (\pgfcircversiondate)}}
 \author{Massimo A. Redaelli (\email{m.redaelli@gmail.com})\\
     Stefan Lindner (\email{stefan.lindner@fau.de})\\
@@ -100,8 +102,9 @@
 
 \maketitle
 
+% go back to arabic numbering after the titlepage
+\pagenumbering{arabic}
 \tableofcontents
-\cleardoublepage
 
 \section{Introduction}
 
@@ -162,7 +165,7 @@ instead of \texttt{circuitikz}. This is also advantageous for ``future resilienc
 
 \subsection{Requirements}
 \begin{itemize}
-    \item \texttt{tikz}, version $\ge 3$;
+    \item \texttt{tikz}, version $\ge >3.1.5b$ (it \emph{should} work with any version 3 and up, but better use a newer one);
     \item \texttt{xstring}, not older than 2009/03/13;
     \item \texttt{siunitx}, if using \texttt{siunitx} option.
 \end{itemize}
@@ -659,14 +662,14 @@ First of all, let's define a handy function to show the position of nodes:
 \def\normalcoord(#1){coordinate(#1)}
 \def\showcoord(#1){coordinate(#1) node[circle, red, draw, inner sep=1pt,
     pin={[red, overlay, inner sep=0.5pt, font=\tiny, pin distance=0.1cm,
-    pin edge={red, overlay}]45:#1}](#1-node){}}
+    pin edge={red, overlay}]45:#1}](){}}
 \let\coord=\normalcoord
 \let\coord=\showcoord
 \begin{lstlisting}
 \def\normalcoord(#1){coordinate(#1)}
 \def\showcoord(#1){coordinate(#1) node[circle, red, draw, inner sep=1pt,
     pin={[red, overlay, inner sep=0.5pt, font=\tiny, pin distance=0.1cm,
-    pin edge={red, overlay}]45:#1}](#1-node){}}
+    pin edge={red, overlay}]45:#1}](){}}
 \let\coord=\normalcoord
 \let\coord=\showcoord
 \end{lstlisting}
@@ -805,7 +808,7 @@ This is the final circuit, with the nodes still marked:
 }}
 \def\killdepth#1{{\raisebox{0pt}[\height][0pt]{#1}}}
 \def\coord(#1){coordinate(#1)}
-\def\coord(#1){coordinate(#1) node[circle, red, draw, inner sep=1pt,pin={[red, overlay, inner sep=0.5pt, font=\tiny, pin distance=0.1cm, pin edge={red, overlay,}]45:#1}](#1-node){}}
+\def\coord(#1){coordinate(#1) node[circle, red, draw, inner sep=1pt,pin={[red, overlay, inner sep=0.5pt, font=\tiny, pin distance=0.1cm, pin edge={red, overlay,}]45:#1}](){}}
 \begin{circuitikz}[american, ]
     \draw (0,0) node[nmos,](Q1){\killdepth{Q1}};
     \draw (Q1.S) to[R, l2^=$R_S$ and \SI{5}{k\ohm}] ++(0,-3) node[vee](VEE){$V_{EE}=\SI{-10}{V}$}; %define VEE level
@@ -1804,7 +1807,11 @@ And finally do:
 
 \section{The components: list}
 
+This section is dedicated to the full list of available components.
+
 \subsection{Grounds and supply voltages}
+
+Ground symbols and power supplies --- they have two different classes for styling.
 
 \subsubsection{Grounds}
 
@@ -1864,6 +1871,7 @@ Note that the anchors are at the start of the connecting lines, and that geograp
 
 \begin{LTXexample}[varwidth=true]
 \begin{circuitikz}
+    % next macro is available in ctikzmanutils.sty
     \def\coord(#1){\showcoord(#1)<0:0.3>}
     \draw (0,0)
     node[vcc](vcc){VCC} \coord(vcc) ++(2,0)
@@ -3087,12 +3095,12 @@ It also has a \texttt{zero} anchor if you need to rotate it about its real cente
     \circuitdescbip*{phaseshifter}{phase shifter}{}
     \circuitdescbip*{vphaseshifter}{var.\ phase shifter}{}
     \circuitdescbip*{detector}{detector}{}
-    \circuitdescbip*{sdcdc}{single wire DC/DC converter}{}
+    \circuitdescbip*{sdcdc}{single wire DC/DC converter\footnotemark}{}
+    \footnotetext{the converter blocks added by \texttt{olfline}}
     \circuitdescbip*{sacdc}{single phase AC/DC converter}{}
     \circuitdescbip*{sdcac}{single phase DC/AC converter}{}
     \circuitdescbip*{tacdc}{three phases AC/DC converter}{}
     \circuitdescbip*{tdcac}{three phases AC/DC converter}{}(left/170/0.5, right/5/0.5, center/-90/0.3, ac1/45/0.1, ac2/-5/.3, ac3/-45/.1, dc1/135/.3, dc2/185/.3)
-    \footnotetext{the converter blocks added by \texttt{olfline}}
 \end{groupdesc}
 
 \begin{groupdesc}
@@ -3484,7 +3492,7 @@ You can change the size of the Schottky ``hook'' changing the parameter \texttt{
     \end{circuitikz}
 \end{LTXexample}
 
-\paragraph{Ferroelectric transistors} You can add the ferroelectric modifier\footnotetext{suggested by \href{https://github.com/circuitikz/circuitikz/issues/515}{Mayeul Cantan}} to the \texttt{*mos} and \texttt{*fet} transistor  types. Similarly to the Schottky bipolar transistors, you activate it by adding the \texttt{ferroel gate} key (there is also a \texttt{no ferroel base} key that can be used if you use the other one as a default).
+\paragraph{Ferroelectric transistors} You can add the ferroelectric modifier\footnote{suggested by \href{https://github.com/circuitikz/circuitikz/issues/515}{Mayeul Cantan}} to the \texttt{*mos} and \texttt{*fet} transistor  types. Similarly to the Schottky bipolar transistors, you activate it by adding the \texttt{ferroel gate} key (there is also a \texttt{no ferroel base} key that can be used if you use the other one as a default).
 
 The mark will follow the \texttt{transistors} class thickness, but you can adjust it independently using the class parameter \texttt{modifier thickness} as in passive components --- this value is relative to the class' thickness.
 
@@ -3986,7 +3994,7 @@ Example triode amplifier:
 \begin{circuitikz}
 \draw (0,0) node (start) {}
                 to[sV=$V_i$] ++(0,2+\ctikzvalof{tubes/height})
-                to[C=$C_i$] ++(2,0) node (Rg) {}
+                to[C=$C_i$] ++(2,0) coordinate(Rg)
                 to[R=$R_g$] (Rg |- start)
 (Rg)            to[short,*-] ++(1,0)
                 node[triode,anchor=control] (Tri) {} ++(2,0)
@@ -4007,7 +4015,7 @@ Example triode amplifier:
 \begin{circuitikz}
 \draw (0,0) node (start) {}
                 to[sV=$V_i$] ++(0,2+\ctikzvalof{tubes/height})
-                to[C=$C_i$] ++(2,0) node (Rg) {}
+                to[C=$C_i$] ++(2,0) coordinate(Rg)
                 to[R=$R_g$] (Rg |- start)
 (Rg)            to[short,*-] ++(1,0)
                 node[triode,anchor=control] (Tri) {} ++(2,0)
@@ -6054,11 +6062,11 @@ with the style \texttt{no inputs leads} (that can be reverted with
 \texttt{input leads}).
 The main difference between setting \texttt{external pins width} to \texttt{0} or using \texttt{no inputs lead} is that in the first case the normal pin anchors and the border anchors will coincide, and in the second case they will not move and stay where they should have been if the leads were drawn.
 
-You can draw only selected pins on the and leave out the rest by setting the keys
+You can draw only selected pins and leave out the rest by setting the keys
 \texttt{multipoles/draw only \emph{side} pins} and the corresponding style
 \texttt{draw only \emph{side} pins} where \texttt{\emph{side}} can be \texttt{left}, \texttt{right},
 \texttt{top}, \texttt{bottom}.
-Those key accepts a comma separated list of
+Those key accept a comma separated list of
 pin numbers or ranges of pin numbers (a range is given as
 \texttt{$\langle$start$\rangle$ - $\langle$end$\rangle$}, ends are inclusive).
 The numbers will not be expanded in any way, except those given as ends of
@@ -8905,7 +8913,8 @@ Here a series of example, contributed by several people, is shown with their cod
 
 \begin{LTXexample}[varwidth=true,pos=t]
 \begin{circuitikz}[smallR/.style={european resistor, resistors/scale=0.5}]
-    \draw (0,0) node[tacdcshape, anchor=ac2](acdc){} to[smallR] ++(-2,0) -- node[circ](point){} ++(-.5,0);
+    \draw (0,0) node[tacdcshape, anchor=ac2](acdc){} to[smallR] ++(-2,0)
+        -- coordinate(point) node[circ](){} ++(-.5,0);
     \draw (acdc.ac1) to[nos, invert, mirror, name=switch,color=red] ++(-2,0) -- (point);
     \draw (acdc.ac3) to[smallR] ++(-2,0)
         -- (point)
@@ -8913,7 +8922,8 @@ Here a series of example, contributed by several people, is shown with their cod
         to[tmultiwire] ++(-.5,0)
         node[gridnode, anchor=right]{};
     \node[above=.3cm,color=red] at (switch) {fault};
-    \draw (acdc.dc1) to[smallR,l=HVDC line] ++(2,0) node[tdcacshape, anchor=dc1](dcac){};
+    \draw (acdc.dc1) to[smallR,l=HVDC line] ++(2,0 )
+        node[tdcacshape, anchor=dc1](dcac){};
     \draw (acdc.dc2) -- (dcac.dc2);
     \draw (dcac.right) to[ooosource,prim=delta,sec=delta,tert=wye,invert] ++(1.5,0)
                         to[tmultiwire] ++(.5,0) node[gridnode,anchor=left]{};
