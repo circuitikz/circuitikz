@@ -31,7 +31,8 @@ in the preamble and compile away, both with PS and PDF target output.
 
 ### Development version
 
-If you want to use the git version, just append a git to the package name:
+If you want to use the git version, go to the [GitHub page for the project](https://circuitikz.github.io/circuitikz/), download the lasted version (or the one you want to use)  — it's the links called "download the latest version in a single file". You will have a file called `circuitikzgit.sty` that you should put somewhere in your LaTeX input path; the best place is in the same directory where your main file live. Then, just use it instead of the normal one:
+
 ```latex
   \usepackage[siunitx, RPvoltages]{circuitikzgit}
 ```
