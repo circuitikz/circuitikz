@@ -12,6 +12,13 @@ help:
 	@echo make manual: compile manual
 	@echo make ctan: create zip for ctan-upload
 
+# to check if it compiles, we do not need to fully build the manual; we save 2 compilation steps
+test-compile: changelog
+	cd doc; TEXINPUTS=.:../tex/: context circuitikz-context.tex
+	cd doc; TEXINPUTS=.:../tex/: xelatex $(XELATEXOPTIONS) compatibility.tex
+	cd doc; TEXINPUTS=.:../tex/: xelatex $(XELATEXOPTIONS) circuitikzmanual.tex
+
+
 manual-git: flat
 	cp $(CTIKZ_GIT_FILENAME) doc/
 	#sed should only match first occurence in file, therefore the strange pattern
