@@ -1,6 +1,10 @@
 <!--- CircuiTikz - Changelog --->
 The major changes among the different CircuiTikZ versions are listed here. See <https://github.com/circuitikz/circuitikz/commits> for a full list of changes.
 
+* Version 1.3.9 (unreleased)
+
+    - minor fixes to the manual
+
 * Version 1.3.8 (2021-06-15)
 
     The big news of this release is the ability to selectively draw the pins of the integrated circuit and mux-demuxes symbols.
