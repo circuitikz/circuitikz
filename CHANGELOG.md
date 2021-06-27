@@ -1,9 +1,12 @@
 <!--- CircuiTikz - Changelog --->
 The major changes among the different CircuiTikZ versions are listed here. See <https://github.com/circuitikz/circuitikz/commits> for a full list of changes.
 
-* Version 1.3.9 (unreleased)
+* Version 1.3.9 (2021-06-27)
+
+    Bugfix release: `open poles opacity` was not working in most of the cases.
 
     - minor fixes to the manual
+    - fix bug with `open poles opacity`; see [this question by Florian H.](https://tex.stackexchange.com/questions/602251/circuitikz-redefine-open-nodes-fill-key-to-fill-none-so-that-open-circuit) for details.
 
 * Version 1.3.8 (2021-06-15)
 
