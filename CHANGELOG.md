@@ -3,9 +3,11 @@ The major changes among the different CircuiTikZ versions are listed here. See <
 
 * Version 1.4.0 (unreleased)
 
-    A small but important change in the path (`to`) construction.
+    The main news is that *package rollback* for `circuitikz` has been implemented (LaTeX-only, of course).
+    Additionally, a small but important change in the path (`to`) construction.
 
-    - bump version tp 1.4.0 (because I hate 1.3.10)
+    - bump version to 1.4.0
+    - implement the version rollback: time travel to 0.4!
     - remove a wrong movement in the path construction (potentially dangerous)
 
 * Version 1.3.9 (2021-06-27)
