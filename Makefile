@@ -56,7 +56,7 @@ changelog:
 	pandoc -t latex CHANGELOG.md >> doc/changelog.tex
 
 clean:
-	find doc -not -name "*.tex" -not -name "*.sty" -not -name "circuitikz*.pdf" -not -name ".gitignore" -type f -delete
+	find doc -not -name "*.tex" -not -name "*.sty" -not -name "*.md" -not -name "circuitikz*.pdf" -not -name ".gitignore" -type f -delete
 	find tex -name "*circ*" -not -name "*.sty" -not -name "*.tex" -type f -delete
 
 fullclean: clean
@@ -87,6 +87,7 @@ ctan: manual clean
 	#latex-files
 	mkdir -p ctan_tmp/circuitikz/tex/latex/circuitikz
 	cp tex/*.sty ctan_tmp/circuitikz/tex/latex/circuitikz
+	cp tex/*-body.tex ctan_tmp/circuitikz/tex/latex/circuitikz
 	#common files
 	mkdir -p ctan_tmp/circuitikz/tex/generic/circuitikz
 	cp tex/pgfcirc* ctan_tmp/circuitikz/tex/generic/circuitikz
