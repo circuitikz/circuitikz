@@ -1,10 +1,11 @@
 <!--- CircuiTikz - Changelog --->
 The major changes among the different CircuiTikZ versions are listed here. See <https://github.com/circuitikz/circuitikz/commits> for a full list of changes.
 
-* Version 1.4.0 (unreleased)
+* Version 1.4.0 (2021-07-06)
 
     The main news is that *package rollback* for `circuitikz` has been implemented (LaTeX-only, of course).
-    Additionally, a small but important change in the path (`to`) construction.
+    Additionally, a small but important change in the path (`to`) construction that should fix some warning from Ti*k*Z
+    and give better line joins in wire corners.
 
     - bump version to 1.4.0
     - implement the version rollback: time travel to 0.4!
