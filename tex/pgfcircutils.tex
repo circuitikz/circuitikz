@@ -372,4 +372,23 @@
     \fi}
 \fi
 
+%%
+%% generic tunable arrow for components that have no "variable" thing
+%%
+\def\ctikztunablearrow{\pgfutil@ifnextchar[{\ctikztunablearrow@full}{\ctikztunablearrow@simple}}%
+\def\ctikztunablearrow@simple{\ctikztunablearrow@full[]}%
+\def\ctikztunablearrow@full[#1]#2#3#4#5{%
+    % add tunable arrow to a component
+    % relative thickness, relative length, rotation from axis, name of the component
+    \begin{scope}
+    \draw
+    \pgfextra{\pgfcirc@set@arrows{tunable}{}{latexslim}
+    \pgfsetlinewidth{#2\pgflinewidth}} [#1]
+        let \p1=($(#5.north east)-(#5.south west)$), \p2=($(#5.east)-(#5.west)$),
+        \n1 = {veclen(\x1,\y1)},
+        \n2 = {atan2(\y2,\x2)} in
+        % node[above]{\n1, \n2}
+        (#5.center) ++({\n2+(#4)}:{-0.5*(\n1)*(#3)}) -- ++({\n2+(#4)}:{(\n1)*(#3)});
+    \end{scope}%
+}
 \endinput
