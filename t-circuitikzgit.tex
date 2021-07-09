@@ -10,8 +10,8 @@
 %
 % See the files gpl-3.0_license.txt and lppl-1-3c_license.txt for more details.
 
-\def\pgfcircversion{1.4.0-0e1fa16}
-\def\pgfcircversiondate{2021/07/06}
+\def\pgfcircversion{1.4.1-unreleased-9df0d88}
+\def\pgfcircversiondate{2021/07/09}
 \writestatus{loading}{\pgfcircversiondate{} The CircuiTikz circuit drawing package version \pgfcircversion}
 
 \usemodule[tikz]
@@ -1283,6 +1283,25 @@
     \fi}
 \fi
 
+%%
+%% generic tunable arrow for components that have no "variable" thing
+%%
+\def\ctikztunablearrow{\pgfutil@ifnextchar[{\ctikztunablearrow@full}{\ctikztunablearrow@simple}}%
+\def\ctikztunablearrow@simple{\ctikztunablearrow@full[]}%
+\def\ctikztunablearrow@full[#1]#2#3#4#5{%
+    % add tunable arrow to a component
+    % relative thickness, relative length, rotation from axis, name of the component
+    \begin{scope}
+    \draw
+    \pgfextra{\pgfcirc@set@arrows{tunable}{}{latexslim}
+    \pgfsetlinewidth{#2\pgflinewidth}} [#1]
+        let \p1=($(#5.north east)-(#5.south west)$), \p2=($(#5.east)-(#5.west)$),
+        \n1 = {veclen(\x1,\y1)},
+        \n2 = {atan2(\y2,\x2)} in
+        % node[above]{\n1, \n2}
+        (#5.center) ++({\n2+(#4)}:{-0.5*(\n1)*(#3)}) -- ++({\n2+(#4)}:{(\n1)*(#3)});
+    \end{scope}%
+}
 %%%---------- close: tex/pgfcircutils
 %%%%%%%%%%% Springe nach tex/pgfcircpath
 %%%---------- open: tex/pgfcircpath.tex
