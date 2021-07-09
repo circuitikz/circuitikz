@@ -215,7 +215,8 @@
         \expandafter\xdef\csname pgfcirc@\pgfcirc@a@prefix-#1-anchor\endcsname{mid}%
     }
     % reset cm is not working correctly here
-    (pgfcirc@labelcoor)++(\pgf@circ@labposangle:\the\pgf@circ@res@temp) coordinate(pgfcirc@labelcoor)
+    % relative ++ movement disrupt to[] +()
+    ($(pgfcirc@labelcoor)+(\pgf@circ@labposangle:\the\pgf@circ@res@temp)$) coordinate(pgfcirc@labelcoor)
     node[anchor=mid, rotate=\pgfcirclabrot, \circuitikzbasekey/bipole #1 style]
     (\ctikzvalof{bipole/name}#1){\pgf@circ@finallabels{#1}}
 }
@@ -264,7 +265,8 @@
                     % the inner sep, so recover it by shifting the anchor
                     % reset cm is not working sometime, use @marmot solution
                     % see https://tex.stackexchange.com/a/476018/38080
-                    (pgfcirc@labelcoor) ++(-\pgf@circ@labanc:\pgf@circ@res@temp) coordinate(pgfcirc@labelcoor)
+                    %  notice that relative ++ movement disrupt to[] +()
+                ($(pgfcirc@labelcoor)+(-\pgf@circ@labanc:\pgf@circ@res@temp)$) coordinate(pgfcirc@labelcoor)
                     \pgfextra{\def\pgf@circ@labanctext{base}}%base
                 \else
                     \pgfextra{\def\pgf@circ@labanctext{north}}%north
@@ -272,13 +274,13 @@
              \else
                 \ifnum \pgf@circ@labanc < 90
                     % shift, as above
-                    (pgfcirc@labelcoor) ++(-\pgf@circ@labanc:\pgf@circ@res@temp) coordinate(pgfcirc@labelcoor)
+                ($(pgfcirc@labelcoor)+(-\pgf@circ@labanc:\pgf@circ@res@temp)$) coordinate(pgfcirc@labelcoor)
                     \pgfextra{\def\pgf@circ@labanctext{base}}%base
                 \else
                     \ifnum \pgf@circ@labanc > 180
                         % this shouldn't  happen, but somehow it does (270 degree anchors)
                         % shift, as above
-                        (pgfcirc@labelcoor) ++(-\pgf@circ@labanc:\pgf@circ@res@temp) coordinate(pgfcirc@labelcoor)
+                    ($(pgfcirc@labelcoor)+(-\pgf@circ@labanc:\pgf@circ@res@temp)$) coordinate(pgfcirc@labelcoor)
                          \pgfextra{\def\pgf@circ@labanctext{base}}%base
                     \else
                       \pgfextra{\def\pgf@circ@labanctext{north}}%north
