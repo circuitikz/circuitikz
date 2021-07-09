@@ -1,6 +1,10 @@
 <!--- CircuiTikz - Changelog --->
 The major changes among the different CircuiTikZ versions are listed here. See <https://github.com/circuitikz/circuitikz/commits> for a full list of changes.
 
+* Version 1.4.1 (unreleased)
+
+    - Added the generic tunable macro
+
 * Version 1.4.0 (2021-07-06)
 
     The main news is that *package rollback* for `circuitikz` has been implemented (LaTeX-only, of course).

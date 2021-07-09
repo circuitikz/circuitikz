@@ -3028,6 +3028,34 @@ Moreover, you have the arrow tip \texttt{latexslim} which is an arrow similar to
 \end{circuitikz}
 \end{LTXexample}
 
+\subsubsection{Generic Tunable Arrows}
+
+The basic passive components (resistors, capacitors and inductors) come with a ``tunable version'' (see for example~\ref{sec:tunablearrows}) that conveys the information that their value is adjustable. For generic components you can obtain a similar effect with the extra macro \verb|\ctikztunablearrow|, introduced in version \texttt{1.4.1}. The macro should be called as:
+\begin{quote}
+    \ttfamily
+    \textbackslash ctikztunablearrow[\emph{extra options}]\{\emph{thickness}\}\{\emph{length}\}\{\emph{angle}\}\{\emph{name}\}
+\end{quote}
+where \emph{extra options} is an optional argument with generic \TikZ{} keys, \emph{thickness} is the relative thickness (referred to the current line width when the macro is invoked), \emph{length} is the length of the arrow with respect to the diagonal size of the component, \emph{angle} is the inclination with respect to the normal direction of the component\footnote{which is the left-to-right direction of the component when shown in the component box in this manual.}, and finally \emph{name} is the reference name of the bipole or node.
+
+The arrows are the ones set with the keys \texttt{tunable start arrow} and \texttt{tunable end arrow} (to maintain coherency across the circuit), but you can override them in the \emph{extra options} argument as shown in the following example.
+
+\begin{LTXexample}[varwidth=true, basicstyle=\small\ttfamily]
+\begin{circuitikz}
+    \draw (0,0) node[tlground]{} to[sV, name=A] ++(0,3)
+        node[op amp, anchor=+](B){};
+    \ctikztunablearrow{1}{1.2}{30}{A}
+    \ctikzset{tunable start arrow={Bar},
+        tunable end arrow={Stealth}}
+    \ctikztunablearrow[color=green,
+        {Latex[reversed]}-Circle]{1}{1.2}{90}{A}
+    \ctikztunablearrow[color=blue, densely dashed]{1}{1.2}{-30}{A}
+    \begin{scope}[transparency group, opacity=0.5]
+        \ctikztunablearrow[red, shorten <=3mm]{6}{0.8}{110}{B}
+    \end{scope}
+\end{circuitikz}
+\end{LTXexample}
+
+Notice also the need to force a transparency group if you want a semitransparent arrow.
 \subsection{Terminal shapes}\label{sec:terminals}
 
 These are the so-called ``bipole nodes'' shapes, or poles (see section~\ref{sec:bipole-nodes}). These nodes are always filled; the ``open'' versions (starting with an \texttt{o}) are by default filled with the color specified by the key \texttt{open nodes fill} (by default \texttt{white}), but you can override locally it with the \texttt{fill} parameter.
