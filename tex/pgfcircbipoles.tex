@@ -728,13 +728,40 @@
 \ctikzset{bipoles/pcapacitor/width/.initial=.2}
 \ctikzset{bipoles/pcapacitor/bend width/.initial=1.1}
 \ctikzset{bipoles/ccapacitor/height/.initial=.6}
-\ctikzset{bipoles/ccapacitor/width/.initial=.12}
+\ctikzset{bipoles/ccapacitor/width/.initial=.2}
 \ctikzset{bipoles/ccapacitor/bend width/.initial=1.1}
 \ctikzset{bipoles/vcapacitor/height/.initial=.6}
-\ctikzset{bipoles/vcapacitor/width/.initial=.5}
-\ctikzset{bipoles/vcapacitor/capacitor width/.initial=.4}
+\ctikzset{bipoles/vcapacitor/width/.initial=.2}
+\ctikzset{bipoles/vcapacitor/tunable width/.initial=3}
+\ctikzset{bipoles/vcapacitor/capacitor width/.code={%
+        \pgfutil@packagewarning{circuitikz}{vcapacitor/capacitor width deprecated; ignored}%
+}}% deprecated
 \ctikzset{bipoles/piezoelectric/height/.initial=.7}
-\ctikzset{bipoles/piezoelectric/width/.initial=.5}%
+\ctikzset{bipoles/piezoelectric/width/.initial=.4}%
+%
+% style settings
+%
+\ctikzset{capacitors/width/.code={%
+    \pgfmathsetmacro{\pgfcirc@@double}{2*#1}%
+    \ctikzset{bipoles/.cd,
+    capacitor/width=#1, ecapacitor/width=#1, ccapacitor/width=#1,
+    vcapacitor/width=#1,
+    piezoelectric/width=\pgfcirc@@double,
+}}}
+\ctikzset{capacitors/height/.code={%
+    \ctikzset{bipoles/.cd,
+    capacitor/height=#1, ecapacitor/height=#1, ccapacitor/height=#1,
+    vcapacitor/height=#1,
+    piezoelectric/height=#1,
+}}}
+\def\pgfcirc@maybe@fill@straight@capacitor{%
+    \pgfscope
+        \pgfpathrectanglecorners
+        {\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@up}}
+        {\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@down}}
+        \pgf@circ@maybefill
+    \endpgfscope
+}
 %>>>
 
 %% Shapes for capacitors%<<<
@@ -746,6 +773,8 @@
 {\ctikzvalof{bipoles/capacitor/height}}
 {\ctikzvalof{bipoles/capacitor/width}}
 {
+    \pgfcirc@maybe@fill@straight@capacitor
+
     \pgf@circ@setlinewidth{bipoles}{\pgfstartlinewidth}
     \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@up}}
     \pgfpathlineto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@down}}
@@ -767,6 +796,7 @@
 {\ctikzvalof{bipoles/capacitor/height}}
 {\ctikzvalof{bipoles/capacitor/width}}
 {
+    \pgfcirc@maybe@fill@straight@capacitor
     \pgf@circ@setlinewidth{bipoles}{\pgfstartlinewidth}
     \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@up}}
     \pgfpathlineto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@down}}
@@ -791,7 +821,10 @@
 {\ctikzvalof{bipoles/pcapacitor/height}}
 {\ctikzvalof{bipoles/pcapacitor/width}}
 {
+
     \pgf@circ@setlinewidth{bipoles}{\pgfstartlinewidth}
+
+    \pgfutil@packagewarning{circuitikz}{polar capacitor has been deprecated; change to curved capacitor (see manual)}%
 
     \pgfscope
         \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left+ \ctikzvalof{bipoles/pcapacitor/bend width}\pgf@circ@res@left}{\pgf@circ@res@up}}
@@ -818,23 +851,36 @@
 {\ctikzvalof{bipoles/ccapacitor/height}}
 {\ctikzvalof{bipoles/ccapacitor/width}}
 {
-    \pgf@circ@setlinewidth{bipoles}{\pgfstartlinewidth}
-
     \pgfscope
-        \pgfpathmoveto{\pgfpoint{\pgf@circ@res@right+ \ctikzvalof{bipoles/ccapacitor/bend width}\pgf@circ@res@right}{\pgf@circ@res@up}}
-        \pgftransformrotate{-90}
-        \pgfpathsine{\pgfpoint{\pgf@circ@res@up}{-\ctikzvalof{bipoles/ccapacitor/bend width}\pgf@circ@res@right}}
-        \pgfpathcosine{\pgfpoint{\pgf@circ@res@up}{\ctikzvalof{bipoles/ccapacitor/bend width}\pgf@circ@res@right}}
+        \pgfscope
+            \pgfpathmoveto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@up}}
+            \pgftransformrotate{-90}
+            \pgfpathsine{\pgfpoint{\pgf@circ@res@up}{-\ctikzvalof{bipoles/ccapacitor/bend width}\pgf@circ@res@right}}
+            \pgfpathcosine{\pgfpoint{\pgf@circ@res@up}{\ctikzvalof{bipoles/pcapacitor/bend width}\pgf@circ@res@right}}
+            \pgftransformrotate{90}
+            \pgfpathlineto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@down}}
+            \pgfpathlineto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@up}}
+            \pgfpathclose{}
+            \pgf@circ@maybefill
+        \endpgfscope
+        \pgf@circ@setlinewidth{bipoles}{\pgfstartlinewidth}
+        \pgfscope
+            % \pgfsetcolor{red}
+            \pgfpathmoveto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@up}}
+            \pgftransformrotate{-90}
+            \pgfpathsine{\pgfpoint{\pgf@circ@res@up}{-\ctikzvalof{bipoles/ccapacitor/bend width}\pgf@circ@res@right}}
+            \pgfpathcosine{\pgfpoint{\pgf@circ@res@up}{\ctikzvalof{bipoles/pcapacitor/bend width}\pgf@circ@res@right}}
+            \pgfusepath{draw}
+        \endpgfscope
+        \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@up}}
+        \pgfpathlineto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@down}}
         \pgfusepath{draw}
     \endpgfscope
-
-    \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@up}}
-    \pgfpathlineto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@down}}
+    % extend wire to the curved capacitor
+    \pgfpathmoveto{\pgfpoint{\pgf@circ@res@right-\ctikzvalof{bipoles/pcapacitor/bend width}\pgf@circ@res@right}{0pt}}
+    \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{0pt}}
     \pgfusepath{draw}
 }
-
-
-
 
 %% Electrolytic Capacitor
 \pgfcircdeclarebipolescaled{capacitors}
@@ -875,33 +921,30 @@
 {\ctikzvalof{bipoles/vcapacitor/height}}
 {\ctikzvalof{bipoles/vcapacitor/width}}
 {
-    \pgf@circ@res@step = \ctikzvalof{bipoles/vcapacitor/capacitor width} \pgf@circ@res@right
+    \pgfcirc@maybe@fill@straight@capacitor
+    \pgf@circ@res@step = \ctikzvalof{bipoles/vcapacitor/tunable width} \pgf@circ@res@right
 
     \pgf@circ@setlinewidth{bipoles}{\pgfstartlinewidth}
-    \pgfpathmoveto{\pgfpoint{-\pgf@circ@res@step}{\pgf@circ@res@up}}
-    \pgfpathlineto{\pgfpoint{-\pgf@circ@res@step}{\pgf@circ@res@down}}
+    \pgfpathmoveto{\pgfpoint{-\pgf@circ@res@right}{\pgf@circ@res@up}}
+    \pgfpathlineto{\pgfpoint{-\pgf@circ@res@right}{\pgf@circ@res@down}}
 
-    \pgfpathmoveto{\pgfpoint{\pgf@circ@res@step}{\pgf@circ@res@up}}
-    \pgfpathlineto{\pgfpoint{\pgf@circ@res@step}{\pgf@circ@res@down}}
+    \pgfpathmoveto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@up}}
+    \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@down}}
     \pgfusepath{draw}
 
     \pgfscope
         \pgf@circ@set@relative@thickness{modifier thickness}
         \pgfcirc@set@arrows{tunable}{}{latexslim}
         \ifpgf@circ@fixtunable@dir
-            \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@down}}
-            \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@up}}
+            \pgfpathmoveto{\pgfpoint{-\pgf@circ@res@step}{\pgf@circ@res@down}}
+            \pgfpathlineto{\pgfpoint{\pgf@circ@res@step}{\pgf@circ@res@up}}
         \else
-            \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@up}}
-            \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@down}}
+            \pgfpathmoveto{\pgfpoint{-\pgf@circ@res@step}{\pgf@circ@res@up}}
+            \pgfpathlineto{\pgfpoint{\pgf@circ@res@step}{\pgf@circ@res@down}}
         \fi
         \pgfusepath{draw}
     \endpgfscope
 
-    \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{0pt}}
-    \pgfpathlineto{\pgfpoint{-\pgf@circ@res@step}{0pt}}
-    \pgfpathmoveto{\pgfpoint{\pgf@circ@res@right}{0pt}}
-    \pgfpathlineto{\pgfpoint{\pgf@circ@res@step}{0pt}}
     \pgfsetlinewidth{\pgfstartlinewidth}
     \pgfusepath{draw}
 }
@@ -954,12 +997,7 @@
 {\ctikzvalof{bipoles/capacitor/height}}
 {\ctikzvalof{bipoles/capacitor/width}}
 {
-    \pgfscope
-        \pgfpathrectanglecorners
-        {\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@up}}
-        {\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@down}}
-        \pgf@circ@maybefill
-    \endpgfscope
+    \pgfcirc@maybe@fill@straight@capacitor
 
     \pgf@circ@setlinewidth{bipoles}{\pgfstartlinewidth}
     \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@up}}
