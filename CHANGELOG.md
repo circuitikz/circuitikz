@@ -4,6 +4,7 @@ The major changes among the different CircuiTikZ versions are listed here. See <
 * Version 1.4.1 (unreleased)
 
     - Added the generic tunable macro
+    - Fixed [label position for +() style coordinates](https://github.com/circuitikz/circuitikz/issues/569) 
 
 * Version 1.4.0 (2021-07-06)
 
