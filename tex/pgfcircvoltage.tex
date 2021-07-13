@@ -55,6 +55,10 @@
 \ctikzset{v>/.style = {v={#1}, \circuitikzbasekey/bipole/voltage/direction = forward} }
 \ctikzset{v</.style = {v={#1}, \circuitikzbasekey/bipole/voltage/direction = backward} }%
 
+\newif\ifpgfcirc@do@v@symbols\pgfcirc@do@v@symbolstrue
+\ctikzset{no v symbols/.code={\pgfcirc@do@v@symbolsfalse}}
+\ctikzset{v symbols/.code={\pgfcirc@do@v@symbolstrue}}
+
 % Default position varies whether the component is a voltage source
 % or not
 \ctikzset{v/.code = {
@@ -296,6 +300,7 @@
     % called just to set the anchors)
     %
     \pgf@circ@ifkeyempty{bipole/voltage/label/name}\else
+    \ifpgfcirc@do@v@symbols
     \ifpgf@circuit@europeanvoltage
         \ifpgf@circuit@bipole@voltage@straight
             \ifpgf@circuit@bipole@voltage@backward
@@ -341,6 +346,7 @@
             \fi
         \fi
     \fi
+    \fi % closing the ...symbol
     \fi % Closing the ...ifempty
 }
 % %>>>
@@ -385,6 +391,7 @@
     coordinate (\pgfcirc@a@prefix-Vlab) at ($(\pgfcirc@a@prefix-Vto)!0.5!(\pgfcirc@a@prefix-Vfrom) $)
     coordinate (pgfcirc@Vdir) at (\pgfcirc@a@prefix-Vto)
     \pgf@circ@ifkeyempty{bipole/voltage/label/name}\else
+    \ifpgfcirc@do@v@symbols
     \ifpgf@circuit@europeanvoltage
         \ifpgf@circuit@bipole@voltage@backward
             (\pgfcirc@a@prefix-Vto)  -- node[currarrow, sloped,  allow upside down, pos=1, anchor=tip] {} (\pgfcirc@a@prefix-Vfrom)
@@ -414,6 +421,7 @@
             \fi
         \fi
     \fi
+    \fi % closes ... ifsymbol
     \fi % closes ...ifempty
 }
 % %>>>
