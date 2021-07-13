@@ -551,6 +551,12 @@
 
 %% Current arrow
 
+%% we need a phantom version of this shape for advanced v-i-f
+%% use strange names to keep ot private
+\newif\ifpgfcirc@really@draw@currarrow\pgfcirc@really@draw@currarrowtrue
+\ctikzset{phantom@currarrow/.code=\pgfcirc@really@draw@currarrowfalse}
+\ctikzset{normal@currarrow/.code=\pgfcirc@really@draw@currarrowtrue}
+
 \pgfdeclareshape{currarrow}{
     \savedanchor{\northeast}{%
         \pgf@circ@res@step = \pgf@circ@Rlen
@@ -577,17 +583,18 @@
     }
     \behindforegroundpath{
         \pgfscope
-            \pgf@circ@res@step = \pgf@circ@Rlen
-            \divide \pgf@circ@res@step by \ctikzvalof{current arrow scale}
+            \ifpgfcirc@really@draw@currarrow
+                \pgf@circ@res@step = \pgf@circ@Rlen
+                \divide \pgf@circ@res@step by \ctikzvalof{current arrow scale}
 
-            \pgfpathmoveto{\pgfpoint{-.7\pgf@circ@res@step}{0pt}}
-            \pgfpathlineto{\pgfpoint{-.7\pgf@circ@res@step}{-.8\pgf@circ@res@step}}
-            \pgfpathlineto{\pgfpoint{1\pgf@circ@res@step}{0pt}}
-            \pgfpathlineto{\pgfpoint{-.7\pgf@circ@res@step}{.8\pgf@circ@res@step}}
-            \pgfpathlineto{\pgfpoint{-.7\pgf@circ@res@step}{0pt}}
-            \pgfsetcolor{\ctikzvalof{color}}
-            \pgfusepath{draw,fill}
-
+                \pgfpathmoveto{\pgfpoint{-.7\pgf@circ@res@step}{0pt}}
+                \pgfpathlineto{\pgfpoint{-.7\pgf@circ@res@step}{-.8\pgf@circ@res@step}}
+                \pgfpathlineto{\pgfpoint{1\pgf@circ@res@step}{0pt}}
+                \pgfpathlineto{\pgfpoint{-.7\pgf@circ@res@step}{.8\pgf@circ@res@step}}
+                \pgfpathlineto{\pgfpoint{-.7\pgf@circ@res@step}{0pt}}
+                \pgfsetcolor{\ctikzvalof{color}}
+                \pgfusepath{draw,fill}
+            \fi
         \endpgfscope
     }
 }
