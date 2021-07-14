@@ -600,6 +600,11 @@
 }
 
 %% Flow arrow
+%% we need a phantom version of this shape for advanced v-i-f
+%% use strange names to keep ot private
+\newif\ifpgfcirc@really@draw@flowarrow\pgfcirc@really@draw@flowarrowtrue
+\ctikzset{phantom@flowarrow/.code=\pgfcirc@really@draw@flowarrowfalse}
+\ctikzset{normal@flowarrow/.code=\pgfcirc@really@draw@vlowarrowtrue}
 
 \pgfdeclareshape{flowarrow}{
     \savedanchor{\northeast}{%
@@ -633,14 +638,16 @@
     }
     \behindforegroundpath{
         \pgfscope
-            \pgf@circ@res@step = \pgf@circ@Rlen
-            \divide \pgf@circ@res@step by 4
-            \pgfpathmoveto{\pgfpoint{-\pgf@circ@res@step}{0pt}}
-            \pgfpathlineto{\pgfpoint{\pgf@circ@res@step}{0pt}}
-            \pgfsetcolor{\ctikzvalof{color}}
-            \pgfusepath{draw}
-            \pgftransformshift{\pgfpoint{\pgf@circ@res@step}{0pt}}
-            \pgfnode{currarrow}{tip}{}{}{\pgfusepath{fill}}
+            \ifpgfcirc@really@draw@flowarrow
+                \pgf@circ@res@step = \pgf@circ@Rlen
+                \divide \pgf@circ@res@step by 4
+                \pgfpathmoveto{\pgfpoint{-\pgf@circ@res@step}{0pt}}
+                \pgfpathlineto{\pgfpoint{\pgf@circ@res@step}{0pt}}
+                \pgfsetcolor{\ctikzvalof{color}}
+                \pgfusepath{draw}
+                \pgftransformshift{\pgfpoint{\pgf@circ@res@step}{0pt}}
+                \pgfnode{currarrow}{tip}{}{}{\pgfusepath{fill}}
+            \fi
         \endpgfscope
     }
 }

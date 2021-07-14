@@ -93,6 +93,10 @@
 \ctikzset{f>/.style = { f={#1}, \circuitikzbasekey/bipole/flow/direction = forward } }
 \ctikzset{f^/.style = { f={#1}, \circuitikzbasekey/bipole/flow/y position = above } }
 
+\newif\ifpgfcirc@do@f@symbols\pgfcirc@do@f@symbolstrue
+\ctikzset{no f symbols/.code={\pgfcirc@do@f@symbolsfalse}}
+\ctikzset{f symbols/.code={\pgfcirc@do@f@symbolstrue}}
+
 \ctikzset{f/.code = {
         \pgfcirc@has@ftrue
         \pgfkeys{\circuitikzbasekey/bipole/flow/direction = forward,
@@ -214,15 +218,20 @@
     %
     % coordinate (\pgfcirc@a@prefix-Fpos) at
     %     ([yshift=\flow@offset]$(\pgfcirc@a@prefix-Ffrom)! \ctikzvalof{flow/distance} !(\pgfcirc@a@prefix-Fto)$)
+    % export the flow direction
+    \pgfextra{\expandafter\xdef\csname pgfcirc@\pgfcirc@a@prefix-Farrow-direction\endcsname{\pgf@circ@rounded@dir}}
     % if the flow label is not empty (in which case we have already all the anchors)
     \pgf@circ@ifkeyempty{bipole/flow/label/name}\else
         % the flow arrow is really a node "flowarrow", not a real arrow
-        node[flowarrow, rotate=\pgf@circ@rounded@dir, anchor=center](Farrowpos) at (\pgfcirc@a@prefix-Fpos) {}
-
+        \ifpgfcirc@do@f@symbols
+            node[flowarrow, rotate=\pgf@circ@rounded@dir, anchor=center](Farrowpos) at (\pgfcirc@a@prefix-Fpos) {}
+        \else
+            node[flowarrow, rotate=\pgf@circ@rounded@dir, anchor=center,
+                circuitikz/phantom@flowarrow](Farrowpos) at (\pgfcirc@a@prefix-Fpos) {}
+        \fi
         node[anchor=\pgf@circ@dir, \circuitikzbasekey/bipole flow style]
         (\ctikzvalof{bipole/name}flow) at (Farrowpos.\pgf@circ@bipole@flow@label@where) {\pgf@circ@finallabels{flow/label}}
     \fi
-
     % adjust from and to before exporting --- it's much more simple like this then rework the algorithm above
     \ifpgf@circuit@bipole@flow@backward
         \pgfcirc@swap@coordinates{\pgfcirc@a@prefix-Ffrom}{\pgfcirc@a@prefix-Fto}
