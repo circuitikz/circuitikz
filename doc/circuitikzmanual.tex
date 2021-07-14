@@ -46,6 +46,7 @@
 	% pdflatex
 		\usepackage[T1]{fontenc}
 		\usepackage[utf8]{inputenc}
+        \usepackage{lmodern}
 		% \usepackage{babel}
 	\fi
 \fi
@@ -227,7 +228,7 @@ If unsure, you can check the version at your local installation using the macro 
 \begin{itemize}
     \item The \TikZ{} fix for \texttt{to[...] +(x,y)} behavior (see~\ref{sec:path-relative-coordinates}) uncovered a bug in the positioning of the labels in \Circuitikz{} that is present since \texttt{v0.8}. So you \textbf{must} upgrade to \texttt{v1.4.1} or better if you have \TikZ{} newer than \texttt{3.1.8} (and you want/need to use the \texttt{+(x,y)} syntax).
     \item There have been changes in (internal) parameters for capacitors in \texttt{v1.4.1}; now to change them you should use the style interface (see~\ref{sec:capacitors-styling}).
-    \item \Circuitikz{} \texttt{v1.4.0} introduce the rollback system for the package when using LaTeX; that (at least in principle) should be completely backeard-compatible.
+    \item \Circuitikz{} \texttt{v1.4.0} introduce the rollback system for the package when using LaTeX; that (at least in principle) should be completely backward-compatible.
     \item The path construction in \texttt{v1.4.0} has been changed a bit (again). The change shouldn't break any circuit and correct a behavior that should have been fixed with the \texttt{v1.2.1} change (see below).
     \item Version 1.3.6 fixes several problems with the stacked labels; the most important change is that now the bracing of arguments is respected as in version 1.3.0 for the other labels. The special treatment in stacked labels (and only in stacked labels!) for the (still experimental\footnote{and, really, not advised\dots}) \texttt{siunitx} compact syntax \texttt{<...>} has been removed: it was completely buggy before, and silently ignored, now will throw an error.
     \item Version 1.3.3 fixes the direction of the arrows in tunable elements; before this version, they were more or less random, now the arrow goes from bottom left to top right. You have the option to go back to the old behavior with \texttt{\textbackslash ctikzset\{bipoles/fix tunable direction=false\}}. As a compensation for the fuss, now the arrows are configurable. To learn more, see the FAQ:~\ref{faq:tunable-arrow}.
@@ -545,10 +546,12 @@ In this snippet, notice that the only absolute coordinate is the first one; that
 with the same result.
 
 The second step is to position the op-amp. We can check the manual and see the component's description (section~\ref{sec:amplifiers}):
+
 \begin{groupdesc}
     \circuitdesc*{op amp}{Operational amplifier}{}( +/180/0.2, -/180/0.2, out/0/
 0.2, up/90/0.2, down/-90/0.2 )
 \end{groupdesc}
+
 where we notice the type of the component (it is a node-type component, so we have to use
 \texttt{node} to position it) and the available ``anchors'': points we can use to position the shape or to connect to. Not all the anchors are \emph{explicitly} printed in the description box; you should read further in the manual and you'll see a ``\emph{component} anchors'' (\ref{sec:amplifiers-anchors}) section with the relevant information.
 
@@ -658,7 +661,7 @@ And we can use it like in the following:
     \node [ocirc] at (OA1-in) {};
     \node [above] at (OA1-in) {$v_i$};
     \node [ocirc] at (OA2-out){};
-    \node [ocirc] at (OA1-in) {$v_o$};
+    \node [above] at (OA2-out) {$v_o$};
     \draw (OA1-out) -| (OA2-in);
 \end{circuitikz}
 \end{LTXexample}
@@ -789,7 +792,10 @@ This is the final circuit, with the nodes still marked:
 }}
 \def\killdepth#1{{\raisebox{0pt}[\height][0pt]{#1}}}
 \def\coord(#1){coordinate(#1)}
-\def\coord(#1){coordinate(#1) node[circle, red, draw, inner sep=1pt,pin={[red, overlay, inner sep=0.5pt, font=\tiny, pin distance=0.1cm, pin edge={red, overlay,}]45:#1}](#1-node){}}
+\def\coord(#1){coordinate(#1) node[circle, red, draw, inner sep=1pt,
+    pin={[red, overlay, inner sep=0.5pt, font=\tiny, pin distance=0.1cm,
+    % we reset the arrow in pin edge to avoid carrying over the path one!
+    pin edge={red, overlay,-}]45:#1}](#1-node){}}
 \begin{circuitikz}[american, ]
     \draw (0,0) node[nmos,](Q1){\killdepth{Q1}};
     \draw (Q1.S) to[R, l2^=$R_S$ and \SI{5}{k\ohm}] ++(0,-3) node[vee](VEE){$V_{EE}=\SI{-10}{V}$}; %define VEE level
@@ -827,7 +833,10 @@ This is the final circuit, with the nodes still marked:
 }}
 \def\killdepth#1{{\raisebox{0pt}[\height][0pt]{#1}}}
 \def\coord(#1){coordinate(#1)}
-\def\coord(#1){coordinate(#1) node[circle, red, draw, inner sep=1pt,pin={[red, overlay, inner sep=0.5pt, font=\tiny, pin distance=0.1cm, pin edge={red, overlay,}]45:#1}](){}}
+\def\coord(#1){coordinate(#1) node[circle, red, draw, inner sep=1pt,
+    pin={[red, overlay, inner sep=0.5pt, font=\tiny, pin distance=0.1cm,
+    % we reset the arrow in pin edge to avoid carrying over the path one!
+    pin edge={red, overlay,-}]45:#1}](#1-node){}}
 \begin{circuitikz}[american, ]
     \draw (0,0) node[nmos,](Q1){\killdepth{Q1}};
     \draw (Q1.S) to[R, l2^=$R_S$ and \SI{5}{k\ohm}] ++(0,-3) node[vee](VEE){$V_{EE}=\SI{-10}{V}$}; %define VEE level
