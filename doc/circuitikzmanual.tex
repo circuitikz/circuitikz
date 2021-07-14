@@ -7483,7 +7483,7 @@ pin={[draw, blue, font=\tiny, align=left]#1:{#2 \\ dir: \ctikzgetdirection{#2#3}
 
 \subsection{Advanced voltages, currents and flows}\label{sec:vif-anchors}
 
-Since version \texttt{1.2.1}, it is possible to access the anchors of the ``ornaments'' --- voltage, current and flows, together with some additional information that makes it possible to personalize them.
+Since version \texttt{1.2.1}\footnote{some options have been added in \texttt{v1.4.1}}, it is possible to access the anchors of the ``ornaments'' --- voltage, current and flows, together with some additional information that makes it possible to personalize them.
 Normally, voltages and flow and currents are drawn into the path of the bipoles, so that it is not possible, for example, to change the line type or color of the arrows, or the type of arrows\footnote{in regular voltages, the arrows are not real \TikZ{} arrows, but the auxiliary arrow shapes of \Circuitikz{}}. Access to the anchors allows to do all this things, and more.
 
 For example, you can do something like this:
@@ -7511,6 +7511,30 @@ Or, for example, to have a different voltage style; normally you would define a 
     \draw (0,0) to[R=R1, name=R1, v, i=$i$] ++(3,0)
         to[R, l_=R2, v^, name=R2] ++(0,-3);
     \eurVPM{R1}{$v_1$} \eurVPM{R2}{$v_2$}
+\end{circuitikz}
+\end{LTXexample}
+
+Since \texttt{v1.4.1} you can also keep the voltage, current and flow labels and suppress the output of the symbols (arrows or plus/minus depending on the style) with the keys \texttt{no v symbols}, \texttt{no i symbols}, \texttt{no f symbols} (there are also the corresponding \texttt{v symbols}, \texttt{i symbols} and \texttt{f symbols} in case you want to switch the behavior off/on  globally). This for example simplify an often requested feature, like having all the current in one color and the voltages in another one, which is not possible natively because the arrows are part of the same path One possible implementation is the following one:
+
+\begin{LTXexample}[varwidth=true, basicstyle=\small\ttfamily]
+\newcommand{\iarronly}[1]{% name
+    \node [currarrow, color=red, anchor=center,
+    rotate=\ctikzgetdirection{#1-Iarrow}] at (#1-Ipos) {};
+}
+\newcommand{\varronly}[1]{% name
+    \draw [color=blue] (#1-Vfrom) .. controls (#1-Vcont1)
+        and (#1-Vcont2)..  (#1-Vto) node [currarrow,
+        sloped, anchor=tip, allow upside down,pos=1]{};
+}
+\begin{circuitikz}[]
+    \ctikzset{!vi/.style={no v symbols, no i symbols}}
+    \ctikzset{bipole voltage style/.style={color=blue},
+        bipole current style/.style={color=red}}
+    \draw (120:6) to[R, *-,  name=R, v^=$v_R$, !vi]
+        (120:3) to[short, i=$i_R$, name=SR, !vi] (0,0);
+    \draw (180:4) to[L, o-, l=$L$, name=L2, v=$v_L$, !vi]
+        (180:2) to[V, -*, name=V2, v_=$v_2$, !vi] (0:0);
+    \iarronly{SR}\varronly{R}\varronly{L2}\varronly{V2}
 \end{circuitikz}
 \end{LTXexample}
 
@@ -7553,7 +7577,7 @@ The meaning of the anchors is the following:
 \item
     \texttt{Vlab} is where the text label for the voltage is normally positioned. The anchor used for such label is available using the auxiliary macro \verb|\ctikzgetanchor| (see below)
 \item
-    \texttt{Ipos} and \texttt{Fpos} are the position for the arrowhead or the small flow arrow (which is a \texttt{currarrow} or \texttt{flowarrow} node normally) is positioned, respectively. The label is then added to the correct side of it using the anchor available via \verb|\ctikzgetanchor|.\footnote{In this case, the exact position of the label is not available if you do not position the element, for this there is no \texttt{Flab} or \texttt{Ilab} coordinate; you have to use the \texttt{Fpos} and \texttt{Ipos} coordinate with the corresponding \texttt{Ilab} and \texttt{Flab} anchors.}
+    \texttt{Ipos} and \texttt{Fpos} are the position for the arrowhead or the small flow arrow (which is a \texttt{currarrow} or \texttt{flowarrow} node normally) is positioned, respectively. The label is then added to the correct side of it using the anchor available via \verb|\ctikzgetanchor| (see below,~\ref{sec:advances-aux-info}). In this case, the exact position of the label is not available if you do not position the element, for this there is no \texttt{Flab} or \texttt{Ilab} coordinate; you have to use the \texttt{Fpos} and \texttt{Ipos} coordinate with the corresponding \texttt{Ilab} and \texttt{Flab} anchors.
 \end{itemize}
 
 Changing the options of the elements, will change the anchors acoordingly:
@@ -7632,12 +7656,13 @@ Finally, as ever, generators are treated differently, but you have all your anch
     }
 \end{circuitikz}
 
-\subsubsection{Auxiliary information}
+\subsubsection{Auxiliary information}\label{sec:advances-aux-info}
 
 When the anchors are activated, there are additional macros that you can use:
 \begin{itemize}
     \item \texttt{\textbackslash ctikzgetanchor\{\emph{<name>}\}\{\emph{<anchor>}\}}: \emph{name} is the name of the bipole, and \emph{anchor} can be \texttt{Vlab}, \texttt{Fpos} or \texttt{Ipos}. This macro expands to the normal anchor position (something like \texttt{north}, \texttt{south west}). Notice that if you have not activated the corresponding anchor, the content of this macro is not specified. It could be equivalent to \verb|\relax| (basically, empty) or contains the anchor of a bipole with the same name from another drawing --- it's a global macro like the coordinates.
     \item \texttt{\textbackslash ctikzgetdirection\{\emph{<name>}\}}: a number which is the direction of the \emph{name}d bipole.
+    \item \texttt{\textbackslash ctikzgetdirection\{\emph{<name>}-Iarrow\}}: a number which is the direction of the current arrow requested for the \emph{name}d bipole; using \texttt{\emph{<name>}-Farrow} you get the same information for flow arrows.
 \end{itemize}
 
 For example, you could like the voltage label oriented with the bipole:
@@ -7684,6 +7709,7 @@ You can then define a kind of ``power flow'' style:
     \myff{A}{$P_A$}\myff[red]{B}{$P_B$}
 \end{circuitikz}
 \end{LTXexample}
+
 
 
 \subsubsection{Fixed voltage arrows: an example of advanced voltage usage}

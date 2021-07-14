@@ -3,7 +3,11 @@ The major changes among the different CircuiTikZ versions are listed here. See <
 
 * Version 1.4.1 (unreleased)
 
+    This version has an important bug fix for label positioning when once-relative style coordinates are used (the ones with a single `+`, like `+(1,1)`.
+    Moreover, the possibility to have voltage, current and flow labels *without* the symbols (arrows, etc) has been added, which greatly simplify some kind of personalization of these elements.
+
     - Added the generic tunable macro
+    - Added `no v symbols` (and also for `i` and `f`), thanks to a [head-up by user judober on GitHub](https://github.com/circuitikz/circuitikz/issues/567), see also [issue 448](https://github.com/circuitikz/circuitikz/issues/448)
     - Fixed [label position for +() style coordinates](https://github.com/circuitikz/circuitikz/issues/569) 
 
 * Version 1.4.0 (2021-07-06)

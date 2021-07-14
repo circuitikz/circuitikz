@@ -87,6 +87,10 @@
     }
 }
 
+\newif\ifpgfcirc@do@i@symbols\pgfcirc@do@i@symbolstrue
+\ctikzset{no i symbols/.code={\pgfcirc@do@i@symbolsfalse}}
+\ctikzset{i symbols/.code={\pgfcirc@do@i@symbolstrue}}
+
 \ctikzset{i/.code = {
         \pgfcirc@has@itrue
         \pgfkeys{\circuitikzbasekey/bipole/current/direction = forward,
@@ -211,10 +215,18 @@
         }
     \fi
     coordinate (\pgfcirc@a@prefix-Ipos) at ($(\pgfcirc@a@prefix-Ifrom)! \ctikzvalof{current/distance} !(\pgfcirc@a@prefix-Ito)$)
+    % export the current direction
+    \pgfextra{\expandafter\xdef\csname pgfcirc@\pgfcirc@a@prefix-Iarrow-direction\endcsname{\pgf@circ@rounded@dir}}
     % if the current label is not empty (in which case we have already all the anchors)
     \pgf@circ@ifkeyempty{bipole/current/label/name}\else
     % put the arrow node
-    node[currarrow, rotate=\pgf@circ@rounded@dir, anchor=center](Iarrow) at (\pgfcirc@a@prefix-Ipos) {}
+    % if we do not want the arrow, just put an empty node (needed to maintain the exact same distances)
+    \ifpgfcirc@do@i@symbols
+        node[currarrow, rotate=\pgf@circ@rounded@dir, anchor=center](Iarrow) at (\pgfcirc@a@prefix-Ipos) {}
+    \else
+        node[currarrow, rotate=\pgf@circ@rounded@dir, anchor=center,
+            circuitikz/phantom@currarrow](Iarrow) at (\pgfcirc@a@prefix-Ipos) {}
+    \fi
     % put the label
     node[anchor=\pgf@circ@dir, \circuitikzbasekey/bipole current style]
         (\ctikzvalof{bipole/name}current)
