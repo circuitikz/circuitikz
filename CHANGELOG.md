@@ -1,6 +1,10 @@
 <!--- CircuiTikz - Changelog --->
 The major changes among the different CircuiTikZ versions are listed here. See <https://github.com/circuitikz/circuitikz/commits> for a full list of changes.
 
+* Version 1.4.2 (unreleased)
+
+    - correct minor errors in the manual (capacitor's fill) and in the code.
+
 * Version 1.4.1 (2021-07-14)
 
     This version has an important bug fix for label positioning when once-relative style coordinates are used (the ones with a single `+`, like `+(1,1)`.
