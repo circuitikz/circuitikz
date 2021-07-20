@@ -3,7 +3,8 @@ The major changes among the different CircuiTikZ versions are listed here. See <
 
 * Version 1.4.2 (unreleased)
 
-    - correct minor errors in the manual (capacitor's fill) and in the code.
+    - add the `cpe` (constant phase element)
+    - correct minor errors in the manual (capacitor's fill, spaces) and in the code.
 
 * Version 1.4.1 (2021-07-14)
 
