@@ -10,8 +10,8 @@
 %
 % See the files gpl-3.0_license.txt and lppl-1-3c_license.txt for more details.
 
-\def\pgfcircversion{1.4.2-unreleased-ebed429}
-\def\pgfcircversiondate{2021/07/15}
+\def\pgfcircversion{1.4.2-unreleased-5ab07f6}
+\def\pgfcircversiondate{2021/07/20}
 \writestatus{loading}{\pgfcircversiondate{} The CircuiTikz circuit drawing package version \pgfcircversion}
 
 \usemodule[tikz]
@@ -4431,8 +4431,12 @@
 \ctikzset{bipoles/vcapacitor/capacitor width/.code={%
         \pgfutil@packagewarning{circuitikz}{vcapacitor/capacitor width deprecated; ignored}%
 }}% deprecated
+% piezoelectric (double size by default)
 \ctikzset{bipoles/piezoelectric/height/.initial=.7}
 \ctikzset{bipoles/piezoelectric/width/.initial=.4}%
+% constant phase element (double size by default)
+\ctikzset{bipoles/cpe/height/.initial=.6}
+\ctikzset{bipoles/cpe/width/.initial=.4}
 %
 % style settings
 %
@@ -4442,12 +4446,14 @@
     capacitor/width=#1, ecapacitor/width=#1, ccapacitor/width=#1,
     vcapacitor/width=#1,
     piezoelectric/width=\pgfcirc@@double,
+    cpe/width=\pgfcirc@@double,
 }}}
 \ctikzset{capacitors/height/.code={%
     \ctikzset{bipoles/.cd,
     capacitor/height=#1, ecapacitor/height=#1, ccapacitor/height=#1,
     vcapacitor/height=#1,
     piezoelectric/height=#1,
+    cpe/height=#1,
 }}}
 \def\pgfcirc@maybe@fill@straight@capacitor{%
     \pgfscope
@@ -4712,6 +4718,39 @@
     \endpgfscope
 }
 
+%% Constant phase element
+\pgfcircdeclarebipolescaled{capacitors}
+{}
+{\ctikzvalof{bipoles/cpe/height}}
+{cpe}
+{\ctikzvalof{bipoles/cpe/height}}
+{\ctikzvalof{bipoles/cpe/width}}
+{
+    \pgfscope
+        \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@up}}
+        \pgfpathlineto{\pgfpointorigin}
+        \pgfpathlineto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@down}}
+        \pgfpathlineto{\pgfpoint{0pt}{\pgf@circ@res@down}}
+        \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{0pt}}
+        \pgfpathlineto{\pgfpoint{0pt}{\pgf@circ@res@up}}
+        \pgfpathclose
+        \pgf@circ@maybefill
+    \endpgfscope
+
+    \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{0pt}}
+    \pgfpathlineto{\pgfpointorigin}
+    \pgfusepath{draw}
+    \pgf@circ@setlinewidth{bipoles}{\pgfstartlinewidth}
+    \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@up}}
+    \pgfpathlineto{\pgfpointorigin}
+    \pgfpathlineto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@down}}
+
+    \pgfpathmoveto{\pgfpoint{0pt}{\pgf@circ@res@up}}
+    \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{0pt}}
+    \pgfpathlineto{\pgfpoint{0pt}{\pgf@circ@res@down}}
+    \pgfusepath{draw}
+}
+
 % %>>>
 
 %% Paths for capacitors%<<<
@@ -4733,6 +4772,7 @@
 \pgfcirc@style@to@style{capacitive sensor}{sC}
 \pgfcirc@activate@bipole@simple{l}{ferrocap}
 \pgfcirc@style@to@style{ferrocap}{feC}
+\pgfcirc@activate@bipole@simple{l}{cpe}
 % %>>>
 
 %%%%%%%%%%%%%%%
