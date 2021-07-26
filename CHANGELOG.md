@@ -1,10 +1,14 @@
 <!--- CircuiTikz - Changelog --->
 The major changes among the different CircuiTikZ versions are listed here. See <https://github.com/circuitikz/circuitikz/commits> for a full list of changes.
 
-* Version 1.4.2 (unreleased)
+* Version 1.4.2 (2021-07-26)
+
+    This is a minor release, containing just a new component and a
+    small set of fixes (mainly in the documentation).
 
     - add the `cpe` (constant phase element)
-    - correct minor errors in the manual (capacitor's fill, spaces) and in the code.
+    - correct minor errors in the manual (capacitor's fill, spaces)
+      and the code.
 
 * Version 1.4.1 (2021-07-14)
 
@@ -13,7 +17,7 @@ The major changes among the different CircuiTikZ versions are listed here. See <
 
     - Added the generic tunable macro
     - Added `no v symbols` (and also for `i` and `f`), thanks to a [head-up by user judober on GitHub](https://github.com/circuitikz/circuitikz/issues/567), see also [issue 448](https://github.com/circuitikz/circuitikz/issues/448)
-    - Fixed [label position for +() style coordinates](https://github.com/circuitikz/circuitikz/issues/569) 
+    - Fixed [label position for +() style coordinates](https://github.com/circuitikz/circuitikz/issues/569)
 
 * Version 1.4.0 (2021-07-06)
 
