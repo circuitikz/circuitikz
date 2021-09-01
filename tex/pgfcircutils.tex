@@ -75,18 +75,22 @@
 %% https://github.com/pgf-tikz/pgf/issues/861
 %%
 %% Thanks to "muzimuzhi Z" https://tex.stackexchange.com/a/547085/38080
+%% Thanks to Henri Menke for a faster approach https://github.com/circuitikz/circuitikz/commit/00966c45c42b464fab5429f89f2b7fb414e9b3f7#commitcomment-54592494
 %%
 \pgfkeysifdefined{/pgf/fpu/install only/.@cmd}{%
     \pgfqkeys{/pgf}{use fpu reciprocal/.code={\pgfkeys{/pgf/fpu/install only={reciprocal}}}}%
     }{%
-    \pgfqkeys{/pgf}{use fpu reciprocal/.code={%
-    \def\pgfmathreciprocal@##1{%
-        \begingroup
-        \pgfkeys{/pgf/fpu=true,/pgf/fpu/output format=fixed}%
-        \pgfmathparse{1/##1}%
-        \pgfmath@smuggleone\pgfmathresult
-        \endgroup
-    }}}%
+    \pgfkeysifdefined{/pgf/use fpu reciprocal/.@cmd}{% use stock one
+        }{
+        \pgfqkeys{/pgf}{use fpu reciprocal/.code={%
+                \def\pgfmathreciprocal@##1{%
+                    \begingroup
+                    \pgfmathfloatparsenumber{##1}%
+                    \pgfmathfloatreciprocal@{\pgfmathresult}%
+                    \pgfmathfloattofixed@{\pgfmathresult}%
+                    \pgfmath@smuggleone\pgfmathresult
+                    \endgroup
+    }}}}%
 }
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
