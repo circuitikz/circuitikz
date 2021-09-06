@@ -1,10 +1,13 @@
 <!--- CircuiTikz - Changelog --->
 The major changes among the different CircuiTikZ versions are listed here. See <https://github.com/circuitikz/circuitikz/commits> for a full list of changes.
 
-* Version 1.4.3 (unreleased)
+* Version 1.4.3 (2021-09-06)
+
+    Minor release, mainly a single bugfix.
 
     - added hidden anchors of `ooosource` to the manual
     - fix a bug in anchors of `ooosource` (they did not respect class scaling)
+    - faster `use fpu reciprocal` (thanks to Henri Menke)
 
 * Version 1.4.2 (2021-07-26)
 
