@@ -16,7 +16,7 @@
 \providecommand\DeclareRelease[3]{}
 \providecommand\DeclareCurrentRelease[2]{}
 
-\def\pgfcircversion{1.4.4-unreleased-b492f4b}
+\def\pgfcircversion{1.4.4-unreleased-f18c195}
 \def\pgfcircversiondate{2021/10/20}
 
 \DeclareRelease{0.4}{2012/12/20}{circuitikz-0.4-body.tex}
@@ -14583,6 +14583,10 @@
             \northeast
             \pgf@y=-\ctikzvalof{tripoles/#1/gate height}\pgf@y
         }
+        \anchor{nobase}{
+            \left
+            \pgf@x=\ctikzvalof{tripoles/#1/gate width}\pgf@x
+        }
     }
     {
         % add the circle if requested (before everything else, so we can fill it)
@@ -14665,18 +14669,20 @@
             \pgfnode{trarrow}{\@@anchor}{}{}{\pgfusepath{stroke}}
         \endpgfscope
         %draw gate
-        \ifpgf@circuit@trans@ntype
-            \pgfpathmoveto{\pgfpoint
-                {\ctikzvalof{tripoles/#1/gate width}\pgf@circ@res@left}
-            {\ctikzvalof{tripoles/#1/conn height}\pgf@circ@res@down}}
-            \pgfpathlineto{\pgfpoint{\pgf@circ@res@left-\pgfhorizontaltransformationadjustment*.5*\pgflinewidth}%
-            {\ctikzvalof{tripoles/#1/conn height}\pgf@circ@res@down}}
-        \else
-            \pgfpathmoveto{\pgfpoint
-                {\ctikzvalof{tripoles/#1/gate width}\pgf@circ@res@left}
-            {\ctikzvalof{tripoles/#1/conn height}\pgf@circ@res@up}}
-            \pgfpathlineto{\pgfpoint{\pgf@circ@res@left-\pgfhorizontaltransformationadjustment*.5*\pgflinewidth}%
-            {\ctikzvalof{tripoles/#1/conn height}\pgf@circ@res@up}}
+        \ifpgf@circuit@bpt@drawgate
+            \ifpgf@circuit@trans@ntype
+                \pgfpathmoveto{\pgfpoint
+                    {\ctikzvalof{tripoles/#1/gate width}\pgf@circ@res@left}
+                {\ctikzvalof{tripoles/#1/conn height}\pgf@circ@res@down}}
+                \pgfpathlineto{\pgfpoint{\pgf@circ@res@left-\pgfhorizontaltransformationadjustment*.5*\pgflinewidth}%
+                {\ctikzvalof{tripoles/#1/conn height}\pgf@circ@res@down}}
+            \else
+                \pgfpathmoveto{\pgfpoint
+                    {\ctikzvalof{tripoles/#1/gate width}\pgf@circ@res@left}
+                {\ctikzvalof{tripoles/#1/conn height}\pgf@circ@res@up}}
+                \pgfpathlineto{\pgfpoint{\pgf@circ@res@left-\pgfhorizontaltransformationadjustment*.5*\pgflinewidth}%
+                {\ctikzvalof{tripoles/#1/conn height}\pgf@circ@res@up}}
+            \fi
         \fi
         \pgfusepath{draw}
     }
