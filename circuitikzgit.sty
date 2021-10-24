@@ -16,8 +16,8 @@
 \providecommand\DeclareRelease[3]{}
 \providecommand\DeclareCurrentRelease[2]{}
 
-\def\pgfcircversion{1.4.4-unreleased-f18c195}
-\def\pgfcircversiondate{2021/10/20}
+\def\pgfcircversion{1.4.4-unreleased-b41f786}
+\def\pgfcircversiondate{2021/10/24}
 
 \DeclareRelease{0.4}{2012/12/20}{circuitikz-0.4-body.tex}
 \DeclareRelease{v0.4}{2012/12/20}{circuitikz-0.4-body.tex}
@@ -7440,6 +7440,19 @@
         \pgfusepath{draw}
     \fi
 }
+%
+% --and laser diode arrows - contributed by Andre Alves
+%
+\def\pgf@circ@draw@laserarrows{%
+    \pgfsetlinewidth{\pgfstartlinewidth}
+    \pgfsetarrowsend{latexslim}
+    \pgfpathmoveto{\pgfpoint{-0.4\pgf@circ@res@right}{1.1\pgf@circ@res@up}}
+    \pgfpathlineto{\pgfpoint{-0.4\pgf@circ@res@right}{2.1\pgf@circ@res@up}}
+    \pgfusepath{draw}
+    \pgfpathmoveto{\pgfpoint{0.2\pgf@circ@res@right}{1.1\pgf@circ@res@up}}
+    \pgfpathlineto{\pgfpoint{0.2\pgf@circ@res@right}{2.1\pgf@circ@res@up}}
+    \pgfusepath{draw}
+}
 %% Black light emitting diode
 \pgfcircdeclarebipolescaled{diodes}
 {% fix the anchor border
@@ -7465,6 +7478,35 @@
     \pgfusepath{draw}
 
     \pgf@circ@draw@ledarrows
+}
+
+%% Black laser diode - contributed by Andre Alves
+\pgfcircdeclarebipolescaled{diodes}
+{% fix the anchor border
+    \pgfcirc@border@extend@updown{1.8}{1}
+}
+{\ctikzvalof{bipoles/diode/height}}
+{fulllaserdiode}
+{\ctikzvalof{bipoles/diode/height}}
+{\ctikzvalof{bipoles/diode/width}}
+{
+
+    \pgf@circ@setlinewidth{bipoles}{\pgfstartlinewidth}
+    \pgfscope
+        \pgftransformxshift{\pgf@circ@res@left}
+        \pgfpathmoveto{\pgfpoint{\pgf@circ@res@right-\pgf@circ@res@left}{0pt}}
+        \pgfpathlineto{\pgfpoint{0pt}{\pgf@circ@res@up}}
+        \pgfpathlineto{\pgfpoint{0pt}{\pgf@circ@res@down}}
+        \pgfpathlineto{\pgfpoint{\pgf@circ@res@right-\pgf@circ@res@left}{0pt}}
+        \pgfusepath{draw,fill}
+    \endpgfscope
+    \pgfpathmoveto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@down}}
+    \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@up}}
+    \pgfpathmoveto{\pgfpoint{\pgf@circ@res@right+\pgf@circ@res@left}{\pgf@circ@res@up}}
+    \pgfpathlineto{\pgfpoint{\pgf@circ@res@right+\pgf@circ@res@left}{\pgf@circ@res@down}}
+    \pgfusepath{draw}
+
+    \pgf@circ@draw@laserarrows
 }
 
 %% Black photodiode
@@ -7661,6 +7703,30 @@
     \pgfusepath{draw}
 
     \pgf@circ@draw@ledarrows
+}
+
+%% Empty laser diode - contributed by Andre Alves
+\pgfcircdeclarebipolescaled{diodes}
+{% fix the anchor border
+    \pgfcirc@border@extend@updown{1.8}{1}
+}
+{\ctikzvalof{bipoles/diode/height}}
+{emptylaserdiode}
+{\ctikzvalof{bipoles/diode/height}}
+{\ctikzvalof{bipoles/diode/width}}
+{
+
+    \pgf@circ@setlinewidth{bipoles}{\pgfstartlinewidth}
+    \pgfscope
+        \pgf@circ@basicdiodeshape
+    \endpgfscope
+    \pgfpathmoveto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@down}}
+    \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@up}}
+    \pgfpathmoveto{\pgfpoint{\pgf@circ@res@right+\pgf@circ@res@left}{\pgf@circ@res@up}}
+    \pgfpathlineto{\pgfpoint{\pgf@circ@res@right+\pgf@circ@res@left}{\pgf@circ@res@down}}
+    \pgfusepath{draw}
+
+    \pgf@circ@draw@laserarrows
 }
 
 %% Empty photodiode
@@ -8080,6 +8146,8 @@
     \pgfcirc@style@to@style{#1 tunnel diode}{tD#2}
     \pgfcirc@activate@bipole{l}{#1lediode}{#1lediode}{#1 led}
     \pgfcirc@style@to@style{#1 led}{leD#2}
+    \pgfcirc@activate@bipole{l}{#1laserdiode}{#1laserdiode}{#1 laser diode}
+    \pgfcirc@style@to@style{#1 laser diode}{lasD#2}
     \pgfcirc@activate@bipole{l}{#1pdiode}{#1pdiode}{#1 photodiode}
     \pgfcirc@style@to@style{#1 photodiode}{pD#2}
     \pgfcirc@activate@bipole{l}{#1varcap}{#1varcap}{#1 varcap}
@@ -8114,6 +8182,8 @@
     \pgfcirc@style@to@style{#1 tunnel diode}{tD#2}
     \pgfcirc@node@to@style{l}{emptylediode}{#1 led}{\circuitikzbasekey/bipole/is strokedsymbol=true}
     \pgfcirc@style@to@style{#1 led}{leD#2}
+    \pgfcirc@node@to@style{l}{emptylaserdiode}{#1 laser diode}{\circuitikzbasekey/bipole/is strokedsymbol=true}
+    \pgfcirc@style@to@style{#1 laser diode}{lasD#2}
     \pgfcirc@node@to@style{l}{emptypdiode}{#1 photodiode}{\circuitikzbasekey/bipole/is strokedsymbol=true}
     \pgfcirc@style@to@style{#1 photodiode}{pD#2}
     \pgfcirc@node@to@style{l}{emptyvarcap}{#1 varcap}{\circuitikzbasekey/bipole/is strokedsymbol=true}
@@ -8150,6 +8220,10 @@
 \pgfcirc@style@to@style{led}{leD}
 \pgfcirc@style@to@style{\pgfcircdiodestylemacro photodiode}{photodiode}
 \pgfcirc@style@to@style{photodiode}{pD}
+
+\pgfcirc@style@to@style{\pgfcircdiodestylemacro laser diode}{laser diode}
+\pgfcirc@style@to@style{laser diode}{lasD}
+
 \pgfcirc@style@to@style{\pgfcircdiodestylemacro varcap}{varcap}
 \pgfcirc@style@to@style{varcap}{VC}
 \pgfcirc@style@to@style{\pgfcircdiodestylemacro bidirectionaldiode}{bidirectionaldiode}
