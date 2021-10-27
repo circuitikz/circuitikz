@@ -3,9 +3,9 @@ The major changes among the different CircuiTikZ versions are listed here. See <
 
 * Version 1.4.4 (unreleased)
 
-    - bump the minor version
+    - Added a laser diode component ([contributed by André Alves](https://github.com/circuitikz/circuitikz/issues/591))
     - fix `nobase` option with IGBT family (noticed by [user hinata exc on Stack Eschange](https://tex.stackexchange.com/q/619334/38080))
-    - Added a laser diode component ([suggested by André Alves](https://github.com/circuitikz/circuitikz/issues/591))
+    - fix  a problem with [legacy open voltage label position](https://github.com/circuitikz/circuitikz/issues/584)
 
 * Version 1.4.3 (2021-09-06)
 

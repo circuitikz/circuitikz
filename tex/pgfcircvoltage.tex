@@ -533,7 +533,9 @@
 
         % take into account scaling
         \setscaledRlenforclass
-
+        % set the macro for detecting open
+        \edef\@@kind{\ctikzvalof{bipole/kind}}\edef\@@open{open}
+        % start voltage label adjustment
         \ifpgf@circuit@europeanvoltage
             \ifpgf@circuit@bipole@voltage@straight
                 % check for straight
@@ -543,6 +545,8 @@
                     % \typeout{ST:ADJUSTED\space for\space \ctikzvalof{bipole/kind} \space at \space \stdist}
                 }{\edef\labeldist{\ctikzvalof{voltage/straight label distance}}}
                 \ifpgf@circ@debugv\edef\whichtypeshift{STR}\fi
+                % do not labelshift for legacy straight open; 1.4 makes the shift null
+                \ifx\@@kind\@@open\ifpgf@adjust@open@voltage\else\edef\labeldist{1.4}\fi\fi
             \else
                 % check for european
                 \edef\pgf@temp{/tikz/circuitikz/bipoles/\ctikzvalof{bipole/kind}/voltage/european label distance}
@@ -572,7 +576,6 @@
             {\pgfmathsetmacro{\partheightf}{0.5*\ctikzvalof{bipoles/\ctikzvalof{bipole/kind}/height}}
              \edef\partheight{\partheightf\pgf@circ@scaled@Rlen}}
             {\edef\partheight{(.5\pgf@circ@scaled@Rlen)}} %fallback to fixed value
-
         \ifpgf@circuit@bipole@isvoltage
             \pgfmathsetlength{\pgfcirc@labelshift}{(\labeldist-1.2)*\partheight}
         \else
@@ -580,8 +583,7 @@
         \fi
         % the value for the european was by default 1.4
         \pgfsetcornersarced{\pgfpointorigin}% do not use rounded corners!
-        % set the macro for detecting open
-        \edef\@@kind{\ctikzvalof{bipole/kind}}\edef\@@open{open}
+        % stop the detection of open if I do not want special treatment
         \ifpgf@adjust@open@voltage\else\edef\@@open{this-will-nEver-match}\fi
         % \typeout{KIND\space\@@kind}
     }%end pgfextra
@@ -608,7 +610,8 @@
     \else
         \ifx\@@kind\@@open
         % override pgfcirc@Vlab
-        coordinate (\pgfcirc@a@prefix-Vlab) at ($(pgfcirc@Vfrom@flat)!0.5!(pgfcirc@Vto@flat)$)\fi
+            coordinate (\pgfcirc@a@prefix-Vlab) at ($(pgfcirc@Vfrom@flat)!0.5!(pgfcirc@Vto@flat)$)
+        \fi
     \fi
 
     \ifpgf@circ@debugv
