@@ -6926,6 +6926,92 @@ Note the \texttt{.initial}; you have to create such key the first time you use i
 
 One common request is to change the style of the arrows (both head and line) of these elements. Voltages, currents and flows are part of the same path of the component, so this is not possible in simple way; you have to drawn your own with \TikZ{} commands using the facilities explained in section~\ref{sec:vif-anchors}.
 
+\subsubsection{Special treatment for generators}\label{sec:source-vif}
+
+The ``active'' elements (sources and batteries, mainly) are treated differently from passive elements, in the sense that the default current and voltage direction and position could be different\footnote{This, in hindsight, has been a bad feature --- and I'm partly responsible for it. But removing it would create \emph{too small} variations in circuits, easily to go unnoticed, so it stays: nobody wants \emph{wrong} circuits just by recompiling.} following the chosen global voltage direction strategy (see section~\ref{curr-and-volt}). If they change or not depend on both the element and the chosen \texttt{voltage dir} option.
+
+\begin{LTXexample}[varwidth=true, basicstyle=\small\ttfamily]
+\begin{tikzpicture}[]
+    \draw (0,0) to[sV, v=$V_s$] ++(2,0)
+        to[battery, v=$V_B$] ++(2,0)
+        to[R, v=$V_R$] ++(2,0);
+\end{tikzpicture}
+\end{LTXexample}
+
+The consistency between symbols drawings and the default voltage and current directions are designed to work well \emph{when this default is enabled}. If you want, though, you can override this behavior by ``switching off'' the source status of the component by setting the property \texttt{bipole/is voltage} to \texttt{false}:
+
+\begin{LTXexample}[varwidth=true, basicstyle=\small\ttfamily]
+\begin{tikzpicture}[]
+    \draw (0,0) to[sV, bipole/is voltage=false,
+            v=$V_s$] ++(2,0)
+        to[battery, bipole/is voltage=false,
+            v=$V_B$] ++(2,0)
+        to[R, v=$V_R$] ++(2,0);
+\end{tikzpicture}
+\end{LTXexample}
+
+When you do this, \textbf{be careful} that (as you can see) the direction of the plain \texttt{v=...} option will change (please notice that this does not mean that it is incorrect, given that the voltage and current direction are arbitrary; in the case above, if the battery is a \SI{3}{V} one, $V_B=\SI{-3}{V}$ with the \texttt{RPvoltages} conventions).
+
+Also, notice that there is an ordering problem in the \texttt{to[...]} options: you have to switch the \texttt{is voltage} property off \textbf{before} setting the voltage, otherwise you will have a mix of the source-type and passive positioning:
+
+\begin{LTXexample}[varwidth=true, basicstyle=\small\ttfamily]
+\begin{tikzpicture}[]
+    % correct way
+    \draw (0,0) to[sV, bipole/is voltage=false, v=$V_s$] ++(2,0)
+    % wrong way, setting voltage before changing type
+        to[sV=$V_B$ , bipole/is voltage=false, ] ++(2,0);
+\end{tikzpicture}
+\end{LTXexample}
+
+In the first \texttt{to[]} command, the voltage is set before changing the type (assigning a value to the name of the element is understood as a \texttt{v=...} command for voltage sources).
+
+A similar switch is present for current generators, called \texttt{bipoles/.is current}, acting in a very similar way.
+
+If you would prefer to switch to the \texttt{is voltage=false, is current=false} behavior by default, you can (since \texttt{v1.4.4}\footnote{Suggested by user \href{https://github.com/circuitikz/circuitikz/issues/590}{\texttt{@judober} on GitHub}.}) by setting the option \texttt{bipole/override source vif} to \texttt{true}. This is \emph{highly} experimental, so use with care.
+
+\begin{LTXexample}[varwidth=true, basicstyle=\small\ttfamily]
+\begin{tikzpicture}[]
+    \draw (0,0) to [battery=vb] ++(2,0)
+        to[sV=sV] ++(2,0) to[R, v=vR] ++(2,0);
+    \ctikzset{bipole/override source vif=true}
+    \draw (0,-2) to [battery=vb] ++(2,0)
+        to[sV=sV] ++(2,0) to[R, v=vR] ++(2,0);
+\end{tikzpicture}
+\end{LTXexample}
+
+Notice that the option \texttt{override source vif} is ``stronger'' than the normal \texttt{is voltage}; so to locally re-set the behavior for just one source, you need to disable that \emph{before} using a voltage designator.
+
+\begin{LTXexample}[varwidth=true, basicstyle=\small\ttfamily]
+\begin{tikzpicture}[american]
+    % dangerous option ahead: USE WITH CARE
+    \ctikzset{bipole/override source vif=true}
+    % ugly output, you should really use V>=va
+    \draw (0,6) to [V=va] ++(2,0);
+    % not working!
+    \draw (0,4) to [V=va, bipole/override source vif=false] ++(2,0);
+    % ok, this one is working --- you need both settings!
+    \draw (0,2) to [V,
+        bipole/override source vif=false,
+        bipole/is voltage=true,
+        v=va] ++(2,0);
+\end{tikzpicture}
+\end{LTXexample}
+
+Clearly, if you find yourself using the last component often, it is better to define a style, which will save you a lot of typing and help readability:
+
+\begin{LTXexample}[varwidth=true, basicstyle=\small\ttfamily]
+\tikzset{myV/.style={V, bipole/override source vif=false,
+    bipole/is voltage=true, v={#1}}}%
+\begin{tikzpicture}[american]
+    % dangerous option ahead: USE WITH CARE
+    \ctikzset{bipole/override source vif=true}
+    \draw (0,0) to [V>=va] ++(2,0);
+    \draw (0,-2) to[myV=vb] ++(2,0);
+\end{tikzpicture}
+\end{LTXexample}
+
+On the other way around, you could use styles to set \texttt{is voltage=false} only on the components you use and without using the global switch --- which is the recommended way of doing it.
+
 \subsection{Currents}\label{sec:currents}
 
 Inline (along the wire) currents are selected with \verb|i_>|, \verb|i^<|, \verb|i>_|, \verb|i>^|, and various combination; the default position and direction is obtained with the simple key \verb|i=...|.
@@ -6990,7 +7076,7 @@ Also notice that the direction of the path is important:
 \end{circuitikz}
 \end{LTXexample}
 
-Default directions can change if the component is active or passive,\footnote{This, in hindsight, has been a bad feature --- and I'm partly responsible for it. But removing it would create \emph{too small} variations in circuits, so it stays.} following the chosen global voltage direction strategy (see section~\ref{curr-and-volt}).
+Default directions can change if the component is active or passive,\footnote{This is better explained in section~\ref{sec:source-vif}} following the chosen global voltage direction strategy (see section~\ref{curr-and-volt}).
 
 \begin{LTXexample}[varwidth=true]
 \begin{circuitikz}
@@ -7152,7 +7238,7 @@ Moreover, for historical reasons, voltage generators have differently looking ar
 \end{circuitikz}
 \end{LTXexample}
 
-You can change this last thing by forcing ``off'' the status of ``voltage generator''  of the component; but now the normal (passive) rule will apply, so, again, be careful.
+You can change this last thing by forcing ``off'' the status of ``voltage generator''  of the component; but now the normal (passive) rule will apply, so, again, be careful and read section~\ref{sec:source-vif}.
 
 \begin{LTXexample}[varwidth=true]
 \begin{circuitikz}
@@ -7217,12 +7303,12 @@ Again, voltage generators are treated differently:
 \end{circuitikz}
 \end{LTXexample}
 
-And you can override that with \texttt{bipole/is voltage} keeping into account that the default direction will be the one of passive components:
+And you can override that with \texttt{bipole/is voltage} keeping into account that the default direction will be the one of passive components (see~\ref{sec:source-vif}):
 
 \begin{LTXexample}[varwidth=true]
 \begin{circuitikz}[straight voltages]
-   \draw (0,0) to[V=10V, bipole/is voltage=false,
-                 i_=$i_1$] (3,0);
+   \draw (0,0) to[V, bipole/is voltage=false,
+        v=10V, i_=$i_1$] (3,0);
 \end{circuitikz}
 \end{LTXexample}
 
