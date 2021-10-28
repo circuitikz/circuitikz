@@ -4,6 +4,7 @@ The major changes among the different CircuiTikZ versions are listed here. See <
 * Version 1.4.4 (unreleased)
 
     - Added a laser diode component ([contributed by André Alves](https://github.com/circuitikz/circuitikz/issues/591))
+    - Add the `override source vif` option and better describe source's voltage positioning in the manual
     - fix `nobase` option with IGBT family (noticed by [user hinata exc on Stack Eschange](https://tex.stackexchange.com/q/619334/38080))
     - fix  a problem with [legacy open voltage label position](https://github.com/circuitikz/circuitikz/issues/584)
 
