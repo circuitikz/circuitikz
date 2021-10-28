@@ -10,8 +10,8 @@
 %
 % See the files gpl-3.0_license.txt and lppl-1-3c_license.txt for more details.
 
-\def\pgfcircversion{1.4.4-unreleased-2926dff}
-\def\pgfcircversiondate{2021/10/27}
+\def\pgfcircversion{1.4.4-unreleased-4328d66}
+\def\pgfcircversiondate{2021/10/28}
 \writestatus{loading}{\pgfcircversiondate{} The CircuiTikz circuit drawing package version \pgfcircversion}
 
 \usemodule[tikz]
@@ -569,6 +569,8 @@
 \ctikzset{bipole/name/.initial=}
 \newif\ifpgf@circuit@bipole@isvoltage
 \ctikzset{bipole/is voltage/.is if=pgf@circuit@bipole@isvoltage}
+\newif\ifpgf@circuit@bipole@override@source@vif
+\ctikzset{bipole/override source vif/.is if=pgf@circuit@bipole@override@source@vif}
 \newif\ifpgf@circuit@bipole@voltageoutsideofsymbol
 \ctikzset{bipole/is voltageoutsideofsymbol/.is if=pgf@circuit@bipole@voltageoutsideofsymbol}
 \newif\ifpgf@circuit@bipole@strokedsymbol
@@ -24884,6 +24886,10 @@
 % or not
 \ctikzset{v/.code = {
         \pgfcirc@has@vtrue
+        \ifpgf@circuit@bipole@override@source@vif
+            \pgf@circuit@bipole@isvoltagefalse
+            \pgf@circuit@bipole@iscurrentfalse
+        \fi
         \ifpgf@circuit@bipole@isvoltage
             \pgfkeys{\circuitikzbasekey/bipole/voltage/position=above,
             \circuitikzbasekey/bipole/voltage/direction=forward}
@@ -25620,6 +25626,10 @@
 
 \ctikzset{i/.code = {
         \pgfcirc@has@itrue
+        \ifpgf@circuit@bipole@override@source@vif
+            \pgf@circuit@bipole@isvoltagefalse
+            \pgf@circuit@bipole@iscurrentfalse
+        \fi
         \pgfkeys{\circuitikzbasekey/bipole/current/direction = forward,
             \circuitikzbasekey/bipole/current/x position = after,
         \circuitikzbasekey/bipole/current/y position = above }
@@ -25868,6 +25878,10 @@
 
 \ctikzset{f/.code = {
         \pgfcirc@has@ftrue
+        \ifpgf@circuit@bipole@override@source@vif
+            \pgf@circuit@bipole@isvoltagefalse
+            \pgf@circuit@bipole@iscurrentfalse
+        \fi
         \pgfkeys{\circuitikzbasekey/bipole/flow/direction = forward,
             \circuitikzbasekey/bipole/flow/x position = after,
         \circuitikzbasekey/bipole/flow/y position = above }
