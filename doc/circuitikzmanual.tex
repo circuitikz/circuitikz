@@ -1147,21 +1147,23 @@ Will create the final diagram:
 \section{The components: usage}
 
 
-Components in \Circuitikz{} come in two forms: path-style, to be used in \texttt{to} path specifications, and node-style, which will be instantiated by a \texttt{node} specification.
+Components in \Circuitikz{} come in two forms: path-style, to be used in a \texttt{to[\emph{component},...} path specifications, and node-style, which will be instantiated by a \texttt{node[\emph{component},...]} specification.
+
+All the shapes defined by Circui\TikZ{} are \texttt{pgf} nodes, so they are usable in both \texttt{pgf} and \TikZ.
 
 \subsection{Path-style components}
 
 The path-style components are used as shown below:
 \begin{lstlisting}
     \begin{circuitikz}
-    \draw (0,0) to[#1=#2, #options] (2,0);
+    \draw (0,0) to[#1=#2, options] (2,0);
     \end{circuitikz}
 \end{lstlisting}
 where \verb|#1| is the name of the component, \verb|#2| is an (optional) label, and \verb|options| are optional labels, annotations, style specifier that will be explained in the rest of the manual.
 
 Transistors and some other node-style components can also be placed using the syntax for bipoles. See section~\ref{sec:transasbip}.
 
-Most path-style components can be used as a node-style components; to access them, you add a \texttt{shape} to the main name of component (for example, \texttt{diodeshape}). Such a ``node name'' is specified in the description of each component.
+Most path-style components can be used as a node-style components; to access them, you add a \texttt{shape} to the main name of component (for example, \texttt{diodeshape}). Such a ``node-shape name'' is specified in the description of each component.
 
 \subsubsection{Anchors}
 
@@ -1184,7 +1186,7 @@ Normally, path-style components do not need anchors, although they have them jus
         \path (R.\n) \showcoord(\n)<\a:\d>;
     \end{circuitikz}
 \end{center}
-In the case of bipoles, also shortened geographical anchors exists. In the description, it will be shown when a bipole has additional anchors. To use the anchors, just give a name to the bipole element.
+In the case of bipoles, also shortened geographical anchors exists. In the description, it will be shown when a bipole has additional anchors. To use the anchors, just give a name to the bipole element using the syntax \texttt{name=\emph{myname}}.
 
 \begin{LTXexample}[varwidth=true]
 \begin{circuitikz}
@@ -1333,7 +1335,7 @@ can be interpreted as the length of a resistor (including reasonable connections
 ;\end{circuitikz}
 \end{LTXexample}
 
-The changes on \texttt{bipoles/length} should, however, be globally applied to every path, because they affect every element --- including the poles. So you can have artifacts like these:
+The changes on \texttt{bipoles/length} should, however, be globally applied to every path, because they affect every element --- including the poles. So you can have artifacts like the one in the second line below:
 
 \begin{LTXexample}[varwidth=true]
 \begin{circuitikz}[
@@ -1399,6 +1401,8 @@ where you have all the needed information about the bipole, with also no-standar
 
 The \emph{Class} of the component (see section~\ref{sec:styling}) is printed at the end of the description.
 
+Most path-style components can be used as a node-style components; to access them, normally you add a \texttt{shape} to the main name of component (for example, \texttt{diodeshape}). Sometimes though the ``node name'' is different, so it is specified in the description of each component.
+
 \subsection{Node-style components}
 Node-style components (monopoles, multipoles) can be drawn at a specified point with this syntax, where \verb!#1! is the name of the component:
 \begin{lstlisting}
@@ -1413,7 +1417,6 @@ Explanation of the parameters:\\
 \texttt{\#3}: name of an anchor (optional)\\
 \texttt{\#4}: text written to the text anchor of the component (optional)\\
 
-Most path-style components can be used as a node-style components; to access them, you add a \texttt{shape} to the main name of component (for example, \texttt{diodeshape}). Such a ``node name'' is specified in the description of each component.
 
 \begin{framed}
 	\noindent \textbf{Notice:}	Nodes must have curly brackets at the end, even when empty. An optional anchor (\texttt{\#3}) can be defined within round brackets to be addressed again later on. And please don't forget the semicolon to terminate the \texttt{\textbackslash draw} command.
@@ -1457,7 +1460,7 @@ In other formats they are undefined; contributions to fill the gap are welcome.
 
 \subsubsection{Anchors}
 
-Node components anchors are variable across the various kind of components, so they will described better after each category is presented in the manual.
+Node components anchors vary a lot across the various kind of components, so they will described better after each category is presented in the manual. In general all components have geographic anchors (\texttt{north}, \texttt{north west}, \dots), but most of the other anchors are very component-specific.
 
 \subsubsection{Descriptions}
 
@@ -1467,7 +1470,6 @@ The typical entry in the component list will be like this:
     \circuitdesc{npn}{\scshape npn}{}( B/180/0.2,C/0/0.2,E/0/0.2 )
 \end{groupdesc}
 
-All the shapes defined by Circui\TikZ. These are all \texttt{pgf} nodes, so they are usable in both \texttt{pgf} and \TikZ.
 If the component can be filled it will be specified in the description. In addition, as an example, the component shown will be filled with the option \texttt{fill=cyan!30!white}:
 
 \begin{groupdesc}
@@ -1584,7 +1586,7 @@ so if will not be colored green!):
 \tmpcirc{scale=0.8, transform shape}{\ctikzset{resistors/scale=0.8, capacitors/scale=0.7, diodes/scale=0.6, transistors/scale=1.3,%
              amplifiers/fill=cyan, sources/fill=green, diodes/fill=red, resistors/fill=violet,}}
 
-Please use this option with caution. Although two-color circuits can be nice, using more than that can become rapidly unbearable.
+Please use this option with caution. Although two-colors circuits can be nice, using more than that can become rapidly unbearable.
 Old textbooks used the two-color style quite extensively, filling with a kind of light blue like \texttt{blue!30!white} ``closed'' components, but that was largely to hinder black-and-white photocopying\dots
 
 \subsubsection{Line thickness}\label{sec:styling-thickness}
@@ -1968,7 +1970,9 @@ If you want that the arrows behave like the legacy symbols (which are shapes), \
     \circuitdescbip*{memristor}{Memristor}{Mr}
 \end{groupdesc}
 
-If \texttt{americanresistors} option is active (or the style \texttt{[american resistors]} is used; this is the default for the package), the resistors are displayed as follows:
+Both \texttt{shortshape} and \texttt{openshape} are not really supposed to be used; they are dummy shapes used as placeholders for the path-drawing routines.
+
+If \texttt{americanresistors} option is active (or the style \texttt{[american resistors]} is used --- this is the default for the package), the resistors are displayed as follows:
 \begin{groupdesc}
     \ctikzset{resistor=american}
     \circuitdescbip[resistor]{R}{Resistor}{american resistor}
@@ -2112,15 +2116,11 @@ ferroelectric capacitors that could be used to show the state of the hysteresis 
 \end{tikzpicture}
 \end{LTXexample}
 
-There is also the (deprecated\footnote{Thanks to \href{https://tex.stackexchange.com/questions/509594/polar-capacitor-orientation-in-circuitikz-seems-wrong}{Anshul Singhv for noticing}.} --- its polarity is not coherent with the rest of the components) \texttt{polar capacitor}:
-
-\begin{groupdesc}
-    \circuitdescbip[pcapacitor]{polar capacitor}{Polar capacitor}{pC}
-\end{groupdesc}
+There is also the (deprecated\footnote{Thanks to \href{https://tex.stackexchange.com/questions/509594/polar-capacitor-orientation-in-circuitikz-seems-wrong}{Anshul Singhv for noticing}.} --- its polarity is not coherent with the rest of the components) \texttt{polar capacitor}; please do not use it.
 
 \subsubsection{Capacitive sensors anchors}
 
-For capacitive sensors, see section~\ref{sec:sensors-anchors}.
+For capacitive sensors, you have the same anchors than in the case of resistive sensors, see section~\ref{sec:sensors-anchors}.
 
 \subsubsection{Capacitors customizations}\label{sec:capacitors-styling}
 
@@ -2226,7 +2226,7 @@ Moreover, you can change the number of ``coils'' drawn by setting the key
 
 \subsubsection{Inductors anchors}
 
-For inductive sensors, see section~\ref{sec:sensors-anchors}.
+For inductive sensors, you have the same anchors than in the case of resistive sensors, see section~\ref{sec:sensors-anchors}.
 
 \paragraph{Taps.}
 Inductors have an additional anchor, called \texttt{midtap}, that connects to the center of the coil ``wire''. Notice that this anchor could be on one side or the other of the component, depending on the number of loops of the element; if you need a fixed position, you can use the geographical anchors.
@@ -2806,7 +2806,7 @@ So the solution is often changing the structure to keep the meters in horizontal
 Since version 0.9.0 you have more options for the measuring instruments. You can use the generic \texttt{rmeterwa} (round meter with arrow), to which you can specify the internal symbol with the option \texttt{t=...} (and is fillable).
 
 \begin{LTXexample}[varwidth=true]
-    \begin{circuitikz}[american]
+\begin{circuitikz}[american]
     \draw (0,0) -- ++(1,0) to[R] ++(2,0)
     to [rmeterwa, t=A, i=$i$] ++(0,-2) node[ground]{};
     \draw (1,0) to[rmeterwa, t=V, v=$v$] ++(0,-2)
@@ -2817,7 +2817,7 @@ Since version 0.9.0 you have more options for the measuring instruments. You can
 This kind of component will keep the symbol horizontal, whatever the orientation:
 
 \begin{LTXexample}[varwidth=true]
-    \begin{circuitikz}[american]
+\begin{circuitikz}[american]
     \draw (0,0) -- ++(1,0) to[R] ++(2,0)
     to [rmeterwa, t=A, i=$i$] ++(2,0) --
     ++(0,-1) node[ground]{};
@@ -2836,7 +2836,6 @@ The plain \texttt{rmeter} is the same, without the measuring arrow:
     node[ground]{};
 \end{circuitikz}
 \end{LTXexample}
-
 
 If you prefer it, you have the option to use square meters, in order to have more visual difference from generators:
 
@@ -3019,7 +3018,7 @@ All circuit-drawing standards agree that to show a crossing without electric con
 \end{circuitikz}
 \end{LTXexample}
 
-However, sometime it is advisable to mark the non-contact situation more explicitly. To this end, you can use a path-style component called \texttt{crossing}:
+However, sometimes it is advisable to mark the non-contact situation more explicitly. To this end, you can use a path-style component called \texttt{crossing}:
 
 \begin{LTXexample}[varwidth=true]
 \begin{circuitikz}[]
@@ -3145,6 +3144,7 @@ The BNC connector is defined so that you can easily connect it as input or outpu
 \begin{circuitikz}
     \draw (0,0)
     node[bnc](B1){$v_i$} to[R=\SI{50}{\ohm}] ++(3,0)
+    % you can also use \ctikzflipx{$v_o$} in LaTeX
     node[bnc, xscale=-1](B2){\scalebox{-1}[1]{$v_o$}};
     \node [ground] at (B1.shield) {};
     \node [eground] at (B2.shield){};
@@ -3255,7 +3255,7 @@ Those components have also \textbf{deprecated} anchors named \texttt{1, 2, 3, 4}
 \end{circuitikz}
 \end{LTXexample}
 
-The Wilkinson divider has:
+The Wilkinson divider has (notice that the node text is outside the bounding box, similarly to what happens for transistors!):
 
 \begin{LTXexample}[varwidth=true]
 \begin{circuitikz} \draw
@@ -3618,7 +3618,7 @@ The mark will follow the \texttt{transistors} class thickness, but you can adjus
 
 
 \paragraph{IGBT outer base.}
-Normally, in bipolar IGBTs the outer base is the same size (height) of the inner one, and of the same thickness (which will depend on the class thickness value). You can change this by setting (via \verb|\ctikzset`|) the keys \texttt{tripoles/igbt/outer base height} (default \texttt{0.4}, the same as \texttt{base height}), and \texttt{tripoles/igbt/outer base thickness} (default \texttt{1.0}), which will be relative to the class thickness.
+Normally, in bipolar IGBTs the outer base is the same size (height) of the inner one, and of the same thickness (which will depend on the class thickness value). You can change this by setting (via \verb|\ctikzset|) the keys \texttt{tripoles/igbt/outer base height} (default \texttt{0.4}, the same as \texttt{base height}), and \texttt{tripoles/igbt/outer base thickness} (default \texttt{1.0}), which will be relative to the class thickness.
 
 \begin{LTXexample}[varwidth=true, pos=t]
 \begin{circuitikz}
@@ -4354,6 +4354,7 @@ The first port, to the left, is port \texttt{A}, having the anchors \texttt{A1} 
 They also expose the \texttt{base} anchor, for labelling, and anchors for setting dots or signs to specify polarity.
 The set of anchors, to which the standard ``geographical'' \texttt{north}, \texttt{north east}, etc. is here:
 
+\medskip
 \begin{quote}
 \begin{circuitikz}[cute inductors,
     ]
@@ -4377,6 +4378,7 @@ The set of anchors, to which the standard ``geographical'' \texttt{north}, \text
     }
 \end{circuitikz}
 \end{quote}
+\medskip
 
 Also, the standard ``geographical'' \texttt{north}, \texttt{north east}, etc. are defined.
 A couple of examples follow:
@@ -4883,8 +4885,8 @@ These are all of the to-style type:
     \circuitdescbip[ncs]{normal closed switch}{Normally closed switch}{ncs}
     \circuitdescbip[pushbutton]{push button}{Normally open push button}{normally open push button, nopb}(tip/0/0.2)
     \circuitdescbip[ncpushbutton]{normally closed push button}{Normally closed push button}{ncpb}(tip/0/0.2)
-    \circuitdescbip[pushbuttonc]{normally open push button closed}{Normally open push button}{nopbc}(tip/0/0.2)
-    \circuitdescbip[ncpushbuttono]{normally closed push button open}{Normally closed push button}{ncpbo}(tip/0/0.2)
+    \circuitdescbip[pushbuttonc]{normally open push button closed}{Normally open push button (in closed position)}{nopbc}(tip/0/0.2)
+    \circuitdescbip[ncpushbuttono]{normally closed push button open}{Normally closed push button (in open position)}{ncpbo}(tip/0/0.2)
     \circuitdescbip[toggleswitch]{toggle switch}{Toggle switch}{}
     \circuitdescbip*{reed}{Reed switch}{}
 \end{groupdesc}
@@ -5213,7 +5215,7 @@ There is no ``european''  version of the following symbols; for now they are use
 
 In addition to the legacy ports, since release 1.1.0, logic ports following the recommended geometry of distinctive-shape symbols in IEEE Std 91a-1991 Annex A (Recommended symbol proportions) are also available\footnote{Thanks to Jason for proposing it and digging out the info, see this \href{https://github.com/circuitikz/circuitikz/issues/383}{GitHub issue}.}.
 
-These ports are completely independent from the legacy set (either \texttt{american} or \texttt{european}); they are not eanbled by default because the relative size of the ports is very different from the legacy ones, and that will disrupt every schematic (especially if drawn with absolute coordinate). If you want to use them as default, you can use the command \verb|\ctikzset{logic ports=ieee}| and by default the shapes \texttt{and port}, \texttt{or port} and so on will be the IEEE standard ones.
+These ports are completely independent from the legacy set (either \texttt{american} or \texttt{european}); they are not enabled by default because the relative size of the ports is very different from the legacy ones, and that will disrupt every schematic (especially if drawn with absolute coordinate). If you want to use them as default, you can use the command \verb|\ctikzset{logic ports=ieee}| and by default the shapes \texttt{and port}, \texttt{or port} and so on will be the IEEE standard ones.
 
 The transmission gate (also known as ``bowtie'') components are not described in the IEEE standard, so they are simply inspired by the other IEEE ports --- this is why their name is prefixed by \texttt{ieee} and not by \texttt{ieeestd}. They are aliased to \texttt{tgate} and \texttt{double tgate} though, and it is recommended to use those names (maybe in the future there will be \texttt{american ports} and/or \texttt{european ports} versions available).
 
@@ -5546,7 +5548,7 @@ The first one is to scale the port; if you set the port height so that it has th
 \end{circuitikz}
 \end{LTXexample}
 
-But then the size of the port is quite ``unusual''. The solution is technical literature is to use what we can call a ``rack'' for the inputs; basically, only a certain number of pins are kept on the port, and the other are put on an extended input line.
+But then the size of the port is quite ``unusual''. The solution in technical literature is to use what we can call a ``rack'' for the inputs; basically, only a certain number of pins are kept on the port, and the other are put on an extended input line.
 
 \begin{LTXexample}[varwidth=true]
 \begin{circuitikz}
@@ -6580,15 +6582,17 @@ A couple of examples are shown below.
 
 \section{Labels, voltages and currents}
 
+You can add ``decorations'' to the path-style components; there are basically five types of them: labels, annotations, voltages, currents, and flows. Let's see an example of all of them\dots
+
 \begin{LTXexample}[varwidth=true]
 \begin{circuitikz}
-   \draw (0,0) to[R, l=$R_1$] (2,0);
+   \draw (0,0) to[R, l=$R_1$, f=$i_1$] (2,0);
 \end{circuitikz}
 \end{LTXexample}
 
 \begin{LTXexample}[varwidth=true]
 \begin{circuitikz}
-   \draw (0,0) to[R=$R_1$] (2,0);
+    \draw (0,0) to[R=$R_1$, a=\SI{1}{\kohm}] (2,0);
 \end{circuitikz}
 \end{LTXexample}
 
@@ -6618,11 +6622,12 @@ A couple of examples are shown below.
 \end{LTXexample}
 
 
-Long names/styles for the bipoles can be used:
+Long names/styles for the bipoles can be used, of course, and there is a special syntax (that works only in simple cases --- use it with caution!) if you load the package with the `siunitx` options:
+
 \begin{LTXexample}[varwidth=true]
 \begin{circuitikz}\draw
-  (0,0) to[resistor=1<\kilo\ohm>] (2,0)
-;\end{circuitikz}
+  (0,0) to[resistor=1<\kilo\ohm>] (2,0);
+\end{circuitikz}
 \end{LTXexample}
 
 \subsection{Labels and Annotations}
@@ -6644,7 +6649,7 @@ When drawing a component left-to-right, the label \texttt{l} is by default above
 \end{circuitikz}
 \end{LTXexample}
 
-For passive components, you can use \texttt{type=text} as a shortcut for \texttt{type, l=text}:
+For passive components, you can use \texttt{\emph{component type}=text} as a shortcut for \texttt{\emph{component type}, l=text}:
 
 \begin{LTXexample}[varwidth=true]
 \begin{circuitikz}
@@ -7439,7 +7444,7 @@ You can fine-tune the position of the \texttt{+} and \texttt{-} symbols and the 
 Notes that \texttt{american voltage} also affects batteries.
 
 \begin{LTXexample}[varwidth=true]
-    \begin{circuitikz}[voltage shift=0.5]
+\begin{circuitikz}[voltage shift=0.5]
    \draw (0,0) to[battery,l_=1V, v=$u_1$, i=$i_1$] (2,0);
 \end{circuitikz}
 \end{LTXexample}
@@ -7630,7 +7635,7 @@ Or, for example, to have a different voltage style; normally you would define a 
 \end{circuitikz}
 \end{LTXexample}
 
-Since \texttt{v1.4.1} you can also keep the voltage, current and flow labels and suppress the output of the symbols (arrows or plus/minus depending on the style) with the keys \texttt{no v symbols}, \texttt{no i symbols}, \texttt{no f symbols} (there are also the corresponding \texttt{v symbols}, \texttt{i symbols} and \texttt{f symbols} in case you want to switch the behavior off/on  globally). This for example simplify an often requested feature, like having all the current in one color and the voltages in another one, which is not possible natively because the arrows are part of the same path One possible implementation is the following one:
+Since \texttt{v1.4.1} you can also keep the voltage, current and flow labels and suppress the output of the symbols (arrows or plus/minus depending on the style) with the keys \texttt{no v symbols}, \texttt{no i symbols}, \texttt{no f symbols} (there are also the corresponding \texttt{v symbols}, \texttt{i symbols} and \texttt{f symbols} in case you want to switch the behavior off/on  globally). This for example simplify an often requested feature, like having all the current in one color and the voltages in another one, which is not possible natively because the arrows are part of the same path. One possible implementation of that is the following one:
 
 \begin{LTXexample}[varwidth=true, basicstyle=\small\ttfamily]
 \newcommand{\iarronly}[1]{% name
