@@ -1,7 +1,9 @@
 <!--- CircuiTikz - Changelog --->
 The major changes among the different CircuiTikZ versions are listed here. See <https://github.com/circuitikz/circuitikz/commits> for a full list of changes.
 
-* Version 1.4.4 (unreleased)
+* Version 1.4.4 (2021-10-31)
+
+    Normal maintenance release; minor bugs fixed, a new component and a new option. No Halloween component, sorry...
 
     - Added a laser diode component ([contributed by André Alves](https://github.com/circuitikz/circuitikz/issues/591))
     - Add the `override source vif` option and better describe source's voltage positioning in the manual
