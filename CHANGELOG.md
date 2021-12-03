@@ -6,6 +6,7 @@ The major changes among the different CircuiTikZ versions are listed here. See <
     Important fix for ConTeXt users, thanks to @TeXnician for reporting.
 
     - Fixed a (silly) incompatibility introduced (by Romano) that made compilation in ConTeXt fail sometimes.
+    - Fixed stray characters in some Ti*k*Z environment 
 
 * Version 1.4.4 (2021-10-31)
 
