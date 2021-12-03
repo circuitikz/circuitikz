@@ -1,6 +1,12 @@
 <!--- CircuiTikz - Changelog --->
 The major changes among the different CircuiTikZ versions are listed here. See <https://github.com/circuitikz/circuitikz/commits> for a full list of changes.
 
+* Version 1.4.5 (unreleased)
+
+    Important fix for ConTeXt users, thanks to @TeXnician for reporting.
+
+    - Fixed a (silly) incompatibility introduced (by Romano) that made compilation in ConTeXt fail sometimes.
+
 * Version 1.4.4 (2021-10-31)
 
     Normal maintenance release; minor bugs fixed, a new component and a new option. No Halloween component, sorry...
