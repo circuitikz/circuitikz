@@ -1,11 +1,12 @@
 <!--- CircuiTikz - Changelog --->
 The major changes among the different CircuiTikZ versions are listed here. See <https://github.com/circuitikz/circuitikz/commits> for a full list of changes.
 
-* Version 1.4.5 (unreleased)
+* Version 1.4.5 (2021-12-06)
 
     Important fix for ConTeXt users, thanks to @TeXnician for reporting.
 
-    - Fixed a (silly) incompatibility introduced (by Romano) that made compilation in ConTeXt fail sometimes.
+    - Fixed an incompatibility introduced with subcircuits that made compilation in ConTeXt fail
+    - Added `\ctikzflip[x][y]` utility macros for ConTeXt too
     - Fixed stray characters in some Ti*k*Z environment 
 
 * Version 1.4.4 (2021-10-31)
