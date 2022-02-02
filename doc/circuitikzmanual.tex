@@ -198,6 +198,20 @@ Correcting this will need a big rewrite of the path routines, and although the a
 
 This same issue create a lot of problem of compatibility between \Circuitikz{} and the new \texttt{pic} Ti\emph{k}Z feature, so basically don't put components into \texttt{pic}s.
 
+Also, notice that most components will interact in a funny way with global path options, like \texttt{rounded corners} or the arrow options (like \texttt{->} or \texttt{shorten <} and so on). Depending on the specific component, some parameter is inherited by the internal shape, and some other is reset,\footnote{This is not easy to fix. We want some option to go through --- fill color, dashed pattern for example --- and some other to stay only in the outer path; and if the background shape need some option for drawing the internal shape, like for example a rounded corner, it \emph{must} reset the external option. So there is no perfect solution.} so basically it's better not to use them.
+Arrows with \texttt{to[]} components don't work, anyway, so basically avoid this situation.
+
+\begin{LTXexample}[varwidth=true, basicstyle=\small\ttfamily]
+\begin{circuitikz}[]
+    \draw (0,3) to[R] ++(3,0) node[npn, anchor=B]{};
+    % arrows will not work and give bad results
+    % so basically do not use them!
+    \draw[<->] (0,1.5) to[R] ++(3,0) node[npn, anchor=B]{};
+    \draw[shorten <=10pt] (0,0) to[R] ++(3,0)
+         node[npn, anchor=B]{};
+\end{circuitikz}
+\end{LTXexample}
+
 
 \subsection{Scale factors inaccuracies}\label{sec:usefpu}
 
@@ -1217,11 +1231,12 @@ Alternatively, that you can use the shape form, and then use the \texttt{left} a
 \begin{circuitikz}[baseline, scale=0.8, transform shape]
     \node[#1shape, name=bip] at(0,0) {};
     \foreach \a in {0,30,...,359} \draw[red] (bip.\a) -- ++(\a:0.7) node[font=\tiny, fill=white, inner sep=0.5pt]{\a};
+    \foreach \a in {15,45,...,359} \draw[red] (bip.\a) -- ++(\a:0.4);
     \node [font=\ttfamily\small, black, below] at (bip.-90) {\detokenize\expandafter{#1}};
 \end{circuitikz}
 }
 
-Bipoles have also installed generic border anchors --- that means, anchors that start at an angle. For complexity reason, these are for most of the components simply a generic enclosing rectangle. They interact in a non-trivial way with the \texttt{mirror} and \texttt{invert} keys, so it's best not to use them directly.
+Bipoles have also installed generic border anchors --- that means, anchors that start at an angle. For complexity reason, these are for most of the components simply a generic enclosing rectangle (even for most of the round ones!\footnote{This is needed for the correct label/voltage etc. placement, and it's too much work to change it.}). They interact in a non-trivial way with the \texttt{mirror} and \texttt{invert} keys, so it's best not to use them directly.
 
 \begin{quote}
     \showbordersfornode{generic}
@@ -1251,6 +1266,7 @@ The above diagram has been obtained with the code:
     \node[#1shape, name=bip] at(0,0) {};
     \foreach \a in {0,30,...,359} \draw[red] (bip.\a) -- ++(\a:0.7)
         node[font=\tiny, fill=white, inner sep=0.5pt]{\a};
+    \foreach \a in {15,45,...,359} \draw[red] (bip.\a) -- ++(\a:0.4);
     \node [font=\ttfamily\small, black, below] at (bip.-90)
         {\detokenize\expandafter{#1}};
 \end{circuitikz}}
