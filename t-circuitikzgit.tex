@@ -10,8 +10,8 @@
 %
 % See the files gpl-3.0_license.txt and lppl-1-3c_license.txt for more details.
 
-\def\pgfcircversion{1.4.6-unreleased-4c08354}
-\def\pgfcircversiondate{2022/01/25}
+\def\pgfcircversion{1.4.6-unreleased-da945c5}
+\def\pgfcircversiondate{2022/02/02}
 \writestatus{loading}{\pgfcircversiondate{} The CircuiTikz circuit drawing package version \pgfcircversion}
 
 \usemodule[tikz]
@@ -251,6 +251,21 @@
             \pgfsetlinewidth{\ctikzvalof{\ctikzclass/#1}\pgflinewidth}%
         }{}
     \fi
+}
+
+% auxiliary macro to reset some thing in paths, for background images.
+% use with care and ALWAYS inside a \pgfscope, see here:
+% https://matrix.to/#/!NuxCISwYQJuyWwNsEI:matrix.org/$vQO6luq1F66LJ79dERmaqKI46qMBcjStqYCPi725uZE?via=matrix.org&via=2krueger.de&via=im.f3l.de
+% Thanks to @muzimuzhi
+%
+\def\pgf@circ@reset@arrows{%
+    \pgfsetshortenstart{+0pt}\pgfsetshortenend{+0pt}\pgfsetarrows{-}%
+}
+\def\pgf@circ@reset@rounded{%
+    \pgfsetcornersarced{\pgfpointorigin}%
+}
+\def\pgf@circ@reset@arrows@rounded{%
+    \pgf@circ@reset@arrows\pgf@circ@reset@rounded
 }
 
 %%>>>
@@ -496,7 +511,8 @@
             \pgf@circ@res@down = \pgf@y
             \pgf@circ@scaled@Rlen=\scaledRlen
             \pgfstartlinewidth=\pgflinewidth
-            \pgfsetcornersarced{\pgfpointorigin}% do not use rounded corners!
+            % no rounded corners nor default arrows on bipole's bodies
+            \pgf@circ@reset@arrows@rounded
             #7
 
             \pgfsetlinewidth{\pgfstartlinewidth}
@@ -2267,6 +2283,7 @@
     \behindforegroundpath{
         \pgfscope
             \ifpgfcirc@really@draw@currarrow
+                \pgf@circ@reset@arrows@rounded
                 \pgf@circ@res@step = \pgf@circ@Rlen
                 \divide \pgf@circ@res@step by \ctikzvalof{current arrow scale}
 
@@ -2274,7 +2291,7 @@
                 \pgfpathlineto{\pgfpoint{-.7\pgf@circ@res@step}{-.8\pgf@circ@res@step}}
                 \pgfpathlineto{\pgfpoint{1\pgf@circ@res@step}{0pt}}
                 \pgfpathlineto{\pgfpoint{-.7\pgf@circ@res@step}{.8\pgf@circ@res@step}}
-                \pgfpathlineto{\pgfpoint{-.7\pgf@circ@res@step}{0pt}}
+                \pgfpathclose
                 \pgfsetcolor{\ctikzvalof{color}}
                 \pgfusepath{draw,fill}
             \fi
@@ -2322,6 +2339,7 @@
     \behindforegroundpath{
         \pgfscope
             \ifpgfcirc@really@draw@flowarrow
+                \pgf@circ@reset@arrows@rounded
                 \pgf@circ@res@step = \pgf@circ@Rlen
                 \divide \pgf@circ@res@step by 4
                 \pgfpathmoveto{\pgfpoint{-\pgf@circ@res@step}{0pt}}
@@ -2364,17 +2382,16 @@
     \behindforegroundpath{
 
         \pgfscope
+            \pgf@circ@reset@arrows@rounded
             \pgf@circ@res@step = \pgf@circ@Rlen
             \divide \pgf@circ@res@step by 16
-
             \pgfpathmoveto{\pgfpoint{-1.7\pgf@circ@res@step}{0pt}}
             \pgfpathlineto{\pgfpoint{-1.7\pgf@circ@res@step}{-.8\pgf@circ@res@step}}
             \pgfpathlineto{\pgfpoint{0pt}{0pt}}
             \pgfpathlineto{\pgfpoint{-1.7\pgf@circ@res@step}{.8\pgf@circ@res@step}}
-            \pgfpathlineto{\pgfpoint{-1.7\pgf@circ@res@step}{0pt}}
+            \pgfpathclose
             \pgfsetcolor{\ctikzvalof{color}}
             \pgfusepath{fill}
-
         \endpgfscope
     }
 }
