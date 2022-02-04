@@ -1,6 +1,10 @@
 <!--- CircuiTikz - Changelog --->
 The major changes among the different CircuiTikZ versions are listed here. See <https://github.com/circuitikz/circuitikz/commits> for a full list of changes.
 
+* Version 1.5.0 (unreleased)
+
+    Bump minor version number; big changes ahead.
+
 * Version 1.4.6 (2022-02-04)
 
     A nasty bug fix and some hack to avoid that some global Ti*k*Z option spill into the shapes. To better solve that problem, some risky changes are due, so this release will be also a rollback point for compatibility reasons.
