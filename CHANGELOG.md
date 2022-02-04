@@ -1,11 +1,12 @@
 <!--- CircuiTikz - Changelog --->
 The major changes among the different CircuiTikZ versions are listed here. See <https://github.com/circuitikz/circuitikz/commits> for a full list of changes.
 
-* Version 1.4.6 (unreleased)
+* Version 1.4.6 (2022-02-04)
 
     - Fix bug with legacy transmission lines in `overlay`s ([noticed by Benedikt Wilde](https://github.com/circuitikz/circuitikz/issues/604))
     - Robustify some shapes: do not let arrows option pass to the inner drawing
     - Add warning about global draw options in the manual
+    - Fixes in documentation: hyperlink the index again, cite new recovery point, remove some legacy construct.
 
 * Version 1.4.5 (2021-12-06)
 
