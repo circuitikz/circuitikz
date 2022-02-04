@@ -66,7 +66,7 @@ For bug reports and enhacement suggestions, the preferred way is to use [the iss
 
 Please do not use the issue page for generic help on how to use the package.
 The manual has a (growing) set of examples;
-also the questions tagged `circuitikz` on  https://tex.stackexchange.com/ are often answered promptly.
+also the questions tagged `circuitikz` on  https://tex.stackexchange.com/ are often answered promptly. You can also find help on [matrix](https://app.element.io/#/room/#pgf-tikz:matrix.org) and on [TopTeX](https://topanswers.xyz/tex).
 
 * git: https://github.com/circuitikz/circuitikz
 * Massimo Redaelli (m.redaelli@gmail.com)
@@ -75,13 +75,13 @@ also the questions tagged `circuitikz` on  https://tex.stackexchange.com/ are of
 * Romano Giannetti (romano.giannetti@gmail.com)
 
 -------------
-Copyright 2018-2021 by Romano Giannetti
+Copyright 2018-2022 by Romano Giannetti
 
-Copyright 2015-2021 by Stefan Lindner
+Copyright 2015-2022 by Stefan Lindner
 
-Copyright 2013-2021 by Stefan Erhardt
+Copyright 2013-2022 by Stefan Erhardt
 
-Copyright 2007-2021 by Massimo Redaelli
+Copyright 2007-2022 by Massimo Redaelli
 
 This file may be distributed and/or modified
 
