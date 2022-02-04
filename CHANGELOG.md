@@ -3,10 +3,13 @@ The major changes among the different CircuiTikZ versions are listed here. See <
 
 * Version 1.4.6 (2022-02-04)
 
+    A nasty bug fix and some hack to avoid that some global Ti*k*Z option spill into the shapes. To better solve that problem, some risky changes are due, so this release will be also a rollback point for compatibility reasons.
+
     - Fix bug with legacy transmission lines in `overlay`s ([noticed by Benedikt Wilde](https://github.com/circuitikz/circuitikz/issues/604))
-    - Robustify some shapes: do not let arrows option pass to the inner drawing
+    - Robustify some shapes: do not let arrows option pass to the inner drawing (see [here](https://tex.stackexchange.com/a/632084/38080) and [here](https://matrix.to/#/!NuxCISwYQJuyWwNsEI:matrix.org/$vQO6luq1F66LJ79dERmaqKI46qMBcjStqYCPi725uZE?via=matrix.org&via=2krueger.de&via=im.f3l.de))
     - Add warning about global draw options in the manual
-    - Fixes in documentation: hyperlink the index again, cite new recovery point, remove some legacy construct.
+    - Fixes in documentation: hyperlink the index again, cite new recovery point, remove some legacy construct
+    - Added 1.4.6 rollback point
 
 * Version 1.4.5 (2021-12-06)
 
