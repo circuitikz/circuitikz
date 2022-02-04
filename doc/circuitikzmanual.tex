@@ -2307,7 +2307,7 @@ The package options \texttt{fulldiode}, \texttt{strokediode}, and \texttt{emptyd
     \circuitdescbip*[emptyzzdiode]{empty ZZener diode}{Empty ZZener diode}{zzDo}
     \circuitdescbip*[emptytdiode]{empty tunnel diode}{Empty tunnel diode}{tDo}
     \circuitdescbip*[emptypdiode]{empty photodiode}{Empty photodiode}{pDo}
-    \circuitdescbip*[emptylediode]{empty led}{Empty led}{leDo}        	
+    \circuitdescbip*[emptylediode]{empty led}{Empty led}{leDo}
     \circuitdescbip*[emptylaserdiode]{empty laser diode}{Empty laser diode\footnotemark}{lasD}
 		\footnotetext{Added by André Alves in \texttt{v1.4.4}}
     \circuitdescbip*[emptyvarcap]{empty varcap}{Empty varcap}{VCo}
@@ -3411,8 +3411,11 @@ Some devices have the possibility to add a box around them. The inner symbol sca
 To show that a device is optional, you can dash it. The inner symbol will be kept with solid lines.
 \begin{LTXexample}[varwidth=true]
 \begin{circuitikz}
-  \draw (0,0) to[amp,l=\SI{10}{dB}] ++(2.5,0);
-  \draw[dashed] (2.5,0) to[lowpass,l=opt.] ++(2.5,0);
+\draw (0,2) to[amp,l=\SI{10}{dB}] ++(2.5,0);
+\draw[dashed] (2.5,2) to[lowpass,l=opt.] ++(2.5,0);
+% or just the block
+\draw (0,0) to[amp,l=\SI{10}{dB}] ++(2.5,0)
+     to[lowpass,l=opt., dashed] ++(2.5,0);
 \end{circuitikz}
 \end{LTXexample}
 
@@ -8253,9 +8256,9 @@ The color of the components is stored in the key \verb!\circuitikzbasekey/color!
 Compare for instance
 \begin{LTXexample}[varwidth=true]
 \begin{circuitikz} \draw[red]
-  (0,2) node[and port] (myand1)  {}
-  (0,0) node[and port] (myand2)  {}
-  (2,1) node[xnor port] (myxnor)  {}
+  (0,2) node[and port](myand1){1}
+  (0,0) node[and port](myand2){2}
+  (2,1) node[xnor port](myxnor){3}
   (myand1.out) -| (myxnor.in 1)
   (myand2.out) -| (myxnor.in 2)
 ;\end{circuitikz}
@@ -8265,9 +8268,9 @@ and
 
 \begin{LTXexample}[varwidth=true]
 \begin{circuitikz} \draw[color=red]
-  (0,2) node[and port] (myand1)  {}
-  (0,0) node[and port] (myand2)  {}
-  (2,1) node[xnor port] (myxnor)  {}
+  (0,2) node[and port](myand1){1}
+  (0,0) node[and port](myand2){2}
+  (2,1) node[xnor port](myxnor){3}
   (myand1.out) -| (myxnor.in 1)
   (myand2.out) -| (myxnor.in 2)
 ;\end{circuitikz}
@@ -8276,20 +8279,20 @@ and
 One can of course change the color \emph{in medias res}:
 \begin{LTXexample}[pos=t, varwidth=true]
 \begin{circuitikz} \draw
-  (0,0) node[pnp, color=blue] (pnp2) {}
-  (pnp2.B) node[pnp, xscale=-1, anchor=B, color=brown] (pnp1) {}
-  (pnp1.C) node[npn, anchor=C, color=green] (npn1) {}
-  (pnp2.C) node[npn, xscale=-1, anchor=C, color=magenta] (npn2) {}
+  (0,0) node[pnp, color=blue](pnp2){q1}
+  (pnp2.B) node[pnp, xscale=-1, anchor=B, color=brown](pnp1){\ctikzflipx{q2}}
+  (pnp1.C) node[npn, anchor=C, color=green](npn1){q3}
+  (pnp2.C) node[npn, xscale=-1, anchor=C, color=magenta](npn2){\ctikzflipx{q4}}
   (pnp1.E) -- (pnp2.E)  (npn1.E) -- (npn2.E)
-  (pnp1.B) node[circ] {} |- (pnp2.C) node[circ] {}
+  (pnp1.B) node[circ]{} |- (pnp2.C) node[circ]{}
 ;\end{circuitikz}
 \end{LTXexample}
 
-The all-in-one stream of bipoles poses some challanges, as only the actual body of the bipole, and not the connecting lines, will be rendered in the specified color. Also, please notice the curly braces around the \texttt{to}:
+The all-in-one stream of bipoles poses some challanges, as only the actual body of the bipole, and not the connecting lines, will be rendered in the specified color.
 \begin{LTXexample}[varwidth=true]
 \begin{circuitikz} \draw
   (0,0) to[V=1<\volt>] (0,2)
-      { to[R=1<\ohm>, color=red] (2,2) }
+        to[R=1<\ohm>, color=red] (2,2)
         to[C=1<\farad>] (2,0) -- (0,0)
 ;\end{circuitikz}
 \end{LTXexample}
@@ -8320,9 +8323,9 @@ Since version 0.9.0, you can also fill most shapes with a color (the manual spec
 
 \begin{LTXexample}[varwidth=true]
 \begin{circuitikz} \draw
-    (0,2) node[and port, fill=yellow] (myand1)  {}
-    (0,0) node[and port, fill=cyan] (myand2)  {}
-    (2,1) node[xnor port,fill=red!30!white] (myxnor)  {}
+    (0,2) node[and port, fill=yellow](myand1){1}
+    (0,0) node[and port, fill=cyan](myand2){2}
+    (2,1) node[xnor port,fill=red!30!white](myxnor){3}
   (myand1.out) -| (myxnor.in 1)
   (myand2.out) -| (myxnor.in 2)
 ;\end{circuitikz}
@@ -8337,9 +8340,10 @@ This fill color will override any color defined by the style (see section~\ref{s
     \draw[red] (-0.5,3) -- (-0.5, -1);
     \draw[red] (1.5,3) -- (1.5, -1);
     \draw
-    (0,2) node[and port, ] (myand1)  {}
-    (0,0) node[and port, fill=cyan] (myand2)  {}
-    (2,1) node[xnor port, circuitikz/logic ports/fill=none] (myxnor)  {}
+    (0,2) node[and port](myand1){1}
+    (0,0) node[and port, fill=cyan](myand2){2}
+    (2,1) node[xnor port, circuitikz/logic ports/fill=none
+              ](myxnor){3}
   (myand1.out) -| (myxnor.in 1)
   (myand2.out) -| (myxnor.in 2)
 ;\end{circuitikz}
@@ -8348,9 +8352,9 @@ You can combine shape colors with fill colors, too, but you should use the \text
 
 \begin{LTXexample}[varwidth=true]
 \begin{circuitikz} \draw[color=red]
-    (0,2) node[and port, fill=yellow] (myand1)  {1}
-    (0,0) node[and port, fill=cyan] (myand2)  {2}
-    (2,1) node[xnor port,fill=red!30!white] (myxnor)  {3}
+    (0,2) node[and port, fill=yellow](myand1) {1}
+    (0,0) node[and port, fill=cyan] (myand2){2}
+    (2,1) node[xnor port,fill=red!30!white](myxnor){3}
   (myand1.out) -| (myxnor.in 1)
   (myand2.out) -| (myxnor.in 2)
 ;\end{circuitikz}
@@ -8361,9 +8365,9 @@ A workaround is shown in port \texttt{3}:
 
 \begin{LTXexample}[varwidth=true]
 \begin{circuitikz} \draw
-  (0,2) node[and port, color=black] (myand1)  {1}
-  (0,0) node[and port, color=blue, fill=cyan] (myand2)  {2}
-  (2,1) {[color=blue] node[xnor port, fill=cyan] (myxnor)  {3}}
+  (0,2) node[and port, color=black](myand1){1}
+  (0,0) node[and port, color=blue, fill=cyan](myand2){2}
+  (2,1) {[color=blue] node[xnor port, fill=cyan](myxnor){3}}
   (myand1.out) -| (myxnor.in 1)
   (myand2.out) -| (myxnor.in 2)
 ;\end{circuitikz}
@@ -8910,10 +8914,10 @@ Here a series of example, contributed by several people, is shown with their cod
   (0,0) to[C, l=10<\micro\farad>] (0,2) -- (0,3)
         to[R, l=2.2<\kilo\ohm>] (4,3) -- (4,2)
         to[L, l=12<\milli\henry>, i=$i_1$,v=b] (4,0) -- (0,0)
-  (4,2) { to[D*, *-*, color=red] (2,0) }
+  (4,2) to[D*, color=red] (2,0)
   (0,2) to[R, l=1<\kilo\ohm>, *-] (2,2)
-        to[cV, i=1,v=$\SI{.3}{\kilo\ohm}\, i_1$] (4,2)
-  (2,0) to[I, i=1<\milli\ampere>, -*] (2,2)
+        to[cV, i=1, -*, v=$\SI{.3}{\kilo\ohm}\, i_1$] (4,2)
+  (2,0) to[I, i=1<\milli\ampere>, *-*] (2,2)
 ;\end{circuitikz}
 \end{LTXexample}
 
