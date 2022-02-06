@@ -8886,11 +8886,28 @@ at the start of anchors and macros definition, and use (for example, the exact c
 \end{lstlisting}
 in all the \texttt{savedanchors}.
 
-Then, in the drawing part, you should start with:
+Then, to draw your component, you should start with\footnote{Since \texttt{v1.5.0}; component defined with this mechanism will not be compatible with older \Circuitikz{}.}:
 \begin{lstlisting}
-    \pgf@circ@scaled@Rlen=\scaledRlen
+    \pgf@circ@draw@component{%
+        \pgf@circ@scaled@Rlen=\scaledRlen
+        ...
+    }
 \end{lstlisting}
-and then use \verb|\pgf@circ@scaled@Rlen| (or the anchors) as default lengths while you draw it.
+and then use \verb|\pgf@circ@scaled@Rlen| (or the anchors) as the default length while you draw it.
+
+The special command \verb|\pgf@circ@draw@component| will issue a \texttt{\textbackslash behindforegroundpath} command, and take care of calling the start and end hooks for the component. Notice that, given the use of \texttt{\textbackslash behindforegroundpath}, you must take care to use the path you define here! The path itself is protected bu a \texttt{pgfscope} (and so also by a \TeX{} group), so local definitions will be reset after exiting.
+
+\subsubsection{The internal hook system}\label{sec:drawing-hooks}
+
+Since version \texttt{v1.5.0}, before starting the drawing of any component, \Circuitikz{} will check for the existence of three different hooks, in the following order (suppose that the shape name is \texttt{\emph{myname}}, and it has a class \texttt{\emph{myclass}}:
+\begin{itemize}
+    \item \texttt{\textbackslash ctikz@hook@start@draw@component@\emph{myname}}
+    \item \texttt{\textbackslash ctikz@hook@start@draw@class@\emph{myclass}}
+    \item \texttt{\textbackslash ctikz@hook@start@draw@default}
+\end{itemize}
+The first one that is defined in the current (or outer) scope is used, and the following ones are not used. This hooks can be used to set drawing parameters, or to reset them to a known state: \TikZ{} normally inherit most of the drawing option, but that can lead to surprises (like unexpected arrows, etc.).
+
+In the same way, before leaving  \verb|\pgf@circ@draw@component|, a set of similar hooks (with \texttt{end} instead of \texttt{start}) is tried, with the same logic. \pgf@circ@draw@component
 
 \subsubsection{Finishing your work}
 
