@@ -3,7 +3,11 @@ The major changes among the different CircuiTikZ versions are listed here. See <
 
 * Version 1.5.0 (unreleased)
 
-    Bump minor version number; big changes ahead.
+    In this version, several internal changes have been included, in order to streamline and organize better the components. The changes are quite deep and subtle, so a bug or unexpected behaviour is always possible. You can use the 1.4.6 rollback point in case of trouble, but be sure to report any bug.
+
+    - Added a generic drawing function for shapes, which are now drawn in real background
+    - Added a hook system to be able to change component drawing settings per-shape, per-class or globally
+    - All the 250+ shapes are now "protected" by external arrow and arced corners parameters
 
 * Version 1.4.6 (2022-02-04)
 

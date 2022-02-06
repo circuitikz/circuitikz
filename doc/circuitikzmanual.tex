@@ -198,13 +198,13 @@ Correcting this will need a big rewrite of the path routines, and although the a
 
 This same issue create a lot of problem of compatibility between \Circuitikz{} and the new \texttt{pic} Ti\emph{k}Z feature, so basically don't put components into \texttt{pic}s.
 
-Also, notice that most components will interact in a funny way with global path options, like \texttt{rounded corners} or the arrow options (like \texttt{->} or \texttt{shorten <} and so on). Depending on the specific component, some parameter is inherited by the internal shape, and some other is reset,\footnote{This is not easy to fix. We want some option to go through --- fill color, dashed pattern for example --- and some other to stay only in the outer path; and if the background shape need some option for drawing the internal shape, like for example a rounded corner, it \emph{must} reset the external option. So there is no perfect solution.} so basically it's better not to use them.
+Also, notice that several components will interact in a funny way with global path options. Depending on the specific component, some parameter is inherited by the internal shape, and some other is reset. This is not easy to fix in general. We want some option to go through --- fill color, dashed pattern for example --- and some other to stay only in the outer path; and if the background shape need some option for drawing the internal shape, like for example a rounded corner, it \emph{must} reset the external option. So there is no perfect solution, although since \texttt{v1.5.0} the shapes have been ``robustified'', so that by default arced corners and arrows parameters will \emph{not} be propagated into the shape.
 Arrows with \texttt{to[]} components don't work, anyway, so basically avoid this situation.
 
 \begin{LTXexample}[varwidth=true, basicstyle=\small\ttfamily]
 \begin{circuitikz}[]
     \draw (0,3) to[R] ++(3,0) node[npn, anchor=B]{};
-    % arrows will not work and give bad results
+    % arrows will not work and give strange results
     % so basically do not use them!
     \draw[<->] (0,1.5) to[R] ++(3,0) node[npn, anchor=B]{};
     \draw[shorten <=10pt] (0,0) to[R] ++(3,0)
@@ -8907,7 +8907,16 @@ Since version \texttt{v1.5.0}, before starting the drawing of any component, \Ci
 \end{itemize}
 The first one that is defined in the current (or outer) scope is used, and the following ones are not used. This hooks can be used to set drawing parameters, or to reset them to a known state: \TikZ{} normally inherit most of the drawing option, but that can lead to surprises (like unexpected arrows, etc.).
 
-In the same way, before leaving  \verb|\pgf@circ@draw@component|, a set of similar hooks (with \texttt{end} instead of \texttt{start}) is tried, with the same logic. \pgf@circ@draw@component
+In the same way, before leaving  \verb|\pgf@circ@draw@component|, a set of similar hooks (with \texttt{end} instead of \texttt{start}) is tried, with the same logic.
+
+The only predefined hook is \texttt{\textbackslash ctikz@hook@start@draw@default}, which is set to the equivalent of:
+\begin{lstlisting}
+    \pgfsetshortenstart{+0pt}\pgfsetshortenend{+0pt}\pgfsetarrows{-}%
+    \def\pgf@circ@reset@rounded{\pgfsetcornersarced{\pgfpointorigin}}%
+\end{lstlisting}
+which mean that, by  default, arrows parameters are reset to the default (no shorten, no arrows) and that corners are not rounded. If you want to override them, just define the appropriate hook for you component/class and the generic one will not be called.
+
+No \texttt{...@end@draw@...} hook is defined by default.
 
 \subsubsection{Finishing your work}
 

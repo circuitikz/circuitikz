@@ -132,11 +132,16 @@
         \fi
     \fi
 }
-
+%
+%% default hook is to stop the propagation of arrows parameters and
+%% arced corners.
+%
+\def\ctikz@hook@start@draw@default{\pgf@circ@reset@arrows@rounded}
+%
 %
 %>>>
 
-% arrow tips macros and utilities %<<<1
+%% arrow tips macros and utilities %<<<1
 
 % the default arrow is latexslim, which has been ported over old arrows library (deprecated)
 % see https://tex.stackexchange.com/questions/234084/latex-arrow-tip-with-arrows-meta-library
@@ -532,10 +537,8 @@
             \pgf@circ@res@down = \pgf@y
             \pgf@circ@scaled@Rlen=\scaledRlen
             \pgfstartlinewidth=\pgflinewidth
-            % no rounded corners nor default arrows on bipole's bodies
-            \pgf@circ@reset@arrows@rounded
+            % we used to reset arced corners here --- now it's in the hooks. I hope.
             #7
-
             \pgfsetlinewidth{\pgfstartlinewidth}
         }
     }
@@ -568,7 +571,7 @@
 % Just up and down (very common)
 \def\pgfcirc@border@extend@updown#1#2{\pgfcirc@border@extend@full{1}{#1}{1}{#2}}% %>>>
 
-% text position in some component.%<<<1
+%% text position in some component.%<<<1
 % (added with ieeestd logic ports. Maybe to be extended to other components,
 % like amplifiers)
 %
@@ -582,7 +585,7 @@
 \ctikzset{left text distance/.initial=0.3em}%
 %>>>
 
-% voltage direction options%<<<1
+%% voltage direction options%<<<1
 
 \newif\ifpgf@circ@oldvoltagedirection % default false
 \newif\ifpgf@circ@explicitvdir
@@ -596,7 +599,7 @@
 \tikzset{voltage dir/.style={circuitikz/voltage dir=#1}}%
 %>>>
 
-% bipole definitions for path component and text decorations%%<<<1
+%% bipole definitions for path component and text decorations%%<<<1
 %
 % Option "t=*" for nodes
 \pgfkeys{/tikz/t/.add code={}{\ctikzset{text=#1}}}
@@ -678,7 +681,7 @@
 \ctikzset{label/align/smart/.code={\ctikzsetvalof{label/align}{smart}}}
 %%>>>
 
-% traditional styles %<<<1
+%% traditional styles %<<<1
 %
 \ctikzset{thickness/.initial=2}
 \ctikzset{color/.initial=black}
@@ -690,7 +693,7 @@
 \ctikzset{nodes width/.initial=.04}
 %%>>>
 
-% Styles definitions and macros%<<<1
+%% Styles definitions and macros%<<<1
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% main style definitions
@@ -826,7 +829,7 @@
 \tikzset{cute/.style = {european currents, european voltages, american resistors, cute inductors, american ports}}
 %%>>>
 
-% voltage and current options%<<<1
+%% voltage and current options%<<<1
 %
 \ctikzset{current arrow scale/.initial=16}
 \ctikzset{current/distance/.initial = .5}
