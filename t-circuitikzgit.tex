@@ -10,8 +10,8 @@
 %
 % See the files gpl-3.0_license.txt and lppl-1-3c_license.txt for more details.
 
-\def\pgfcircversion{1.4.6-992851e}
-\def\pgfcircversiondate{2022/02/04}
+\def\pgfcircversion{1.5.0-unreleased-68282ad}
+\def\pgfcircversiondate{2022/02/13}
 \writestatus{loading}{\pgfcircversiondate{} The CircuiTikz circuit drawing package version \pgfcircversion}
 
 \usemodule[tikz]
@@ -101,7 +101,81 @@
 \newdimen \pgfstartlinewidth
 %%>>>
 
-% arrow tips macros and utilities %<<<1
+%% Macros for basic drawing%<<<
+%
+\long\gdef\pgf@circ@draw@component#1{%
+    \behindbackgroundpath{%
+        \pgf@circ@start@draw@hooks
+        #1%
+        \pgf@circ@end@draw@hooks
+    }%
+}%
+%
+% auxiliary macros to reset some thing in paths, for background images.
+% use with care and ALWAYS inside a \pgfscope, see here:
+% https://matrix.to/#/!NuxCISwYQJuyWwNsEI:matrix.org/$vQO6luq1F66LJ79dERmaqKI46qMBcjStqYCPi725uZE?via=matrix.org&via=2krueger.de&via=im.f3l.de
+% Thanks to @muzimuzhi
+%
+\def\pgf@circ@reset@arrows{%
+    \pgfsetshortenstart{+0pt}\pgfsetshortenend{+0pt}\pgfsetarrows{-}%
+}
+\def\pgf@circ@reset@rounded{%
+    \pgfsetcornersarced{\pgfpointorigin}%
+}
+\def\pgf@circ@reset@arrows@rounded{%
+    \pgf@circ@reset@arrows\pgf@circ@reset@rounded
+}
+%% Hook macros for the start and end of component drawing. The idea is that
+%% specific macros overrides class macro that overrides generic macro
+%% the generic macro is the one that resets arrows and curved path parameters
+%% but let the path inherits the rest (dashed, etc.)
+
+\def\pgf@circ@start@draw@hooks{%
+    % \typeout{SHAPE: \pgf@sm@shape@name}
+    \ifcsname ctikz@hook@start@draw@component@\pgf@sm@shape@name\endcsname
+        \csname ctikz@hook@start@draw@component@\pgf@sm@shape@name\endcsname
+    \else
+        \ifcsname ctikzclass\endcsname
+            \ifcsname ctikz@hook@start@draw@class@\ctikzclass\endcsname
+                \csname ctikz@hook@start@draw@class@\ctikzclass\endcsname
+            % class defined, but no hook, run generic hook
+            \else
+                \csname ctikz@hook@start@draw@default\endcsname
+            \fi
+        % we have no class, we did not run specific hook:run generic hook
+        \else
+            \csname ctikz@hook@start@draw@default\endcsname
+        \fi
+    \fi
+}
+\def\pgf@circ@end@draw@hooks{%
+    % \typeout{SHAPE: \pgf@sm@shape@name}
+    \ifcsname ctikz@hook@end@draw@component@\pgf@sm@shape@name\endcsname
+        \csname ctikz@hook@end@draw@component@\pgf@sm@shape@name\endcsname
+    \else
+        \ifcsname ctikzclass\endcsname
+            \ifcsname ctikz@hook@end@draw@class@\ctikzclass\endcsname
+                \csname ctikz@hook@end@draw@class@\ctikzclass\endcsname
+            % class defined, but no hook, run generic hook
+            \else
+                \csname ctikz@hook@end@draw@default\endcsname
+            \fi
+        % we have no class, we did not run specific hook:run generic hook
+        \else
+            \csname ctikz@hook@end@draw@default\endcsname
+        \fi
+    \fi
+}
+%
+%% default hook is to stop the propagation of arrows parameters and
+%% arced corners.
+%
+\def\ctikz@hook@start@draw@default{\pgf@circ@reset@arrows@rounded}
+%
+%
+%>>>
+
+%% arrow tips macros and utilities %<<<1
 
 % the default arrow is latexslim, which has been ported over old arrows library (deprecated)
 % see https://tex.stackexchange.com/questions/234084/latex-arrow-tip-with-arrows-meta-library
@@ -253,20 +327,6 @@
     \fi
 }
 
-% auxiliary macro to reset some thing in paths, for background images.
-% use with care and ALWAYS inside a \pgfscope, see here:
-% https://matrix.to/#/!NuxCISwYQJuyWwNsEI:matrix.org/$vQO6luq1F66LJ79dERmaqKI46qMBcjStqYCPi725uZE?via=matrix.org&via=2krueger.de&via=im.f3l.de
-% Thanks to @muzimuzhi
-%
-\def\pgf@circ@reset@arrows{%
-    \pgfsetshortenstart{+0pt}\pgfsetshortenend{+0pt}\pgfsetarrows{-}%
-}
-\def\pgf@circ@reset@rounded{%
-    \pgfsetcornersarced{\pgfpointorigin}%
-}
-\def\pgf@circ@reset@arrows@rounded{%
-    \pgf@circ@reset@arrows\pgf@circ@reset@rounded
-}
 
 %%>>>
 
@@ -496,10 +556,8 @@
                 \pgfpointborderrectangle{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@up}}{\pgfpoint{-\pgf@x}{-\pgf@y}}
             \fi
         }
-
-        #2
-
-        \backgroundpath{
+        #2%
+        \pgf@circ@draw@component{
             \pgfsetcolor{\ctikzvalof{color}}
 
             \northeast
@@ -511,10 +569,8 @@
             \pgf@circ@res@down = \pgf@y
             \pgf@circ@scaled@Rlen=\scaledRlen
             \pgfstartlinewidth=\pgflinewidth
-            % no rounded corners nor default arrows on bipole's bodies
-            \pgf@circ@reset@arrows@rounded
-            #7
-
+            % we used to reset arced corners here --- now it's in the hooks. I hope.
+            #7%
             \pgfsetlinewidth{\pgfstartlinewidth}
         }
     }
@@ -547,7 +603,7 @@
 % Just up and down (very common)
 \def\pgfcirc@border@extend@updown#1#2{\pgfcirc@border@extend@full{1}{#1}{1}{#2}}% %>>>
 
-% text position in some component.%<<<1
+%% text position in some component.%<<<1
 % (added with ieeestd logic ports. Maybe to be extended to other components,
 % like amplifiers)
 %
@@ -561,7 +617,7 @@
 \ctikzset{left text distance/.initial=0.3em}%
 %>>>
 
-% voltage direction options%<<<1
+%% voltage direction options%<<<1
 
 \newif\ifpgf@circ@oldvoltagedirection % default false
 \newif\ifpgf@circ@explicitvdir
@@ -575,7 +631,7 @@
 \tikzset{voltage dir/.style={circuitikz/voltage dir=#1}}%
 %>>>
 
-% bipole definitions for path component and text decorations%%<<<1
+%% bipole definitions for path component and text decorations%%<<<1
 %
 % Option "t=*" for nodes
 \pgfkeys{/tikz/t/.add code={}{\ctikzset{text=#1}}}
@@ -657,7 +713,7 @@
 \ctikzset{label/align/smart/.code={\ctikzsetvalof{label/align}{smart}}}
 %%>>>
 
-% traditional styles %<<<1
+%% traditional styles %<<<1
 %
 \ctikzset{thickness/.initial=2}
 \ctikzset{color/.initial=black}
@@ -669,7 +725,7 @@
 \ctikzset{nodes width/.initial=.04}
 %%>>>
 
-% Styles definitions and macros%<<<1
+%% Styles definitions and macros%<<<1
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% main style definitions
@@ -805,7 +861,7 @@
 \tikzset{cute/.style = {european currents, european voltages, american resistors, cute inductors, american ports}}
 %%>>>
 
-% voltage and current options%<<<1
+%% voltage and current options%<<<1
 %
 \ctikzset{current arrow scale/.initial=16}
 \ctikzset{current/distance/.initial = .5}
@@ -1597,7 +1653,7 @@
 \ctikzset{bipole/nodes/right/.initial=none}
 \tikzset{bipole nodes/.style n args={2}{%
     \circuitikzbasekey/bipole/nodes/left=#1,
-    \circuitikzbasekey/bipole/nodes/right=#2
+    \circuitikzbasekey/bipole/nodes/right=#2%
     }
 }
 
@@ -1779,13 +1835,11 @@
         \pgfpointborderellipse{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@up}
         }{\pgfpoint{\ctikzvalof{nodes width}*\pgf@circ@Rlen}{\ctikzvalof{nodes width}*\pgf@circ@Rlen}}
     }
-    \behindforegroundpath{
-        \pgfscope
+    \pgf@circ@draw@component{
             \pgfpathcircle{\pgfpointorigin}{\ctikzvalof{nodes width}*\pgf@circ@Rlen}
             \pgfsetcolor{\ctikzvalof{color}}
             \pgfsetfillopacity{\ctikzvalof{poles/full fill opacity}}% normally 1.0
             \pgfusepath{draw,fill}
-        \endpgfscope
     }
 }
 
@@ -1818,23 +1872,21 @@
         \pgfpointborderellipse{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@up}
         }{\pgfpoint{\ctikzvalof{nodes width}*\pgf@circ@Rlen}{\ctikzvalof{nodes width}*\pgf@circ@Rlen}}
     }
-    \behindforegroundpath{
-        \pgfscope
-            \pgfpathcircle{\pgfpointorigin}{\ctikzvalof{nodes width}*\pgf@circ@Rlen}
-            \pgfsetcolor{\ctikzvalof{color}}
-            \pgfsetfillopacity{\ctikzvalof{poles/open fill opacity}}% normally 1.0
-            \ifx\tikz@fillcolor\pgfutil@empty
-                % set the default fill color to white
-                \pgfsetfillcolor{\ctikzvalof{open poles fill}}
-                % ...but override it if the class is defined!
-                % note that this element has no class, but will inherit it when used
-                % into another component
-                \pgf@circ@setifdefinedfill{draw, fill}{draw, fill}
-            \else
-                \pgfsetfillcolor{\tikz@fillcolor}
-            \fi
-            \pgfusepath{draw,fill}
-        \endpgfscope
+    \pgf@circ@draw@component{
+        \pgfpathcircle{\pgfpointorigin}{\ctikzvalof{nodes width}*\pgf@circ@Rlen}
+        \pgfsetcolor{\ctikzvalof{color}}
+        \pgfsetfillopacity{\ctikzvalof{poles/open fill opacity}}% normally 1.0
+        \ifx\tikz@fillcolor\pgfutil@empty
+            % set the default fill color to white
+            \pgfsetfillcolor{\ctikzvalof{open poles fill}}
+            % ...but override it if the class is defined!
+            % note that this element has no class, but will inherit it when used
+            % into another component
+            \pgf@circ@setifdefinedfill{draw, fill}{draw, fill}
+        \else
+            \pgfsetfillcolor{\tikz@fillcolor}
+        \fi
+        \pgfusepath{draw,fill}
     }
 }
 
@@ -1877,17 +1929,15 @@
         \pgf@x=\@@switchx\pgf@x
         \pgf@y=\@@switchy\pgf@y
     }
-    \behindforegroundpath{
-        \pgfscope
-            \pgfmathsetlength{\pgf@circ@res@temp}{\ctikzvalof{nodes width}*\pgf@circ@Rlen}
-            \pgftransformrotate{45}
-            \pgfpathrectanglecorners
-            {\pgfpoint{-\pgf@circ@res@temp}{-\pgf@circ@res@temp}}
-            {\pgfpoint{\pgf@circ@res@temp}{\pgf@circ@res@temp}}
-            \pgfsetcolor{\ctikzvalof{color}}
-            \pgfsetfillopacity{\ctikzvalof{poles/full fill opacity}}% normally 1.0
-            \pgfusepath{draw,fill}
-        \endpgfscope
+    \pgf@circ@draw@component{
+        \pgfmathsetlength{\pgf@circ@res@temp}{\ctikzvalof{nodes width}*\pgf@circ@Rlen}
+        \pgftransformrotate{45}
+        \pgfpathrectanglecorners
+        {\pgfpoint{-\pgf@circ@res@temp}{-\pgf@circ@res@temp}}
+        {\pgfpoint{\pgf@circ@res@temp}{\pgf@circ@res@temp}}
+        \pgfsetcolor{\ctikzvalof{color}}
+        \pgfsetfillopacity{\ctikzvalof{poles/full fill opacity}}% normally 1.0
+        \pgfusepath{draw,fill}
     }
 }
 
@@ -1930,27 +1980,25 @@
         \pgf@x=\@@switchx\pgf@x
         \pgf@y=\@@switchy\pgf@y
     }
-    \behindforegroundpath{
-        \pgfscope
-            \pgfmathsetlength{\pgf@circ@res@temp}{\ctikzvalof{nodes width}*\pgf@circ@Rlen}
-            \pgftransformrotate{45}
-            \pgfpathrectanglecorners
-            {\pgfpoint{-\pgf@circ@res@temp}{-\pgf@circ@res@temp}}
-            {\pgfpoint{\pgf@circ@res@temp}{\pgf@circ@res@temp}}
-            \pgfsetcolor{\ctikzvalof{color}}
-            \pgfsetfillopacity{\ctikzvalof{poles/open fill opacity}}% normally 1.0
-            \ifx\tikz@fillcolor\pgfutil@empty
-                % set the default fill color to white
-                \pgfsetfillcolor{\ctikzvalof{open poles fill}}
-                % ...but override it if the class is defined!
-                % note that this element has no class, but will inherit it when used
-                % into another component
-                \pgf@circ@setifdefinedfill{draw, fill}{draw, fill}
-            \else
-                \pgfsetfillcolor{\tikz@fillcolor}
-            \fi
-            \pgfusepath{draw,fill}
-        \endpgfscope
+    \pgf@circ@draw@component{
+        \pgfmathsetlength{\pgf@circ@res@temp}{\ctikzvalof{nodes width}*\pgf@circ@Rlen}
+        \pgftransformrotate{45}
+        \pgfpathrectanglecorners
+        {\pgfpoint{-\pgf@circ@res@temp}{-\pgf@circ@res@temp}}
+        {\pgfpoint{\pgf@circ@res@temp}{\pgf@circ@res@temp}}
+        \pgfsetcolor{\ctikzvalof{color}}
+        \pgfsetfillopacity{\ctikzvalof{poles/open fill opacity}}% normally 1.0
+        \ifx\tikz@fillcolor\pgfutil@empty
+            % set the default fill color to white
+            \pgfsetfillcolor{\ctikzvalof{open poles fill}}
+            % ...but override it if the class is defined!
+            % note that this element has no class, but will inherit it when used
+            % into another component
+            \pgf@circ@setifdefinedfill{draw, fill}{draw, fill}
+        \else
+            \pgfsetfillcolor{\tikz@fillcolor}
+        \fi
+        \pgfusepath{draw,fill}
     }
 }
 
@@ -1985,16 +2033,14 @@
             {\pgfqpoint{\pgf@xa}{\pgf@ya}}
             {\pgfqpoint{\pgf@circ@res@up}{\pgf@circ@res@up}}
     }
-    \behindforegroundpath{
-        \pgfscope
-            \pgfmathsetlength{\pgf@circ@res@temp}{\ctikzvalof{nodes width}*\pgf@circ@Rlen}
-            \pgfpathrectanglecorners
-            {\pgfpoint{-\pgf@circ@res@temp}{-\pgf@circ@res@temp}}
-            {\pgfpoint{\pgf@circ@res@temp}{\pgf@circ@res@temp}}
-            \pgfsetcolor{\ctikzvalof{color}}
-            \pgfsetfillopacity{\ctikzvalof{poles/full fill opacity}}% normally 1.0
-            \pgfusepath{draw,fill}
-        \endpgfscope
+    \pgf@circ@draw@component{
+        \pgfmathsetlength{\pgf@circ@res@temp}{\ctikzvalof{nodes width}*\pgf@circ@Rlen}
+        \pgfpathrectanglecorners
+        {\pgfpoint{-\pgf@circ@res@temp}{-\pgf@circ@res@temp}}
+        {\pgfpoint{\pgf@circ@res@temp}{\pgf@circ@res@temp}}
+        \pgfsetcolor{\ctikzvalof{color}}
+        \pgfsetfillopacity{\ctikzvalof{poles/full fill opacity}}% normally 1.0
+        \pgfusepath{draw,fill}
     }
 }
 %% square terminal, unfilled
@@ -2028,26 +2074,24 @@
             {\pgfqpoint{\pgf@xa}{\pgf@ya}}
             {\pgfqpoint{\pgf@circ@res@up}{\pgf@circ@res@up}}
     }
-    \behindforegroundpath{
-        \pgfscope
-            \pgfmathsetlength{\pgf@circ@res@temp}{\ctikzvalof{nodes width}*\pgf@circ@Rlen}
-            \pgfpathrectanglecorners
-            {\pgfpoint{-\pgf@circ@res@temp}{-\pgf@circ@res@temp}}
-            {\pgfpoint{\pgf@circ@res@temp}{\pgf@circ@res@temp}}
-            \pgfsetcolor{\ctikzvalof{color}}
-            \pgfsetfillopacity{\ctikzvalof{poles/open fill opacity}}% normally 1.0
-            \ifx\tikz@fillcolor\pgfutil@empty
-                % set the default fill color to white
-                \pgfsetfillcolor{\ctikzvalof{open poles fill}}
-                % ...but override it if the class is defined!
-                % note that this element has no class, but will inherit it when used
-                % into another component
-                \pgf@circ@setifdefinedfill{draw, fill}{draw, fill}
-            \else
-                \pgfsetfillcolor{\tikz@fillcolor}
-            \fi
-            \pgfusepath{draw,fill}
-        \endpgfscope
+    \pgf@circ@draw@component{
+        \pgfmathsetlength{\pgf@circ@res@temp}{\ctikzvalof{nodes width}*\pgf@circ@Rlen}
+        \pgfpathrectanglecorners
+        {\pgfpoint{-\pgf@circ@res@temp}{-\pgf@circ@res@temp}}
+        {\pgfpoint{\pgf@circ@res@temp}{\pgf@circ@res@temp}}
+        \pgfsetcolor{\ctikzvalof{color}}
+        \pgfsetfillopacity{\ctikzvalof{poles/open fill opacity}}% normally 1.0
+        \ifx\tikz@fillcolor\pgfutil@empty
+            % set the default fill color to white
+            \pgfsetfillcolor{\ctikzvalof{open poles fill}}
+            % ...but override it if the class is defined!
+            % note that this element has no class, but will inherit it when used
+            % into another component
+            \pgf@circ@setifdefinedfill{draw, fill}{draw, fill}
+        \else
+            \pgfsetfillcolor{\tikz@fillcolor}
+        \fi
+        \pgfusepath{draw,fill}
     }
 }
 % BNC connector
@@ -2090,37 +2134,35 @@
         \pgfpointborderellipse{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@up}
         }{\pgfpoint{2.5*\ctikzvalof{nodes width}*\pgf@circ@Rlen}{2.5*\ctikzvalof{nodes width}*\pgf@circ@Rlen}}
     }
-    \behindforegroundpath{
+    \pgf@circ@draw@component{
         \pgfextracty{\pgf@circ@res@other}{\northwest}
         \pgf@circ@res@step=\ctikzvalof{nodes width}\pgf@circ@Rlen
+        \pgfstartlinewidth=\pgflinewidth
+        \pgf@circ@setlinewidth{bipoles}{\pgflinewidth}
+        \pgfsetcolor{\ctikzvalof{color}}
+        % external circle
         \pgfscope
-            \pgfstartlinewidth=\pgflinewidth
-            \pgf@circ@setlinewidth{bipoles}{\pgflinewidth}
-            \pgfsetcolor{\ctikzvalof{color}}
-            % external circle
-            \pgfscope
-                % clipping path: first a rectangle bigger then the shape
-                % to avoid problems with the line thickness
-                \pgfpathrectanglecorners{\pgfpoint{-2\pgf@circ@res@other}{-2\pgf@circ@res@other}}
-                    {\pgfpoint{2\pgf@circ@res@other}{2\pgf@circ@res@other}}
-                % next the opening to the right
-                \pgfpathrectanglecorners{\pgfpoint{-\pgf@circ@res@step}{-\pgf@circ@res@step}}
-                    {\pgfpoint{2\pgf@circ@res@other}{\pgf@circ@res@step}}
-                % do the difference and clip before drawing
-                \pgfseteorule
-                \pgfusepath{clip}
-                \pgfpathcircle{\pgfpointorigin}{\pgf@circ@res@other}
-                \pgfusepath{draw}
-            \endpgfscope
-            % internal circle
-            \pgfpathcircle{\pgfpointorigin}{\pgf@circ@res@step}
-            \pgf@circ@draworfill
-            % and the contact line to the right
-            \pgfsetlinewidth{\pgfstartlinewidth}
-            \pgfpathmoveto{\pgfpoint{\pgf@circ@res@step}{0pt}}
-            \pgfpathlineto{\pgfpoint{\pgf@circ@res@other}{0pt}}
+            % clipping path: first a rectangle bigger then the shape
+            % to avoid problems with the line thickness
+            \pgfpathrectanglecorners{\pgfpoint{-2\pgf@circ@res@other}{-2\pgf@circ@res@other}}
+                {\pgfpoint{2\pgf@circ@res@other}{2\pgf@circ@res@other}}
+            % next the opening to the right
+            \pgfpathrectanglecorners{\pgfpoint{-\pgf@circ@res@step}{-\pgf@circ@res@step}}
+                {\pgfpoint{2\pgf@circ@res@other}{\pgf@circ@res@step}}
+            % do the difference and clip before drawing
+            \pgfseteorule
+            \pgfusepath{clip}
+            \pgfpathcircle{\pgfpointorigin}{\pgf@circ@res@other}
             \pgfusepath{draw}
         \endpgfscope
+        % internal circle
+        \pgfpathcircle{\pgfpointorigin}{\pgf@circ@res@step}
+        \pgf@circ@draworfill
+        % and the contact line to the right
+        \pgfsetlinewidth{\pgfstartlinewidth}
+        \pgfpathmoveto{\pgfpoint{\pgf@circ@res@step}{0pt}}
+        \pgfpathlineto{\pgfpoint{\pgf@circ@res@other}{0pt}}
+        \pgfusepath{draw}
     }
 }
 
@@ -2146,14 +2188,12 @@
         \pgf@circ@res@left=\pgf@x
         \pgf@circ@res@up=\pgf@y
     }
-    \behindforegroundpath{
-        \pgfscope
-            \pgfpathrectanglecorners
-            {\pgfpoint{0}{.5\pgflinewidth}}
-            {\pgfpoint{0}{-.5\pgflinewidth}}
-            \pgfsetcolor{\ctikzvalof{color}}
-            \pgfusepath{draw,fill}
-        \endpgfscope
+    \pgf@circ@draw@component{
+        \pgfpathrectanglecorners
+        {\pgfpoint{0}{.5\pgflinewidth}}
+        {\pgfpoint{0}{-.5\pgflinewidth}}
+        \pgfsetcolor{\ctikzvalof{color}}
+        \pgfusepath{draw,fill}
     }
 }
 
@@ -2229,22 +2269,20 @@
         \pgf@circ@res@temp=\@@factor\pgflinewidth
         \advance\pgf@x by -.5\pgf@circ@res@temp
     }
-    \behindforegroundpath{
-        \pgfscope
-            \northwest
-            \pgf@circ@res@up=\pgf@y
-            \pgf@circ@res@left=\pgf@x
-            \tip
-            \pgf@circ@res@step = \pgf@x
-            %
-            \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{0pt}}
-            \pgfpathlineto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@up}}
-            \pgfpathlineto{\pgfpoint{1\pgf@circ@res@step}{0pt}}
-            \pgfpathlineto{\pgfpoint{\pgf@circ@res@left}{-\pgf@circ@res@up}}
-            \pgfpathclose
-            \pgfsetcolor{\ctikzvalof{color}}
-            \pgfusepath{fill} % just fill
-        \endpgfscope
+    \pgf@circ@draw@component{
+        \northwest
+        \pgf@circ@res@up=\pgf@y
+        \pgf@circ@res@left=\pgf@x
+        \tip
+        \pgf@circ@res@step = \pgf@x
+        %
+        \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{0pt}}
+        \pgfpathlineto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@up}}
+        \pgfpathlineto{\pgfpoint{1\pgf@circ@res@step}{0pt}}
+        \pgfpathlineto{\pgfpoint{\pgf@circ@res@left}{-\pgf@circ@res@up}}
+        \pgfpathclose
+        \pgfsetcolor{\ctikzvalof{color}}
+        \pgfusepath{fill} % just fill
     }
 }
 
@@ -2280,22 +2318,20 @@
         \divide \pgf@circ@res@step by \ctikzvalof{current arrow scale}
         \pgf@x	=\pgf@circ@res@step
     }
-    \behindforegroundpath{
-        \pgfscope
-            \ifpgfcirc@really@draw@currarrow
-                \pgf@circ@reset@arrows@rounded
-                \pgf@circ@res@step = \pgf@circ@Rlen
-                \divide \pgf@circ@res@step by \ctikzvalof{current arrow scale}
+    \pgf@circ@draw@component{
+        \ifpgfcirc@really@draw@currarrow
+            \pgf@circ@reset@arrows@rounded
+            \pgf@circ@res@step = \pgf@circ@Rlen
+            \divide \pgf@circ@res@step by \ctikzvalof{current arrow scale}
 
-                \pgfpathmoveto{\pgfpoint{-.7\pgf@circ@res@step}{0pt}}
-                \pgfpathlineto{\pgfpoint{-.7\pgf@circ@res@step}{-.8\pgf@circ@res@step}}
-                \pgfpathlineto{\pgfpoint{1\pgf@circ@res@step}{0pt}}
-                \pgfpathlineto{\pgfpoint{-.7\pgf@circ@res@step}{.8\pgf@circ@res@step}}
-                \pgfpathclose
-                \pgfsetcolor{\ctikzvalof{color}}
-                \pgfusepath{draw,fill}
-            \fi
-        \endpgfscope
+            \pgfpathmoveto{\pgfpoint{-.7\pgf@circ@res@step}{0pt}}
+            \pgfpathlineto{\pgfpoint{-.7\pgf@circ@res@step}{-.8\pgf@circ@res@step}}
+            \pgfpathlineto{\pgfpoint{1\pgf@circ@res@step}{0pt}}
+            \pgfpathlineto{\pgfpoint{-.7\pgf@circ@res@step}{.8\pgf@circ@res@step}}
+            \pgfpathclose
+            \pgfsetcolor{\ctikzvalof{color}}
+            \pgfusepath{draw,fill}
+        \fi
     }
 }
 
@@ -2336,20 +2372,18 @@
         \divide \pgf@circ@res@step by \ctikzvalof{current arrow scale}
         \pgf@x	=\pgf@circ@res@step
     }
-    \behindforegroundpath{
-        \pgfscope
-            \ifpgfcirc@really@draw@flowarrow
-                \pgf@circ@reset@arrows@rounded
-                \pgf@circ@res@step = \pgf@circ@Rlen
-                \divide \pgf@circ@res@step by 4
-                \pgfpathmoveto{\pgfpoint{-\pgf@circ@res@step}{0pt}}
-                \pgfpathlineto{\pgfpoint{\pgf@circ@res@step}{0pt}}
-                \pgfsetcolor{\ctikzvalof{color}}
-                \pgfusepath{draw}
-                \pgftransformshift{\pgfpoint{\pgf@circ@res@step}{0pt}}
-                \pgfnode{currarrow}{tip}{}{}{\pgfusepath{fill}}
-            \fi
-        \endpgfscope
+    \pgf@circ@draw@component{
+        \ifpgfcirc@really@draw@flowarrow
+            \pgf@circ@reset@arrows@rounded
+            \pgf@circ@res@step = \pgf@circ@Rlen
+            \divide \pgf@circ@res@step by 4
+            \pgfpathmoveto{\pgfpoint{-\pgf@circ@res@step}{0pt}}
+            \pgfpathlineto{\pgfpoint{\pgf@circ@res@step}{0pt}}
+            \pgfsetcolor{\ctikzvalof{color}}
+            \pgfusepath{draw}
+            \pgftransformshift{\pgfpoint{\pgf@circ@res@step}{0pt}}
+            \pgfnode{currarrow}{tip}{}{}{\pgfusepath{fill}}
+        \fi
     }
 }
 
@@ -2379,20 +2413,17 @@
     \anchor{tip}{
         \tip
     }
-    \behindforegroundpath{
-
-        \pgfscope
-            \pgf@circ@reset@arrows@rounded
-            \pgf@circ@res@step = \pgf@circ@Rlen
-            \divide \pgf@circ@res@step by 16
-            \pgfpathmoveto{\pgfpoint{-1.7\pgf@circ@res@step}{0pt}}
-            \pgfpathlineto{\pgfpoint{-1.7\pgf@circ@res@step}{-.8\pgf@circ@res@step}}
-            \pgfpathlineto{\pgfpoint{0pt}{0pt}}
-            \pgfpathlineto{\pgfpoint{-1.7\pgf@circ@res@step}{.8\pgf@circ@res@step}}
-            \pgfpathclose
-            \pgfsetcolor{\ctikzvalof{color}}
-            \pgfusepath{fill}
-        \endpgfscope
+    \pgf@circ@draw@component{
+        \pgf@circ@reset@arrows@rounded
+        \pgf@circ@res@step = \pgf@circ@Rlen
+        \divide \pgf@circ@res@step by 16
+        \pgfpathmoveto{\pgfpoint{-1.7\pgf@circ@res@step}{0pt}}
+        \pgfpathlineto{\pgfpoint{-1.7\pgf@circ@res@step}{-.8\pgf@circ@res@step}}
+        \pgfpathlineto{\pgfpoint{0pt}{0pt}}
+        \pgfpathlineto{\pgfpoint{-1.7\pgf@circ@res@step}{.8\pgf@circ@res@step}}
+        \pgfpathclose
+        \pgfsetcolor{\ctikzvalof{color}}
+        \pgfusepath{fill}
     }
 }
 
@@ -2403,15 +2434,12 @@
     \anchor{center}{
         \pgfpointorigin
     }
-    \behindforegroundpath{
-
-        \pgfscope
-            \pgf@circ@res@step = \ctikzvalof{bipoles/twoport/width}\pgf@circ@Rlen
-            \pgf@circ@res@step = 0.5\pgf@circ@res@step
-            \pgf@circ@setlinewidth{bipoles}{\pgfstartlinewidth}
-            \pgfpathrectanglecorners{\pgfpoint{-\pgf@circ@res@step}{\pgf@circ@res@step}}{\pgfpoint{\pgf@circ@res@step}{-\pgf@circ@res@step}}
-            \pgf@circ@draworfill
-        \endpgfscope
+    \pgf@circ@draw@component{
+        \pgf@circ@res@step = \ctikzvalof{bipoles/twoport/width}\pgf@circ@Rlen
+        \pgf@circ@res@step = 0.5\pgf@circ@res@step
+        \pgf@circ@setlinewidth{bipoles}{\pgfstartlinewidth}
+        \pgfpathrectanglecorners{\pgfpoint{-\pgf@circ@res@step}{\pgf@circ@res@step}}{\pgfpoint{\pgf@circ@res@step}{-\pgf@circ@res@step}}
+        \pgf@circ@draworfill
     }
 }
 
@@ -2422,15 +2450,13 @@
     \anchor{center}{
         \pgfpointorigin
     }
-    \behindforegroundpath{
+    \pgf@circ@draw@component{
         \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{blocks/scale}\pgf@circ@Rlen}
-        \pgfscope
-            \pgf@circ@res@step = \ctikzvalof{bipoles/twoport/width}\pgf@circ@scaled@Rlen
-            \pgf@circ@res@step = 0.5\pgf@circ@res@step
-            \pgf@circ@setlinewidth{bipoles}{\pgfstartlinewidth}
-            \pgfpathrectanglecorners{\pgfpoint{-\pgf@circ@res@step}{\pgf@circ@res@step}}{\pgfpoint{\pgf@circ@res@step}{-\pgf@circ@res@step}}
-            \pgf@circ@draworfill
-        \endpgfscope
+        \pgf@circ@res@step = \ctikzvalof{bipoles/twoport/width}\pgf@circ@scaled@Rlen
+        \pgf@circ@res@step = 0.5\pgf@circ@res@step
+        \pgf@circ@setlinewidth{bipoles}{\pgfstartlinewidth}
+        \pgfpathrectanglecorners{\pgfpoint{-\pgf@circ@res@step}{\pgf@circ@res@step}}{\pgfpoint{\pgf@circ@res@step}{-\pgf@circ@res@step}}
+        \pgf@circ@draworfill
     }
 }
 
@@ -2456,7 +2482,7 @@
     \anchor{north east}{ \northwest \pgf@x=-\pgf@x }
     \anchor{north west}{ \northwest }
     \anchor{south east}{ \northwest \pgf@x=-\pgf@x \pgf@y=-\pgf@y }
-    \behindbackgroundpath{
+    \pgf@circ@draw@component{
         \northwest
         \pgf@circ@res@up = \pgf@y
         \pgf@circ@res@down = -\pgf@y
@@ -2497,7 +2523,7 @@
     \anchor{north east}{ \northwest \pgf@x=-\pgf@x }
     \anchor{north west}{ \northwest }
     \anchor{south east}{ \northwest \pgf@x=-\pgf@x \pgf@y=-\pgf@y }
-    \behindbackgroundpath{
+    \pgf@circ@draw@component{
         \northwest
         \pgf@circ@res@up = \pgf@y
         \pgf@circ@res@down = -\pgf@y
@@ -2599,7 +2625,7 @@
         \anchor{left}{\pgfpointorigin}
         \anchor{right}{\pgfpointorigin}
         \anchor{center}{\pgfpointorigin}
-        \behindforegroundpath{
+        \pgf@circ@draw@component{
             \pgf@circ@scaled@Rlen=\scaledRlen
             \pgf@circ@res@step=\ctikzvalof{monopoles/ground/width}\pgf@circ@scaled@Rlen
             \pgfscope
@@ -2820,7 +2846,7 @@
         \advance \pgf@y by 0.5\ht\pgfnodeparttextbox
         \pgf@x=-.5\wd\pgfnodeparttextbox
     }
-    \behindforegroundpath{
+    \pgf@circ@draw@component{
         \pgf@circ@scaled@Rlen=\scaledRlen
         \pgf@circ@res@step=\ctikzvalof{monopoles/vcc/width}\pgf@circ@scaled@Rlen
         \pgfscope
@@ -2882,7 +2908,7 @@
         \pgf@x=-.5\wd\pgfnodeparttextbox
     }
 
-    \behindforegroundpath{
+    \pgf@circ@draw@component{
         \pgf@circ@scaled@Rlen=\scaledRlen
         \pgf@circ@res@step=\ctikzvalof{monopoles/vcc/width}\pgf@circ@scaled@Rlen
         \pgfscope
@@ -3004,7 +3030,7 @@
     \anchor{text}{\northeast\pgf@xa=\pgf@x\pgf@ya=\pgf@y
         \pgfpoint{\dimexpr-.5\wd\pgfnodeparttextbox+.8\pgf@xa}
         {\dimexpr-.5\dp\pgfnodeparttextbox+.5\ht\pgfnodeparttextbox+\pgf@ya}}
-    \behindforegroundpath{
+    \pgf@circ@draw@component{
         \pgfstartlinewidth=\pgflinewidth
 
         \pgf@circ@scaled@Rlen=\scaledRlen
@@ -3098,7 +3124,7 @@
     \anchor{south west}{\northeast\pgf@y=-\pgf@y\pgf@x=-\pgf@x}
     \anchor{west}{\northeast\pgf@x=-\pgf@x\pgf@y=0pt}
     \anchor{north west}{\northeast\pgf@x=-\pgf@x}
-    \behindforegroundpath{
+    \pgf@circ@draw@component{
         \pgf@circ@scaled@Rlen=\scaledRlen
         \pgf@circ@res@step=\ctikzvalof{monopoles/waves/width}\pgf@circ@scaled@Rlen
         \pgf@circ@res@step=0.5\pgf@circ@res@step
@@ -3152,7 +3178,7 @@
     \anchor{north west}{\northeast\pgf@x=-\pgf@x}
     \anchor{south east}{\northeast\pgf@y=0pt\relax}
     \anchor{south west}{\northeast\pgf@y=0pt\pgf@x=-\pgf@x}
-    \behindforegroundpath{
+    \pgf@circ@draw@component{
         \pgf@circ@antennabody
     }
 }
@@ -3193,7 +3219,7 @@
     \anchor{north west}{\northeast\pgf@x=-\pgf@x}
     \anchor{south east}{\northeast\pgf@y=0pt\relax}
     \anchor{south west}{\northeast\pgf@y=0pt\pgf@x=-\pgf@x}
-    \behindforegroundpath{
+    \pgf@circ@draw@component{
         \pgf@circ@antennabody
         \pgf@circ@antennawaves
     }
@@ -3234,7 +3260,7 @@
     \anchor{north west}{\northeast\pgf@x=-\pgf@x}
     \anchor{south east}{\northeast\pgf@y=0pt\relax}
     \anchor{south west}{\northeast\pgf@y=0pt\pgf@x=-\pgf@x}
-    \behindforegroundpath{
+    \pgf@circ@draw@component{
         \pgf@circ@antennabody
         \pgftransformxshift{-5.2\pgf@circ@res@step}
         \pgf@circ@antennawaves
@@ -3291,7 +3317,7 @@
     \anchor{north west}{\northeast\pgf@x=-\pgf@x}
     \anchor{south east}{\northeast\pgf@y=0pt\relax}
     \anchor{south west}{\northeast\pgf@y=0pt\pgf@x=-\pgf@x}
-    \behindforegroundpath{
+    \pgf@circ@draw@component{
         \pgfstartlinewidth=\pgflinewidth
         \pgf@circ@scaled@Rlen=\scaledRlen
         \pgfsetcolor{\ctikzvalof{color}}
@@ -3361,7 +3387,7 @@
             \dimexpr.5\dp\pgfnodeparttextbox+.5\ht\pgfnodeparttextbox+\pgf@circ@res@up\relax
         }
     }
-    \behindbackgroundpath{
+    \pgf@circ@draw@component{
         \pgfextracty{\pgf@circ@res@up}{\northwest}
         \pgfextractx{\pgf@circ@res@right}{\southeast}
         \pgfextractx{\pgf@circ@res@left}{\northwest}
@@ -3410,7 +3436,7 @@
             \dimexpr.5\dp\pgfnodeparttextbox+.5\ht\pgfnodeparttextbox+\pgf@circ@res@up\relax
         }
     }
-    \behindbackgroundpath{
+    \pgf@circ@draw@component{
         \pgfextracty{\pgf@circ@res@up}{\northwest}
         \pgfextractx{\pgf@circ@res@right}{\southeast}
         \pgfextractx{\pgf@circ@res@left}{\northwest}
@@ -3467,7 +3493,7 @@
             \dimexpr-.5\dp\pgfnodeparttextbox-.5\ht\pgfnodeparttextbox\relax
         }
     }
-    \behindbackgroundpath{
+    \pgf@circ@draw@component{
         \pgfextracty{\pgf@circ@res@up}{\northwest}
         \pgfextractx{\pgf@circ@res@right}{\southeast}
         \pgfextractx{\pgf@circ@res@left}{\northwest}
@@ -3517,7 +3543,7 @@
         \pgf@x=\ctikzvalof{monopoles/antenna/label/xanchor}\pgf@x
         \pgf@y=\ctikzvalof{monopoles/antenna/label/yanchor}\pgf@y
     }
-    \behindforegroundpath{
+    \pgf@circ@draw@component{
         \pgfstartlinewidth=\pgflinewidth
         \pgf@circ@scaled@Rlen=\scaledRlen
         \pgf@circ@res@step=\ctikzvalof{monopoles/antenna/width}\pgf@circ@scaled@Rlen
@@ -3568,7 +3594,7 @@
         \pgf@x=\ctikzvalof{monopoles/txantenna/label/xanchor}\pgf@x
         \pgf@y=\ctikzvalof{monopoles/txantenna/label/yanchor}\pgf@y
     }
-    \behindforegroundpath{
+    \pgf@circ@draw@component{
         \pgfstartlinewidth=\pgflinewidth
         \pgf@circ@scaled@Rlen=\scaledRlen
         \pgf@circ@res@step=\ctikzvalof{monopoles/txantenna/width}\pgf@circ@scaled@Rlen
@@ -3630,7 +3656,7 @@
         \pgf@x=\ctikzvalof{monopoles/rxantenna/label/xanchor}\pgf@x
         \pgf@y=\ctikzvalof{monopoles/rxantenna/label/yanchor}\pgf@y
     }
-    \behindforegroundpath{
+    \pgf@circ@draw@component{
         \pgfstartlinewidth=\pgflinewidth
         \pgf@circ@scaled@Rlen=\scaledRlen
         \pgf@circ@res@step=\ctikzvalof{monopoles/rxantenna/width}\pgf@circ@scaled@Rlen
@@ -3698,7 +3724,7 @@
         \advance \pgf@x by -.5\wd\pgfnodeparttextbox
         \pgf@y=-1.5\ht\pgfnodeparttextbox
     }
-    \behindforegroundpath{
+    \pgf@circ@draw@component{
         \pgf@circ@scaled@Rlen=\scaledRlen
         \pgf@circ@res@step=\ctikzvalof{monopoles/match/width}\pgf@circ@scaled@Rlen
 
@@ -7608,7 +7634,7 @@
         \fi
 
         % draw the gate thing;
-        #4
+        #4%
 
         % draw the leads in/out
         \pgfpathmoveto{\pgfpoint{\pgf@circ@res@other}{0pt}}
@@ -8253,7 +8279,7 @@
         \pgfsetroundcap\pgfusepath{draw}
         \endpgfscope
         \pgfscope % arrow
-        #3
+        #3%
         \endpgfscope
         \pgftransformshift{\pgfpoint{\pgf@circ@res@left}{0pt}}
         \pgfnode{\cshape}{center}{}{\thisshape-in}{\pgfusepath{draw}}
@@ -8419,7 +8445,7 @@
         \pgf@x=-\pgf@x
         \pgf@y=-\pgf@y
     }
-    \backgroundpath{
+    \pgf@circ@draw@component{
         \pgfsetcolor{\ctikzvalof{color}}
 
         \northwest
@@ -8522,7 +8548,7 @@
         \anchor{north west}{ \northwest }
         \anchor{south east}{ \northwest \pgf@x=-\pgf@x \pgf@y=-\pgf@y }
 
-        \backgroundpath{
+        \pgf@circ@draw@component{
             \pgfsetcolor{\ctikzvalof{color}}
             \northwest
             \pgf@circ@res@up = \pgf@y
@@ -8540,7 +8566,7 @@
             \pgfsetroundcap\pgfusepath{draw}
             \endpgfscope
             \pgfscope % arrow
-            #3
+            #3%
             \endpgfscope
             % terminals
             \pgfscope
@@ -9042,7 +9068,7 @@
                 \pgfusepath{draw}
                 \pgf@circ@draworfill
             \endpgfscope
-            #2
+            #2%
         \endpgfscope
     }
 }
@@ -9547,7 +9573,7 @@
         \pgf@y=-\pgf@y
         \pgf@x=0.5\pgf@x
     }
-    \behindbackgroundpath{
+    \pgf@circ@draw@component{
         \pgfsetcolor{\ctikzvalof{color}}
         \pgf@circ@scaled@Rlen=\scaledRlen
         \pgf@circ@res@step=\ctikzvalof{tripoles/elmech/width}\pgf@circ@scaled@Rlen
@@ -10386,9 +10412,9 @@
     \anchor{east}{\pgfextractx{\pgf@circ@res@right}{\northeast}%
     \pgfpoint{\pgf@circ@res@right}{0cm}}
 
-    \backgroundpath{
+    \pgf@circ@draw@component{
         \pgfsetcolor{\ctikzvalof{color}}
-        #3
+        #3%
     }
 }
 }
@@ -10821,7 +10847,7 @@
         \pgf@x=\dimexpr -.6\wd\pgfnodeparttextbox\relax
         \pgf@y=\dimexpr.5\dp\pgfnodeparttextbox-.5\ht\pgfnodeparttextbox\relax
     }
-    \backgroundpath{
+    \pgf@circ@draw@component{
         \pgfsetcolor{\ctikzvalof{color}}
 
         \northwest
@@ -10965,7 +10991,7 @@
         \pgf@x=\dimexpr -.6\wd\pgfnodeparttextbox\relax
         \pgf@y=\dimexpr.5\dp\pgfnodeparttextbox-.5\ht\pgfnodeparttextbox\relax
     }
-    \backgroundpath{
+    \pgf@circ@draw@component{
         \pgfsetcolor{\ctikzvalof{color}}
 
         \northwest
@@ -11101,7 +11127,7 @@
         \pgf@x=\dimexpr -.6\wd\pgfnodeparttextbox\relax
         \pgf@y=\dimexpr.5\dp\pgfnodeparttextbox-.5\ht\pgfnodeparttextbox\relax
     }
-    \backgroundpath{
+    \pgf@circ@draw@component{
         \pgfsetcolor{\ctikzvalof{color}}
 
         \northwest
@@ -11257,7 +11283,7 @@
         \pgf@x=\dimexpr -.6\wd\pgfnodeparttextbox\relax
         \pgf@y=\dimexpr.5\dp\pgfnodeparttextbox-.5\ht\pgfnodeparttextbox\relax
     }
-    \backgroundpath{
+    \pgf@circ@draw@component{
         \pgfsetcolor{\ctikzvalof{color}}
 
 
@@ -11399,7 +11425,7 @@
     \else
         \expandafter\pgfutil@g@addto@macro\csname pgf@sh@s@european #1 port\endcsname{%
             \pgfmathloop%
-            \ifnum\pgfmathcounter>#3%
+            \ifnum\pgfmathcounter>#3
         \else%
             %\pgfutil@ifundefined{pgf@anchor@european #1 port@in \pgfmathcounter}{% redundant
             \expandafter\xdef\csname pgf@anchor@european #1 port@in \pgfmathcounter\endcsname{%
@@ -11443,7 +11469,7 @@
         \pgfpointborderrectangle{\pgfpoint{\pgf@xa}{\pgf@ya}}
             {\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@up}}
     }
-    \backgroundpath{
+    \pgf@circ@draw@component{
         \pgfsetcolor{\ctikzvalof{color}}
         \pgfstartlinewidth=\pgflinewidth
         \pgfscope
@@ -11985,10 +12011,10 @@
         \anchor{south}{\southwest\pgf@x=0pt\relax}
         \anchor{west}{\northwest\pgf@y=0pt\relax}
 
-        \backgroundpath{
+        \pgf@circ@draw@component{
             \pgfscope
                 \pgfsetcolor{\ctikzvalof{color}}
-                #4
+                #4%
             \endpgfscope
             % output lead:
             \pgfextractx{\pgf@circ@res@right}{\bottomright} %body+ball border
@@ -12082,7 +12108,7 @@
             % \typeout{INNER\space\pgf@circ@count@a}
             \pgfmathsetlength{\pgf@circ@res@right}{\pgf@circ@res@left-2*\stdH*(1-cos(atan(\pgf@circ@res@temp/(2*\stdH))))}
             % hook for xor/xnor
-            #1
+            #1%
         \fi\fi
         \pgfpathmoveto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@temp}}%
         \pgfpathlineto{\pgfpoint{\pgf@circ@res@left-\pinlen}{\pgf@circ@res@temp}}%
@@ -12106,7 +12132,7 @@
         \pgfpathclose
         \pgf@circ@draworfill
         % hook for xor/xnor
-        #2
+        #2%
         % rack now; skip if not needed.
         % \typeout{WHAT\space \inputs\space \inners}
         \ifnum\inputs>\inners
@@ -12323,10 +12349,10 @@
         \anchor{south}{\southwest\pgf@x=0pt\relax}
         \anchor{west}{\northwest\pgf@y=0pt\relax}
 
-        \backgroundpath{
+        \pgf@circ@draw@component{
             \pgfscope
                 \pgfsetcolor{\ctikzvalof{color}}
-                #3
+                #3%
             \endpgfscope
             % output lead:
             \pgfextractx{\pgf@circ@res@right}{\bottomright} %body+ball border
@@ -12424,7 +12450,7 @@
     \anchor{north east}{\northwest\pgf@x=-\pgf@x}
     \anchor{north west}{\northwest}
     \anchor{south east}{\northwest\pgf@x=-\pgf@x\pgf@y=-\pgf@y}
-    \backgroundpath{
+    \pgf@circ@draw@component{
         \pgfscope
             \pgfsetcolor{\ctikzvalof{color}}
             \pgfextractx{\pgf@circ@res@left}{\northwest}
@@ -12473,7 +12499,7 @@
         \pgfpointborderellipse{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@up}}%
         {\pgfpoint{\pgf@circ@res@temp}{\pgf@circ@res@temp}}
     }
-    \behindforegroundpath{
+    \pgf@circ@draw@component{
         \pgfscope
             \northwest\pgf@circ@res@temp=\pgf@y
             \pgfsetcolor{\ctikzvalof{color}}
@@ -12669,7 +12695,7 @@
         \anchor{south}{\southwest\pgf@x=0pt\relax}
         \anchor{west}{\northwest\pgf@y=0pt\relax}
 
-        \backgroundpath{
+        \pgf@circ@draw@component{
             \pgfscope
                 \pgfsetcolor{\ctikzvalof{color}}
                 \pgfextractx{\pgf@circ@res@left}{\bodyleft}
@@ -12690,7 +12716,7 @@
                     \fi
                     \pgfusepath{draw}
                 \fi
-                #3
+                #3%
             \endpgfscope
             % output lead:
             \pgfextractx{\pgf@circ@res@right}{\bottomright} %body+ball border
@@ -13762,8 +13788,8 @@
             \pgf@x=-\ctikzvalof{tripoles/#1/bodydiode distance}\pgf@x
             \pgf@y=\pgf@ya
         }
-        #2
-        \backgroundpath{
+        #2%
+        \pgf@circ@draw@component{
             \pgftransformationadjustments
             \pgfsetcolor{\ctikzvalof{color}}
             %
@@ -13780,7 +13806,7 @@
         \pgf@circ@res@left = \pgf@x
         \pgf@circ@scaled@Rlen=\scaledRlen
         %
-        #3
+        #3%
         % BODY DIODE
         \ifpgf@circuit@fet@bodydiode
             \drawbodydiode{#1}
@@ -14136,7 +14162,7 @@
         \anchor{C}{\ifnum\cdir<0\southeast\else\northeast\fi}
         \anchor{collector}{\ifnum\cdir<0\southeast\else\northeast\fi}
 
-        \backgroundpath{
+        \pgf@circ@draw@component{
             \pgftransformationadjustments
             \pgfsetcolor{\ctikzvalof{color}}
             %
@@ -15270,8 +15296,8 @@
 
 }
 
-\long\def\pgfdeclaretransistorwrapperaddbulk#1#2#3
-{\pgfcircdeclaretransistor{#1}{
+\long\def\pgfdeclaretransistorwrapperaddbulk#1#2#3{
+    \pgfcircdeclaretransistor{#1}{
         \anchor{bulk}{\left\pgf@x=0pt}
         \anchor{B}{\left\pgf@x=0pt}%override Base anchor from npn&igbt
         \anchor{inner up}{
@@ -15282,7 +15308,7 @@
             \northeast
             \pgf@y=-\ctikzvalof{tripoles/#1/gate height}\pgf@y
         }
-        #2
+        #2%
     }
     {#3}
 }
@@ -15429,7 +15455,7 @@
                 \pgf@x=\ctikzvalof{tripoles/#1/conn kink}\pgf@x
             }
             % extra anchors (or override)
-            #2
+            #2%
         }{%
         % add the circle if requested (before everything else, so we can fill it)
         \pgfcirc@transistorcircle
@@ -15528,7 +15554,7 @@
         \endpgfscope
 
         % extra drawings
-        #3
+        #3%
     }
 }
 
@@ -15968,7 +15994,7 @@
         \pgf@y=\dimexpr.5\dp\pgfnodeparttextbox-.5\ht\pgfnodeparttextbox\relax
     }
 
-    \backgroundpath{
+    \pgf@circ@draw@component{
         \pgfsetcolor{\ctikzvalof{color}}
 
         \northwest
@@ -16147,7 +16173,7 @@
         \pgf@y=\dimexpr.5\dp\pgfnodeparttextbox-.5\ht\pgfnodeparttextbox\relax
     }
 
-    \backgroundpath{
+    \pgf@circ@draw@component{
         \pgfsetcolor{\ctikzvalof{color}}
         \northwest
         \pgf@circ@res@up = \pgf@y
@@ -16390,7 +16416,7 @@
         \fi
         \pgf@y=\dimexpr.5\dp\pgfnodeparttextbox-.5\ht\pgfnodeparttextbox\relax
     }
-    \backgroundpath{
+    \pgf@circ@draw@component{
         \pgfsetcolor{\ctikzvalof{color}}
 
         \northwest
@@ -16710,7 +16736,7 @@
     }
 
     % let's start drawing the component
-    \backgroundpath{
+    \pgf@circ@draw@component{
         \pgfsetcolor{\ctikzvalof{color}}
         %
         \northwest
@@ -16918,7 +16944,7 @@
         \fi
         \pgf@y=\dimexpr.5\dp\pgfnodeparttextbox-.5\ht\pgfnodeparttextbox\relax
     }
-    \backgroundpath{
+    \pgf@circ@draw@component{
         \pgfsetcolor{\ctikzvalof{color}}
 
         \northwest
@@ -17150,7 +17176,7 @@
     }
 
     % let's start drawing the component
-    \backgroundpath{
+    \pgf@circ@draw@component{
         \pgfsetcolor{\ctikzvalof{color}}
         %
         \northwest
@@ -17437,7 +17463,7 @@
     }
 
     % drawing of the component
-    \backgroundpath{
+    \pgf@circ@draw@component{
         \pgfsetcolor{\ctikzvalof{color}}
 
         \northwest
@@ -17572,7 +17598,7 @@
         \pgf@y=\dimexpr.5\dp\pgfnodeparttextbox-.5\ht\pgfnodeparttextbox\relax
     }
 
-    \backgroundpath{
+    \pgf@circ@draw@component{
         \pgfsetcolor{\ctikzvalof{color}}
 
         \northwest
@@ -17733,7 +17759,7 @@
         \pgf@y=\dimexpr.5\dp\pgfnodeparttextbox-.5\ht\pgfnodeparttextbox\relax
     }
 
-    \backgroundpath{
+    \pgf@circ@draw@component{
         \pgfsetcolor{\ctikzvalof{color}}
 
         \northwest
@@ -17868,7 +17894,7 @@
         \fi
         \pgf@y=\dimexpr.5\dp\pgfnodeparttextbox-.5\ht\pgfnodeparttextbox\relax
     }
-    \backgroundpath{
+    \pgf@circ@draw@component{
         \pgfsetcolor{\ctikzvalof{color}}
 
         \northwest
@@ -18041,7 +18067,7 @@
     \anchor{north east}{ \northwest \pgf@x=-\pgf@x }
     \anchor{north west}{ \northwest }
     \anchor{south east}{ \northwest \pgf@x=-\pgf@x \pgf@y=-\pgf@y }
-    \backgroundpath{
+    \pgf@circ@draw@component{
         \pgfsetcolor{\ctikzvalof{color}}
         \pgf@circ@scaled@Rlen=\scaledRlen
         \pgf@circ@res@step=\ctikzvalof{tripoles/magnetron/width}\pgf@circ@scaled@Rlen
@@ -18208,10 +18234,9 @@
         }
 
         % Extra anchors
-        #2
+        #2%
 
-        \backgroundpath{
-            \pgfscope
+        \pgf@circ@draw@component{
                 % Line width for tripoles
                 \pgf@circ@setlinewidth{tripoles}{\pgflinewidth}
                 \pgf@circ@scaled@Rlen=\scaledRlen
@@ -18235,7 +18260,7 @@
                 \pgf@circ@draworfill
 
                 % Grid drawing
-                #3
+                #3%
 
                 % Filament (is not drawn by default)
                 \ifpgf@circuit@tubes@filament
@@ -18278,7 +18303,6 @@
 
                 % Draw the background
                 \pgfusepath{draw}
-            \endpgfscope
         }
     }
 }
@@ -18706,8 +18730,8 @@
             \northwest
             \pgf@x=0pt
         }
-        #3
-        \backgroundpath{
+        #3%
+        \pgf@circ@draw@component{
             \pgfsetcolor{\ctikzvalof{color}}
 
             \northwest
@@ -18715,7 +18739,7 @@
             \pgf@circ@res@down = -\pgf@y
             \pgf@circ@res@right = -\pgf@x
             \pgf@circ@res@left = \pgf@x
-            #2
+            #2%
         }
     }
 }
@@ -21025,7 +21049,7 @@
         \pgfpointborderellipse{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@up}
         }{\pgfpoint{\ctikzvalof{tripoles/mixer/width}*\scaledRlen/2}{\ctikzvalof{tripoles/mixer/width}*\scaledRlen/2}}
     }
-    \backgroundpath{
+    \pgf@circ@draw@component{
         \pgfsetcolor{\ctikzvalof{color}}
         \pgf@circ@scaled@Rlen=\scaledRlen
 
@@ -21211,7 +21235,7 @@
         \pgfpointborderellipse{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@up}
         }{\pgfpoint{\ctikzvalof{tripoles/adder/width}*\scaledRlen/2}{\ctikzvalof{tripoles/adder/width}*\scaledRlen/2}}
     }
-    \backgroundpath{
+    \pgf@circ@draw@component{
         \pgfsetcolor{\ctikzvalof{color}}
         \pgf@circ@scaled@Rlen=\scaledRlen
 
@@ -21350,7 +21374,7 @@
         }{\pgfpoint{\ctikzvalof{tripoles/oscillator/width}*\scaledRlen/2}{\ctikzvalof{tripoles/oscillator/width}*\scaledRlen/2}}
         \pgfmathsetlength{\pgf@x}{\pgf@x-\ctikzvalof{tripoles/oscillator/width}*\scaledRlen/2}
     }
-    \backgroundpath{
+    \pgf@circ@draw@component{
         \pgfsetcolor{\ctikzvalof{color}}
         \pgf@circ@scaled@Rlen=\scaledRlen
 
@@ -21503,7 +21527,7 @@
         \pgfpointborderellipse{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@up}
         }{\pgfpoint{\ctikzvalof{tripoles/circulator/width}*\scaledRlen/2}{\ctikzvalof{tripoles/circulator/width}*\scaledRlen/2}}
     }
-    \backgroundpath{
+    \pgf@circ@draw@component{
         \pgfsetcolor{\ctikzvalof{color}}
         \pgf@circ@scaled@Rlen=\scaledRlen
 
@@ -21615,7 +21639,7 @@
         \advance \pgf@x by -.5\wd\pgfnodeparttextbox
         \advance \pgf@y by -1.5\ht\pgfnodeparttextbox
     }
-    \backgroundpath{
+    \pgf@circ@draw@component{
         \pgfsetcolor{\ctikzvalof{color}}
         \pgf@circ@scaled@Rlen=\scaledRlen
 
@@ -21748,7 +21772,7 @@
         \advance \pgf@y by 0.5\ht\pgfnodeparttextbox
         \pgf@x=-.5\wd\pgfnodeparttextbox
     }
-    \backgroundpath{
+    \pgf@circ@draw@component{
         \pgfsetcolor{\ctikzvalof{color}}
         \pgf@circ@scaled@Rlen=\scaledRlen
 
@@ -21875,7 +21899,7 @@
         \advance \pgf@y by 0.5\ht\pgfnodeparttextbox
         \pgf@x=-.5\wd\pgfnodeparttextbox
     }
-    \backgroundpath{
+    \pgf@circ@draw@component{
         \pgfsetcolor{\ctikzvalof{color}}
         \pgf@circ@scaled@Rlen=\scaledRlen
 
@@ -22052,7 +22076,7 @@
             \advance \pgf@y by 0.5\ht\pgfnodeparttextbox
             \pgf@x=-.5\wd\pgfnodeparttextbox
         }
-        \backgroundpath{
+        \pgf@circ@draw@component{
             \pgfsetcolor{\ctikzvalof{color}}
 
             \northwest
@@ -22068,10 +22092,8 @@
             \pgf@circ@setlinewidth{bipoles}{\pgfstartlinewidth}
             \pgfpathrectanglecorners{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@up}}{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@down}}
             \pgf@circ@draworfill
-
             % draw inner stuff
-            #2
-
+            #2%
             % draw inner text
             \pgftext[center,x=-0.15\pgf@circ@res@step,y=0]{\ctikzvalof{bipoles/twoport/text}}
         }
@@ -22204,7 +22226,7 @@
         \advance \pgf@y by 0.5\ht\pgfnodeparttextbox
         \pgf@x=-.5\wd\pgfnodeparttextbox
     }
-    \backgroundpath{
+    \pgf@circ@draw@component{
         \pgfsetcolor{\ctikzvalof{color}}
         \pgf@circ@scaled@Rlen=\scaledRlen
 
@@ -22488,7 +22510,7 @@
     \anchor{south}{\northwest\pgf@x=0pt\pgf@y=-\pgf@y}
     \anchor{west}{\northwest\pgf@y=0pt }
     % start drawing
-    \backgroundpath{%
+    \pgf@circ@draw@component{%
         \northwest
         \pgf@circ@res@up = \pgf@y
         \pgf@circ@res@down = -\pgf@y
@@ -22721,7 +22743,7 @@
     \anchor{south}{\northwest\pgf@x=0pt\pgf@y=-\pgf@y}
     \anchor{west}{\northwest\pgf@y=0pt }
     % start drawing
-    \backgroundpath{%
+    \pgf@circ@draw@component{%
         \northwest
         \pgf@circ@res@up = \pgf@y
         \pgf@circ@res@down = -\pgf@y
@@ -23084,7 +23106,7 @@
     \anchor{ext north west}{ \extnorthwest \advance\pgf@x by -\width}
     \anchor{ext south east}{ \extnorthwest \pgf@x=-\pgf@x \pgf@y=-\pgf@y \advance\pgf@x by -\width}
 
-    \backgroundpath{
+    \pgf@circ@draw@component{
         \pgfsetcolor{\ctikzvalof{color}}
         \pgf@circ@res@right = \width
         \pgf@circ@res@left = -\width
@@ -23328,7 +23350,7 @@
     \anchor{f}{\topright\pgf@x=-\pgf@x\pgf@y=0.5\pgf@y}
     \anchor{g}{\pgfpointorigin}
     \anchor{dot}{\topright\pgf@y=-\pgf@y\advance\pgf@x by \dotspace}
-    \behindbackgroundpath{%
+    \pgf@circ@draw@component{%
         \southwest % I do not want the dot here, it will stick out
         \pgf@circ@res@up = -\pgf@y
         \pgf@circ@res@down = \pgf@y
@@ -23596,7 +23618,7 @@
     \anchor{bup}{\northwest\pgf@x=0pt }
     \anchor{bdown}{\northwest\pgf@x=0pt\pgf@y=-\pgf@y}
     % start drawing
-    \backgroundpath{%
+    \pgf@circ@draw@component{%
         \northwest
         \pgf@circ@res@up = \pgf@y
         \pgf@circ@res@down = -\pgf@y
@@ -24071,7 +24093,7 @@
         \pgf@y=-.5\ht\pgfnodeparttextbox%
         \advance\pgf@y by+.5\dp\pgfnodeparttextbox%
     }%
-    \backgroundpath{%
+    \pgf@circ@draw@component{%
         \topleft
         \pgf@circ@res@up = \pgf@y
         \pgf@circ@res@down = -\pgf@y
