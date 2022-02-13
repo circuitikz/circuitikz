@@ -67,7 +67,81 @@
 \newdimen \pgfstartlinewidth
 %%>>>
 
-% arrow tips macros and utilities %<<<1
+%% Macros for basic drawing%<<<
+%
+\long\gdef\pgf@circ@draw@component#1{%
+    \behindbackgroundpath{%
+        \pgf@circ@start@draw@hooks
+        #1%
+        \pgf@circ@end@draw@hooks
+    }%
+}%
+%
+% auxiliary macros to reset some thing in paths, for background images.
+% use with care and ALWAYS inside a \pgfscope, see here:
+% https://matrix.to/#/!NuxCISwYQJuyWwNsEI:matrix.org/$vQO6luq1F66LJ79dERmaqKI46qMBcjStqYCPi725uZE?via=matrix.org&via=2krueger.de&via=im.f3l.de
+% Thanks to @muzimuzhi
+%
+\def\pgf@circ@reset@arrows{%
+    \pgfsetshortenstart{+0pt}\pgfsetshortenend{+0pt}\pgfsetarrows{-}%
+}
+\def\pgf@circ@reset@rounded{%
+    \pgfsetcornersarced{\pgfpointorigin}%
+}
+\def\pgf@circ@reset@arrows@rounded{%
+    \pgf@circ@reset@arrows\pgf@circ@reset@rounded
+}
+%% Hook macros for the start and end of component drawing. The idea is that
+%% specific macros overrides class macro that overrides generic macro
+%% the generic macro is the one that resets arrows and curved path parameters
+%% but let the path inherits the rest (dashed, etc.)
+
+\def\pgf@circ@start@draw@hooks{%
+    % \typeout{SHAPE: \pgf@sm@shape@name}
+    \ifcsname ctikz@hook@start@draw@component@\pgf@sm@shape@name\endcsname
+        \csname ctikz@hook@start@draw@component@\pgf@sm@shape@name\endcsname
+    \else
+        \ifcsname ctikzclass\endcsname
+            \ifcsname ctikz@hook@start@draw@class@\ctikzclass\endcsname
+                \csname ctikz@hook@start@draw@class@\ctikzclass\endcsname
+            % class defined, but no hook, run generic hook
+            \else
+                \csname ctikz@hook@start@draw@default\endcsname
+            \fi
+        % we have no class, we did not run specific hook:run generic hook
+        \else
+            \csname ctikz@hook@start@draw@default\endcsname
+        \fi
+    \fi
+}
+\def\pgf@circ@end@draw@hooks{%
+    % \typeout{SHAPE: \pgf@sm@shape@name}
+    \ifcsname ctikz@hook@end@draw@component@\pgf@sm@shape@name\endcsname
+        \csname ctikz@hook@end@draw@component@\pgf@sm@shape@name\endcsname
+    \else
+        \ifcsname ctikzclass\endcsname
+            \ifcsname ctikz@hook@end@draw@class@\ctikzclass\endcsname
+                \csname ctikz@hook@end@draw@class@\ctikzclass\endcsname
+            % class defined, but no hook, run generic hook
+            \else
+                \csname ctikz@hook@end@draw@default\endcsname
+            \fi
+        % we have no class, we did not run specific hook:run generic hook
+        \else
+            \csname ctikz@hook@end@draw@default\endcsname
+        \fi
+    \fi
+}
+%
+%% default hook is to stop the propagation of arrows parameters and
+%% arced corners.
+%
+\def\ctikz@hook@start@draw@default{\pgf@circ@reset@arrows@rounded}
+%
+%
+%>>>
+
+%% arrow tips macros and utilities %<<<1
 
 % the default arrow is latexslim, which has been ported over old arrows library (deprecated)
 % see https://tex.stackexchange.com/questions/234084/latex-arrow-tip-with-arrows-meta-library
@@ -219,20 +293,6 @@
     \fi
 }
 
-% auxiliary macro to reset some thing in paths, for background images.
-% use with care and ALWAYS inside a \pgfscope, see here:
-% https://matrix.to/#/!NuxCISwYQJuyWwNsEI:matrix.org/$vQO6luq1F66LJ79dERmaqKI46qMBcjStqYCPi725uZE?via=matrix.org&via=2krueger.de&via=im.f3l.de
-% Thanks to @muzimuzhi
-%
-\def\pgf@circ@reset@arrows{%
-    \pgfsetshortenstart{+0pt}\pgfsetshortenend{+0pt}\pgfsetarrows{-}%
-}
-\def\pgf@circ@reset@rounded{%
-    \pgfsetcornersarced{\pgfpointorigin}%
-}
-\def\pgf@circ@reset@arrows@rounded{%
-    \pgf@circ@reset@arrows\pgf@circ@reset@rounded
-}
 
 %%>>>
 
@@ -462,10 +522,8 @@
                 \pgfpointborderrectangle{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@up}}{\pgfpoint{-\pgf@x}{-\pgf@y}}
             \fi
         }
-
-        #2
-
-        \backgroundpath{
+        #2%
+        \pgf@circ@draw@component{
             \pgfsetcolor{\ctikzvalof{color}}
 
             \northeast
@@ -477,10 +535,8 @@
             \pgf@circ@res@down = \pgf@y
             \pgf@circ@scaled@Rlen=\scaledRlen
             \pgfstartlinewidth=\pgflinewidth
-            % no rounded corners nor default arrows on bipole's bodies
-            \pgf@circ@reset@arrows@rounded
-            #7
-
+            % we used to reset arced corners here --- now it's in the hooks. I hope.
+            #7%
             \pgfsetlinewidth{\pgfstartlinewidth}
         }
     }
@@ -513,7 +569,7 @@
 % Just up and down (very common)
 \def\pgfcirc@border@extend@updown#1#2{\pgfcirc@border@extend@full{1}{#1}{1}{#2}}% %>>>
 
-% text position in some component.%<<<1
+%% text position in some component.%<<<1
 % (added with ieeestd logic ports. Maybe to be extended to other components,
 % like amplifiers)
 %
@@ -527,7 +583,7 @@
 \ctikzset{left text distance/.initial=0.3em}%
 %>>>
 
-% voltage direction options%<<<1
+%% voltage direction options%<<<1
 
 \newif\ifpgf@circ@oldvoltagedirection % default false
 \newif\ifpgf@circ@explicitvdir
@@ -541,7 +597,7 @@
 \tikzset{voltage dir/.style={circuitikz/voltage dir=#1}}%
 %>>>
 
-% bipole definitions for path component and text decorations%%<<<1
+%% bipole definitions for path component and text decorations%%<<<1
 %
 % Option "t=*" for nodes
 \pgfkeys{/tikz/t/.add code={}{\ctikzset{text=#1}}}
@@ -623,7 +679,7 @@
 \ctikzset{label/align/smart/.code={\ctikzsetvalof{label/align}{smart}}}
 %%>>>
 
-% traditional styles %<<<1
+%% traditional styles %<<<1
 %
 \ctikzset{thickness/.initial=2}
 \ctikzset{color/.initial=black}
@@ -635,7 +691,7 @@
 \ctikzset{nodes width/.initial=.04}
 %%>>>
 
-% Styles definitions and macros%<<<1
+%% Styles definitions and macros%<<<1
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% main style definitions
@@ -771,7 +827,7 @@
 \tikzset{cute/.style = {european currents, european voltages, american resistors, cute inductors, american ports}}
 %%>>>
 
-% voltage and current options%<<<1
+%% voltage and current options%<<<1
 %
 \ctikzset{current arrow scale/.initial=16}
 \ctikzset{current/distance/.initial = .5}
