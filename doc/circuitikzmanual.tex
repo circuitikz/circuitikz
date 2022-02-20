@@ -3129,6 +3129,7 @@ The arrows are the ones set with the keys \texttt{tunable start arrow} and \text
 \end{LTXexample}
 
 Notice also the need to force a transparency group if you want a semitransparent arrow.
+
 \subsection{Terminal shapes}\label{sec:terminals}
 
 These are the so-called ``bipole nodes'' shapes, or poles (see section~\ref{sec:bipole-nodes}). These nodes are always filled; the ``open'' versions (starting with an \texttt{o}) are by default filled with the color specified by the key \texttt{open nodes fill} (by default \texttt{white}), but you can override locally it with the \texttt{fill} parameter.
@@ -3154,11 +3155,14 @@ Since version 0.9.0, ``bipole nodes'' shapes have all the standard geographical 
 The size of the poles is controlled by the key \texttt{nodes width} (default \texttt{0.04}, relative to the basic length).
 Be sure to see section~\ref{sec:bipole-nodes} for more usage and configurability.
 
+\subsection{Connectors}\label{sec:connectors}
+
+Connectors have a class by themselves (\texttt{connectors}), so you can use the \texttt{scale}, \texttt{fill} and \texttt{thickness} properties as usual.
 
 \subsubsection{BNC connector/terminal}
 
 \begin{groupdesc}
-    \circuitdesc*{bnc}{BNC connector}{}(left/135/0.6, right/45/0.6, center/-90/0.6, hot/0/0.6, zero/-135/0.6)
+    \circuitdesc*{bnc}{BNC connector}{}(left/135/0.6, right/45/0.6, center/-45/0.6, hot/0/0.6, zero/-135/0.6, shield/-90/0.4)
 \end{groupdesc}
 The BNC connector is defined so that you can easily connect it as input or output (but remember that you need to flip the text if you flip the component):
 
@@ -3183,6 +3187,80 @@ It also has a \texttt{zero} anchor if you need to rotate it about its real cente
 \end{circuitikz}
 \end{LTXexample}
 
+\subsubsection{IEC 60617 socket-plug connectors}
+
+Plug and socket connectors (modeled on the IEC60617 standard) are available\footnote{Since \texttt{v1.5.0}; thanks to Alexander Sauter for suggesting them and \href{https://github.com/circuitikz/circuitikz/issues/611}{helping in the design}.} both in path-style form and, with separated but matching shapes for plug and socket, in node-style. There are two differently oriented shapes for each type to ease the construction of ``split'' connections (see the examples below). \textbf{Notice} that the elements in the following table are scaled by a factor 1.5, to better show the position of the anchors.
+
+\begin{groupdesc}
+    \ctikzset{connectors/scale=1.5}
+    \circuitdescbip[iecconn]{iec connector}{IEC 60617 connector}{iecconn}(left/145/0.3, right/45/0.3, center/-90/0.4, plug center/90/0.4, socket center/-135/0.3)
+    \circuitdesc{iecconnshape}{IEC 60617 connector}{\tiny text}(left/145/0.3, right/45/0.3, center/-90/0.2)
+    \circuitdesc{iecsocketL}{IEC 60617 female socket, left side}{\tiny text}(left/145/0.3, right/45/0.3, center/-90/0.2, socket center/0/0.2)
+    \circuitdesc{iecplugR}{IEC 60617 male plug, right side}{\tiny text}(left/145/0.3, right/45/0.3, center/-90/0.2, plug center/90/0.4)
+    \circuitdesc{iecplugL}{IEC 60617 male plug, left side}{\tiny text}(left/145/0.3, right/45/0.3, center/-90/0.2, plug center/90/0.4)
+    \circuitdesc{iecsocketR}{IEC 60617 female socket, right side}{\tiny text}(left/145/0.3, right/45/0.3, center/-90/0.4, socket center/-135/0.3)
+\end{groupdesc}
+
+The \texttt{center} anchors (as well as the text position) of the split elements of the connectors are on the side of the component (similar to what happens with grounds and supply voltage arrows) to ease the most common use.
+
+Also, the text for the plug nodes is raised to the same level of the text in the sockets, and it will ignore descendants, so that the two text lines up when the two components are put side by side.
+
+The \texttt{plug center} anchor always point to the center of the rectangular plug shape, and the \texttt{socket center} to the center of the semicircle in the sockets.
+
+\begin{LTXexample}[varwidth=true, basicstyle=\small\ttfamily]
+\begin{circuitikz}
+    \draw (0,1) node[bnc]{} to[R] ++(2,0)
+        to[iec connector] ++(1,0);
+    \draw (0,0) node[bnc]{} to[R] ++(2,0)
+        to[iec connector, invert] ++(1,0);
+\end{circuitikz}
+\end{LTXexample}
+
+Aligning ``disconnected'' plugs and sockets is reasonably easy:
+
+\begin{LTXexample}[varwidth=true, basicstyle=\small\ttfamily]
+\begin{circuitikz}
+    \draw (0,2) to[iec connector, name=C1] ++(2,0) coordinate(stop)
+        (C1.nw) node[above left, inner xsep=0pt]{s1}
+        (C1.ne) node[above right, inner xsep=0pt]{p1};
+    \draw (0,1) coordinate(tmp) -- (tmp-|C1.left)
+        node[iecsocketL](S2){s2};
+    \draw (0,0) coordinate(tmp) (tmp-|C1.socket center)
+        node[iecplugR](P3){p3} (P3.right) -- (tmp-|stop);
+    \draw[red, dashed] ([yshift=1cm]C1.socket center) -- ++(0,-4);
+\end{circuitikz}
+\end{LTXexample}
+
+You can choose the best shape when rotating them, to simplify the positioning (shape rotates around the \texttt{center} anchor).
+
+\begin{LTXexample}[varwidth=true, basicstyle=\small\ttfamily]
+\begin{circuitikz}
+    \draw (0,0) -| ++(1,-1) node[iecsocketL, rotate=-90]{}
+        (2,-1) -| ++(1,1) node[iecplugR, rotate=90]{};
+\end{circuitikz}
+\end{LTXexample}
+
+Choosing the proper left/right shape results in easily build ``mixed'' connectors; you can use the node text position properties to have lined-up labels, but remember that the text is outside the bounding box:
+
+\begin{LTXexample}[varwidth=true, basicstyle=\small\ttfamily]
+\begin{circuitikz}[]
+    \path (0,2); % for the bounding box, text is not accounted for
+    \draw (0,1) -- ++(1,0) node[iecsocketL](s1){S1};
+    \draw [red] (s1.e) node[iecplugR](p1){P1} (p1.e) -- ++(1,0);
+    \draw (0,0) -- ++(1,0) node[iecplugL](p2){P2};
+    \draw[blue] (p2.e) node[iecsocketR](s2){S2} (s2.e) -- ++(1,0);
+\end{circuitikz}
+\end{LTXexample}
+
+You can use the \texttt{plug center} anchor to add the IEC ``multiplier'':
+
+\begin{LTXexample}[varwidth=true, basicstyle=\small\ttfamily]
+\begin{circuitikz}[]
+    \draw (0,0) to[iec connector, connectors/scale=2, name=A,
+        a={\small\ttfamily output bus}] ++(3,0);
+    \draw (A.plug center) ++(-.2,-.4) -- ++(.4,.8) node[above]{8};
+\end{circuitikz}
+\end{LTXexample}
 
 \subsection{Block diagram components}
 \noindent Contributed by Stefan Erhardt.
