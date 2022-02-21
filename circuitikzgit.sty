@@ -16,8 +16,8 @@
 \providecommand\DeclareRelease[3]{}
 \providecommand\DeclareCurrentRelease[2]{}
 
-\def\pgfcircversion{1.5.0-unreleased-68282ad}
-\def\pgfcircversiondate{2022/02/13}
+\def\pgfcircversion{1.5.0-unreleased-39887b7}
+\def\pgfcircversiondate{2022/02/21}
 
 \DeclareRelease{0.4}{2012/12/20}{circuitikz-0.4-body.tex}
 \DeclareRelease{v0.4}{2012/12/20}{circuitikz-0.4-body.tex}
@@ -922,7 +922,52 @@
 }
 
 % Just up and down (very common)
-\def\pgfcirc@border@extend@updown#1#2{\pgfcirc@border@extend@full{1}{#1}{1}{#2}}% %>>>
+\def\pgfcirc@border@extend@updown#1#2{\pgfcirc@border@extend@full{1}{#1}{1}{#2}}%
+
+
+% set of symmetrical, geographical anchors when a \northwest saved anchor is available
+\long\def\pgfcirc@northwest@symmetric@geoanchors{%
+    \anchor{right}{\northwest\pgf@y=0pt\pgf@x=-\pgf@x}
+    \anchor{east}{\northwest\pgf@y=0pt\pgf@x=-\pgf@x}
+    \anchor{e}{\northwest\pgf@y=0pt\pgf@x=-\pgf@x}
+    \anchor{left}{\northwest\pgf@y=0pt}
+    \anchor{west}{\northwest\pgf@y=0pt}
+    \anchor{w}{\northwest\pgf@y=0pt}
+    \anchor{south}{\northwest\pgf@x=0pt\pgf@y=-\pgf@y}
+    \anchor{s}{\northwest\pgf@x=0pt\pgf@y=-\pgf@y}
+    \anchor{north}{\northwest\pgf@x=0pt}
+    \anchor{n}{\northwest\pgf@x=0pt}
+    \anchor{south west}{\northwest\pgf@y=-\pgf@y}
+    \anchor{sw}{\northwest\pgf@y=-\pgf@y}
+    \anchor{north east}{\northwest\pgf@x=-\pgf@x}
+    \anchor{ne}{\northwest\pgf@x=-\pgf@x}
+    \anchor{north west}{\northwest}
+    \anchor{nw}{\northwest}
+    \anchor{south east}{\northwest\pgf@x=-\pgf@x\pgf@y=-\pgf@y}
+    \anchor{se}{\northwest\pgf@x=-\pgf@x\pgf@y=-\pgf@y}
+}
+% the same, when we have \northeast (I know...)
+\long\def\pgfcirc@northeast@symmetric@geoanchors{%
+    \anchor{north}{\northeast\pgf@x=0cm\relax}
+    \anchor{n}{\northeast\pgf@x=0cm\relax}
+    \anchor{east}{\northeast\pgf@y=0cm\relax}
+    \anchor{e}{\northeast\pgf@y=0cm\relax}
+    \anchor{right}{\northeast\pgf@y=0cm\relax}
+    \anchor{south}{\northeast\pgf@y=-\pgf@y \pgf@x=0cm\relax}
+    \anchor{s}{\northeast\pgf@y=-\pgf@y \pgf@x=0cm\relax}
+    \anchor{west}{\northeast\pgf@y=0cm\pgf@x=-\pgf@x}
+    \anchor{w}{\northeast\pgf@y=0cm\pgf@x=-\pgf@x}
+    \anchor{left}{\northeast\pgf@y=0cm\pgf@x=-\pgf@x}
+    \anchor{north east}{\northeast}
+    \anchor{ne}{\northeast}
+    \anchor{north west}{\northeast\pgf@x=-\pgf@x}
+    \anchor{nw}{\northeast\pgf@x=-\pgf@x}
+    \anchor{south east}{\northeast\pgf@y=-\pgf@y}
+    \anchor{se}{\northeast\pgf@y=-\pgf@y}
+    \anchor{south west}{\northeast\pgf@y=-\pgf@y\pgf@x=-\pgf@x}
+    \anchor{sw}{\northeast\pgf@y=-\pgf@y\pgf@x=-\pgf@x}
+}
+%>>>
 
 %% text position in some component.%<<<1
 % (added with ieeestd logic ports. Maybe to be extended to other components,
@@ -2091,30 +2136,30 @@
 % 2. under the GNU Public License.
 %
 % See the files gpl-3.0_license.txt and lppl-1-3c_license.txt for more details.
+%
+% This file has folding marks for vim (See last line).
+%
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%  Other shapes
 
-%% Nothing
+%% Nothing: empty shape%<<<
 
 \pgfdeclareshape{emptyshape}{
     \savedanchor{\northeast}{%
         \pgf@x=.5\wd\pgfnodeparttextbox%
         \pgf@y=.5\ht\pgfnodeparttextbox%
     }
-    \anchor{north}{\northeast\pgf@x=0cm\relax}
-    \anchor{east}{\northeast\pgf@y=0cm\relax}
-    \anchor{south}{\northeast\pgf@y=-\pgf@y \pgf@x=0cm\relax}
-    \anchor{west}{\northeast\pgf@y=0cm\pgf@x=-\pgf@x}
-    \anchor{north east}{\northeast}
-    \anchor{north west}{\northeast\pgf@x=-\pgf@x}
-    \anchor{south east}{\northeast\pgf@y=-\pgf@y}
-    \anchor{south west}{\northeast\pgf@y=-\pgf@y\pgf@x=-\pgf@x}
+    % geo anchors based on north-east
+    \pgfcirc@northeast@symmetric@geoanchors
     \anchor{text}{\pgfpoint{-.5\wd\pgfnodeparttextbox}{\dimexpr.5\dp\pgfnodeparttextbox-.5\ht\pgfnodeparttextbox}}
     \anchor{center}{
         \pgfpointorigin
     }
-}
+}%
+%>>>
+
+%% Poles%<<<
 %
 % Provision for changing opacity. Only expert use, see the manual.
 %
@@ -2125,6 +2170,7 @@
 \ctikzset{poles/full fill opacity/.initial=1.0}% better not touch it
 \tikzset{full poles opacity/.code={%
         \ctikzset{poles/full fill opacity=#1}%
+
 }}
 
 %
@@ -2144,18 +2190,8 @@
         \pgf@x=-\pgf@y
     }
     \anchor{center}{ \pgf@y=0pt \pgf@x=0pt }
-    \anchor{east}{ \northwest \pgf@y=0pt \pgf@x=-\pgf@x  }
-    \anchor{e}{ \northwest \pgf@y=0pt \pgf@x=-\pgf@x  }
-    \anchor{west}{ \northwest \pgf@y=0pt }
-    \anchor{w}{ \northwest \pgf@y=0pt }
-    \anchor{south}{ \northwest \pgf@x=0pt \pgf@y=-\pgf@y }
-    \anchor{s}{ \northwest \pgf@x=0pt \pgf@y=-\pgf@y }
-    \anchor{north}{ \northwest \pgf@x=0pt }
-    \anchor{n}{ \northwest \pgf@x=0pt }
-    \anchor{south west}{ \northwest \pgf@y=-\pgf@y }
-    \anchor{north east}{ \northwest \pgf@x=-\pgf@x }
-    \anchor{north west}{ \northwest }
-    \anchor{south east}{ \northwest \pgf@x=-\pgf@x \pgf@y=-\pgf@y }
+    % geo anchors based on north-west
+    \pgfcirc@northwest@symmetric@geoanchors
     \anchorborder{
         \pgf@circ@res@left=\pgf@x
         \pgf@circ@res@up=\pgf@y
@@ -2181,18 +2217,8 @@
         \pgf@x=-\pgf@y
     }
     \anchor{center}{ \pgf@y=0pt \pgf@x=0pt }
-    \anchor{east}{ \northwest \pgf@y=0pt \pgf@x=-\pgf@x  }
-    \anchor{e}{ \northwest \pgf@y=0pt \pgf@x=-\pgf@x  }
-    \anchor{west}{ \northwest \pgf@y=0pt }
-    \anchor{w}{ \northwest \pgf@y=0pt }
-    \anchor{south}{ \northwest \pgf@x=0pt \pgf@y=-\pgf@y }
-    \anchor{s}{ \northwest \pgf@x=0pt \pgf@y=-\pgf@y }
-    \anchor{north}{ \northwest \pgf@x=0pt }
-    \anchor{n}{ \northwest \pgf@x=0pt }
-    \anchor{south west}{ \northwest \pgf@y=-\pgf@y }
-    \anchor{north east}{ \northwest \pgf@x=-\pgf@x }
-    \anchor{north west}{ \northwest }
-    \anchor{south east}{ \northwest \pgf@x=-\pgf@x \pgf@y=-\pgf@y }
+    % geo anchors based on north-west
+    \pgfcirc@northwest@symmetric@geoanchors
     \anchorborder{
         \pgf@circ@res@left=\pgf@x
         \pgf@circ@res@up=\pgf@y
@@ -2228,18 +2254,8 @@
         \pgf@x=-\pgf@y
     }
     \anchor{center}{ \pgf@y=0pt \pgf@x=0pt }
-    \anchor{east}{ \northwest \pgf@y=0pt \pgf@x=-\pgf@x  }
-    \anchor{e}{ \northwest \pgf@y=0pt \pgf@x=-\pgf@x  }
-    \anchor{west}{ \northwest \pgf@y=0pt }
-    \anchor{w}{ \northwest \pgf@y=0pt }
-    \anchor{south}{ \northwest \pgf@x=0pt \pgf@y=-\pgf@y }
-    \anchor{s}{ \northwest \pgf@x=0pt \pgf@y=-\pgf@y }
-    \anchor{north}{ \northwest \pgf@x=0pt }
-    \anchor{n}{ \northwest \pgf@x=0pt }
-    \anchor{south west}{ \northwest \pgf@y=-\pgf@y }
-    \anchor{north east}{ \northwest \pgf@x=-\pgf@x }
-    \anchor{north west}{ \northwest }
-    \anchor{south east}{ \northwest \pgf@x=-\pgf@x \pgf@y=-\pgf@y }
+    % geo anchors based on north-west
+    \pgfcirc@northwest@symmetric@geoanchors
     \anchorborder{
         % \typeout{IN\space X:\the\pgf@x\space Y:\the\pgf@y}
         \pgfmathsetmacro{\@@switchx}{ifthenelse(\pgf@x>0,1,-1)}
@@ -2279,18 +2295,8 @@
         \pgf@x=-\pgf@y
     }
     \anchor{center}{ \pgf@y=0pt \pgf@x=0pt }
-    \anchor{east}{ \northwest \pgf@y=0pt \pgf@x=-\pgf@x  }
-    \anchor{e}{ \northwest \pgf@y=0pt \pgf@x=-\pgf@x  }
-    \anchor{west}{ \northwest \pgf@y=0pt }
-    \anchor{w}{ \northwest \pgf@y=0pt }
-    \anchor{south}{ \northwest \pgf@x=0pt \pgf@y=-\pgf@y }
-    \anchor{s}{ \northwest \pgf@x=0pt \pgf@y=-\pgf@y }
-    \anchor{north}{ \northwest \pgf@x=0pt }
-    \anchor{n}{ \northwest \pgf@x=0pt }
-    \anchor{south west}{ \northwest \pgf@y=-\pgf@y }
-    \anchor{north east}{ \northwest \pgf@x=-\pgf@x }
-    \anchor{north west}{ \northwest }
-    \anchor{south east}{ \northwest \pgf@x=-\pgf@x \pgf@y=-\pgf@y }
+    % geo anchors based on north-west
+    \pgfcirc@northwest@symmetric@geoanchors
     \anchorborder{
         % \typeout{IN\space X:\the\pgf@x\space Y:\the\pgf@y}
         \pgfmathsetmacro{\@@switchx}{ifthenelse(\pgf@x>0,1,-1)}
@@ -2340,18 +2346,8 @@
         \pgf@x=-\pgf@y
     }
     \anchor{center}{ \pgf@y=0pt \pgf@x=0pt }
-    \anchor{east}{ \northwest \pgf@y=0pt \pgf@x=-\pgf@x  }
-    \anchor{e}{ \northwest \pgf@y=0pt \pgf@x=-\pgf@x  }
-    \anchor{west}{ \northwest \pgf@y=0pt }
-    \anchor{w}{ \northwest \pgf@y=0pt }
-    \anchor{south}{ \northwest \pgf@x=0pt \pgf@y=-\pgf@y }
-    \anchor{s}{ \northwest \pgf@x=0pt \pgf@y=-\pgf@y }
-    \anchor{north}{ \northwest \pgf@x=0pt }
-    \anchor{n}{ \northwest \pgf@x=0pt }
-    \anchor{south west}{ \northwest \pgf@y=-\pgf@y }
-    \anchor{north east}{ \northwest \pgf@x=-\pgf@x }
-    \anchor{north west}{ \northwest }
-    \anchor{south east}{ \northwest \pgf@x=-\pgf@x \pgf@y=-\pgf@y }
+    % geo anchors based on north-west
+    \pgfcirc@northwest@symmetric@geoanchors
     \anchorborder{
         \pgf@xa=\pgf@x
         \pgf@ya=\pgf@y
@@ -2381,18 +2377,8 @@
         \pgf@x=-\pgf@y
     }
     \anchor{center}{ \pgf@y=0pt \pgf@x=0pt }
-    \anchor{east}{ \northwest \pgf@y=0pt \pgf@x=-\pgf@x  }
-    \anchor{e}{ \northwest \pgf@y=0pt \pgf@x=-\pgf@x  }
-    \anchor{west}{ \northwest \pgf@y=0pt }
-    \anchor{w}{ \northwest \pgf@y=0pt }
-    \anchor{south}{ \northwest \pgf@x=0pt \pgf@y=-\pgf@y }
-    \anchor{s}{ \northwest \pgf@x=0pt \pgf@y=-\pgf@y }
-    \anchor{north}{ \northwest \pgf@x=0pt }
-    \anchor{n}{ \northwest \pgf@x=0pt }
-    \anchor{south west}{ \northwest \pgf@y=-\pgf@y }
-    \anchor{north east}{ \northwest \pgf@x=-\pgf@x }
-    \anchor{north west}{ \northwest }
-    \anchor{south east}{ \northwest \pgf@x=-\pgf@x \pgf@y=-\pgf@y }
+    % geo anchors based on north-west
+    \pgfcirc@northwest@symmetric@geoanchors
     \anchorborder{
         \pgf@xa=\pgf@x
         \pgf@ya=\pgf@y
@@ -2421,77 +2407,6 @@
         \pgfusepath{draw,fill}
     }
 }
-% BNC connector
-
-\pgfdeclareshape{bnc}{
-    \anchor{center}{
-        \pgfpointorigin
-    }
-    % BNC size is 2.5 times the size of the internal "ocirc"
-    \savedanchor\northwest{%
-        \pgf@y=\ctikzvalof{nodes width}\pgf@circ@Rlen
-        \pgf@y=2.5\pgf@y
-        \pgf@x=-\pgf@y
-    }
-    % center is on the opening
-    \anchor{center}{ \northwest \pgf@y=0pt \pgf@x=-\pgf@x  }
-    \anchor{zero}{ \pgfpointorigin }
-    \anchor{hot}{ \northwest \pgf@y=0pt \pgf@x=-\pgf@x  }
-    \anchor{shield}{ \northwest \pgf@x=0pt \pgf@y=-\pgf@y }
-    % geo-anchors
-    \anchor{east}{ \northwest \pgf@y=0pt \pgf@x=-\pgf@x  }
-    \anchor{right}{ \northwest \pgf@y=0pt \pgf@x=-\pgf@x  }
-    \anchor{west}{ \northwest \pgf@y=0pt }
-    \anchor{left}{ \northwest \pgf@y=0pt }
-    \anchor{south}{ \northwest \pgf@x=0pt \pgf@y=-\pgf@y }
-    \anchor{north}{ \northwest \pgf@x=0pt }
-    \anchor{south west}{ \northwest \pgf@y=-\pgf@y }
-    \anchor{north east}{ \northwest \pgf@x=-\pgf@x }
-    \anchor{north west}{ \northwest }
-    \anchor{south east}{ \northwest \pgf@x=-\pgf@x \pgf@y=-\pgf@y }
-    % put the node text above and centered
-    \anchor{text}{\pgfextracty{\pgf@circ@res@up}{\northwest}
-        \pgfpoint{-.5\wd\pgfnodeparttextbox}{
-            \dimexpr.5\dp\pgfnodeparttextbox+.5\ht\pgfnodeparttextbox+\pgf@circ@res@up\relax
-        }
-    }
-    \anchorborder{
-        \pgf@circ@res@left=\pgf@x
-        \pgf@circ@res@up=\pgf@y
-        \pgfpointborderellipse{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@up}
-        }{\pgfpoint{2.5*\ctikzvalof{nodes width}*\pgf@circ@Rlen}{2.5*\ctikzvalof{nodes width}*\pgf@circ@Rlen}}
-    }
-    \pgf@circ@draw@component{
-        \pgfextracty{\pgf@circ@res@other}{\northwest}
-        \pgf@circ@res@step=\ctikzvalof{nodes width}\pgf@circ@Rlen
-        \pgfstartlinewidth=\pgflinewidth
-        \pgf@circ@setlinewidth{bipoles}{\pgflinewidth}
-        \pgfsetcolor{\ctikzvalof{color}}
-        % external circle
-        \pgfscope
-            % clipping path: first a rectangle bigger then the shape
-            % to avoid problems with the line thickness
-            \pgfpathrectanglecorners{\pgfpoint{-2\pgf@circ@res@other}{-2\pgf@circ@res@other}}
-                {\pgfpoint{2\pgf@circ@res@other}{2\pgf@circ@res@other}}
-            % next the opening to the right
-            \pgfpathrectanglecorners{\pgfpoint{-\pgf@circ@res@step}{-\pgf@circ@res@step}}
-                {\pgfpoint{2\pgf@circ@res@other}{\pgf@circ@res@step}}
-            % do the difference and clip before drawing
-            \pgfseteorule
-            \pgfusepath{clip}
-            \pgfpathcircle{\pgfpointorigin}{\pgf@circ@res@other}
-            \pgfusepath{draw}
-        \endpgfscope
-        % internal circle
-        \pgfpathcircle{\pgfpointorigin}{\pgf@circ@res@step}
-        \pgf@circ@draworfill
-        % and the contact line to the right
-        \pgfsetlinewidth{\pgfstartlinewidth}
-        \pgfpathmoveto{\pgfpoint{\pgf@circ@res@step}{0pt}}
-        \pgfpathlineto{\pgfpoint{\pgf@circ@res@other}{0pt}}
-        \pgfusepath{draw}
-    }
-}
 
 %% Fill for correct rectangular joins
 
@@ -2500,14 +2415,8 @@
         \pgf@x=.5\pgflinewidth%
         \pgf@y=.5\pgflinewidth%
     }
-    \anchor{north}{\northeast\pgf@x=0cm\relax}
-    \anchor{east}{\northeast\pgf@y=0cm\relax}
-    \anchor{south}{\northeast\pgf@y=-\pgf@y \pgf@x=0cm\relax}
-    \anchor{west}{\northeast\pgf@y=0cm\pgf@x=-\pgf@x}
-    \anchor{north east}{\northeast}
-    \anchor{north west}{\northeast\pgf@x=-\pgf@x}
-    \anchor{south east}{\northeast\pgf@y=-\pgf@y}
-    \anchor{south west}{\northeast\pgf@y=-\pgf@y\pgf@x=-\pgf@x}
+    % geo anchors based on north-east
+    \pgfcirc@northeast@symmetric@geoanchors
     \anchor{center}{
         \pgfpointorigin
     }
@@ -2523,7 +2432,9 @@
         \pgfusepath{draw,fill}
     }
 }
+% %>>>
 
+%% Arrows%<<<
 %% transistor arrow
 
 \def\pgf@circ@find@linescale{
@@ -2753,8 +2664,9 @@
         \pgfusepath{fill}
     }
 }
+% %>>>
 
-
+%% boxes%<<<
 %% box
 
 \pgfdeclareshape{box}{
@@ -2786,7 +2698,9 @@
         \pgf@circ@draworfill
     }
 }
+% %>>>
 
+%% crossings%<<<
 % full nodes for wire crossing
 
 \pgfdeclareshape{jump crossing}
@@ -2868,7 +2782,225 @@
 
     }
 }
+% %>>>
 
+%% Connectors (BNC and IEC connectors; see https://github.com/circuitikz/circuitikz/issues/611)%<<<
+
+% define new class
+\ctikzset{connectors/scale/.initial=1.0}
+\ctikzset{connectors/fill/.initial=none}
+\ctikzset{connectors/thickness/.initial=none}
+% parameters. To have round sockets, 3*height==2*width
+\ctikzset{bipoles/iecconn/height/.initial=.2}
+\ctikzset{bipoles/iecconn/width/.initial=.3}
+% objects
+\pgfcircdeclarebipolescaled{connectors}
+{
+    \anchor{plug center}{\northeast\pgf@y=0pt\divide\pgf@x by 3 }
+    \anchor{socket center}{\northeast\pgf@y=0pt\pgf@x=-0.333333\pgf@x}
+    % put the node text above and centered
+    \anchor{text}{\pgfextracty{\pgf@circ@res@up}{\northeast}
+        \pgfpoint{-.5\wd\pgfnodeparttextbox}{
+            \dimexpr.5\ht\pgfnodeparttextbox+\pgf@circ@res@up\relax
+        }
+    }
+}
+{\ctikzvalof{bipoles/iecconn/height}}%symmetrical
+{iecconn}
+{\ctikzvalof{bipoles/iecconn/height}}
+{\ctikzvalof{bipoles/iecconn/width}}
+{
+    \pgf@circ@setlinewidth{bipoles}{\pgfstartlinewidth}
+    \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left/3}{\pgf@circ@res@up}}
+    \pgfpatharc{90}{-90}{0.66666\pgf@circ@res@left and \pgf@circ@res@up}
+    \pgfusepath{draw}
+    \pgfpathrectanglecorners{\pgfpoint{\pgf@circ@res@left/3}{\pgf@circ@res@up/2}}{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@down/2}}
+    \pgfusepath{draw, fill}
+}
+\pgfcirc@activate@bipole@simple{l}{iecconn}
+\pgfcirc@style@to@style{iecconn}{iec connector}
+
+\long\def\pgfcirc@declare@iecsocket#1#2#3{% #1 name, #2 anchors, #3 drawing code
+    \pgfdeclareshape{#1}{%
+        \savedmacro{\ctikzclass}{\edef\ctikzclass{connectors}}
+        \saveddimen{\scaledRlen}{\pgfmathsetlength{\pgf@x}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}}
+        \savedanchor\northwest{%
+            \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
+            \pgf@y=\ctikzvalof{bipoles/iecconn/height}\pgf@circ@scaled@Rlen
+            \pgf@y=.5\pgf@y
+            \pgf@x=-\ctikzvalof{bipoles/iecconn/width}\pgf@circ@scaled@Rlen
+            \divide\pgf@x by 6
+        }
+        \pgfcirc@northwest@symmetric@geoanchors
+        #2%
+        \pgf@circ@draw@component{%
+            \pgf@circ@scaled@Rlen=\scaledRlen
+            \pgfstartlinewidth=\pgflinewidth
+            \northwest
+            \pgf@circ@res@up=\pgf@y
+            \pgf@circ@res@left=\pgf@x
+            \pgf@circ@setlinewidth{bipoles}{\pgfstartlinewidth}
+            #3%
+            \pgfusepath{draw}
+        }
+    }
+}
+
+\long\def\pgfcirc@declare@iecplug#1#2{% #1 name, #2 anchors (drawing code is the same)
+    \pgfdeclareshape{#1}{%
+        \savedmacro{\ctikzclass}{\edef\ctikzclass{connectors}}
+        \saveddimen{\scaledRlen}{\pgfmathsetlength{\pgf@x}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}}
+        \savedanchor\northwest{%
+            \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
+            \pgf@y=\ctikzvalof{bipoles/iecconn/height}\pgf@circ@scaled@Rlen
+            \pgf@y=.25\pgf@y
+            \pgf@x=-\ctikzvalof{bipoles/iecconn/width}\pgf@circ@scaled@Rlen
+            \divide\pgf@x by 3
+        }
+        \pgfcirc@northwest@symmetric@geoanchors
+        \anchor{plug center}{\pgfpointorigin}
+        #2%
+        \pgf@circ@draw@component{%
+            \pgf@circ@scaled@Rlen=\scaledRlen
+            \pgfstartlinewidth=\pgflinewidth
+            \northwest
+            \pgf@circ@res@up=\pgf@y
+            \pgf@circ@res@left=\pgf@x
+            \pgf@circ@setlinewidth{bipoles}{\pgfstartlinewidth}
+            \pgfpathrectanglecorners{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@up}}{\pgfpoint{-\pgf@circ@res@left}{-\pgf@circ@res@up}}
+            \pgfusepath{draw, fill}
+        }
+    }
+}
+
+\pgfcirc@declare@iecsocket{iecsocketR}{%
+    % notice: center is on the left side
+    \anchor{center}{\northwest\pgf@y=0pt}
+    \anchor{socket center}{\northwest\pgf@y=0pt}
+    % put the node text above and to the left, ignore depth
+    \anchor{text}{%
+        \pgfextractx{\pgf@circ@res@left}{\northwest}
+        \pgfextracty{\pgf@circ@res@up}{\northwest}
+        \pgfpoint{-\pgf@circ@res@left}{%
+            .5\ht\pgfnodeparttextbox+\pgf@circ@res@up
+        }%
+    }%
+}{% drawing
+    \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@up}}
+    \pgfpatharc{90}{270}{2\pgf@circ@res@left and \pgf@circ@res@up}
+}
+\pgfcirc@declare@iecsocket{iecsocketL}{%
+    % notice: center is on the left side
+    \anchor{center}{\northwest\pgf@y=0pt}
+    \anchor{socket center}{\northwest\pgf@y=0pt\pgf@x=-\pgf@x}
+    % put the node text above and to the left, ignore depth
+    \anchor{text}{%
+        \pgfextractx{\pgf@circ@res@left}{\northwest}
+        \pgfextracty{\pgf@circ@res@up}{\northwest}
+        \pgfpoint{-\wd\pgfnodeparttextbox+\pgf@circ@res@left}{%
+            .5\ht\pgfnodeparttextbox+\pgf@circ@res@up
+        }%
+    }%
+}{% drawing
+    \pgfpathmoveto{\pgfpoint{-\pgf@circ@res@left}{\pgf@circ@res@up}}
+    \pgfpatharc{90}{-90}{2\pgf@circ@res@left and \pgf@circ@res@up}
+}
+
+\pgfcirc@declare@iecplug{iecplugL}{%
+        % notice: center is on the left side
+        \anchor{center}{\northwest\pgf@y=0pt}
+        % put the node text above and to the right, ignore depth
+        % the text is higher to match the iec socket position
+        \anchor{text}{%
+            \pgfextractx{\pgf@circ@res@left}{\northwest}
+            \pgfextracty{\pgf@circ@res@up}{\northwest}
+            \pgfpoint{-\wd\pgfnodeparttextbox+\pgf@circ@res@left}{
+              .5\ht\pgfnodeparttextbox+2\pgf@circ@res@up
+            }
+        }
+}
+\pgfcirc@declare@iecplug{iecplugR}{%
+        % notice: center is on the left side
+        \anchor{center}{\northwest\pgf@y=0pt}
+        % put the node text above and to the right, ignore depth
+        % the text is higher to match the iec socket position
+        \anchor{text}{%
+            \pgfextractx{\pgf@circ@res@left}{\northwest}
+            \pgfextracty{\pgf@circ@res@up}{\northwest}
+            \pgfpoint{-\pgf@circ@res@left}{
+              .5\ht\pgfnodeparttextbox+2\pgf@circ@res@up
+            }
+        }
+}
+% BNC connector
+
+\pgfdeclareshape{bnc}{
+    \savedmacro{\ctikzclass}{\edef\ctikzclass{connectors}}
+    \saveddimen{\scaledRlen}{\pgfmathsetlength{\pgf@x}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}}
+    \anchor{center}{
+        \pgfpointorigin
+    }
+    % BNC size is 2.5 times the size of the internal "ocirc", when class scale is=1
+    \savedanchor\northwest{%
+        \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
+        \pgf@y=\ctikzvalof{nodes width}\pgf@circ@scaled@Rlen
+        \pgf@y=2.5\pgf@y
+        \pgf@x=-\pgf@y
+    }
+    % center is on the opening
+    \anchor{center}{\northwest\pgf@y=0pt\pgf@x=-\pgf@x}
+    \anchor{zero}{\pgfpointorigin}
+    \anchor{hot}{\northwest\pgf@y=0pt\pgf@x=-\pgf@x}
+    \anchor{shield}{\northwest\pgf@x=0pt\pgf@y=-\pgf@y}
+    % geo-anchors
+    \pgfcirc@northwest@symmetric@geoanchors
+    % put the node text above and centered
+    \anchor{text}{\pgfextracty{\pgf@circ@res@up}{\northwest}
+        \pgfpoint{-.5\wd\pgfnodeparttextbox}{
+            \dimexpr.5\dp\pgfnodeparttextbox+.5\ht\pgfnodeparttextbox+\pgf@circ@res@up\relax
+        }
+    }
+    \anchorborder{
+        \pgf@circ@res@left=\pgf@x
+        \pgf@circ@res@up=\pgf@y
+        \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
+        \pgfpointborderellipse{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@up}
+        }{\pgfpoint{2.5*\ctikzvalof{nodes width}*\pgf@circ@scaled@Rlen}{2.5*\ctikzvalof{nodes width}*\pgf@circ@scaled@Rlen}}
+    }
+    \pgf@circ@draw@component{
+        \pgfextracty{\pgf@circ@res@other}{\northwest}
+        \pgfmathsetlength{\pgf@circ@res@step}{\ctikzvalof{nodes width}*\scaledRlen}
+        \pgfstartlinewidth=\pgflinewidth
+        \pgf@circ@setlinewidth{bipoles}{\pgflinewidth}
+        \pgfsetcolor{\ctikzvalof{color}}
+        % external circle
+        \pgfscope
+            % clipping path: first a rectangle bigger then the shape
+            % to avoid problems with the line thickness
+            \pgfpathrectanglecorners{\pgfpoint{-2\pgf@circ@res@other}{-2\pgf@circ@res@other}}
+                {\pgfpoint{2\pgf@circ@res@other}{2\pgf@circ@res@other}}
+            % next the opening to the right
+            \pgfpathrectanglecorners{\pgfpoint{-\pgf@circ@res@step}{-\pgf@circ@res@step}}
+                {\pgfpoint{2\pgf@circ@res@other}{\pgf@circ@res@step}}
+            % do the difference and clip before drawing
+            \pgfseteorule
+            \pgfusepath{clip}
+            \pgfpathcircle{\pgfpointorigin}{\pgf@circ@res@other}
+            \pgfusepath{draw}
+        \endpgfscope
+        % internal circle
+        \pgfpathcircle{\pgfpointorigin}{\pgf@circ@res@step}
+        \pgf@circ@draworfill
+        % and the contact line to the right
+        \pgfsetlinewidth{\pgfstartlinewidth}
+        \pgfpathmoveto{\pgfpoint{\pgf@circ@res@step}{0pt}}
+        \pgfpathlineto{\pgfpoint{\pgf@circ@res@other}{0pt}}
+        \pgfusepath{draw}
+    }
+}
+% %>>>
+
+% vim: set fdm=marker fmr=%<<<,%>>>:
 %%%---------- close: tex/pgfcircshapes
 %%%%%%%%%%% Springe nach tex/pgfcircmonopoles
 %%%---------- open: tex/pgfcircmonopoles.tex
