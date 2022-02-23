@@ -224,7 +224,7 @@
             \pgfpatharc{0}{180}{0.2*\pgf@circ@res@left}
         \fi
         \pgfusepath{stroke}%
-        \pgfsetcolor{\ctikzvalof{color}}
+        \pgf@circ@setcolor
         % Adding the pin number
         \ifpgf@circuit@chip@shownumbers
             \pgf@circ@count@a=\numpins\relax
@@ -239,6 +239,7 @@
                 \pgfmathsetmacro{\quadrant}{0}
             \fi
             \def\pgf@circ@strut{\vrule width 0pt height 1em depth 0.4em\relax}
+            \pgfscope\pgf@circ@text@strokecolor
             \def\mytext{\ctikzvalof{multipoles/font}\space\pgf@circ@strut\the\pgf@circ@count@c\space}
             \pgfmathloop%
             \ifnum\pgf@circ@count@a>0
@@ -289,6 +290,7 @@
                 \fi
                 \advance\pgf@circ@count@a-1\relax%
                 \repeatpgfmathloop
+                \endpgfscope % for color of text
             \fi
             \endpgfscope
             % draw external pins or pads
@@ -463,7 +465,7 @@
         \pgfpathclose
         \pgf@circ@draworfill
         % Adding the pin number
-        \pgfsetcolor{\ctikzvalof{color}}
+        \pgf@circ@setcolor
         \ifpgf@circuit@chip@shownumbers
             \pgf@circ@count@a=\numpins%
             \divide\pgf@circ@count@a by 4 \pgf@circ@count@b=\pgf@circ@count@a
@@ -478,6 +480,7 @@
             \fi
             \def\pgf@circ@strut{\vrule width 0pt height 1em depth 0.4em\relax}
             \def\mytext{\ctikzvalof{multipoles/font}\space\pgf@circ@strut\the\pgf@circ@count@c\space}
+            \pgfscope\pgf@circ@text@strokecolor
             \pgfmathloop%
             \ifnum\pgf@circ@count@a>0
                 \ifcase\quadrant % rotation 0
@@ -567,6 +570,7 @@
                 \fi
                 \advance\pgf@circ@count@a-1\relax%
                 \repeatpgfmathloop
+                \endpgfscope % for the text labels
             \fi
             \endpgfscope
             \ifdim\pgf@circ@res@other>0pt
@@ -802,7 +806,7 @@
     \anchor{ext south east}{ \extnorthwest \pgf@x=-\pgf@x \pgf@y=-\pgf@y \advance\pgf@x by -\width}
 
     \pgf@circ@draw@component{
-        \pgfsetcolor{\ctikzvalof{color}}
+        \pgf@circ@setcolor
         \pgf@circ@res@right = \width
         \pgf@circ@res@left = -\width
 
@@ -1053,7 +1057,7 @@
         \pgf@circ@res@left = -\pgf@x
         \pgfscope
         \pgf@circ@setlinewidth{multipoles}{\pgflinewidth}
-        \pgfsetcolor{\ctikzvalof{color}}
+        \pgf@circ@setcolor
         \pgfpathrectanglecorners%
         {\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@down}}
         {\pgfpoint{\pgf@circ@res@left+\dotspace}{\pgf@circ@res@up}}
@@ -1322,7 +1326,7 @@
         \pgf@circ@scaled@Rlen=\scaledRlen
         \pgf@circ@res@step = \ctikzvalof{multipoles/flipflop/pin spacing}\pgf@circ@scaled@Rlen
         \pgf@circ@res@other = \ctikzvalof{multipoles/external pins width}\pgf@circ@scaled@Rlen
-        \pgfsetcolor{\ctikzvalof{color}}
+        \pgf@circ@setcolor
         \pgfscope% (for the line width)
             \pgf@circ@setlinewidth{multipoles}{\pgflinewidth}
             \pgfpathrectanglecorners{\pgfpoint{-\width/2}{-\height/2}}{\pgfpoint{\width/2}{\height/2}}%
@@ -1342,6 +1346,7 @@
             \pgfmathsetmacro{\quadrant}{0}
         \fi
         \def\pgf@circ@strut{\vrule width 0pt height 1em depth 0.4em\relax}
+        \pgfscope\pgf@circ@text@strokecolor
         % text
         \def\mytext{\ctikzvalof{multipoles/flipflop/font}\space
                 \ctikzvalof{multipoles/flipflop/t\the\pgf@circ@count@c}%
@@ -1448,6 +1453,7 @@
                     at=\pgfpoint{0pt}{\pgf@circ@res@down+\pgf@circ@res@temp},
                     rotate=\rot]{\mytext}
             \fi
+            \endpgfscope % for text labels
             % external pins
             \ifdim\pgf@circ@res@other>0pt
             \pgfscope

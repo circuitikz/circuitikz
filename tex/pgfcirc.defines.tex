@@ -67,6 +67,96 @@
 \newdimen \pgfstartlinewidth
 %%>>>
 
+%% Colors%<<<
+
+% The following code is by @muzimuzhi --- see comment in
+% https://github.com/circuitikz/circuitikz/issues/605#issuecomment-1030745366
+\newif\ifpgf@circ@setcolor
+
+% similar to how `/tikz/draw` and `/tikz/fill` are defined
+%
+% - `color=none`, \pgfusecolor is not executed at the beginning of node path(s)
+% - `color` or `color=` (no or empty value), ignored
+% - `color=<color name>`, \pgfusecolor{<color name>} will be executed
+\ctikzset{
+  color/.code={%
+    \edef\pgf@circ@temp{#1}%
+    \ifx\pgf@circ@temp\pgf@nonetext
+      \pgf@circ@setcolorfalse
+    \else
+      \ifx\pgf@circ@temp\pgfutil@empty
+      \else
+        \pgf@circ@setcolortrue
+        \pgfkeyssetvalue{\circuitikzbasekey/color}{#1}%
+        \edef\ctikz@strokecolor{\ctikzvalof{color}}%
+      \fi
+    \fi
+  },
+  % init
+  color=none
+}
+
+\let\ctikz@strokecolor\pgfutil@empty
+\pgfkeys{/tikz/color/.add code={}{%
+    \edef\ctikz@strokecolor{#1}\ctikzset{color={#1}}}}
+\pgfkeysgetvalue{/tikz/.unknown/.@cmd}{\my@temp}
+\xpatchcmd*\my@temp % use starred-form to replace all (two places actually)
+  {\expandafter\tikz@addoption\expandafter}
+    {\edef\ctikz@strokecolor{\tikz@key}%
+    \expandafter\tikz@addoption\expandafter}
+  {}{%
+  \pgfutil@packagewarning{circuitikz}{%
+    Color patch failed, expect strange colors (see manual)}}
+\pgfkeyslet{/tikz/.unknown/.@cmd}{\my@temp}
+%
+\def\pgf@circ@setcolor{%
+  \ifpgf@circ@setcolor
+    \pgfsetcolor{\ctikzvalof{color}}%
+  \fi
+}%
+%
+% Try our best to set the fill color the same as the draw
+% color. This needs the patch above
+%
+\def\pgf@circ@setfillcolorasdraw{%
+    \ifx\tikz@strokecolor\pgfutil@empty
+        % we do not have the stroke color. Resort to the
+        % last explicit color command; this will fail if
+        % the color is changed mid-draw.
+        % "Doctor, it hurts if I touch here..."
+        \ifx\ctikz@strokecolor\pgfutil@empty
+            % no info here. Try to use the current color.
+            \pgfsetfillcolor{.}%
+        \else
+            % Try with the last seen change-color command
+            \pgfsetfillcolor{\ctikz@strokecolor}
+        \fi
+    \else
+        % we have strokecolor, yay!
+        \pgfsetfillcolor{\tikz@strokecolor}
+    \fi
+}
+% we call this when we want to fill of the "draw"
+% color. So if we have no explicit color, use ".".
+\def\pgf@circ@fill@strokecolor{%
+    \pgf@circ@setfillcolorasdraw
+}
+% this is to select the \pgftext color; set it as
+% the stroke color (\pgftext uses the fill color)
+\def\pgf@circ@text@strokecolor{%
+    \pgf@circ@setfillcolorasdraw
+}
+% debug text
+\def\pgf@circ@debug@colors{%
+    \pgfscope
+        \pgfsetcolor{black}%
+        \pgftext[y=10pt]{\tiny S:\tikz@strokecolor~T:\tikz@textcolor~F:\tikz@fillcolor}%
+        \pgftext[y=16pt]{\tiny CS:\ctikz@strokecolor}%
+    \endpgfscope
+}
+%>>>
+
+
 %% Macros for basic drawing%<<<
 %
 \long\gdef\pgf@circ@draw@component#1{%
@@ -212,6 +302,7 @@
 \def\pgf@circ@setifdefinedfill#1#2{%
     % if \ctikzclass is defined and \ctikzclass/fill is defined and is not none:
     % set the fill color and execute \pgfusepath{#1}, else execute \pgfusepath{#2}
+    % \typeout{SETIFDEF:#1\space#2:}
     \ifdefined\ctikzclass
         \pgfkeysifdefined{\circuitikzbasekey/\ctikzclass/fill}%
         {% yes, it's defined
@@ -252,6 +343,7 @@
 }
 
 \def\pgf@circ@maybefill{%
+    % \typeout{MAYBEFILL\tikz@fillcolor}%
     \ifx\tikz@fillcolor\pgfutil@empty
         \pgf@circ@setifdefinedfill{fill}{discard}
     \else
@@ -524,7 +616,7 @@
         }
         #2%
         \pgf@circ@draw@component{
-            \pgfsetcolor{\ctikzvalof{color}}
+            \pgf@circ@setcolor
 
             \northeast
             \pgf@circ@res@up = \pgf@y
@@ -727,8 +819,6 @@
 %% traditional styles %<<<1
 %
 \ctikzset{thickness/.initial=2}
-\ctikzset{color/.initial=black}
-\pgfkeys{/tikz/color/.add code={}{\ctikzset{color={#1}}}}
 \ctikzset{bipoles/border margin/.initial=1.1}
 \ctikzset{bipoles/thickness/.initial=2}
 \ctikzset{tripoles/thickness/.initial=2}
