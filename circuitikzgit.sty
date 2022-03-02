@@ -16,8 +16,8 @@
 \providecommand\DeclareRelease[3]{}
 \providecommand\DeclareCurrentRelease[2]{}
 
-\def\pgfcircversion{1.5.0-unreleased-39887b7}
-\def\pgfcircversiondate{2022/02/21}
+\def\pgfcircversion{1.5.0-unreleased-8124249}
+\def\pgfcircversiondate{2022/03/02}
 
 \DeclareRelease{0.4}{2012/12/20}{circuitikz-0.4-body.tex}
 \DeclareRelease{v0.4}{2012/12/20}{circuitikz-0.4-body.tex}
@@ -19485,14 +19485,23 @@
 %% Node shapes definition for path-style block diagrams%<<<
 
 %% Draw the two-port fillable box
-\def\pgf@circ@twoportbox{
+\def\pgf@circ@twoportbox{%
     \pgfscope
-        \pgf@circ@setlinewidth{bipoles}{\pgfstartlinewidth}
-        \pgfpathrectanglecorners{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@up}}{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@down}}
+        \pgf@circ@setlinewidth{bipoles}{\pgfstartlinewidth}%
+        \pgfpathrectanglecorners{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@up}}{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@down}}%
         \pgf@circ@draworfill
     \endpgfscope
 }
-
+\def\pgf@circ@inputarrow{%
+    \ifpgf@circuit@inputarrow
+        {%
+            % Remove this: the line will overrun the tip, resulting in bad look. See issue #613, thanks to Laurenz Preindl
+            % \advance \pgf@circ@res@left by -.5\ctikzvalof{bipoles/thickness}\pgfstartlinewidth
+            \pgftransformshift{\pgfpoint{\pgf@circ@res@left}{0pt}}%
+            \pgfnode{inputarrow}{tip}{}{pgf@inputarrow}{\pgfusepath{fill}}%
+        }%
+    \fi
+}
 %% Generic two port box
 \pgfcircdeclarebipolescaled{blocks}
 {}
@@ -19512,14 +19521,7 @@
     \fi
     % draw outer box
     \pgf@circ@twoportbox
-    \ifpgf@circuit@inputarrow
-        {
-            \advance \pgf@circ@res@left by -.5\ctikzvalof{bipoles/thickness}\pgfstartlinewidth
-            \pgftransformshift{\pgfpoint{\pgf@circ@res@left}{0pt}}
-            \pgfnode{inputarrow}{tip}{}{pgf@inputarrow}{\pgfusepath{fill}}
-        }
-    \fi
-
+    \pgf@circ@inputarrow
     % rotate inner symbol
     \def\pgfcircmathresult{\expandafter\pgf@circ@stripdecimals\pgf@circ@direction\pgf@nil}
     \ifnum \pgfcircmathresult > 45 \ifnum \pgfcircmathresult < 135
@@ -19558,15 +19560,7 @@
 
     % draw outer box
     \pgf@circ@twoportbox
-
-    \ifpgf@circuit@inputarrow
-        {
-            \advance \pgf@circ@res@left by -.5\ctikzvalof{bipoles/thickness}\pgfstartlinewidth
-            \pgftransformshift{\pgfpoint{\pgf@circ@res@left}{0pt}}
-            \pgfnode{inputarrow}{tip}{}{pgf@inputarrow}{\pgfusepath{fill}}
-        }
-    \fi
-
+    \pgf@circ@inputarrow
     %get texts
     \def\pgfcirc@tin{\ctikzvalof{bipoles/twoport/text in}}
     \def\pgfcirc@tout{\ctikzvalof{bipoles/twoport/text out}}
@@ -19680,15 +19674,7 @@
 
     % draw outer box
     \pgf@circ@twoportbox
-
-    \ifpgf@circuit@inputarrow
-        {
-            \advance \pgf@circ@res@left by -.5\ctikzvalof{bipoles/thickness}\pgfstartlinewidth
-            \pgftransformshift{\pgfpoint{\pgf@circ@res@left}{0pt}}
-            \pgfnode{inputarrow}{tip}{}{pgf@inputarrow}{\pgfusepath{fill}}
-        }
-    \fi
-
+    \pgf@circ@inputarrow
     % rotate inner symbol
     \def\pgfcircmathresult{\expandafter\pgf@circ@stripdecimals\pgf@circ@direction\pgf@nil}
     \ifnum \pgfcircmathresult > 45 \ifnum \pgfcircmathresult < 135
@@ -19754,15 +19740,7 @@
 
     % draw outer box
     \pgf@circ@twoportbox
-
-    \ifpgf@circuit@inputarrow
-        {
-            \advance \pgf@circ@res@left by -.5\ctikzvalof{bipoles/thickness}\pgfstartlinewidth
-            \pgftransformshift{\pgfpoint{\pgf@circ@res@left}{0pt}}
-            \pgfnode{inputarrow}{tip}{}{pgf@inputarrow}{\pgfusepath{fill}}
-        }
-    \fi
-
+    \pgf@circ@inputarrow
     % rotate inner symbol
     \def\pgfcircmathresult{\expandafter\pgf@circ@stripdecimals\pgf@circ@direction\pgf@nil}
     \ifnum \pgfcircmathresult > 45 \ifnum \pgfcircmathresult < 135
@@ -19825,15 +19803,7 @@
 
     % draw outer box
     \pgf@circ@twoportbox
-
-    \ifpgf@circuit@inputarrow
-        {
-            \advance \pgf@circ@res@left by -.5\ctikzvalof{bipoles/thickness}\pgfstartlinewidth
-            \pgftransformshift{\pgfpoint{\pgf@circ@res@left}{0pt}}
-            \pgfnode{inputarrow}{tip}{}{pgf@inputarrow}{\pgfusepath{fill}}
-        }
-    \fi
-
+    \pgf@circ@inputarrow
     % rotate inner symbol
     \def\pgfcircmathresult{\expandafter\pgf@circ@stripdecimals\pgf@circ@direction\pgf@nil}
     \ifnum \pgfcircmathresult > 45 \ifnum \pgfcircmathresult < 135
@@ -19899,15 +19869,7 @@
 
     % draw outer box
     \pgf@circ@twoportbox
-
-    \ifpgf@circuit@inputarrow
-        {
-            \advance \pgf@circ@res@left by -.5\ctikzvalof{bipoles/thickness}\pgfstartlinewidth
-            \pgftransformshift{\pgfpoint{\pgf@circ@res@left}{0pt}}
-            \pgfnode{inputarrow}{tip}{}{pgf@inputarrow}{\pgfusepath{fill}}
-        }
-    \fi
-
+    \pgf@circ@inputarrow
     % rotate inner symbol
     \def\pgfcircmathresult{\expandafter\pgf@circ@stripdecimals\pgf@circ@direction\pgf@nil}
     \ifnum \pgfcircmathresult > 45 \ifnum \pgfcircmathresult < 135
@@ -19963,15 +19925,7 @@
 
     % draw outer box
     \pgf@circ@twoportbox
-
-    \ifpgf@circuit@inputarrow
-        {
-            \advance \pgf@circ@res@left by -.5\ctikzvalof{bipoles/thickness}\pgfstartlinewidth
-            \pgftransformshift{\pgfpoint{\pgf@circ@res@left}{0pt}}
-            \pgfnode{inputarrow}{tip}{}{pgf@inputarrow}{\pgfusepath{fill}}
-        }
-    \fi
-
+    \pgf@circ@inputarrow
     % rotate inner symbol
     \def\pgfcircmathresult{\expandafter\pgf@circ@stripdecimals\pgf@circ@direction\pgf@nil}
     \ifnum \pgfcircmathresult > 45 \ifnum \pgfcircmathresult < 135
@@ -20037,15 +19991,7 @@
 
     % draw outer box
     \pgf@circ@twoportbox
-
-    \ifpgf@circuit@inputarrow
-        {
-            \advance \pgf@circ@res@left by -.5\ctikzvalof{bipoles/thickness}\pgfstartlinewidth
-            \pgftransformshift{\pgfpoint{\pgf@circ@res@left}{0pt}}
-            \pgfnode{inputarrow}{tip}{}{pgf@inputarrow}{\pgfusepath{fill}}
-        }
-    \fi
-
+    \pgf@circ@inputarrow
     % rotate inner symbol
     \def\pgfcircmathresult{\expandafter\pgf@circ@stripdecimals\pgf@circ@direction\pgf@nil}
     \ifnum \pgfcircmathresult > 45 \ifnum \pgfcircmathresult < 135
@@ -20101,15 +20047,7 @@
 
     % draw outer box
     \pgf@circ@twoportbox
-
-    \ifpgf@circuit@inputarrow
-        {
-            \advance \pgf@circ@res@left by -.5\ctikzvalof{bipoles/thickness}\pgfstartlinewidth
-            \pgftransformshift{\pgfpoint{\pgf@circ@res@left}{0pt}}
-            \pgfnode{inputarrow}{tip}{}{pgf@inputarrow}{\pgfusepath{fill}}
-        }
-    \fi
-
+    \pgf@circ@inputarrow
     % rotate inner symbol
     \def\pgfcircmathresult{\expandafter\pgf@circ@stripdecimals\pgf@circ@direction\pgf@nil}
     \ifnum \pgfcircmathresult > 45 \ifnum \pgfcircmathresult < 135
@@ -20169,15 +20107,7 @@
 
     % draw outer box
     \pgf@circ@twoportbox
-
-    \ifpgf@circuit@inputarrow
-        {
-            \advance \pgf@circ@res@left by -.5\ctikzvalof{bipoles/thickness}\pgfstartlinewidth
-            \pgftransformshift{\pgfpoint{\pgf@circ@res@left}{0pt}}
-            \pgfnode{inputarrow}{tip}{}{pgf@inputarrow}{\pgfusepath{fill}}
-        }
-    \fi
-
+    \pgf@circ@inputarrow
     % rotate inner symbol
     \def\texti{A}
     \def\textii{D}
@@ -20231,15 +20161,7 @@
 
     % draw outer box
     \pgf@circ@twoportbox
-
-    \ifpgf@circuit@inputarrow
-        {
-            \advance \pgf@circ@res@left by -.5\ctikzvalof{bipoles/thickness}\pgfstartlinewidth
-            \pgftransformshift{\pgfpoint{\pgf@circ@res@left}{0pt}}
-            \pgfnode{inputarrow}{tip}{}{pgf@inputarrow}{\pgfusepath{fill}}
-        }
-    \fi
-
+    \pgf@circ@inputarrow
     % rotate inner symbol
     \def\texti{D}
     \def\textii{A}
@@ -20293,15 +20215,7 @@
 
     % draw outer box
     \pgf@circ@twoportbox
-
-    \ifpgf@circuit@inputarrow
-        {
-            \advance \pgf@circ@res@left by -.5\ctikzvalof{bipoles/thickness}\pgfstartlinewidth
-            \pgftransformshift{\pgfpoint{\pgf@circ@res@left}{0pt}}
-            \pgfnode{inputarrow}{tip}{}{pgf@inputarrow}{\pgfusepath{fill}}
-        }
-    \fi
-
+    \pgf@circ@inputarrow
     % rotate inner symbol
     \def\pgfcircmathresult{\expandafter\pgf@circ@stripdecimals\pgf@circ@direction\pgf@nil}
     \ifnum \pgfcircmathresult > 45 \ifnum \pgfcircmathresult < 135
@@ -20339,15 +20253,7 @@
 
     % draw outer box
     \pgf@circ@twoportbox
-
-    \ifpgf@circuit@inputarrow
-        {
-            \advance \pgf@circ@res@left by -.5\ctikzvalof{bipoles/thickness}\pgfstartlinewidth
-            \pgftransformshift{\pgfpoint{\pgf@circ@res@left}{0pt}}
-            \pgfnode{inputarrow}{tip}{}{pgf@inputarrow}{\pgfusepath{fill}}
-        }
-    \fi
-
+    \pgf@circ@inputarrow
     % rotate inner symbol
     \def\pgfcircmathresult{\expandafter\pgf@circ@stripdecimals\pgf@circ@direction\pgf@nil}
     \ifnum \pgfcircmathresult > 45 \ifnum \pgfcircmathresult < 135
@@ -20531,15 +20437,7 @@
 
     % draw outer box
     \pgf@circ@twoportbox
-
-    \ifpgf@circuit@inputarrow
-        {
-            \advance \pgf@circ@res@left by -.5\ctikzvalof{bipoles/thickness}\pgfstartlinewidth
-            \pgftransformshift{\pgfpoint{\pgf@circ@res@left}{0pt}}
-            \pgfnode{inputarrow}{tip}{}{pgf@inputarrow}{\pgfusepath{fill}}
-        }
-    \fi
-
+    \pgf@circ@inputarrow
     % rotate inner symbol
     \def\pgfcircmathresult{\expandafter\pgf@circ@stripdecimals\pgf@circ@direction\pgf@nil}
     \ifnum \pgfcircmathresult > 45 \ifnum \pgfcircmathresult < 135
@@ -20585,15 +20483,7 @@
 
     % draw outer box
     \pgf@circ@twoportbox
-
-    \ifpgf@circuit@inputarrow
-        {
-            \advance \pgf@circ@res@left by -.5\ctikzvalof{bipoles/thickness}\pgfstartlinewidth
-            \pgftransformshift{\pgfpoint{\pgf@circ@res@left}{0pt}}
-            \pgfnode{inputarrow}{tip}{}{pgf@inputarrow}{\pgfusepath{fill}}
-        }
-    \fi
-
+    \pgf@circ@inputarrow
     % rotate inner symbol
     \def\pgfcircmathresult{\expandafter\pgf@circ@stripdecimals\pgf@circ@direction\pgf@nil}
     \ifnum \pgfcircmathresult > 45 \ifnum \pgfcircmathresult < 135
@@ -20644,15 +20534,7 @@
 
     % draw outer box
     \pgf@circ@twoportbox
-
-    \ifpgf@circuit@inputarrow
-        {
-            \advance \pgf@circ@res@left by -.5\ctikzvalof{bipoles/thickness}\pgfstartlinewidth
-            \pgftransformshift{\pgfpoint{\pgf@circ@res@left}{0pt}}
-            \pgfnode{inputarrow}{tip}{}{pgf@inputarrow}{\pgfusepath{fill}}
-        }
-    \fi
-
+    \pgf@circ@inputarrow
     % rotate inner symbol
     \def\pgfcircmathresult{\expandafter\pgf@circ@stripdecimals\pgf@circ@direction\pgf@nil}
     \ifnum \pgfcircmathresult > 45 \ifnum \pgfcircmathresult < 135
@@ -20695,15 +20577,7 @@
 
     % draw outer box
     \pgf@circ@twoportbox
-
-    \ifpgf@circuit@inputarrow
-        {
-            \advance \pgf@circ@res@left by -.5\ctikzvalof{bipoles/thickness}\pgfstartlinewidth
-            \pgftransformshift{\pgfpoint{\pgf@circ@res@left}{0pt}}
-            \pgfnode{inputarrow}{tip}{}{pgf@inputarrow}{\pgfusepath{fill}}
-        }
-    \fi
-
+    \pgf@circ@inputarrow
     % rotate inner symbol
     \def\pgfcircmathresult{\expandafter\pgf@circ@stripdecimals\pgf@circ@direction\pgf@nil}
     \ifnum \pgfcircmathresult > 45 \ifnum \pgfcircmathresult < 135
@@ -20751,15 +20625,7 @@
 
     % draw outer box
     \pgf@circ@twoportbox
-
-    \ifpgf@circuit@inputarrow
-        {
-            \advance \pgf@circ@res@left by -.5\ctikzvalof{bipoles/thickness}\pgfstartlinewidth
-            \pgftransformshift{\pgfpoint{\pgf@circ@res@left}{0pt}}
-            \pgfnode{inputarrow}{tip}{}{pgf@inputarrow}{\pgfusepath{fill}}
-        }
-    \fi
-
+    \pgf@circ@inputarrow
     % rotate inner symbol
     \def\pgfcircmathresult{\expandafter\pgf@circ@stripdecimals\pgf@circ@direction\pgf@nil}
     \ifnum \pgfcircmathresult > 45 \ifnum \pgfcircmathresult < 135
@@ -20797,15 +20663,7 @@
 
     % draw outer box
     \pgf@circ@twoportbox
-
-    \ifpgf@circuit@inputarrow
-        {
-            \advance \pgf@circ@res@left by -.5\ctikzvalof{bipoles/thickness}\pgfstartlinewidth
-            \pgftransformshift{\pgfpoint{\pgf@circ@res@left}{0pt}}
-            \pgfnode{inputarrow}{tip}{}{pgf@inputarrow}{\pgfusepath{fill}}
-        }
-    \fi
-
+    \pgf@circ@inputarrow
     % rotate inner symbol
     \def\pgfcircmathresult{\expandafter\pgf@circ@stripdecimals\pgf@circ@direction\pgf@nil}
     \ifnum \pgfcircmathresult > 45 \ifnum \pgfcircmathresult < 135
@@ -20850,15 +20708,7 @@
 
     % draw outer box
     \pgf@circ@twoportbox
-
-    \ifpgf@circuit@inputarrow
-        {
-            \advance \pgf@circ@res@left by -.5\ctikzvalof{bipoles/thickness}\pgfstartlinewidth
-            \pgftransformshift{\pgfpoint{\pgf@circ@res@left}{0pt}}
-            \pgfnode{inputarrow}{tip}{}{pgf@inputarrow}{\pgfusepath{fill}}
-        }
-    \fi
-
+    \pgf@circ@inputarrow
     % draw inner stuff
     \pgfsetdash{}{0pt}	% always draw solid line for inner symbol
     \pgfsetarrows{-} %never draw arrows
@@ -20909,15 +20759,7 @@
 
     % draw outer box
     \pgf@circ@twoportbox
-
-    \ifpgf@circuit@inputarrow
-        {
-            \advance \pgf@circ@res@left by -.5\ctikzvalof{bipoles/thickness}\pgfstartlinewidth
-            \pgftransformshift{\pgfpoint{\pgf@circ@res@left}{0pt}}
-            \pgfnode{inputarrow}{tip}{}{pgf@inputarrow}{\pgfusepath{fill}}
-        }
-    \fi
-
+    \pgf@circ@inputarrow
     % rotate inner symbol
     \def\pgfcircmathresult{\expandafter\pgf@circ@stripdecimals\pgf@circ@direction\pgf@nil}
     \ifnum \pgfcircmathresult > 45 \ifnum \pgfcircmathresult < 135
@@ -20988,15 +20830,7 @@
 
     % draw outer box
     \pgf@circ@twoportbox
-
-    \ifpgf@circuit@inputarrow
-        {
-            \advance \pgf@circ@res@left by -.5\ctikzvalof{bipoles/thickness}\pgfstartlinewidth
-            \pgftransformshift{\pgfpoint{\pgf@circ@res@left}{0pt}}
-            \pgfnode{inputarrow}{tip}{}{pgf@inputarrow}{\pgfusepath{fill}}
-        }
-    \fi
-
+    \pgf@circ@inputarrow
     % rotate inner symbol
     \def\pgfcircmathresult{\expandafter\pgf@circ@stripdecimals\pgf@circ@direction\pgf@nil}
     \ifnum \pgfcircmathresult > 45 \ifnum \pgfcircmathresult < 135
@@ -21067,15 +20901,7 @@
 
     % draw outer box
     \pgf@circ@twoportbox
-
-    \ifpgf@circuit@inputarrow
-        {
-            \advance \pgf@circ@res@left by -.5\ctikzvalof{bipoles/thickness}\pgfstartlinewidth
-            \pgftransformshift{\pgfpoint{\pgf@circ@res@left}{0pt}}
-            \pgfnode{inputarrow}{tip}{}{pgf@inputarrow}{\pgfusepath{fill}}
-        }
-    \fi
-
+    \pgf@circ@inputarrow
     % rotate inner symbol
     \def\pgfcircmathresult{\expandafter\pgf@circ@stripdecimals\pgf@circ@direction\pgf@nil}
     \ifnum \pgfcircmathresult > 45 \ifnum \pgfcircmathresult < 135
@@ -21159,15 +20985,7 @@
 
     % draw outer box
     \pgf@circ@twoportbox
-
-    \ifpgf@circuit@inputarrow
-        {
-            \advance \pgf@circ@res@left by -.5\ctikzvalof{bipoles/thickness}\pgfstartlinewidth
-            \pgftransformshift{\pgfpoint{\pgf@circ@res@left}{0pt}}
-            \pgfnode{inputarrow}{tip}{}{pgf@inputarrow}{\pgfusepath{fill}}
-        }
-    \fi
-
+    \pgf@circ@inputarrow
     % rotate inner symbol
     \def\pgfcircmathresult{\expandafter\pgf@circ@stripdecimals\pgf@circ@direction\pgf@nil}
     \ifnum \pgfcircmathresult > 45 \ifnum \pgfcircmathresult < 135
@@ -21265,15 +21083,7 @@
 
     % draw outer box
     \pgf@circ@twoportbox
-
-    \ifpgf@circuit@inputarrow
-        {
-            \advance \pgf@circ@res@left by -.5\ctikzvalof{bipoles/thickness}\pgfstartlinewidth
-            \pgftransformshift{\pgfpoint{\pgf@circ@res@left}{0pt}}
-            \pgfnode{inputarrow}{tip}{}{pgf@inputarrow}{\pgfusepath{fill}}
-        }
-    \fi
-
+    \pgf@circ@inputarrow
     % rotate inner symbol
     \def\pgfcircmathresult{\expandafter\pgf@circ@stripdecimals\pgf@circ@direction\pgf@nil}
     \ifnum \pgfcircmathresult > 45 \ifnum \pgfcircmathresult < 135
@@ -22123,15 +21933,7 @@
 
         % draw outer box
         \pgf@circ@twoportbox
-
-
-        \ifpgf@circuit@inputarrow
-            {
-                \advance \pgf@circ@res@left by -.5\ctikzvalof{bipoles/thickness}\pgfstartlinewidth
-                \pgftransformshift{\pgfpoint{\pgf@circ@res@left}{0pt}}
-                \pgfnode{inputarrow}{tip}{}{pgf@inputarrow}{\pgfusepath{fill}}
-            }
-        \fi
+        \pgf@circ@inputarrow
 
         \pgfsetdash{}{0pt}	% always draw solid line for inner symbol
         \pgfsetarrows{-} %never draw arrows
@@ -22245,6 +22047,8 @@
 
         % draw outer box
         \pgf@circ@twoportbox
+        \pgf@circ@inputarrow
+
 
         % draw inner stuff
         \pgfsetdash{}{0pt}	% always draw solid line for inner symbol
@@ -22372,7 +22176,7 @@
 
         % draw outer box
         \pgf@circ@twoportbox
-
+        \pgf@circ@inputarrow
         % draw inner stuff
         \pgfsetdash{}{0pt}	% always draw solid line for inner symbol
         \pgfsetarrows{-} %never draw arrows
@@ -22699,6 +22503,7 @@
 
         % draw outer box
         \pgf@circ@twoportbox
+        \pgf@circ@inputarrow
 
         % draw inner stuff
           % rotate inner symbol
