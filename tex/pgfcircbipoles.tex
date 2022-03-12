@@ -1772,6 +1772,12 @@
 \pgfkeys{tikz/tert/wye/.add code={}{\pgf@circ@tert@wyetrue}}
 \pgfkeys{tikz/tert/zig/.add code={}{\pgf@circ@tert@zigtrue}}%
 
+% nullator and norator
+\ctikzset{bipoles/nullator/height/.initial=.30}
+\ctikzset{bipoles/nullator/width/.initial=.60}
+\ctikzset{bipoles/norator/height/.initial=.25}
+\ctikzset{bipoles/norator/width/.initial=.60}%must be greater than 2*height
+
 %%>>>
 
 %% Nodes definitions for sources%<<<
@@ -2957,6 +2963,49 @@
     \pgfpathlineto{\pgfpoint{\pgf@circ@res@step}{.6\pgf@circ@res@down}}
     \pgfsetroundcap\pgfusepath{draw}
 }
+
+% nullator
+\pgfcircdeclarebipolescaled{sources}
+{}
+{\ctikzvalof{bipoles/nullator/height}}
+{nullator}
+{\ctikzvalof{bipoles/nullator/height}}
+{\ctikzvalof{bipoles/nullator/width}}
+{
+    \pgfpointorigin
+    \pgf@circ@setlinewidth{bipoles}{\pgfstartlinewidth}
+    \pgfpathellipse{\pgfpointorigin}{\pgfpoint{0}{\pgf@circ@res@up}}{\pgfpoint{\pgf@circ@res@left}{0}}
+    \pgf@circ@draworfill
+}
+% norator
+\pgfcircdeclarebipolescaled{sources}
+{}
+{\ctikzvalof{bipoles/norator/height}}
+{norator}
+{\ctikzvalof{bipoles/norator/height}}
+{\ctikzvalof{bipoles/norator/width}}
+{
+    \pgf@circ@setlinewidth{bipoles}{\pgfstartlinewidth}
+    \pgf@circ@res@other=\dimexpr\pgf@circ@res@right-\pgf@circ@res@up\relax
+    \pgfmathsetmacro{\@@angle}{atan2(\pgf@circ@res@other,\pgf@circ@res@up)}
+    % \typeout{ANGLE\space\@@angle}
+    \pgfmathsetlength{\pgf@circ@res@step}{\pgf@circ@res@up*cos(\@@angle)}
+    \pgfmathsetlength{\pgf@circ@res@temp}{\pgf@circ@res@up*sin(\@@angle)}
+    % right semicircle
+    \pgfpathmoveto{\pgfpoint{\pgf@circ@res@other-\pgf@circ@res@step}{\pgf@circ@res@temp}}
+    \pgfpatharc{180-\@@angle}{-180+\@@angle}{\pgf@circ@res@up}
+    % connect to left semicircle
+    \pgfpathlineto
+        {\pgfpoint{-\pgf@circ@res@other+\pgf@circ@res@step}{\pgf@circ@res@temp}}
+    % left semicircle
+    \pgfpatharc{\@@angle}{360-\@@angle}{\pgf@circ@res@up}
+    % connect to right semicircle
+    \pgfpathlineto
+        {\pgfpoint{\pgf@circ@res@other-\pgf@circ@res@step}{\pgf@circ@res@temp}}
+    \pgfpathclose
+    \pgf@circ@draworfill
+}
+
 % %>>>
 
 %% Paths definitions for Sources%<<<
@@ -3119,6 +3168,10 @@
 \pgfcirc@style@to@style{noise current source}{isourceN}
 \pgfcirc@style@to@style{noise current source}{nI}
 
+% norator, nullator
+\pgfcirc@activate@bipole@simple{l}{nullator}
+\pgfcirc@activate@bipole@simple{l}{norator}
+
 % build alias with voltage and current directions (legacy)
 
 \def\pgf@temp#1{
@@ -3139,6 +3192,7 @@
 \pgf@temp{>_} \pgf@temp{<_} \pgf@temp{>^} \pgf@temp{<^}
 \pgf@temp{>} \pgf@temp{<} \pgf@temp{^} \pgf@temp{_}
 % %>>>
+
 
 %%%%%%%%%%%%%%
 %% Diodes

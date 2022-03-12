@@ -2590,6 +2590,42 @@ The transformer shapes vector group options can be specified for the primary (\t
 \end{circuitikz}
 \end{LTXexample}
 
+\subsubsection{Nullator and norator}
+
+These are special elements used in some approaches to model ideal amplifiers\footnote{See \href{https://en.m.wikipedia.org/wiki/Nullor}{the Wikipedia article}; suggested by \href{https://github.com/circuitikz/circuitikz/issues/615}{user atticus-sullivan on GitHub}.}.
+
+\begin{groupdesc}
+\circuitdescbip*{nullator}{Nullator element (virtual short circuit; forces V and I to zero)}{}
+\circuitdescbip*{norator}{Norator element (admits any combination of V and I)}{}
+\end{groupdesc}
+
+They are in the \texttt{sources} class, but they are not treated like sources in the labelling sense (they have both \texttt{bipoles/is voltage=false} and \texttt{bipoles/is current=false}, see~\ref{sec:source-vif}).
+
+\begin{LTXexample}[varwidth=true]
+\begin{circuitikz}[american]
+    \draw (0,0) node[ground](GND){}
+        to [I,l=$i_s$,invert]
+        ++(0,2.5) -- ++(1.5,0) coordinate(up)
+        to[nullator, v=0, i=0, name=A]
+        (up|-GND) node[ground]{};
+    \draw (up) to[R, *-*] ++(2,0) coordinate(out)
+        to[norator, v^=$v_o$]
+        (out|-GND) node[ground]{};
+\end{circuitikz}
+\end{LTXexample}
+
+The symbol shapes used here seems to be the most common in publications; if you prefer the shapes from the Wikipedia article, you can use the following definitions:
+
+\begin{LTXexample}[varwidth=true]
+\tikzset{noratorW/.style={voosource,
+		bipoles/oosource/circlesize=0.5,
+		bipoles/oosource/circleoffset=0.5},
+	nullatorW/.style={esource, sources/scale=0.5}}
+\begin{tikzpicture}
+    \draw (0,0) to[nullatorW] ++(2,0) to[noratorW] ++(0, -2);
+\end{tikzpicture}
+\end{LTXexample}
+
 \subsubsection{DC sources}
 \begin{groupdesc}
     \circuitdescbip*{dcvsource}{DC voltage source}{}
