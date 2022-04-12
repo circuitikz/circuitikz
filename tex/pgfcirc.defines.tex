@@ -97,17 +97,30 @@
 }
 
 \let\ctikz@strokecolor\pgfutil@empty
+\let\ctikz@fillcolor\pgfutil@empty
+% do our tracking of color
 \pgfkeys{/tikz/color/.add code={}{%
     \edef\ctikz@strokecolor{#1}\ctikzset{color={#1}}}}
-\pgfkeysgetvalue{/tikz/.unknown/.@cmd}{\my@temp}
-\xpatchcmd*\my@temp % use starred-form to replace all (two places actually)
-  {\expandafter\tikz@addoption\expandafter}
-    {\edef\ctikz@strokecolor{\tikz@key}%
-    \expandafter\tikz@addoption\expandafter}
-  {}{%
-  \pgfutil@packagewarning{circuitikz}{%
-    Color patch failed, expect strange colors (see manual)}}
-\pgfkeyslet{/tikz/.unknown/.@cmd}{\my@temp}
+% do our tracking of fill
+\pgfkeys{/tikz/fill/.add code={}{%
+    \edef\ctikz@fillcolor{#1}}}
+%
+% I do not know how to do the xpatchcmd in ConTeXt...
+%
+\ifpgfutil@format@is@latex
+    \pgfkeysgetvalue{/tikz/.unknown/.@cmd}{\my@temp}
+    \xpatchcmd*\my@temp % use starred-form to replace all (two places actually)
+      {\expandafter\tikz@addoption\expandafter}
+        {\edef\ctikz@strokecolor{\tikz@key}%
+        \expandafter\tikz@addoption\expandafter}
+      {}{%
+      \pgfutil@packagewarning{circuitikz}{%
+        Color patch failed, use only explicit color=... (see manual)}}
+    \pgfkeyslet{/tikz/.unknown/.@cmd}{\my@temp}
+\else
+    \pgfutil@packagewarning{circuitikz}{%
+        Not on LaTeX: patch failed, use only explicit color=...(see manual)}
+\fi
 %
 \def\pgf@circ@setcolor{%
   \ifpgf@circ@setcolor
@@ -151,7 +164,7 @@
     \pgfscope
         \pgfsetcolor{black}%
         \pgftext[y=10pt]{\tiny S:\tikz@strokecolor~T:\tikz@textcolor~F:\tikz@fillcolor}%
-        \pgftext[y=16pt]{\tiny CS:\ctikz@strokecolor}%
+        \pgftext[y=16pt]{\tiny CS:\ctikz@strokecolor~CF:\ctikz@fillcolor}%
     \endpgfscope
 }
 %>>>
@@ -180,6 +193,17 @@
 }
 \def\pgf@circ@reset@arrows@rounded{%
     \pgf@circ@reset@arrows\pgf@circ@reset@rounded
+}
+\def\pgf@circ@adjustfill{%
+    \ifx\ctikz@fillcolor\pgfutil@empty
+    % do  nothing
+    \else
+        \ifx\ctikz@fillcolor\pgf@nonetext
+        % do nothing
+        \else
+            \pgfsetfillcolor{\ctikz@fillcolor}%
+        \fi
+    \fi
 }
 %% Hook macros for the start and end of component drawing. The idea is that
 %% specific macros overrides class macro that overrides generic macro
@@ -325,7 +349,16 @@
 
 \def\pgf@circ@draworfill{%
     \ifx\tikz@fillcolor\pgfutil@empty
-        \pgf@circ@setifdefinedfill{draw,fill}{draw}
+        \ifx\ctikz@fillcolor\pgfutil@empty
+            \pgf@circ@setifdefinedfill{draw,fill}{draw}
+        \else
+            \ifx\ctikz@fillcolor\pgf@nonetext
+                 \pgf@circ@setifdefinedfill{draw,fill}{draw}
+            \else
+                \pgfsetfillcolor{\ctikz@fillcolor}
+                \pgfusepath{draw, fill}
+            \fi
+        \fi
     \else
         \pgfsetfillcolor{\tikz@fillcolor}
         \pgfusepath{draw, fill}
@@ -334,8 +367,18 @@
 
 \def\pgf@circ@draworfillandclip{%
     \ifx\tikz@fillcolor\pgfutil@empty
-        \pgf@circ@setifdefinedfill{draw, clip, fill}{draw, clip}
-        \pgfusepath{draw, clip}
+        \ifx\ctikz@fillcolor\pgfutil@empty
+            \pgf@circ@setifdefinedfill{draw, clip, fill}{draw, clip}
+            \pgfusepath{draw, clip}
+        \else
+            \ifx\ctikz@fillcolor\pgf@nonetext
+                \pgf@circ@setifdefinedfill{draw, clip, fill}{draw, clip}
+                \pgfusepath{draw, clip}
+            \else
+                \pgfsetfillcolor{\ctikz@fillcolor}
+                \pgfusepath{draw, clip, fill}
+            \fi
+        \fi
     \else
         \pgfsetfillcolor{\tikz@fillcolor}
         \pgfusepath{draw, clip, fill}
@@ -345,7 +388,16 @@
 \def\pgf@circ@maybefill{%
     % \typeout{MAYBEFILL\tikz@fillcolor}%
     \ifx\tikz@fillcolor\pgfutil@empty
-        \pgf@circ@setifdefinedfill{fill}{discard}
+        \ifx\ctikz@fillcolor\pgfutil@empty
+            \pgf@circ@setifdefinedfill{fill}{discard}
+        \else
+            \ifx\ctikz@fillcolor\pgf@nonetext
+                \pgf@circ@setifdefinedfill{fill}{discard}
+            \else
+                \pgfsetfillcolor{\ctikz@fillcolor}
+                \pgfusepath{fill}
+            \fi
+        \fi
     \else
         \pgfsetfillcolor{\tikz@fillcolor}
         \pgfusepath{fill}
