@@ -8354,10 +8354,45 @@ To correct the line ending, there are support shapes to fill the missing rectang
 
 \section{Colors}
 
-Color support in \Circuitikz{} is quite limited. You will have no problem if:
+
+Color support in \Circuitikz{} has been quite limited since version 1.5.0; form that one onward there has been an effort to make component's behavior more intuitive.
+
+Part of the problem is how colors in paths are treated by \TikZ{} itself; you can see part of the discussion \href{https://github.com/circuitikz/circuitikz/issues/605}{this issue} and in \href{https://tex.stackexchange.com/questions/634987/pgf-basic-layer-struggling-again-with-colors}{this question on TeX.SX} --- many thanks to \texttt{@muzimuzhi} for helping there. Basically, nodes are drawn \emph{after} the path is completed, and color is applied to the path at the end. Look at this code (pure \TikZ, no \Circuitikz{} here):
+
+\begin{LTXexample}[varwidth=true]
+\tikz \draw[thick] (0,0) -- (1,0) {[color=red] -- (2,0) node[draw]{}} --(3,0);
+
+\tikz \draw[thick] (0,0) -- (1,0) [color=red] -- (2,0) node[draw]{} --(3,0);
+\end{LTXexample}
+
+So the path is drawn with the last ``effective'' (in current group) color. The deferred behavior of the color properties is very difficult to track for \Circuitikz, especially when the shorthand \texttt{color-name} (e.g., \texttt{red} instead of \texttt{color=red}) is used. \Circuitikz{} will try to patch the default commands to keep track of the ``current color''; if it fails will give a warning like \texttt{patch failed, use only explicit color=...}.
+
+Before 1.5.0, \Circuitikz{} used black as the default color. Now it tries to follow the current color, as \TikZ does normally; but notice that there is a difference with the fill strategy:
+
+\begin{LTXexample}[pos=t]
+\color{red}
+Red text
+\tikz \draw (0,0) -- node[draw] {x} (1,0) -- node[draw=cyan] {y} (2,0);
+\tikz \draw (0,0) to[R] (2,0) to[R,color=cyan] (4,0) to [generic] (6,0) to [fullgeneric] (8,0);
+
+\color{blue}
+Blue text
+\tikz \draw (0,0) -- node[draw] {x} (1,0) -- node[draw=cyan] {y} (2,0);
+\tikz \draw (0,0) to[R] (2,0) to[R,color=cyan] (4,0) to [generic] (6,0) to [fullgeneric] (8,0);
+
+\color{black}
+Black text
+\tikz \draw[fill=yellow] (0,0) -- node[draw, fill] {x} (1,0) -- node[draw=cyan] {y} (2,0);
+\tikz \draw[fill=yellow] (0,0) to[R] (2,0) to[R,color=cyan] (4,0) to [generic] (6,0) to [fullgeneric] (8,0);
+\end{LTXexample}
+
+\Circuitikz{} components that are fillable will inherit the \texttt{fill} property of the path (it is almost impossible to do otherwise) as if the \texttt{fill} flag was present. ``Full''-type elements (for example, full diodes or similar) are filled with the draw color; elements with intrinsic labels (i.e., labels that are part of the shape, like signs on amplifiers and pin numbers in chip) are drawn with the ``draw'' colors.
+
+Basically, you should have no problem if:
 \begin{enumerate}
-    \item You stick to use styles (see~\ref{sec:styling-fillcolor}) for filling your components, or using a direct \texttt{fill=...} option directly;
-    \item when coloring whole circuits, use the option \texttt{color=...} in your global picture options or in the \verb|\draw| command (not just the color name as a shorthand);
+    \item You stick to use styles (see~\ref{sec:styling-fillcolor}) for filling your components, or using a direct \texttt{fill=...} option in the component node or \texttt{to} option;
+    \item do not try to change the color mid-path; sometimes it works (see the examples below), but it's better to avoid it (using different paths is better);
+    \item when coloring whole circuits, it's better to use the option \texttt{color=...} in your global picture options or in the \verb|\draw| command (not just the color name as a shorthand);
     \item forget about transparency.
 \end{enumerate}
 
@@ -8365,9 +8400,8 @@ Nevertheless, if you really need to do strange things with colors you can read o
 
 \subsection{Shape colors}
 
-The color of the components is stored in the key \verb!\circuitikzbasekey/color!. Circui\TikZ\ tries to follow the color set in \TikZ, although sometimes it fails. If you change color in the picture, please do not use just the color name as a style, like \verb![red]!, but rather assign the style \verb![color=red]!.
+The color of the components is stored in the key \verb!\circuitikzbasekey/color!. Circui\TikZ\ tries to follow the color set in \TikZ, although sometimes it fails. The following circuit will fail to draw the circuit in red if the patching of the inner commands of \TikZ{} fails, like for example in \ConTeXt{}.
 
-Compare for instance
 \begin{LTXexample}[varwidth=true]
 \begin{circuitikz} \draw[red]
   (0,2) node[and port](myand1){1}
@@ -8378,7 +8412,7 @@ Compare for instance
 ;\end{circuitikz}
 \end{LTXexample}
 
-and
+If you see this problem, please do not use just the color name as a style, like \verb![red]!, but rather assign the style \verb![color=red]!.
 
 \begin{LTXexample}[varwidth=true]
 \begin{circuitikz} \draw[color=red]
@@ -8390,7 +8424,7 @@ and
 ;\end{circuitikz}
 \end{LTXexample}
 
-One can of course change the color \emph{in medias res}:
+One can of course change the color directly in the component:
 \begin{LTXexample}[pos=t, varwidth=true]
 \begin{circuitikz} \draw
   (0,0) node[pnp, color=blue](pnp2){q1}
@@ -8402,7 +8436,8 @@ One can of course change the color \emph{in medias res}:
 ;\end{circuitikz}
 \end{LTXexample}
 
-The all-in-one stream of bipoles poses some challanges, as only the actual body of the bipole, and not the connecting lines, will be rendered in the specified color.
+The all-in-one stream of bipoles poses some challenges, as only the actual body of the bipole, and not the connecting lines, will be rendered in the specified color (Notice that the following example uses the special \texttt{siunitx} shorthand; you can use it only in simple cases like here, in general using the full \verb|\SI{}| or \verb|\qty{}| commands).
+
 \begin{LTXexample}[varwidth=true]
 \begin{circuitikz} \draw
   (0,0) to[V=1<\volt>] (0,2)
@@ -8411,16 +8446,28 @@ The all-in-one stream of bipoles poses some challanges, as only the actual body 
 ;\end{circuitikz}
 \end{LTXexample}
 
-Which, for some bipoles, can be frustrating:
+The postponed application of colors creates problem if you want to use arrows for voltages, because the ``arrows'' are partially part of the path, partially nodes:
+
 \begin{LTXexample}[varwidth=true]
 \begin{circuitikz} \draw
-  (0,0){to[V=1<\volt>, color=red] (0,2) }
+  (0,0){[red] to[V=1<\volt>] (0,2) }
         to[R=1<\ohm>] (2,2)
         to[C=1<\farad>] (2,0) -- (0,0)
 ;\end{circuitikz}
 \end{LTXexample}
 
-The only way out is to specify different paths:
+...and that can become quite frustrating:
+
+\begin{LTXexample}[varwidth=true]
+\begin{circuitikz} \draw
+  (0,0) to[V=1<\volt>, color=red] (0,2)
+        to[R=1<\ohm>] (2,2)
+        to[C=1<\farad>] (2,0) -- (0,0)
+;\end{circuitikz}
+\end{LTXexample}
+
+In those cases, the only way out is to specify different paths (and/or using advanced voltages, see~\ref{sec:vif-anchors})
+
 \begin{LTXexample}[varwidth=true]
 \begin{circuitikz} \draw[color=red]
   (0,0) to[V=1<\volt>, color=red] (0,2);
@@ -8428,8 +8475,6 @@ The only way out is to specify different paths:
         to[C=1<\farad>] (2,0) -- (0,0)
 ;\end{circuitikz}
 \end{LTXexample}
-
-And yes: this is a bug and \emph{not} a feature\ldots
 
 \subsection{Fill colors}
 
@@ -8446,7 +8491,7 @@ Since version 0.9.0, you can also fill most shapes with a color (the manual spec
 \end{LTXexample}
 
 
-This fill color will override any color defined by the style (see section~\ref{sec:styling-fillcolor}). If you want to override a style fill color with no-fill for a specific component, you need to override the style --- it's a bit unfortunate but it should be an exceptional thing anyway:
+This fill color will override any color defined by the style (see section~\ref{sec:styling-fillcolor}). If you want to override a style fill color with no-fill for a specific component, you need to override the style --- it's a bit unfortunate, but should be an exceptional thing anyway. Notice that in simple case \texttt{fill opacity} works, but don't count too much on it.
 
 \begin{LTXexample}[varwidth=true]
 \begin{circuitikz}
@@ -8455,13 +8500,14 @@ This fill color will override any color defined by the style (see section~\ref{s
     \draw[red] (1.5,3) -- (1.5, -1);
     \draw
     (0,2) node[and port](myand1){1}
-    (0,0) node[and port, fill=cyan](myand2){2}
+    (0,0) node[and port, fill=cyan, fill opacity=0.7](myand2){2}
     (2,1) node[xnor port, circuitikz/logic ports/fill=none
               ](myxnor){3}
   (myand1.out) -| (myxnor.in 1)
   (myand2.out) -| (myxnor.in 2)
 ;\end{circuitikz}
 \end{LTXexample}
+
 You can combine shape colors with fill colors, too, but you should use the \texttt{draw} color option style for this:
 
 \begin{LTXexample}[varwidth=true]
@@ -8474,14 +8520,11 @@ You can combine shape colors with fill colors, too, but you should use the \text
 ;\end{circuitikz}
 \end{LTXexample}
 
-This is because, as you can see from the following example in port \texttt{2}, you can't specify both a fill and a color in the node (yes, it's a bug too, but it's quite complex to solve given the current circuit\TikZ{} architecture).
-A workaround is shown in port \texttt{3}:
-
 \begin{LTXexample}[varwidth=true]
 \begin{circuitikz} \draw
   (0,2) node[and port, color=black](myand1){1}
   (0,0) node[and port, color=blue, fill=cyan](myand2){2}
-  (2,1) {[color=blue] node[xnor port, fill=cyan](myxnor){3}}
+  (2,1) node[xnor port, color=red, fill=cyan](myxnor){3}
   (myand1.out) -| (myxnor.in 1)
   (myand2.out) -| (myxnor.in 2)
 ;\end{circuitikz}
@@ -8489,7 +8532,7 @@ A workaround is shown in port \texttt{3}:
 
 \subsubsection{Background colors different from white}
 
-Notice also that the connection point are always filled, although the color \emph{tries} to follow the color of the filling of the component (but look at section~\ref{sec:transparent-poles}). Moreover, if you want to pass fill transparency down to path-style components, you \emph{have} to put it into the options of the \verb|\draw| command.
+Notice also that the connection point are always filled, and the color \emph{tries} to follow the color of the filling of the component (but look at section~\ref{sec:transparent-poles}). Moreover, if you want to pass fill transparency down to path-style components, you \emph{have} to put it into the options of the \verb|\draw| command.
 
 \begin{LTXexample}[varwidth=true, pos=t]
 \begin{circuitikz}
