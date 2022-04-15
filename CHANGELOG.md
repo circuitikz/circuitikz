@@ -7,6 +7,7 @@ The major changes among the different CircuiTikZ versions are listed here. See <
 
     - Added connectors shapes, and included the BNC into that class; thanks to [Alexander Sauter for suggesting them and helping in the design](https://github.com/circuitikz/circuitikz/issues/611)
     - Added nullator and norator shapes, suggested by [user atticus-sullivan on GitHub](https://github.com/circuitikz/circuitikz/issues/615)
+    - Added buzzer and reversed buzzer bipoles, suggested by [user Michael.H](https://tex.stackexchange.com/q/640501/38080)
     - Fixed block/input arrow connection, thanks to [Laurenz Preindl for reporting](https://github.com/circuitikz/circuitikz/issues/613)
     - Fixed a problem with generic tunable arrows, noticed thanks to [this question on TeX.SX](https://tex.stackexchange.com/q/637182/38080)
 
