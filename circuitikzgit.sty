@@ -16,8 +16,8 @@
 \providecommand\DeclareRelease[3]{}
 \providecommand\DeclareCurrentRelease[2]{}
 
-\def\pgfcircversion{1.5.0-unreleased-20a6bf8}
-\def\pgfcircversiondate{2022/04/15}
+\def\pgfcircversion{1.5.0-unreleased-742ebcb}
+\def\pgfcircversiondate{2022/04/16}
 
 \DeclareRelease{0.4}{2012/12/20}{circuitikz-0.4-body.tex}
 \DeclareRelease{v0.4}{2012/12/20}{circuitikz-0.4-body.tex}
@@ -10617,6 +10617,67 @@
 \pgfcirc@path@to@style{l}{gfsurgearrester}{gf surge arrester}{}
 \pgfcirc@activate@bipole@simple{l}{mic}
 \pgfcirc@activate@bipole@simple{l}{loudspeaker}
+% %>>>
+
+%% Buzzer and reverse buzzer %<<<
+\ctikzset{bipoles/buzzer/height/.initial=0.6}
+\ctikzset{bipoles/buzzer/width/.initial=.4}%
+\ctikzset{bipoles/buzzer/span/.initial=.6}%
+
+\pgfcircdeclarebipolescaled{misc}
+{}
+{0}
+{buzzer}
+{\ctikzvalof{bipoles/buzzer/height}}
+{\ctikzvalof{bipoles/buzzer/width}}{
+    % this is the height of the semicircle
+    \pgf@circ@res@other=\dimexpr\pgf@circ@res@up-\pgf@circ@res@right\relax
+    \pgfscope
+        \pgf@circ@setlinewidth{bipoles}{\pgfstartlinewidth}
+        \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@other}}
+        \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@other}}
+        \pgfpatharc{0}{180}{\pgf@circ@res@right}
+        \pgfpathclose
+        \pgf@circ@draworfill
+    \endpgfscope
+    \pgfpathmoveto{\pgfpoint{\ctikzvalof{bipoles/buzzer/span}*\pgf@circ@res@left}{\pgf@circ@res@other}}
+    \pgfpathlineto{\pgfpoint{\ctikzvalof{bipoles/buzzer/span}*\pgf@circ@res@left}{0pt}}
+    \pgfpathlineto{\pgfpoint{\pgf@circ@res@left}{0pt}}
+    \pgfpathmoveto{\pgfpoint{\ctikzvalof{bipoles/buzzer/span}*\pgf@circ@res@right}{\pgf@circ@res@other}}
+    \pgfpathlineto{\pgfpoint{\ctikzvalof{bipoles/buzzer/span}*\pgf@circ@res@right}{0pt}}
+    \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{0pt}}
+    \pgfusepath{draw}
+}
+\pgfcirc@activate@bipole@simple{l}{buzzer}
+%
+\pgfcircdeclarebipolescaled{misc}
+{}
+{0}
+{rbuzzer}
+{\ctikzvalof{bipoles/buzzer/height}}
+{\ctikzvalof{bipoles/buzzer/width}}{
+    % this is the height of the semicircle
+    \pgf@circ@res@other=\dimexpr\pgf@circ@res@up-\pgf@circ@res@right\relax
+    % this is the height where the pins touch the semicircle
+    \pgfmathsetlength\pgf@circ@res@temp{\pgf@circ@res@up-
+        \pgf@circ@res@right*sqrt(1-\ctikzvalof{bipoles/buzzer/span}*\ctikzvalof{bipoles/buzzer/span})}
+    \pgfscope
+        \pgf@circ@setlinewidth{bipoles}{\pgfstartlinewidth}
+        \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@up}}
+        \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@up}}
+        \pgfpatharc{0}{-180}{\pgf@circ@res@right}
+        \pgfpathclose
+        \pgf@circ@draworfill
+    \endpgfscope
+    \pgfpathmoveto{\pgfpoint{\ctikzvalof{bipoles/buzzer/span}*\pgf@circ@res@left}{\pgf@circ@res@temp}}
+    \pgfpathlineto{\pgfpoint{\ctikzvalof{bipoles/buzzer/span}*\pgf@circ@res@left}{0pt}}
+    \pgfpathlineto{\pgfpoint{\pgf@circ@res@left}{0pt}}
+    \pgfpathmoveto{\pgfpoint{\ctikzvalof{bipoles/buzzer/span}*\pgf@circ@res@right}{\pgf@circ@res@temp}}
+    \pgfpathlineto{\pgfpoint{\ctikzvalof{bipoles/buzzer/span}*\pgf@circ@res@right}{0pt}}
+    \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{0pt}}
+    \pgfusepath{draw}
+}
+\pgfcirc@activate@bipole@simple{l}{rbuzzer}
 % %>>>
 
 % end of pgfcircbipoles.tex
