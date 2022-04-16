@@ -2286,6 +2286,28 @@ Inductors have additional anchors to add core lines (for historical reasons, the
 
 Notice that the core lines will \textbf{not} change the position of labels. You have to move them by hand if needed (or position them on the other side); see~\ref{sec:adjust-label-position}.
 
+\paragraph{Dot anchors.}
+Inductances have also ``dot'' anchors\footnote{proposed by Romano in a discussion by \href{https://github.com/circuitikz/circuitikz/issues/618}{GitHub user AndreaDiPietro92}},
+to help positioning dots when specifying mutual inductance signs. The anchors are name \texttt{lr dot} (for lower right dot), \texttt{ur dot} (upper right) and so on:
+\begin{quote}
+    \showanchors{cuteinductorshape}{}(lr dot/-45/0.2, ur dot/45/0.2, ll dot/-135/0.2, ul dot/135/0.2)
+    \quad
+    \showanchors{cuteinductorshape}{}(ur dot/-60/0.3, ul dot/-120/0.3, core west/135/0.2, core east/45/0.2)
+\end{quote}
+and as you can see, you have to be careful if you use dot anchors and core anchors together.
+
+\begin{LTXexample}[varwidth=true, basicstyle=\small\ttfamily]
+\begin{circuitikz}[]
+    \draw (0,2) to[L=$L_1$, name=l1] ++(3,0);
+    \draw (0,0) to[L, l_=$L_2$, name=l2] ++(3,0);
+    \path (l1.ur dot) node[circ]{} (l2.ul dot) node[circ]{};
+    \draw ([yshift=-0.2cm]l1.south)
+        to[out=-45, in=45] node[right]{$M$}
+        ([yshift=0.2cm]l2.north);
+\end{circuitikz}
+\end{LTXexample}
+
+Notice that the position of the dot anchors does not coincide with the position of the dots in the transformers (see section~\ref{sec:transformers}), because there they depend on the size of the complete double-bipole more that on the size of the inductances.
 
 \subsection{Diodes and such}
 
@@ -4456,7 +4478,7 @@ The symbols can also be used along a path, using the transistor-path-syntax(\tex
 
 
 
-\subsection{Double bipoles (transformers)}
+\subsection{Double bipoles (transformers)}\label{sec:transformers}
 
 Transformers automatically use the inductor shape currently selected. These are the three possibilities:
 \begin{groupdesc}
