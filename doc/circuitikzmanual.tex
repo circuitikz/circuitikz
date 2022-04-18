@@ -3329,9 +3329,9 @@ You can use the \texttt{plug center} anchor to add the IEC ``multiplier'':
 \noindent Contributed by Stefan Erhardt.
 
 \begin{groupdesc}
-    \circuitdesc*{mixer}{mixer}{}( w/180/0.1,s/-90/0.1,e/0/0.1,n/90/0.1 )
+    \circuitdesc*{mixer}{mixer}{}( w/180/0.1,s/-90/0.1,e/0/0.1,n/90/0.1, center/-120/0.3, geocenter/-60/.3  )
     \circuitdesc*{adder}{adder}{}( west/180/0.1,south/-90/0.1,east/0/0.1,north/90/0.1 )
-    \circuitdesc*{oscillator}{oscillator}{}( w/180/0.1,s/-90/0.1,e/0/0.1,n/90/0.1 )
+    \circuitdesc*{oscillator}{oscillator}{}( w/180/0.1,s/-90/0.1,e/0/0.1,n/90/0.1, center/45/0.2, geocenter/-45/.3 )
     \circuitdesc*{circulator}{circulator}{}( left/180/0.1,down/-90/0.1,right/0/0.1, up/90/0.1 )
     \circuitdesc*{wilkinson}{wilkinson divider}{}( in/180/0.1, out2/45/0.1, out1/-45/0.1 )
     \circuitdesc*{splitter}{resistive splitter\footnotemark}{}( in/180/0.1, out2/45/0.1, out1/-45/0.1 )
@@ -3394,7 +3394,16 @@ The ports of the \texttt{mixer}, \texttt{adder}, \texttt{oscillator} and \texttt
 ;\end{circuitikz}
 \end{LTXexample}
 
-Moreover, the have proper border anchors since version \texttt{1.2.3}, so you can do things like this:
+The \texttt{oscillator} has a displaced \texttt{center} anchor, to simplify the task of putting it at the left side of a circuit; it also as a special position for the node text. The four round elements (mixer, circulator, adder, and the oscillator) have a \texttt{geocenter} anchor which corresponds always to the center of the circle.
+\begin{LTXexample}[varwidth=true, basicstyle=\small\ttfamily]
+\begin{tikzpicture}[>=Stealth]
+    \draw (0,0)node[oscillator](O){$f_0$} -- ++(1,0);
+    \draw[blue, ->] (1,1) -- (O.center);
+    \draw[red, ->] (1,1) -- (O.geocenter);
+\end{tikzpicture}
+\end{LTXexample}
+
+Moreover, the have proper border anchors since version \texttt{1.2.3} (and fixed for boxed elements in \texttt{1.5.0}), so you can do things like this:
 
 \begin{LTXexample}[varwidth=true]
 \begin{circuitikz}
@@ -3535,15 +3544,16 @@ Some two-ports have the option to place a normal label (\texttt{l=}) and a inner
 \end{circuitikz}
 \end{LTXexample}
 
+
 \paragraph{Box option}
-Some devices have the possibility to add a box around them. The inner symbol scales down to fit inside the box.
+Several devices have the possibility to add a box around them with the \texttt{box} or \texttt{boxed} option. The inner symbol scales down to fit inside the box. For the ``circled'' devices (mixer, adder, oscillator and circulator) the inner circle is normally drawn, unless you use the \texttt{box only} or \texttt{boxed only} option.\footnote{Since 1.5.0, suggested by \href{https://github.com/circuitikz/circuitikz/issues/621}{GitHUb user myzinsky}}
 \begin{LTXexample}[varwidth=true]
 \begin{circuitikz} \draw
-  (0,0) node[mixer,box,anchor=east] (m) {}
-    to[amp,box,>,-o] ++(2.5,0)
-  (m.west) node[inputarrow] {} to[short,-o] ++(-0.8,0)
-  (m.south) node[inputarrow,rotate=90] {} --
-    ++(0,-0.7) node[oscillator,box,anchor=north] {};
+  (0,0) node[mixer, box only, anchor=east](m){}
+    to[amp, boxed, >, -o] ++(2.5,0)
+  (m.west) node[inputarrow]{} to[short,-o] ++(-0.8,0)
+  (m.south) node[inputarrow,rotate=90]{} --
+    ++(0,-0.7) node[oscillator, box, anchor=north]{};
 \end{circuitikz}
 \end{LTXexample}
 
@@ -4385,6 +4395,8 @@ Notes that in the transmission and receiving antennas, the ``waves'' are outside
 
 \begin{groupdesc}
     \circuitdesc*{bareantenna}{Bare Antenna}{A}( top/90/0.1, bottom/180/0.3, left/180/0.3, right/45/0.3, center/0/0.3 )
+    \circuitdesc*{dinantenna}{DIN antenna\footnotemark}{A}(left/135/0.6, right/45/0.6, center/-45/0.6)
+    \footnotetext{Since 1.5.0, suggested by \href{https://github.com/circuitikz/circuitikz/issues/621}{GitHUb user myzinsky}}
     \circuitdesc*{bareTXantenna}{Bare TX Antenna}{Tx}( top/90/0.1, center/180/0.3, waves/90/0.3 )
     \circuitdesc*{bareRXantenna}{Bare RX Antenna}{Rx}( top/90/0.1, center/0/0.3, waves/90/0.3 )
     \circuitdesc{waves}{Waves}{}( north/90/0.4, north east/45/0.4, east/-45/0.4, south east/-45/0.4,

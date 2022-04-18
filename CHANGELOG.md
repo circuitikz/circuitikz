@@ -9,6 +9,8 @@ The major changes among the different CircuiTikZ versions are listed here. See <
     - Added nullator and norator shapes, suggested by [user atticus-sullivan on GitHub](https://github.com/circuitikz/circuitikz/issues/615)
     - Added buzzer and reversed buzzer bipoles, suggested by [user Michael.H](https://tex.stackexchange.com/q/640501/38080)
     - Added "dot" anchors to inductances
+    - Added "boxed only" option for some circular blocks, suggested by [user myzinsky](https://github.com/circuitikz/circuitikz/issues/621)
+    - Added DIN antenna shape, suggested by [user myzinsky](https://github.com/circuitikz/circuitikz/issues/620)
     - Fixed block/input arrow connection, thanks to [Laurenz Preindl for reporting](https://github.com/circuitikz/circuitikz/issues/613)
     - Fixed a problem with generic tunable arrows, noticed thanks to [this question on TeX.SX](https://tex.stackexchange.com/q/637182/38080)
 

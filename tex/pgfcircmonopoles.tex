@@ -46,6 +46,8 @@
 \ctikzset{monopoles/bareantenna/width/.initial=.25}
 \ctikzset{monopoles/bareantenna/label/xanchor/.initial=1}
 \ctikzset{monopoles/bareantenna/label/yanchor/.initial=0.5}
+\ctikzset{monopoles/dinantenna/width/.initial=.2}
+\ctikzset{monopoles/dinantenna/height/.initial=.6}
 \ctikzset{monopoles/waves/width/.initial=0.5}%
 %>>>
 
@@ -601,8 +603,8 @@
     }
 }
 
-% the three types of antennas: simple, TX, RX. Notice that you can flip them...
-
+% the four types of antennas: simple, din, TX, RX. Notice that you can flip them...
+%
 \pgfdeclareshape{bareantenna}{
     \savedmacro{\ctikzclass}{\edef\ctikzclass{RF}}
     \saveddimen{\scaledRlen}{\pgfmathsetlength{\pgf@x}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}}
@@ -633,6 +635,54 @@
     \anchor{south west}{\northeast\pgf@y=0pt\pgf@x=-\pgf@x}
     \pgf@circ@draw@component{
         \pgf@circ@antennabody
+    }
+}
+%
+\pgfdeclareshape{dinantenna}{
+    \savedmacro{\ctikzclass}{\edef\ctikzclass{RF}}
+    \saveddimen{\scaledRlen}{\pgfmathsetlength{\pgf@x}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}}
+    \anchor{center}{\pgfpointorigin}
+    \savedanchor{\northeast}{
+        \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
+        \pgf@circ@res@step=\ctikzvalof{monopoles/dinantenna/width}\pgf@circ@scaled@Rlen
+        \pgf@circ@res@other=\ctikzvalof{monopoles/dinantenna/height}\pgf@circ@scaled@Rlen
+        \pgf@x=\pgf@circ@res@step
+        \pgf@y=\pgf@circ@res@other
+    }
+    \anchor{text}{
+        \northeast
+        \pgf@y=\dimexpr.5\pgf@y+.5\dp\pgfnodeparttextbox-.5\ht\pgfnodeparttextbox\relax
+    }
+    \anchor{top}{\northeast\pgf@x=0pt}
+    \anchor{right}{\northeast\pgf@y=0.5\pgf@y}
+    \anchor{left}{\northeast\pgf@x=-\pgf@x\pgf@y=0.5\pgf@y}
+    \anchor{bottom}{\pgfpointorigin}
+    \anchor{north}{\northeast\pgf@x=0pt}
+    \anchor{east}{\northeast\pgf@y=0.5\pgf@y}
+    \anchor{west}{\northeast\pgf@x=-\pgf@x\pgf@y=0.5\pgf@y}
+    \anchor{south}{\pgfpointorigin}
+    \anchor{north east}{\northeast}
+    \anchor{north west}{\northeast\pgf@x=-\pgf@x}
+    \anchor{south east}{\northeast\pgf@y=0pt\relax}
+    \anchor{south west}{\northeast\pgf@y=0pt\pgf@x=-\pgf@x}
+    \pgf@circ@draw@component{
+        \pgfstartlinewidth=\pgflinewidth
+        \pgf@circ@scaled@Rlen=\scaledRlen
+        \pgf@circ@setcolor
+        \pgf@circ@res@right=\ctikzvalof{monopoles/dinantenna/width}\pgf@circ@scaled@Rlen
+        \pgf@circ@res@up=\ctikzvalof{monopoles/dinantenna/height}\pgf@circ@scaled@Rlen
+        \pgfscope
+            \pgf@circ@setlinewidth{bipoles}{\pgfstartlinewidth}
+            \pgfpathmoveto{\pgfpointorigin}
+            \pgfpathlineto{\pgfpoint{0pt}{\pgf@circ@res@up}}
+            \pgfpathmoveto{\pgfpoint{0pt}{0.5\pgf@circ@res@up}}
+            \pgfpathlineto{\pgfpoint{-\pgf@circ@res@right}{\pgf@circ@res@up}}
+            \pgfpathmoveto{\pgfpoint{0pt}{0.5\pgf@circ@res@up}}
+            \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@up}}
+            \pgfpathmoveto{\pgfpoint{0pt}{0.5\pgf@circ@res@up}}
+            \pgfpathlineto{\pgfpoint{0pt}{\pgf@circ@res@up}}
+            \pgfusepath{draw}
+        \endpgfscope
     }
 }
 
