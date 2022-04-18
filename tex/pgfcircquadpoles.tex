@@ -457,10 +457,16 @@
 
 % Option "boxed" for nodes and twoports
 \newif\ifpgf@circuit@boxed
-\pgfkeys{/tikz/boxed/.add code={}{\pgf@circuit@boxedtrue}}
-\ctikzset{boxed/.add code={}{\pgf@circuit@boxedtrue}}
-\pgfkeys{/tikz/box/.add code={}{\pgf@circuit@boxedtrue}}
-\ctikzset{box/.add code={}{\pgf@circuit@boxedtrue}}
+\newif\ifpgf@circuit@boxedcircled\pgf@circuit@boxedcircledtrue
+\pgfkeys{/tikz/boxed/.add code={}{\pgf@circuit@boxedtrue\pgf@circuit@boxedcircledtrue}}
+\ctikzset{boxed/.add code={}{\pgf@circuit@boxedtrue\pgf@circuit@boxedcircledtrue}}
+\pgfkeys{/tikz/box/.add code={}{\pgf@circuit@boxedtrue\pgf@circuit@boxedcircledtrue}}
+\ctikzset{box/.add code={}{\pgf@circuit@boxedtrue\pgf@circuit@boxedcircledtrue}}
+% boxed, no circle
+\pgfkeys{/tikz/boxed only/.add code={}{\pgf@circuit@boxedtrue\pgf@circuit@boxedcircledfalse}}
+\ctikzset{boxed only/.add code={}{\pgf@circuit@boxedtrue\pgf@circuit@boxedcircledfalse}}
+\pgfkeys{/tikz/box only/.add code={}{\pgf@circuit@boxedtrue\pgf@circuit@boxedcircledfalse}}
+\ctikzset{box only/.add code={}{\pgf@circuit@boxedtrue\pgf@circuit@boxedcircledfalse}}
 
 % Option "dashed" for nodes and twoports
 \newif\ifpgf@circuit@dashed
@@ -2174,7 +2180,7 @@
 \pgfcirc@activate@bipole@simple{l}{tdcac}
 % %>>>
 
-%% Node shapes for  Block elements%<<<
+%% Node shapes for  Block elements %<<<
 %
 % utility macro for the anchors
 \def\pgf@circ@circular@rf@anchors#1{%
@@ -2221,7 +2227,26 @@
     \anchor{in2}{\northwest\pgf@y=-\pgf@y\pgf@x=0pt}
     \anchor{out}{\northwest\pgf@y=0pt\pgf@x=-\pgf@x}
 }
-
+% draw the body rectangle and circle if and when needed
+\def\pgf@circ@circular@rf@box@circle{%
+    \pgfstartlinewidth=\pgflinewidth
+    % draw outer box
+    \ifpgf@circuit@boxed
+        \pgfnode{blockbox}{center}{}{pgf@box}{\pgfusepath{draw}}
+    \fi
+    % draw outer circle
+    \ifpgf@circuit@boxed
+        \pgf@circ@res@step=.7\pgf@circ@res@step
+        \pgfsetdash{}{0pt}	% draw solid circle if boxed
+    \else
+        \pgf@circ@setlinewidth{bipoles}{\pgfstartlinewidth}
+    \fi
+    \ifpgf@circuit@boxedcircled
+        \pgfpathcircle{\pgfpoint{0}{0}} {0.5\pgf@circ@res@step}
+    \fi
+    \pgf@circ@draworfill
+}
+%
 \pgfdeclareshape{mixer}
 {
     \savedmacro{\ctikzclass}{\edef\ctikzclass{blocks}}
@@ -2235,20 +2260,7 @@
         \pgf@circ@scaled@Rlen=\scaledRlen
         \pgf@circ@res@step=\ctikzvalof{tripoles/mixer/width}\pgf@circ@scaled@Rlen
         \pgfscope
-            \pgfstartlinewidth=\pgflinewidth
-            % draw outer box
-            \ifpgf@circuit@boxed
-                \pgfnode{blockbox}{center}{}{pgf@box}{\pgfusepath{draw}}
-            \fi
-            % draw outer circle
-            \ifpgf@circuit@boxed
-                \pgf@circ@res@step=.7\pgf@circ@res@step
-                \pgfsetdash{}{0pt}	% draw solid circle if boxed
-            \else
-                \pgf@circ@setlinewidth{bipoles}{\pgfstartlinewidth}
-            \fi
-            \pgfpathcircle{\pgfpoint{0}{0}} {0.5\pgf@circ@res@step}
-            \pgf@circ@draworfill
+            \pgf@circ@circular@rf@box@circle
             % draw inner stuff
             \pgfsetdash{}{0pt}	% always draw solid line for inner symbol
             \pgfsetlinewidth{\pgfstartlinewidth}
@@ -2276,20 +2288,7 @@
         \pgf@circ@scaled@Rlen=\scaledRlen
         \pgf@circ@res@step=\ctikzvalof{tripoles/adder/width}\pgf@circ@scaled@Rlen
         \pgfscope
-            \pgfstartlinewidth=\pgflinewidth
-            % draw outer box
-            \ifpgf@circuit@boxed
-                \pgfnode{blockbox}{center}{}{pgf@box}{\pgfusepath{draw}}
-            \fi
-            % draw outer circle
-            \ifpgf@circuit@boxed
-                \pgf@circ@res@step=.7\pgf@circ@res@step{}
-                \pgfsetdash{}{0pt}	% draw solid circle if boxed
-            \else
-                \pgf@circ@setlinewidth{bipoles}{\pgfstartlinewidth}
-            \fi
-            \pgfpathcircle{\pgfpoint{0}{0}} {0.5\pgf@circ@res@step}
-            \pgf@circ@draworfill
+            \pgf@circ@circular@rf@box@circle
             % draw inner stuff
             \pgfsetdash{}{0pt}	% always draw solid line for inner symbol
             \pgfsetlinewidth{\pgfstartlinewidth}
@@ -2324,20 +2323,7 @@
         \pgf@circ@scaled@Rlen=\scaledRlen
         \pgf@circ@res@step=\ctikzvalof{tripoles/oscillator/width}\pgf@circ@scaled@Rlen{}
         \pgfscope
-            \pgfstartlinewidth=\pgflinewidth
-            % draw outer box
-            \ifpgf@circuit@boxed{}
-                \pgfnode{blockbox}{center}{}{pgf@box}{\pgfusepath{draw}}
-            \fi
-            % draw outer circle
-            \ifpgf@circuit@boxed
-                \pgf@circ@res@step=.7\pgf@circ@res@step{}
-                \pgfsetdash{}{0pt}	% draw solid circle if boxed
-            \else
-                \pgf@circ@setlinewidth{bipoles}{\pgfstartlinewidth}
-            \fi
-            \pgfpathcircle{\pgfpoint{0}{0}} {0.5\pgf@circ@res@step}
-            \pgf@circ@draworfill
+            \pgf@circ@circular@rf@box@circle
             % draw inner sine waves
             \pgfsetdash{}{0pt}	% always draw solid line for inner symbol
             \pgfsetlinewidth{\pgfstartlinewidth}
@@ -2363,37 +2349,17 @@
     \pgf@circ@draw@component{
         \pgf@circ@setcolor
         \pgf@circ@scaled@Rlen=\scaledRlen
-
         \pgf@circ@res@step=\ctikzvalof{tripoles/circulator/width}\pgf@circ@scaled@Rlen
-
         \pgfscope
-            \pgfstartlinewidth=\pgflinewidth
-
-            % draw outer box
-            \ifpgf@circuit@boxed
-                \pgfnode{blockbox}{center}{}{pgf@box}{\pgfusepath{draw}}
-            \fi
-
-            % draw outer circle
-            \ifpgf@circuit@boxed{}
-                \pgf@circ@res@step=.7\pgf@circ@res@step{}
-                \pgfsetdash{}{0pt}	% draw solid circle if boxed
-            \else
-                \pgf@circ@setlinewidth{bipoles}{\pgfstartlinewidth}
-            \fi
-            \pgfpathcircle{\pgfpoint{0}{0}} {0.5\pgf@circ@res@step}
-            \pgf@circ@draworfill
-
+            \pgf@circ@circular@rf@box@circle
             % inner arrow
             \pgfsetdash{}{0pt}	% always draw solid line for inner symbol
             \pgfsetlinewidth{\pgfstartlinewidth}
-
             \pgfsetarrowsend{latex}
             \pgfpathmoveto{\pgfpoint{-0.25\pgf@circ@res@step}{0}}
             \pgfpatharc{180}{-90} {0.25\pgf@circ@res@step}
             \pgfpathlineto{\pgfpoint{-5pt}{-0.2\pgf@circ@res@step}}
             \pgfusepath{draw}
-
             \endpgfscope
         }
 }
