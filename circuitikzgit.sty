@@ -16,8 +16,8 @@
 \providecommand\DeclareRelease[3]{}
 \providecommand\DeclareCurrentRelease[2]{}
 
-\def\pgfcircversion{1.5.0-unreleased-ec07d07}
-\def\pgfcircversiondate{2022/04/17}
+\def\pgfcircversion{1.5.0-unreleased-f098949}
+\def\pgfcircversiondate{2022/04/18}
 
 \DeclareRelease{0.4}{2012/12/20}{circuitikz-0.4-body.tex}
 \DeclareRelease{v0.4}{2012/12/20}{circuitikz-0.4-body.tex}
@@ -3207,6 +3207,8 @@
 \ctikzset{monopoles/bareantenna/width/.initial=.25}
 \ctikzset{monopoles/bareantenna/label/xanchor/.initial=1}
 \ctikzset{monopoles/bareantenna/label/yanchor/.initial=0.5}
+\ctikzset{monopoles/dinantenna/width/.initial=.2}
+\ctikzset{monopoles/dinantenna/height/.initial=.6}
 \ctikzset{monopoles/waves/width/.initial=0.5}%
 %>>>
 
@@ -3762,8 +3764,8 @@
     }
 }
 
-% the three types of antennas: simple, TX, RX. Notice that you can flip them...
-
+% the four types of antennas: simple, din, TX, RX. Notice that you can flip them...
+%
 \pgfdeclareshape{bareantenna}{
     \savedmacro{\ctikzclass}{\edef\ctikzclass{RF}}
     \saveddimen{\scaledRlen}{\pgfmathsetlength{\pgf@x}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}}
@@ -3794,6 +3796,54 @@
     \anchor{south west}{\northeast\pgf@y=0pt\pgf@x=-\pgf@x}
     \pgf@circ@draw@component{
         \pgf@circ@antennabody
+    }
+}
+%
+\pgfdeclareshape{dinantenna}{
+    \savedmacro{\ctikzclass}{\edef\ctikzclass{RF}}
+    \saveddimen{\scaledRlen}{\pgfmathsetlength{\pgf@x}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}}
+    \anchor{center}{\pgfpointorigin}
+    \savedanchor{\northeast}{
+        \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
+        \pgf@circ@res@step=\ctikzvalof{monopoles/dinantenna/width}\pgf@circ@scaled@Rlen
+        \pgf@circ@res@other=\ctikzvalof{monopoles/dinantenna/height}\pgf@circ@scaled@Rlen
+        \pgf@x=\pgf@circ@res@step
+        \pgf@y=\pgf@circ@res@other
+    }
+    \anchor{text}{
+        \northeast
+        \pgf@y=\dimexpr.5\pgf@y+.5\dp\pgfnodeparttextbox-.5\ht\pgfnodeparttextbox\relax
+    }
+    \anchor{top}{\northeast\pgf@x=0pt}
+    \anchor{right}{\northeast\pgf@y=0.5\pgf@y}
+    \anchor{left}{\northeast\pgf@x=-\pgf@x\pgf@y=0.5\pgf@y}
+    \anchor{bottom}{\pgfpointorigin}
+    \anchor{north}{\northeast\pgf@x=0pt}
+    \anchor{east}{\northeast\pgf@y=0.5\pgf@y}
+    \anchor{west}{\northeast\pgf@x=-\pgf@x\pgf@y=0.5\pgf@y}
+    \anchor{south}{\pgfpointorigin}
+    \anchor{north east}{\northeast}
+    \anchor{north west}{\northeast\pgf@x=-\pgf@x}
+    \anchor{south east}{\northeast\pgf@y=0pt\relax}
+    \anchor{south west}{\northeast\pgf@y=0pt\pgf@x=-\pgf@x}
+    \pgf@circ@draw@component{
+        \pgfstartlinewidth=\pgflinewidth
+        \pgf@circ@scaled@Rlen=\scaledRlen
+        \pgf@circ@setcolor
+        \pgf@circ@res@right=\ctikzvalof{monopoles/dinantenna/width}\pgf@circ@scaled@Rlen
+        \pgf@circ@res@up=\ctikzvalof{monopoles/dinantenna/height}\pgf@circ@scaled@Rlen
+        \pgfscope
+            \pgf@circ@setlinewidth{bipoles}{\pgfstartlinewidth}
+            \pgfpathmoveto{\pgfpointorigin}
+            \pgfpathlineto{\pgfpoint{0pt}{\pgf@circ@res@up}}
+            \pgfpathmoveto{\pgfpoint{0pt}{0.5\pgf@circ@res@up}}
+            \pgfpathlineto{\pgfpoint{-\pgf@circ@res@right}{\pgf@circ@res@up}}
+            \pgfpathmoveto{\pgfpoint{0pt}{0.5\pgf@circ@res@up}}
+            \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@up}}
+            \pgfpathmoveto{\pgfpoint{0pt}{0.5\pgf@circ@res@up}}
+            \pgfpathlineto{\pgfpoint{0pt}{\pgf@circ@res@up}}
+            \pgfusepath{draw}
+        \endpgfscope
     }
 }
 
@@ -19729,10 +19779,16 @@
 
 % Option "boxed" for nodes and twoports
 \newif\ifpgf@circuit@boxed
-\pgfkeys{/tikz/boxed/.add code={}{\pgf@circuit@boxedtrue}}
-\ctikzset{boxed/.add code={}{\pgf@circuit@boxedtrue}}
-\pgfkeys{/tikz/box/.add code={}{\pgf@circuit@boxedtrue}}
-\ctikzset{box/.add code={}{\pgf@circuit@boxedtrue}}
+\newif\ifpgf@circuit@boxedcircled\pgf@circuit@boxedcircledtrue
+\pgfkeys{/tikz/boxed/.add code={}{\pgf@circuit@boxedtrue\pgf@circuit@boxedcircledtrue}}
+\ctikzset{boxed/.add code={}{\pgf@circuit@boxedtrue\pgf@circuit@boxedcircledtrue}}
+\pgfkeys{/tikz/box/.add code={}{\pgf@circuit@boxedtrue\pgf@circuit@boxedcircledtrue}}
+\ctikzset{box/.add code={}{\pgf@circuit@boxedtrue\pgf@circuit@boxedcircledtrue}}
+% boxed, no circle
+\pgfkeys{/tikz/boxed only/.add code={}{\pgf@circuit@boxedtrue\pgf@circuit@boxedcircledfalse}}
+\ctikzset{boxed only/.add code={}{\pgf@circuit@boxedtrue\pgf@circuit@boxedcircledfalse}}
+\pgfkeys{/tikz/box only/.add code={}{\pgf@circuit@boxedtrue\pgf@circuit@boxedcircledfalse}}
+\ctikzset{box only/.add code={}{\pgf@circuit@boxedtrue\pgf@circuit@boxedcircledfalse}}
 
 % Option "dashed" for nodes and twoports
 \newif\ifpgf@circuit@dashed
@@ -21446,12 +21502,10 @@
 \pgfcirc@activate@bipole@simple{l}{tdcac}
 % %>>>
 
-%% Node shapes for  Block elements%<<<
-
-\pgfdeclareshape{mixer}
-{
-    \savedmacro{\ctikzclass}{\edef\ctikzclass{blocks}}
-    \saveddimen{\scaledRlen}{\pgfmathsetlength{\pgf@x}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}}
+%% Node shapes for  Block elements %<<<
+%
+% utility macro for the anchors
+\def\pgf@circ@circular@rf@anchors#1{%
     \savedanchor\northwest{
         \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
         \ifpgf@circuit@boxed
@@ -21460,165 +21514,75 @@
             \pgf@x=-\ctikzvalof{bipoles/twoport/width}\pgf@circ@scaled@Rlen
             \pgf@x=.5\pgf@x
         \else
-            \pgf@y=\ctikzvalof{tripoles/mixer/width}\pgf@circ@scaled@Rlen
+            \pgf@y=\ctikzvalof{tripoles/#1/width}\pgf@circ@scaled@Rlen
             \pgf@y=.5\pgf@y
-            \pgf@x=-\ctikzvalof{tripoles/mixer/width}\pgf@circ@scaled@Rlen
+            \pgf@x=-\ctikzvalof{tripoles/#1/width}\pgf@circ@scaled@Rlen
             \pgf@x=.5\pgf@x
         \fi
     }
-    \anchor{center}{
-        \pgfpointorigin
-    }
-    \anchor{left}{%
-        \northwest
-        \pgf@y=0pt
-    }
-    \anchor{right}{
-        \northwest
-        \pgf@y=0pt
-        \pgf@x=-\pgf@x
-    }
-    \anchor{1}{
-        \northwest
-        \pgf@y=0pt
-    }
-    \anchor{2}{
-        \northwest
-        \pgf@y=-\pgf@y
-        \pgf@x=0pt
-    }
-    \anchor{3}{
-        \northwest
-        \pgf@y=0pt
-        \pgf@x=-\pgf@x
-    }
-    \anchor{4}{
-        \northwest
-        \pgf@y=\pgf@y
-        \pgf@x=0pt
-    }
-    \anchor{in 1}{
-        \northwest
-        \pgf@y=0pt
-    }
-    \anchor{in1}{
-        \northwest
-        \pgf@y=0pt
-    }
-    \anchor{in}{
-        \northwest
-        \pgf@y=0pt
-    }
-    \anchor{in 2}{
-        \northwest
-        \pgf@y=-\pgf@y
-        \pgf@x=0pt
-    }
-    \anchor{in2}{
-        \northwest
-        \pgf@y=-\pgf@y
-        \pgf@x=0pt
-    }
-    \anchor{out}{
-        \northwest
-        \pgf@y=0pt
-        \pgf@x=-\pgf@x
-    }
-    \anchor{center}{
-        \pgf@y=0pt
-        \pgf@x=0pt
-    }
-    \anchor{east}{
-        \northwest
-        \pgf@y=0pt
-        \pgf@x=-\pgf@x
-    }
-    \anchor{west}{
-        \northwest
-        \pgf@y=0pt
-    }
-    \anchor{south}{
-        \northwest
-        \pgf@x=0pt
-        \pgf@y=-\pgf@y
-    }
-    \anchor{north}{
-        \northwest
-        \pgf@x=0pt
-    }
-    \anchor{e}{
-        \northwest
-        \pgf@y=0pt
-        \pgf@x=-\pgf@x
-    }
-    \anchor{w}{
-        \northwest
-        \pgf@y=0pt
-    }
-    \anchor{s}{
-        \northwest
-        \pgf@x=0pt
-        \pgf@y=-\pgf@y
-    }
-    \anchor{n}{
-        \northwest
-        \pgf@x=0pt
-    }
-    \anchor{down}{
-        \northwest
-        \pgf@x=0pt
-        \pgf@y=-\pgf@y
-    }
-    \anchor{up}{
-        \northwest
-        \pgf@x=0pt
-    }
-    \anchor{south west}{
-        \northwest
-        \pgf@y=-\pgf@y
-    }
-    \anchor{north east}{
-        \northwest
-        \pgf@x=-\pgf@x
-    }
-    \anchor{north west}{
-        \northwest
-    }
-    \anchor{south east}{
-        \northwest
-        \pgf@x=-\pgf@x
-        \pgf@y=-\pgf@y
-    }
+    % border anchors
     \anchorborder{
         \pgf@circ@res@left=\pgf@x
         \pgf@circ@res@up=\pgf@y
-        \pgfpointborderellipse{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@up}
-        }{\pgfpoint{\ctikzvalof{tripoles/mixer/width}*\scaledRlen/2}{\ctikzvalof{tripoles/mixer/width}*\scaledRlen/2}}
+        \ifnum\componentisboxed=0
+            \pgfpointborderellipse{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@up}
+            }{\pgfpoint{\ctikzvalof{tripoles/#1/width}*\scaledRlen/2}{\ctikzvalof{tripoles/#1/width}*\scaledRlen/2}}
+        \else
+            \pgfpointborderrectangle{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@up}
+            }{\pgfpoint{\ctikzvalof{tripoles/#1/width}*\scaledRlen/2}{\ctikzvalof{tripoles/#1/width}*\scaledRlen/2}}
+        \fi
     }
+    \pgfcirc@northwest@symmetric@geoanchors
+    \anchor{geocenter}{\pgfpointorigin}
+    \anchor{up}{\northwest\pgf@x=0pt}
+    \anchor{down}{\northwest\pgf@x=0pt\pgf@y=-\pgf@y}
+    % Deprecated number anchors
+    \anchor{1}{\northwest\pgf@y=0pt}
+    \anchor{2}{\northwest\pgf@y=-\pgf@y\pgf@x=0pt}
+    \anchor{3}{\northwest\pgf@y=0pt\pgf@x=-\pgf@x}
+    \anchor{4}{\northwest\pgf@y=\pgf@y\pgf@x=0pt}
+    % input output anchors (also quite bad)
+    \anchor{in 1}{\northwest\pgf@y=0pt}
+    \anchor{in1}{\northwest\pgf@y=0pt}
+    \anchor{in}{\northwest\pgf@y=0pt}
+    \anchor{in 2}{\northwest\pgf@y=-\pgf@y\pgf@x=0pt}
+    \anchor{in2}{\northwest\pgf@y=-\pgf@y\pgf@x=0pt}
+    \anchor{out}{\northwest\pgf@y=0pt\pgf@x=-\pgf@x}
+}
+% draw the body rectangle and circle if and when needed
+\def\pgf@circ@circular@rf@box@circle{%
+    \pgfstartlinewidth=\pgflinewidth
+    % draw outer box
+    \ifpgf@circuit@boxed
+        \pgfnode{blockbox}{center}{}{pgf@box}{\pgfusepath{draw}}
+    \fi
+    % draw outer circle
+    \ifpgf@circuit@boxed
+        \pgf@circ@res@step=.7\pgf@circ@res@step
+        \pgfsetdash{}{0pt}	% draw solid circle if boxed
+    \else
+        \pgf@circ@setlinewidth{bipoles}{\pgfstartlinewidth}
+    \fi
+    \ifpgf@circuit@boxedcircled
+        \pgfpathcircle{\pgfpoint{0}{0}} {0.5\pgf@circ@res@step}
+    \fi
+    \pgf@circ@draworfill
+}
+%
+\pgfdeclareshape{mixer}
+{
+    \savedmacro{\ctikzclass}{\edef\ctikzclass{blocks}}
+    \saveddimen{\scaledRlen}{\pgfmathsetlength{\pgf@x}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}}
+    \savedmacro{\componentisboxed}{\edef\componentisboxed{\ifpgf@circuit@boxed 1\else 0\fi}}
+    % build the anchor set
+    \anchor{center}{\pgfpointorigin}
+    \pgf@circ@circular@rf@anchors{mixer}
     \pgf@circ@draw@component{
         \pgf@circ@setcolor
         \pgf@circ@scaled@Rlen=\scaledRlen
-
         \pgf@circ@res@step=\ctikzvalof{tripoles/mixer/width}\pgf@circ@scaled@Rlen
-
         \pgfscope
-            \pgfstartlinewidth=\pgflinewidth
-
-            % draw outer box
-            \ifpgf@circuit@boxed
-                \pgfnode{blockbox}{center}{}{pgf@box}{\pgfusepath{draw}}
-            \fi
-
-            % draw outer circle
-            \ifpgf@circuit@boxed
-                \pgf@circ@res@step=.7\pgf@circ@res@step
-                \pgfsetdash{}{0pt}	% draw solid circle if boxed
-            \else
-                \pgf@circ@setlinewidth{bipoles}{\pgfstartlinewidth}
-            \fi
-            \pgfpathcircle{\pgfpoint{0}{0}} {0.5\pgf@circ@res@step}
-            \pgf@circ@draworfill
-
+            \pgf@circ@circular@rf@box@circle
             % draw inner stuff
             \pgfsetdash{}{0pt}	% always draw solid line for inner symbol
             \pgfsetlinewidth{\pgfstartlinewidth}
@@ -21629,7 +21593,6 @@
             \pgfpathmoveto{\pgfpointpolar{45}{0.5\pgf@circ@res@step}}
             \pgfpathlineto{\pgfpointpolar{-135}{0.5\pgf@circ@res@step}}
             \pgfusepath{draw}
-
         \endpgfscope
     }
 }
@@ -21638,177 +21601,19 @@
 {
     \savedmacro{\ctikzclass}{\edef\ctikzclass{blocks}}
     \saveddimen{\scaledRlen}{\pgfmathsetlength{\pgf@x}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}}
-    \savedanchor\northwest{
-        \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
-        \ifpgf@circuit@boxed
-            \pgf@y=\ctikzvalof{bipoles/twoport/width}\pgf@circ@scaled@Rlen
-            \pgf@y=.5\pgf@y
-            \pgf@x=-\ctikzvalof{bipoles/twoport/width}\pgf@circ@scaled@Rlen
-            \pgf@x=.5\pgf@x
-        \else
-            \pgf@y=\ctikzvalof{tripoles/adder/width}\pgf@circ@scaled@Rlen
-            \pgf@y=.5\pgf@y
-            \pgf@x=-\ctikzvalof{tripoles/adder/width}\pgf@circ@scaled@Rlen
-            \pgf@x=.5\pgf@x
-        \fi
-    }
-    \anchor{center}{
-        \pgfpointorigin
-    }
-    \anchor{left}{%
-        \northwest
-        \pgf@y=0pt
-    }
-    \anchor{right}{
-        \northwest
-        \pgf@y=0pt
-        \pgf@x=-\pgf@x
-    }
-    \anchor{1}{
-        \northwest
-        \pgf@y=0pt
-    }
-    \anchor{2}{
-        \northwest
-        \pgf@y=-\pgf@y
-        \pgf@x=0pt
-    }
-    \anchor{3}{
-        \northwest
-        \pgf@y=0pt
-        \pgf@x=-\pgf@x
-    }
-    \anchor{4}{
-        \northwest
-        \pgf@y=\pgf@y
-        \pgf@x=0pt
-    }
-    \anchor{in 1}{
-        \northwest
-        \pgf@y=0pt
-    }
-    \anchor{in1}{
-        \northwest
-        \pgf@y=0pt
-    }
-    \anchor{in}{
-        \northwest
-        \pgf@y=0pt
-    }
-    \anchor{in 2}{
-        \northwest
-        \pgf@y=-\pgf@y
-        \pgf@x=0pt
-    }
-    \anchor{in2}{
-        \northwest
-        \pgf@y=-\pgf@y
-        \pgf@x=0pt
-    }
-    \anchor{out}{
-        \northwest
-        \pgf@y=0pt
-        \pgf@x=-\pgf@x
-    }
-    \anchor{center}{
-        \pgf@y=0pt
-        \pgf@x=0pt
-    }
-    \anchor{east}{
-        \northwest
-        \pgf@y=0pt
-        \pgf@x=-\pgf@x
-    }
-    \anchor{west}{
-        \northwest
-        \pgf@y=0pt
-    }
-    \anchor{south}{
-        \northwest
-        \pgf@x=0pt
-        \pgf@y=-\pgf@y
-    }
-    \anchor{north}{
-        \northwest
-        \pgf@x=0pt
-    }
-    \anchor{e}{
-        \northwest
-        \pgf@y=0pt
-        \pgf@x=-\pgf@x
-    }
-    \anchor{w}{
-        \northwest
-        \pgf@y=0pt
-    }
-    \anchor{s}{
-        \northwest
-        \pgf@x=0pt
-        \pgf@y=-\pgf@y
-    }
-    \anchor{n}{
-        \northwest
-        \pgf@x=0pt
-    }
-    \anchor{down}{
-        \northwest
-        \pgf@x=0pt
-        \pgf@y=-\pgf@y
-    }
-    \anchor{up}{
-        \northwest
-        \pgf@x=0pt
-    }
-    \anchor{south west}{
-        \northwest
-        \pgf@y=-\pgf@y
-    }
-    \anchor{north east}{
-        \northwest
-        \pgf@x=-\pgf@x
-    }
-    \anchor{north west}{
-        \northwest
-    }
-    \anchor{south east}{
-        \northwest
-        \pgf@x=-\pgf@x
-        \pgf@y=-\pgf@y
-    }
-    \anchorborder{
-        \pgf@circ@res@left=\pgf@x
-        \pgf@circ@res@up=\pgf@y
-        \pgfpointborderellipse{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@up}
-        }{\pgfpoint{\ctikzvalof{tripoles/adder/width}*\scaledRlen/2}{\ctikzvalof{tripoles/adder/width}*\scaledRlen/2}}
-    }
+    \savedmacro{\componentisboxed}{\edef\componentisboxed{\ifpgf@circuit@boxed 1\else 0\fi}}
+    % build the anchor set
+    \anchor{center}{\pgfpointorigin}
+    \pgf@circ@circular@rf@anchors{adder}
     \pgf@circ@draw@component{
         \pgf@circ@setcolor
         \pgf@circ@scaled@Rlen=\scaledRlen
-
         \pgf@circ@res@step=\ctikzvalof{tripoles/adder/width}\pgf@circ@scaled@Rlen
-
         \pgfscope
-            \pgfstartlinewidth=\pgflinewidth
-
-            % draw outer box
-            \ifpgf@circuit@boxed
-                \pgfnode{blockbox}{center}{}{pgf@box}{\pgfusepath{draw}}
-            \fi
-
-            % draw outer circle
-            \ifpgf@circuit@boxed
-                \pgf@circ@res@step=.7\pgf@circ@res@step{}
-                \pgfsetdash{}{0pt}	% draw solid circle if boxed
-            \else
-                \pgf@circ@setlinewidth{bipoles}{\pgfstartlinewidth}
-            \fi
-            \pgfpathcircle{\pgfpoint{0}{0}} {0.5\pgf@circ@res@step}
-            \pgf@circ@draworfill
-
+            \pgf@circ@circular@rf@box@circle
             % draw inner stuff
             \pgfsetdash{}{0pt}	% always draw solid line for inner symbol
             \pgfsetlinewidth{\pgfstartlinewidth}
-
             \pgfpathmoveto{\pgfpointorigin}
             \pgfpathmoveto{\pgfpointpolar{0}{0.3\pgf@circ@res@step}}
             \pgfpathlineto{\pgfpointpolar{180}{0.3\pgf@circ@res@step}}
@@ -21817,7 +21622,6 @@
             \pgfpathlineto{\pgfpointpolar{270}{0.3\pgf@circ@res@step}}
             \pgf@circ@setlinewidth{tripoles}{\pgflinewidth}
             \pgfusepath{draw}
-
         \endpgfscope
     }
 }
@@ -21826,126 +21630,22 @@
 {
     \savedmacro{\ctikzclass}{\edef\ctikzclass{blocks}}
     \saveddimen{\scaledRlen}{\pgfmathsetlength{\pgf@x}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}}
-    \savedanchor\northwest{
-        \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
-        \ifpgf@circuit@boxed
-            \pgf@y=\ctikzvalof{bipoles/twoport/width}\pgf@circ@scaled@Rlen
-            \pgf@y=.5\pgf@y
-            \pgf@x=-\ctikzvalof{bipoles/twoport/width}\pgf@circ@scaled@Rlen
-        \else
-            \pgf@y=\ctikzvalof{tripoles/oscillator/width}\pgf@circ@scaled@Rlen
-            \pgf@y=.5\pgf@y
-            \pgf@x=-\ctikzvalof{tripoles/oscillator/width}\pgf@circ@scaled@Rlen
-        \fi
-    }
-    \anchor{center}{
-        \pgfpointorigin
-    }
-    \anchor{north}{
-        \northwest
-        \pgf@x=.5\pgf@x
-    }
-    \anchor{south}{
-        \northwest
-        \pgf@x=.5\pgf@x
-        \pgf@y=-\pgf@y
-    }
-    \anchor{east}{
-        \northwest
-        \pgf@y=0pt
-        \pgf@x=0pt
-    }
-    \anchor{west}{
-        \northwest
-        \pgf@y=0pt
-    }
-    \anchor{up}{
-        \northwest
-        \pgf@x=.5\pgf@x
-    }
-    \anchor{down}{
-        \northwest
-        \pgf@x=.5\pgf@x
-        \pgf@y=-\pgf@y
-    }
-    \anchor{n}{
-        \northwest
-        \pgf@x=.5\pgf@x
-    }
-    \anchor{s}{
-        \northwest
-        \pgf@x=.5\pgf@x
-        \pgf@y=-\pgf@y
-    }
-    \anchor{e}{
-        \northwest
-        \pgf@y=0pt
-        \pgf@x=0pt
-    }
-    \anchor{w}{
-        \northwest
-        \pgf@y=0pt
-    }
-    \anchor{up}{
-        \northwest
-        \pgf@x=.5\pgf@x
-    }
-    \anchor{down}{
-        \northwest
-        \pgf@x=.5\pgf@x
-        \pgf@y=-\pgf@y
-    }
-    \anchor{right}{
-        \northwest
-        \pgf@y=0pt
-        \pgf@x=0pt
-    }
-    \anchor{left}{
-        \northwest
-        \pgf@y=0pt
-    }
-    \anchor{south west}{ \northwest \pgf@y=-\pgf@y}
-    \anchor{north east}{ \northwest \pgf@x=0pt\relax}
-    \anchor{north west}{ \northwest }
-    \anchor{south east}{ \northwest \pgf@x=0pt \pgf@y=-\pgf@y }
+    \savedmacro{\componentisboxed}{\edef\componentisboxed{\ifpgf@circuit@boxed 1\else 0\fi}}
+    % build the anchor set --- the center of an oscillator is on the  right
+    \anchor{center}{\northwest\pgf@y=0pt\pgf@x=-\pgf@x}
+    \pgf@circ@circular@rf@anchors{oscillator}
+    % border anchors
     \anchor{text}{
         \pgf@x=-2\pgf@x
         \advance \pgf@x by -.5\wd\pgfnodeparttextbox
         \advance \pgf@y by -1.5\ht\pgfnodeparttextbox
     }
-    \anchorborder{
-        \pgf@circ@res@left=\pgf@x
-        \pgf@circ@res@up=\pgf@y
-        \pgfpointborderellipse{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@up}
-        }{\pgfpoint{\ctikzvalof{tripoles/oscillator/width}*\scaledRlen/2}{\ctikzvalof{tripoles/oscillator/width}*\scaledRlen/2}}
-        \pgfmathsetlength{\pgf@x}{\pgf@x-\ctikzvalof{tripoles/oscillator/width}*\scaledRlen/2}
-    }
     \pgf@circ@draw@component{
         \pgf@circ@setcolor
         \pgf@circ@scaled@Rlen=\scaledRlen
-
         \pgf@circ@res@step=\ctikzvalof{tripoles/oscillator/width}\pgf@circ@scaled@Rlen{}
-
         \pgfscope
-            \pgfstartlinewidth=\pgflinewidth
-
-            \pgftransformxshift{-0.5\pgf@circ@res@step} % The oscillator is shifted to the left, so a connection comes out of the anchor "east"
-
-            % draw outer box
-            \ifpgf@circuit@boxed{}
-                \pgfnode{blockbox}{center}{}{pgf@box}{\pgfusepath{draw}}
-            \fi
-
-            % draw outer circle
-            \ifpgf@circuit@boxed
-                \pgf@circ@res@step=.7\pgf@circ@res@step{}
-                \pgfsetdash{}{0pt}	% draw solid circle if boxed
-            \else
-                \pgf@circ@setlinewidth{bipoles}{\pgfstartlinewidth}
-            \fi
-            \pgfpathcircle{\pgfpoint{0}{0}} {0.5\pgf@circ@res@step}
-            \pgf@circ@draworfill
-
+            \pgf@circ@circular@rf@box@circle
             % draw inner sine waves
             \pgfsetdash{}{0pt}	% always draw solid line for inner symbol
             \pgfsetlinewidth{\pgfstartlinewidth}
@@ -21955,9 +21655,7 @@
             \pgfpathcosine{\pgfpoint{.15\pgf@circ@res@step}{-.15\pgf@circ@res@step}}
             \pgfpathsine{\pgfpoint{.15\pgf@circ@res@step}{-.15\pgf@circ@res@step}}
             \pgfpathcosine{\pgfpoint{.15\pgf@circ@res@step}{.15\pgf@circ@res@step}}
-
             \pgfusepath{draw}
-
         \endpgfscope
     }
 }
@@ -21966,147 +21664,24 @@
 {
     \savedmacro{\ctikzclass}{\edef\ctikzclass{blocks}}
     \saveddimen{\scaledRlen}{\pgfmathsetlength{\pgf@x}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}}
-    \savedanchor\northwest{
-        \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
-        \ifpgf@circuit@boxed
-            \pgf@y=\ctikzvalof{bipoles/twoport/width}\pgf@circ@scaled@Rlen
-            \pgf@y=.5\pgf@y
-            \pgf@x=-\ctikzvalof{bipoles/twoport/width}\pgf@circ@scaled@Rlen
-            \pgf@x=.5\pgf@x
-        \else
-            \pgf@y=\ctikzvalof{tripoles/circulator/width}\pgf@circ@scaled@Rlen
-            \pgf@y=.5\pgf@y
-            \pgf@x=-\ctikzvalof{tripoles/circulator/width}\pgf@circ@scaled@Rlen
-            \pgf@x=.5\pgf@x
-        \fi
-    }
-    \anchor{center}{
-        \pgfpointorigin
-    }
-    \anchor{left}{%
-        \northwest
-        \pgf@y=0pt
-    }
-    \anchor{right}{
-        \northwest
-        \pgf@y=0pt
-        \pgf@x=-\pgf@x
-    }
-    \anchor{1}{
-        \northwest
-        \pgf@y=0pt
-    }
-    \anchor{2}{
-        \northwest
-        \pgf@y=0pt
-        \pgf@x=-\pgf@x
-    }
-    \anchor{3}{
-        \northwest
-        \pgf@y=-\pgf@y
-        \pgf@x=0pt
-    }
-    \anchor{east}{
-        \northwest
-        \pgf@y=0pt
-        \pgf@x=-\pgf@x
-    }
-    \anchor{west}{
-        \northwest
-        \pgf@y=0pt
-    }
-    \anchor{south}{
-        \northwest
-        \pgf@x=0pt
-        \pgf@y=-\pgf@y
-    }
-    \anchor{north}{
-        \northwest
-        \pgf@x=0pt
-    }
-    \anchor{e}{
-        \northwest
-        \pgf@y=0pt
-        \pgf@x=-\pgf@x
-    }
-    \anchor{w}{
-        \northwest
-        \pgf@y=0pt
-    }
-    \anchor{s}{
-        \northwest
-        \pgf@x=0pt
-        \pgf@y=-\pgf@y
-    }
-    \anchor{n}{
-        \northwest
-        \pgf@x=0pt
-    }
-    \anchor{down}{
-        \northwest
-        \pgf@x=0pt
-        \pgf@y=-\pgf@y
-    }
-    \anchor{up}{
-        \northwest
-        \pgf@x=0pt
-    }
-    \anchor{south west}{
-        \northwest
-        \pgf@y=-\pgf@y
-    }
-    \anchor{north east}{
-        \northwest
-        \pgf@x=-\pgf@x
-    }
-    \anchor{north west}{
-        \northwest
-    }
-    \anchor{south east}{
-        \northwest
-        \pgf@x=-\pgf@x
-        \pgf@y=-\pgf@y
-    }
-    \anchorborder{
-        \pgf@circ@res@left=\pgf@x
-        \pgf@circ@res@up=\pgf@y
-        \pgfpointborderellipse{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@up}
-        }{\pgfpoint{\ctikzvalof{tripoles/circulator/width}*\scaledRlen/2}{\ctikzvalof{tripoles/circulator/width}*\scaledRlen/2}}
-    }
+    \savedmacro{\componentisboxed}{\edef\componentisboxed{\ifpgf@circuit@boxed 1\else 0\fi}}
+    % build the anchor set
+    \anchor{center}{\pgfpointorigin}
+    \pgf@circ@circular@rf@anchors{circulator}
     \pgf@circ@draw@component{
         \pgf@circ@setcolor
         \pgf@circ@scaled@Rlen=\scaledRlen
-
         \pgf@circ@res@step=\ctikzvalof{tripoles/circulator/width}\pgf@circ@scaled@Rlen
-
         \pgfscope
-            \pgfstartlinewidth=\pgflinewidth
-
-            % draw outer box
-            \ifpgf@circuit@boxed
-                \pgfnode{blockbox}{center}{}{pgf@box}{\pgfusepath{draw}}
-            \fi
-
-            % draw outer circle
-            \ifpgf@circuit@boxed{}
-                \pgf@circ@res@step=.7\pgf@circ@res@step{}
-                \pgfsetdash{}{0pt}	% draw solid circle if boxed
-            \else
-                \pgf@circ@setlinewidth{bipoles}{\pgfstartlinewidth}
-            \fi
-            \pgfpathcircle{\pgfpoint{0}{0}} {0.5\pgf@circ@res@step}
-            \pgf@circ@draworfill
-
+            \pgf@circ@circular@rf@box@circle
             % inner arrow
             \pgfsetdash{}{0pt}	% always draw solid line for inner symbol
             \pgfsetlinewidth{\pgfstartlinewidth}
-
             \pgfsetarrowsend{latex}
             \pgfpathmoveto{\pgfpoint{-0.25\pgf@circ@res@step}{0}}
             \pgfpatharc{180}{-90} {0.25\pgf@circ@res@step}
             \pgfpathlineto{\pgfpoint{-5pt}{-0.2\pgf@circ@res@step}}
             \pgfusepath{draw}
-
             \endpgfscope
         }
 }
