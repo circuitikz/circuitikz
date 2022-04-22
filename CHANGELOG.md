@@ -1,9 +1,9 @@
 <!--- CircuiTikz - Changelog --->
 The major changes among the different CircuiTikZ versions are listed here. See <https://github.com/circuitikz/circuitikz/commits> for a full list of changes.
 
-* Version 1.5.0 (unreleased)
+* Version 1.5.0 (2022-04-22)
 
-    In this version, several internal changes have been included, in order to streamline and organize better the components and to change the management of color. The changes are quite deep and subtle, so a bug or unexpected behaviour is always possible. You can use the 1.4.6 rollback point in case of trouble, but be sure to report any bug.
+    In this version, several internal changes have been included in order to streamline and organize better the components and to change the management of color. The changes are pretty deep and subtle, so a bug or unexpected behaviour is always possible. You can use the 1.4.6 rollback point in case of trouble, but be sure to report any bug.
 
     - Added connectors shapes, and included the BNC into that class; thanks to [Alexander Sauter for suggesting them and helping in the design](https://github.com/circuitikz/circuitikz/issues/611)
     - Added nullator and norator shapes, suggested by [user atticus-sullivan on GitHub](https://github.com/circuitikz/circuitikz/issues/615)
@@ -16,9 +16,9 @@ The major changes among the different CircuiTikZ versions are listed here. See <
 
     Internal changes:
 
-    - Added a generic drawing function for shapes, which are now drawn in real background
+    - Added a generic drawing function for shapes, which are now drawn always in background
     - Added a hook system to be able to change component drawing settings per-shape, per-class or globally
-    - All the 250+ shapes are now "protected" by external arrow and arced corners parameters
+    - All the 250+ shapes are now "protected" by possible external arrow and arced corners parameters
     - Completely changed the management of the shapes' color, thanks to [GitHub user muzimuzhi](https://github.com/circuitikz/circuitikz/issues/605)
 
 * Version 1.4.6 (2022-02-04)
