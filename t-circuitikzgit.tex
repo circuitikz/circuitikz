@@ -10,12 +10,11 @@
 %
 % See the files gpl-3.0_license.txt and lppl-1-3c_license.txt for more details.
 
-\def\pgfcircversion{1.5.0-a58209c}
-\def\pgfcircversiondate{2022/04/22}
+\def\pgfcircversion{1.5.1-47a5252}
+\def\pgfcircversiondate{2022/04/26}
 \writestatus{loading}{\pgfcircversiondate{} The CircuiTikz circuit drawing package version \pgfcircversion}
 
 \usemodule[tikz]
-\usemodule[regexpatch]%for color hack
 
 \startmodule[circuitikzgit]
 \usetikzlibrary[calc]
@@ -140,8 +139,17 @@
 \pgfkeys{/tikz/fill/.add code={}{%
     \edef\ctikz@fillcolor{#1}}}
 %
+% This is to try to track the "implicit" color specification of Tikz,
+% like \draw[red,...] ...; which are not exactly the same than saying
+% \draw[color=red,...] ...;
+% This is too dangerous to issue by default (it was in 1.5.0 and it
+% was an error), so we will just define a command and tell it in the
+% manual.
+% It needs \usepackage{regexpatch} (which is not compatible with
+% xpatch, unfortunately)
 % I do not know how to do the xpatchcmd in ConTeXt...
 %
+\def\ctikzPatchImplicitColor{%
 \ifpgfutil@format@is@latex
     \pgfkeysgetvalue{/tikz/.unknown/.@cmd}{\my@temp}
     \xpatchcmd*\my@temp % use starred-form to replace all (two places actually)
@@ -154,8 +162,10 @@
     \pgfkeyslet{/tikz/.unknown/.@cmd}{\my@temp}
 \else
     \pgfutil@packagewarning{circuitikz}{%
-        Not on LaTeX: patch failed, use only explicit color=...(see manual)}
+        Not on LaTeX: patch failed, ^^J%
+        use only explicit color=...(see manual).}
 \fi
+}
 %
 \def\pgf@circ@setcolor{%
   \ifpgf@circ@setcolor

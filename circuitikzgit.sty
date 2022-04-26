@@ -16,8 +16,8 @@
 \providecommand\DeclareRelease[3]{}
 \providecommand\DeclareCurrentRelease[2]{}
 
-\def\pgfcircversion{1.5.0-a58209c}
-\def\pgfcircversiondate{2022/04/22}
+\def\pgfcircversion{1.5.1-47a5252}
+\def\pgfcircversiondate{2022/04/26}
 
 \DeclareRelease{0.4}{2012/12/20}{circuitikz-0.4-body.tex}
 \DeclareRelease{v0.4}{2012/12/20}{circuitikz-0.4-body.tex}
@@ -46,7 +46,6 @@
 
 %% Version 3.0 of pgf/TikZ is required
 \RequirePackage{tikz}
-\RequirePackage{regexpatch}%for color hack
 \usetikzlibrary{calc}
 %
 % "arrows" library is deprecated, and behave badly with
@@ -461,8 +460,17 @@
 \pgfkeys{/tikz/fill/.add code={}{%
     \edef\ctikz@fillcolor{#1}}}
 %
+% This is to try to track the "implicit" color specification of Tikz,
+% like \draw[red,...] ...; which are not exactly the same than saying
+% \draw[color=red,...] ...;
+% This is too dangerous to issue by default (it was in 1.5.0 and it
+% was an error), so we will just define a command and tell it in the
+% manual.
+% It needs \usepackage{regexpatch} (which is not compatible with
+% xpatch, unfortunately)
 % I do not know how to do the xpatchcmd in ConTeXt...
 %
+\def\ctikzPatchImplicitColor{%
 \ifpgfutil@format@is@latex
     \pgfkeysgetvalue{/tikz/.unknown/.@cmd}{\my@temp}
     \xpatchcmd*\my@temp % use starred-form to replace all (two places actually)
@@ -475,8 +483,10 @@
     \pgfkeyslet{/tikz/.unknown/.@cmd}{\my@temp}
 \else
     \pgfutil@packagewarning{circuitikz}{%
-        Not on LaTeX: patch failed, use only explicit color=...(see manual)}
+        Not on LaTeX: patch failed, ^^J%
+        use only explicit color=...(see manual).}
 \fi
+}
 %
 \def\pgf@circ@setcolor{%
   \ifpgf@circ@setcolor
