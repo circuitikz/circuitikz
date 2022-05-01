@@ -3,7 +3,8 @@ The major changes among the different CircuiTikZ versions are listed here. See <
 
 * Version 1.5.2 (unreleased)
 
-    - Added TVS diodes (transorb), suggested by [Anisio Braga](https://tex.stackexchange.com/q/642219/38080)
+    - Added TVS diodes (transorb), suggested by [Anisio Rogerio Braga](https://tex.stackexchange.com/q/642219/38080)
+    - Added proximity switches, suggested by [Anisio Rogerio Braga](https://github.com/circuitikz/circuitikz/issues/631)
 
 * Version 1.5.1 (2022-04-26)
 
