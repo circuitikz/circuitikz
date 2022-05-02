@@ -5032,6 +5032,90 @@
 \pgfcirc@activate@bipole{l}{cuteopeningswitch}{cuteopeningswitch}{cute opening switch}
 \pgfcirc@style@to@style{cute opening switch}{cogsw}% %>>>
 
+%% Proximity switch auxiliary shapes%<<<
+%% proximeter shape, for usage with switches
+\ctikzset{proximeter/width/.initial=0.3}
+\ctikzset{proximeter/hlines thickness/.initial=0.5}
+\ctikzset{proximeter/hlines position/.initial=0.3}
+\pgfdeclareshape{proximeter}
+{
+    \savedmacro{\ctikzclass}{\edef\ctikzclass{switches}}
+    \saveddimen{\scaledRlen}{\pgfmathsetlength{\pgf@x}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}}
+    \savedmacro{\hlinepos}{\edef\hlinepos{\ctikzvalof{proximeter/hlines position}}}
+    \savedanchor\northeast{%
+        \pgfmathsetlength{\pgf@y}{\ctikzvalof{proximeter/width}*\ctikzvalof{\ctikzclass/scale}*\pgf@circ@Rlen}
+        \pgf@x=\pgf@y
+    }
+    \anchor{center}{\pgfpointorigin}
+    % geo anchors based on north-east
+    \pgfcirc@northeast@symmetric@geoanchors
+    \anchor{text}{%
+        \northeast
+        \pgf@x=\dimexpr -.5\wd\pgfnodeparttextbox\relax
+        \advance\pgf@y by .6\ht\pgfnodeparttextbox\relax
+    }
+    \anchor{hlines ne}{%
+        \northeast
+        \pgf@y=\hlinepos\pgf@y
+        \advance\pgf@x by -\pgf@y
+    }
+    \anchor{hlines nw}{%
+        \northeast
+        \pgf@y=\hlinepos\pgf@y
+        \advance\pgf@x by -\pgf@y\pgf@x=-\pgf@x
+    }
+    \anchor{hlines se}{%
+        \northeast
+        \pgf@y=\hlinepos\pgf@y
+        \advance\pgf@x by -\pgf@y
+        \pgf@y=-\pgf@y
+    }
+    \anchor{hlines sw}{%
+        \northeast
+        \pgf@y=\hlinepos\pgf@y
+        \advance\pgf@x by -\pgf@y\pgf@x=-\pgf@x
+        \pgf@y=-\pgf@y
+    }
+    \anchorborder{
+        % \typeout{IN\space X:\the\pgf@x\space Y:\the\pgf@y}
+        \pgfmathsetmacro{\@@switchx}{ifthenelse(\pgf@x>0,1,-1)}
+        \pgfmathsetmacro{\@@switchy}{ifthenelse(\pgf@y>0,1,-1)}
+        \pgfmathsetlength{\pgf@xa}{abs(\pgf@x)}
+        \pgfmathsetlength{\pgf@ya}{abs(\pgf@y)}
+        \pgfextracty{\pgf@circ@res@up}{\northeast}
+        % \typeout{MID\space X:\the\pgf@xa\space Y:\the\pgf@ya\space L:\the\pgf@circ@res@up}
+        % \typeout{MID\space SX:\@@switchx\space SY:\@@switchy}
+        \pgfpointintersectionoflines
+            {\pgfpointorigin}{\pgfqpoint{\pgf@xa}{\pgf@ya}}
+            {\pgfqpoint{0pt}{\pgf@circ@res@up}}{\pgfqpoint{\pgf@circ@res@up}{0pt}}
+        % \typeout{CROSS \space X:\the\pgf@x\space Y:\the\pgf@y}
+        \pgf@x=\@@switchx\pgf@x
+        \pgf@y=\@@switchy\pgf@y
+    }
+    \pgf@circ@draw@component{
+        \northeast\pgf@circ@res@temp=\pgf@y
+        \pgf@circ@setcolor
+        \pgf@circ@setlinewidth{tripoles}{\pgflinewidth}
+        \pgfpathmoveto{\pgfpoint{-\pgf@circ@res@temp}{0pt}}
+        \pgfpathlineto{\pgfpoint{0pt}{\pgf@circ@res@temp}}
+        \pgfpathlineto{\pgfpoint{\pgf@circ@res@temp}{0pt}}
+        \pgfpathlineto{\pgfpoint{0pt}{-\pgf@circ@res@temp}}
+        \pgfpathclose
+        \pgf@circ@draworfill
+        \pgfsetlinewidth{\ctikzvalof{proximeter/hlines thickness}*\pgflinewidth}
+        \pgfmathsetlength{\pgf@circ@res@up}{\hlinepos*\pgf@circ@res@temp}
+        \pgfmathsetlength{\pgf@circ@res@right}{\pgf@circ@res@temp-\pgf@circ@res@up}
+        \pgfpathmoveto{\pgfpoint{-\pgf@circ@res@right}{\pgf@circ@res@up}}
+        \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@up}}
+        \pgfpathmoveto{\pgfpoint{-\pgf@circ@res@right}{-\pgf@circ@res@up}}
+        \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{-\pgf@circ@res@up}}
+        \pgfusepath{draw}
+    }
+
+}
+\pgfcirc@node@to@path{proximeter}{inline proximeter}{}
+% %>>>
+
 %%%%%%%%%%%%%%%%%
 %% Instruments
 %%%%%%%%%%%%%%%%%
