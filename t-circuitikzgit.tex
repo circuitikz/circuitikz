@@ -10,8 +10,8 @@
 %
 % See the files gpl-3.0_license.txt and lppl-1-3c_license.txt for more details.
 
-\def\pgfcircversion{1.5.2-unreleased-a94f4e3}
-\def\pgfcircversiondate{2022/05/02}
+\def\pgfcircversion{1.5.2-unreleased-1a1abbd}
+\def\pgfcircversiondate{2022/05/03}
 \writestatus{loading}{\pgfcircversiondate{} The CircuiTikz circuit drawing package version \pgfcircversion}
 
 \usemodule[tikz]
@@ -13964,11 +13964,64 @@
 \newif\ifpgf@circ@trcircle\pgf@circ@trcirclefalse
 \ctikzset{tr circle/.is if=pgf@circ@trcircle}
 \tikzset{tr circle/.is if=pgf@circ@trcircle}
+% partial borders styles
+% this can be "none" or 4 numbers saying the style for each part:
+% 0 --- nothing, 1 --- solid, 2 --- dashed
+\ctikzset{transistor circle/partial borders/.initial=none}       % Value none for normal borders
+\ctikzset{transistor circle/partial border dash/.initial={{2pt}{2pt}}}
 %%>>>
 
 %% definitions of transistor shapes%<<<
 %
+% draw partial transistor outline
+%
+\def\pgf@circ@trcircle@split#1#2#3#4\relax{%split the six numbers
+    \edef\@@a{#1}\edef\@@b{#2}\edef\@@c{#3}\edef\@@d{#4}%
+}
+\def\pgf@circ@trcircle@setdash{%
+    \edef\@@dash{\ctikzvalof{transistor circle/partial border dash}}%
+    % \typeout{DASH:\@@dash}%
+    \expandafter\pgfsetdash\expandafter{\@@dash}{0pt}%
+}
+% this is the same as the tubes' one, but let's keep it separated
+\def\pgf@circ@trcircle@draw@style#1{%
+    \ifcase#1
+        \pgfusepath{discard}% case 0, will discard the path
+    \or
+        \pgfsetdash{}{0pt}\pgfusepath{draw}% case 1, solid
+    \or
+        \pgf@circ@trcircle@setdash\pgfusepath{draw}% case 2, dashed
+    \else
+        \pgfutil@packagewarning{circuitikz}{Transistor circle draw style not known!}%
+        \pgfusepath{draw}%
+    \fi
+}
+%
 % add a circle to the transistor:
+\def\pgf@circ@trcircle@draw@partial#1{%
+    \expandafter\pgf@circ@trcircle@split#1\relax
+    \typeout{PARTIAL: \@@a:\@@b:\@@c:\@@d}
+    \pgfscope % right side upper arc
+        \pgfpathmoveto{\pgfpoint{\circleleft+\circleradius}{\circleradius}}
+        \pgfpatharc{90}{0}{\circleradius}
+        \pgf@circ@trcircle@draw@style{\@@a}
+    \endpgfscope
+    \pgfscope % right side lower arc
+        \pgfpathmoveto{\pgfpoint{\circleleft+2*\circleradius}{0pt}}
+        \pgfpatharc{0}{-90}{\circleradius}
+        \pgf@circ@trcircle@draw@style{\@@b}
+    \endpgfscope
+    \pgfscope % left side lower arc
+        \pgfpathmoveto{\pgfpoint{\circleleft+\circleradius}{-\circleradius}}
+        \pgfpatharc{-90}{-180}{\circleradius}
+        \pgf@circ@trcircle@draw@style{\@@c}
+    \endpgfscope
+    \pgfscope % left side upper arc
+        \pgfpathmoveto{\pgfpoint{\circleleft}{0pt}}
+        \pgfpatharc{-180}{-270}{\circleradius}
+        \pgf@circ@trcircle@draw@style{\@@d}
+    \endpgfscope
+}
 %
 \def\pgfcirc@transistorcircle{
     \ifpgf@circ@trcircle
@@ -13988,7 +14041,15 @@
         % \pgfmathsetlength{\pgf@circ@res@temp}{((#2+\extrabodydiodelen)-(#1)+(#3)*(#3)/((#2+\extrabodydiodelen)-(#1)))/2}
         % \pgfpathcircle{\pgfpoint{#1+\pgf@circ@res@temp}{0pt}}{\pgf@circ@res@temp}
         \pgfpathcircle{\pgfpoint{\circleleft+\circleradius}{0pt}}{\circleradius}
-        \pgf@circ@draworfill
+        \edef\@@partial{\ctikzvalof{transistor circle/partial borders}}
+        \ifx\@@partial\pgf@nonetext
+            % Circle fill and draw if it's not partial... for speed
+            \pgf@circ@draworfill
+        \else
+            % otherwise, just fill and do the partial fill
+            \pgf@circ@maybefill
+            \pgf@circ@trcircle@draw@partial{\@@partial}
+        \fi
     \endpgfscope
     \fi
 }
@@ -14132,6 +14193,19 @@
         }
         \anchor{circle center}{
             \pgf@y=0pt\pgf@x=\circleleft\advance\pgf@x by\circleradius
+        }
+        \anchor{circle top}{
+            \pgf@y=\circleradius\pgf@x=\circleleft\advance\pgf@x by\circleradius
+        }
+        \anchor{circle bottom}{
+            \pgf@y=-\circleradius\pgf@x=\circleleft\advance\pgf@x by\circleradius
+        }
+        \anchor{circle left}{
+            \pgf@y=0pt\pgf@x=\circleleft
+        }
+        \anchor{circle right}{
+            \pgf@y=0pt\pgf@x=\circleleft
+            \advance\pgf@x by \circleradius\advance\pgf@x by \circleradius
         }
         \savedanchor{\centergap}{% this is the center position between gate and base
             % get "left"
@@ -18559,6 +18633,11 @@
 \ctikzset{tubes/cathode right extend/.initial=0.075} % extension at the right side
 \ctikzset{tubes/filament distance/.initial=0.1}      % distance from cathode
 \ctikzset{tubes/filament angle/.initial=15}          % Angle from centerpoint
+% partial borders styles
+% this can be "none" or 6 numbers saying the style for each part:
+% 0 --- nothing, 1 --- solid, 2 --- dashed
+\ctikzset{tubes/partial borders/.initial=none}       % Value none for normal borders
+\ctikzset{tubes/partial border dash/.initial={{2pt}{2pt}}}
 
 \ctikzset{/tikz/circuitikz/tripoles/magnetron/width/.initial=1}
 
@@ -18732,27 +18811,135 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Electronic tubes, submitted by J. op den Brouw
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
+%
+% draw partial tube outline
+%
+\def\pgf@circ@tubes@split#1#2#3#4#5#6\relax{%split the six numbers
+    \edef\@@a{#1}\edef\@@b{#2}\edef\@@c{#3}\edef\@@d{#4}\edef\@@e{#5}\edef\@@f{#6}%
+}
+\def\pgf@circ@tubes@setdash{%
+    \edef\@@dash{\ctikzvalof{tubes/partial border dash}}%
+    % \typeout{DASH:\@@dash}%
+    \expandafter\pgfsetdash\expandafter{\@@dash}{0pt}%
+}
+% this is the same as the transistor circles' one, but let's keep it separated
+\def\pgf@circ@tubes@draw@style#1{%
+    \ifcase#1
+        \pgfusepath{discard}% case 0, will discard the path
+    \or
+        \pgfsetdash{}{0pt}\pgfusepath{draw}% case 1, solid
+    \or
+        \pgf@circ@tubes@setdash\pgfusepath{draw}% case 2, dashed
+    \else
+        \pgfutil@packagewarning{circuitikz}{Tube border draw style not known!}%
+        \pgfusepath{draw}%
+    \fi
+}
+\def\pgf@circ@tubes@draw@partial#1{%
+    \expandafter\pgf@circ@tubes@split#1\relax
+    % \typeout{PARTIAL: \@@a:\@@b:\@@c:\@@d:\@@e:\@@f}
+    \ifdim\ctikzvalof{tubes/width}pt>\ctikzvalof{tubes/height}pt\relax
+        % horizontal tube
+        \pgfutil@tempdima=\pgf@circ@res@right
+        \advance\pgfutil@tempdima by -\pgf@circ@res@up
+        \pgfscope % left side upper arc
+            \pgfpathmoveto{\pgfpoint{-\pgf@circ@res@right}{0pt}}
+            \pgfpatharc{180}{90}{\pgf@circ@res@up}
+            \pgf@circ@tubes@draw@style{\@@a}
+        \endpgfscope
+        \pgfscope % upper horizontal part
+            \pgfpathmoveto{\pgfpoint{-\pgfutil@tempdima}{\pgf@circ@res@up}}
+            \pgfpathlineto{\pgfpoint{\pgfutil@tempdima}{\pgf@circ@res@up}}
+            \pgf@circ@tubes@draw@style{\@@b}
+        \endpgfscope
+        \pgfscope % right side upper arc
+            \pgfpathmoveto{\pgfpoint{\pgfutil@tempdima}{\pgf@circ@res@up}}
+            \pgfpatharc{90}{0}{\pgf@circ@res@up}
+            \pgf@circ@tubes@draw@style{\@@c}
+        \endpgfscope
+        \pgfscope % right side lower arc
+            \pgfpathmoveto{\pgfpoint{\pgf@circ@res@right}{0pt}}
+            \pgfpatharc{0}{-90}{\pgf@circ@res@up}
+            \pgf@circ@tubes@draw@style{\@@d}
+        \endpgfscope
+        \pgfscope % lower horizontal part
+            \pgfpathmoveto{\pgfpoint{\pgfutil@tempdima}{-\pgf@circ@res@up}}
+            \pgfpathlineto{\pgfpoint{-\pgfutil@tempdima}{-\pgf@circ@res@up}}
+            \pgf@circ@tubes@draw@style{\@@e}
+        \endpgfscope
+        \pgfscope % left side lower arc
+            \pgfpathmoveto{\pgfpoint{-\pgfutil@tempdima}{-\pgf@circ@res@up}}
+            \pgfpatharc{270}{180}{\pgf@circ@res@up}
+            \pgf@circ@tubes@draw@style{\@@f}
+        \endpgfscope
+    \else
+        % vertical tube
+        \pgfutil@tempdima=\pgf@circ@res@up
+        \advance\pgfutil@tempdima by -\pgf@circ@res@right
+        \pgfscope % left side upper arc
+            \pgfpathmoveto{\pgfpoint{0pt}{\pgf@circ@res@up}}
+            \pgfpatharc{90}{0}{\pgf@circ@res@right}
+            \pgf@circ@tubes@draw@style{\@@a}
+        \endpgfscope
+        \pgfscope % right vertical part
+            \pgfpathmoveto{\pgfpoint{\pgf@circ@res@right}{\pgfutil@tempdima}}
+            \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{-\pgfutil@tempdima}}
+            \pgf@circ@tubes@draw@style{\@@b}
+        \endpgfscope
+        \pgfscope % right side lower arc
+            \pgfpathmoveto{\pgfpoint{\pgf@circ@res@right}{-\pgfutil@tempdima}}
+            \pgfpatharc{0}{-90}{\pgf@circ@res@right}
+            \pgf@circ@tubes@draw@style{\@@c}
+        \endpgfscope
+        \pgfscope % right side lower arc
+            \pgfpathmoveto{\pgfpoint{0pt}{-\pgf@circ@res@up}}
+            \pgfpatharc{-90}{-180}{\pgf@circ@res@right}
+            \pgf@circ@tubes@draw@style{\@@d}
+        \endpgfscope
+        \pgfscope % left vertical part
+            \pgfpathmoveto{\pgfpoint{-\pgf@circ@res@right}{-\pgfutil@tempdima}}
+            \pgfpathlineto{\pgfpoint{-\pgf@circ@res@right}{\pgfutil@tempdima}}
+            \pgf@circ@tubes@draw@style{\@@e}
+        \endpgfscope
+        \pgfscope % left side upper arc
+            \pgfpathmoveto{\pgfpoint{-\pgf@circ@res@right}{\pgfutil@tempdima}}
+            \pgfpatharc{180}{90}{\pgf@circ@res@right}
+            \pgf@circ@tubes@draw@style{\@@f}
+        \endpgfscope
+    \fi
+}
 % Draw tube outline
 \def\pgf@circ@tubes@drawtube{%
-	\ifdim\ctikzvalof{tubes/width}pt>\ctikzvalof{tubes/height}pt\relax
-	\pgfpathmoveto{\pgfpoint{0pt}{\pgf@circ@res@up}}
-	\pgfutil@tempdima=\pgf@circ@res@right
-	\advance\pgfutil@tempdima by -\pgf@circ@res@up
-	\pgfpathlineto{\pgfpoint{\pgfutil@tempdima}{\pgf@circ@res@up}}
-	\pgfpatharc{90}{-90}{\pgf@circ@res@up}
-	\pgfpathlineto{\pgfpoint{-\pgfutil@tempdima}{-\pgf@circ@res@up}}
-	\pgfpatharc{270}{90}{\pgf@circ@res@up}
-	\else
-	\pgfpathmoveto{\pgfpoint{-\pgf@circ@res@right}{0pt}}
-	\pgfutil@tempdima=\pgf@circ@res@up
-	\advance\pgfutil@tempdima by -\pgf@circ@res@right
-	\pgfpathlineto{\pgfpoint{-\pgf@circ@res@right}{\pgfutil@tempdima}}
-	\pgfpatharc{180}{0}{\pgf@circ@res@right}
-	\pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{-\pgfutil@tempdima}}
-	\pgfpatharc{180}{0}{-\pgf@circ@res@right}
-	\fi
-	\pgfpathclose
+    \ifdim\ctikzvalof{tubes/width}pt>\ctikzvalof{tubes/height}pt\relax
+        % horizontal tube
+        \pgfpathmoveto{\pgfpoint{0pt}{\pgf@circ@res@up}}
+        \pgfutil@tempdima=\pgf@circ@res@right
+        \advance\pgfutil@tempdima by -\pgf@circ@res@up
+        \pgfpathlineto{\pgfpoint{\pgfutil@tempdima}{\pgf@circ@res@up}}
+        \pgfpatharc{90}{-90}{\pgf@circ@res@up}
+        \pgfpathlineto{\pgfpoint{-\pgfutil@tempdima}{-\pgf@circ@res@up}}
+        \pgfpatharc{270}{90}{\pgf@circ@res@up}
+    \else
+        % vertical tube
+        \pgfpathmoveto{\pgfpoint{-\pgf@circ@res@right}{0pt}}
+        \pgfutil@tempdima=\pgf@circ@res@up
+        \advance\pgfutil@tempdima by -\pgf@circ@res@right
+        \pgfpathlineto{\pgfpoint{-\pgf@circ@res@right}{\pgfutil@tempdima}}
+        \pgfpatharc{180}{0}{\pgf@circ@res@right}
+        \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{-\pgfutil@tempdima}}
+        \pgfpatharc{180}{0}{-\pgf@circ@res@right}
+    \fi
+    \pgfpathclose
+    \edef\@@partial{\ctikzvalof{tubes/partial borders}}
+    \ifx\@@partial\pgf@nonetext
+        % Tube fill and draw if it's not partial... for speed
+        \pgf@circ@draworfill
+    \else
+        % otherwise, just fill and do the partial fill
+        \pgf@circ@maybefill
+        \pgf@circ@tubes@draw@partial{\@@partial}
+        %
+    \fi
 }
 
 %% The diode (tube), triode, tetrode and pentode only differ in the
@@ -18763,9 +18950,6 @@
     \pgfdeclareshape{#1}{
         \savedmacro{\ctikzclass}{\edef\ctikzclass{tubes}}
         \saveddimen{\scaledRlen}{\pgfmathsetlength{\pgf@x}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}}
-        \anchor{center}{
-            \pgfpointorigin
-        }
         \savedanchor\northwest{%
             \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
             \pgf@circ@res@up=\ctikzvalof{tubes/height}\pgf@circ@scaled@Rlen
@@ -18776,40 +18960,58 @@
             \pgf@x=-\pgf@circ@res@right
             \pgf@x=.5\pgf@x
         }
-        \anchor{north} {%
-            \northwest
-            \pgf@x=0pt
+        \savedanchor\tubene{%
+            \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
+            \pgf@circ@res@temp=\ctikzvalof{tubes/height}\pgf@circ@scaled@Rlen
+            \pgf@circ@res@other=\ctikzvalof{tubes/width}\pgf@circ@scaled@Rlen
+            \pgf@circ@res@up=\ctikzvalof{tubes/tube radius}\pgf@circ@res@temp
+            \pgf@circ@res@right=\ctikzvalof{tubes/tube radius}\pgf@circ@res@other
+            \pgf@y=\pgf@circ@res@up
+            \pgf@x=\pgf@circ@res@right
         }
-        \anchor{east}{%
-            \northwest
-            \pgf@x=-\pgf@x
-            \pgf@y=0pt
+        \savedanchor\tubesquarene{%
+            \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
+            \pgf@circ@res@temp=\ctikzvalof{tubes/height}\pgf@circ@scaled@Rlen
+            \pgf@circ@res@other=\ctikzvalof{tubes/width}\pgf@circ@scaled@Rlen
+            \pgf@circ@res@up=\ctikzvalof{tubes/tube radius}\pgf@circ@res@temp
+            \pgf@circ@res@right=\ctikzvalof{tubes/tube radius}\pgf@circ@res@other
+            \ifdim\ctikzvalof{tubes/width}pt>\ctikzvalof{tubes/height}pt\relax
+                % horizontal
+                \pgf@y=\pgf@circ@res@up
+                \pgf@x=\pgf@circ@res@right\advance\pgf@x by -\pgf@circ@res@up
+            \else
+                % vertical
+                \pgf@x=\pgf@circ@res@right
+                \pgf@y=\pgf@circ@res@up\advance\pgf@y by -\pgf@circ@res@right
+            \fi
         }
-        \anchor{south}{%
-            \northwest
-            \pgf@y=-\pgf@y
-            \pgf@x=0pt
+        \anchor{tube ne}{\tubene}
+        \anchor{tubesq ne}{\tubesquarene}
+        % tube shape anchors: geo
+        \anchor{tube top}{\tubene\pgf@x=0pt\relax}
+        \anchor{tube bottom}{\tubene\pgf@x=0pt\pgf@y=-\pgf@y}
+        \anchor{tube right}{\tubene\pgf@y=0pt\relax}
+        \anchor{tube left}{\tubene\pgf@y=0pt\pgf@x=-\pgf@x}
+        % tube shape straight part anchors
+        \anchor{tube top right}{\tubesquarene}
+        \anchor{tube bottom right}{\tubesquarene\pgf@y=-\pgf@y}
+        \anchor{tube top left}{\tubesquarene\pgf@x=-\pgf@x}
+        \anchor{tube bottom left}{\tubesquarene\pgf@y=-\pgf@y\pgf@x=-\pgf@x}
+        % tube shape centers
+        \anchor{tube top center}{\tubesquarene\pgf@x=0pt\relax}
+        \anchor{tube bottom center}{\tubesquarene\pgf@y=-\pgf@y\pgf@x=0pt\relax}
+        \anchor{tube right center}{\tubesquarene\pgf@y=0pt\relax}
+        \anchor{tube left center}{\tubesquarene\pgf@x=-\pgf@x\pgf@y=0pt\relax}
+        % rest of anchors
+        \anchor{center}{\pgfpointorigin}
+        % geo anchors based on north-west
+        \pgfcirc@northwest@symmetric@geoanchors
+        % text anchor
+        \anchor{text}{%
+            \northwest\pgf@x=-\pgf@x
+            \pgf@y=-.5\ht\pgfnodeparttextbox
         }
-        \anchor{west}{%
-            \northwest
-            \pgf@y=0pt
-        }
-        \anchor{north west}{%
-            \northwest
-        }
-        \anchor{north east}{%
-            \northwest
-            \pgf@x=-\pgf@x
-        }
-        \anchor{south east}{
-            \northwest
-            \pgf@x=-\pgf@x
-            \pgf@y=-\pgf@y
-        }
-        \anchor{south west}{
-            \northwest
-            \pgf@y=-\pgf@y
-        }
+        % specific anchors
         \anchor{anode} {%
             \northwest
             \pgf@x=0pt
@@ -18864,9 +19066,6 @@
                 \pgf@circ@res@right=\ctikzvalof{tubes/width}\pgf@circ@scaled@Rlen
                 \pgf@circ@res@up=0.5\pgf@circ@res@up
                 \pgf@circ@res@right=0.5\pgf@circ@res@right
-
-                % Tube fill color (if any)
-                \pgf@circ@draworfill
 
                 % Grid drawing
                 #3%
