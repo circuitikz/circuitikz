@@ -3980,6 +3980,8 @@ The position of the circle on collector and emitter by default is the one shown 
      relative thickness & 1.0 & multiply the class thickness \\
      color & default & stroke color: \texttt{default} is the same as the component \\
      dash & none & dash pattern: none means unbroken line\footnotemark \\
+     partial borders & none & draw only part of the circle border: none means draw all \\
+     partial border dash & \{\{2pt\}\{2pt\}\} & dash pattern used in partial borders \\
         \bottomrule
     \end{tabular}
     \footnotetext{Follows the syntax of the pattern sequence \texttt{\textbackslash pgfsetdash} --- see \TikZ{} manual for details; phase is always zero. Basically you pass pairs of dash-length -- blank-length dimensions, see the examples.}
@@ -4010,6 +4012,48 @@ Finally, using the class style you can do quite interesting things.
 \end{circuitikz}
 \end{LTXexample}
 
+\paragraph{Partially drawn circle borders}
+
+In some circuits, transistor are drawn with partial or dashed border (to convey the meaning of several active components encased in the same physical package, or to signify thermal contact). To achieve this effect, you can use the \texttt{transistor circle/partial border}\footnote{Suggested by \href{https://github.com/circuitikz/circuitikz/issues/602}{Jether Fernandes Reis} for tubes, implemented by Romano in \texttt{v1.5.2}.} key (default \texttt{none}). This key can be set to \texttt{none}, or must be a sequence of \textbf{exactly} 4 numbers, that can have value \texttt{0}, \texttt{1}, or \texttt{2}. Each number define the style of a part of the border to be not drawn, solid or dashed respectively.
+
+The part of the border are numbered from 1 to 4 as shown below:
+\begin{quote}
+\begin{circuitikz}[circuitikz/transistors/fill=cyan!20,
+            circuitikz/transistor circle/partial borders=1212]
+            \draw (0,0) node[npn, tr circle](T){};
+            \draw[red, font=\ttfamily\small\bfseries]
+                ([shift={(.3,-.2)}]T.north east) node{1}
+                ([shift={(.3,.2)}]T.south east) node{2}
+                ([shift={(.2,.2)}]T.south west) node{3}
+                ([shift={(.2,-.2)}]T.north west) node{4}
+                ;
+    \end{circuitikz}
+\end{quote}
+The dashed line pattern can be changed by setting the key \texttt{transistor circle/partial border dash} (default \verb|{{2pt}{2pt}}|). Be careful with the extra set of braces here.
+
+\begin{LTXexample}[varwidth=true]
+\begin{circuitikz}[]
+    \ctikzset{transistors/thickness=4, transistors/fill=cyan!30,
+        transistor circle/relative thickness=0.25,
+        transistor circle/partial borders=2211}
+    \draw (0,0) node[npn, tr circle](Q1){};
+    \ctikzset{transistor circle/dash={{2pt}{2pt}}}
+    \draw (1.5,0) node[npn, tr circle, xscale=-1](Q2){};
+\end{circuitikz}
+\end{LTXexample}
+
+\begin{LTXexample}[varwidth=true]
+\begin{circuitikz}[]
+    \ctikzset{transistors/thickness=4, transistors/fill=cyan!30,
+        transistor circle/relative thickness=0.25,
+        transistor circle/partial borders=0011}
+    \draw (0,0) node[npn, tr circle](Q1){};
+    \ctikzset{transistor circle/dash={{2pt}{2pt}}}
+    \draw (1.5,0) node[npn, tr circle, xscale=-1](Q2){};
+    \draw[dashed] (Q1.circle top) -- (Q2.circle top);
+    \draw[dashed] (Q1.circle bottom) -- (Q2.circle bottom);
+\end{circuitikz}
+\end{LTXexample}
 
 \subsubsection{Transistors anchors}
 
@@ -4095,6 +4139,12 @@ Additionally, you can access the position for the flyback diodes and possibly sn
 \showanchors{npn}{}(body C in/45/0.4,  body E in/-45/0.4, body C out/0/0.4, body E out/0/0.4)
 \showanchors{npn, bodydiode}{}(body C in/45/0.4,  body E in/-45/0.4, body C out/0/0.4, body E out/0/0.4)
 \showanchors{pnp}{}(body C in/-45/0.4,  body E in/45/0.4, body C out/0/0.4, body E out/0/0.4)
+\end{quote}
+
+Transistor circles also have several anchors on them:
+\begin{quote}
+\showanchors{npn, tr circle}{}(circle center/-135/0.6, circle top/90/0.3, circle left/180/0.2, circle right/0/0.2, circle bottom/-90/0.3, circle C/45/0.2, circle E/-45/0.2)
+\showanchors{pigfete, bodydiode, tr circle}{}(circle center/-135/0.6, circle top/90/0.3, circle left/180/0.2, circle right/0/0.2, circle bottom/-90/0.3, circle C/-45/0.2, circle E/45/0.2)
 \end{quote}
 
 The multi-terminal transistors have all the geographical anchors; note though that the \texttt{center} anchor is not the geometrical center of the component, but the logical one (at the same height than the base).
@@ -4304,7 +4354,7 @@ Example triode amplifier:
 \end{circuitikz}
 \end{lstlisting}
 
-\begin{circuitikz}
+\begin{circuitikz}[scale=0.7, transform shape]
 \draw (0,0) node (start) {}
                 to[sV=$V_i$] ++(0,2+\ctikzvalof{tubes/height})
                 to[C=$C_i$] ++(2,0) coordinate(Rg)
@@ -4323,6 +4373,72 @@ Example triode amplifier:
 \draw[red,thin,dashed] (Tri.north west) rectangle (Tri.south east);
 \draw (Tri.east) node[right] {12AX7};
 \end{circuitikz}
+
+\subsubsection{Tubes anchors}
+
+Apart from the geographic anchors, which take into account the leads of the components, you have several anchors on the border:
+\begin{quote}
+\geolrcoord{pentode, scale=0.8}
+\geolrcoord{triode, circuitikz/tubes/width=1.4, circuitikz/tubes/height=1, scale=0.8}
+\geolrcoord{triode, circuitikz/tubes/width=1, circuitikz/tubes/height=1, scale=0.8}
+
+\showanchors{pentode, circuitikz/tubes/height=1.8}{}(%
+tube top/90/0.3, tube left/180/0.2, tube right/0/0.2, tube bottom/-90/0.3,
+tube top right/30/0.2, tube top left/150/0.4, tube bottom right/-45/0.4, tube bottom left/-150/0.2,
+tube top center/75/0.5, tube bottom center/-105/0.5)
+\showanchors{pentode,circuitikz/tubes/width=2.6, circuitikz/tubes/tube radius=0.3}{}(%
+tube top/90/0.5, tube left/160/0.5, tube right/0/0.2, tube bottom/-90/0.6,
+tube top right/70/0.4, tube top left/150/0.4, tube bottom right/-45/0.4, tube bottom left/-120/0.4,
+tube right center/30/0.4, tube left center/-120/0.4)
+\end{quote}
+
+\subsubsection{Partially drawn tube borders}\label{sec:partial-tube-borders}
+
+In some circuits, tubes are drawn with partial or dashed border (to convey the meaning of several active components encased in the same physical tube). To achieve this effect, you can use the \texttt{tubes/partial border}\footnote{Suggested by \href{https://github.com/circuitikz/circuitikz/issues/602}{Jether Fernandes Reis}, implemented by Romano in \texttt{v1.5.2}.} key (default \texttt{none}). This key can be set to \texttt{none}, or must be a sequence of \textbf{exactly} 6 numbers, that can have value \texttt{0}, \texttt{1}, or \texttt{2}. Each number define the style of a part of the border to be not drawn, solid or dashed respectively.
+
+The part of the border are numbered from 1 to 6 as shown below:
+\begin{quote}
+\begin{circuitikz}[circuitikz/tubes/fill=cyan!20,
+            circuitikz/tubes/partial borders=121212]
+            \draw (0,0) node[pentode,anchor=control](V){};
+            \draw (4,0) node[pentode,anchor=control,
+            circuitikz/tubes/width=1.4,
+            circuitikz/tubes/height=1](H){};
+            \draw[red, font=\ttfamily\small\bfseries]
+                ([shift={(-.2,-.2)}]V.ne) node{1}
+                ([shift={(.1,0)}]V.e) node{2}
+                ([shift={(-.2,.2)}]V.se) node{3}
+                ([shift={(.2,.2)}]V.sw) node{4}
+                ([shift={(-.1,0)}]V.w) node{5}
+                ([shift={(.2,-.2)}]V.nw) node{6}
+                ([shift={(.2,-.2)}]H.nw) node{1}
+                ([shift={(0,.1)}]H.n) node{2}
+                ([shift={(-.2,-.2)}]H.ne) node{3}
+                ([shift={(-.2,.2)}]H.se) node{4}
+                ([shift={(0,-.1)}]H.s) node{5}
+                ([shift={(.2,.2)}]H.sw) node{6}
+                ;
+    \end{circuitikz}
+\end{quote}
+(notice that the straight parts, if they exist, are numbered \texttt{2} and \texttt{5} in both tubes, vertical or horizontal).
+
+The dashed line pattern can be changed by setting the key \texttt{tubes/partial border dash} (default \verb|{{2pt}{2pt}}|).\footnote{Follows the syntax of the pattern sequence \texttt{\textbackslash pgfsetdash} --- see \TikZ{} manual for details; phase is always zero. Basically you pass pairs of dash-length -- blank-length dimensions, see the examples.} Be careful with the extra set of braces here.
+
+\begin{LTXexample}[varwidth=true, basicstyle=\small\ttfamily]
+\begin{circuitikz}[circuitikz/tubes/fill=cyan!20,
+        circuitikz/tubes/partial borders=012012]
+        \draw (0,0) node[pentode]{};
+        \draw (2,0) node[pentode,
+        circuitikz/tubes/width=1.4,
+        circuitikz/tubes/height=1]{};
+        \draw (1,-2) node[triode,
+        circuitikz/tubes/height=1,
+        circuitikz/tubes/partial border dash=%
+            {{3pt}{1pt}{1pt}{1pt}}]{};
+\end{circuitikz}
+\end{LTXexample}
+
+
 
 \subsubsection{Other tubes-like components}
 
