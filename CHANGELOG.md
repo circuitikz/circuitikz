@@ -1,7 +1,9 @@
 <!--- CircuiTikz - Changelog --->
 The major changes among the different CircuiTikZ versions are listed here. See <https://github.com/circuitikz/circuitikz/commits> for a full list of changes.
 
-* Version 1.5.2 (unreleased)
+* Version 1.5.2 (2022-05-08)
+
+    Adding a couple of new component and a nice feature to transistors and tubes.
 
     - Added TVS diodes (transorb), suggested by [Anisio Rogerio Braga](https://tex.stackexchange.com/q/642219/38080)
     - Added proximity switches, suggested by [Anisio Rogerio Braga](https://github.com/circuitikz/circuitikz/issues/631)
