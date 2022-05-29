@@ -29,10 +29,9 @@ Again, just open an issue. But another way of finding answer is to ask a [good q
 
 To compile your manual against your version/fork of `circuitikz` you can use `make manual` in the root directory; this needs `pandoc` to be installed, and will run twice in order to completely generate the document cross-references. 
 
-To rapidly compile just once, at least in Linux computers, you can use
+To rapidly compile just once, to check you have not introduced any error, at least in Linux computers, you can use
 
-    TEXINPUTS=.:../tex/: xelatex -8bit compatibility.tex;\
-    TEXINPUTS=.:../tex/: xelatex -8bit circuitikzmanual.tex;
+    make test-compile
 
 ...please adapt it for your OS. 
 
