@@ -1,6 +1,10 @@
 <!--- CircuiTikz - Changelog --->
 The major changes among the different CircuiTikZ versions are listed here. See <https://github.com/circuitikz/circuitikz/commits> for a full list of changes.
 
+* Version 1.5.3 (unrelease)
+
+    - Merging changes to fix the language in the manual (thanks to Charles B. Cameron, user `@cameroncb1` on GitHub).
+
 * Version 1.5.2 (2022-05-08)
 
     Adding a couple of new component and a nice feature to transistors and tubes.
