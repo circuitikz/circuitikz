@@ -1,7 +1,9 @@
 <!--- CircuiTikz - Changelog --->
 The major changes among the different CircuiTikZ versions are listed here. See <https://github.com/circuitikz/circuitikz/commits> for a full list of changes.
 
-* Version 1.5.3 (unrelease)
+* Version 1.5.3 (2022-07-02)
+
+    Minor release: fixes to the manual, and a new component (Shockley diodes).
 
     - Merging changes to fix the language in the manual (thanks to Charles B. Cameron, user `@cameroncb1` on GitHub).
     - Added Shockley diode (suggested by [@dauph](https://tex.stackexchange.com/questions/646039/creating-a-shockley-diode-in-circuitikz)).
