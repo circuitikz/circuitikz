@@ -4979,6 +4979,7 @@ Amplifiers have also ``border'' anchors (just add \texttt{b}, without space, to 
 
 You can scale the amplifiers using the key \texttt{amplifiers/scale} and setting it to something different from \texttt{1.0}. The font used for symbols will not scale, so it's your responsibility to change it if the need arises.
 
+\paragraph{Input polarity.}
 All these amplifier have the possibility to flip input and output (if needed) polarity. You can change polarity of the input with the
 \texttt{noinv input down} (default) or \texttt{noinv input up} key; and the output with \texttt{noinv output up} (default) or \texttt{noinv output down} key:
 \begin{LTXexample}[varwidth=true]
@@ -4999,9 +5000,10 @@ All these amplifier have the possibility to flip input and output (if needed) po
 
 When you use the \texttt{noinv input/output ...} keys the anchors (\texttt{+}, \texttt{-}, \texttt{out +}, \texttt{out -}) will change with the effective position of the terminals. You have also the anchors \texttt{in up}, \texttt{in down}, \texttt{out up}, \texttt{out down} that will not change with the positive or negative sign.
 
+\paragraph{Input and output pins symbols.}
 You can change the symbols ``$+$'' or ``$-$'' appearing in the amplifiers if you want, both globally and on component-by-component basis. The plus and minus symbols can be changed with \verb|\ctikzset| of the keys \texttt{amplifiers/plus} and \texttt{amplifiers/minus} (which defaults to the math mode plus or minus cited before), or using the styles \texttt{amp plus} and \texttt{amp minus}.
 
-The font used is set in several keys, but you can change it globally with \verb|\tikzset{amp symbol font}|, which has a default of 10-point  (in \LaTeX, and the corresponding one in \ConTeXt). You can change it for example with
+The font used is set in several keys, but you can change it globally with \texttt{\textbackslash tikzset\{amp symbol font\}}, which has a default of 10-point  (in \LaTeX, and the corresponding one in \ConTeXt). You can change it for example with
 \begin{lstlisting}
  \tikzset{amp symbol font={%
  \color{blue}\fontsize{12}{12}\selectfont\boldmath}}
@@ -5036,7 +5038,26 @@ If you want different symbols for input and output you can use a null symbol and
 \end{circuitikz}
 \end{LTXexample}
 
-The amplifier label (given as the text  of the node) is normally more or less centered in the shape (in the case of the triangular shape, it is shifted a bit to the left to \emph{seem} visually centered); since version \texttt{1.1.0} you can move it at the left side plus a fixed offset setting the key \texttt{component text} or the style with the same name to \texttt{left}; by default the key is \texttt{center}.
+\paragraph{Input and output pins length.} The length of the wires that extends outside the main amplifier shape are not easily changed globally. You can use a trick\footnote{See the discussion with \href{https://github.com/circuitikz/circuitikz/issues/645}{user @erwindenboer on GitHub};notice that this method is using internal keys and can stop working in the future.} though if you want to remove them completely:
+the size of an amplifier (included the pins) is set by the \texttt{circuitikz} key \texttt{tripoles/\emph{amplifier style}/width} and the size of the body of the amplifier, relative to it, is set by the key\texttt{tripoles/\emph{amplifier style}/port width}.
+Making the latter equal to one will set the length of the pin to zero; if you want to maintain the same aspect ratio of the shape you need to compensate with the width.
+
+For example, for the normal operational amplifier the key \texttt{tripoles/op amp/width} defaults to 1.7 and \texttt{tripoles/op amp/port width} is 0.7 (you need to peek that values in the source file \texttt{pgfcirctripoles.tex}). So you can do this:
+
+\begin{LTXexample}[varwidth=true]
+\begin{tikzpicture}[]
+  \draw (0,0) node[op amp](A){};
+  \ctikzset{tripoles/op amp/port width=1,
+    tripoles/op amp/width=1.19, % 1.7*0.7
+  }
+  \draw (2.5,0) node[op amp](B){};
+  \draw
+    (A.out) node[red, circ]{} (A.+) node[blue, circ]{}
+    (B.out) node[red, circ]{} (B.+) node[blue, circ]{};
+\end{tikzpicture}
+\end{LTXexample}
+
+\paragraph{Main amplifier label.} The amplifier label (given as the text  of the node) is normally more or less centered in the shape (in the case of the triangular shape, it is shifted a bit to the left to \emph{seem} visually centered); since version \texttt{1.1.0} you can move it at the left side plus a fixed offset setting the key \texttt{component text} or the style with the same name to \texttt{left}; by default the key is \texttt{center}.
 You can change the offset with the key \texttt{left text distance} (default \texttt{0.3em}; you must use a length here). These parameters are shared with IEEE-style logic ports.
 
 \begin{LTXexample}[varwidth=true]
@@ -5053,8 +5074,8 @@ You can change the offset with the key \texttt{left text distance} (default \tex
 \end{LTXexample}
 
 These keys are also used for the positioning of the labels in the label positioning of IEEE logic gates (see~\ref{sec:ieeestdports}).
-\paragraph{European-style amplifier customization}
 
+\paragraph{European-style amplifier customization.}
 Thanks to the suggestions from David Rouvel (\email{david.rouvel@iphc.cnrs.fr}) there are several possible customization for the European-style amplifiers.
 
 Since 0.9.0, the default appearance of the symbol has changed to be more in line with the standard; notice that to have a bigger triangle by default we should require more packages, and I fear {Con\TeX t} compatibility; but see later on how to change it. Notice that the font used for the symbol is defined in \texttt{tripoles/en amp/font2} and that the font used for the \texttt{+} and \texttt{-} symbols is  \texttt{tripoles/en amp/font}.
