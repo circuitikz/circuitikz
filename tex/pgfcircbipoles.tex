@@ -4381,7 +4381,7 @@
 % %>>>
 
 %%%%%%%%%%%%%
-%% switches and buttons
+%% switches, buttons and jumpers
 %%%%%%%%%%%%%
 
 %% Definitions for switches%<<<1
@@ -5164,6 +5164,225 @@
 
 }
 \pgfcirc@node@to@path{proximeter}{inline proximeter}{}
+% %>>>
+
+% jumpers: definitions and code %<<<
+% definitons for jumpers
+\ctikzset{bipoles/jumper/width/.initial=0.4}
+\ctikzset{bipoles/tjumper/width/.initial=0.6}% normally is less than 0.4*2
+\ctikzset{tjumper connections/.initial=00}% bare-bare
+\ctikzset{bipoles/jumper/height/.initial=0.4}
+\ctikzset{bipoles/jumper/depth/.initial=0.1}
+\ctikzset{bipoles/jumper/shape/.initial=ocirc}
+\ctikzset{bipoles/jumper/curvature/.initial=2}  % curvature of the arc
+\ctikzset{bipoles/jumper/open shift/.initial=3} % displacement to open the arc
+
+% jumpers
+% simple jumpers
+% #1 -> name
+% #2 -> height of the link arc (0 means no link, 1 closed, 2 open)
+\long\def\pgfcircdeclarejumper#1#2{
+    \pgfcircdeclarebipolescaled{switches}
+        {
+            % This is the radius of the "ocirc" shape (see pgfcircshapes.tex)
+            \saveddimen{\radius}{\pgfmathsetlength\pgf@x{\pgf@circ@Rlen*\ctikzvalof{nodes width}}}
+            % shapename
+            \savedmacro{\thisshape}{\edef\thisshape{\tikz@fig@name}}
+            % shape type
+            \savedmacro{\cshape}{\edef\cshape{\ctikzvalof{bipoles/jumper/shape}}}
+            % arc characteristics (can vary, must be saved...)
+            \savedmacro{\curvature}{\edef\curvature{\ctikzvalof{bipoles/jumper/curvature}}}
+            \savedmacro{\openshift}{\edef\openshift{\ctikzvalof{bipoles/jumper/open shift}}}
+            %
+            \anchor{cout}{\northeast \pgf@y=0cm}
+            \anchor{cin}{\southwest\pgf@y=0cm}
+            \anchor{out}{\northeast \pgf@y=0cm\advance\pgf@x by \radius}
+            \anchor{in}{\southwest\pgf@y=0cm\advance\pgf@x by -\radius}
+            \anchor{text}{\northeast
+                \pgf@x=\dimexpr -.5\wd\pgfnodeparttextbox\relax
+                \advance\pgf@y by .6\ht\pgfnodeparttextbox\relax
+            }
+            \anchor{top arc}{\northeast
+                \pgf@circ@res@other=\pgf@x
+                \pgf@circ@res@temp=\radius
+                \ifnum #2=1 \edef\@@b{1}\else\edef\@@b{\openshift}\fi
+                \pgfpointcurveattime{0.5}
+                    {\pgfpoint{-0.9\pgf@circ@res@other}{{(\@@b)*\radius}}}
+                    {\pgfpoint{-0.5\pgf@circ@res@other}{{(\@@b+\curvature)*\radius}}}
+                    {\pgfpoint{0.5\pgf@circ@res@other}{{(\@@b+\curvature)*\radius}}}
+                    {\pgfpoint{0.9\pgf@circ@res@other}{{(\@@b)*\radius}}}
+            }
+        }
+        {\ctikzvalof{bipoles/jumper/depth}}
+        {#1}
+        {\ctikzvalof{bipoles/jumper/height}}
+        {\ctikzvalof{bipoles/jumper/width}}{
+            %
+            \ifnum #2=0 \else
+                \ifnum #2=1 \edef\@@b{1}\else\edef\@@b{\openshift}\fi
+                \pgfpathmoveto{\pgfpoint{0.9*\pgf@circ@res@left}{(\@@b)*\radius}}
+                \pgfpathcurveto
+                    {\pgfpoint{.5\pgf@circ@res@left}{(\@@b+\curvature)*\radius}}
+                    {\pgfpoint{.5\pgf@circ@res@right}{(\@@b+\curvature)*\radius}}
+                    {\pgfpoint{0.9*\pgf@circ@res@right}{(\@@b)*\radius}}
+                \pgfusepath{draw}
+            \fi
+            \pgftransformshift{\pgfpoint{\pgf@circ@res@left}{0pt}}
+            \pgfnode{\cshape}{center}{}{\thisshape-in}{\pgfusepath{draw}}
+            \pgftransformshift{\pgfpoint{2\pgf@circ@res@right}{0pt}}
+            \pgfnode{\cshape}{center}{}{\thisshape-out}{\pgfusepath{draw}}
+        }
+}
+\pgfcircdeclarejumper{bjumper}{0}
+\pgfcircdeclarejumper{cjumper}{1}
+\pgfcircdeclarejumper{ojumper}{2}
+\pgfcirc@activate@bipole{l}{bjumper}{bjumper}{bare jumper}
+\pgfcirc@activate@bipole{l}{ojumper}{ojumper}{open jumper}
+\pgfcirc@activate@bipole{l}{cjumper}{cjumper}{closed jumper}
+% jumpers
+% three pins (two-ways) jumpers
+% #1 -> name
+% #2 -> height of the first link arc (0 means no link, 1 closed, 2 open)
+% #3 -> height of the second link arc (0 means no link, 1 closed, 2 open)
+\def\pgf@circ@tjumper@splitstatus#1#2\relax{%split the two values
+    \edef\@@a{#1}\edef\@@b{#2}%
+}
+\pgfcircdeclarebipolescaled{switches}
+    {
+        % This is the radius of the "ocirc" shape (see pgfcircshapes.tex)
+        \saveddimen{\radius}{\pgfmathsetlength\pgf@x{\pgf@circ@Rlen*\ctikzvalof{nodes width}}}
+        % shapename
+        \savedmacro{\thisshape}{\def\thisshape{\tikz@fig@name}}
+        % shape type
+        \savedmacro{\cshape}{\def\cshape{\ctikzvalof{bipoles/jumper/shape}}}
+        % arc characteristics (can vary, must be saved...)
+        \savedmacro{\curvature}{\edef\curvature{\ctikzvalof{bipoles/jumper/curvature}}}
+        \savedmacro{\openshift}{\edef\openshift{\ctikzvalof{bipoles/jumper/open shift}}}
+        \savedmacro{\jumpertype}{\edef\jumpertype{\ctikzvalof{tjumper connections}}}
+        %
+        \anchor{cout}{\northeast \pgf@y=0cm}
+        \anchor{cin}{\southwest\pgf@y=0cm}
+        \anchor{ctap}{\pgf@x=0cm\pgf@y=0cm}
+        \anchor{out}{\northeast \pgf@y=0cm\advance\pgf@x by \radius}
+        \anchor{in}{\southwest\pgf@y=0cm\advance\pgf@x by -\radius}
+        \anchor{tap}{\pgf@x=0cm\pgf@y=0cm\advance\pgf@y by -\radius}
+        \anchor{top arc left}{\northeast
+            \pgf@circ@res@other=-\pgf@x
+            \pgf@circ@res@temp=\pgf@x
+            %
+            % read the status of the jumper
+            %
+            \expandafter\pgf@circ@tjumper@splitstatus\jumpertype\relax% a bit of magic...
+            \edef\@@S{S}%the "S" letter
+            \ifx\@@a\@@S %span, it's in the center
+                \ifnum \@@b=0\pgfpointorigin\else % no arc, anchor on the center-base
+                    \ifnum \@@b=2 \edef\@@b{\openshift} \else \edef\@bb{1}\relax \fi
+                    \pgfpointcurveattime{0.5}
+                        {\pgfpoint{0.9*\pgf@circ@res@other}{(\@@b)*\radius}}
+                        {\pgfpoint{.5*\pgf@circ@res@other}{(\@@b+\curvature)*\radius}}
+                        {\pgfpoint{.5*\pgf@circ@res@temp}{(\@@b+\curvature)*\radius}}
+                        {\pgfpoint{0.9*\pgf@circ@res@temp}{(\@@b)*\radius}}
+                \fi
+            \else
+                % adjust the lengths of the gap, if needed
+                \ifnum \@@a=2 \edef\@@a{\openshift} \else \edef\@aa{1} \relax \fi
+                \ifnum \@@b=2 \edef\@@b{\openshift} \else \edef\@bb{1} \relax \fi
+                % left join
+                \ifnum \@@a=0 \pgfpoint{0.475*\pgf@circ@res@other}{0pt}\else
+                    \pgfpointcurveattime{0.5}
+                        {\pgfpoint{0.95*\pgf@circ@res@other}{\@@a*\radius}}
+                        {\pgfpoint{.75*\pgf@circ@res@other}{(\@@a+\curvature)*\radius}}
+                        {\pgfpoint{.25*\pgf@circ@res@other}{(\@@a+\curvature)*\radius}}
+                        {\pgfpoint{0.05*\pgf@circ@res@other}{\@@a*\radius}}
+                \fi
+            \fi
+        }
+        \anchor{top arc right}{\northeast
+            \pgf@circ@res@other=-\pgf@x
+            \pgf@circ@res@temp=\pgf@x
+            %
+            % read the status of the jumper
+            %
+            \expandafter\pgf@circ@tjumper@splitstatus\jumpertype\relax% a bit of magic...
+            \edef\@@S{S}%the "S" letter
+            \ifx\@@a\@@S %span, it's in the center
+                \ifnum \@@b=0\pgfpointorigin\else % no arc, anchor on the center-base
+                    \ifnum \@@b=2 \edef\@@b{\openshift} \else \edef\@bb{1}\relax \fi
+                    \pgfpointcurveattime{0.5}
+                        {\pgfpoint{0.9*\pgf@circ@res@other}{(\@@b)*\radius}}
+                        {\pgfpoint{.5*\pgf@circ@res@other}{(\@@b+\curvature)*\radius}}
+                        {\pgfpoint{.5*\pgf@circ@res@temp}{(\@@b+\curvature)*\radius}}
+                        {\pgfpoint{0.9*\pgf@circ@res@temp}{(\@@b)*\radius}}
+                \fi
+            \else
+                % adjust the lengths of the gap, if needed
+                \ifnum \@@a=2 \edef\@@a{\openshift} \else \edef\@aa{1} \relax \fi
+                \ifnum \@@b=2 \edef\@@b{\openshift} \else \edef\@bb{1} \relax \fi
+                % right join
+                \ifnum \@@b=0 \pgfpoint{0.475*\pgf@circ@res@temp}{0pt}\else
+                    \pgfpointcurveattime{0.5}
+                        {\pgfpoint{0.95*\pgf@circ@res@temp}{\@@b*\radius}}
+                        {\pgfpoint{.75\pgf@circ@res@temp}{(\@@b+\curvature)*\radius}}
+                        {\pgfpoint{.25\pgf@circ@res@temp}{(\@@b+\curvature)*\radius}}
+                        {\pgfpoint{0.05*\pgf@circ@res@temp}{\@@b*\radius}}
+                \fi
+            \fi
+        }
+    }
+    {\ctikzvalof{bipoles/jumper/depth}}
+    {tjumper}
+    {\ctikzvalof{bipoles/jumper/height}}
+    {\ctikzvalof{bipoles/tjumper/width}}{
+        %
+        % read the status of the jumper
+        %
+        \expandafter\pgf@circ@tjumper@splitstatus\jumpertype\relax% a bit of magic...
+        \edef\@@S{S}%the "S" letter
+        \ifx\@@a\@@S %span
+            \ifnum \@@b=0 \else
+                \ifnum \@@b=2 \edef\@@b{\openshift} \else \edef\@bb{1}\relax \fi
+                \pgfpathmoveto{\pgfpoint{0.9*\pgf@circ@res@left}{(\@@b)*\radius}}
+                \pgfpathcurveto
+                    {\pgfpoint{.5\pgf@circ@res@left}{(\@@b+\curvature)*\radius}}
+                    {\pgfpoint{.5\pgf@circ@res@right}{(\@@b+\curvature)*\radius}}
+                    {\pgfpoint{0.9*\pgf@circ@res@right}{(\@@b)*\radius}}
+                \pgfusepath{draw}
+            \fi
+        \else
+        % let's do the connection, if needed
+            % adjust the lengths of the gap, if needed
+            \ifnum \@@a=2 \edef\@@a{\openshift} \else \edef\@aa{1} \relax \fi
+            \ifnum \@@b=2 \edef\@@b{\openshift} \else \edef\@bb{1} \relax \fi
+            % left arc
+            \ifnum \@@a=0 \else
+                \pgfpathmoveto{\pgfpoint{0.95*\pgf@circ@res@left}{\@@a*\radius}}
+                \pgfpathcurveto
+                    {\pgfpoint{.75\pgf@circ@res@left}{(\@@a+\curvature)*\radius}}
+                    {\pgfpoint{.25\pgf@circ@res@left}{(\@@a+\curvature)*\radius}}
+                    {\pgfpoint{0.05*\pgf@circ@res@left}{\@@a*\radius}}
+                \pgfusepath{draw}
+            \fi
+            % right arc
+            \ifnum \@@b=0 \else
+                \pgfpathmoveto{\pgfpoint{0.95*\pgf@circ@res@right}{\@@b*\radius}}
+                \pgfpathcurveto
+                    {\pgfpoint{.75\pgf@circ@res@right}{(\@@b+\curvature)*\radius}}
+                    {\pgfpoint{.25\pgf@circ@res@right}{(\@@b+\curvature)*\radius}}
+                    {\pgfpoint{0.05*\pgf@circ@res@right}{\@@b*\radius}}
+                \pgfusepath{draw}
+            \fi
+        \fi
+        % draw the poles (always filled!)
+        \pgftransformshift{\pgfpoint{\pgf@circ@res@left}{0pt}}
+        \pgfnode{\cshape}{center}{}{\thisshape-in}{\pgfusepath{draw}}
+        \pgftransformshift{\pgfpoint{\pgf@circ@res@right}{0pt}}
+        \pgfnode{\cshape}{center}{}{\thisshape-tap}{\pgfusepath{draw}}
+        \pgftransformshift{\pgfpoint{\pgf@circ@res@right}{0pt}}
+        \pgfnode{\cshape}{center}{}{\thisshape-out}{\pgfusepath{draw}}
+    }
+
+\pgfcirc@activate@bipole{l}{tjumper}{tjumper}{three-pins jumper}
+
 % %>>>
 
 %%%%%%%%%%%%%%%%%

@@ -5191,7 +5191,7 @@ and \texttt{1.3.8} for the \texttt{draw only...} option).
 \end{LTXexample}
 
 
-\subsection{Switches and buttons}
+\subsection{Switches, buttons and jumpers}
 
 Switches and button come in to-style (the simple ones and the pushbuttons), and as nodes.
 
@@ -5534,7 +5534,71 @@ You can change that globally or locally, as ever. The tip specification is the o
 \end{circuitikz}
 \end{LTXexample}
 
+\subsubsection{Jumpers}
 
+You can think of jumpers like a kind of switches (they have the same function, just the way of operating them is different).
+\Circuitikz{} has two types of jumper symbols available, the simple ones and the three pins (or two-ways) ones.
+
+\paragraph{Simple jumpers.} These are the most common ones. They come in three variations, bare, open and closed.
+
+\begin{groupdesc}
+    \circuitdescbip*[bjumper]{bare jumper}{Bare jumper}{}(in/135/0.6, out/45/0.6)[out.n/90/0.2]
+    \circuitdescbip*[ojumper]{open jumper}{Open jumper}{}(in/135/0.6, out/45/0.6, top arc/90/0.3)[out.s/-90/0.2]
+    \circuitdescbip*[cjumper]{closed jumper}{Closed jumper}{}(left/135/0.6, right/45/0.6, top arc/90/0.3)[in.s/-90/0.2]
+\end{groupdesc}
+
+The \texttt{top arc} anchor can be used to locate the position of the top of the wire (when present). In bare jumper, the anchor is located in the middle of the connectors gap.
+
+\begin{LTXexample}[varwidth=true, basicstyle=\small\ttfamily]
+\begin{circuitikz}[scale=0.8]
+    \draw (0,0) to[open jumper, l=J1] ++(2,0)
+        to[closed jumper, l_=J2, name=J2] ++(2,0)
+        to[bare jumper=J3] ++(2,0);
+    \draw [dashed] (J2.top arc) -- ++(0,0.5)
+        node[above] {\tiny open to enable};
+\end{circuitikz}
+\end{LTXexample}
+
+Similarly to switches, you have access to the subnodes representing the contacts, to be able to draw wires at different angles.
+
+The kind of poles used in the diagram can be changed with the \verb!\ctikzset! key \texttt{bipoles/jumpers/shape}.
+
+\begin{LTXexample}[varwidth=true, basicstyle=\small\ttfamily]
+\begin{circuitikz}[scale=0.8]
+    \draw (0,0) to[open jumper, l=J1, name=J1] ++(2,0)
+        to[closed jumper, l_=J2, name=J2,
+            bipoles/jumper/shape=odiamondpole] ++(2,0);
+        \draw [red] (J2-in.-135) -- ++(-135:1)
+            node[font=\tiny, below]{marked \emph{hot}};
+\end{circuitikz}
+\end{LTXexample}
+
+\subsubsection{Two-ways (three-pins) jumpers.} In this case, the symbol represent two-ways jumpers (normally, three pins that can be connected in a couple of ways).
+
+To maintain flexibility, every possible combination of bare, open or closed is available; but to avoid to have to define too much different bipoles, a different approach is used here. You have to specify the style using a different key, namely \texttt{tjumper connections}.
+
+\begin{groupdesc}
+    \circuitdescbip*[tjumper]{three-pins jumper}{Three-pins jumper (see later for connections)}{}(in/135/0.6, out/45/0.6, tap/-90/0.2)[out.n/90/0.2]
+    \ctikzset{tjumper connections=12}
+    \circuitdescbip*[tjumper]{three-pins jumper}{Three-pins jumper (connections \texttt{\ctikzvalof{tjumper connections}})}{}(top arc left/135/0.6, top arc right/45/0.6, tap/-145/0.2)[out.n/-90/0.2]
+    \ctikzset{tjumper connections=S1}
+    \circuitdescbip*[tjumper]{three-pins jumper}{Three-pins jumper (connections \texttt{\ctikzvalof{tjumper connections}})}{}(top arc left/135/0.6, top arc right/45/0.6, tap/-145/0.2)[out.n/-90/0.2]
+\end{groupdesc}
+
+The option is used as shown in the following example, or by setting the key using \verb!\ctikzset!. The value \textbf{must} be two character, either two numbers (where \texttt{0} means ``bare'', \texttt{1} means ``open'', and \texttt{2} means ``closed'') or the letter \texttt{S} (for ``span'') and one number. In the latter case, the arc will connect the fist and last pole\footnote{Although really I never saw an example of this use\dots You never know.}
+
+\begin{LTXexample}[varwidth=true, pos=t, basicstyle=\small\ttfamily]
+\begin{circuitikz}
+    \draw (0,1.5) to[three-pins jumper, l=J1, name=T] ++(3,0)
+    to[three-pins jumper, tjumper connections=21, l=J2] ++(3,0)
+    to[three-pins jumper, tjumper connections=20, l=J3] ++(3,0);
+    \draw (T.tap) -- ++(0,-0.5);
+    \ctikzset{bipoles/jumper/shape=osquarepole}
+    \draw (0,0) to[three-pins jumper, l=JA, name=T] ++(3,0)
+    to[three-pins jumper, tjumper connections=S1, l=JB] ++(3,0)
+    to[three-pins jumper, tjumper connections=S2, l=JB] ++(3,0);
+\end{circuitikz}
+\end{LTXexample}
 
 \subsection{Logic gates}
 
