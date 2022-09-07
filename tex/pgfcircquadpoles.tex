@@ -36,7 +36,11 @@
 \ctikzset{quadpoles/coupler/height/.initial=1.3}
 \ctikzset{quadpoles/coupler2/width/.initial=1.3}
 \ctikzset{quadpoles/coupler2/height/.initial=1.3}
-
+\ctikzset{quadpoles/double bipole/inner/.initial=0.4}
+\ctikzset{quadpoles/double bipole/width/.initial=1.5}
+\ctikzset{quadpoles/double bipole/width1/.initial=.4}
+\ctikzset{quadpoles/double bipole/height/.initial=1.5}
+\ctikzset{quadpoles/double bipole/height1/.initial=.8}
 
 \ctikzset{quadpoles style/.is choice}
 \ctikzset{quadpoles style/inward/.code={% default value
@@ -46,6 +50,8 @@
         \ctikzset{quadpoles/transformer core/width=1.5}%
         \ctikzset{quadpoles/gyrator/inner=0.4}%
         \ctikzset{quadpoles/gyrator/width=1.5}%
+        \ctikzset{quadpoles/double bipole/inner=0.4}%
+        \ctikzset{quadpoles/double bipole/width=1.5}%
     }%
 }
 \ctikzset{quadpoles style/inline/.code={% now horizontal baffle
@@ -55,6 +61,8 @@
         \ctikzset{quadpoles/transformer core/width=0.6}%
         \ctikzset{quadpoles/gyrator/inner=1} % FIXME
         \ctikzset{quadpoles/gyrator/width=0.6}%
+        \ctikzset{quadpoles/double bipole/inner=1}%
+        \ctikzset{quadpoles/double bipole/width=0.6}%
     }%
 }
 %%>>>
@@ -68,11 +76,6 @@
         \saveddimen{\scaledRlen}{\pgfmathsetlength{\pgf@x}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}}
         % shapename
         \savedmacro{\thisshape}{\def\thisshape{\tikz@fig@name}}
-        \anchor{center}{
-            \northwest
-            \pgf@x=0pt
-            \pgf@y=0pt
-        }
         \savedmacro{\stretto}{\def\stretto{\ctikzvalof{quadpoles/#1/inner}}}
         \savedanchor\northwest{%
             \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
@@ -81,7 +84,7 @@
             \pgf@x=.5\pgf@circ@scaled@Rlen
             \pgf@x=-\ctikzvalof{quadpoles/#1/width}\pgf@x
         }
-        %% we define the upper right (positive coord) dot (which is B1)
+        %% we define the upper right (positive coord) inner and outer dots (on the side of B1)
         \savedanchor{\innerdot}{%
             \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
             \pgf@xa=.5\pgf@circ@scaled@Rlen
@@ -120,22 +123,15 @@
             \fi
             \pgfmathsetlength\pgf@y{0.5*\pgf@circ@scaled@Rlen}
         }
-        \anchor{A2}{
-            \northwest
-            \pgf@y=-\pgf@y
-        }
-        \anchor{B1}{
-            \northwest
-            \pgf@x=-\pgf@x
-        }
-        \anchor{A1}{
-            \northwest
-        }
-        \anchor{B2}{
-            \northwest
-            \pgf@x=-\pgf@x
-            \pgf@y=-\pgf@y
-        }
+        % geographical
+        \anchor{center}{\northwest\pgf@x=0pt\pgf@y=0pt}
+        \pgfcirc@northwest@symmetric@geoanchors
+        \anchor{base}{\northwest\pgf@x=0pt}
+        % external wires
+        \anchor{A2}{\northwest\pgf@y=-\pgf@y}
+        \anchor{B1}{\northwest\pgf@x=-\pgf@x}
+        \anchor{A1}{\northwest}
+        \anchor{B2}{\northwest\pgf@x=-\pgf@x \pgf@y=-\pgf@y}
         %% dot's anchors
         \anchor{inner dot A1}{\innerdot\pgf@x=-\pgf@x}
         \anchor{outer dot A1}{\outerdot\pgf@x=-\pgf@x}
@@ -145,44 +141,11 @@
         \anchor{outer dot B1}{\outerdot}
         \anchor{inner dot B2}{\innerdot\pgf@y=-\pgf@y}
         \anchor{outer dot B2}{\outerdot\pgf@y=-\pgf@y}
-        % geographical
-        \anchor{north}{
+        % text above
+        \anchor{text}{
             \northwest
-            \pgf@x=0pt
-        }
-        \anchor{south}{
-            \northwest
-            \pgf@x=0pt
-            \pgf@y=-\pgf@y
-        }
-        \anchor{west}{
-            \northwest
-            \pgf@y=0pt
-        }
-        \anchor{east}{
-            \northwest
-            \pgf@y=0pt
-            \pgf@x=-\pgf@x
-        }
-        \anchor{south west}{
-            \northwest
-            \pgf@y=-\pgf@y
-        }
-        \anchor{north east}{
-            \northwest
-            \pgf@x=-\pgf@x
-        }
-        \anchor{north west}{
-            \northwest
-        }
-        \anchor{south east}{
-            \northwest
-            \pgf@x=-\pgf@x
-            \pgf@y=-\pgf@y
-        }
-        \anchor{base}{
-            \northwest
-            \pgf@x=0pt
+            \pgf@x=\dimexpr -.5\wd\pgfnodeparttextbox\relax
+            \advance\pgf@y by .6\ht\pgfnodeparttextbox\relax
         }
         #3%
         \pgf@circ@draw@component{
@@ -199,8 +162,10 @@
 }
 
 
+% these are deprecated anchors (really I do not know what they are --- Romano.)
+% They are here for compatibility, I suppose. Don't use.
 \def\pgf@circ@drawtransformerbasicanchor{
-    \ctikzvalof{quadpoles/trans/height}
+    % \ctikzvalof{quadpoles/trans/height}
     \anchor{AA2}{
         \northwest
         \pgf@x=\ctikzvalof{quadpoles/transformer/width1}\pgf@x
@@ -387,6 +352,159 @@
     \pgfpathclose
     \pgf@circ@draworfill
 }{}
+% %>>>
+
+% Node shapes for generic double bipoles %<<<
+%
+\long\def\pgfcircdeclaredbipole#1#2#3{
+    \pgfdeclareshape{#1}
+    {
+        \savedmacro{\ctikzclass}{\edef\ctikzclass{misc}}
+        \saveddimen{\scaledRlen}{\pgfmathsetlength{\pgf@x}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}}
+        % shapename
+        \savedmacro{\thisshape}{\def\thisshape{\tikz@fig@name}}
+        \savedmacro{\stretto}{\def\stretto{\ctikzvalof{quadpoles/#1/inner}}}
+        \savedanchor\northwest{%
+            \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
+            \pgf@y=\ctikzvalof{quadpoles/#1/height}\pgf@circ@scaled@Rlen
+            \pgf@y=.5\pgf@y
+            \pgf@x=.5\pgf@circ@scaled@Rlen
+            \pgf@x=-\ctikzvalof{quadpoles/#1/width}\pgf@x
+        }
+        %% we define the upper right (positive coord) inner and outer dot (near B1)
+        %% in the generic case, we just place the dot position in a fixed spot
+        %% we do not know the width of the component there...
+        \savedanchor{\innerdot}{%
+            \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
+            \pgf@xa=.5\pgf@circ@scaled@Rlen
+            \pgf@xa=-\ctikzvalof{quadpoles/#1/width}\pgf@xa
+            \pgfmathsetlength\pgf@x{-0.5*\stretto*\pgf@xa}
+            \pgfmathsetlength\pgf@y{0.5*\pgf@circ@scaled@Rlen}
+        }
+        \savedanchor{\outerdot}{%
+            \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
+            \pgf@xa=.5\pgf@circ@scaled@Rlen
+            \pgf@xa=-\ctikzvalof{quadpoles/#1/width}\pgf@xa
+            \pgfmathsetlength\pgf@x{-1.5*\stretto*\pgf@xa}
+            \pgfmathsetlength\pgf@y{0.5*\pgf@circ@scaled@Rlen}
+        }
+        % geographical
+        \anchor{center}{\northwest\pgf@x=0pt\pgf@y=0pt}
+        \pgfcirc@northwest@symmetric@geoanchors
+        \anchor{base}{\northwest\pgf@x=0pt}
+        % external wires
+        \anchor{A2}{\northwest\pgf@y=-\pgf@y}
+        \anchor{B1}{\northwest\pgf@x=-\pgf@x}
+        \anchor{A1}{\northwest}
+        \anchor{B2}{\northwest\pgf@x=-\pgf@x \pgf@y=-\pgf@y}
+        %% dot's anchors
+        \anchor{inner dot A1}{\innerdot\pgf@x=-\pgf@x}
+        \anchor{outer dot A1}{\outerdot\pgf@x=-\pgf@x}
+        \anchor{inner dot A2}{\innerdot\pgf@x=-\pgf@x\pgf@y=-\pgf@y}
+        \anchor{outer dot A2}{\outerdot\pgf@x=-\pgf@x\pgf@y=-\pgf@y}
+        \anchor{inner dot B1}{\innerdot}
+        \anchor{outer dot B1}{\outerdot}
+        \anchor{inner dot B2}{\innerdot\pgf@y=-\pgf@y}
+        \anchor{outer dot B2}{\outerdot\pgf@y=-\pgf@y}
+        % text above
+        \anchor{text}{
+            \northwest
+            \pgf@x=\dimexpr -.5\wd\pgfnodeparttextbox\relax
+            \advance\pgf@y by .6\ht\pgfnodeparttextbox\relax
+        }
+        #3%
+        \pgf@circ@draw@component{
+            \pgf@circ@setcolor
+            \northwest
+            \pgf@circ@res@up = \pgf@y
+            \pgf@circ@res@down = -\pgf@y
+            \pgf@circ@res@right = -\pgf@x
+            \pgf@circ@res@left = \pgf@x
+            #2%
+        }
+    }
+}
+
+\ctikzset{every double bipole L/.style={}}
+\ctikzset{every double bipole R/.style={}}
+\ctikzset{double bipole L/.initial=genericshape}
+\ctikzset{double bipole R/.initial=vsourceAMshape}
+\newif\ifpgf@circ@dbipoleL@invert\pgf@circ@dbipoleL@invertfalse
+\newif\ifpgf@circ@dbipoleR@invert\pgf@circ@dbipoleR@invertfalse
+\ctikzset{double bipole L invert/.is if=pgf@circ@dbipoleL@invert}
+\ctikzset{double bipole R invert/.is if=pgf@circ@dbipoleR@invert}
+
+\def\pgf@circ@drawdbipolebasicbody{
+    \pgfscope
+        \ifpgf@circ@dbipoleL@invert
+            \pgf@circ@res@temp=\pgf@circ@res@down
+            \pgf@circ@res@other=\pgf@circ@res@up
+        \else
+            \pgf@circ@res@temp=\pgf@circ@res@up
+            \pgf@circ@res@other=\pgf@circ@res@down
+        \fi
+        \pgfslopedattimetrue
+        \pgfallowupsidedownattimetrue
+        \pgftransformlineattime{.5}{%
+            \pgfpoint%
+            {\stretto\pgf@circ@res@left}%
+            {\pgf@circ@res@temp}%
+        }{%
+            \pgfpoint
+            {\stretto\pgf@circ@res@left}%
+            {\pgf@circ@res@other}%
+        }
+        \pgfkeys{\circuitikzbasekey/.cd,  every double bipole L}
+        \edef\pgf@circ@temp{\ctikzvalof{double bipole L}}%
+        \pgfnode{\pgf@circ@temp}{center}{}{\thisshape-L}{\pgfusepath{stroke}}
+    \endpgfscope
+    \pgfscope
+        \ifpgf@circ@dbipoleR@invert
+            \pgf@circ@res@temp=\pgf@circ@res@down
+            \pgf@circ@res@other=\pgf@circ@res@up
+        \else
+            \pgf@circ@res@temp=\pgf@circ@res@up
+            \pgf@circ@res@other=\pgf@circ@res@down
+        \fi
+        \pgfslopedattimetrue
+        \pgfallowupsidedownattimetrue
+        \pgftransformlineattime{.5}{%
+            \pgfpoint%
+            {\stretto\pgf@circ@res@right}%
+            {\pgf@circ@res@other}%
+        }{%
+            \pgfpoint
+            {\stretto\pgf@circ@res@right}%
+            {\pgf@circ@res@temp}%
+        }
+        %
+        \pgfkeys{\circuitikzbasekey/.cd, every double bipole R}
+        \edef\pgf@circ@temp{\ctikzvalof{double bipole R}}%
+        \pgfnode{\pgf@circ@temp}{center}{}{\thisshape-R}{\pgfusepath{stroke}}
+    \endpgfscope
+    %
+    \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@up}}
+    \pgfpathlineto{\pgfpoint{\stretto\pgf@circ@res@left}{\pgf@circ@res@up}}
+    \pgfpathlineto{\pgfpointanchor{\thisshape-L}{\ifpgf@circ@dbipoleL@invert a\else b\fi}}
+    %
+    \pgfpathmoveto{\pgfpointanchor{\thisshape-L}{\ifpgf@circ@dbipoleL@invert b\else a\fi}}
+    \pgfpathlineto{\pgfpoint{\stretto\pgf@circ@res@left}{\pgf@circ@res@down}}
+    \pgfpathlineto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@down}}
+    %
+    \pgfpathmoveto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@up}}
+    \pgfpathlineto{\pgfpoint{\stretto\pgf@circ@res@right}{\pgf@circ@res@up}}
+    \pgfpathlineto{\pgfpointanchor{\thisshape-R}{\ifpgf@circ@dbipoleR@invert b\else a\fi}}
+    %
+    \pgfpathmoveto{\pgfpointanchor{\thisshape-R}{\ifpgf@circ@dbipoleR@invert a\else b\fi}}
+    \pgfpathlineto{\pgfpoint{\stretto\pgf@circ@res@right}{\pgf@circ@res@down}}
+    \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@down}}
+    \pgfusepath{draw}
+}
+\pgfcircdeclaredbipole{double bipole}{
+    \pgf@circ@drawdbipolebasicbody
+}{}
+
+
 % %>>>
 
 %%%%%%%%%%%%%%%%%%%
