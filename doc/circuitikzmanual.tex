@@ -4648,7 +4648,15 @@ Transformers with core are also available:
     \ctikzset{inductor=cute} % reset default
 \end{groupdesc}
 
-\subsubsection{Double dipoles anchors}
+You can also build generic double bipoles\footnote{The idea of generic double bipoles was originated by user \href{https://github.com/circuitikz/circuitikz/issues/641}{erwindenboer on GitHub}.} (although it's often better to use subcircuits in this case; see section~\ref{sec:subcircuits}).
+
+\begin{groupdesc}
+    \circuitdesc{double bipole}{Generic double bipole (configurable components)}{$A_v$}(north/45/0.4, center/-90/0.6, east/45/0.2)[L.south/180/0.2, R.west/-45/0.2]
+    \ctikzset{double bipole L=fulllediodeshape, double bipole R=emptydiodeshape, double bipole R invert, diodes/scale=0.6}
+    \circuitdesc{double bipole}{Generic double bipole (this specific configuration is shown in section~\ref{sec:doublebipoles})}{$A_v$}(north/45/0.4, center/-90/0.6, east/45/0.2)[L.south/180/0.2, R.west/-45/0.2]
+\end{groupdesc}
+
+\subsubsection{Transformer anchors}
 
 All the double bipoles/quadrupoles have the four anchors, two for each port.
 The first port, to the left, is port \texttt{A}, having the anchors \texttt{A1} (up) and \texttt{A2} (down); same for port \texttt{B}.
@@ -4743,7 +4751,7 @@ Moreover, you can access the two internal coils (inductances); if your transform
 \node [ocirc] at (T.B1){}; \node [ocirc] at (T.B2){};
 \end{circuitikz}
 \end{LTXexample}
-\subsubsection{Double dipoles customization}
+\subsubsection{Transformers customization}
 
 Transformers are in the \texttt{inductors} class (also the gyrator\dots), so they scale with the key \texttt{inductors/scale}.
 
@@ -4859,6 +4867,88 @@ You can obviously define a style for a ``non-standard'' transformer. For example
 \end{LTXexample}
 
 Remember that the default \texttt{pgfkeys} directory is \texttt{/tikz} for nodes and for the options of the environment, so you \emph{have} to use the full path (with \texttt{circuitikz/}) there.
+
+\subsubsection{Generic double bipoles}\label{sec:doublebipoles}
+
+Generic double bipoles have more or less the same keys for size that the transformers (like \texttt{../width}, \texttt{.../inner} etc.) using the component name \texttt{double bipole}. Also the anchors are similar, with the main difference that the ``dot'' anchors are fixed, so they do \emph{not} adapt to the size of the component.
+Another important difference is that the class of the generic double bipole is \texttt{misc}, not \texttt{inductors} (which is reserved to transformers and, for an historical hiccup, to the gyrator).
+
+By default, the left component is a generic impedance, and the right one is an (American-style, it will not change automatically) voltage generator. You can use \texttt{quadpoles style=inner} as shown in the rightmost drawing below.
+
+\geocoord{double bipole} {\ctikzset{quadpoles style=inline}\geocoord{double bipole}}
+
+The other anchors behave similarly to the transistor's ones; you also have access to the internal components nodes by using \texttt{\emph{nodename}-R} and \texttt{\emph{nodename}-L} names for the right and left element, which is supposed to be \texttt{T} in the drawing below. Be wary that given that here you can (see later) reverse the direction of one or both of the elements, the rotation (and so the anchors) is not fixed (you can see that in the blue and green examples below).
+
+\begin{quote}
+\begin{circuitikz}[cute inductors,
+    ]
+    \def\coordx(#1)[#2:#3]#4{node[circle, #4, draw, inner sep=1pt,pin={[#4, overlay, inner sep=0.5pt, font=\scriptsize, pin distance=#2cm, pin edge={#4, overlay,}]#3:#1}](#1){}}
+    \tikzset{ddpinv/.style={double bipole, circuitikz/double bipole R invert}}
+    \foreach \comp/\pos/\case in {%
+                            double bipole/0/0%
+                            ,double bipole/4/1%
+                            ,ddpinv/8/2%
+                            }{
+        \draw (\pos, 0) node[\comp](T){};
+        \ifcase\case
+            \foreach \a/\d/\t in {inner dot A1/0.2/75, inner dot A2/0.2/-75, inner dot B1/0.1/-45, inner dot B2/0.1/45}
+            \path (T.\a) \coordx(\a)[\d:\t]{red};
+            \path (T-L.south) \coordx(T-L.south)[0.6:180]{red};
+        \or
+            \foreach \a/\d/\t in {outer dot A1/0.4/90, outer dot A2/0.4/-90, outer dot B1/0.2/45, outer dot B2/0.2/-45}
+            \path (T.\a) \coordx(\a)[\d:\t]{blue};
+            \path (T-R.a) \coordx(T-R.a)[0.6:0]{blue};
+            \path (T-R.b) \coordx(T-R.b)[0.6:0]{blue};
+            \path (T-R.south) \coordx(T-R.south)[0.6:0]{blue};
+        \or
+            \foreach \a/\t in {A1/120, A2/-120, B1/120, B2/-120, base/-90}
+            \path (T.\a) \coordx(\a)[0.2:\t]{green!50!black};
+            \path (T-R.a) \coordx(T-R.a)[0.6:0]{green!50!black};
+            \path (T-R.b) \coordx(T-R.b)[0.6:0]{green!50!black};
+            \path (T-R.north) \coordx(T-R.north)[0.6:0]{green!50!black};
+        \fi
+    }
+\end{circuitikz}
+\end{quote}
+
+Generic double bipoles are meant to be used through a style, choosing the left and right components. The keys that let you change the components are the following ones:
+\begin{itemize}
+    \item \texttt{double bipole L}, \texttt{double bipole R}: the \textbf{nodename} of the component you want on the left and right side (default: \texttt{genericshape} and \texttt{vsourceAMshape}).
+    \item \texttt{double bipole L invert}, \texttt{double bipole R invert}: controls the direction of the element inserted (default \texttt{false} for both; that means that the left bipole goes ``down'' and the second one ``up'').
+    \item \texttt{every double bipole L}, \texttt{every double bipole R}: a style that is enacted when drawing the component; by default it's void.
+\end{itemize}
+For example, the LED-diode double bipole at the start of the section could be obtained this way:
+\begin{LTXexample}[varwidth=true]
+\begin{circuitikz}[
+    led to D/.style={double bipole,
+        % at tikz level, you have to use circuitikz/ explicitly
+        circuitikz/double bipole L=fulllediodeshape,
+        circuitikz/double bipole R=emptydiodeshape,
+        circuitikz/every double bipole L/.style={diodes/scale=0.6},
+        circuitikz/every double bipole R/.style={diodes/scale=0.6},
+        circuitikz/double bipole R invert,
+        },
+    ]
+    \draw (0,0) node[led to D]{};
+\end{circuitikz}
+\end{LTXexample}
+
+As a final example, and given that the addition of generic double bipole was stimulated by an issue opened by \href{https://github.com/circuitikz/circuitikz/issues/641}{user erwindenboer on GitHub} suggesting the addition of a nullor shape, the nullor can be obtained like this:
+\begin{LTXexample}[varwidth=true]
+\begin{circuitikz}[
+    nullor/.style={double bipole,
+        % at tikz level, you have to use circuitikz/ explicitly
+        circuitikz/double bipole L=nullatorshape,
+        circuitikz/double bipole R=noratorshape,
+        circuitikz/every double bipole L/.style={sources/scale=0.5},
+        },
+    ]
+    \draw (0,0) node[nullor](T1){};
+\end{circuitikz}
+\end{LTXexample}
+although now adding currents and voltages is not as trivial as if the component is built with a subcircuit\dots
+
+
 
 \subsection{Amplifiers}\label{sec:amplifiers}
 
