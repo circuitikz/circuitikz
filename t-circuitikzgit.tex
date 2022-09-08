@@ -10,8 +10,8 @@
 %
 % See the files gpl-3.0_license.txt and lppl-1-3c_license.txt for more details.
 
-\def\pgfcircversion{1.5.4-unreleased-9bdcbbd}
-\def\pgfcircversiondate{2022/09/07}
+\def\pgfcircversion{1.5.4-unreleased-db95455}
+\def\pgfcircversiondate{2022/09/08}
 \writestatus{loading}{\pgfcircversiondate{} The CircuiTikz circuit drawing package version \pgfcircversion}
 
 \usemodule[tikz]
@@ -14238,7 +14238,15 @@
 % 0 --- nothing, 1 --- solid, 2 --- dashed
 \ctikzset{transistor circle/partial borders/.initial=none}       % Value none for normal borders
 \ctikzset{transistor circle/partial border dash/.initial={{2pt}{2pt}}}
+%
+% body diode style
+\ctikzset{transistor bodydiode/.is family}
+\ctikzset{transistor bodydiode/relative thickness/.initial=1}
+\ctikzset{transistor bodydiode/color/.initial=default}
+\ctikzset{transistor bodydiode/dash/.initial=default}
+
 %%>>>
+
 
 %% definitions of transistor shapes%<<<
 %
@@ -14768,7 +14776,23 @@
         #3%
         % BODY DIODE
         \ifpgf@circuit@fet@bodydiode
-            \drawbodydiode{#1}
+            \pgfscope
+                \pgfsetlinewidth{\ctikzvalof{transistor bodydiode/relative thickness}\pgflinewidth}
+                \edef\@@none{none}\edef\@@default{default}
+                \edef\@@tmp{\ctikzvalof{transistor bodydiode/color}}
+                \ifx\@@tmp\@@default\else
+                    \pgfsetcolor{\@@tmp}
+                \fi
+                \edef\@@tmp{\ctikzvalof{transistor bodydiode/dash}}
+                \ifx\@@tmp\@@default\else
+                    \ifx\@@tmp\@@none
+                        \pgfsetdash{}{0pt}% solid line, override dash
+                    \else
+                        \expandafter\pgfsetdash\expandafter{\@@tmp}{0cm}
+                    \fi
+                \fi
+                \drawbodydiode{#1}
+            \endpgfscope
         \fi
         %
     }
