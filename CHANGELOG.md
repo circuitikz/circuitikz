@@ -5,6 +5,7 @@ The major changes among the different CircuiTikZ versions are listed here. See <
 
     - Added jumpers, inspired by a question [on TeX.stackexchange](https://tex.stackexchange.com/questions/652494/drawing-jumper-pinhead-bridge-with-circuitikz)
     - Added generic double bipoles, inspired by user `@erwinderboer` [on GitHub](https://github.com/circuitikz/circuitikz/issues/641)
+    - Added styling for the transistor bodydiode, suggested by user [Alex Ghilas on TeX.stackexchange](https://tex.stackexchange.com/questions/653348/drawing-mosfet-bodydiode-dashed)
     - Addition to the manual (how to remove pins on amplifiers, for example)
 
 * Version 1.5.3 (2022-07-02)
