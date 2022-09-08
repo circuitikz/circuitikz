@@ -3731,6 +3731,7 @@ To add the circle to a single transistor, you use the \texttt{tr circle} keys in
 \end{circuitikz}
 \end{LTXexample}
 
+You can tweak the appearance of transistor's circles and even draw it partially; see ~\ref{sec:trans-circle-custom} for details.
 
 \paragraph{Body diodes and similar things.}\label{sec:bodydiodes-anchor} For all transistors (minus \texttt{bjtnpn} and \texttt{bjtpnp})  a body diode (or freewheeling or flyback diode) can automatically be drawn. Just use the global option \texttt{bodydiode}, or for single transistors, the tikz-option \texttt{bodydiode}.
 As you can see in the next example, the text for the diode is moved if a bodydiode is present (but beware, if you change a lot the relative dimension of components, it may become misplaced):
@@ -3746,7 +3747,9 @@ As you can see in the next example, the text for the diode is moved if a bodydio
 \end{circuitikz}
 \end{LTXexample}
 
-You can use the \texttt{body ...} anchors to add more or different things to the transistors in addition (or instead) of the flyback diode.
+You can tweak the appearance of transistor's bodydiodes; see ~\ref{sec:trans-bodydiode-custom}.
+
+For more complex snubs or protections, you can use the \texttt{body ...} anchors to add more or different things to the transistors in addition (or instead) of the flyback diode.
 
 \begin{LTXexample}[varwidth=true]
 \def\snubb#1#2{% add a snubber to a transistor
@@ -3953,7 +3956,7 @@ You can create completely ``bare'' transistors (without the connection leads to 
 \end{groupdesc}
 
 
-\subsubsection{Transistor circle customization}
+\subsubsection{Transistor circle customization}\label{sec:trans-circle-custom}
 
 \paragraph{Position and size.} You can see in the following diagram where the circle is positioned --- when there is no bodydiode, it will pass through the anchors for the body diode and near the base connection. The dimension of the circle is bigger when the bodydiode is in, to encompass it.
 The anchors are present even there is no circle, so you can use them to draw different kind of circles (say, encompassing two transistors) in a coherent way.
@@ -4057,6 +4060,47 @@ The dashed line pattern can be changed by setting the key \texttt{transistor cir
     \draw[dashed] (Q1.circle bottom) -- (Q2.circle bottom);
 \end{circuitikz}
 \end{LTXexample}
+
+\subsubsection{Transistor bodydiode customization}\label{sec:trans-bodydiode-custom}
+
+You can change the style of the bodydiode\footnote{Suggested by \href{https://tex.stackexchange.com/questions/653348/drawing-mosfet-bodydiode-dashed}{user Alex Ghilas on TeX.SX}, implemented in \texttt{v1.5.4}.} in a similar way to the one used for circles (albeit with less options), by setting keys with the \verb!\ctikzset! command (or, like in the following example, directly in the node instantiation) under the \texttt{transistor bodydiode} hierarchy. The available keys are:
+
+\begin{center}
+    \begin{tabular}{>{\ttfamily}l>{\ttfamily}lp{0.5\linewidth}}
+        \toprule
+     parameter &  default & description  \\
+     \midrule
+     relative thickness & 1.0 & multiply the class thickness \\
+     color & default & stroke color: \texttt{default} is the same as the component \\
+     dash & default & dash pattern: \texttt{default} means not to change the setting for the component; \texttt{none} means unbroken line; every other input is a dash pattern.\footnotemark \\
+        \bottomrule
+    \end{tabular}
+    \footnotetext{Follows the syntax of the pattern sequence \texttt{\textbackslash pgfsetdash} --- see \TikZ{} manual for details; phase is always zero. Basically you pass pairs of dash-length -- blank-length dimensions, see the examples.}
+\end{center}
+
+The following is a quite extensive example. Obviously, a good strategy in this case is to define styles for the options.
+
+\begin{LTXexample}[varwidth=true, pos=t, basicstyle=\small\ttfamily]
+\begin{tikzpicture}[red solid thin bodydiode/.style={bodydiode,
+        circuitikz/transistor bodydiode/dash=none,
+        circuitikz/transistor bodydiode/color=red,
+        circuitikz/transistor bodydiode/relative thickness=0.3}]
+    \draw (0,0) node (mosfet1) [nigfete,anchor=D,bodydiode] {$Q_1$};
+    \draw[densely dashed]  (3,0) node (mosfet1) [nigfete,anchor=D,bodydiode] {$Q_2$};
+    \draw (6,0) node (mosfet1) [nigfete,anchor=D,bodydiode,
+        circuitikz/transistor bodydiode/color=gray] {$Q_3$};
+    \draw (0,-2) node (mosfet1) [nigfete,anchor=D,bodydiode,
+        circuitikz/transistor bodydiode/dash={{2pt}{1pt}}]  {$Q_4$};
+    \draw[densely dashed]  (3,-2) node (mosfet1) [nigfete,anchor=D,
+        red solid thin bodydiode] {$Q_5$};
+    \ctikzset{transistor bodydiode/relative thickness=.5}% from now on, in scope
+    \draw[densely dotted] (6,-2) node (mosfet1) [nigfete,anchor=D,bodydiode,
+          circuitikz/transistor bodydiode/dash=none] {$Q_6$};
+    \path (7,0); %% adjust bounding box (node text is outside it!)
+\end{tikzpicture}
+\end{LTXexample}
+
+
 
 \subsubsection{Transistors anchors}
 
