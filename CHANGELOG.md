@@ -1,6 +1,10 @@
 <!--- CircuiTikz - Changelog --->
 The major changes among the different CircuiTikZ versions are listed here. See <https://github.com/circuitikz/circuitikz/commits> for a full list of changes.
 
+* Version 1.5.5 (unreleased)
+
+    - Documentation updates (rotating and flipping for path components)
+
 * Version 1.5.4 (2022-09-09)
 
     New components and enhancement for old ones in this version.

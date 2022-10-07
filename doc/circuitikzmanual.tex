@@ -1385,6 +1385,25 @@ Several groups of components, on the other hand, have a special \texttt{scale} p
 \end{circuitikz}
 \end{LTXexample}
 
+Never use \texttt{scale}, \texttt{xscale} or~\texttt{yscale} in a path-style component (i.e., inside a \texttt{to[...]}) command.
+
+\paragraph{Mirroring and flipping path-style components}\label{sec:mirror-flip-path}
+
+To change the orientation of path-style components, \emph{never} use \texttt{xscale=-1} nor~\texttt{yscale=-1}. That will mess up the path completely. Use the \texttt{mirror} and \texttt{invert}  options:
+\begin{LTXexample}[varwidth=true, basicstyle=\small\ttfamily]
+\begin{tikzpicture}[N/.style={
+    font=\tiny\ttfamily, above}]
+    \draw (0,0) to [put] ++(0,2)
+        node[N]{no modifier};
+    \draw (1,0) to [put, mirror] ++(0,2)
+        node[N]{mirror};
+    \draw (2,0) to [put, invert] ++(0,2)
+        node[N]{invert};
+    \draw (3,0) to [put, mirror, invert] ++(0,2)
+        node[N]{both};
+\end{tikzpicture}
+\end{LTXexample}
+
 \paragraph{Thickness of the lines}\label{sec:legacy-thickness} (globally)
 
 The best way to alter the thickness of components is using styling, see section~\ref{sec:styling-thickness}. Alternatively, you can use ``legacy'' classes like \texttt{bipole}, \texttt{tripoles} and so on ---
@@ -1454,7 +1473,7 @@ Explanation of the parameters:\\
 
 \subsubsection{Mirroring and flipping}\label{sec:mirroring-and-flipping}
 
-Mirroring and flipping of node components is obtained by using the \TikZ\ keys \texttt{xscale} and \texttt{yscale}. Notice that this parameters affect also text labels, so they need to be un-scaled by hand.
+Mirroring and flipping of node components is obtained by using the \TikZ\ keys \texttt{xscale} and \texttt{yscale}. Notice that this parameters affect also text labels, so they need to be un-scaled by hand. Notice that you \textbf{do not} use \texttt{xscale} or~\texttt{yscale} in a path-style component, see section~\ref{sec:mirror-flip-path} for that case.
 
 \begin{LTXexample}[varwidth=true]
 \begin{circuitikz}[scale=0.7, transform shape]
@@ -4296,10 +4315,14 @@ Access to the gate and/or base nodes can be gained by naming the transistors wit
 ;\end{circuitikz}
 \end{LTXexample}
 
+Transistor used in path are fully path-style components, so to flip and rotate them you should use  \texttt{mirror} and \texttt{invert} as shown in section~\ref{sec:mirror-flip-path}.
+
 Transistor paths have the possibility to use the poles syntax (see section~\ref{sec:bipole-nodes}) but they have \textbf{no} voltage, current, flow, annotation options.
 Also, the positioning of the labels is very simple and is not foolproof for all rotations; if you need to control them more please name the node and position them by hand, or use the more natural node style for transistors.
 
 The \texttt{name} property is available also for bipoles; this is useful mostly for triac, potentiometer and thyristor (see~\ref{sec:othertrip}).
+
+
 
 \subsection{Electronic Tubes}
 
