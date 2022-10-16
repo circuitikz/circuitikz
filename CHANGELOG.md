@@ -3,6 +3,7 @@ The major changes among the different CircuiTikZ versions are listed here. See <
 
 * Version 1.5.5 (unreleased)
 
+    - Added styling of arrows on opto devices, thanks to a suggestion by [Dr Matthias Jung](https://github.com/circuitikz/circuitikz/issues/655)
     - Documentation updates (rotating and flipping for path components)
 
 * Version 1.5.4 (2022-09-09)
