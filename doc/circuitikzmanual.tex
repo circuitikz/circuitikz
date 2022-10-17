@@ -2476,7 +2476,7 @@ You can change the scale of the diodes by setting the key \texttt{diodes/scale} 
 \end{circuitikz}
 \end{LTXexample}
 
-You can change the direction of the LEDs and photodiodes' arrows by using the binary keys \texttt{led arrows from cathode} and \texttt{pd arrows to cathode} (the default are \texttt{led arrows from anode} and \texttt{pd arrows to anode}), as you can see in the following example.
+\paragraph{Optical devices arrows}\label{sec:opto-arrows} You can change the direction of the LEDs and photodiodes' arrows by using the binary keys \texttt{led arrows from cathode} and \texttt{pd arrows to cathode} (the default are \texttt{led arrows from anode} and \texttt{pd arrows to anode}), as you can see in the following example.
 
 \begin{LTXexample}[varwidth=true]
     \begin{circuitikz}
@@ -2500,22 +2500,42 @@ You can change the direction of the LEDs and photodiodes' arrows by using the bi
     \end{circuitikz}
 \end{LTXexample}
 
-Since version \texttt{v1.5.5}\footnote{Thanks to the idea by \href{https://github.com/circuitikz/circuitikz/issues/655}{Dr. Matthias Jung on GitHub}.}, you can change the arrows used for LEDs, photodiodes and laser diodes with the generic arrows options shown in~\ref{sec:tunablearrows}, using the name \texttt{opto}, like in the following (overdone) example. Normally you want just to change the \texttt{end arrow}\dots
+Since version \texttt{1.5.5}\footnote{Thanks to the idea by \href{https://github.com/circuitikz/circuitikz/issues/655}{Dr. Matthias Jung on GitHub}.}, you can change the arrows used for LEDs, photodiodes and laser diodes with the generic arrows options shown in~\ref{sec:tunablearrows}, using the name \texttt{opto}, like in the following (overdone) example. Normally you want just to change the \texttt{end arrow}\dots
+
+As you can see, you can also have the option to globally change the color, relative thickness, and dash pattern  by setting keys with the \verb!\ctikzset! command (or, like in the following example, directly in the node instantiation) under the \texttt{opto arrows} hierarchy. The available keys are:
+
+\begin{center}
+    \begin{tabular}{>{\ttfamily}l>{\ttfamily}lp{0.5\linewidth}}
+        \toprule
+     parameter &  default & description  \\
+     \midrule
+     relative thickness & 1.0 & multiply the class thickness \\
+     color & default & stroke color: \texttt{default} is the same as the component \\
+     dash & default & dash pattern: \texttt{default} means not to change the setting for the component; \texttt{none} means unbroken line; every other input is a dash pattern.\footnotemark \\
+        \bottomrule
+    \end{tabular}
+    \footnotetext{Follows the syntax of the pattern sequence \texttt{\textbackslash pgfsetdash} --- see \TikZ{} manual for details; phase is always zero. Basically you pass pairs of dash-length -- blank-length dimensions, see the examples.}
+\end{center}
 
 \begin{LTXexample}[varwidth=true, basicstyle=\small\ttfamily]
-\begin{tikzpicture}[scale=0.8]
+\begin{tikzpicture}
 \newcommand{\optos}{%
-    to[leD] ++(2,0) to[pD] ++(2,0)
-    to[lasD] ++(2,0)}
+    to[leD] ++(1.5,0) to[pD*] ++(1.5,0)
+    to[lasD] ++(1.5,0)}
 \begin{scope}
     \draw (0,2) \optos;
     \ctikzset{led arrows from cathode}
     \ctikzset{pd arrows to cathode}
+    \ctikzset{opto arrows/.cd, color=red,
+        dash={{1pt}{1pt}}}
     \draw (0,0) \optos;
 \end{scope}
-\begin{scope}[color=blue, yshift=-4cm]
+\begin{scope}[color=blue, yshift=-6cm]
     \ctikzset{opto end arrow={Triangle[angle'=45]}}
     \ctikzset{opto start arrow={Hooks[red]}}
+    \draw (0,4) \optos;
+    \ctikzset{opto arrows/color=black}
+    \ctikzset{opto arrows/relative thickness=2}
     \draw (0,2) \optos;
     \ctikzset{led arrows from cathode}
     \ctikzset{pd arrows to cathode}
@@ -3759,13 +3779,13 @@ If the option \texttt{arrowmos} is used (or after the command \verb!\ctikzset{tr
 You can go back to the no-arrows mos with \texttt{noarrowmos} locally or with
 \texttt{\textbackslash ctikzset\{tripoles/mos style/no arrows\}}.
 
-You can also change\footnote{Thanks to the idea by \href{https://github.com/circuitikz/circuitikz/issues/655}{Dr. Matthias Jung on GitHub}.} the type of the arrow for the ``light rays'' of the phototransistors with the generic arrows options shown in~\ref{sec:tunablearrows}, using the name \texttt{opto}, like in the following (overdone) example.
+You can also change\footnote{Thanks to the idea by \href{https://github.com/circuitikz/circuitikz/issues/655}{Dr. Matthias Jung on GitHub}.} the type of the arrow for the ``light rays'' of the phototransistors with the generic arrows options shown in~\ref{sec:tunablearrows}, using the name \texttt{opto}, like in the following (overdone) example. Also the \texttt{opto arrows} styling options (see section~\ref{sec:opto-arrows}).
 
 \begin{LTXexample}[varwidth=true, basicstyle=\small\ttfamily]
 \begin{tikzpicture}
     \draw (0,2) node[npn, photo]{} ++(2,0) node[pnp, photo]{};
     \ctikzset{opto end arrow={Triangle[angle'=60]}}
-    \ctikzset{opto start arrow={Hooks[red]}}
+    \ctikzset{opto arrows/.cd, color=red, dash={{1pt}{1pt}}}
     \draw (0,0) node[npn, photo]{} ++(2,0) node[pnp, photo]{};
 \end{tikzpicture}
 \end{LTXexample}
