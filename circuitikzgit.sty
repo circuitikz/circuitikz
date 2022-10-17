@@ -16,8 +16,8 @@
 \providecommand\DeclareRelease[3]{}
 \providecommand\DeclareCurrentRelease[2]{}
 
-\def\pgfcircversion{1.5.5-unreleased-11320fe}
-\def\pgfcircversiondate{2022/10/16}
+\def\pgfcircversion{1.5.5-unreleased-404e6c4}
+\def\pgfcircversiondate{2022/10/17}
 
 \DeclareRelease{0.4}{2012/12/20}{circuitikz-0.4-body.tex}
 \DeclareRelease{v0.4}{2012/12/20}{circuitikz-0.4-body.tex}
@@ -1288,6 +1288,30 @@
 \ctikzset{diodes/scale/.initial=1.0}
 \ctikzset{diodes/fill/.initial=none}
 \ctikzset{diodes/thickness/.initial=none}
+% we define opto arrows style here because they are used also
+% in transistors
+\ctikzset{opto arrows/.is family}
+\ctikzset{opto arrows/relative thickness/.initial=1}
+\ctikzset{opto arrows/color/.initial=default}
+\ctikzset{opto arrows/dash/.initial=default}
+\def\pgf@circ@set@optoarrow@style{%
+    % You *must* be sure that this is called inside a \pgfscope!
+    \pgfsetlinewidth{\ctikzvalof{opto arrows/relative thickness}\pgflinewidth}
+    \edef\@@none{none}\edef\@@default{default}
+    \edef\@@tmp{\ctikzvalof{opto arrows/color}}
+    \ifx\@@tmp\@@default\else
+        \pgfsetcolor{\@@tmp}
+    \fi
+    \edef\@@tmp{\ctikzvalof{opto arrows/dash}}
+    \ifx\@@tmp\@@default\else
+        \ifx\@@tmp\@@none
+            \pgfsetdash{}{0pt}% solid line, override dash
+        \else
+            \expandafter\pgfsetdash\expandafter{\@@tmp}{0cm}
+        \fi
+        \fi
+        \pgfcirc@set@arrows{opto}{}{latexslim}
+    }
 
 \ctikzset{batteries/scale/.initial=1.0}
 \ctikzset{batteries/fill/.initial=none}
@@ -7860,6 +7884,8 @@
     \pgfpathlineto{\pgfpoint{\pgf@circ@res@right-.6\pgf@circ@res@left}{\pgf@circ@res@up}}
     \pgfusepath{draw}
 }
+% the styling of optical arrows is defined in pgfcirc.define.tex because
+% they are common to phototransistors
 
 %
 % draw LED arrows
@@ -7867,7 +7893,7 @@
 \def\pgf@circ@draw@ledarrows{%
     \pgfsetlinewidth{\pgfstartlinewidth}
     \pgf@circ@fill@strokecolor
-    \pgfcirc@set@arrows{opto}{}{latexslim}
+    \pgf@circ@set@optoarrow@style
     \ifpgf@led@fliparrows
         \pgfpathmoveto{\pgfpoint{0pt}{0.8\pgf@circ@res@up}}
         \pgfpathlineto{\pgfpoint{-0.6\pgf@circ@res@right}{1.8\pgf@circ@res@up}}
@@ -7890,7 +7916,7 @@
 \def\pgf@circ@draw@pdarrows{%
     \pgfsetlinewidth{\pgfstartlinewidth}
     \pgf@circ@fill@strokecolor
-    \pgfcirc@set@arrows{opto}{}{latexslim}
+    \pgf@circ@set@optoarrow@style
     \ifpgf@pd@fliparrows
         \pgfpathmoveto{\pgfpoint{-0.6\pgf@circ@res@right}{1.8\pgf@circ@res@up}}
         \pgfpathlineto{\pgfpoint{0pt}{0.8\pgf@circ@res@up}}
@@ -7913,7 +7939,7 @@
 \def\pgf@circ@draw@laserarrows{%
     \pgfsetlinewidth{\pgfstartlinewidth}
     \pgf@circ@fill@strokecolor
-    \pgfcirc@set@arrows{opto}{}{latexslim}
+    \pgf@circ@set@optoarrow@style
     \pgfpathmoveto{\pgfpoint{-0.4\pgf@circ@res@right}{1.1\pgf@circ@res@up}}
     \pgfpathlineto{\pgfpoint{-0.4\pgf@circ@res@right}{2.1\pgf@circ@res@up}}
     \pgfusepath{draw}
@@ -15305,7 +15331,7 @@
         \ifpgf@circuit@bpt@drawphoto
             \pgfscope
                 \pgf@circ@fill@strokecolor
-                \pgfcirc@set@arrows{opto}{}{latexslim}
+                \pgf@circ@set@optoarrow@style
                 \pgfpathmoveto{\pgfpointadd{\pgfpoint
                         {\ctikzvalof{tripoles/#1/base width}\pgf@circ@res@left}
                     {\pgf@circ@res@up+\pgf@circ@res@down}}
