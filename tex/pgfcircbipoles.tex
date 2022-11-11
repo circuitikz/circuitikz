@@ -50,6 +50,8 @@
     \ctikzset{bipoles/generic potentiometer/width=#1}%
     \ctikzset{bipoles/ageneric/width=#1}%
     \ctikzset{bipoles/tgeneric/width=#1}%
+    \ctikzset{bipoles/ldresistor/width=#1}%
+    \ctikzset{bipoles/ldgeneric/width=#1}%
 }}
 \ctikzset{wiper pos/.code={%
     \ctikzset{bipoles/potentiometer/wiper pos=#1}%
@@ -66,6 +68,9 @@
 \ctikzset{bipoles/vresistor/width/.initial=.8}
 \ctikzset{bipoles/resistivesens/height/.initial=.6}
 \ctikzset{bipoles/resistivesens/width/.initial=.8}
+\ctikzset{bipoles/ldresistor/height/.initial=.8}
+\ctikzset{bipoles/ldresistor/width/.initial=.8}
+\ctikzset{bipoles/ldresistor/internal scale/.initial=.8}
 % square resistors
 \ctikzset{bipoles/photoresistor/height/.initial=.6}
 \ctikzset{bipoles/photoresistor/height 2/.initial=.3}
@@ -97,6 +102,9 @@
 \ctikzset{bipoles/memristor/height/.initial=.30}
 \ctikzset{bipoles/memristor/wave height/.initial=.5}
 \ctikzset{bipoles/memristor/width/.initial=.80}
+\ctikzset{bipoles/ldgeneric/height/.initial=.8}
+\ctikzset{bipoles/ldgeneric/width/.initial=.8}
+\ctikzset{bipoles/ldgeneric/internal scale/.initial=.8}
 
 \newif\ifpgf@circuit@europeanresistor
 \ctikzset{resistor/.is choice}
@@ -352,7 +360,9 @@
 
 %% Photoresistor
 \pgfcircdeclarebipolescaled{resistors}
-{}
+{% anchor for light arrows
+    \anchor{arrows}{\northeast\pgf@x=0.575\pgf@x\pgf@y=1.1\pgf@y}%
+}
 {\ctikzvalof{bipoles/photoresistor/height 2}}
 {photoresistor}
 {\ctikzvalof{bipoles/photoresistor/height}}
@@ -525,6 +535,55 @@
     \endpgfscope
 }
 
+%% european style LDR
+\pgfcircdeclarebipolescaled{resistors}
+{% anchor for light arrows
+    \anchor{arrows}{\northeast\pgf@x=1.6\pgf@x\pgf@y=1.4\pgf@y}%
+    \savedmacro{\zigs}{\edef\zigs{\ctikzvalof{resistors/zigs}}}
+}
+{\ctikzvalof{bipoles/ldgeneric/height}}
+{ldgeneric}
+{\ctikzvalof{bipoles/ldgeneric/height}}
+{\ctikzvalof{bipoles/ldgeneric/width}}
+{%
+    \pgf@circ@setlinewidth{bipoles}{\pgfstartlinewidth}
+    \pgfscope
+        \pgfpathellipse{\pgfpointorigin}{\pgfpoint{0}{\pgf@circ@res@up}}{\pgfpoint{\pgf@circ@res@left}{0}}
+        \pgf@circ@draworfill
+    \endpgfscope
+    \pgfscope
+        % arrows
+        \pgf@circ@set@optoarrow@style
+        \pgfpathmoveto{\pgfpoint{1.4\pgf@circ@res@right}{1.4\pgf@circ@res@up}}
+        \pgfpathlineto{\pgfpoint{0.8\pgf@circ@res@right}{0.8\pgf@circ@res@up}}
+        \pgfusepath{draw}
+        \pgfpathmoveto{\pgfpoint{1.6\pgf@circ@res@right}{1.2\pgf@circ@res@up}}
+        \pgfpathlineto{\pgfpoint{1.0\pgf@circ@res@right}{0.6\pgf@circ@res@up}}
+        \pgfusepath{draw}
+    \endpgfscope
+    \edef\@@intscale{\ctikzvalof{bipoles/ldgeneric/internal scale}}%
+    \pgfmathsetmacro{\@@hscale}{0.5*\@@intscale}%
+    \pgftransformscale{\@@intscale}% the end of the bipole will deactivate it
+    % the generic will be reduced by @@intscale; let's undo the scaling to
+    % connect the leads to the end of the component.
+    \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left/\@@intscale-\pgfhorizontaltransformationadjustment*0.5*\pgflinewidth}{+0pt}}
+    \pgfpathlineto{\pgfpoint{\pgf@circ@res@left-\pgfhorizontaltransformationadjustment*0.5*\pgflinewidth}{+0pt}}
+    \pgfpathmoveto{\pgfpoint{\pgf@circ@res@right/\@@intscale+\pgfhorizontaltransformationadjustment*0.5*\pgflinewidth}{+0pt}}
+    \pgfpathlineto{\pgfpoint{\pgf@circ@res@right+\pgfhorizontaltransformationadjustment*0.5*\pgflinewidth}{+0pt}}
+    \pgftransformationadjustments
+    \pgfmathsetlength{\pgf@circ@res@step}{\ctikzvalof{bipoles/ldgeneric/width}*\scaledRlen+\pgfhorizontaltransformationadjustment*0.5*\pgflinewidth}
+    \pgfusepath{draw}
+    \pgfscope
+        % reset the up at the "generic" thing
+        \pgf@circ@res@up=\ctikzvalof{bipoles/generic/height}\pgf@circ@scaled@Rlen
+        \pgf@circ@res@up=0.5\pgf@circ@res@up
+        \pgf@circ@res@down=-\pgf@circ@res@up
+        \pgfpathrectanglecorners{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@up}}{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@down}}
+        \pgf@circ@setlinewidth{bipoles}{\pgfstartlinewidth}
+        \pgfusepath{draw}
+    \endpgfscope
+}%
+
 %% Zig-zag resistors
 \def\pgf@circ@zigzag#1{%
     \divide \pgf@circ@res@step by \numexpr4*\zigs\relax
@@ -656,7 +715,51 @@
         \pgfpathlineto{\pgfpoint{-.9\pgf@circ@res@other}{\pgf@circ@res@down}}
         \pgfusepath{draw}
     \endpgfscope
-}% %>>>
+}%
+
+%% american style LDR
+\pgfcircdeclarebipolescaled{resistors}
+{% anchor for light arrows
+    \anchor{arrows}{\northeast\pgf@x=1.6\pgf@x\pgf@y=1.4\pgf@y}%
+    \savedmacro{\zigs}{\edef\zigs{\ctikzvalof{resistors/zigs}}}
+    % \pgfcirc@border@extend@full{1.2}{1.2}{1.2}{1.2}
+}
+{\ctikzvalof{bipoles/ldresistor/height}}
+{ldresistor}
+{\ctikzvalof{bipoles/ldresistor/height}}
+{\ctikzvalof{bipoles/ldresistor/width}}
+{%
+    \pgf@circ@setlinewidth{bipoles}{\pgfstartlinewidth}
+    \pgfscope
+        \pgfpathellipse{\pgfpointorigin}{\pgfpoint{0}{\pgf@circ@res@up}}{\pgfpoint{\pgf@circ@res@left}{0}}
+        \pgf@circ@draworfill
+    \endpgfscope
+    \pgfscope
+        % arrows
+        \pgf@circ@set@optoarrow@style
+        \pgfpathmoveto{\pgfpoint{1.4\pgf@circ@res@right}{1.4\pgf@circ@res@up}}
+        \pgfpathlineto{\pgfpoint{0.8\pgf@circ@res@right}{0.8\pgf@circ@res@up}}
+        \pgfusepath{draw}
+        \pgfpathmoveto{\pgfpoint{1.6\pgf@circ@res@right}{1.2\pgf@circ@res@up}}
+        \pgfpathlineto{\pgfpoint{1.0\pgf@circ@res@right}{0.6\pgf@circ@res@up}}
+        \pgfusepath{draw}
+    \endpgfscope
+    \edef\@@intscale{\ctikzvalof{bipoles/ldresistor/internal scale}}%
+    \pgfmathsetmacro{\@@hscale}{0.5*\@@intscale}%
+    \pgftransformscale{\@@intscale}% the end of the bipole will deactivate it
+    % the zigzag will be reduced by @@intscale; let's undo the scaling to
+    % connect the leads to the end of the component.
+    \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left/\@@intscale-\pgfhorizontaltransformationadjustment*0.5*\pgflinewidth}{+0pt}}
+    \pgfpathlineto{\pgfpoint{\pgf@circ@res@left-\pgfhorizontaltransformationadjustment*0.5*\pgflinewidth}{+0pt}}
+    \pgfpathmoveto{\pgfpoint{\pgf@circ@res@right/\@@intscale+\pgfhorizontaltransformationadjustment*0.5*\pgflinewidth}{+0pt}}
+    \pgfpathlineto{\pgfpoint{\pgf@circ@res@right+\pgfhorizontaltransformationadjustment*0.5*\pgflinewidth}{+0pt}}
+    \pgftransformationadjustments
+    \pgfmathsetlength{\pgf@circ@res@step}{\ctikzvalof{bipoles/ldresistor/width}*\scaledRlen+\pgfhorizontaltransformationadjustment*0.5*\pgflinewidth}
+    \pgf@circ@zigzag{\@@hscale}
+}%
+
+
+%>>>
 
 %% Paths for resistive components: generic, resistors and wires% %<<<
 
@@ -697,6 +800,12 @@
 \pgfcirc@node@to@style{l}{resistivesens}{american resistive sensor}{}
 \pgfcirc@node@to@style{l}{thermistor}{european resistive sensor}{}
 \pgfcirc@style@to@style{resistive sensor}{sR}
+
+\def\pgf@circ@ldresistor@path#1{\ifpgf@circuit@europeanresistor\pgf@circ@bipole@path{ldgeneric}{#1}\else\pgf@circ@bipole@path{ldresistor}{#1}\fi}
+\pgfcirc@path@to@style{l}{ldresistor}{light dependent resistor}{}
+\pgfcirc@node@to@style{l}{ldresistor}{american light dependent resistor}{}
+\pgfcirc@node@to@style{l}{ldgeneric}{european light dependent resistor}{}
+\pgfcirc@style@to@style{light dependent resistor}{ldR}
 
 \def\pgf@circ@potentiometer@path#1{\ifpgf@circuit@europeanresistor\pgf@circ@bipole@path{genericpotentiometer}{#1}\else\pgf@circ@bipole@path{potentiometer}{#1}\fi}
 \pgfcirc@path@to@style{l}{potentiometer}{potentiometer}{}
@@ -3498,10 +3607,26 @@
     \pgfpathlineto{\pgfpoint{0.2\pgf@circ@res@right}{2.1\pgf@circ@res@up}}
     \pgfusepath{draw}
 }
+
+\def\pgf@circ@generate@diode@saved@arrows#1#2#3#4#5{%
+    \savedanchor{\arrows}{%
+        \pgf@circ@scaled@Rlen=\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen
+        \pgf@ya=\ctikzvalof{bipoles/diode/height}\pgf@circ@scaled@Rlen
+        \pgf@xa=\ctikzvalof{bipoles/diode/width}\pgf@circ@scaled@Rlen
+        \pgf@x=.5\pgf@xa\pgf@y=.5\pgf@ya
+        \csname ifpgf@#5@fliparrows\endcsname
+            \pgf@x=#1\pgf@x\pgf@y=#2\pgf@y
+        \else
+            \pgf@x=#3\pgf@x\pgf@y=#4\pgf@y
+        \fi
+    }
+}
 %% Black light emitting diode
 \pgfcircdeclarebipolescaled{diodes}
 {% fix the anchor border
     \pgfcirc@border@extend@updown{1.8}{1}
+    \pgf@circ@generate@diode@saved@arrows{-0.2}{2.0}{1.0}{2.0}{led}
+    \anchor{arrows}{\arrows}
 }
 {\ctikzvalof{bipoles/diode/height}}
 {fulllediode}
@@ -3522,6 +3647,8 @@
 \pgfcircdeclarebipolescaled{diodes}
 {% fix the anchor border
     \pgfcirc@border@extend@updown{1.8}{1}
+    \pgf@circ@generate@diode@saved@arrows{-0.1}{2.2}{-0.1}{2.2}{pd}%pd or led dosen't matter
+    \anchor{arrows}{\arrows}
 }
 {\ctikzvalof{bipoles/diode/height}}
 {fulllaserdiode}
@@ -3544,6 +3671,8 @@
 \pgfcircdeclarebipolescaled{diodes}
 {% fix the anchor border
     \pgfcirc@border@extend@updown{1.8}{1}
+    \pgf@circ@generate@diode@saved@arrows{-0.2}{2.0}{1.0}{2.0}{pd}
+    \anchor{arrows}{\arrows}
 }
 {\ctikzvalof{bipoles/diode/height}}
 {fullpdiode}
@@ -3712,6 +3841,8 @@
 \pgfcircdeclarebipolescaled{diodes}
 {% fix the anchor border
     \pgfcirc@border@extend@updown{1.8}{1}
+    \pgf@circ@generate@diode@saved@arrows{-0.2}{2.0}{1.0}{2.0}{led}
+    \anchor{arrows}{\arrows}
 }
 {\ctikzvalof{bipoles/diode/height}}
 {emptylediode}
@@ -3734,6 +3865,8 @@
 \pgfcircdeclarebipolescaled{diodes}
 {% fix the anchor border
     \pgfcirc@border@extend@updown{1.8}{1}
+    \pgf@circ@generate@diode@saved@arrows{-0.1}{2.2}{-0.1}{2.2}{pd}%pd or led dosen't matter
+    \anchor{arrows}{\arrows}
 }
 {\ctikzvalof{bipoles/diode/height}}
 {emptylaserdiode}
@@ -3758,6 +3891,8 @@
 \pgfcircdeclarebipolescaled{diodes}
 {% fix the anchor border
     \pgfcirc@border@extend@updown{1.8}{1}
+    \pgf@circ@generate@diode@saved@arrows{-0.2}{2.0}{1.0}{2.0}{pd}
+    \anchor{arrows}{\arrows}
 }
 {\ctikzvalof{bipoles/diode/height}}
 {emptypdiode}
