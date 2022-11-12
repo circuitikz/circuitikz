@@ -1,7 +1,10 @@
 <!--- CircuiTikz - Changelog --->
 The major changes among the different CircuiTikZ versions are listed here. See <https://github.com/circuitikz/circuitikz/commits> for a full list of changes.
 
-* Version 1.5.5 (unreleased)
+* Version 1.5.5 (2022-11-12)
+
+    New features for optoelectronic devices: a new component, arrow styling,
+    and anchors.
 
     - Added styling of arrows on opto devices, thanks to a suggestion by [Dr Matthias Jung](https://github.com/circuitikz/circuitikz/issues/655)
     - Added Light-Dependent resistor shape (by Romano)
