@@ -1,6 +1,10 @@
 <!--- CircuiTikz - Changelog --->
 The major changes among the different CircuiTikZ versions are listed here. See <https://github.com/circuitikz/circuitikz/commits> for a full list of changes.
 
+* Version 1.5.6 (unreleased)
+
+    - Fix deformed shape for legacy `TL` component ([issue on GitHub](https://github.com/circuitikz/circuitikz/issues/664))
+
 * Version 1.5.5 (2022-11-12)
 
     New features for optoelectronic devices: a new component, arrow styling,
