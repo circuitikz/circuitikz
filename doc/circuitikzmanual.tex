@@ -3709,18 +3709,51 @@ Basically they are the same as the normal \texttt{npn} and \texttt{pnp}, and the
 \textsc{nfet}s and \textsc{pfet}s have been incorporated based on code provided by Clemens Helfmeier and Theodor Borsche. Use the package options \texttt{fetsolderdot}/\texttt{nofetsolderdot} to enable/disable solderdot at some fet-transistors. Additionally, the solderdot option can be enabled/disabled for single transistors with the option \texttt{solderdot} and \texttt{nosolderdot}, respectively.
 
 \begin{groupdesc}
-    \circuitdesc{nfet}{nfet}{Q}
-    \circuitdesc{nfetd}{nfet depletion}{Q}
-    \circuitdesc{nigfete}{nigfete}{Q}
+    \circuitdesc{nfet}{nfet}{Q}(G/180/0.1, D/0/0.1, S/0/0.1)
+    \circuitdesc{nfetd}{nfet depletion}{Q}(G/180/0.1, D/0/0.1, S/0/0.1)
+    \circuitdesc{nigfete}{nigfete}{Q}(G/180/0.1, D/0/0.1, S/0/0.1)
     \circuitdesc{nigfete,solderdot}{nigfete}{}(centergap/0/0.5)
     \circuitdesc{nigfetebulk}{nigfetebulk}{}
     \circuitdesc{nigfetd}{nigfetd}{}(centergap/0/0.5)
-    \circuitdesc{pfet}{pfet}{Q}
-    \circuitdesc{pfetd}{pfet depletion}{Q}
-    \circuitdesc{pigfete}{pigfete}{}(centergap/0/0.5)
+    \circuitdesc{pfet}{pfet}{Q}(G/180/0.1, D/0/0.1, S/0/0.1)
+    \circuitdesc{pfetd}{pfet depletion}{Q}(G/180/0.1, D/0/0.1, S/0/0.1)
+    \circuitdesc{pigfete}{pigfete}{}(centergap/0/0.5, G/180/0.1, D/0/0.1, S/0/0.1)
     \circuitdesc{pigfetebulk}{pigfetebulk}{}
     \circuitdesc{pigfetd}{pigfetd}{}
 \end{groupdesc}
+
+Since version \texttt{1.5.6}, you can add the \texttt{doublegate} option to the \texttt{*igfet*} family of devices to have a double gate MOS --- the additional gate is called \texttt{G2} or \texttt{gate2} (the plain \texttt{G} is where it will be without the \texttt{doublegate} option).
+
+\begin{groupdesc}
+    \circuitdesc{nigfete, doublegate}{nigfete, doublegate}{Q}(G/180/0.1, G2/180/0.1, D/0/0.1, S/0/0.1)
+    \circuitdesc{nigfete,solderdot, doublegate}{nigfete, doublegate}{}(G1/180/0.1, centergap/0/0.5, G2/180/0.1)
+    \circuitdesc{nigfetebulk, doublegate}{nigfetebulk, doublegate}{}(G/180/0.1, G2/180/0.1)
+    \circuitdesc{nigfetd, doublegate}{nigfetd, doublegate}{}(G1/180/0.1, centergap/0/0.5, G2/180/0.1)
+    \circuitdesc{pigfete, doublegate}{pigfete, doublegate}{}(G/180/0.1, centergap/0/0.5, G2/180/0.1, D/0/0.1, S/0/0.1)
+    \circuitdesc{pigfetebulk, doublegate}{pigfetebulk, doublegate}{}(G/180/0.1, G2/180/0.1)
+    \circuitdesc{pigfetd, doublegate}{pigfetd, doublegate}{}(G1/180/0.1, G2/180/0.1)
+\end{groupdesc}
+
+You can use the double-gated transistor for example like this:%
+\footnote{Found at \href{https://www.electronics-notes.com/articles/electronic_components/fet-field-effect-transistor/dual-gate-mosfet.php}{this page on electronics notes}.}
+
+\begin{LTXexample}[varwidth=true, basicstyle=\scriptsize\ttfamily]
+\begin{circuitikz}[european, scale=0.7, transform shape,
+    circuitikz/resistors/scale=0.7]
+    \draw (0,0) to[C, o-*] ++(1,0) coordinate(in)
+    to[R, -*] ++(0,-3) coordinate(GND)
+    ++(1,0) to[C, *-] ++(0,4) -- ++(1,0) coordinate(div)
+    to[R, *-*] ++(0,2) coordinate(vdd)
+    (div) to[R, -*] (div|-GND)
+    (in) -- ++(2.5,0) node[nigfetd, doublegate, anchor=G1](Q){Q}
+    (Q.G2) to[short, -*] (Q.G2-|div)
+    (Q.D) to[R, -*] (Q.D|-vdd)
+    (Q.D) to[C, *-o] ++(2,0) coordinate(out)
+    (Q.S) to[R, *-*] (Q.S|-GND) (Q.S) -- ++(1,0) coordinate(Sd)
+    (Sd) to[C, -*] (Sd |- GND);
+    \draw (0,0|-GND) -- (out|-GND) (0,0|-vdd) -- (out|-vdd);
+\end{circuitikz}
+\end{LTXexample}
 
 \textsc{JFET} are also available\footnote{based on code provided by Danilo Piazzalunga}, both n-type and p-type.
 

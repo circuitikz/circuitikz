@@ -3,6 +3,7 @@ The major changes among the different CircuiTikZ versions are listed here. See <
 
 * Version 1.5.6 (unreleased)
 
+    - Added double gate MOS transistors (by Romano Giannetti)
     - Fix deformed shape for legacy `TL` component ([issue on GitHub](https://github.com/circuitikz/circuitikz/issues/664))
     - Added several anchors on variable components, suggested by [Dr Matthias Jung](https://github.com/circuitikz/circuitikz/issues/663)
 
