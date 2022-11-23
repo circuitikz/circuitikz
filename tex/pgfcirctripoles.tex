@@ -2859,6 +2859,13 @@
 \pgfkeys{/tikz/nosolderdot/.add code={}{\pgf@circuit@fet@solderdotfalse}}
 \ctikzset{nosolderdot/.add code={}{\pgf@circuit@fet@solderdotfalse}}
 
+%%%% activate doublegate
+\newif\ifpgf@circuit@fet@doublegate
+\pgfkeys{/tikz/doublegate/.add code={}{\pgf@circuit@fet@doublegatetrue}}
+\ctikzset{doublegate/.add code={}{\pgf@circuit@fet@doublegatetrue}}
+\pgfkeys{/tikz/nodoublegate/.add code={}{\pgf@circuit@fet@doublegatefalse}}
+\ctikzset{nodoublegate/.add code={}{\pgf@circuit@fet@doublegatefalse}}
+
 % Option bodydiode for fet
 \newif\ifpgf@circuit@fet@bodydiode
 \pgfkeys{/tikz/bodydiode/.add code={}{\pgf@circuit@fet@bodydiodetrue}}
@@ -3787,9 +3794,35 @@
             \left
             \pgf@y=-\ctikzvalof{tripoles/#1/curr direction}\pgf@circ@res@step
         }
+        \anchor{G1}{
+            \northeast
+            \pgf@circ@res@step=\ctikzvalof{tripoles/#1/conn height}\pgf@y
+            \left
+            \pgf@y=-\ctikzvalof{tripoles/#1/curr direction}\pgf@circ@res@step
+        }
+        \anchor{G2}{
+            \northeast
+            \pgf@circ@res@step=\ctikzvalof{tripoles/#1/conn height}\pgf@y
+            \pgf@circ@res@step=-0.3333333\pgf@circ@res@step
+            \left
+            \pgf@y=-\ctikzvalof{tripoles/#1/curr direction}\pgf@circ@res@step
+        }
         \anchor{gate}{
             \northeast
             \pgf@circ@res@step=\ctikzvalof{tripoles/#1/conn height}\pgf@y
+            \left
+            \pgf@y=-\ctikzvalof{tripoles/#1/curr direction}\pgf@circ@res@step
+        }
+        \anchor{gate1}{
+            \northeast
+            \pgf@circ@res@step=\ctikzvalof{tripoles/#1/conn height}\pgf@y
+            \left
+            \pgf@y=-\ctikzvalof{tripoles/#1/curr direction}\pgf@circ@res@step
+        }
+        \anchor{gate2}{
+            \northeast
+            \pgf@circ@res@step=\ctikzvalof{tripoles/#1/conn height}\pgf@y
+            \pgf@circ@res@step=-0.3333333\pgf@circ@res@step
             \left
             \pgf@y=-\ctikzvalof{tripoles/#1/curr direction}\pgf@circ@res@step
         }
@@ -5359,10 +5392,19 @@
     \pgfusepath{draw}
 
     %draw thick gate line
-    \pgfscope
+    \pgfscope%%% gate line
         \pgfpathmoveto{\pgfpoint
             {\ctikzvalof{tripoles/#1/gate width}\pgf@circ@res@left}
         {\ctikzvalof{tripoles/#1/gate height}\pgf@circ@res@up+\pgfverticaltransformationadjustment*.5*\pgflinewidth}}
+        \ifpgf@circuit@fet@doublegate
+            \edef\@@gateconnheight{(\ctikzvalof{tripoles/#1/conn height})}
+            \pgfpathlineto{\pgfpoint
+                {\ctikzvalof{tripoles/#1/gate width}\pgf@circ@res@left}
+                {\@@gateconnheight*\pgf@circ@res@up/3}}
+            \pgfpathmoveto{\pgfpoint
+                {\ctikzvalof{tripoles/#1/gate width}\pgf@circ@res@left}
+                {\@@gateconnheight*\pgf@circ@res@down/3}}
+        \fi
         \pgfpathlineto{\pgfpoint
             {\ctikzvalof{tripoles/#1/gate width}\pgf@circ@res@left}
         {\ctikzvalof{tripoles/#1/gate height}\pgf@circ@res@down-\pgfverticaltransformationadjustment*.5*\pgflinewidth}}
@@ -5404,18 +5446,28 @@
 
     % GATE CONNECTION
     \ifpgf@circuit@bpt@drawgate
-        \ifpgf@circuit@trans@ntype
+        \pgfscope %% gate connection
+            \ifpgf@circuit@trans@ntype
+                \edef\@@gateconnheight{(\ctikzvalof{tripoles/#1/conn height})}
+            \else
+                \edef\@@gateconnheight{(-\ctikzvalof{tripoles/#1/conn height})}
+            \fi
             \pgfpathmoveto{\pgfpoint
                 {\ctikzvalof{tripoles/#1/gate width}\pgf@circ@res@left}
-            {\ctikzvalof{tripoles/#1/conn height}\pgf@circ@res@down}}
-            \pgfpathlineto{\pgfpoint{\pgf@circ@res@left-\pgfhorizontaltransformationadjustment*.5*\pgflinewidth}{\ctikzvalof{tripoles/#1/conn height}\pgf@circ@res@down}}
-        \else
-            \pgfpathmoveto{\pgfpoint
-                {\ctikzvalof{tripoles/#1/gate width}\pgf@circ@res@left}
-            {-\ctikzvalof{tripoles/#1/conn height}\pgf@circ@res@down}}
-            \pgfpathlineto{\pgfpoint{\pgf@circ@res@left-\pgfhorizontaltransformationadjustment*.5*\pgflinewidth}{-\ctikzvalof{tripoles/#1/conn height}\pgf@circ@res@down}}
-        \fi
-        \pgfusepath{draw}
+                {\@@gateconnheight*\pgf@circ@res@down}}
+            \pgfpathlineto{\pgfpoint
+                {\pgf@circ@res@left-\pgfhorizontaltransformationadjustment*.5*\pgflinewidth}
+                {\@@gateconnheight*\pgf@circ@res@down}}
+            \ifpgf@circuit@fet@doublegate
+                \pgfpathmoveto{\pgfpoint
+                    {\ctikzvalof{tripoles/#1/gate width}\pgf@circ@res@left}
+                    {-\@@gateconnheight*\pgf@circ@res@down/3}}
+                \pgfpathlineto{\pgfpoint
+                    {\pgf@circ@res@left-\pgfhorizontaltransformationadjustment*.5*\pgflinewidth}
+                    {-\@@gateconnheight*\pgf@circ@res@down/3}}
+            \fi
+            \pgfusepath{draw}
+        \endpgfscope
     \fi
 
     \pgfcirc@ferroelectric{#1}{0}
