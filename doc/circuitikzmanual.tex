@@ -213,6 +213,7 @@ Arrows with \texttt{to[]} components don't work, anyway, so basically avoid this
 \end{circuitikz}
 \end{LTXexample}
 
+Lastly, voltage styles interacts in strange ways with general (such as \texttt{american}, \texttt{european} style), in the sense that sometimes the order in which you enact them is important. That should be arguably fixed, but it will change (read break) a lot of existing code, so it'll stay;  more information and workarounds in section~\ref{sec:mixing-voltage-styles}.
 
 \subsection{Scale factor inaccuracies}\label{sec:usefpu}
 
@@ -8185,6 +8186,24 @@ This could be especially useful if you define a style, to use like this:
     \draw (0,-2) to[R,v_<=$V_S$] ++(2,0);
 \end{circuitikz}
 \end{LTXexample}
+
+\subsubsection{Combining different styles}\label{sec:mixing-voltage-styles}
+
+Due to an historical hiccup, you need to be careful if you want to mix styles, like for example having \texttt{american} styled components and straight voltages (which are basically \texttt{european} style, at least in \Circuitikz{}). The problem is that the order of style parameters can change the output\footnote{%
+thanks to Stack Exchange user \href{https://tex.stackexchange.com/q/665466/38080}{Mads P Olesen} for noticing.} as you can see in the following example, where in the red case the voltage generator shape reverted to the \texttt{european} one.
+
+\begin{LTXexample}
+\begin{circuitikz}[straight voltages, american]
+    \draw (0,0) to [V, v=$V_P$] ++(0,3);
+    \draw (1,0) to [R, v=$V_P$] ++(0,3);
+\end{circuitikz}\color{red}%
+\begin{circuitikz}[american, straight voltages]
+    \draw (0,0) to [V, v=$V_P$] ++(0,3);
+    \draw (1,0) to [R, v=$V_P$] ++(0,3);
+\end{circuitikz}
+\end{LTXexample}
+
+This is arguably a bug, but fixing it (separating the voltage generator shapes from the voltage style) would break havoc with older circuits, so this will not be fixed for now.
 
 
 
