@@ -625,18 +625,31 @@
 %%% definition to help define the blocks. Notice that the height, width, etc are different, so we can't
 %%% simplify more...
 
-\def\pfgcirc@twoport@rotate@inner@symbol{%
-    % rotate inner symbol
+\def\pfgcirc@twoport@get@symbol@rotation{
+    %%% put the needed rotation in \@@rotation
     \def\pgfcircmathresult{\expandafter\pgf@circ@stripdecimals\pgf@circ@direction\pgf@nil}
+    \def\@@rotation{0}
     \ifnum \pgfcircmathresult > 45 \ifnum \pgfcircmathresult < 135
-        \pgftransformrotate{270}
+        \def\@@rotation{270}
     \fi\fi
     \ifnum \pgfcircmathresult > 134 \ifnum \pgfcircmathresult < 225
-        \pgftransformrotate{180}
+        \def\@@rotation{180}
     \fi\fi
     \ifnum \pgfcircmathresult > 224 \ifnum \pgfcircmathresult < 315
-        \pgftransformrotate{90}
+        \def\@@rotation{90}
     \fi\fi
+}
+
+\def\pfgcirc@twoport@rotate@inner@symbol{%
+    % rotate inner symbol
+    \pfgcirc@twoport@get@symbol@rotation
+    \pgftransformrotate{\@@rotation}
+}
+
+% debug
+\def\@@printrot{%
+    \pgfsetcolor{red}
+    \pgftext[center,x=0,y=0,]{\tiny\ttfamily\pgf@circ@direction > \@@rotation}
 }
 
 \def\pgfcirc@twoport@shuffle@texts#1#2{% #1 IN, #2 OUT
@@ -1179,6 +1192,51 @@
     \fi
 }
 
+%% converters help function
+\def\pgf@circ@twoport@converter@dc#1#2{%
+    \pgfscope
+    \pgftransformshift{\pgfpoint{#1\pgf@circ@res@step}{#2\pgf@circ@res@step}}
+    \pgfpathmoveto{\pgfpoint{-0.25\pgf@circ@res@step}{0.125\pgf@circ@res@step}}
+    \pgfpathlineto{\pgfpoint{0.25\pgf@circ@res@step}{0.125\pgf@circ@res@step}}
+    \pgfusepath{draw}
+    \pgfpathmoveto{\pgfpoint{-0.25\pgf@circ@res@step}{-0.125\pgf@circ@res@step}}
+    \pgfpathlineto{\pgfpoint{0.25\pgf@circ@res@step}{-0.125\pgf@circ@res@step}}
+    \pgfusepath{draw}
+    \endpgfscope
+}
+\def\pgf@circ@twoport@converter@dc@up{%
+    \pgf@circ@twoport@converter@dc{-0.5}{0.5}
+}
+\def\pgf@circ@twoport@converter@dc@down{%
+    \pgf@circ@twoport@converter@dc{0.5}{-0.5}
+}
+\def\pgf@circ@twoport@converter@ac#1#2{%
+    \pgfscope
+    \pgftransformshift{\pgfpoint{#1\pgf@circ@res@step}{#2\pgf@circ@res@step}}
+    \pgfpathmoveto{\pgfpoint{-.31\pgf@circ@res@step}{0\pgf@circ@res@step}}
+    \pgfpathsine{\pgfpoint{.17\pgf@circ@res@step}{.17\pgf@circ@res@step}}
+    \pgfpathcosine{\pgfpoint{.17\pgf@circ@res@step}{-.17\pgf@circ@res@step}}
+    \pgfpathsine{\pgfpoint{.17\pgf@circ@res@step}{-.17\pgf@circ@res@step}}
+    \pgfpathcosine{\pgfpoint{.17\pgf@circ@res@step}{.17\pgf@circ@res@step}}
+    \pgfusepath{draw}
+    \endpgfscope
+}
+\def\pgf@circ@twoport@converter@ac@up{%
+    \pgf@circ@twoport@converter@ac{-0.45}{0.5}
+    }
+\def\pgf@circ@twoport@converter@ac@down{%
+    \pgf@circ@twoport@converter@ac{0.45}{-0.5}
+}
+\def\pgf@circ@twoport@converter@tac@up{%
+    \pgf@circ@twoport@converter@ac{-0.45}{0.65}
+    \pgf@circ@twoport@converter@ac{-0.45}{0.5}
+    \pgf@circ@twoport@converter@ac{-0.45}{0.35}
+}
+\def\pgf@circ@twoport@converter@tac@down{%
+    \pgf@circ@twoport@converter@ac{0.45}{-0.65}
+    \pgf@circ@twoport@converter@ac{0.45}{-0.5}
+    \pgf@circ@twoport@converter@ac{0.45}{-0.35}
+}
 %% single phase ac/dc converter
 \pgfcirc@define@twoports{blocks}
 {
@@ -1197,20 +1255,13 @@
     \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@down}}
     \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@up}}
     \pgfusepath{draw}
-    % draw sin wave
-    \pgfpathmoveto{\pgfpoint{-.76\pgf@circ@res@step}{.5\pgf@circ@res@step}}
-    \pgfpathsine{\pgfpoint{.17\pgf@circ@res@step}{.17\pgf@circ@res@step}}
-    \pgfpathcosine{\pgfpoint{.17\pgf@circ@res@step}{-.17\pgf@circ@res@step}}
-    \pgfpathsine{\pgfpoint{.17\pgf@circ@res@step}{-.17\pgf@circ@res@step}}
-    \pgfpathcosine{\pgfpoint{.17\pgf@circ@res@step}{.17\pgf@circ@res@step}}
-    \pgfusepath{draw}
-    % draw equal sign
-    \pgfpathmoveto{\pgfpoint{.2\pgf@circ@res@step}{-.375\pgf@circ@res@step}}
-    \pgfpathlineto{\pgfpoint{0.7\pgf@circ@res@step}{-0.375\pgf@circ@res@step}}
-    \pgfusepath{draw}
-    \pgfpathmoveto{\pgfpoint{.2\pgf@circ@res@step}{-.625\pgf@circ@res@step}}
-    \pgfpathlineto{\pgfpoint{0.7\pgf@circ@res@step}{-0.625\pgf@circ@res@step}}
-    \pgfusepath{draw}
+    \ifnum\@@rotation<145 % swap dc/ac for "backward" and "up" symbol
+        \pgf@circ@twoport@converter@ac@up
+        \pgf@circ@twoport@converter@dc@down
+    \else
+        \pgf@circ@twoport@converter@dc@up
+        \pgf@circ@twoport@converter@ac@down
+    \fi
 }
 
 
@@ -1232,20 +1283,9 @@
     \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@down}}
     \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@up}}
     \pgfusepath{draw}
-    % draw equal sign
-    \pgfpathmoveto{\pgfpoint{.2\pgf@circ@res@step}{-.375\pgf@circ@res@step}}
-    \pgfpathlineto{\pgfpoint{0.7\pgf@circ@res@step}{-0.375\pgf@circ@res@step}}
-    \pgfusepath{draw}
-    \pgfpathmoveto{\pgfpoint{.2\pgf@circ@res@step}{-.625\pgf@circ@res@step}}
-    \pgfpathlineto{\pgfpoint{0.7\pgf@circ@res@step}{-0.625\pgf@circ@res@step}}
-    \pgfusepath{draw}
-    % draw equal sign
-    \pgfpathmoveto{\pgfpoint{-.2\pgf@circ@res@step}{.375\pgf@circ@res@step}}
-    \pgfpathlineto{\pgfpoint{-0.7\pgf@circ@res@step}{0.375\pgf@circ@res@step}}
-    \pgfusepath{draw}
-    \pgfpathmoveto{\pgfpoint{-.2\pgf@circ@res@step}{.625\pgf@circ@res@step}}
-    \pgfpathlineto{\pgfpoint{-0.7\pgf@circ@res@step}{0.625\pgf@circ@res@step}}
-    \pgfusepath{draw}
+    % No need to switch here
+    \pgf@circ@twoport@converter@dc@up
+    \pgf@circ@twoport@converter@dc@down
 }
 
 
@@ -1267,22 +1307,14 @@
     \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@down}}
     \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@up}}
     \pgfusepath{draw}
-    % draw sin wave
-    \pgfpathmoveto{\pgfpoint{.14\pgf@circ@res@step}{-.5\pgf@circ@res@step}}
-    \pgfpathsine{\pgfpoint{.17\pgf@circ@res@step}{.17\pgf@circ@res@step}}
-    \pgfpathcosine{\pgfpoint{.17\pgf@circ@res@step}{-.17\pgf@circ@res@step}}
-    \pgfpathsine{\pgfpoint{.17\pgf@circ@res@step}{-.17\pgf@circ@res@step}}
-    \pgfpathcosine{\pgfpoint{.17\pgf@circ@res@step}{.17\pgf@circ@res@step}}
-    \pgfusepath{draw}
-    % draw equal sign
-    \pgfpathmoveto{\pgfpoint{-.2\pgf@circ@res@step}{.375\pgf@circ@res@step}}
-    \pgfpathlineto{\pgfpoint{-0.7\pgf@circ@res@step}{0.375\pgf@circ@res@step}}
-    \pgfusepath{draw}
-    \pgfpathmoveto{\pgfpoint{-.2\pgf@circ@res@step}{.625\pgf@circ@res@step}}
-    \pgfpathlineto{\pgfpoint{-0.7\pgf@circ@res@step}{0.625\pgf@circ@res@step}}
-    \pgfusepath{draw}
+    \ifnum\@@rotation<145 % swap dc/ac for "backward" and "up" symbol
+        \pgf@circ@twoport@converter@dc@up
+        \pgf@circ@twoport@converter@ac@down
+    \else
+        \pgf@circ@twoport@converter@ac@up
+        \pgf@circ@twoport@converter@dc@down
+    \fi
 }
-
 
 %% threephase ac/dc converter
 \pgfcirc@define@twoports{blocks}
@@ -1305,32 +1337,13 @@
     \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@down}}
     \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@up}}
     \pgfusepath{draw}
-    % draw sin waves
-    \pgfpathmoveto{\pgfpoint{-.76\pgf@circ@res@step}{.65\pgf@circ@res@step}}
-    \pgfpathsine{\pgfpoint{.17\pgf@circ@res@step}{.17\pgf@circ@res@step}}
-    \pgfpathcosine{\pgfpoint{.17\pgf@circ@res@step}{-.17\pgf@circ@res@step}}
-    \pgfpathsine{\pgfpoint{.17\pgf@circ@res@step}{-.17\pgf@circ@res@step}}
-    \pgfpathcosine{\pgfpoint{.17\pgf@circ@res@step}{.17\pgf@circ@res@step}}
-    \pgfusepath{draw}
-    \pgfpathmoveto{\pgfpoint{-.76\pgf@circ@res@step}{.5\pgf@circ@res@step}}
-    \pgfpathsine{\pgfpoint{.17\pgf@circ@res@step}{.17\pgf@circ@res@step}}
-    \pgfpathcosine{\pgfpoint{.17\pgf@circ@res@step}{-.17\pgf@circ@res@step}}
-    \pgfpathsine{\pgfpoint{.17\pgf@circ@res@step}{-.17\pgf@circ@res@step}}
-    \pgfpathcosine{\pgfpoint{.17\pgf@circ@res@step}{.17\pgf@circ@res@step}}
-    \pgfusepath{draw}
-    \pgfpathmoveto{\pgfpoint{-.76\pgf@circ@res@step}{.35\pgf@circ@res@step}}
-    \pgfpathsine{\pgfpoint{.17\pgf@circ@res@step}{.17\pgf@circ@res@step}}
-    \pgfpathcosine{\pgfpoint{.17\pgf@circ@res@step}{-.17\pgf@circ@res@step}}
-    \pgfpathsine{\pgfpoint{.17\pgf@circ@res@step}{-.17\pgf@circ@res@step}}
-    \pgfpathcosine{\pgfpoint{.17\pgf@circ@res@step}{.17\pgf@circ@res@step}}
-    \pgfusepath{draw}
-    % draw equal sign
-    \pgfpathmoveto{\pgfpoint{.2\pgf@circ@res@step}{-.375\pgf@circ@res@step}}
-    \pgfpathlineto{\pgfpoint{0.7\pgf@circ@res@step}{-0.375\pgf@circ@res@step}}
-    \pgfusepath{draw}
-    \pgfpathmoveto{\pgfpoint{.2\pgf@circ@res@step}{-.625\pgf@circ@res@step}}
-    \pgfpathlineto{\pgfpoint{0.7\pgf@circ@res@step}{-0.625\pgf@circ@res@step}}
-    \pgfusepath{draw}
+    \ifnum\@@rotation<145 % swap dc/ac for "backward" and "up" symbol
+        \pgf@circ@twoport@converter@tac@up
+        \pgf@circ@twoport@converter@dc@down
+    \else
+        \pgf@circ@twoport@converter@dc@up
+        \pgf@circ@twoport@converter@tac@down
+    \fi
 }
 
 
@@ -1355,32 +1368,13 @@
     \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@down}}
     \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@up}}
     \pgfusepath{draw}
-    % draw sin waves
-    \pgfpathmoveto{\pgfpoint{.14\pgf@circ@res@step}{-.65\pgf@circ@res@step}}
-    \pgfpathsine{\pgfpoint{.17\pgf@circ@res@step}{.17\pgf@circ@res@step}}
-    \pgfpathcosine{\pgfpoint{.17\pgf@circ@res@step}{-.17\pgf@circ@res@step}}
-    \pgfpathsine{\pgfpoint{.17\pgf@circ@res@step}{-.17\pgf@circ@res@step}}
-    \pgfpathcosine{\pgfpoint{.17\pgf@circ@res@step}{.17\pgf@circ@res@step}}
-    \pgfusepath{draw}
-    \pgfpathmoveto{\pgfpoint{.14\pgf@circ@res@step}{-.5\pgf@circ@res@step}}
-    \pgfpathsine{\pgfpoint{.17\pgf@circ@res@step}{.17\pgf@circ@res@step}}
-    \pgfpathcosine{\pgfpoint{.17\pgf@circ@res@step}{-.17\pgf@circ@res@step}}
-    \pgfpathsine{\pgfpoint{.17\pgf@circ@res@step}{-.17\pgf@circ@res@step}}
-    \pgfpathcosine{\pgfpoint{.17\pgf@circ@res@step}{.17\pgf@circ@res@step}}
-    \pgfusepath{draw}
-    \pgfpathmoveto{\pgfpoint{.14\pgf@circ@res@step}{-.35\pgf@circ@res@step}}
-    \pgfpathsine{\pgfpoint{.17\pgf@circ@res@step}{.17\pgf@circ@res@step}}
-    \pgfpathcosine{\pgfpoint{.17\pgf@circ@res@step}{-.17\pgf@circ@res@step}}
-    \pgfpathsine{\pgfpoint{.17\pgf@circ@res@step}{-.17\pgf@circ@res@step}}
-    \pgfpathcosine{\pgfpoint{.17\pgf@circ@res@step}{.17\pgf@circ@res@step}}
-    \pgfusepath{draw}
-    % draw equal sign
-    \pgfpathmoveto{\pgfpoint{-.2\pgf@circ@res@step}{.375\pgf@circ@res@step}}
-    \pgfpathlineto{\pgfpoint{-0.7\pgf@circ@res@step}{0.375\pgf@circ@res@step}}
-    \pgfusepath{draw}
-    \pgfpathmoveto{\pgfpoint{-.2\pgf@circ@res@step}{.625\pgf@circ@res@step}}
-    \pgfpathlineto{\pgfpoint{-0.7\pgf@circ@res@step}{0.625\pgf@circ@res@step}}
-    \pgfusepath{draw}
+    \ifnum\@@rotation<145 % swap dc/ac for "backward" and "up" symbol
+        \pgf@circ@twoport@converter@dc@up
+        \pgf@circ@twoport@converter@tac@down
+    \else
+        \pgf@circ@twoport@converter@tac@up
+        \pgf@circ@twoport@converter@dc@down
+    \fi
 }
 % %>>>
 
