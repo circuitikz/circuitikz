@@ -652,25 +652,6 @@
     \pgftext[center,x=0,y=0,]{\tiny\ttfamily\pgf@circ@direction > \@@rotation}
 }
 
-\def\pgfcirc@twoport@shuffle@texts#1#2{% #1 IN, #2 OUT
-    % shuffle text depending on rotation
-    \def\texti{#1}
-    \def\textii{#2}
-    \def\pgfcircmathresult{\expandafter\pgf@circ@stripdecimals\pgf@circ@direction\pgf@nil}
-    \ifnum \pgfcircmathresult > 45 \ifnum \pgfcircmathresult < 135
-        \def\texti{#2}
-        \def\textii{#1}
-    \fi\fi
-    \ifnum \pgfcircmathresult > 134 \ifnum \pgfcircmathresult < 225  % 134 degree, because >= 135 is not possible
-        \def\texti{#2}
-        \def\textii{#1}
-    \fi\fi
-    \ifnum \pgfcircmathresult > 225 \ifnum \pgfcircmathresult < 315
-        \def\texti{#1}
-        \def\textii{#2}
-    \fi\fi
-}
-
 \def\pgfcirc@twoport@setup#1{%
     \pgf@circ@res@step = #1\pgf@circ@scaled@Rlen%6 is the real width parameter
     \divide \pgf@circ@res@step by 2
@@ -802,12 +783,16 @@
     \def\pgfcirc@tin{\ctikzvalof{bipoles/twoport/text in}}
     \def\pgfcirc@tout{\ctikzvalof{bipoles/twoport/text out}}
     % shuffle text depending on rotation
-    \pgfcirc@twoport@shuffle@texts{\pgfcirc@tin}{\pgfcirc@tout}
     \pgfcirc@twoport@draw@splitline
     %
     \pgf@circ@text@strokecolor
-    \pgftext[center,x=0.45\pgf@circ@res@left,y=0.45\pgf@circ@res@up]{\texti}
-    \pgftext[center,x=0.45\pgf@circ@res@right,y=0.45\pgf@circ@res@down]{\textii}
+    \ifnum\@@rotation<145
+        \pgftext[center,x=0.45\pgf@circ@res@left,y=0.45\pgf@circ@res@up]{\pgfcirc@tin}
+        \pgftext[center,x=0.45\pgf@circ@res@right,y=0.45\pgf@circ@res@down]{\pgfcirc@tout}
+    \else
+        \pgftext[center,x=0.45\pgf@circ@res@left,y=0.45\pgf@circ@res@up]{\pgfcirc@tout}
+        \pgftext[center,x=0.45\pgf@circ@res@right,y=0.45\pgf@circ@res@down]{\pgfcirc@tin}
+    \fi
 }
 
 %% voltage controled oscillator
@@ -918,13 +903,16 @@
 {\ctikzvalof{bipoles/adc/width}}
 {\ctikzvalof{bipoles/adc/width}}
 {
-    % shuffle text depending on rotation
-    \pgfcirc@twoport@shuffle@texts{A}{D}
     \pgfcirc@twoport@draw@splitline
     %
     \pgf@circ@text@strokecolor
-    \pgftext[center,x=0.45\pgf@circ@res@left,y=0.45\pgf@circ@res@up]{\textsf{\texti}}
-    \pgftext[center,x=0.45\pgf@circ@res@right,y=0.45\pgf@circ@res@down]{\textsf{\textii}}
+    \ifnum\@@rotation<145
+        \pgftext[center,x=0.45\pgf@circ@res@left,y=0.45\pgf@circ@res@up]{A}
+        \pgftext[center,x=0.45\pgf@circ@res@right,y=0.45\pgf@circ@res@down]{D}
+    \else
+        \pgftext[center,x=0.45\pgf@circ@res@left,y=0.45\pgf@circ@res@up]{D}
+        \pgftext[center,x=0.45\pgf@circ@res@right,y=0.45\pgf@circ@res@down]{A}
+    \fi
 }
 
 %% DAC
@@ -935,13 +923,16 @@
 {\ctikzvalof{bipoles/dac/width}}
 {\ctikzvalof{bipoles/dac/width}}
 {
-    % shuffle text depending on rotation
-    \pgfcirc@twoport@shuffle@texts{D}{A}
     \pgfcirc@twoport@draw@splitline
     %
     \pgf@circ@text@strokecolor
-    \pgftext[center,x=0.45\pgf@circ@res@left,y=0.45\pgf@circ@res@up]{\textsf{\texti}}
-    \pgftext[center,x=0.45\pgf@circ@res@right,y=0.45\pgf@circ@res@down]{\textsf{\textii}}
+    \ifnum\@@rotation<145
+        \pgftext[center,x=0.45\pgf@circ@res@left,y=0.45\pgf@circ@res@up]{D}
+        \pgftext[center,x=0.45\pgf@circ@res@right,y=0.45\pgf@circ@res@down]{A}
+    \else
+        \pgftext[center,x=0.45\pgf@circ@res@left,y=0.45\pgf@circ@res@up]{A}
+        \pgftext[center,x=0.45\pgf@circ@res@right,y=0.45\pgf@circ@res@down]{D}
+    \fi
 }
 
 %% DSP
@@ -1000,9 +991,15 @@
     \pgfpathlineto{\pgfpoint{-0.5\pgf@circ@res@step}{-0.55\pgf@circ@res@step}}
     \pgfpathclose
     \pgf@circ@draworfill
+    \pfgcirc@twoport@get@symbol@rotation
     % draw inner text
     \pgf@circ@text@strokecolor
-    \pgftext[center,x=-0.12\pgf@circ@res@step,y=0]{\ctikzvalof{bipoles/twoport/text}}
+    \ifnum\@@rotation=180
+        \pgftransformrotate{180}
+        \pgftext[center,x=0.12\pgf@circ@res@step,y=0]{\ctikzvalof{bipoles/twoport/text}}
+    \else
+        \pgftext[center,x=-0.12\pgf@circ@res@step,y=0]{\ctikzvalof{bipoles/twoport/text}}
+    \fi
 }
 %% variable amplifier %% Beware, not using the generic twoport(s) macros.
 \pgfcircdeclarebipolescaled{blocks}
@@ -1035,6 +1032,7 @@
     \pgfpathlineto{\pgfpoint{-0.5\pgf@circ@res@step}{-0.55\pgf@circ@res@step}}
     \pgfpathclose
     \pgf@circ@draworfill
+    \pfgcirc@twoport@get@symbol@rotation
     % draw arrow
     \pgfsetlinewidth{\pgfstartlinewidth}
     \pgfcirc@set@arrows{tunable}{}{latex}
@@ -1043,7 +1041,12 @@
     \pgfusepath{draw}
     % draw inner text
     \pgf@circ@text@strokecolor
-    \pgftext[center,x=-0.12\pgf@circ@res@step,y=0]{\ctikzvalof{bipoles/twoport/text}}
+    \ifnum\@@rotation=180
+        \pgftransformrotate{180}
+        \pgftext[center,x=0.12\pgf@circ@res@step,y=0]{\ctikzvalof{bipoles/twoport/text}}
+    \else
+        \pgftext[center,x=-0.12\pgf@circ@res@step,y=0]{\ctikzvalof{bipoles/twoport/text}}
+    \fi
 }
 
 %% pi attenuator
