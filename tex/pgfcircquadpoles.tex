@@ -655,8 +655,7 @@
     \divide \pgf@circ@res@step by 2
     \pgfsetdash{}{0pt}	% always draw solid line for inner symbol
     \pgfsetarrows{-}
-    \pgf@circ@res@other = \pgf@circ@res@left
-    \advance\pgf@circ@res@other by \pgf@circ@res@step
+    % let set the dash for the next operations
     \ifpgf@circuit@dashed
         \pgfsetdash{{0.1cm}{0.1cm}}{0cm}
     \fi
@@ -682,6 +681,9 @@
 %
 \def\pgfcirc@twoport@draw@splitline{%
     \pgfscope
+        \ifpgf@circuit@dashed
+            \pgfsetdash{{0.1cm}{0.1cm}}{0cm}
+        \fi
         \pgfsetlinewidth{\pgfstartlinewidth}
         \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@down}}
         \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@up}}
@@ -700,6 +702,7 @@
         \pgfcirc@twoport@setup{#6}
         % draw outer box
         \pgf@circ@twoportbox
+        \pgfsetdash{}{0pt}	% always draw solid line for inner symbol
         \pgf@circ@inputarrow
         \pfgcirc@twoport@rotate@inner@symbol
         #7
@@ -717,35 +720,8 @@
         \pgfcirc@twoport@setup{#6}
         % draw outer box
         \pgf@circ@twoportbox
+        \pgfsetdash{}{0pt}	% always draw solid line for inner symbol
         \pgf@circ@inputarrow
-        #7
-    }
-}
-%
-\long\def\pgfcirc@define@twoports@circle#1#2#3#4#5#6#7{
-\pgfcircdeclarebipolescaled{#1}
-    {#2}
-    {#3}
-    {#4}
-    {#5}
-    {#6}
-    {
-        \pgfcirc@twoport@setup{#6}
-        % draw circle
-        \pgfscope
-            \pgf@circ@setlinewidth{bipoles}{\pgfstartlinewidth}
-            \pgfpathcircle{\pgfpoint{0}{0}} {\pgf@circ@res@step}
-            \pgf@circ@draworfill
-        \endpgfscope
-        \ifpgf@circuit@inputarrow
-            {
-                \advance \pgf@circ@res@left by -.5\ctikzvalof{bipoles/thickness}\pgfstartlinewidth
-                \pgftransformshift{\pgfpoint{\pgf@circ@res@left}{0pt}}
-                \pgfnode{inputarrow}{tip}{}{pgf@inputarrow}{\pgfusepath{fill}}
-            }
-        \fi
-        \pgf@circ@inputarrow
-        \pfgcirc@twoport@rotate@inner@symbol
         #7
     }
 }
@@ -784,16 +760,6 @@
         \pgftext[center,x=0.45\pgf@circ@res@left,y=0.45\pgf@circ@res@up]{\pgfcirc@tout}
         \pgftext[center,x=0.45\pgf@circ@res@right,y=0.45\pgf@circ@res@down]{\pgfcirc@tin}
     \fi
-}
-%% voltage controled oscillator
-\pgfcirc@define@twoports@circle{blocks}
-{}
-{\ctikzvalof{bipoles/vco/width}}
-{vco}
-{\ctikzvalof{bipoles/twoport/width}}
-{\ctikzvalof{bipoles/vco/width}}
-{
-    \pgfcirc@twoport@draw@sine{0}{0}
 }
 %% bandpass filter
 \pgfcirc@define@twoports{blocks}
@@ -938,100 +904,6 @@
 {
     \pgf@circ@text@strokecolor
     \pgftext[center,x=0,y=0]{\textsf{FFT}}
-}
-%% amplifier and vamplifier
-%% Amplifier %% Beware, not using the generic twoport(s) macros.
-\pgfcircdeclarebipolescaled{blocks}
-{}
-{\ifpgf@circuit@boxed\ctikzvalof{bipoles/twoport/width}\else\ctikzvalof{bipoles/amp/width}\fi}
-{amp}
-{\ifpgf@circuit@boxed\ctikzvalof{bipoles/twoport/width}\else\ctikzvalof{bipoles/amp/width}\fi}
-{\ifpgf@circuit@boxed\ctikzvalof{bipoles/twoport/width}\else\ctikzvalof{bipoles/amp/width}\fi}
-{
-    \pgf@circ@res@step = \ctikzvalof{bipoles/amp/width}\pgf@circ@scaled@Rlen
-    \pgfsetdash{}{0pt}	% always draw solid line for inner symbol
-    \pgfsetarrows{-}
-    \ifpgf@circuit@dashed
-        \pgfsetdash{{0.1cm}{0.1cm}}{0cm}
-    \fi
-    % draw outer box
-    \ifpgf@circuit@boxed
-        \pgf@circ@setlinewidth{bipoles}{\pgfstartlinewidth}
-        \pgfnode{blockbox}{center}{}{pgf@box}{\pgfusepath{draw}}
-        \pgf@circ@draworfill
-    \fi
-    \pgf@circ@inputarrow
-    \ifpgf@circuit@boxed
-        \pgfsetlinewidth{\pgfstartlinewidth}
-        \pgfsetdash{}{0pt}	% draw solid line for inner symbol if no box is drawn
-        \pgf@circ@res@step=.7\pgf@circ@res@step % scale amp symbol when inside a box
-    \else
-        \pgf@circ@setlinewidth{bipoles}{\pgfstartlinewidth}
-    \fi
-    \pgfsetarrows{-} %never draw arrows
-    \pgfpathmoveto{\pgfpoint{-0.5\pgf@circ@res@step}{0.55\pgf@circ@res@step}}
-    \pgfpathlineto{\pgfpoint{0.5\pgf@circ@res@step}{0}}
-    \pgfpathlineto{\pgfpoint{-0.5\pgf@circ@res@step}{-0.55\pgf@circ@res@step}}
-    \pgfpathclose
-    \pgf@circ@draworfill
-    \pfgcirc@twoport@get@symbol@rotation
-    % draw inner text
-    \pgf@circ@text@strokecolor
-    \ifnum\@@rotation=180
-        \pgftransformrotate{180}
-        \pgftext[center,x=0.12\pgf@circ@res@step,y=0]{\ctikzvalof{bipoles/twoport/text}}
-    \else
-        \pgftext[center,x=-0.12\pgf@circ@res@step,y=0]{\ctikzvalof{bipoles/twoport/text}}
-    \fi
-}
-%% variable amplifier %% Beware, not using the generic twoport(s) macros.
-\pgfcircdeclarebipolescaled{blocks}
-{}
-{\ifpgf@circuit@boxed\ctikzvalof{bipoles/twoport/width}\else\ctikzvalof{bipoles/amp/width}\fi}
-{vamp}
-{\ifpgf@circuit@boxed\ctikzvalof{bipoles/twoport/width}\else\ctikzvalof{bipoles/amp/width}\fi}
-{\ifpgf@circuit@boxed\ctikzvalof{bipoles/twoport/width}\else\ctikzvalof{bipoles/amp/width}\fi}
-{
-    \pgf@circ@res@step = \ctikzvalof{bipoles/amp/width}\pgf@circ@scaled@Rlen
-    \pgfsetdash{}{0pt}	% always draw solid line for inner symbol
-    \pgfsetarrows{-}
-    \ifpgf@circuit@dashed
-        \pgfsetdash{{0.1cm}{0.1cm}}{0cm}
-    \fi
-    % draw outer box
-    \ifpgf@circuit@boxed
-        \pgfnode{blockbox}{center}{}{pgf@box}{\pgfusepath{draw}}
-    \fi
-    \pgf@circ@inputarrow
-    \ifpgf@circuit@boxed
-        \pgfsetlinewidth{\pgfstartlinewidth}
-        \pgfsetdash{}{0pt}	% draw solid line for inner symbol if no box is drawn
-        \pgf@circ@res@step=.7\pgf@circ@res@step % scale amp symbol when inside a box
-    \else
-        \pgf@circ@setlinewidth{bipoles}{\pgfstartlinewidth}
-    \fi
-    \pgfsetdash{}{0pt}	% always draw solid line for inner symbol
-    \pgfsetarrows{-} %never draw arrows
-    \pgfpathmoveto{\pgfpoint{-0.5\pgf@circ@res@step}{0.55\pgf@circ@res@step}}
-    \pgfpathlineto{\pgfpoint{0.5\pgf@circ@res@step}{0}}
-    \pgfpathlineto{\pgfpoint{-0.5\pgf@circ@res@step}{-0.55\pgf@circ@res@step}}
-    \pgfpathclose
-    \pgf@circ@draworfill
-    \pfgcirc@twoport@get@symbol@rotation
-    % draw arrow
-    \pgfsetlinewidth{\pgfstartlinewidth}
-    \pgfcirc@set@arrows{tunable}{}{latex}
-    \pgfpathmoveto{\pgfpoint{-0.8\pgf@circ@res@step}{-0.5\pgf@circ@res@step}}
-    \pgfpathlineto{\pgfpoint{0.6\pgf@circ@res@step}{0.6\pgf@circ@res@step}}
-    \pgfusepath{draw}
-    % draw inner text
-    \pgf@circ@text@strokecolor
-    \ifnum\@@rotation=180
-        \pgftransformrotate{180}
-        \pgftext[center,x=0.12\pgf@circ@res@step,y=0]{\ctikzvalof{bipoles/twoport/text}}
-    \else
-        \pgftext[center,x=-0.12\pgf@circ@res@step,y=0]{\ctikzvalof{bipoles/twoport/text}}
-    \fi
 }
 %% pi attenuator
 \pgfcirc@define@twoports{blocks}
@@ -1308,6 +1180,115 @@
     \else
         \pgf@circ@twoport@converter@tac@up
         \pgf@circ@twoport@converter@dc@down
+    \fi
+}
+%%%% Non-square blocks. We do not use the standard macros
+%%%% this one is adapted to do the boxed thing
+%
+\long\def\pgfcirc@define@twoports@boxed#1#2#3#4#5#6#7{
+\pgfcircdeclarebipolescaled{#1}
+    {#2}
+    {#3}
+    {#4}
+    {#5}
+    {#6}
+    {
+    \pgf@circ@res@step=#6\pgf@circ@scaled@Rlen %6 is the real width parameter
+    \pgfsetdash{}{0pt}	% always draw solid line for inner symbol
+    \pgfsetarrows{-}
+    \ifpgf@circuit@dashed
+        \pgfsetdash{{0.1cm}{0.1cm}}{0cm}
+    \fi
+    % draw outer box
+    \ifpgf@circuit@boxed
+        \pgf@circ@setlinewidth{bipoles}{\pgfstartlinewidth}
+        \pgfnode{blockbox}{center}{}{pgf@box}{\pgfusepath{draw}}
+        \pgf@circ@draworfill
+    \fi
+    \pgf@circ@inputarrow
+    \ifpgf@circuit@boxed
+        \pgfsetlinewidth{\pgfstartlinewidth}
+        \pgfsetdash{}{0pt}	% draw solid line for inner symbol if no box is drawn
+        \pgf@circ@res@step=.7\pgf@circ@res@step % scale amp symbol when inside a box
+    \else
+        \pgf@circ@setlinewidth{bipoles}{\pgfstartlinewidth}
+    \fi
+    #7
+    }
+}
+%% voltage controled oscillator
+\pgfcirc@define@twoports@boxed{blocks}
+{}
+{\ctikzvalof{bipoles/vco/width}}
+{vco}
+{\ctikzvalof{bipoles/twoport/width}}
+{\ctikzvalof{bipoles/vco/width}}
+{
+    % ok, this is a bit of incoherence
+    \divide \pgf@circ@res@step by 2
+    % draw circle
+    \pgfscope
+        \pgf@circ@setlinewidth{bipoles}{\pgfstartlinewidth}
+        \pgfpathcircle{\pgfpoint{0}{0}} {\pgf@circ@res@step}
+        \pgf@circ@draworfill
+    \endpgfscope
+    \pfgcirc@twoport@rotate@inner@symbol
+    \pgfcirc@twoport@draw@sine{0}{0}
+}
+%% amplifier and vamplifier
+%% Amplifier %% Beware, not using the generic twoport(s) macros.
+\pgfcirc@define@twoports@boxed{blocks}
+{}
+{\ifpgf@circuit@boxed\ctikzvalof{bipoles/twoport/width}\else\ctikzvalof{bipoles/amp/width}\fi}
+{amp}
+{\ifpgf@circuit@boxed\ctikzvalof{bipoles/twoport/width}\else\ctikzvalof{bipoles/amp/width}\fi}
+{\ifpgf@circuit@boxed\ctikzvalof{bipoles/twoport/width}\else\ctikzvalof{bipoles/amp/width}\fi}
+{
+    % draw triangle
+    \pgfpathmoveto{\pgfpoint{-0.5\pgf@circ@res@step}{0.55\pgf@circ@res@step}}
+    \pgfpathlineto{\pgfpoint{0.5\pgf@circ@res@step}{0}}
+    \pgfpathlineto{\pgfpoint{-0.5\pgf@circ@res@step}{-0.55\pgf@circ@res@step}}
+    \pgfpathclose
+    \pgf@circ@draworfill
+    \pfgcirc@twoport@get@symbol@rotation
+    % draw inner text
+    \pgf@circ@text@strokecolor
+    \ifnum\@@rotation=180
+        \pgftransformrotate{180}
+        \pgftext[center,x=0.12\pgf@circ@res@step,y=0]{\ctikzvalof{bipoles/twoport/text}}
+    \else
+        \pgftext[center,x=-0.12\pgf@circ@res@step,y=0]{\ctikzvalof{bipoles/twoport/text}}
+    \fi
+}
+%% variable amplifier %% Beware, not using the generic twoport(s) macros.
+% \pgfcircdeclarebipolescaled{blocks}
+\pgfcirc@define@twoports@boxed{blocks}
+{}
+{\ifpgf@circuit@boxed\ctikzvalof{bipoles/twoport/width}\else\ctikzvalof{bipoles/amp/width}\fi}
+{vamp}
+{\ifpgf@circuit@boxed\ctikzvalof{bipoles/twoport/width}\else\ctikzvalof{bipoles/amp/width}\fi}
+{\ifpgf@circuit@boxed\ctikzvalof{bipoles/twoport/width}\else\ctikzvalof{bipoles/amp/width}\fi}
+{
+    % draw triangle
+    \pgfpathmoveto{\pgfpoint{-0.5\pgf@circ@res@step}{0.55\pgf@circ@res@step}}
+    \pgfpathlineto{\pgfpoint{0.5\pgf@circ@res@step}{0}}
+    \pgfpathlineto{\pgfpoint{-0.5\pgf@circ@res@step}{-0.55\pgf@circ@res@step}}
+    \pgfpathclose
+    \pgf@circ@draworfill
+    \pfgcirc@twoport@get@symbol@rotation
+    % draw arrow
+    \pgfsetlinewidth{\pgfstartlinewidth}
+    \pgfcirc@set@arrows{tunable}{}{latex}
+    \pgfpathmoveto{\pgfpoint{-0.8\pgf@circ@res@step}{-0.5\pgf@circ@res@step}}
+    \pgfpathlineto{\pgfpoint{0.6\pgf@circ@res@step}{0.6\pgf@circ@res@step}}
+    \pgfusepath{draw}
+    % draw inner text
+    \pgf@circ@text@strokecolor
+    \ifnum\@@rotation=180
+        \pgftransformrotate{180}
+        \pgftext[center,x=0.12\pgf@circ@res@step,y=0]{\ctikzvalof{bipoles/twoport/text}}
+    \else
+        \pgftext[center,x=-0.12\pgf@circ@res@step,y=0]{\ctikzvalof{bipoles/twoport/text}}
     \fi
 }
 % %>>>
