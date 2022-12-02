@@ -624,7 +624,6 @@
 
 %%% definition to help define the blocks. Notice that the height, width, etc are different, so we can't
 %%% simplify more...
-
 \def\pfgcirc@twoport@get@symbol@rotation{
     %%% put the needed rotation in \@@rotation
     \def\pgfcircmathresult{\expandafter\pgf@circ@stripdecimals\pgf@circ@direction\pgf@nil}
@@ -639,36 +638,33 @@
         \def\@@rotation{90}
     \fi\fi
 }
-
+%
 \def\pfgcirc@twoport@rotate@inner@symbol{%
     % rotate inner symbol
     \pfgcirc@twoport@get@symbol@rotation
     \pgftransformrotate{\@@rotation}
 }
-
 % debug
 \def\@@printrot{%
     \pgfsetcolor{red}
     \pgftext[center,x=0,y=0,]{\tiny\ttfamily\pgf@circ@direction > \@@rotation}
 }
-
+%
 \def\pgfcirc@twoport@setup#1{%
     \pgf@circ@res@step = #1\pgf@circ@scaled@Rlen%6 is the real width parameter
     \divide \pgf@circ@res@step by 2
-
-    \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@zero}}
+    \pgfsetdash{}{0pt}	% always draw solid line for inner symbol
+    \pgfsetarrows{-}
     \pgf@circ@res@other = \pgf@circ@res@left
     \advance\pgf@circ@res@other by \pgf@circ@res@step
     \ifpgf@circuit@dashed
         \pgfsetdash{{0.1cm}{0.1cm}}{0cm}
     \fi
 }
-
+%
 \def\pgfcirc@twoport@draw@sine#1#2{% #1 -> y shift; #2 -> crossed out if != 0
     % draw inner sine waves; ...res@step must be defined
     \pgfscope
-    \pgfsetdash{}{0pt}	% always draw solid line for inner symbol
-    \pgfsetarrows{-}
     \pgfsetlinewidth{\pgfstartlinewidth}
     \pgftransformyshift{#1\pgf@circ@res@step}
     \pgfpathmoveto{\pgfpoint{-.5\pgf@circ@res@step}{0\pgf@circ@res@step}}
@@ -683,18 +679,16 @@
     \pgfusepath{draw}
     \endpgfscope
 }
-
+%
 \def\pgfcirc@twoport@draw@splitline{%
     \pgfscope
-        \pgfsetdash{}{0pt}	% always draw solid line for inner symbol
-        \pgfsetarrows{-} %never draw arrows
         \pgfsetlinewidth{\pgfstartlinewidth}
         \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@down}}
         \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@up}}
         \pgfusepath{draw}
     \endpgfscope
 }
-
+%
 \long\def\pgfcirc@define@twoports#1#2#3#4#5#6#7{
 \pgfcircdeclarebipolescaled{#1}
     {#2}
@@ -711,7 +705,7 @@
         #7
     }
 }
-
+%
 \long\def\pgfcirc@define@twoports@norotate#1#2#3#4#5#6#7{
 \pgfcircdeclarebipolescaled{#1}
     {#2}
@@ -727,7 +721,7 @@
         #7
     }
 }
-
+%
 \long\def\pgfcirc@define@twoports@circle#1#2#3#4#5#6#7{
 \pgfcircdeclarebipolescaled{#1}
     {#2}
@@ -755,7 +749,6 @@
         #7
     }
 }
-
 %% Generic two port box
 \pgfcirc@define@twoports{blocks}
 {}
@@ -769,8 +762,6 @@
     \pgftext[center,x=0,y=0]{\ctikzvalof{bipoles/twoport/text}}
 
 }
-
-
 %% twoport split
 \pgfcirc@define@twoports{blocks}
 {}
@@ -794,7 +785,6 @@
         \pgftext[center,x=0.45\pgf@circ@res@right,y=0.45\pgf@circ@res@down]{\pgfcirc@tin}
     \fi
 }
-
 %% voltage controled oscillator
 \pgfcirc@define@twoports@circle{blocks}
 {}
@@ -805,7 +795,6 @@
 {
     \pgfcirc@twoport@draw@sine{0}{0}
 }
-
 %% bandpass filter
 \pgfcirc@define@twoports{blocks}
 {}
@@ -818,7 +807,6 @@
     \pgfcirc@twoport@draw@sine{0.0}{0}
     \pgfcirc@twoport@draw@sine{-0.5}{1}
 }
-
 %% bandstop filter
 \pgfcirc@define@twoports{blocks}
 {}
@@ -831,7 +819,6 @@
     \pgfcirc@twoport@draw@sine{0.0}{1}
     \pgfcirc@twoport@draw@sine{-0.5}{0}
 }
-
 %% highpass filter
 \pgfcirc@define@twoports{blocks}
 {}
@@ -844,7 +831,6 @@
     \pgfcirc@twoport@draw@sine{0.0}{1}
     \pgfcirc@twoport@draw@sine{-0.5}{1}
 }
-
 %% highpass2 filter ---simplyfied with just two waves
 \pgfcirc@define@twoports{blocks}
 {}
@@ -856,7 +842,6 @@
     \pgfcirc@twoport@draw@sine{0.25}{0}
     \pgfcirc@twoport@draw@sine{-0.25}{1}
 }
-
 %% lowpass filter
 \pgfcirc@define@twoports{blocks}
 {}
@@ -869,7 +854,6 @@
     \pgfcirc@twoport@draw@sine{0.0}{1}
     \pgfcirc@twoport@draw@sine{-0.5}{0}
 }
-
 %% lowpass2 filter: simplyfied with just two waves
 \pgfcirc@define@twoports{blocks}
 {}
@@ -881,7 +865,6 @@
     \pgfcirc@twoport@draw@sine{0.25}{1}
     \pgfcirc@twoport@draw@sine{-0.25}{0}
 }
-
 %% allpass filter
 \pgfcirc@define@twoports{blocks}
 {}
@@ -894,7 +877,6 @@
     \pgfcirc@twoport@draw@sine{0.0}{0}
     \pgfcirc@twoport@draw@sine{-0.5}{0}
 }
-
 %% ADC
 \pgfcirc@define@twoports{blocks}
 {}
@@ -946,7 +928,6 @@
     \pgf@circ@text@strokecolor
     \pgftext[center,x=0,y=0]{\textsf{DSP}}
 }
-
 %% FFT
 \pgfcirc@define@twoports{blocks}
 {}
@@ -958,7 +939,7 @@
     \pgf@circ@text@strokecolor
     \pgftext[center,x=0,y=0]{\textsf{FFT}}
 }
-
+%% amplifier and vamplifier
 %% Amplifier %% Beware, not using the generic twoport(s) macros.
 \pgfcircdeclarebipolescaled{blocks}
 {}
@@ -968,6 +949,8 @@
 {\ifpgf@circuit@boxed\ctikzvalof{bipoles/twoport/width}\else\ctikzvalof{bipoles/amp/width}\fi}
 {
     \pgf@circ@res@step = \ctikzvalof{bipoles/amp/width}\pgf@circ@scaled@Rlen
+    \pgfsetdash{}{0pt}	% always draw solid line for inner symbol
+    \pgfsetarrows{-}
     \ifpgf@circuit@dashed
         \pgfsetdash{{0.1cm}{0.1cm}}{0cm}
     \fi
@@ -1010,6 +993,8 @@
 {\ifpgf@circuit@boxed\ctikzvalof{bipoles/twoport/width}\else\ctikzvalof{bipoles/amp/width}\fi}
 {
     \pgf@circ@res@step = \ctikzvalof{bipoles/amp/width}\pgf@circ@scaled@Rlen
+    \pgfsetdash{}{0pt}	% always draw solid line for inner symbol
+    \pgfsetarrows{-}
     \ifpgf@circuit@dashed
         \pgfsetdash{{0.1cm}{0.1cm}}{0cm}
     \fi
@@ -1048,7 +1033,6 @@
         \pgftext[center,x=-0.12\pgf@circ@res@step,y=0]{\ctikzvalof{bipoles/twoport/text}}
     \fi
 }
-
 %% pi attenuator
 \pgfcirc@define@twoports{blocks}
 {}
@@ -1058,8 +1042,6 @@
 {\ctikzvalof{bipoles/piattenuator/width}}
 {
     % draw inner symbol
-    \pgfsetdash{}{0pt}	% always draw solid line for inner symbol
-    \pgfsetarrows{-} %never draw arrows
     \pgfsetlinewidth{\pgfstartlinewidth}
     \pgfpathmoveto{\pgfpoint{0.4\pgf@circ@res@left}{0.4\pgf@circ@res@down}}
     \pgfpathlineto{\pgfpoint{0.4\pgf@circ@res@left}{0.4\pgf@circ@res@up}}
@@ -1069,7 +1051,6 @@
     \pgfpathlineto{\pgfpoint{0.6\pgf@circ@res@right}{0.4\pgf@circ@res@up}}
     \pgfusepath{draw}
 }
-
 %% variable pi attenuator
 \pgfcirc@define@twoports{blocks}
 {}
@@ -1079,8 +1060,6 @@
 {\ctikzvalof{bipoles/vpiattenuator/width}}
 {
     % draw inner symbol
-    \pgfsetdash{}{0pt}	% always draw solid line for inner symbol
-    \pgfsetarrows{-} %never draw arrows
     \pgfsetlinewidth{\pgfstartlinewidth}
     \pgfpathmoveto{\pgfpoint{0.4\pgf@circ@res@left}{0.4\pgf@circ@res@down}}
     \pgfpathlineto{\pgfpoint{0.4\pgf@circ@res@left}{0.4\pgf@circ@res@up}}
@@ -1094,7 +1073,6 @@
     \pgfpathlineto{\pgfpoint{0.7\pgf@circ@res@right}{0.8\pgf@circ@res@up}}
     \pgfusepath{draw}
 }
-
 %% T attenuator
 \pgfcirc@define@twoports{blocks}
 {}
@@ -1104,8 +1082,6 @@
 {\ctikzvalof{bipoles/tattenuator/width}}
 {
     % draw inner symbol
-    \pgfsetdash{}{0pt}	% always draw solid line for inner symbol
-    \pgfsetarrows{-} %never draw arrows
     \pgfsetlinewidth{\pgfstartlinewidth}
     \pgfpathmoveto{\pgfpoint{0pt}{0.4\pgf@circ@res@down}}
     \pgfpathlineto{\pgfpoint{0pt}{0.4\pgf@circ@res@up}}
@@ -1113,7 +1089,6 @@
     \pgfpathlineto{\pgfpoint{0.6\pgf@circ@res@right}{0.4\pgf@circ@res@up}}
     \pgfusepath{draw}
 }
-
 %% variable T attenuator
 \pgfcirc@define@twoports{blocks}
 {}
@@ -1123,8 +1098,6 @@
 {\ctikzvalof{bipoles/vtattenuator/width}}
 {
     % draw inner symbol
-    \pgfsetdash{}{0pt}	% always draw solid line for inner symbol
-    \pgfsetarrows{-} %never draw arrows
     \pgfsetlinewidth{\pgfstartlinewidth}
     \pgfpathmoveto{\pgfpoint{0pt}{0.4\pgf@circ@res@down}}
     \pgfpathlineto{\pgfpoint{0pt}{0.4\pgf@circ@res@up}}
@@ -1136,7 +1109,6 @@
     \pgfpathlineto{\pgfpoint{0.7\pgf@circ@res@right}{0.8\pgf@circ@res@up}}
     \pgfusepath{draw}
 }
-
 %% phase shifter
 \pgfcirc@define@twoports{blocks}
 {}
@@ -1149,7 +1121,6 @@
     \pgf@circ@text@strokecolor
     \pgftext[center,x=0,y=0]{\Large$\varphi$}
 }
-
 %% variable phase shifter
 \pgfcirc@define@twoports{blocks}
 {}
@@ -1158,7 +1129,6 @@
 {\ctikzvalof{bipoles/vphaseshifter/width}}
 {\ctikzvalof{bipoles/vphaseshifter/width}}
 {
-    \pgfsetdash{}{0pt}	% always draw solid line for inner symbol
     \pgfsetlinewidth{\pgfstartlinewidth}
     \pgfcirc@set@arrows{tunable}{}{latex}
     \pgfpathmoveto{\pgfpoint{0.75\pgf@circ@res@left}{0.65\pgf@circ@res@down}}
@@ -1178,8 +1148,6 @@
 {\ctikzvalof{bipoles/detector/width}}
 {
     % draw inner stuff
-    \pgfsetdash{}{0pt}	% always draw solid line for inner symbol
-    \pgfsetarrows{-} %never draw arrows
     \pgfsetlinewidth{0.8\pgfstartlinewidth}
     \pgfpathmoveto{\pgfpoint{0.75\pgf@circ@res@left}{0}}
     \pgfpathlineto{\pgfpoint{0.75\pgf@circ@res@right}{0}}
@@ -1251,13 +1219,7 @@
 {\ctikzvalof{bipoles/sacdc/width}}
 {\ctikzvalof{bipoles/sacdc/width}}
 {
-    % draw inner symbol
-    \pgfsetdash{}{0pt}	% always draw solid line for inner symbol
-    \pgfsetarrows{-} %never draw arrows
-    \pgfsetlinewidth{\pgfstartlinewidth}
-    \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@down}}
-    \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@up}}
-    \pgfusepath{draw}
+    \pgfcirc@twoport@draw@splitline
     \ifnum\@@rotation<145 % swap dc/ac for "backward" and "up" symbol
         \pgf@circ@twoport@converter@ac@up
         \pgf@circ@twoport@converter@dc@down
@@ -1266,8 +1228,6 @@
         \pgf@circ@twoport@converter@ac@down
     \fi
 }
-
-
 %% dc/dc converter
 \pgfcirc@define@twoports{blocks}
 {
@@ -1279,19 +1239,11 @@
 {\ctikzvalof{bipoles/sdcdc/width}}
 {\ctikzvalof{bipoles/sdcdc/width}}
 {
-    % draw inner symbol
-    \pgfsetdash{}{0pt}	% always draw solid line for inner symbol
-    \pgfsetarrows{-} %never draw arrows
-    \pgfsetlinewidth{\pgfstartlinewidth}
-    \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@down}}
-    \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@up}}
-    \pgfusepath{draw}
+    \pgfcirc@twoport@draw@splitline
     % No need to switch here
     \pgf@circ@twoport@converter@dc@up
     \pgf@circ@twoport@converter@dc@down
 }
-
-
 %% single phase dc/ac converter
 \pgfcirc@define@twoports{blocks}
 {
@@ -1303,13 +1255,7 @@
 {\ctikzvalof{bipoles/sdcac/width}}
 {\ctikzvalof{bipoles/sdcac/width}}
 {
-    % draw inner symbol
-    \pgfsetdash{}{0pt}	% always draw solid line for inner symbol
-    \pgfsetarrows{-} %never draw arrows
-    \pgfsetlinewidth{\pgfstartlinewidth}
-    \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@down}}
-    \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@up}}
-    \pgfusepath{draw}
+    \pgfcirc@twoport@draw@splitline
     \ifnum\@@rotation<145 % swap dc/ac for "backward" and "up" symbol
         \pgf@circ@twoport@converter@dc@up
         \pgf@circ@twoport@converter@ac@down
@@ -1318,7 +1264,6 @@
         \pgf@circ@twoport@converter@dc@down
     \fi
 }
-
 %% threephase ac/dc converter
 \pgfcirc@define@twoports{blocks}
 {
@@ -1333,13 +1278,7 @@
 {\ctikzvalof{bipoles/tacdc/width}}
 {\ctikzvalof{bipoles/tacdc/width}}
 {
-    % draw inner symbol
-    \pgfsetdash{}{0pt}	% always draw solid line for inner symbol
-    \pgfsetarrows{-} %never draw arrows
-    \pgfsetlinewidth{\pgfstartlinewidth}
-    \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@down}}
-    \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@up}}
-    \pgfusepath{draw}
+    \pgfcirc@twoport@draw@splitline
     \ifnum\@@rotation<145 % swap dc/ac for "backward" and "up" symbol
         \pgf@circ@twoport@converter@tac@up
         \pgf@circ@twoport@converter@dc@down
@@ -1348,8 +1287,6 @@
         \pgf@circ@twoport@converter@tac@down
     \fi
 }
-
-
 %% threephase dc/ac converter
 \pgfcirc@define@twoports{blocks}
 {
@@ -1364,13 +1301,7 @@
 {\ctikzvalof{bipoles/tdcac/width}}
 {\ctikzvalof{bipoles/tdcac/width}}
 {
-    % draw inner symbol
-    \pgfsetdash{}{0pt}	% always draw solid line for inner symbol
-    \pgfsetarrows{-} %never draw arrows
-    \pgfsetlinewidth{\pgfstartlinewidth}
-    \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@down}}
-    \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@up}}
-    \pgfusepath{draw}
+    \pgfcirc@twoport@draw@splitline
     \ifnum\@@rotation<145 % swap dc/ac for "backward" and "up" symbol
         \pgf@circ@twoport@converter@dc@up
         \pgf@circ@twoport@converter@tac@down
