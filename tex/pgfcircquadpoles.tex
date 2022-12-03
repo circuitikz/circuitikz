@@ -517,6 +517,7 @@
 \ctikzset{bipoles/twoport/height/.initial=.7}
 \ctikzset{bipoles/twoport/text/.initial=}
 \ctikzset{bipoles/twoportsplit/width/.initial=.7}
+\ctikzset{bipoles/twoportsplit/height/.initial=.7}
 \ctikzset{bipoles/twoport/text in/.initial=}
 \ctikzset{bipoles/twoport/text out/.initial=}
 \ctikzset{text/.style={t=#1}}
@@ -590,7 +591,12 @@
 \newif\ifpgf@circuit@dashed
 \pgfkeys{/tikz/dashed/.add code={}{\pgf@circuit@dashedtrue}}
 \ctikzset{dashed/.add code={}{\pgf@circuit@dashedtrue}}%
-
+% Also draw internal things dashed
+\newif\ifpgf@circuit@full@dashed
+\ctikzset{inner blocks dashed/.is if=pgf@circuit@full@dashed}%
+% Default block dash
+\ctikzset{dashed blocks pattern/.initial={{0.1cm}{0.1cm}}}
+%
 % powerelectronic blocks
 \ctikzset{bipoles/sacdc/width/.initial=.7}
 \ctikzset{bipoles/sdcac/width/.initial=.7}
@@ -621,6 +627,13 @@
         }%
     \fi
 }
+%%% blocks additional anchors
+\def\pgcirc@twoport@additional@anchors{%
+    \anchor{right down}{\northeast\pgf@y=-0.5\pgf@y}
+    \anchor{left down}{\northeast\pgf@x=-\pgf@x\pgf@y=-0.5\pgf@y}
+    \anchor{left up}{\northeast\pgf@x=-\pgf@x\pgf@y=0.5\pgf@y}
+    \anchor{right up}{\northeast\pgf@y=0.5\pgf@y}
+}
 
 %%% definition to help define the blocks. Notice that the height, width, etc are different, so we can't
 %%% simplify more...
@@ -644,6 +657,13 @@
     \pfgcirc@twoport@get@symbol@rotation
     \pgftransformrotate{\@@rotation}
 }
+% enact dashing if needed
+\def\pgfcirc@twoport@maybedash{%
+    \ifpgf@circuit@dashed
+    \edef\@@tmp{\ctikzvalof{dashed blocks pattern}}
+    \expandafter\pgfsetdash\expandafter{\@@tmp}{0cm}
+    \fi
+}
 % debug
 \def\@@printrot{%
     \pgfsetcolor{red}
@@ -656,34 +676,30 @@
     \pgfsetdash{}{0pt}	% always draw solid line for inner symbol
     \pgfsetarrows{-}
     % let set the dash for the next operations
-    \ifpgf@circuit@dashed
-        \pgfsetdash{{0.1cm}{0.1cm}}{0cm}
-    \fi
+    \pgfcirc@twoport@maybedash
 }
 %
 \def\pgfcirc@twoport@draw@sine#1#2{% #1 -> y shift; #2 -> crossed out if != 0
     % draw inner sine waves; ...res@step must be defined
     \pgfscope
-    \pgfsetlinewidth{\pgfstartlinewidth}
-    \pgftransformyshift{#1\pgf@circ@res@step}
-    \pgfpathmoveto{\pgfpoint{-.5\pgf@circ@res@step}{0\pgf@circ@res@step}}
-    \pgfpathsine{\pgfpoint{.25\pgf@circ@res@step}{.25\pgf@circ@res@step}}
-    \pgfpathcosine{\pgfpoint{.25\pgf@circ@res@step}{-.25\pgf@circ@res@step}}
-    \pgfpathsine{\pgfpoint{.25\pgf@circ@res@step}{-.25\pgf@circ@res@step}}
-    \pgfpathcosine{\pgfpoint{.25\pgf@circ@res@step}{.25\pgf@circ@res@step}}
-    \ifnum #2=0\else
-        \pgfpathmoveto{\pgfpoint{0.15\pgf@circ@res@step}{0.15\pgf@circ@res@step}}
-        \pgfpathlineto{\pgfpoint{-0.15\pgf@circ@res@step}{-0.15\pgf@circ@res@step}}
-    \fi
-    \pgfusepath{draw}
+        \pgfsetlinewidth{\pgfstartlinewidth}
+        \pgftransformyshift{#1\pgf@circ@res@step}
+        \pgfpathmoveto{\pgfpoint{-.5\pgf@circ@res@step}{0\pgf@circ@res@step}}
+        \pgfpathsine{\pgfpoint{.25\pgf@circ@res@step}{.25\pgf@circ@res@step}}
+        \pgfpathcosine{\pgfpoint{.25\pgf@circ@res@step}{-.25\pgf@circ@res@step}}
+        \pgfpathsine{\pgfpoint{.25\pgf@circ@res@step}{-.25\pgf@circ@res@step}}
+        \pgfpathcosine{\pgfpoint{.25\pgf@circ@res@step}{.25\pgf@circ@res@step}}
+        \ifnum #2=0\else
+            \pgfpathmoveto{\pgfpoint{0.15\pgf@circ@res@step}{0.15\pgf@circ@res@step}}
+            \pgfpathlineto{\pgfpoint{-0.15\pgf@circ@res@step}{-0.15\pgf@circ@res@step}}
+        \fi
+        \pgfusepath{draw}
     \endpgfscope
 }
 %
 \def\pgfcirc@twoport@draw@splitline{%
     \pgfscope
-        \ifpgf@circuit@dashed
-            \pgfsetdash{{0.1cm}{0.1cm}}{0cm}
-        \fi
+        \pgfcirc@twoport@maybedash
         \pgfsetlinewidth{\pgfstartlinewidth}
         \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@down}}
         \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@up}}
@@ -693,7 +709,10 @@
 %
 \long\def\pgfcirc@define@twoports#1#2#3#4#5#6#7{
 \pgfcircdeclarebipolescaled{#1}
-    {#2}
+    {
+        \pgcirc@twoport@additional@anchors
+        #2
+    }
     {#3}
     {#4}
     {#5}
@@ -702,7 +721,8 @@
         \pgfcirc@twoport@setup{#6}
         % draw outer box
         \pgf@circ@twoportbox
-        \pgfsetdash{}{0pt}	% always draw solid line for inner symbol
+        % draw solid line for inner symbol if no box is drawn and not fully dashed
+        \ifpgf@circuit@full@dashed\else\pgfsetdash{}{0pt}\fi
         \pgf@circ@inputarrow
         \pfgcirc@twoport@rotate@inner@symbol
         #7
@@ -711,7 +731,10 @@
 %
 \long\def\pgfcirc@define@twoports@norotate#1#2#3#4#5#6#7{
 \pgfcircdeclarebipolescaled{#1}
-    {#2}
+    {
+        \pgcirc@twoport@additional@anchors
+        #2
+    }
     {#3}
     {#4}
     {#5}
@@ -720,7 +743,8 @@
         \pgfcirc@twoport@setup{#6}
         % draw outer box
         \pgf@circ@twoportbox
-        \pgfsetdash{}{0pt}	% always draw solid line for inner symbol
+        % draw solid line for inner symbol if no box is drawn and not fully dashed
+        \ifpgf@circuit@full@dashed\else\pgfsetdash{}{0pt}\fi
         \pgf@circ@inputarrow
         #7
     }
@@ -741,9 +765,9 @@
 %% twoport split
 \pgfcirc@define@twoports{blocks}
 {}
-{\ctikzvalof{bipoles/twoportsplit/width}}
+{\ctikzvalof{bipoles/twoportsplit/height}}
 {twoportsplit}
-{\ctikzvalof{bipoles/twoportsplit/width}}
+{\ctikzvalof{bipoles/twoportsplit/height}}
 {\ctikzvalof{bipoles/twoportsplit/width}}
 {
     %get texts
@@ -1187,7 +1211,10 @@
 %
 \long\def\pgfcirc@define@twoports@boxed#1#2#3#4#5#6#7{
 \pgfcircdeclarebipolescaled{#1}
-    {#2}
+    {
+        \pgcirc@twoport@additional@anchors
+        #2
+    }
     {#3}
     {#4}
     {#5}
@@ -1196,9 +1223,7 @@
     \pgf@circ@res@step=#6\pgf@circ@scaled@Rlen %6 is the real width parameter
     \pgfsetdash{}{0pt}	% always draw solid line for inner symbol
     \pgfsetarrows{-}
-    \ifpgf@circuit@dashed
-        \pgfsetdash{{0.1cm}{0.1cm}}{0cm}
-    \fi
+    \pgfcirc@twoport@maybedash
     % draw outer box
     \ifpgf@circuit@boxed
         \pgf@circ@setlinewidth{bipoles}{\pgfstartlinewidth}
@@ -1208,7 +1233,8 @@
     \pgf@circ@inputarrow
     \ifpgf@circuit@boxed
         \pgfsetlinewidth{\pgfstartlinewidth}
-        \pgfsetdash{}{0pt}	% draw solid line for inner symbol if no box is drawn
+        % draw solid line for inner symbol if no box is drawn and not fully dashed
+        \ifpgf@circuit@full@dashed\else\pgfsetdash{}{0pt}\fi
         \pgf@circ@res@step=.7\pgf@circ@res@step % scale amp symbol when inside a box
     \else
         \pgf@circ@setlinewidth{bipoles}{\pgfstartlinewidth}
@@ -1371,6 +1397,13 @@
     \anchor{in 2}{\northwest\pgf@y=-\pgf@y\pgf@x=0pt}
     \anchor{in2}{\northwest\pgf@y=-\pgf@y\pgf@x=0pt}
     \anchor{out}{\northwest\pgf@y=0pt\pgf@x=-\pgf@x}
+    \anchor{left down}{\northwest\pgf@y=-0.5\pgf@y}
+    \anchor{right down}{\northwest\pgf@x=-\pgf@x\pgf@y=-0.5\pgf@y}
+    \anchor{right up}{\northwest\pgf@x=-\pgf@x\pgf@y=0.5\pgf@y}
+    \anchor{left up}{\northwest\pgf@y=0.5\pgf@y}
+    \anchor{text}{\northwest
+        \advance\pgf@y\dimexpr-.5\dp\pgfnodeparttextbox+.5\ht\pgfnodeparttextbox\relax
+        \pgf@x=-.5\wd\pgfnodeparttextbox\relax}
 }
 % draw the body rectangle and circle if and when needed
 \def\pgf@circ@circular@rf@box@circle{%
@@ -1382,7 +1415,8 @@
     % draw outer circle
     \ifpgf@circuit@boxed
         \pgf@circ@res@step=.7\pgf@circ@res@step
-        \pgfsetdash{}{0pt}	% draw solid circle if boxed
+        % draw solid line for inner symbol if no box is drawn and not fully dashed
+        \ifpgf@circuit@full@dashed\else\pgfsetdash{}{0pt}\fi
     \else
         \pgf@circ@setlinewidth{bipoles}{\pgfstartlinewidth}
     \fi
@@ -1407,7 +1441,8 @@
         \pgfscope
             \pgf@circ@circular@rf@box@circle
             % draw inner stuff
-            \pgfsetdash{}{0pt}	% always draw solid line for inner symbol
+            % draw solid line for inner symbol if no box is drawn and not fully dashed
+            \ifpgf@circuit@full@dashed\else\pgfsetdash{}{0pt}\fi
             \pgfsetlinewidth{\pgfstartlinewidth}
             \pgfpathmoveto{\pgfpointorigin}
             \pgfpathmoveto{\pgfpointpolar{135}{0.5\pgf@circ@res@step}}
@@ -1435,7 +1470,8 @@
         \pgfscope
             \pgf@circ@circular@rf@box@circle
             % draw inner stuff
-            \pgfsetdash{}{0pt}	% always draw solid line for inner symbol
+            % draw solid line for inner symbol if no box is drawn and not fully dashed
+            \ifpgf@circuit@full@dashed\else\pgfsetdash{}{0pt}\fi
             \pgfsetlinewidth{\pgfstartlinewidth}
             \pgfpathmoveto{\pgfpointorigin}
             \pgfpathmoveto{\pgfpointpolar{0}{0.3\pgf@circ@res@step}}
@@ -1470,7 +1506,8 @@
         \pgfscope
             \pgf@circ@circular@rf@box@circle
             % draw inner sine waves
-            \pgfsetdash{}{0pt}	% always draw solid line for inner symbol
+            % draw solid line for inner symbol if no box is drawn and not fully dashed
+            \ifpgf@circuit@full@dashed\else\pgfsetdash{}{0pt}\fi
             \pgfsetlinewidth{\pgfstartlinewidth}
             \pgfsetcornersarced{\pgfpointorigin}% do not use rounded corners!
             \pgfpathmoveto{\pgfpoint{-0.3\pgf@circ@res@step}{0\pgf@circ@res@step}}
@@ -1498,7 +1535,8 @@
         \pgfscope
             \pgf@circ@circular@rf@box@circle
             % inner arrow
-            \pgfsetdash{}{0pt}	% always draw solid line for inner symbol
+            % draw solid line for inner symbol if no box is drawn and not fully dashed
+            \ifpgf@circuit@full@dashed\else\pgfsetdash{}{0pt}\fi
             \pgfsetlinewidth{\pgfstartlinewidth}
             \pgfsetarrowsend{latex}
             \pgfpathmoveto{\pgfpoint{-0.25\pgf@circ@res@step}{0}}
@@ -1527,6 +1565,10 @@
     \anchor{down}{\northwest\pgf@x=0pt\pgf@y=-\pgf@y}
     \anchor{right}{\northwest\pgf@y=0pt\pgf@x=-\pgf@x}
     \anchor{left}{\northwest\pgf@y=0pt}
+    \anchor{left down}{\northwest\pgf@y=-0.5\pgf@y}
+    \anchor{right down}{\northwest\pgf@x=-\pgf@x\pgf@y=-0.5\pgf@y}
+    \anchor{right up}{\northwest\pgf@x=-\pgf@x\pgf@y=0.5\pgf@y}
+    \anchor{left up}{\northwest\pgf@y=0.5\pgf@y}
     \anchor{text}{
         \pgf@x=-2\pgf@x
         \advance \pgf@x by -.5\wd\pgfnodeparttextbox
@@ -1546,9 +1588,7 @@
         \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@zero}}
         \pgf@circ@res@other = \pgf@circ@res@left
         \advance\pgf@circ@res@other by \pgf@circ@res@step
-        \ifpgf@circuit@dashed
-            \pgfsetdash{{0.1cm}{0.1cm}}{0cm}
-        \fi
+        \pgfcirc@twoport@maybedash
         % draw outer box
         \pgf@circ@twoportbox
         \pgf@circ@inputarrow
@@ -1599,6 +1639,10 @@
     \anchor{in}{\northwest\pgf@y=0pt}
     \anchor{out1}{\northwest\pgf@x=-\pgf@x\pgf@y=-0.5\pgf@y}
     \anchor{out2}{\northwest\pgf@x=-\pgf@x\pgf@y=0.5\pgf@y}
+    \anchor{left down}{\northwest\pgf@y=-0.5\pgf@y}
+    \anchor{right down}{\northwest\pgf@x=-\pgf@x\pgf@y=-0.5\pgf@y}
+    \anchor{right up}{\northwest\pgf@x=-\pgf@x\pgf@y=0.5\pgf@y}
+    \anchor{left up}{\northwest\pgf@y=0.5\pgf@y}
     \anchor{text}{
         \northwest
         \advance \pgf@y by 0.5\ht\pgfnodeparttextbox
@@ -1675,6 +1719,10 @@
     \anchor{in}{\northwest\pgf@y=0pt}
     \anchor{out1}{\northwest\pgf@x=-\pgf@x\pgf@y=-0.5\pgf@y}
     \anchor{out2}{\northwest\pgf@x=-\pgf@x\pgf@y=0.5\pgf@y}
+    \anchor{left down}{\northwest\pgf@y=-0.5\pgf@y}
+    \anchor{right down}{\northwest\pgf@x=-\pgf@x\pgf@y=-0.5\pgf@y}
+    \anchor{right up}{\northwest\pgf@x=-\pgf@x\pgf@y=0.5\pgf@y}
+    \anchor{left up}{\northwest\pgf@y=0.5\pgf@y}
     \anchor{text}{
         \northwest
         \advance \pgf@y by 0.5\ht\pgfnodeparttextbox

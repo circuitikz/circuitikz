@@ -3424,6 +3424,7 @@ You can use the \texttt{plug center} anchor to add the IEC ``multiplier'':
 
 \begin{groupdesc}
     \circuitdesc*{mixer}{mixer}{}( w/180/0.1,s/-90/0.1,e/0/0.1,n/90/0.1, center/-120/0.3, geocenter/-60/.3  )
+    \circuitdesc*{mixer, boxed}{mixer, boxed}{}(right up/30/0.1, right down/-30/0.1, left up/150/0.1, left down/-150/0.1)
     \circuitdesc*{adder}{adder}{}( west/180/0.1,south/-90/0.1,east/0/0.1,north/90/0.1 )
     \circuitdesc*{oscillator}{oscillator}{}( w/180/0.1,s/-90/0.1,e/0/0.1,n/90/0.1, center/45/0.2, geocenter/-45/.3 )
     \circuitdesc*{circulator}{circulator}{}( left/180/0.1,down/-90/0.1,right/0/0.1, up/90/0.1 )
@@ -3437,9 +3438,10 @@ You can use the \texttt{plug center} anchor to add the IEC ``multiplier'':
 \end{groupdesc}
 
 \begin{groupdesc}
-    \circuitdescbip*{twoport}{generic two port (use \texttt{t=\dots} to specify text)}{}
-    \circuitdescbip*{twoportsplit}{generic two port split (use \texttt{t1=\dots} and \texttt{t2=\dots} to specify text)}{}
+    \circuitdescbip*{twoport}{generic two port (use \texttt{t=\dots} to specify text)}{}(w/180/0.1,s/-90/0.1,e/0/0.1,n/90/0.1, center/-120/0.3)
+    \circuitdescbip*{twoportsplit}{generic two port split (use \texttt{t1=\dots} and \texttt{t2=\dots} to specify text)}{}(right up/30/0.1, right down/-30/0.1, left up/150/0.1, left down/-150/0.1)
     \circuitdescbip*{vco}{vco}{}
+    \circuitdescbip*{vco,box}{vco,box}{}(right up/30/0.1, right down/-30/0.1, left up/150/0.1, left down/-150/0.1)
     \circuitdescbip*{bandpass}{bandpass}{}
     \circuitdescbip*{bandstop}{bandstop}{}
     \circuitdescbip*{highpass}{highpass}{}
@@ -3487,6 +3489,29 @@ The ports of the \texttt{mixer}, \texttt{adder}, \texttt{oscillator} and \texttt
   (mix.n) node[above] {n}
 ;\end{circuitikz}
 \end{LTXexample}
+
+In addition, since \texttt{v1.5.6},  most blocks have also the \texttt{left up}, \texttt{left down}, \texttt{right up} and \texttt{right down} anchors:
+\begin{LTXexample}[varwidth=true]
+\begin{circuitikz} \draw
+    (0,0) to[bandpass, name=bp] ++(2,0)
+    (bp.left up) node[circ, red]{}
+    (bp.left down) node[circ, blue]{}
+    (bp.right up) node[circ, green]{}
+    (bp.right down) node[circ, yellow]{}
+;\end{circuitikz}
+\end{LTXexample}
+
+You can use those anchors to build ``mixed-type'' circuits, positioning the node-shapes:
+\begin{LTXexample}[pos=t, varwidth=true]
+\begin{tikzpicture}[
+    big/.style={circuitikz/blocks/scale=1.5},
+    long/.style={circuitikz/bipoles/twoportsplit/width=1.5}]
+    \path (0,0) node[sacdcshape, big](A){}
+        (5,0) node[twoportsplitshape, big, long, t1=LNA, t2=Digital](B){};
+    \draw (A.right up) -- (B.left up) (A.right down) to[cute choke] (B.left down);
+\end{tikzpicture}
+\end{LTXexample}
+Notice also form the previous example that the generic blocks (\texttt{twoport} and \texttt{twoportsplit}) can be made ``longer'' by setting different \texttt{width} and \texttt{height} (the other blocks are square, and just use the \texttt{width} key for bth dimensions).
 
 The \texttt{oscillator} has a displaced \texttt{center} anchor, to simplify the task of putting it at the left side of a circuit; it also as a special position for the node text. The four round elements (mixer, circulator, adder, and the oscillator) have a \texttt{geocenter} anchor which corresponds always to the center of the circle.
 \begin{LTXexample}[varwidth=true, basicstyle=\small\ttfamily]
@@ -3653,13 +3678,20 @@ Several devices have the possibility to add a box around them with the \texttt{b
 
 
 \paragraph{Dash optional parts}
-To show that a device is optional, you can dash it. The inner symbol will be kept with solid lines.
+To show that a device is optional, you can dash it. The inner symbol will be kept with solid lines, unless you set the key \texttt{inner blocks dashed} to true.
+Moreover, the key \texttt{dashed blocks pattern} (default \verb|{{1mm}{1mm}}|), be careful with the number of braces!.
 \begin{LTXexample}[varwidth=true]
 \begin{circuitikz}
-\draw (0,2) to[amp,l=\SI{10}{dB}] ++(2.5,0);
-\draw[dashed] (2.5,2) to[lowpass,l=opt.] ++(2.5,0);
+\draw (0,1.5) to[amp,l=\SI{10}{dB}] ++(2.5,0);
+\draw[dashed] (2.5,1.5) to[lowpass,l=opt.] ++(2.5,0);
 % or just the block
 \draw (0,0) to[amp,l=\SI{10}{dB}] ++(2.5,0)
+     to[lowpass,l=opt., dashed] ++(2.5,0);
+% or everything
+\ctikzset{inner blocks dashed,
+    dashed blocks pattern={{1.5pt}{1pt}},
+}
+\draw (0,-1.5) to[amp,l=\SI{10}{dB}] ++(2.5,0)
      to[lowpass,l=opt., dashed] ++(2.5,0);
 \end{circuitikz}
 \end{LTXexample}
