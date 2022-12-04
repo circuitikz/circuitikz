@@ -3462,12 +3462,14 @@ You can use the \texttt{plug center} anchor to add the IEC ``multiplier'':
     \circuitdescbip*{phaseshifter}{phase shifter}{}
     \circuitdescbip*{vphaseshifter}{var.\ phase shifter}{}
     \circuitdescbip*{detector}{detector}{}
-    \circuitdescbip*{sdcdc}{single wire DC/DC converter\footnotemark}{}
+    \circuitdescbip*{sdcdc}{single wire DC/DC converter\footnotemark}{}(dc1 in/135/.3, dc2 in/185/.3, dc1 out/45/.3, dc2 out/-35/.3)
     \footnotetext{the converter blocks added by \texttt{olfline}}
-    \circuitdescbip*{sacdc}{single phase AC/DC converter}{}
-    \circuitdescbip*{sdcac}{single phase DC/AC converter}{}
-    \circuitdescbip*{tacdc}{three phases AC/DC converter}{}
-    \circuitdescbip*{tdcac}{three phases AC/DC converter}{}(left/170/0.5, right/5/0.5, center/-90/0.3, ac1/45/0.1, ac2/-5/.3, ac3/-45/.1, dc1/135/.3, dc2/185/.3)
+    \circuitdescbip*{sacdc}{single phase AC/DC converter}{}(ac1 in/135/.3, ac2 in/185/.3, dc1 out/45/.3, dc2 out/-35/.3)
+    \circuitdescbip*{sdcac}{single phase DC/AC converter}{}(dc1 in/135/.3, dc2 in/185/.3, ac1 out/45/.3, ac2 out/-35/.3)
+    \circuitdescbip*{sacac}{single phase AC/AC converter}{}(ac1 in/135/.3, ac2 in/185/.3, ac1 out/45/.3, ac2 out/-35/.3)
+    \circuitdescbip*{tacdc}{three phases AC/DC converter}{}(ac1 in/135/.3, ac2 in/185/.3, ac3 in/-135/.3, dc1 out/45/.3, dc2 out/-35/.3)
+    \circuitdescbip*{tdcac}{three phases AC/DC converter}{}(ac1 out/45/0.1, ac2 out/-5/.3, ac3 out/-45/.1, dc1 in/135/.3, dc2 in/185/.3)
+    \circuitdescbip*{tacac}{three phases AC/DC converter}{}(ac1 in/135/.3, ac2 in/185/.3, ac3 in/-135/.3, ac1 out/45/.3, ac2 out/-5/.3, ac3 out/-45/.3)
 \end{groupdesc}
 
 \begin{groupdesc}
@@ -9952,20 +9954,23 @@ Here a series of example, contributed by several people, is shown with their cod
 
 \begin{LTXexample}[varwidth=true,pos=t]
 \begin{circuitikz}[smallR/.style={european resistor, resistors/scale=0.5}]
-    \draw (0,0) node[tacdcshape, anchor=ac2](acdc){} to[smallR] ++(-2,0)
+    \draw (0,0) node[tacdcshape, anchor=ac2 in](acdc){} to[smallR] ++(-2,0)
         -- coordinate(point) node[circ](){} ++(-.5,0);
-    \draw (acdc.ac1) to[nos, invert, mirror, name=switch,color=red] ++(-2,0) -- (point);
-    \draw (acdc.ac3) to[smallR] ++(-2,0)
+    \draw (acdc.ac1 in)
+        to[nos, invert, mirror, name=switch,color=red] ++(-2,0)
+        -- (point);
+    \draw (acdc.ac3 in) to[smallR] ++(-2,0)
         -- (point)
         to[oosourcetrans,prim=wye,sec=delta,l=transformer] ++(-1.5,0)
         to[tmultiwire] ++(-.5,0)
         node[gridnode, anchor=right]{};
     \node[above=.3cm,color=red] at (switch) {fault};
-    \draw (acdc.dc1) to[smallR,l=HVDC line] ++(2,0 )
-        node[tdcacshape, anchor=dc1](dcac){};
-    \draw (acdc.dc2) -- (dcac.dc2);
-    \draw (dcac.right) to[ooosource,prim=delta,sec=delta,tert=wye,invert] ++(1.5,0)
-                        to[tmultiwire] ++(.5,0) node[gridnode,anchor=left]{};
+    \draw (acdc.dc1 out) to[smallR,l=HVDC line] ++(2,0 )
+        node[tdcacshape, anchor=dc1 in](dcac){};
+    \draw (acdc.dc2 out) -- (dcac.dc2 in);
+    \draw (dcac.right)
+        to[ooosource,prim=delta,sec=delta,tert=wye,invert] ++(1.5,0)
+        to[tmultiwire] ++(.5,0) node[gridnode,anchor=left]{};
 \end{circuitikz}
 \end{LTXexample}
 
