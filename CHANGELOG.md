@@ -10,7 +10,7 @@ The major changes among the different CircuiTikZ versions are listed here. See <
         - enabled more short-name geographical anchors
         - generic blocks can be made rectangular
         - mid-way lateral anchors for all blocks, as well as up/down
-        - renamed converters anchors (old ones retained for backeard compatibility)
+        - renamed converters anchors (old ones retained for backward compatibility)
         - new ac/ac blocks, both single- and three-phase
     - Added double gate MOS transistors (by Romano Giannetti)
     - Fix deformed shape for legacy `TL` component ([issue on GitHub](https://github.com/circuitikz/circuitikz/issues/664))
