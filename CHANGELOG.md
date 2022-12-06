@@ -1,8 +1,17 @@
 <!--- CircuiTikz - Changelog --->
 The major changes among the different CircuiTikZ versions are listed here. See <https://github.com/circuitikz/circuitikz/commits> for a full list of changes.
 
-* Version 1.5.6 (unreleased)
+* Version 1.6.0 (unreleased)
 
+    The big change is the refactoring (and enhancement) of the block's code. In addition, double gate MOSes, several fixes all over the map, and quite a lot of anchors were added into the mix.
+
+    - Big change (most without effects, minus a couple of bug fixes) to the block's code.
+        - Now `vco` can be `box`ed
+        - enabled more short-name geographical anchors
+        - generic blocks can be made rectangular
+        - mid-way lateral anchors for all blocks, as well as up/down
+        - renamed converters anchors (old ones retained for backward compatibility)
+        - new ac/ac blocks, both single- and three-phase
     - Added double gate MOS transistors (by Romano Giannetti)
     - Fix deformed shape for legacy `TL` component ([issue on GitHub](https://github.com/circuitikz/circuitikz/issues/664))
     - Added several anchors on variable components, suggested by [Dr Matthias Jung](https://github.com/circuitikz/circuitikz/issues/663)
