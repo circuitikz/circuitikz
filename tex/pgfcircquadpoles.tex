@@ -564,6 +564,9 @@
 \ctikzset{tripoles/splitter/height/.initial=1.3}
 \ctikzset{tripoles/splitter/width/.initial=1.3}
 
+\ctikzset{tripoles/genericsplitter/height/.initial=1.3}
+\ctikzset{tripoles/genericsplitter/width/.initial=1.3}
+
 \ctikzset{tripoles/mzm/height/.initial=1.3}
 \ctikzset{tripoles/mzm/width/.initial=1.3}
 
@@ -1803,11 +1806,11 @@
     \saveddimen{\scaledRlen}{\pgfmathsetlength{\pgf@x}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}}
     \savedanchor\northwest{%
         \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
-        \pgf@y=\ctikzvalof{tripoles/wilkinson/height}\pgf@circ@scaled@Rlen
+        \pgf@y=\ctikzvalof{tripoles/splitter/height}\pgf@circ@scaled@Rlen
         \pgf@y=.5\pgf@y
         \pgf@x= \pgf@circ@scaled@Rlen
         \pgf@x=.5\pgf@x
-        \pgf@x=-\ctikzvalof{tripoles/wilkinson/width}\pgf@x
+        \pgf@x=-\ctikzvalof{tripoles/splitter/width}\pgf@x
     }
     \pgfcirc@northwest@symmetric@geoanchors
     \anchor{center}{\pgfpointorigin}
@@ -1881,6 +1884,76 @@
             \pgfpathmoveto{\linepta}
             \pgfpathlineto{\pgfpointanchor{wilk@int@R}{right}}
             \pgfpathmoveto{\pgfpointanchor{wilk@int@R}{left}}
+            \pgfpathlineto{\lineptb}
+            \pgfusepath{draw}
+        }
+    }
+}
+
+%% generic splitter
+\pgfdeclareshape{genericsplitter}{
+    \savedmacro{\ctikzclass}{\edef\ctikzclass{blocks}}
+    \saveddimen{\scaledRlen}{\pgfmathsetlength{\pgf@x}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}}
+    \savedanchor\northwest{%
+        \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
+        \pgf@y=\ctikzvalof{tripoles/genericsplitter/height}\pgf@circ@scaled@Rlen
+        \pgf@y=.5\pgf@y
+        \pgf@x= \pgf@circ@scaled@Rlen
+        \pgf@x=.5\pgf@x
+        \pgf@x=-\ctikzvalof{tripoles/genericsplitter/width}\pgf@x
+    }
+    \pgfcirc@northwest@symmetric@geoanchors
+    \anchor{center}{\pgfpointorigin}
+    \anchor{up}{\northwest\pgf@x=0pt}
+    \anchor{down}{\northwest\pgf@x=0pt\pgf@y=-\pgf@y}
+    \anchor{right}{\northwest\pgf@y=0pt\pgf@x=-\pgf@x}
+    \anchor{left}{\northwest\pgf@y=0pt}
+    \anchor{in}{\northwest\pgf@y=0pt}
+    \anchor{out1}{\northwest\pgf@x=-\pgf@x\pgf@y=-0.5\pgf@y}
+    \anchor{out2}{\northwest\pgf@x=-\pgf@x\pgf@y=0.5\pgf@y}
+    \anchor{left down}{\northwest\pgf@y=-0.5\pgf@y}
+    \anchor{right down}{\northwest\pgf@x=-\pgf@x\pgf@y=-0.5\pgf@y}
+    \anchor{right up}{\northwest\pgf@x=-\pgf@x\pgf@y=0.5\pgf@y}
+    \anchor{left up}{\northwest\pgf@y=0.5\pgf@y}
+    \anchor{text}{
+        \northwest
+        \pgf@y=-.5\ht\pgfnodeparttextbox
+        \pgf@x=-.2\wd\pgfnodeparttextbox
+    }
+    \pgf@circ@draw@component{
+        \pgf@circ@setcolor
+        \pgf@circ@scaled@Rlen=\scaledRlen
+        %
+        \northwest
+        \pgf@circ@res@up = \pgf@y
+        \pgf@circ@res@down = -\pgf@y
+        \pgf@circ@res@right = -\pgf@x
+        \pgf@circ@res@left = \pgf@x
+        %
+        \pgfstartlinewidth=\pgflinewidth
+        % draw outer box
+        \pgf@circ@twoportbox
+        \pgf@circ@inputarrow
+        % draw inner stuff
+        \pgfsetdash{}{0pt}	% always draw solid line for inner symbol
+        \pgfsetarrows{-} %never draw arrows
+        \pgfsetlinewidth{\pgfstartlinewidth}
+        \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{0pt}}
+        \pgfpathlineto{\pgfpoint{0.5\pgf@circ@res@left}{0pt}}
+        \pgfpathmoveto{\pgfpoint{\pgf@circ@res@right}{0.5\pgf@circ@res@up}}
+        \pgfpathlineto{\pgfpoint{0.5\pgf@circ@res@right}{0.5\pgf@circ@res@up}}
+        \pgfpathmoveto{\pgfpoint{0.5\pgf@circ@res@left}{0pt}}
+        \pgfpathmoveto{\pgfpoint{0.5\pgf@circ@res@right}{0.5\pgf@circ@res@down}}
+        \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{0.5\pgf@circ@res@down}}
+        \pgfusepath{draw}
+        %
+        \pgfsetdash{}{0pt}	% always draw solid line for inner symbol
+        % draw inner resisitors - european or american style is recognised
+        \foreach \linepta/\lineptb in %
+        { \pgfpoint{0.5\pgf@circ@res@right}{0.5\pgf@circ@res@up}/\pgfpoint{0.5\pgf@circ@res@left}{0},%
+          \pgfpoint{0.5\pgf@circ@res@right}{0.5\pgf@circ@res@down}/\pgfpoint{0.5\pgf@circ@res@left}{0}}
+        {
+            \pgfpathmoveto{\linepta}
             \pgfpathlineto{\lineptb}
             \pgfusepath{draw}
         }

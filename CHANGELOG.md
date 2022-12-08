@@ -15,6 +15,8 @@ The major changes among the different CircuiTikZ versions are listed here. See <
     - Added double gate MOS transistors (by Romano Giannetti)
     - Fix deformed shape for legacy `TL` component ([issue on GitHub](https://github.com/circuitikz/circuitikz/issues/664))
     - Added several anchors on variable components, suggested by [Dr Matthias Jung](https://github.com/circuitikz/circuitikz/issues/663)
+    - Added `genericsplitter` component (by [frankplow](github.com/frankplow))
+    - Fix - reshape `splitter` using `/tripoles/splitter/width` and `/tripoles/splitter/height` rather than `/tripoles/wilkinson/width` and `/tripoles/wilkinson/height`.
 
 * Version 1.5.5 (2022-11-12)
 
