@@ -1,11 +1,11 @@
 <!--- CircuiTikz - Changelog --->
 The major changes among the different CircuiTikZ versions are listed here. See <https://github.com/circuitikz/circuitikz/commits> for a full list of changes.
 
-* Version 1.6.0 (unreleased)
+* Version 1.6.0 (2022-12-10)
 
     The big change is the refactoring (and enhancement) of the block's code. In addition, double gate MOSes, several fixes all over the map, and quite a lot of anchors were added into the mix.
 
-    - Big change (most without effects, minus a couple of bug fixes) to the block's code.
+    - Big change (mostly backward compatible, minus a couple of bug fixes) to the block's code.
         - Now `vco` can be `box`ed
         - enabled more short-name geographical anchors
         - generic blocks can be made rectangular
