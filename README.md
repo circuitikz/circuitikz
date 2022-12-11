@@ -27,17 +27,17 @@ Just place
 ```latex
   \usepackage[RPvoltages, siunitx]{circuitikz}% or your preferred options
 ```
-Be sure to check the options you like --- you should at least state one of the "voltage direction" one, like the one shown above, or the usage of `siunitx` special syntax. Be sure to check the relevant part in the manual.
+Be sure to check the options you like — you should at least state one of the "voltage direction" ones, like `RPvoltages` shown above, or the usage of `siunitx` special syntax. Be sure to check the relevant sections in the manual.
 
-For ConTeXt,
+For ConTeXt, use
 ```latex
   \usemodule[circuitikz]
 ```
-in the preamble and compile away, both with PS and PDF target output. It is higly recommended to go through the [tutorials in the manual](https://circuitikz.github.io/circuitikz/circuitikzmanualgit.pdf#c) and to learn a bit of Ti*k*Z before --- for example, go through at least the [basic Ti*k*Z one](https://tikz.dev/tutorial), but there are more suggestions in the documentation.
+in the preamble and compile away, both with PS and PDF target output. It is higly recommended to go through the [tutorials in the manual](https://circuitikz.github.io/circuitikz/circuitikzmanualgit.pdf#c) and to learn a bit of Ti*k*Z before for example, go through at least the [basic Ti*k*Z one](https://tikz.dev/tutorial), but there are more suggestions in the documentation.
 
 ### Development or newer version
 
-If you want to use the git version, go to the [GitHub page for the project](https://circuitikz.github.io/circuitikz/), download the lasted version (or the one you want to use)  — it's the links called "download the latest version in a single file". You will have a file called `circuitikzgit.sty` that you should put somewhere in your LaTeX input path; the best place is in the same directory where your main file live. Then, just use it instead of the normal one:
+If you want to use the git version, go to the [GitHub page for the project](https://circuitikz.github.io/circuitikz/), download the last version (or the one you want to use)  — it's the links called "download the latest version in a single file". You will have a file called `circuitikzgit.sty` that you should put somewhere in your LaTeX input path; the best place is in the same directory where your main file live. Then, just use it instead of the normal one:
 
 ```latex
   \usepackage[siunitx, RPvoltages]{circuitikzgit}
