@@ -1065,12 +1065,30 @@
 }
 
 %% converters help function
+%% definition for styling the DC symbols (GitHub issue #680)
+\ctikzset{blocks dc in segments/.initial=1}
+\ctikzset{blocks dc out segments/.initial=1}
+\ctikzset{blocks dc segments/.code={%
+        \ctikzset{blocks dc in segments=#1}%
+        \ctikzset{blocks dc out segments=#1}%
+    }
+}
 \def\pgf@circ@twoport@converter@dc#1#2{%
     \pgfscope
     \pgftransformshift{\pgfpoint{#1\pgf@circ@res@step}{#2\pgf@circ@res@step}}
     \pgfpathmoveto{\pgfpoint{-0.25\pgf@circ@res@step}{0.125\pgf@circ@res@step}}
     \pgfpathlineto{\pgfpoint{0.25\pgf@circ@res@step}{0.125\pgf@circ@res@step}}
     \pgfusepath{draw}
+    \ifpgf@circuit@full@dashed\else % do not apply the specific dash if fully dashing
+        \edef\@@up{\ctikzvalof{blocks dc in segments}}
+        \edef\@@down{\ctikzvalof{blocks dc out segments}}
+        \ifdim\dimexpr#1\pgf@circ@res@step\relax<0pt
+            \pgfmathsetlength{\pgf@circ@res@other}{\pgf@circ@res@step/(4*\@@up-2)}
+        \else
+            \pgfmathsetlength{\pgf@circ@res@other}{\pgf@circ@res@step/(4*\@@down-2)}
+        \fi
+        \pgfsetdash{{\pgf@circ@res@other}{\pgf@circ@res@other}}{0pt}
+    \fi
     \pgfpathmoveto{\pgfpoint{-0.25\pgf@circ@res@step}{-0.125\pgf@circ@res@step}}
     \pgfpathlineto{\pgfpoint{0.25\pgf@circ@res@step}{-0.125\pgf@circ@res@step}}
     \pgfusepath{draw}
