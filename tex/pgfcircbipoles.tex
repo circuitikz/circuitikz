@@ -5568,6 +5568,109 @@
 
 % %>>>
 
+% solder jumpers: definitions and code %<<<
+\ctikzset{bipoles/solder jumper/width/.initial=0.36}
+\ctikzset{bipoles/solder jumper/height/.initial=0.3} % must be less than width, otherwise no gap!
+\ctikzset{bipoles/solder jumper/close height/.initial=0.6}% fraction of the vertical gap filled
+\ctikzset{bipoles/double solder jumper/width/.initial=0.57}
+%
+\def\pgfcirc@base@solder@jumper{%
+    \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left+\pgf@circ@res@up}{\pgf@circ@res@up}}
+    \pgfpatharc{90}{270}{\pgf@circ@res@up}
+    \pgfpathclose
+    \pgfusepath{draw,fill}
+    \pgfpathmoveto{\pgfpoint{\pgf@circ@res@right-\pgf@circ@res@up}{\pgf@circ@res@up}}
+    \pgfpatharc{90}{-90}{\pgf@circ@res@up}
+    \pgfpathclose
+    \pgfusepath{draw,fill}
+}
+% simple solder jumpers
+% #1 -> name
+% #2 -> open or close (0 means open, 1 closed)
+\long\def\pgfcircdeclaresolderjumper#1#2{
+    \pgfcircdeclarebipolescaled{switches}
+        {
+            \anchor{out}{\northeast \pgf@y=0cm}
+            \anchor{in}{\southwest\pgf@y=0cm}
+            \anchor{text}{\northeast
+                \pgf@x=\dimexpr -.5\wd\pgfnodeparttextbox\relax
+                \advance\pgf@y by .6\ht\pgfnodeparttextbox\relax
+            }
+        }
+        {\ctikzvalof{bipoles/solder jumper/height}}
+        {#1}
+        {\ctikzvalof{bipoles/solder jumper/height}}
+        {\ctikzvalof{bipoles/solder jumper/width}}{
+            %
+            \pgfcirc@base@solder@jumper
+            \ifnum #2=0 \else
+                \pgfpathrectanglecorners
+                {\pgfpoint{\pgf@circ@res@left+\pgf@circ@res@up}
+                    {\ctikzvalof{bipoles/solder jumper/close height}\pgf@circ@res@up}}
+                {\pgfpoint{\pgf@circ@res@right-\pgf@circ@res@up}
+                    {\ctikzvalof{bipoles/solder jumper/close height}\pgf@circ@res@down}}
+                \pgfusepath{fill, draw}
+            \fi
+        }
+}
+\pgfcircdeclaresolderjumper{osjumper}{0}
+\pgfcircdeclaresolderjumper{csjumper}{1}
+\pgfcirc@activate@bipole{l}{osjumper}{osjumper}{open solder jumper}
+\pgfcirc@activate@bipole{l}{csjumper}{csjumper}{closed solder jumper}
+% three pins (two-ways) solder jumpers
+% #1 -> name
+% #2 -> first side open or closed
+% #3 -> second side open or closed
+\long\def\pgfcircdeclaredoublesolderjumper#1#2#3{
+    \pgfcircdeclarebipolescaled{switches}
+        {
+            %
+            \anchor{out}{\northeast \pgf@y=0cm}
+            \anchor{in}{\southwest\pgf@y=0cm}
+            \anchor{tap}{\northeast\pgf@x=0cm}
+            \anchor{tap up}{\northeast\pgf@x=0cm}
+            \anchor{tap down}{\northeast\pgf@x=0cm\pgf@y=-\pgf@y}
+            \anchor{text}{\northeast
+                \pgf@x=\dimexpr -.5\wd\pgfnodeparttextbox\relax
+                \advance\pgf@y by .6\ht\pgfnodeparttextbox\relax
+            }
+        }
+        {\ctikzvalof{bipoles/solder jumper/height}}
+        {#1}
+        {\ctikzvalof{bipoles/solder jumper/height}}
+        {\ctikzvalof{bipoles/double solder jumper/width}}
+        {
+            \pgfcirc@base@solder@jumper
+            \pgfpathrectanglecorners
+                {\pgfpoint{-.5\pgf@circ@res@up}{\pgf@circ@res@up}}
+                {\pgfpoint{.5\pgf@circ@res@up}{\pgf@circ@res@down}}
+                \pgfusepath{fill, draw}
+            \ifnum #2=0 \else
+                \pgfpathrectanglecorners
+                    {\pgfpoint{\pgf@circ@res@left+\pgf@circ@res@up}{\ctikzvalof{bipoles/solder jumper/close height}\pgf@circ@res@up}}
+                    {\pgfpoint{-.5\pgf@circ@res@up}{\ctikzvalof{bipoles/solder jumper/close height}\pgf@circ@res@down}}
+                    \pgfusepath{fill, draw}
+            \fi
+            \ifnum #3=0 \else
+                \pgfpathrectanglecorners
+                    {\pgfpoint{\pgf@circ@res@right-\pgf@circ@res@up}{\ctikzvalof{bipoles/solder jumper/close height}\pgf@circ@res@up}}
+                    {\pgfpoint{.5\pgf@circ@res@up}{\ctikzvalof{bipoles/solder jumper/close height}\pgf@circ@res@down}}
+                    \pgfusepath{fill, draw}
+            \fi
+        }
+}
+%
+\pgfcircdeclaredoublesolderjumper{odsjumper}{0}{0}
+\pgfcircdeclaredoublesolderjumper{ldsjumper}{1}{0}
+\pgfcircdeclaredoublesolderjumper{rdsjumper}{0}{1}
+\pgfcircdeclaredoublesolderjumper{cdsjumper}{1}{1}
+\pgfcirc@activate@bipole{l}{odsjumper}{odsjumper}{open double solder jumper}
+\pgfcirc@activate@bipole{l}{ldsjumper}{ldsjumper}{left double solder jumper}
+\pgfcirc@activate@bipole{l}{rdsjumper}{rdsjumper}{right double solder jumper}
+\pgfcirc@activate@bipole{l}{cdsjumper}{cdsjumper}{closed double solder jumper}
+
+% %>>>
+
 %%%%%%%%%%%%%%%%%
 %% Instruments
 %%%%%%%%%%%%%%%%%
