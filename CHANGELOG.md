@@ -6,6 +6,7 @@ The major changes among the different CircuiTikZ versions are listed here. See <
     - Add configurable dashes to the dc symbols in converter blocks (suggested by [user \texttt{@dbstf} on GitHub](https://github.com/circuitikz/circuitikz/issues/680))
     - Add solder jumpers
     - subcricuits are no more experimental
+    - Correction of several typo/grammar errors in the documentation by [quark67](https://github.com/circuitikz/circuitikz/pull/686)
 
 * Version 1.6.0 (2022-12-10)
 
