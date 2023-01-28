@@ -3,9 +3,12 @@ The major changes among the different CircuiTikZ versions are listed here. See <
 
 * Version 1.6.1 (unreleased)
 
-    - Add configurable dashes to the dc symbols in converter blocks (suggested by [user \texttt{@dbstf} on GitHub](https://github.com/circuitikz/circuitikz/issues/680))
-    - Add solder jumpers
-    - subcricuits are no more experimental
+    New components: solder jumpers and a couple of small but very useful inversion markers for logical circuits, especially targeted at the mux-demux family. More tweaks to converters blocks, and a lot of typo/grammar fixes in the manual.
+
+    - Add configurable dashes to the dc symbols in converter blocks (suggested by [user `@dbstf` on GitHub](https://github.com/circuitikz/circuitikz/issues/680))
+    - Add solder jumpers (by Romano)
+    - Add a shape to mark european-style inversion (suggested by [user `yashpalgoyal1304` on GitHub](https://github.com/circuitikz/circuitikz/issues/679)
+    - subcircuits are no more experimental
     - Correction of several typo/grammar errors in the documentation by [quark67](https://github.com/circuitikz/circuitikz/pull/686)
 
 * Version 1.6.0 (2022-12-10)

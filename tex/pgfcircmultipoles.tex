@@ -2160,4 +2160,96 @@
 }
 % %>>>
 
+%% definitions and shape for wedgeinv and circleinv%<<<
+
+\ctikzset{wedge inversion mark/width/.initial = 0.2}
+\ctikzset{wedge inversion mark/height/.initial = 0.1}
+\pgfdeclareshape{wedgeinv}{
+    \savedmacro{\ctikzclass}{\edef\ctikzclass{muxdemuxes}}
+    \saveddimen{\scaledRlen}{\pgfmathsetlength{\pgf@x}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}}
+    \savedanchor\northeast{%
+        \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
+        \pgf@y=\ctikzvalof{wedge inversion mark/height}\pgf@circ@scaled@Rlen
+        \pgf@x=\ctikzvalof{wedge inversion mark/width}\pgf@circ@scaled@Rlen
+    }
+    \anchor{center}{\pgfpointorigin}
+    \anchor{top}{\northeast\pgf@x=0pt\relax}
+    \anchor{apex}{\northeast\pgf@y=0pt\relax}
+    \anchor{base}{\pgfpointorigin}
+    \anchor{mid}{\northeast\pgf@x=0.5\pgf@x\pgf@y=0.5\pgf@y}
+    % not standard geoanchors, south west is the same as 0,0...
+    \anchor{right}{\northeast\pgf@y=0pt\relax}
+    \anchor{east}{\northeast\pgf@y=0pt\relax}
+    \anchor{e}{\northeast\pgf@y=0pt\relax}
+    \anchor{left}{\pgfpointorigin}
+    \anchor{west}{\pgfpointorigin}
+    \anchor{w}{\pgfpointorigin}
+    \anchor{south}{\northeast\pgf@y=0pt\pgf@x=0.5\pgf@x}
+    \anchor{s}{\northeast\pgf@y=0pt\pgf@x=0.5\pgf@x}
+    \anchor{north}{\northeast\pgf@x=0.5\pgf@x}
+    \anchor{n}{\northeast\pgf@x=0.5\pgf@x}
+    \anchor{south west}{\pgfpointorigin}
+    \anchor{sw}{\pgfpointorigin}
+    \anchor{north east}{\northeast}
+    \anchor{ne}{\northeast}
+    \anchor{north west}{\northeast\pgf@x=0pt\relax}
+    \anchor{nw}{\northeast\pgf@x=0pt\relax}
+    \anchor{south east}{\northeast\pgf@y=0pt\relax}
+    \anchor{se}{\northeast\pgf@y=0pt\relax}
+    %
+    \pgf@circ@draw@component{
+        \northeast\pgf@circ@res@up=\pgf@y\pgf@circ@res@right=\pgf@x
+        \pgfsetbeveljoin % otherwise it sticks often "inside" the component
+        \pgfpathmoveto{\pgfpointorigin}
+        \pgfpathlineto{\pgfpoint{0pt}{\pgf@circ@res@up}}
+        \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{0pt}}
+        \pgfpathclose
+        \pgfusepath{draw}
+    }
+}
+% this is *almost* the same as notcirc, but scales with muxdemuxes and
+% has the default anchor to the left side
+\pgfdeclareshape{circleinv}{
+    \savedmacro{\ctikzclass}{\edef\ctikzclass{muxdemuxes}}
+    \savedanchor\northwest{%
+        \pgf@circ@notradius
+        \pgf@y=\pgf@circ@res@temp
+        \pgf@x=-\pgf@y
+    }
+    \pgfcirc@northwest@symmetric@geoanchors
+    %% use the left side as default anchor
+    \anchor{center}{\northwest\pgf@y=0pt}
+    \anchor{geocenter}{\pgfpointorigin}
+    \anchor{base}{\northwest\pgf@y=0pt}
+    \anchor{apex}{\northwest\pgf@y=0pt\pgf@x=-\pgf@x}
+    \anchor{mid}{\northwest\pgf@x=0pt}
+    \anchor{top}{\northwest\pgf@x=0pt}
+    \anchor{bottom}{\northwest\pgf@x=0pt\pgf@y=-\pgf@y}
+    \anchorborder{
+        \pgf@circ@res@left=\pgf@x
+        \pgf@circ@res@up=\pgf@y
+        \northwest\pgf@circ@res@temp=\pgf@y
+        \pgfpointborderellipse{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@up}}%
+        {\pgfpoint{\pgf@circ@res@temp}{\pgf@circ@res@temp}}
+    }
+    \pgf@circ@draw@component{
+        \pgfscope
+            \northwest\pgf@circ@res@temp=\pgf@y
+            \pgf@circ@setcolor
+            \pgf@circ@setlinewidth{multipoles}{\pgflinewidth}
+            \pgfpathcircle{\pgfpointorigin}{\pgf@circ@res@temp}
+            \ifx\tikz@fillcolor\pgfutil@empty
+                % set the default fill color to white
+                \pgfsetfillcolor{white}
+                % ...but override it if the class is defined!
+                \pgf@circ@setifdefinedfill{draw, fill}{draw, fill}
+            \else
+                \pgfsetfillcolor{\tikz@fillcolor}
+            \fi
+            \pgfusepath{draw,fill}
+        \endpgfscope
+    }
+}
+%% %>>>
+
 % vim: set fdm=marker fmr=%<<<,%>>>:
