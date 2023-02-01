@@ -6757,8 +6757,7 @@ Flip-flops have all the standard geometrical anchors, although it should be noti
 
 If you have negated pins, you can access the \texttt{ocirc} shapes with the name as \texttt{\textsl{<nodename>}-N\textsl{<pin number>}}, and all the respective anchors (for example --- \verb|myFFnode-N4.west|).
 
-\subsubsection{Flip-flops customization}
-
+\subsubsection{Flip-flops customization}\label{sec:flip-flop-cust}
 
 Flip-flop's size is controlled by the class parameters (like \texttt{flipflops/scale})  and the specific \verb|\ctikzset| keys \texttt{multipoles/flipflop/width} and \texttt{multipoles/flipflop/pin spacing}. Class parameters are also used for line thickness and fill color. The default values are matched with the logic ports ones.
 
@@ -6832,6 +6831,9 @@ The shape used for muxes and de-muxes is probably the most configurable shape of
 
 \begin{groupdesc}
     \circuitdesc*[0.7]{muxdemux}{mux-demux}{MD1}(lpin 1/180/0.2, lpin 2/180/0.2, bpin 1/-90/0.2, blpin 1/0/0.2, blpin 2/0/0.2, bbpin 1/90/0.2, rpin 1/0/0.1, brpin 1/-110/0.1)
+    \circuitdesc{wedgeinv, scale=2}{Inversion marker for European logic symbols\footnotemark}{}(base/180/0.2, top/90/0.2, apex/0/0.2, mid/45/0.2, center/135/0.2)
+    \footnotetext{Thanks for the contribution by \href{https://github.com/circuitikz/circuitikz/issues/679}{\texttt{yashpalgoyal1304} on GitHub}.}
+    \circuitdesc{circleinv, scale=2}{Circle-shaped inversion marker}{}(base/180/0.2, top/90/0.2, apex/0/0.2, mid/45/0.2, center/135/0.2, bottom/-90/0.1)
 \end{groupdesc}
 
 You can define a custom shape for the \texttt{muxdemux}es using an interface similar to the one used in flip-flops; for example:
@@ -7027,6 +7029,33 @@ The code that implemented the printing of the numbers (which in \texttt{muxdemux
 }
 \end{lstlisting}
 
+\subsubsection{Adding wedge or circular inversion markers}\label{sec:wedge-inversion}
+
+Although you can add ``negation balls'' as seen for, for example, flip-flops (see section~\ref{sec:flip-flop-cust}), sometimes the European-style notation (also accepted by the IEEE standard) with the small wedge is preferred. The \texttt{wedgeinv} shape will nicely do. It'll scale with the \texttt{muxdemuxes} class, and the length and height can be changed with the keys \texttt{wedge inversion mark/width} (default \texttt{0.2}) and \texttt{height} (default \texttt{0.1}), with the same units that are used for the \texttt{external pins width} and similar keys.
+
+Similarly, there is also a \texttt{circleinv} shape, which is basically the same as the \texttt{notcirc} (see~\ref{sec:ieeestdports}) one, but that scales with the \texttt{muxdemuxes} class and that has the default anchor at its left, similarly to \texttt{wedgeinv}. This one will be filled if the class says so, contrary to the wedge-like shapes that are always open.
+
+\begin{LTXexample}[varwidth=true]
+\begin{tikzpicture}[]
+    \path (0,4) node[muxdemux, muxdemux def={NL=2,Lh=2,Rh=2,NB=1},
+        external pins width = 0.5](mdemux){};
+    \draw (mdemux.blpin 1) node[wedgeinv,anchor=apex]{};
+    \draw (mdemux.brpin 1) node[wedgeinv]{};
+    \draw (mdemux.bbpin 1) node[wedgeinv, anchor=apex,
+        rotate=90]{};
+    \ctikzset{wedge inversion mark/.cd, width=0.1}
+    \ctikzset{muxdemuxes/.cd, fill=yellow, thickness=3, scale=0.8}
+    \path (0,2) node[muxdemux, muxdemux def={NL=2,Lh=2,Rh=2,NB=0},
+        external pins width = 0.5](mdemux){};
+    \draw (mdemux.blpin 1) node[wedgeinv,anchor=apex]{};
+    \draw (mdemux.brpin 1) node[wedgeinv]{};
+    \path (0,0) node[muxdemux, muxdemux def={NL=2,Lh=2,Rh=2,NB=0},
+        external pins width = 0.5](mdemux){};
+    \draw (mdemux.blpin 1) node[circleinv,anchor=apex]{};
+    \draw (mdemux.brpin 1) node[circleinv]{};
+\end{tikzpicture}
+\end{LTXexample}
+
 \subsubsection{Mux-Demux special usage}
 
 You can use these shapes  to draw a lot of symbols that are unavailable; using a bit of \LaTeX{} command trickery you can use them quite naturally too\dots. Examples with personalized amplifier shapes are listed in section~\ref{sec:muxdemux-amplis}.
@@ -7049,7 +7078,6 @@ As an additional example, this was used before the introduction of the \texttt{d
 \end{LTXexample}
 
 Finally, you can play with them to create chips that have generic numbers of pins on the four sides, as in the following example (asked on \href{https://tex.stackexchange.com/q/596320/38080}{TeX.Stackexchange}):
-
 
 \begin{LTXexample}[varwidth=true]
 \begin{tikzpicture}[scale=0.8, transform shape]
