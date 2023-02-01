@@ -7,7 +7,7 @@ The major changes among the different CircuiTikZ versions are listed here. See <
 
     - Add configurable dashes to the dc symbols in converter blocks (suggested by [user `@dbstf` on GitHub](https://github.com/circuitikz/circuitikz/issues/680))
     - Add solder jumpers (by Romano)
-    - Add a shape to mark european-style inversion (suggested by [user `yashpalgoyal1304` on GitHub](https://github.com/circuitikz/circuitikz/issues/679)
+    - Add a shape to mark european-style inversion (suggested by [user `yashpalgoyal1304` on GitHub](https://github.com/circuitikz/circuitikz/issues/679)), adjust European-style logic port triangle inversion symbols to match
     - subcircuits are no more experimental
     - Correction of several typo/grammar errors in the documentation by [quark67](https://github.com/circuitikz/circuitikz/pull/686)
 
