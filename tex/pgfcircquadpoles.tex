@@ -540,6 +540,7 @@
 \ctikzset{bipoles/lowpass/width/.initial=.7}
 \ctikzset{bipoles/lowpass2/width/.initial=.7}
 \ctikzset{bipoles/allpass/width/.initial=.7}
+\ctikzset{bipoles/bgenerator/width/.initial=.7}
 \ctikzset{bipoles/adc/width/.initial=.7}
 \ctikzset{bipoles/dac/width/.initial=.7}
 \ctikzset{bipoles/dsp/width/.initial=.7}
@@ -698,6 +699,19 @@
             \pgfpathmoveto{\pgfpoint{0.15\pgf@circ@res@step}{0.15\pgf@circ@res@step}}
             \pgfpathlineto{\pgfpoint{-0.15\pgf@circ@res@step}{-0.15\pgf@circ@res@step}}
         \fi
+        \pgfusepath{draw}
+    \endpgfscope
+}
+%
+\def\pgfcirc@twoport@draw@narrowsine#1{% #1 -> y shift
+    \pgfscope
+        \pgfsetlinewidth{\pgfstartlinewidth}
+        \pgftransformyshift{#1\pgf@circ@res@step}
+        \pgfpathmoveto{\pgfpoint{.125\pgf@circ@res@step}{0\pgf@circ@res@step}}
+        \pgfpathsine{\pgfpoint{.125\pgf@circ@res@step}{.125\pgf@circ@res@step}}
+        \pgfpathcosine{\pgfpoint{.125\pgf@circ@res@step}{-.125\pgf@circ@res@step}}
+        \pgfpathsine{\pgfpoint{.125\pgf@circ@res@step}{-.125\pgf@circ@res@step}}
+        \pgfpathcosine{\pgfpoint{.125\pgf@circ@res@step}{.125\pgf@circ@res@step}}
         \pgfusepath{draw}
     \endpgfscope
 }
@@ -871,6 +885,19 @@
     \pgfcirc@twoport@draw@sine{0.5}{0}
     \pgfcirc@twoport@draw@sine{0.0}{0}
     \pgfcirc@twoport@draw@sine{-0.5}{0}
+}
+%% Block Generator
+\pgfcirc@define@twoports{blocks}
+{}
+{\ctikzvalof{bipoles/bgenerator/width}}
+{bgenerator}
+{\ctikzvalof{bipoles/bgenerator/width}}
+{\ctikzvalof{bipoles/bgenerator/width}}
+{
+    \pgfcirc@twoport@draw@narrowsine{0.25}{0}
+    \pgfcirc@twoport@draw@narrowsine{0.0}{0}
+    \pgfcirc@twoport@draw@narrowsine{-0.25}{0}
+    \pgftext[x=0.45\pgf@circ@res@left]{\ctikzvalof{bipoles/twoport/text}}
 }
 %% ADC
 \pgfcirc@define@twoports{blocks}
@@ -1449,6 +1476,7 @@
 \pgfcirc@activate@bipole@simple{l}{lowpass}
 \pgfcirc@activate@bipole@simple{l}{lowpass2}
 \pgfcirc@activate@bipole@simple{l}{allpass}
+\pgfcirc@activate@bipole@simple{l}{bgenerator}
 \pgfcirc@activate@bipole@simple{l}{adc}
 \pgfcirc@activate@bipole@simple{l}{dac}
 \pgfcirc@activate@bipole@simple{l}{dsp}
