@@ -545,6 +545,10 @@
 \ctikzset{bipoles/lowpass2/width/.initial=.7}
 \ctikzset{bipoles/allpass/width/.initial=.7}
 \ctikzset{bipoles/vallpass/width/.initial=.7}
+\ctikzset{bipoles/bgenerator/width/.initial=.7}
+\ctikzset{bipoles/qgenerator/width/.initial=.7}
+\ctikzset{bipoles/cgenerator/width/.initial=.7}
+\ctikzset{bipoles/ngenerator/width/.initial=.7}
 \ctikzset{bipoles/adc/width/.initial=.7}
 \ctikzset{bipoles/dac/width/.initial=.7}
 \ctikzset{bipoles/dsp/width/.initial=.7}
@@ -716,6 +720,19 @@
             \pgfpathmoveto{\pgfpoint{0.15\pgf@circ@res@step}{0.15\pgf@circ@res@step}}
             \pgfpathlineto{\pgfpoint{-0.15\pgf@circ@res@step}{-0.15\pgf@circ@res@step}}
         \fi
+        \pgfusepath{draw}
+    \endpgfscope
+}
+%
+\def\pgfcirc@twoport@draw@narrowsine#1{% #1 -> y shift
+    \pgfscope
+        \pgfsetlinewidth{\pgfstartlinewidth}
+        \pgftransformyshift{#1\pgf@circ@res@step}
+        \pgfpathmoveto{\pgfpoint{.125\pgf@circ@res@step}{0\pgf@circ@res@step}}
+        \pgfpathsine{\pgfpoint{.125\pgf@circ@res@step}{.125\pgf@circ@res@step}}
+        \pgfpathcosine{\pgfpoint{.125\pgf@circ@res@step}{-.125\pgf@circ@res@step}}
+        \pgfpathsine{\pgfpoint{.125\pgf@circ@res@step}{-.125\pgf@circ@res@step}}
+        \pgfpathcosine{\pgfpoint{.125\pgf@circ@res@step}{.125\pgf@circ@res@step}}
         \pgfusepath{draw}
     \endpgfscope
 }
@@ -918,6 +935,58 @@
     \pgfcirc@twoport@draw@narrowsine{0.0}{0}
     \pgfcirc@twoport@draw@narrowsine{-0.25}{0}
     \pgftext[x=0.45\pgf@circ@res@left]{\ctikzvalof{bipoles/twoport/text}}
+}
+%% Crystal Generator
+\pgfcirc@define@twoports{blocks}
+{}
+{\ctikzvalof{bipoles/qgenerator/width}}
+{qgenerator}
+{\ctikzvalof{bipoles/qgenerator/width}}
+{\ctikzvalof{bipoles/qgenerator/width}}
+{
+    \pgfcirc@twoport@draw@narrowsine{0.45}{0}
+    \pgfcirc@twoport@draw@narrowsine{0.20}{0}
+    \pgfcirc@twoport@draw@narrowsine{-0.05}{0}
+    \pgftext[x=0.45\pgf@circ@res@left,y=0.25\pgf@circ@res@up]{\ctikzvalof{bipoles/twoport/text}}
+	\pgfpathlineto{\pgfpoint{-0.7\pgf@circ@res@step}{-0.4\pgf@circ@res@step}} 
+	\pgfpathlineto{\pgfpoint{ 0.7\pgf@circ@res@step}{-0.4\pgf@circ@res@step}} 
+    \pgfusepath{draw}
+	\pgfpathrectangle{\pgfpoint{-0.7\pgf@circ@res@step}{-0.7\pgf@circ@res@step}}{\pgfpoint{1.4\pgf@circ@res@step}{0.2\pgf@circ@res@step}} 
+    \pgfusepath{draw}
+	\pgfpathlineto{\pgfpoint{-0.7\pgf@circ@res@step}{-0.8\pgf@circ@res@step}} 
+	\pgfpathlineto{\pgfpoint{ 0.7\pgf@circ@res@step}{-0.8\pgf@circ@res@step}} 
+    \pgfusepath{draw}
+}
+%% Clock generator
+\pgfcirc@define@twoports{blocks}
+{}
+{\ctikzvalof{bipoles/cgenerator/width}}
+{cgenerator}
+{\ctikzvalof{bipoles/cgenerator/width}}
+{\ctikzvalof{bipoles/cgenerator/width}}
+{
+	\pgfpathmoveto{\pgfpoint{-0.70\pgf@circ@res@step}{-0.35\pgf@circ@res@step}} 
+	\pgfpathlineto{\pgfpoint{-0.42\pgf@circ@res@step}{-0.35\pgf@circ@res@step}} 
+	\pgfpathlineto{\pgfpoint{-0.42\pgf@circ@res@step}{+0.35\pgf@circ@res@step}} 
+	\pgfpathlineto{\pgfpoint{-0.14\pgf@circ@res@step}{+0.35\pgf@circ@res@step}} 
+	\pgfpathlineto{\pgfpoint{-0.14\pgf@circ@res@step}{-0.35\pgf@circ@res@step}} 
+	\pgfpathlineto{\pgfpoint{+0.14\pgf@circ@res@step}{-0.35\pgf@circ@res@step}} 
+	\pgfpathlineto{\pgfpoint{+0.14\pgf@circ@res@step}{+0.35\pgf@circ@res@step}} 
+	\pgfpathlineto{\pgfpoint{+0.42\pgf@circ@res@step}{+0.35\pgf@circ@res@step}} 
+	\pgfpathlineto{\pgfpoint{+0.42\pgf@circ@res@step}{-0.35\pgf@circ@res@step}} 
+	\pgfpathlineto{\pgfpoint{+0.70\pgf@circ@res@step}{-0.35\pgf@circ@res@step}} 
+    \pgfusepath{draw}
+}
+%% Generic generator
+\pgfcirc@define@twoports{blocks}
+{}
+{\ctikzvalof{bipoles/ngenerator/width}}
+{ngenerator}
+{\ctikzvalof{bipoles/ngenerator/width}}
+{\ctikzvalof{bipoles/ngenerator/width}}
+{
+    \pgfcirc@twoport@draw@sine{0.5}{0}
+    \pgftext[y=-0.35\pgf@circ@res@up]{\ctikzvalof{bipoles/twoport/text}}
 }
 %% ADC
 \pgfcirc@define@twoports{blocks}
@@ -1605,6 +1674,10 @@
 \pgfcirc@activate@bipole@simple{l}{lowpass2}
 \pgfcirc@activate@bipole@simple{l}{allpass}
 \pgfcirc@activate@bipole@simple{l}{vallpass}
+\pgfcirc@activate@bipole@simple{l}{bgenerator}
+\pgfcirc@activate@bipole@simple{l}{qgenerator}
+\pgfcirc@activate@bipole@simple{l}{cgenerator}
+\pgfcirc@activate@bipole@simple{l}{ngenerator}
 \pgfcirc@activate@bipole@simple{l}{adc}
 \pgfcirc@activate@bipole@simple{l}{dac}
 \pgfcirc@activate@bipole@simple{l}{dsp}
