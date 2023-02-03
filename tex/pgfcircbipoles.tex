@@ -6637,6 +6637,8 @@
 \ctikzset{bipoles/mic/height/.initial=1.2}
 \ctikzset{bipoles/mic/depth/.initial=.1}
 \ctikzset{bipoles/mic/width/.initial=.8}%
+\ctikzset{bipoles/tlmic/width/.initial=.5}% it MUST be mic width *5/8
+\ctikzset{bipoles/mic/bar thickness/.initial=1}
 
 % arresters, fuses, lamps, etc
 
@@ -6695,6 +6697,15 @@
     \pgf@circ@draworfill
 }
 
+\def\pgf@circ@draw@mic@bar#1{%relative length of the bar
+    \pgfsetroundcap
+    \pgfsetlinewidth{\ctikzvalof{bipoles/mic/bar thickness}\pgflinewidth}%
+    % adjust the vertical position; the symbol looks better if the circle touch the bar
+    \pgfpathmoveto{\pgfpoint{#1\pgf@circ@res@left}{\pgf@circ@res@up+0.4\pgflinewidth}}
+    \pgfpathlineto{\pgfpoint{#1\pgf@circ@res@right}{\pgf@circ@res@up+0.4\pgflinewidth}}
+    \pgfusepath{draw}
+}
+
 \pgfcircdeclarebipolescaled{misc}
 {}
 {\ctikzvalof{bipoles/mic/depth}}
@@ -6703,14 +6714,11 @@
 {\ctikzvalof{bipoles/mic/width}}{
 
     \pgfscope
-    \pgf@circ@setlinewidth{bipoles}{\pgfstartlinewidth}
-    \pgfpathcircle{\pgfpoint{0pt}{.6\pgf@circ@res@up}}{.4\pgf@circ@res@up}
-    \pgf@circ@draworfill
-    \pgfpathmoveto{\pgfpoint{.6\pgf@circ@res@left}{\pgf@circ@res@up}}
-    \pgfpathlineto{\pgfpoint{.6\pgf@circ@res@right}{\pgf@circ@res@up}}
-    \pgfusepath{draw}
+        \pgf@circ@setlinewidth{bipoles}{\pgfstartlinewidth}
+        \pgfpathcircle{\pgfpoint{0pt}{.6\pgf@circ@res@up}}{.4\pgf@circ@res@up}
+        \pgf@circ@draworfill
+        \pgf@circ@draw@mic@bar{.6}
     \endpgfscope
-    \pgfscope
     \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{0pt}}
     \pgfpathlineto{\pgfpoint{-.2\pgf@circ@res@up}{0pt}}
     % 0.25358 is 0.6-0.4*cos(30)
@@ -6719,9 +6727,18 @@
     \pgfpathlineto{\pgfpoint{.2\pgf@circ@res@up}{0pt}}
     \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{0pt}}
     \pgfusepath{draw}
+}
+\pgfcircdeclarebipolescaled{misc}
+{}
+{\ctikzvalof{bipoles/tlmic/width}}
+{tlmic}
+{\ctikzvalof{bipoles/tlmic/width}}
+{\ctikzvalof{bipoles/tlmic/width}}{
 
-    \pgfusepath{draw}
-    \endpgfscope
+    \pgf@circ@setlinewidth{bipoles}{\pgfstartlinewidth}
+    \pgfpathcircle{\pgfpoint{0pt}{0pt}}{\pgf@circ@res@up}
+    \pgf@circ@draworfill
+    \pgf@circ@draw@mic@bar{1}
 }
 
 %% european gas filled surge arrester
@@ -6978,6 +6995,7 @@
 \pgfcirc@path@to@style{l}{gfsurgearrester}{gas filled surge arrester}{}
 \pgfcirc@path@to@style{l}{gfsurgearrester}{gf surge arrester}{}
 \pgfcirc@activate@bipole@simple{l}{mic}
+\pgfcirc@activate@bipole@simple{l}{tlmic}
 \pgfcirc@activate@bipole@simple{l}{loudspeaker}
 % %>>>
 
