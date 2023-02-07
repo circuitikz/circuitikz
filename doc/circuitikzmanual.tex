@@ -3781,6 +3781,7 @@ Basically they are the same as the normal \texttt{npn} and \texttt{pnp}, and the
     \circuitdesc{pmosd}{pmos depletion}{}
     \circuitdesc{hemt}{hemt}{}
     \circuitdesc{hemt, nobase}{hemt without base terminal}{Q}( G/180/0.2,D/0/0.2,S/0/0.2, nogate/-120/0.2)
+    \circuitdesc{GaN hemt}{Gallium Nitride hemt (a ``styled'' \texttt{hemt}, see~\ref{sec:hemt})}{Q}( G/180/0.2,D/0/0.2,S/0/0.2, nogate/-120/0.2)
 \end{groupdesc}
 
 \textsc{nfet}s and \textsc{pfet}s have been incorporated based on code provided by Clemens Helfmeier and Theodor Borsche. Use the package options \texttt{fetsolderdot}/\texttt{nofetsolderdot} to enable/disable solderdot at some fet-transistors. Additionally, the solderdot option can be enabled/disabled for single transistors with the option \texttt{solderdot} and \texttt{nosolderdot}, respectively.
@@ -3972,6 +3973,39 @@ For more complex snubs or protections, you can use the \texttt{body ...} anchors
     \node[npn, bodydiode](Q4) at(2,-3) {};
     \snubb{Q1}{in} \snubb{Q2}{in}
     \snubb{Q3}{out} \snubb{Q4}{out}
+\end{circuitikz}
+\end{LTXexample}
+
+\paragraph{HEMT customization.\label{sec:hemt}} Since \texttt{v1.6.1} the shape of the \texttt{hemt} transistor can be customized.\footnote{After a suggestion from \href{https://github.com/circuitikz/circuitikz/issues/691}{user \texttt{@epsilon-phi} on GitHub}.}
+There are several keys under the hierarchy \texttt{tripoles/hemt} that can be use to change the appearance; some of them are common to other transistors and some are specific.
+
+The main ones are \texttt{\dots/split gate} (boolean, default \texttt{false}) that will create a ``split'' gate, which sometimes is used to convey that the device is enhancement-type;
+\texttt{source arrow} (default \texttt{0}), to add an arrow on the source terminal (\texttt{1} for a right-facing one, \texttt{-1} the other way around; the arrow will obey \texttt{arrow pos=end} if issued, but otherwise the position is fixed);
+\texttt{gate asym} (default \texttt{0.0}) which displaces the gate asymmetrically. For example, the \texttt{GaN hemt} component is really a styled \texttt{hemt} (predefined), with the definition:
+
+\begin{lstlisting}
+\tikzset{GaN hemt/.style={hemt,
+        circuitikz/tripoles/hemt/base height=0.6,% length of the "base" vertical bar
+        circuitikz/tripoles/hemt/gate height=0.5,% distance of the S/D terminals
+        circuitikz/tripoles/hemt/bodydiode conn=0.85,% attachment point of body diode
+        circuitikz/tripoles/hemt/gate asym=-0.1,% slightly down
+        circuitikz/tripoles/hemt/split gate=true,% split gate
+        circuitikz/tripoles/hemt/source arrow=1,% right-facing arrow
+    },
+}
+\end{lstlisting}
+
+\begin{LTXexample}[varwidth=true]
+\begin{circuitikz}[]
+    \path (-1,-1) rectangle (3,3);% bounding box
+    \node  [hemt] at (0,2) {A};
+    \node  [hemt,
+        circuitikz/tripoles/hemt/split gate=true
+        ] at (2,2) {B};
+    \node  [GaN hemt]  at (0,0) {C};
+    \node  [GaN hemt,
+        circuitikz/tripoles/hemt/split gate=false
+        ]  at (2,0) {D};
 \end{circuitikz}
 \end{LTXexample}
 

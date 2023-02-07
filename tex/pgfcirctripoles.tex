@@ -2999,6 +2999,12 @@
 \ctikzset{tripoles/hemt/bodydiode distance/.initial=.3}
 \ctikzset{tripoles/hemt/bodydiode conn/.initial=.6}
 \ctikzset{tripoles/hemt/curr direction/.initial=1}
+%% New parameters
+\ctikzset{tripoles/hemt/curr direction/.initial=1}
+\ctikzset{tripoles/hemt/gate asym/.initial=0}
+\newif\ifpgf@circ@hemt@split
+\ctikzset{tripoles/hemt/split gate/.is if=pgf@circ@hemt@split}
+\ctikzset{tripoles/hemt/source arrow/.initial=0}
 
 \ctikzset{tripoles/nfet/width/.initial=.7}
 \ctikzset{tripoles/nfet/gate height/.initial=.35}
@@ -5270,7 +5276,16 @@
     \pgfcirc@ferroelectric{pmosd}{\ctikzvalof{tripoles/pmosd/depletion width}}
 }
 %% HEMT FET Transistor
+\def\pgf@circ@hemt@gate@anchor@helper{%
+    \northeast
+    \pgf@circ@res@up = \pgf@y
+    \pgf@circ@res@down = -\pgf@y
+    \pgfmathsetlength{\pgf@circ@res@step}{{(1+\gateasym)*\pgf@circ@res@up+(1-\gateasym)*\pgf@circ@res@down}}
+    \left
+    \pgf@y=\pgf@circ@res@step
+}
 \pgfcircdeclaretransistor{hemt}{
+        \savedmacro{\gateasym}{\edef\gateasym{\ctikzvalof{tripoles/hemt/gate asym}}}
         \anchor{inner up}{
             \northeast
             \pgf@y=\ctikzvalof{tripoles/hemt/gate height}\pgf@y
@@ -5279,42 +5294,107 @@
             \northeast
             \pgf@y=-\ctikzvalof{tripoles/hemt/gate height}\pgf@y
         }
+        % override gate/base anchors
+        \anchor{G}{\pgf@circ@hemt@gate@anchor@helper}
+        \anchor{gate}{\pgf@circ@hemt@gate@anchor@helper}
+        \anchor{nogate}{\pgf@circ@hemt@gate@anchor@helper\pgf@x=\ctikzvalof{tripoles/hemt/base width}\pgf@x}
+        \anchor{B}{\pgf@circ@hemt@gate@anchor@helper}
+        \anchor{base}{\pgf@circ@hemt@gate@anchor@helper}
+        \anchor{nobase}{\pgf@circ@hemt@gate@anchor@helper\pgf@x=\ctikzvalof{tripoles/hemt/base width}\pgf@x}
     }{%
     % add the circle if requested (before everything else, so we can fill it)
     \pgfcirc@transistorcircle
+    % upper connection
     \pgfpathmoveto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@up+\pgfverticaltransformationadjustment*.5*\pgflinewidth}}
     \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}
     {\ctikzvalof{tripoles/hemt/gate height}\pgf@circ@res@up}}
     \pgfpathlineto{\pgfpoint
         {\ctikzvalof{tripoles/hemt/base width}\pgf@circ@res@left}
     {\ctikzvalof{tripoles/hemt/gate height}\pgf@circ@res@up}}
-
+    % lower connection
     \pgfpathmoveto{\pgfpoint
         {\ctikzvalof{tripoles/hemt/base width}\pgf@circ@res@left}
-    {\ctikzvalof{tripoles/hemt/gate height}\pgf@circ@res@down}}
+        {\ctikzvalof{tripoles/hemt/gate height}\pgf@circ@res@down}}
     \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}
-    {\ctikzvalof{tripoles/hemt/gate height}\pgf@circ@res@down}}
-    \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@down-\pgfverticaltransformationadjustment*.5*\pgflinewidth}}
+        {\ctikzvalof{tripoles/hemt/gate height}\pgf@circ@res@down}}
+    \pgfpathlineto{\pgfpoint
+        {\pgf@circ@res@right}{\pgf@circ@res@down-\pgfverticaltransformationadjustment*.5*\pgflinewidth}}
     \pgfusepath{draw}
-
     \pgfscope
-        \pgfpathmoveto{\pgfpoint
-            {\ctikzvalof{tripoles/hemt/base width}\pgf@circ@res@left}
-        {\ctikzvalof{tripoles/hemt/base height}\pgf@circ@res@up}}
-        \pgfpathlineto{\pgfpoint
-            {\ctikzvalof{tripoles/hemt/base width}\pgf@circ@res@left}
-        {\ctikzvalof{tripoles/hemt/base height}\pgf@circ@res@down}}
+        \edef\@@tmp{\ctikzvalof{tripoles/hemt/source arrow}}
+        \ifnum\@@tmp=0 \else
+            \ifpgf@circuit@trans@arrowatend
+                \ifnum\@@tmp > 0 %
+                    \pgftransformshift{\pgfpoint
+                        {\pgf@circ@res@right}
+                        {\ctikzvalof{tripoles/hemt/gate height}\pgf@circ@res@down}}
+                \else
+                    \pgftransformshift{\pgfpoint
+                        {\ctikzvalof{tripoles/hemt/base width}\pgf@circ@res@left}
+                        {\ctikzvalof{tripoles/hemt/gate height}\pgf@circ@res@down}}
+                        \ifnum\@@tmp < 0 \pgftransformrotate{180}\fi
+                \fi
+                    \pgfnode{trarrow}{tip}{}{}{\pgfusepath{stroke}}
+            \else
+                % the position here is a bit strange...
+                \pgftransformshift{\pgfpoint
+                    {0.5*\pgf@circ@res@right+0.5*\ctikzvalof{tripoles/hemt/base width}\pgf@circ@res@left}
+                    {\ctikzvalof{tripoles/hemt/gate height}\pgf@circ@res@down}}
+                    \ifnum\@@tmp < 0 \pgftransformrotate{180}\fi
+                    \pgfnode{trarrow}{center}{}{}{\pgfusepath{stroke}}
+            \fi
+        \fi
+    \endpgfscope
+    \pgfscope
+        % draw gate (base) bar
+        \ifpgf@circ@hemt@split
+            \pgfpathmoveto{\pgfpoint
+                {\ctikzvalof{tripoles/hemt/base width}\pgf@circ@res@left}
+                {\ctikzvalof{tripoles/hemt/base height}\pgf@circ@res@up}}
+            \pgfpathlineto{\pgfpoint{\ctikzvalof{tripoles/hemt/base width}\pgf@circ@res@left}
+                {(1.1+\gateasym)*\pgf@circ@res@up +
+                 (0.9-\gateasym)*\pgf@circ@res@down}}
+            \pgfpathmoveto{\pgfpoint{\ctikzvalof{tripoles/hemt/base width}\pgf@circ@res@left}
+                {(1.05+\gateasym)*\pgf@circ@res@up +
+                 (0.95-\gateasym)*\pgf@circ@res@down}}
+            \pgfpathlineto{\pgfpoint{\ctikzvalof{tripoles/hemt/base width}\pgf@circ@res@left}
+                {(0.95+\gateasym)*\pgf@circ@res@up +
+                 (1.05-\gateasym)*\pgf@circ@res@down}}
+            \pgfpathmoveto{\pgfpoint{\ctikzvalof{tripoles/hemt/base width}\pgf@circ@res@left}
+                {(0.9+\gateasym)*\pgf@circ@res@up +
+                 (1.1-\gateasym)*\pgf@circ@res@down}}
+            \pgfpathlineto{\pgfpoint
+                {\ctikzvalof{tripoles/hemt/base width}\pgf@circ@res@left}
+            {\ctikzvalof{tripoles/hemt/base height}\pgf@circ@res@down}}
+        \else
+            \pgfpathmoveto{\pgfpoint
+                {\ctikzvalof{tripoles/hemt/base width}\pgf@circ@res@left}
+            {\ctikzvalof{tripoles/hemt/base height}\pgf@circ@res@up}}
+            \pgfpathlineto{\pgfpoint
+                {\ctikzvalof{tripoles/hemt/base width}\pgf@circ@res@left}
+            {\ctikzvalof{tripoles/hemt/base height}\pgf@circ@res@down}}
+        \fi
         \pgf@circ@setlinewidth{tripoles}{\pgflinewidth}
         \pgfusepath{draw}
     \endpgfscope
-
+    % draw the gate horizontal segment
     \ifpgf@circuit@bpt@drawgate
         \pgfpathmoveto{\pgfpoint
             {\ctikzvalof{tripoles/hemt/base width}\pgf@circ@res@left}
-        {\pgf@circ@res@up+\pgf@circ@res@down}}
-        \pgfpathlineto{\pgfpoint{\pgf@circ@res@left-\pgfhorizontaltransformationadjustment*.5*\pgflinewidth}{\pgf@circ@res@up+\pgf@circ@res@down}}
+        {(1+\gateasym)*\pgf@circ@res@up+(1-\gateasym)*\pgf@circ@res@down}}
+        \pgfpathlineto{\pgfpoint{\pgf@circ@res@left-\pgfhorizontaltransformationadjustment*.5*\pgflinewidth}
+            {(1+\gateasym)*\pgf@circ@res@up+(1-\gateasym)*\pgf@circ@res@down}}
         \pgfusepath{draw}
     \fi
+}
+\tikzset{GaN hemt/.style={hemt,
+        circuitikz/tripoles/hemt/base height=0.6,%length of the "base" vertical bar
+        circuitikz/tripoles/hemt/gate height=0.5,%distance of the S/D terminals
+        circuitikz/tripoles/hemt/bodydiode conn=0.85,% attachment point of body diode
+        circuitikz/tripoles/hemt/gate asym=-0.1,% slightly down
+        circuitikz/tripoles/hemt/split gate=true,% split gate
+        circuitikz/tripoles/hemt/source arrow=1,% right-facing arrow
+    },
 }
 
 \long\def\drawfetcore#1{
