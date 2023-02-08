@@ -412,9 +412,19 @@
 %% Node shapes for RF bipoles%<<<
 \ctikzset{bipoles/tline/height/.initial=.3}
 \ctikzset{bipoles/tline/width/.initial=.6}
-
+\newif\ifpgf@circ@bare@tline
+\ctikzset{bipoles/tline/bare/.is if=pgf@circ@bare@tline}
 \pgfcircdeclarebipolescaled{RF}
-{}
+{
+    \savedmacro{\recessright}{\edef\recessright{\ifpgf@circ@bare@tline -0.4\else 0.0\fi}}
+    \anchor{center right}{\northeast \advance\pgf@x by -0.4\pgf@y\pgf@y=0pt}
+    \anchor{top right}{\northeast \advance\pgf@x by -0.4\pgf@y}
+    \anchor{bottom right}{\northeast \advance\pgf@x by -0.4\pgf@y\pgf@y=-\pgf@y}
+    \anchor{center left}{\northeast \advance\pgf@x by -0.4\pgf@y\pgf@x=-\pgf@x\pgf@y=0pt}
+    \anchor{top left}{\northeast \advance\pgf@x by -0.4\pgf@y\pgf@x=-\pgf@x}
+    \anchor{bottom left}{\northeast \advance\pgf@x by -0.4\pgf@y\pgf@x=-\pgf@x\pgf@y=-\pgf@y}
+    \anchor{right}{\northeast \advance\pgf@x by \recessright\pgf@y\pgf@y=0pt}
+}
 {\ctikzvalof{bipoles/tline/height}}
 {tline}
 {\ctikzvalof{bipoles/tline/height}}
@@ -433,10 +443,12 @@
         \pgfpatharc{-90}{90}{-\pgf@circ@res@step and -\pgf@circ@res@up}
         \pgfusepath{stroke}
     \endpgfscope
-    \pgfsetlinewidth{\pgfstartlinewidth}
-    \pgfpathmoveto{\pgfpoint{\pgf@circ@res@right-\pgf@circ@res@step}{0pt}}
-    \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{0pt}}
-    \pgfusepath{stroke}
+    \ifpgf@circ@bare@tline\else
+        \pgfsetlinewidth{\pgfstartlinewidth}
+        \pgfpathmoveto{\pgfpoint{\pgf@circ@res@right-\pgf@circ@res@step}{0pt}}
+        \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{0pt}}
+        \pgfusepath{stroke}
+    \fi
 }
 
 % microstrip transmission line
