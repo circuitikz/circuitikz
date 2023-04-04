@@ -29,11 +29,13 @@ Just place
 ```
 Be sure to check the options you like — you should at least state one of the "voltage direction" ones, like `RPvoltages` shown above, or the usage of `siunitx` special syntax. Be sure to check the relevant sections in the manual.
 
-For ConTeXt, use
+For ConTeXt, you should be able to use
 ```latex
   \usemodule[circuitikz]
 ```
-in the preamble and compile away, both with PS and PDF target output. It is higly recommended to go through the [tutorials in the manual](https://circuitikz.github.io/circuitikz/circuitikzmanualgit.pdf#c) and to learn a bit of Ti*k*Z before for example, go through at least the [basic Ti*k*Z one](https://tikz.dev/tutorial), but there are more suggestions in the documentation.
+in the preamble and compile away, both with PS and PDF target output. **Notice however** that the new version (as of March 2023) of ConTeXt [created problems](https://github.com/circuitikz/circuitikz/issues/706); the support for now is **not guaranteed**.
+
+It is higly recommended to go through the [tutorials in the manual](https://circuitikz.github.io/circuitikz/circuitikzmanualgit.pdf#c) and to learn a bit of Ti*k*Z before for example, go through at least the [basic Ti*k*Z one](https://tikz.dev/tutorial), but there are more suggestions in the documentation.
 
 ### Development or newer version
 
