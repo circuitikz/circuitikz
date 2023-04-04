@@ -27,6 +27,9 @@
 \ctikzset{quadpoles/transformer core/height/.initial=1.5}
 \ctikzset{quadpoles/transformer core/core height/.initial=.5}
 \ctikzset{quadpoles/transformer core/core width/.initial=.05}
+\ctikzset{transformer core/relative thickness/.initial=1}
+\ctikzset{transformer core/color/.initial=default}
+\ctikzset{transformer core/dash/.initial=default}
 \ctikzset{quadpoles/gyrator/inner/.initial=0.4}
 \ctikzset{quadpoles/gyrator/width/.initial=1.5}
 \ctikzset{quadpoles/gyrator/height/.initial=1.5}
@@ -291,7 +294,20 @@
     \pgf@circ@drawtransformerbasicbody
 
     % use the chocke line thickness
-    \pgfsetlinewidth{\ctikzvalof{bipoles/cutechoke/cthick}\pgflinewidth}
+    \pgfsetlinewidth{\ctikzvalof{bipoles/cutechoke/cthick}*\ctikzvalof{transformer core/relative thickness}*\pgflinewidth}
+    \edef\@@none{none}\edef\@@default{default}
+    \edef\@@tmp{\ctikzvalof{transformer core/color}}
+    \ifx\@@tmp\@@default\else
+        \pgfsetcolor{\@@tmp}
+    \fi
+    \edef\@@tmp{\ctikzvalof{transformer core/dash}}
+    \ifx\@@tmp\@@default\else
+        \ifx\@@tmp\@@none
+            \pgfsetdash{}{0pt}% solid line, override dash
+        \else
+            \expandafter\pgfsetdash\expandafter{\@@tmp}{0cm}
+        \fi
+    \fi
 
     % Find the distance from center for the lines representing the core
     % the 2.5 is for backward compatibility --- the distance was calculated as a fraction
