@@ -1594,6 +1594,49 @@
                 \repeatpgfmathloop%
             }%
 }
+
+% clock wedge shape, for using in other shapes like muxdemuxes
+\pgfdeclareshape{clockwedge}{
+    \savedmacro{\ctikzclass}{\edef\ctikzclass{flipflops}}
+    \saveddimen{\scaledRlen}{\pgfmathsetlength{\pgf@x}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}}
+    \savedanchor{\northeast}{
+        \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
+        \pgfmathsetlength{\pgf@circ@res@step}{\ctikzvalof{multipoles/flipflop/clock wedge size}*\ctikzvalof{multipoles/flipflop/pin spacing}*\pgf@circ@scaled@Rlen}
+        \pgf@y=\pgf@circ@res@step
+        \pgf@x=\pgf@circ@res@step
+    }
+    \anchor{center}{\pgfpointorigin}
+    \anchor{north west}{\northeast\pgf@x=0pt }
+    \anchor{north east}{\northeast}
+    \anchor{south east}{\northeast\pgf@y=-\pgf@y}
+    \anchor{south west}{\northeast\pgf@y=-\pgf@y\pgf@x=0pt }
+    \anchor{north}{\northeast\pgf@x=0.5\pgf@x }
+    \anchor{east}{\northeast\pgf@y=0pt }
+    \anchor{south}{\northeast\pgf@x=0.5\pgf@x\pgf@y=-\pgf@y}
+    \anchor{west}{\pgfpointorigin}
+    \anchor{nw}{\northeast\pgf@x=0pt }
+    \anchor{ne}{\northeast}
+    \anchor{se}{\northeast\pgf@y=-\pgf@y}
+    \anchor{sw}{\northeast\pgf@y=-\pgf@y\pgf@x=0pt }
+    \anchor{n}{\northeast\pgf@x=0.5\pgf@x }
+    \anchor{e}{\northeast\pgf@y=0pt }
+    \anchor{s}{\northeast\pgf@x=0.5\pgf@x\pgf@y=-\pgf@y}
+    \anchor{w}{\pgfpointorigin}
+    \anchor{left}{\pgfpointorigin}
+    \anchor{right}{\northeast\pgf@y=0pt }
+    \anchor{text}{\northeast\advance \pgf@x by 2pt
+        \pgf@y=\dimexpr.5\dp\pgfnodeparttextbox-.5\ht\pgfnodeparttextbox\relax}% to adjust text
+    \pgf@circ@draw@component{%
+        \northeast
+        \pgf@circ@res@up=\pgf@y
+        \pgf@circ@res@right=\pgf@x
+        \pgfpathmoveto{\pgfpoint{0pt}{\pgf@circ@res@up}}
+        \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{0pt}}
+        \pgfpathlineto{\pgfpoint{0pt}{-\pgf@circ@res@up}}
+        \pgfusepath{stroke}
+    }
+}
+
 % %>>>
 
 %% Node shapes for mux-demuxes%<<<
