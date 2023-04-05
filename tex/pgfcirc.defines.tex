@@ -448,6 +448,24 @@
     \fi
 }
 
+% set the color and dash pattern for a subset of the shape, following keys #1/color
+% and #1/dash. The keys must exist, and check for none or default for both
+\def\pgf@circ@subset@color@dash#1{%
+    % You *must* be sure that this is called inside a \pgfscope!
+    \edef\@@none{none}\edef\@@default{default}
+    \edef\@@tmp{\ctikzvalof{#1/color}}
+    \ifx\@@tmp\@@default\else
+        \pgfsetcolor{\@@tmp}
+    \fi
+    \edef\@@tmp{\ctikzvalof{#1/dash}}
+    \ifx\@@tmp\@@default\else
+        \ifx\@@tmp\@@none
+            \pgfsetdash{}{0pt}% solid line, override dash
+        \else
+            \expandafter\pgfsetdash\expandafter{\@@tmp}{0cm}
+        \fi
+    \fi
+}
 
 %%>>>
 
@@ -944,19 +962,7 @@
 \def\pgf@circ@set@optoarrow@style{%
     % You *must* be sure that this is called inside a \pgfscope!
     \pgfsetlinewidth{\ctikzvalof{opto arrows/relative thickness}\pgflinewidth}
-    \edef\@@none{none}\edef\@@default{default}
-    \edef\@@tmp{\ctikzvalof{opto arrows/color}}
-    \ifx\@@tmp\@@default\else
-        \pgfsetcolor{\@@tmp}
-    \fi
-    \edef\@@tmp{\ctikzvalof{opto arrows/dash}}
-    \ifx\@@tmp\@@default\else
-        \ifx\@@tmp\@@none
-            \pgfsetdash{}{0pt}% solid line, override dash
-        \else
-            \expandafter\pgfsetdash\expandafter{\@@tmp}{0cm}
-        \fi
-        \fi
+        \pgf@circ@subset@color@dash{opto arrows}
         \pgfcirc@set@arrows{opto}{}{latexslim}
     }
 
