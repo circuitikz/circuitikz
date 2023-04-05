@@ -13,8 +13,8 @@
 \usemodule[pgfrcs,pgfmat]
 \usemodule[tikz]
 
-\def\pgfcircversion{1.6.2-unreleased-c5d6103}
-\def\pgfcircversiondate{2023/04/04}
+\def\pgfcircversion{1.6.2-unreleased-4f9fd7e}
+\def\pgfcircversiondate{2023/04/05}
 \writestatus{loading}{\pgfcircversiondate{} The CircuiTikz circuit drawing package version \pgfcircversion}
 
 
@@ -483,6 +483,24 @@
     \fi
 }
 
+% set the color and dash pattern for a subset of the shape, following keys #1/color
+% and #1/dash. The keys must exist, and check for none or default for both
+\def\pgf@circ@subset@color@dash#1{%
+    % You *must* be sure that this is called inside a \pgfscope!
+    \edef\@@none{none}\edef\@@default{default}
+    \edef\@@tmp{\ctikzvalof{#1/color}}
+    \ifx\@@tmp\@@default\else
+        \pgfsetcolor{\@@tmp}
+    \fi
+    \edef\@@tmp{\ctikzvalof{#1/dash}}
+    \ifx\@@tmp\@@default\else
+        \ifx\@@tmp\@@none
+            \pgfsetdash{}{0pt}% solid line, override dash
+        \else
+            \expandafter\pgfsetdash\expandafter{\@@tmp}{0cm}
+        \fi
+    \fi
+}
 
 %%>>>
 
@@ -979,19 +997,7 @@
 \def\pgf@circ@set@optoarrow@style{%
     % You *must* be sure that this is called inside a \pgfscope!
     \pgfsetlinewidth{\ctikzvalof{opto arrows/relative thickness}\pgflinewidth}
-    \edef\@@none{none}\edef\@@default{default}
-    \edef\@@tmp{\ctikzvalof{opto arrows/color}}
-    \ifx\@@tmp\@@default\else
-        \pgfsetcolor{\@@tmp}
-    \fi
-    \edef\@@tmp{\ctikzvalof{opto arrows/dash}}
-    \ifx\@@tmp\@@default\else
-        \ifx\@@tmp\@@none
-            \pgfsetdash{}{0pt}% solid line, override dash
-        \else
-            \expandafter\pgfsetdash\expandafter{\@@tmp}{0cm}
-        \fi
-        \fi
+        \pgf@circ@subset@color@dash{opto arrows}
         \pgfcirc@set@arrows{opto}{}{latexslim}
     }
 
@@ -2564,6 +2570,10 @@
 
 %% crossings%<<<
 % full nodes for wire crossing
+% styling for the vertical wire (default: do none)
+\ctikzset{crossing vertical/relative thickness/.initial=1}
+\ctikzset{crossing vertical/color/.initial=default}
+\ctikzset{crossing vertical/dash/.initial=default}
 
 \pgfdeclareshape{jump crossing}
 {
@@ -2573,18 +2583,7 @@
         \pgf@x=-\pgf@y
     }
     \anchor{center}{ \pgf@y=0pt \pgf@x=0pt }
-    \anchor{east}{ \northwest \pgf@y=0pt \pgf@x=-\pgf@x  }
-    \anchor{e}{ \northwest \pgf@y=0pt \pgf@x=-\pgf@x  }
-    \anchor{west}{ \northwest \pgf@y=0pt }
-    \anchor{w}{ \northwest \pgf@y=0pt }
-    \anchor{south}{ \northwest \pgf@x=0pt \pgf@y=-\pgf@y }
-    \anchor{s}{ \northwest \pgf@x=0pt \pgf@y=-\pgf@y }
-    \anchor{north}{ \northwest \pgf@x=0pt }
-    \anchor{n}{ \northwest \pgf@x=0pt }
-    \anchor{south west}{ \northwest \pgf@y=-\pgf@y }
-    \anchor{north east}{ \northwest \pgf@x=-\pgf@x }
-    \anchor{north west}{ \northwest }
-    \anchor{south east}{ \northwest \pgf@x=-\pgf@x \pgf@y=-\pgf@y }
+    \pgfcirc@northwest@symmetric@geoanchors
     \pgf@circ@draw@component{
         \northwest
         \pgf@circ@res@up = \pgf@y
@@ -2597,13 +2596,17 @@
         \pgfpatharc{0}{-180}{0.4*\pgf@circ@res@left}
         \pgfsetbeveljoin
         \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{0pt}}
+        \pgfusepath{draw}
         % vertical, broken path
+        % styling of vertical line
+        \pgfsetlinewidth{\ctikzvalof{crossing vertical/relative thickness}\pgflinewidth}
+        \pgf@circ@subset@color@dash{crossing vertical}
+        %
         \pgfpathmoveto{\pgfpoint{0pt}{\pgf@circ@res@up}}
         \pgfpathlineto{\pgfpoint{0pt}{0.5\pgf@circ@res@up}}
         \pgfpathmoveto{\pgfpoint{0pt}{0.3\pgf@circ@res@up}}
         \pgfpathlineto{\pgfpoint{0pt}{\pgf@circ@res@down}}
         \pgfusepath{draw}
-
     }
 }
 \pgfdeclareshape{plain crossing}
@@ -2614,18 +2617,7 @@
         \pgf@x=-\pgf@y
     }
     \anchor{center}{ \pgf@y=0pt \pgf@x=0pt }
-    \anchor{east}{ \northwest \pgf@y=0pt \pgf@x=-\pgf@x  }
-    \anchor{e}{ \northwest \pgf@y=0pt \pgf@x=-\pgf@x  }
-    \anchor{west}{ \northwest \pgf@y=0pt }
-    \anchor{w}{ \northwest \pgf@y=0pt }
-    \anchor{south}{ \northwest \pgf@x=0pt \pgf@y=-\pgf@y }
-    \anchor{s}{ \northwest \pgf@x=0pt \pgf@y=-\pgf@y }
-    \anchor{north}{ \northwest \pgf@x=0pt }
-    \anchor{n}{ \northwest \pgf@x=0pt }
-    \anchor{south west}{ \northwest \pgf@y=-\pgf@y }
-    \anchor{north east}{ \northwest \pgf@x=-\pgf@x }
-    \anchor{north west}{ \northwest }
-    \anchor{south east}{ \northwest \pgf@x=-\pgf@x \pgf@y=-\pgf@y }
+    \pgfcirc@northwest@symmetric@geoanchors
     \pgf@circ@draw@component{
         \northwest
         \pgf@circ@res@up = \pgf@y
@@ -2635,13 +2627,17 @@
         % horizontal jumper
         \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{0pt}}
         \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{0pt}}
+        \pgfusepath{draw}
         % vertical, broken path
+        % styling of vertical line
+        \pgfsetlinewidth{\ctikzvalof{crossing vertical/relative thickness}\pgflinewidth}
+        \pgf@circ@subset@color@dash{crossing vertical}
+        %
         \pgfpathmoveto{\pgfpoint{0pt}{\pgf@circ@res@up}}
         \pgfpathlineto{\pgfpoint{0pt}{0.1\pgf@circ@res@up}}
         \pgfpathmoveto{\pgfpoint{0pt}{0.1\pgf@circ@res@down}}
         \pgfpathlineto{\pgfpoint{0pt}{\pgf@circ@res@down}}
         \pgfusepath{draw}
-
     }
 }
 % %>>>
@@ -14565,7 +14561,7 @@
 \ctikzset{transistor circle/.is family}
 \ctikzset{transistor circle/relative thickness/.initial=1}
 \ctikzset{transistor circle/color/.initial=default}
-\ctikzset{transistor circle/dash/.initial=none}
+\ctikzset{transistor circle/dash/.initial=default}
 \ctikzset{transistor circle/scale circle radius/.initial=1}
 \ctikzset{transistor circle/default base in/.initial=0.9}
 \ctikzset{transistor circle/njfet base in/.initial=1.05}
@@ -14677,15 +14673,7 @@
     \pgfscope
         \pgf@circ@setlinewidth{tripoles}{\pgflinewidth}
         \pgfsetlinewidth{\ctikzvalof{transistor circle/relative thickness}\pgflinewidth}
-        \edef\@@none{none}\edef\@@default{default}
-        \edef\@@tmp{\ctikzvalof{transistor circle/color}}
-        \ifx\@@tmp\@@default\else
-            \pgfsetcolor{\@@tmp}
-        \fi
-        \edef\@@tmp{\ctikzvalof{transistor circle/dash}}
-        \ifx\@@tmp\@@none\else
-            \expandafter\pgfsetdash\expandafter{\@@tmp}{0cm}
-        \fi
+        \pgf@circ@subset@color@dash{transistor circle}
         % radius of the circle
         % \pgfmathsetlength{\pgf@circ@res@temp}{((#2+\extrabodydiodelen)-(#1)+(#3)*(#3)/((#2+\extrabodydiodelen)-(#1)))/2}
         % \pgfpathcircle{\pgfpoint{#1+\pgf@circ@res@temp}{0pt}}{\pgf@circ@res@temp}
@@ -15176,19 +15164,7 @@
         \ifpgf@circuit@fet@bodydiode
             \pgfscope
                 \pgfsetlinewidth{\ctikzvalof{transistor bodydiode/relative thickness}\pgflinewidth}
-                \edef\@@none{none}\edef\@@default{default}
-                \edef\@@tmp{\ctikzvalof{transistor bodydiode/color}}
-                \ifx\@@tmp\@@default\else
-                    \pgfsetcolor{\@@tmp}
-                \fi
-                \edef\@@tmp{\ctikzvalof{transistor bodydiode/dash}}
-                \ifx\@@tmp\@@default\else
-                    \ifx\@@tmp\@@none
-                        \pgfsetdash{}{0pt}% solid line, override dash
-                    \else
-                        \expandafter\pgfsetdash\expandafter{\@@tmp}{0cm}
-                    \fi
-                \fi
+                \pgf@circ@subset@color@dash{transistor bodydiode}
                 \drawbodydiode{#1}
             \endpgfscope
         \fi
@@ -20437,19 +20413,7 @@
 
     % use the chocke line thickness
     \pgfsetlinewidth{\ctikzvalof{bipoles/cutechoke/cthick}*\ctikzvalof{transformer core/relative thickness}*\pgflinewidth}
-    \edef\@@none{none}\edef\@@default{default}
-    \edef\@@tmp{\ctikzvalof{transformer core/color}}
-    \ifx\@@tmp\@@default\else
-        \pgfsetcolor{\@@tmp}
-    \fi
-    \edef\@@tmp{\ctikzvalof{transformer core/dash}}
-    \ifx\@@tmp\@@default\else
-        \ifx\@@tmp\@@none
-            \pgfsetdash{}{0pt}% solid line, override dash
-        \else
-            \expandafter\pgfsetdash\expandafter{\@@tmp}{0cm}
-        \fi
-    \fi
+    \pgf@circ@subset@color@dash{transformer core}
 
     % Find the distance from center for the lines representing the core
     % the 2.5 is for backward compatibility --- the distance was calculated as a fraction
