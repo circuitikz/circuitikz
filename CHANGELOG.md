@@ -3,7 +3,8 @@ The major changes among the different CircuiTikZ versions are listed here. See <
 
 * Version 1.6.2 (unreleased)
 
-    - `context` compatibility is not guaranteed anymore: please see [this issue](https://github.com/circuitikz/circuitikz/issues/706)
+    - there is no `siunitx` support for ConTeXt, point to the `units` package
+    - `context` compatibility can have glitches: please see [this issue](https://github.com/circuitikz/circuitikz/issues/706)
     - Add styling of `transform core` lines (suggested by [user `@myzinsky` on GitHub](https://github.com/circuitikz/circuitikz/issues/702))
     - Add `scale` to the bodydiode options (suggested by [user `@sputeanus` on GitHub](https://github.com/circuitikz/circuitikz/issues/703))
     - Add styling of crossing vertical line (suggested by [user `@lkjell` on GitHub](https://github.com/circuitikz/circuitikz/issues/704))
