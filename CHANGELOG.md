@@ -1,7 +1,9 @@
 <!--- CircuiTikz - Changelog --->
 The major changes among the different CircuiTikZ versions are listed here. See <https://github.com/circuitikz/circuitikz/commits> for a full list of changes.
 
-* Version 1.6.2 (unreleased)
+* Version 1.6.2 (2023-05-13)
+
+    Several more styling options for elements (body diodes, transformers, crossing), a clock wedge shape for logical circuits, and documentation updates for ConTeXt, mainly noticing the (upstream) elimination of the thin `siunitx` layer compatibility macros.
 
     - there is no `siunitx` support for ConTeXt, point to the `units` package
     - `context` compatibility can have glitches: please see [this issue](https://github.com/circuitikz/circuitikz/issues/706)
