@@ -2841,6 +2841,36 @@ the waveform ones (see above). Additionally, you can scale them up and down by c
 \end{circuitikz}
 \end{LTXexample}
 
+\subsubsection{Source borders}
+
+Unfortunately, the border of the sources is only easily accessed if some anchor is provided.
+The border anchors of the shapes are not tight on them (see section~\ref{sec:bipoles-border-anchors}), which is not easily changeable, given that the algorithm that positions the labels depends on it.
+
+On the other hand, \TikZ{} powerful partway coordinate calculation (around section 13.5.3 of the manual) makes it possible to easily identify points on a circle if the center and one point of the circle are known, as you can see in the following example.
+
+\begin{LTXexample}[varwidth=true, basicstyle=\small\ttfamily]
+\begin{tikzpicture}[]
+    \path (0,0) to[oosourcetrans, name=T, ]++(2,0);
+    % Use partway modifiers to reach a point on the left circle
+    \draw ($(T.centerprim)!1!45:(T.left)$) -- ++(-135:0.2)
+        -- ++(0,-1) node[ground]{};
+    \begin{scope}[font=\tiny\ttfamily, pin distance=2mm, inner sep=0pt]
+        \foreach \a in {-90,-45,...,90}
+            \node [circ, scale=0.5, pin=\a:\a, color=red] at
+                ($(T.centersec)!1!\a:(T.right)$){};
+    \end{scope}
+\end{tikzpicture}
+\end{LTXexample}
+
+A similar approach can be used for dependent sources. Just remember that the anchors move (rotate) together with the component.
+
+\begin{LTXexample}[varwidth=true, basicstyle=\small\ttfamily]
+    \begin{tikzpicture}[american]
+        \draw (0,0) to [cvsource, name=S] ++(0,2);
+        \node [circ,red] at ($(S.e)!0.3333!(S.n)$) {};
+        \node [circ,blue] at ($(S.e)!0.6666!(S.n)$) {};
+    \end{tikzpicture}
+\end{LTXexample}
 
 
 \subsection{Instruments}

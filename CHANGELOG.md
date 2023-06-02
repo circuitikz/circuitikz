@@ -3,7 +3,7 @@ The major changes among the different CircuiTikZ versions are listed here. See <
 
 * Version 1.6.3 (unreleased)
 
-    - bump version number
+    - added documentation on how to contact the border of the source symbols (suggested by [user `@Tipounk` on GitHub](https://github.com/circuitikz/circuitikz/issues/722))
 
 * Version 1.6.2 (2023-05-13)
 
