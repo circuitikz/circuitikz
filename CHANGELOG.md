@@ -3,6 +3,10 @@ The major changes among the different CircuiTikZ versions are listed here. See <
 
 * Version 1.6.3 (unreleased)
 
+    The definition of the "plus" and "minus" symbols used in several parts of the library has changed, in
+    order to achieve better alignement of voltages and amplifier symbols when using fonts different from Computer Modern.
+
+    - changed the definition of "minus" symbol (see [this issue](https://github.com/circuitikz/circuitikz/issues/721)) for details.
     - added documentation on how to contact the border of the source symbols (suggested by [user `@Tipounk` on GitHub](https://github.com/circuitikz/circuitikz/issues/722))
 
 * Version 1.6.2 (2023-05-13)
