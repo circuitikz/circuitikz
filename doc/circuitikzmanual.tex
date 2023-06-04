@@ -249,6 +249,13 @@ The \texttt{use fpu reciprocal} key seems to have no side effects, but given tha
 Here, we will provide a list of incompatibilities between different versions of \Circuitikz. We will try to hold this list short, but sometimes it is easier to break with old syntax than include a lot of switches and compatibility layers. In general, changes that would invalidate a circuit (changes of polarity of components and so on) are almost always protected by a flag; the same is not true for purely aesthetic changes.
 If unsure, you can check the version in your local installation by using the macro \verb!\pgfcircversion{}!.
 \begin{itemize}
+    \item Since version \texttt{1.6.3} the default symbol for the minus sign changed from the simple \verb|$-$| to \verb|$\vphantom{+}-$|. The reason is that in some (most?) font, the minus sign is enclosed in a smaller bounding box than the plus sign and that leads to poorly aligned minus symbols in \texttt{american} and \texttt{raised} voltages. This was not noticed before because the two symbols share the same bounding box in the default Computer Modern font. You can look at \href{https://github.com/circuitikz/circuitikz/issues/721}{this issue on GitHub} for more details; if you want to go back to the previous definitions you can write
+        \begin{lstlisting}
+            \ctikzset{amplifiers/minus=$-$}
+            \ctikzset{bipoles/cvsourceam/inner minus=$-$}
+            \ctikzset{bipoles/vsourceam/inner minus=$-$}
+            \ctikzset{voltage/american minus=$-$}
+        \end{lstlisting}
     \item Since version \texttt{1.6.2} \texttt{siunitx}  will \textbf{not}  work anymore with \ConTeXt{} (it was a very poor simulation layer, anyway); it has been disabled in upstream \ConTeXt, in favor of \href{https://www.pragma-ade.nl/general/manuals/units-mkiv.pdf}{its own \texttt{units} module}.
     \item Version \texttt{1.6.0} has a big rewrite of the block's code. In principle the changes are backward-compatible, but there were several bugs (wrong anchors, errors with rotations, and so on) that have been fixed in the process.
     \item Since \texttt{v1.5.1}\footnote{Do not use \texttt{v1.5.0}, it's buggy.} color management (see section~\ref{sec:colors}) and the details of how the shapes are drawn and protected by the external drawing options has changed. There should be no substantial changes to the circuits, though.
@@ -2802,7 +2809,7 @@ If instead of an angle value you use \texttt{auto}, the symbol will be rotated s
 
 \paragraph{Polarity symbols.}
 The symbols drawn into the \texttt{american voltage source}\footnote{Since version \texttt{1.1.0}, thanks to the suggestions and discussion
-\href{https://tex.stackexchange.com/questions/538723/circuitikz-what-should-i-do-to-put-the-and-on-the-appropriate-places-like-t}{in this TeX.SX question}.} can be changed by using the \verb|\ctikzset|  keys \texttt{bipoles/vsourceam/inner plus} and \texttt{.../inner minus} (by default they are \verb|$+$| and \verb|$-$| respectively, in the current font), and move them nearer of farther away by twiddling \texttt{bipoles/vsourceam/margin} (default \texttt{0.7}, less means nearer).
+\href{https://tex.stackexchange.com/questions/538723/circuitikz-what-should-i-do-to-put-the-and-on-the-appropriate-places-like-t}{in this TeX.SX question}.} can be changed by using the \verb|\ctikzset|  keys \texttt{bipoles/vsourceam/inner plus} and \texttt{.../inner minus} (by default they are \verb|$+$| and \verb|$\vphantom{+}-$| respectively, in the current font), and move them nearer of farther away by twiddling \texttt{bipoles/vsourceam/margin} (default \texttt{0.7}, less means nearer). The reason of the \verb|\vphantom| can be found in section~\ref{sec:american-voltage-custom}.
 
 You can do the same with the \texttt{american controlled voltage sources}, substituting \texttt{cvsourceam} to \texttt{vsourceam} (notice the initial ``\texttt{c}'').
 
@@ -8364,7 +8371,7 @@ Negative values do work as expected:
 \begin{LTXexample}[varwidth=true]
 \begin{circuitikz}[raised voltages]
    \draw (0,1.5) to[R, v^=$v_1$, i=$i_1$] ++(2,0);
-   \draw (0,0) to[R, v^=$v_1$, i=$i_1$,
+   \draw (0,0) to[R, v^=$v_1$, i_=$i_1$,
         voltage shift=-1.0] ++(2,0);
 \end{circuitikz}
 \end{LTXexample}
@@ -8408,7 +8415,7 @@ Additionally, the \texttt{open} component is treated differently; the voltage is
 
 If you want or need to maintain the old behavior for \texttt{open} voltage, you can set the key \texttt{open voltage position} to \texttt{legacy} (the default is the new behavior, which corresponds to the value \texttt{center}).
 
-\subsubsection{American voltages customization}
+\subsubsection{American voltages customization}\label{sec:american-voltage-custom}
 
 Since 0.9.0, you can change the font\footnote{There was a bug before, noticed by the user \texttt{dzereb} on \href{https://tex.stackexchange.com/questions/487683/odd-minus-style-when-drawing-american-voltage}{tex.stackexchange.com} which made the symbols using different fonts in a basically random way. In the same page, user \texttt{campa} found the problem. Thanks!} used by the \texttt{american voltages} style, by setting to something different from nothing the key \texttt{voltage/american font} (default: nothing, using the current font) style:
 
@@ -8423,7 +8430,9 @@ Since 0.9.0, you can change the font\footnote{There was a bug before, noticed by
 \end{LTXexample}
 
 Also, if you want to change the symbols (sometimes just the $+$ sign is drawn, for example, or for highlighting something),
-using the keys \texttt{voltage/american plus} and \texttt{voltage/american minus} (default \verb|$+$| and \verb|$-$|).
+using the keys \texttt{voltage/american plus} and \texttt{voltage/american minus} (default \verb|$+$| and \verb|$\vphantom{+}-$|).
+
+Notice that the definition of the minus sign is not simply \verb|$-$| because in most font (but not Computer Modern!) the size of the bounding box for the mathematical plus or minus are different. The \verb|\vphantom| forces the vertical size of the minus sign to be the same as the plus sign.\footnote{Changed in v1.6.3, you can look at \href{https://github.com/circuitikz/circuitikz/issues/721}{this issue on GitHub} for more details.}
 
 \begin{LTXexample}[varwidth=true]
 \begin{circuitikz}[american]
@@ -8576,13 +8585,13 @@ For example, you can do something like this:
 \end{circuitikz}
 \end{LTXexample}
 
-Or, for example, to have a different voltage style; normally you would define a macro:
+Or, for example, to have a different voltage style; normally you would define a macro (see~\ref{sec:american-voltage-custom} to understand the \verb|\vphantom|).
 
 \begin{LTXexample}[varwidth=true]
 \begin{circuitikz}[voltage shift=0.5]
     \def\eurVPM#1#2{% node, label
         \draw [thin, -{Stealth[width=8pt]}, shorten >=5pt,
-        shorten <=5pt] (#1-Vfrom) node[font=\tiny]{$-$}
+        shorten <=5pt] (#1-Vfrom) node[font=\tiny]{$\vphantom{+}-$}
         .. controls (#1-Vcont1) and (#1-Vcont2)..
         (#1-Vto) node[font=\tiny]{$+$}
         node[pos=0.5,anchor=\ctikzgetanchor{#1}{Vlab}]{#2};}
