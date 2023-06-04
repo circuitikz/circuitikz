@@ -16,8 +16,8 @@
 \startmodule[circuitikzgit]
 \usemodule[tikz]
 
-\def\pgfcircversion{1.6.3-unreleased-91346a3}
-\def\pgfcircversiondate{2023/06/02}
+\def\pgfcircversion{1.6.3-unreleased-1f07e06}
+\def\pgfcircversiondate{2023/06/04}
 \writestatus{loading}{\pgfcircversiondate{} The CircuiTikz circuit drawing package version \pgfcircversion}
 
 
@@ -1163,7 +1163,10 @@
 % shaping the +/- sign, see pgfcircvoltage.tex
 \ctikzset{voltage/american font/.initial={}}
 \ctikzset{voltage/american plus/.initial={$+$}}
-\ctikzset{voltage/american minus/.initial={$-$}}
+% In the mayority of fonts, the size of - is smaller than +, so we have
+% unaligned signs when positioned independently.
+% See https://github.com/circuitikz/circuitikz/issues/721
+\ctikzset{voltage/american minus/.initial={$\vphantom{+}-$}}
 % here we start the voltage adjustments for special components.
 % default values:
 %
@@ -6251,7 +6254,10 @@
 
 %% To change the internal symbols of the voltage source american style
 \ctikzset{bipoles/vsourceam/inner plus/.initial={$+$}}
-\ctikzset{bipoles/vsourceam/inner minus/.initial={$-$}}
+% In the mayority of fonts, the size of - is smaller than +, so we have
+% unaligned signs when positioned independently.
+% See https://github.com/circuitikz/circuitikz/issues/721
+\ctikzset{bipoles/vsourceam/inner minus/.initial={$\vphantom{+}-$}}
 %% Independent voltage source - American style
 \pgfcircdeclarebipolescaled{sources}
 {}
@@ -6962,7 +6968,10 @@
 
 %% To change the internal symbols of the controlled voltage source american style
 \ctikzset{bipoles/cvsourceam/inner plus/.initial={$+$}}
-\ctikzset{bipoles/cvsourceam/inner minus/.initial={$-$}}
+% In the mayority of fonts, the size of - is smaller than +, so we have
+% unaligned signs when positioned independently.
+% See https://github.com/circuitikz/circuitikz/issues/721
+\ctikzset{bipoles/cvsourceam/inner minus/.initial={$\vphantom{+}-$}}
 %% Controlled voltage source - American
 \pgfcircdeclarebipolescaled{csources}
 {}
@@ -17290,7 +17299,10 @@
         \ctikzset{tripoles/op amp/font=#1}%
 }}
 \ctikzset{amplifiers/plus/.initial={$+$}}
-\ctikzset{amplifiers/minus/.initial={$-$}}
+% In the mayority of fonts, the size of - is smaller than +, so we have
+% unaligned signs when positioned independently.
+% See https://github.com/circuitikz/circuitikz/issues/721
+\ctikzset{amplifiers/minus/.initial={$\vphantom{+}-$}}
 \tikzset{amp symbol font/.code={%
         \ctikzset{amplifiers/symbol font={#1}}%
     }
@@ -18198,8 +18210,7 @@
         % main component, normally in thicker lines
         \pgfscope
             \newdimen\pgf@circ@res@right@double
-						\pgf@circ@res@right@double=2\pgf@circ@res@right
-
+            \pgf@circ@res@right@double=2\pgf@circ@res@right
             \pgf@circ@setlinewidth{tripoles}{\pgflinewidth}
             \pgftransformxshift{\ctikzvalof{tripoles/fd inst amp/port width}\pgf@circ@res@left}
             \pgf@circ@res@step=\pgf@circ@res@right
@@ -18249,8 +18260,8 @@
         \pgf@circ@text@strokecolor
         \pgftext[left, at=\pgfpoint{\ctikzvalof{tripoles/fd inst amp/port width}\pgf@circ@res@left}{\ctikzvalof{tripoles/fd inst amp/input height}\pgf@circ@res@up}]{\ctikzvalof{tripoles/fd inst amp/font} \ifpgf@circuit@oa@iplusup\pgf@circ@ampli@plus\else\pgf@circ@ampli@minus\fi}
         \pgftext[left, at=\pgfpoint{\ctikzvalof{tripoles/fd inst amp/port width}\pgf@circ@res@left}{\ctikzvalof{tripoles/fd inst amp/input height}\pgf@circ@res@down}]{\ctikzvalof{tripoles/fd inst amp/font} \ifpgf@circuit@oa@iplusup\pgf@circ@ampli@minus\else\pgf@circ@ampli@plus\fi}
-        \pgftext[right, at=\pgfpoint{\ctikzvalof{tripoles/fd inst amp/port width}\pgf@circ@res@right}{\ctikzvalof{tripoles/fd inst amp/output height}\pgf@circ@res@down}]{\ctikzvalof{tripoles/fd inst amp/font}\ifpgf@circuit@oa@oplusup$-\;$\else$+\;$\fi}
-        \pgftext[right, at=\pgfpoint{\ctikzvalof{tripoles/fd inst amp/port width}\pgf@circ@res@right}{\ctikzvalof{tripoles/fd inst amp/output height}\pgf@circ@res@up}]{\ctikzvalof{tripoles/fd inst amp/font}\ifpgf@circuit@oa@oplusup$+\;$\else$-\;$\fi}
+        \pgftext[right, at=\pgfpoint{\ctikzvalof{tripoles/fd inst amp/port width}\pgf@circ@res@right}{\ctikzvalof{tripoles/fd inst amp/output height}\pgf@circ@res@down}]{\ctikzvalof{tripoles/fd inst amp/font}\ifpgf@circuit@oa@oplusup\pgf@circ@ampli@minus\space\else\pgf@circ@ampli@plus\space\fi}
+        \pgftext[right, at=\pgfpoint{\ctikzvalof{tripoles/fd inst amp/port width}\pgf@circ@res@right}{\ctikzvalof{tripoles/fd inst amp/output height}\pgf@circ@res@up}]{\ctikzvalof{tripoles/fd inst amp/font}\ifpgf@circuit@oa@oplusup\pgf@circ@ampli@plus\space\else\pgf@circ@ampli@minus\space\fi}
     }
 }
 
@@ -25115,7 +25126,10 @@
 % the default font command is {} --- nothing
 \def\pgf@circ@avfont{\ctikzvalof{voltage/american font}}
 %
-% plus and minus symbols (default is $+$ and $-$, see pgfcirc.defines.tex)
+% In the mayority of fonts, the size of - is smaller than +, so we have
+% unaligned signs when positioned independently.
+% See https://github.com/circuitikz/circuitikz/issues/721
+% plus and minus symbols (default is $+$ and $\vphantom{+}-$, see pgfcirc.defines.tex)
 %
 \def\pgf@circ@avplus{\ctikzvalof{voltage/american plus}}
 \def\pgf@circ@avminus{\ctikzvalof{voltage/american minus}}
