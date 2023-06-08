@@ -3,17 +3,19 @@ The major changes among the different CircuiTikZ versions are listed here. See <
 
 * Version 1.6.3 (unreleased)
 
-    The definition of the "plus" and "minus" symbols used in several parts of the library has changed, in
-    order to achieve better alignement of voltages and amplifier symbols when using fonts different from Computer Modern.
+    The main change is that the definition of the "plus" and "minus" symbols used in several parts of the library has changed in order to achieve better alignment of voltages and amplifier symbols when using fonts different from Computer Modern.
+    Additionally, internal connection dots in transistors are configurable and have a new default, and documentation has got several fixes and enhancements.
 
-    - changed the definition of "minus" symbol (see [this issue](https://github.com/circuitikz/circuitikz/issues/721)) for details.
-    - added documentation on how to contact the border of the source symbols (suggested by [user `@Tipounk` on GitHub](https://github.com/circuitikz/circuitikz/issues/722))
+    - Change the definition of "minus" symbol (see [this issue](https://github.com/circuitikz/circuitikz/issues/721)) for details
+    - Add documentation on how to contact the border of the source symbols (suggested by [user `@Tipounk` on GitHub](https://github.com/circuitikz/circuitikz/issues/722))
+    - in transistors, solder dots and connection dots for body diodes [are now configurable](https://github.com/circuitikz/circuitikz/issues/720)
+    - several documentation fixes
 
 * Version 1.6.2 (2023-05-13)
 
     Several more styling options for elements (body diodes, transformers, crossing), a clock wedge shape for logical circuits, and documentation updates for ConTeXt, mainly noticing the (upstream) elimination of the thin `siunitx` layer compatibility macros.
 
-    - there is no `siunitx` support for ConTeXt, point to the `units` package
+    - There is no `siunitx` support for ConTeXt, point to the `units` package
     - `context` compatibility can have glitches: please see [this issue](https://github.com/circuitikz/circuitikz/issues/706)
     - Add styling of `transform core` lines (suggested by [user `@myzinsky` on GitHub](https://github.com/circuitikz/circuitikz/issues/702))
     - Add `scale` to the bodydiode options (suggested by [user `@sputeanus` on GitHub](https://github.com/circuitikz/circuitikz/issues/703))
