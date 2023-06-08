@@ -3380,6 +3380,8 @@
 \ctikzset{transistor bodydiode/relative thickness/.initial=1}
 \ctikzset{transistor bodydiode/color/.initial=default}
 \ctikzset{transistor bodydiode/dash/.initial=default}
+\ctikzset{transistor bodydiode/dot scale/.initial=0.7}
+\ctikzset{transistor solderdot scale/.initial=0.7}
 % this is unfortunate, but needed for backward compatibility
 \ctikzset{transistor bodydiode/scale/.code={%
     \ctikzset{tripoles/nmos/bodydiode scale=#1}%
@@ -3945,33 +3947,46 @@
             \pgf@circ@setcolor
             %
             \ifnum \ctikzvalof{tripoles/#1/curr direction} > 0
-            \pgf@circuit@trans@ntypetrue
+                \pgf@circuit@trans@ntypetrue
             \else
-            \pgf@circuit@trans@ntypefalse
-        \fi
-        \northeast
-        \pgf@circ@res@up = \pgf@y
-        \pgf@circ@res@down = -\pgf@y
-        \pgf@circ@res@right = \pgf@x
-        \left
-        \pgf@circ@res@left = \pgf@x
-        \pgf@circ@scaled@Rlen=\scaledRlen
-        %
-        #3%
-        % BODY DIODE
-        \ifpgf@circuit@fet@bodydiode
-            \pgfscope
-                \pgfsetlinewidth{\ctikzvalof{transistor bodydiode/relative thickness}\pgflinewidth}
-                \pgf@circ@subset@color@dash{transistor bodydiode}
+                \pgf@circuit@trans@ntypefalse
+            \fi
+            \northeast
+            \pgf@circ@res@up = \pgf@y
+            \pgf@circ@res@down = -\pgf@y
+            \pgf@circ@res@right = \pgf@x
+            \left
+            \pgf@circ@res@left = \pgf@x
+            \pgf@circ@scaled@Rlen=\scaledRlen
+            %
+            #3%
+            % BODY DIODE
+            \ifpgf@circuit@fet@bodydiode
                 \drawbodydiode{#1}
-            \endpgfscope
-        \fi
-        %
+            \fi
+            %
+        }
     }
 }
+
+\def\drawdobydiodedot#1#2{
+    % retrieve dot scale
+    \edef\@@tmp{\ctikzvalof{transistor bodydiode/dot scale}}
+    \ifdim\@@tmp pt>0pt
+        \pgfscope
+            \pgftransformshift{\pgfpoint{\pgf@circ@res@right}
+                {\ctikzvalof{tripoles/#1/bodydiode conn}#2}}
+            \pgftransformscale{\@@tmp}
+            % I'm not sure why this is needed, but...
+            \pgf@circ@maybe@color{transistor bodydiode/color}
+            \pgfnode{circ}{center}{}{}{\pgfusepath{draw,fill}}
+        \endpgfscope
+    \fi
 }
 
 \long\def\drawbodydiode#1{
+    \pgfsetlinewidth{\ctikzvalof{transistor bodydiode/relative thickness}\pgflinewidth}
+    \pgf@circ@subset@color@dash{transistor bodydiode}
     \pgfscope
         \pgftransformshift{\pgfpoint{-\ctikzvalof{tripoles/#1/bodydiode distance}\pgf@circ@res@left}{\pgf@circ@res@up+\pgf@circ@res@down}}
         \pgftransformrotate{90}
@@ -3999,23 +4014,14 @@
     {\ctikzvalof{tripoles/#1/bodydiode conn}\pgf@circ@res@up}}
     \pgfpathlineto{\pgfpointanchor{pgf@bodydiode}{east}}
     \pgfusepath{draw}
-    \pgfscope
-        \pgftransformshift{\pgfpoint{\pgf@circ@res@right}
-        {\ctikzvalof{tripoles/#1/bodydiode conn}\pgf@circ@res@up}}
-        \pgftransformscale{0.5}
-        \pgfnode{circ}{center}{}{}{\pgfusepath{fill}}
-    \endpgfscope{}
+    \drawdobydiodedot{#1}{\pgf@circ@res@up}
     %Draw lower connection to body diode
     \pgfpathmoveto{\pgfpoint{\pgf@circ@res@right}
     {\ctikzvalof{tripoles/#1/bodydiode conn}\pgf@circ@res@down}}
     \pgfpathlineto{\pgfpoint{-\ctikzvalof{tripoles/#1/bodydiode distance}\pgf@circ@res@left}{\ctikzvalof{tripoles/#1/bodydiode conn}\pgf@circ@res@down}}
     \pgfpathlineto{\pgfpointanchor{pgf@bodydiode}{west}}
     \pgfusepath{draw}
-    \pgfscope
-        \pgftransformshift{\pgfpoint{\pgf@circ@res@right}		        	       {\ctikzvalof{tripoles/#1/bodydiode conn}\pgf@circ@res@down}}
-        \pgftransformscale{0.5}
-        \pgfnode{circ}{center}{}{}{\pgfusepath{fill}}
-    \endpgfscope
+    \drawdobydiodedot{#1}{\pgf@circ@res@down}
 }
 
 \long\def\declarebpt#1{
@@ -5601,6 +5607,7 @@
         \pgfscope
             \pgftransformshift{\pgfpoint{\pgf@circ@res@right}{
             \ctikzvalof{tripoles/nigfete/gate height}\pgf@circ@res@down}}
+            \pgftransformscale{\ctikzvalof{transistor solderdot scale}}
             \pgfnode{circ}{center}{}{}{}
     \endpgfscope{}
 \fi
@@ -5615,6 +5622,7 @@
         \pgfscope
             \pgftransformshift{\pgfpoint{\pgf@circ@res@right}{
             \ctikzvalof{tripoles/nigfetebulk/gate height}\pgf@circ@res@down}}
+            \pgftransformscale{\ctikzvalof{transistor solderdot scale}}
             \pgfnode{circ}{center}{}{}{}
         \endpgfscope{}
     \fi
@@ -5635,6 +5643,7 @@
         \pgfscope
             \pgftransformshift{\pgfpoint{\pgf@circ@res@right}{
             \ctikzvalof{tripoles/nigfete/gate height}\pgf@circ@res@down}}
+            \pgftransformscale{\ctikzvalof{transistor solderdot scale}}
             \pgfnode{circ}{center}{}{}{}
         \endpgfscope{}
     \fi
@@ -5657,6 +5666,7 @@
         \pgfscope
             \pgftransformshift{\pgfpoint{\pgf@circ@res@right}{
             \ctikzvalof{tripoles/pigfete/gate height}\pgf@circ@res@up}}
+            \pgftransformscale{\ctikzvalof{transistor solderdot scale}}
             \pgfnode{circ}{center}{}{}{}
         \endpgfscope
     \fi
@@ -5684,6 +5694,7 @@
         \pgfscope
             \pgftransformshift{\pgfpoint{\pgf@circ@res@right}{
             \ctikzvalof{tripoles/nigfete/gate height}\pgf@circ@res@up}}
+            \pgftransformscale{\ctikzvalof{transistor solderdot scale}}
             \pgfnode{circ}{center}{}{}{}
         \endpgfscope{}
     \fi
@@ -5891,6 +5902,7 @@
         \pgfscope
             \pgftransformshift{\pgfpoint{\pgf@circ@res@right}{
             \ctikzvalof{tripoles/nigfete/gate height}\pgf@circ@res@down}}
+            \pgftransformscale{\ctikzvalof{transistor solderdot scale}}
             \pgfnode{circ}{center}{}{}{}
         \endpgfscope{}
     \fi

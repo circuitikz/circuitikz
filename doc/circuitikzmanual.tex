@@ -256,6 +256,11 @@ If unsure, you can check the version in your local installation by using the mac
             \ctikzset{bipoles/vsourceam/inner minus=$-$}
             \ctikzset{voltage/american minus=$-$}
         \end{lstlisting}
+    \item Since version \texttt{1.6.3} the size of the solder dot and the connection dot of the body diodes for transistors has changed (now they are the same and are configurable). The new default scale of~\texttt{0.7} makes the dots \emph{area} more or less one half the one of the external connections. You can go back to the previous values with
+        \begin{lstlisting}
+            \ctikzset{transistor bodydiode/dot scale=0.5,
+                transistor solderdot scale=1.0}
+        \end{lstlisting}
     \item Since version \texttt{1.6.2} \texttt{siunitx}  will \textbf{not}  work anymore with \ConTeXt{} (it was a very poor simulation layer, anyway); it has been disabled in upstream \ConTeXt, in favor of \href{https://www.pragma-ade.nl/general/manuals/units-mkiv.pdf}{its own \texttt{units} module}.
     \item Version \texttt{1.6.0} has a big rewrite of the block's code. In principle the changes are backward-compatible, but there were several bugs (wrong anchors, errors with rotations, and so on) that have been fixed in the process.
     \item Since \texttt{v1.5.1}\footnote{Do not use \texttt{v1.5.0}, it's buggy.} color management (see section~\ref{sec:colors}) and the details of how the shapes are drawn and protected by the external drawing options has changed. There should be no substantial changes to the circuits, though.
@@ -3850,7 +3855,7 @@ Basically they are the same as the normal \texttt{npn} and \texttt{pnp}, and the
     \circuitdesc{GaN hemt}{Gallium Nitride hemt (a ``styled'' \texttt{hemt}, see~\ref{sec:hemt})}{Q}( G/180/0.2,D/0/0.2,S/0/0.2, nogate/-120/0.2)
 \end{groupdesc}
 
-\textsc{nfet}s and \textsc{pfet}s have been incorporated based on code provided by Clemens Helfmeier and Theodor Borsche. Use the package options \texttt{fetsolderdot}/\texttt{nofetsolderdot} to enable/disable solderdot at some fet-transistors. Additionally, the solderdot option can be enabled/disabled for single transistors with the option \texttt{solderdot} and \texttt{nosolderdot}, respectively.
+\textsc{nfet}s and \textsc{pfet}s have been incorporated based on code provided by Clemens Helfmeier and Theodor Borsche. Use the package options \texttt{fetsolderdot}/\texttt{nofetsolderdot} to enable/disable solderdot at some fet-transistors. Additionally, the solderdot option can be enabled/disabled for single transistors with the option \texttt{solderdot} and \texttt{nosolderdot}, respectively (You can adjust the size of the solder dot, see section~\ref{sec:solderdot-scale}).
 
 \begin{groupdesc}
     \circuitdesc{nfet}{nfet}{Q}(G/180/0.1, D/0/0.1, S/0/0.1)
@@ -3976,6 +3981,33 @@ If the option \texttt{arrowmos} is used (or after the command \verb!\ctikzset{tr
 
 You can go back to the no-arrows mos with \texttt{noarrowmos} locally or with
 \texttt{\textbackslash ctikzset\{tripoles/mos style/no arrows\}}.
+
+To draw the PMOS circle non-solid, use the option \texttt{emptycircle} or the command
+\\\verb!\ctikzset{tripoles/pmos style/emptycircle}!. To remove the dot completely (only useful if you have \texttt{arrowmos} enabled, otherwise there will be no difference between P-MOS and N-MOS), you can use the option \texttt{nocircle} or \verb|\ctikzset{tripoles/pmos style/nocircle}|.
+
+\begin{groupdesc}
+    \circuitdesc{pmos,emptycircle}{pmos}{}
+    \circuitdesc{pmos,nocircle,arrowmos}{pmos}{}
+\end{groupdesc}
+
+This example show the combined effects of the arrows and gate-circle options:
+
+\begin{LTXexample}[varwidth=true]
+\begin{circuitikz}[
+    info/.style={left=1cm, blue, text width=5em, align=right},]
+    \draw (0,1) node{pmos} (2,1) node{nmos};
+    \draw (0,0) node[info]{default} node[pmos]{} (2,0) node[nmos]{};
+    \ctikzset{tripoles/mos style/arrows}
+    \draw (0,-2) node[info]{arrows} node[pmos]{} (2,-2) node[nmos]{};
+    \ctikzset{tripoles/pmos style/emptycircle}
+    \draw (0,-4) node[info]{emptycircle} node[pmos]{} (2,-4) node[nmos]{};
+    \ctikzset{tripoles/pmos style/nocircle}
+    \draw (0,-6) node[info]{nocircle} node[pmos]{} (2,-6) node[nmos]{};
+    \ctikzset{tripoles/mos style/no arrows}
+    \draw (0,-8) node[info, red]{no circle, no arrows, DON'T do it}
+          node[pmos]{} (2,-8) node[nmos]{};
+\end{circuitikz}
+\end{LTXexample}
 
 You can also change\footnote{Thanks to the idea by \href{https://github.com/circuitikz/circuitikz/issues/655}{Dr. Matthias Jung on GitHub}.} the type of the arrow for the ``light rays'' of the phototransistors with the generic arrows options shown in~\ref{sec:tunablearrows}, using the name \texttt{opto}, like in the following (overdone) example. Also the \texttt{opto arrows} styling options (see section~\ref{sec:opto-arrows}).
 
@@ -4162,14 +4194,6 @@ Normally, in bipolar IGBTs the outer base is the same size (height) of the inner
 \end{circuitikz}
 \end{LTXexample}
 
-To draw the PMOS circle non-solid, use the option \texttt{emptycircle} or the command
-\\\verb!\ctikzset{tripoles/pmos style/emptycircle}!. To remove the dot completely (only useful if you have \texttt{arrowmos} enabled, otherwise there will be no difference between P-MOS and N-MOS), you can use the option \texttt{nocircle} or \verb|\ctikzset{tripoles/pmos style/nocircle}|.
-
-\begin{groupdesc}
-    \circuitdesc{pmos,emptycircle}{pmos}{}
-    \circuitdesc{pmos,nocircle,arrowmos}{pmos}{}
-\end{groupdesc}
-
 \paragraph{Bulk terminals.} You can add a bulk terminal\footnote{Thanks to Burak Kelleci <kellecib@hotmail.com>.} to \texttt{nmos} and \texttt{pmos} using the key \texttt{bulk} in the node (and \texttt{nobulk} if you set the bulk terminal by default); additional anchors \texttt{bulk} and \texttt{nobulk} are added (in the next example, \texttt{tripoles/mos style/arrows} is enacted, too):
 
 \begin{groupdesc}
@@ -4183,21 +4207,19 @@ To draw the PMOS circle non-solid, use the option \texttt{emptycircle} or the co
     \footnotetext{Since \texttt{v1.4.4}, noticed by \href{https://tex.stackexchange.com/q/619334/38080}{user \texttt{hinata exc} on Stack Exchange}.}
 \end{groupdesc}
 
+
+\paragraph{Solder dots.}\label{sec:solderdot-scale}
+Solder dots are scaled-down\footnote{Since \texttt{v1.6.3}, suggested by \href{https://tex.stackexchange.com/q/687225/38080}{user Hartomes on TeX StackExchange}; previously, the default scale was \texttt{1.0}, which created a clash with body diodes.} version of the normal \texttt{circ} connection dot (\emph{pole}).
+This is to convey the information that the connection is \emph{internal} to the device, and not controllable from the outside. By default, they are scaled as the bodydiode connection dots (see section~\ref{sec:trans-bodydiode-custom}), but you can change them with the command \texttt{\textbackslash ctikzset\{transistor solderdot scale=\emph{x}\}}, where $x$ is the scale with respect to the normal \texttt{circ} node (default: \texttt{0.7}).
+
 \begin{LTXexample}[varwidth=true]
-\begin{circuitikz}[
-    info/.style={left=1cm, blue, text width=5em, align=right},]
-    \draw (0,1) node{pmos} (2,1) node{nmos};
-    \draw (0,0) node[info]{default} node[pmos]{} (2,0) node[nmos]{};
-    \ctikzset{tripoles/mos style/arrows}
-    \draw (0,-2) node[info]{arrows} node[pmos]{} (2,-2) node[nmos]{};
-    \ctikzset{tripoles/pmos style/emptycircle}
-    \draw (0,-4) node[info]{emptycircle} node[pmos]{} (2,-4) node[nmos]{};
-    \ctikzset{tripoles/pmos style/nocircle}
-    \draw (0,-6) node[info]{nocircle} node[pmos]{} (2,-6) node[nmos]{};
-    \ctikzset{tripoles/mos style/no arrows}
-    \draw (0,-8) node[info, red]{no circle, no arrows, DON'T do it}
-          node[pmos]{} (2,-8) node[nmos]{};
-\end{circuitikz}
+\begin{tikzpicture}[]
+    \draw (0,0) to[short,*-] ++(.1,0)
+        node[nigfete, solderdot, anchor=G]{};
+    \ctikzset{transistor solderdot scale=1}
+    \draw (2,0) to[short,*-] ++(.1,0)
+        node[nigfete, solderdot, anchor=G]{};
+\end{tikzpicture}
 \end{LTXexample}
 
 \paragraph{Simplified symbols for depletion-mode MOSFETs}.
@@ -4379,6 +4401,7 @@ You can change the style of the bodydiode\footnote{Suggested by \href{https://te
      color & default & stroke color: \texttt{default} is the same as the component \\
      dash & default & dash pattern: \texttt{default} means not to change the setting for the component; \texttt{none} means unbroken line; every other input is a dash pattern\footnotemark \\
      scale & 0.3 & scale of the diode, with respect to the basic (not scaled) diode dimension.\\
+     dot scale & 0.7 & scale of bodydiode connections dots, with respect to the \texttt{circ} pole. Use zero to remove them (useful if you have circles around the transistor).\\
         \bottomrule
     \end{tabular}
     \footnotetext{Follows the syntax of the pattern sequence \texttt{\textbackslash pgfsetdash} --- see \TikZ{} manual for details; phase is always zero. Basically you pass pairs of dash-length -- blank-length dimensions, see the examples.}
@@ -4393,9 +4416,10 @@ The following is a quite extensive example. Obviously, a good strategy in this c
         circuitikz/transistor bodydiode/relative thickness=0.3}]
     \draw (0,0) node (mosfet1) [nigfete,anchor=D,bodydiode] {$Q_1$};
     \draw[densely dashed]  (3,0) node (mosfet1) [nigfete,anchor=D,bodydiode] {$Q_2$};
-    \draw (6,0) node (mosfet1) [nigfete,anchor=D,bodydiode,
+    \draw (6,0) node (mosfet1) [nigfete,anchor=D,bodydiode, tr circle,
         circuitikz/transistor bodydiode/color=gray,
-        circuitikz/transistor bodydiode/scale=0.2] {$Q_3$};
+        circuitikz/transistor bodydiode/scale=0.2,
+        circuitikz/transistor bodydiode/dot scale=0] {$Q_3$};
     \draw (0,-2) node (mosfet1) [nigfete,anchor=D,bodydiode,
         circuitikz/transistor bodydiode/dash={{2pt}{1pt}}]  {$Q_4$};
     \draw[densely dashed]  (3,-2) node (mosfet1) [nigfete,anchor=D,
@@ -4403,12 +4427,11 @@ The following is a quite extensive example. Obviously, a good strategy in this c
     \ctikzset{transistor bodydiode/relative thickness=.5,
         transistor bodydiode/scale=0.6}% from now on, in scope
     \draw[densely dotted] (6,-2) node (mosfet1) [nigfete,anchor=D,bodydiode,
-          circuitikz/transistor bodydiode/dash=none] {$Q_6$};
+          circuitikz/transistor bodydiode/dash=none,
+          circuitikz/transistor bodydiode/dot scale=1] {$Q_6$};
     \path (7,0); %% adjust bounding box (node text is outside it!)
 \end{tikzpicture}
 \end{LTXexample}
-
-
 
 \subsubsection{Transistors anchors}
 
