@@ -1,12 +1,12 @@
 <!--- CircuiTikz - Changelog --->
 The major changes among the different CircuiTikZ versions are listed here. See <https://github.com/circuitikz/circuitikz/commits> for a full list of changes.
 
-* Version 1.6.3 (unreleased)
+* Version 1.6.3 (2023-06-23)
 
     The main change is that the definition of the "plus" and "minus" symbols used in several parts of the library has changed in order to achieve better alignment of voltages and amplifier symbols when using fonts different from Computer Modern.
     Additionally, internal connection dots in transistors are configurable and have a new default, and documentation has got several fixes and enhancements.
 
-    - Change the definition of "minus" symbol (see [this issue](https://github.com/circuitikz/circuitikz/issues/721)) for details
+    - Change the definition of the "minus" symbol (see [this issue](https://github.com/circuitikz/circuitikz/issues/721)) for details
     - Add documentation on how to contact the border of the source symbols (suggested by [user `@Tipounk` on GitHub](https://github.com/circuitikz/circuitikz/issues/722))
     - in transistors, solder dots and connection dots for body diodes [are now configurable](https://github.com/circuitikz/circuitikz/issues/720)
     - Add anchors for the symbols on the `oo`-type sources, suggested [by user @lapreindl on GitHub](https://github.com/circuitikz/circuitikz/issues/725); the symbols have been slightly changed and repositioned in the process
