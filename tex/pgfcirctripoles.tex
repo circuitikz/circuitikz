@@ -25,7 +25,8 @@
 %
 \pgfkeys{/tikz/number inputs/.initial=0}
 \pgfkeys{/tikz/number inputs/.default=0}
-
+% by default, use the default font (and color, etc.)
+\ctikzset{european ports font/.initial={}}
 \newif\ifpgf@circuit@europeanlogicport
 \ctikzset{logic ports/.is choice}
 \ctikzset{logic ports/european/.code= {\pgf@circuit@europeanlogicporttrue
@@ -37,6 +38,8 @@
     \tikzset{nand port/.style={shape=european nand port}}%
     \tikzset{nor port/.style={shape=european nor port}}%
     \tikzset{xnor port/.style={shape=european xnor port}}%
+    \tikzset{blank port/.style={shape=european blank port}}%
+    \tikzset{blank not port/.style={shape=european blank not port}}%
     % there is no Schmitt ports in european style (yet)
     \tikzset{schmitt port/.style={shape=schmitt}}%
     \tikzset{invschmitt port/.style={shape=invschmitt}}%
@@ -52,6 +55,9 @@
     \tikzset{xnor port/.style={shape=american xnor port}}%
     \tikzset{schmitt port/.style={shape=schmitt}}%
     \tikzset{invschmitt port/.style={shape=invschmitt}}%
+    %%% there are no blank ports for american (no sense to have them)
+    \tikzset{blank port/.style={shape=european blank port}}%
+    \tikzset{blank not port/.style={shape=european blank not port}}%
 }}
 
 \ctikzset{logic ports origin/.is choice}
@@ -70,6 +76,8 @@
     \ctikzset{tripoles/european xnor port/origin/.initial=0.8}%
     \ctikzset{tripoles/european buffer port/origin/.initial=0.8}%
     \ctikzset{tripoles/european not port/origin/.initial=0.8}%
+    \ctikzset{tripoles/european blank port/origin/.initial=0.8}%
+    \ctikzset{tripoles/european blank not port/origin/.initial=0.8}%
     }%
 }
 \ctikzset{logic ports origin/center/.code={%
@@ -87,6 +95,8 @@
     \ctikzset{tripoles/european xnor port/origin/.initial=0}%
     \ctikzset{tripoles/european buffer port/origin/.initial=0}%
     \ctikzset{tripoles/european not port/origin/.initial=0}%
+    \ctikzset{tripoles/european blank port/origin/.initial=0}%
+    \ctikzset{tripoles/european blank not port/origin/.initial=0}%
     }%
 }
 
@@ -195,7 +205,7 @@
 \ctikzset{tripoles/american xnor port/inputs/.initial=2}
 \ctikzset{tripoles/american xnor port/angle/.initial=70}
 \ctikzset{tripoles/american xnor port/inner/.initial=0.3}
-
+%
 \ctikzset{tripoles/european and port/width/.initial=1.4}
 \ctikzset{tripoles/european and port/height/.initial=.65}
 \ctikzset{tripoles/european and port/reserved/.initial=.6}
@@ -255,6 +265,21 @@
 \ctikzset{tripoles/european buffer port/inputs/.initial=1}%
 \ctikzset{tripoles/european not port/origin/.initial=0.8}
 \ctikzset{tripoles/european not port/inputs/.initial=1}%
+%% "blank" ports
+\ctikzset{tripoles/european blank port/width/.initial=1.4}
+\ctikzset{tripoles/european blank port/height/.initial=.65}
+\ctikzset{tripoles/european blank port/reserved/.initial=.6}
+\ctikzset{tripoles/european blank port/input height/.initial=.6}
+\ctikzset{tripoles/european blank not port/width/.initial=1.4}
+\ctikzset{tripoles/european blank not port/not height/.initial=.3}
+\ctikzset{tripoles/european blank not port/not width/.initial=.9}
+\ctikzset{tripoles/european blank not port/height/.initial=.65}
+\ctikzset{tripoles/european blank not port/reserved/.initial=.6}
+\ctikzset{tripoles/european blank not port/input height/.initial=.6}
+\ctikzset{tripoles/european blank port/origin/.initial=0.8}
+\ctikzset{tripoles/european blank port/inputs/.initial=2}
+\ctikzset{tripoles/european blank not port/origin/.initial=0.8}
+\ctikzset{tripoles/european blank not port/inputs/.initial=2}
 %%% parameters that are not used anymore after multi-input
 %%% gates --- left for compatibility of source code.
 \ctikzset{tripoles/american xor port/aaa/.initial=.6}
@@ -1547,8 +1572,11 @@
         \fi
         \pgf@circ@text@strokecolor
         \pgfpathmoveto{\pgfpointorigin}
-        \pgftext{#2}
-        %
+        \pgfscope
+            % text is always in standard direction
+            \pgftransformresetnontranslations
+            \pgftext{\ctikzvalof{european ports font}#2}%
+        \endpgfscope
         }
     }
 }
@@ -1560,7 +1588,8 @@
 \pgfcircdeclareeurologicport{nand}{\&}{\pgf@circ@res@count}{not}
 \pgfcircdeclareeurologicport{nor}{$\ge 1$}{\pgf@circ@res@count}{not}
 \pgfcircdeclareeurologicport{xnor}{$=1$}{\pgf@circ@res@count}{not}
-
+\pgfcircdeclareeurologicport{blank}{}{\pgf@circ@res@count}{}
+\pgfcircdeclareeurologicport{blank not}{}{\pgf@circ@res@count}{not}
 %% end european logic ports
 % %>>>
 

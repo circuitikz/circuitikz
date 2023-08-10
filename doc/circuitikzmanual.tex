@@ -6207,6 +6207,8 @@ The transmission gate (also known as ``bowtie'') components are not described in
     \circuitdesc*{european xnor port}{European \textsc{xnor} port}{}
     \circuitdesc*{european buffer port}{European \textsc{buffer} port}{}
     \circuitdesc*{european not port}{European \textsc{not} port}{}
+    \circuitdesc*{european blank port}{European blank port}{A}
+    \circuitdesc*{european blank not port}{European blank not port}{B}
 \end{groupdesc}
 
 \begin{framed}
@@ -6767,7 +6769,30 @@ The anchors for the tgate's control point are called \texttt{gate} and \texttt{n
 
 \subsubsection{European logic port usage}
 
-European logic port are the same class as american and IEEE-style ones, and they obey the same class modifier. Moreover, you can use the \texttt{no inputs pin} as in the other logic ports to suppress input pins.
+European logic port are in the same class as american and IEEE-style ones, and they obey the same class modifier. Moreover, you can use the \texttt{no inputs pin} as in the other logic ports to suppress input pins.
+
+The standard text inside the port does not rotate (not flip) with the component\footnote{since \texttt{1.6.4}, thanks to a suggestion by \href{https://github.com/circuitikz/circuitikz/issues/730}{user \texttt{@sputeanus} on GitHub}.}, but you can change the font (and color and so on) with the key \texttt{european ports font} (default nothing, which means it uses the standard font and color).
+For more complex customization, you can use the two ``blank'' European ports, and add the text you want on them.
+
+\begin{LTXexample}[varwidth=true, basicstyle=\small\ttfamily]
+\begin{tikzpicture}
+    \ctikzset{
+        logic ports=european,
+        logic ports origin=center,
+        logic ports/scale=1.5,
+        tripoles/european not symbol=ieee circle,
+    }
+    % Draw the Nand with big AND symbol
+    \ctikzset{european ports font=\Huge\color{red}}
+    \draw(0,0) node [nand port, rotate=90,
+        number inputs=4]{};
+    \draw(3,0) node [nand port, xscale=-1]{};
+    % the un-rotation is not automatic for node text!
+    \draw(0,-3) node [blank port, rotate=90,
+        ]{\rotatebox{-90}{\Huge ?}};
+    \draw(3,-3) node [blank not port, xscale=-1]{?};
+\end{tikzpicture}
+\end{LTXexample}
 
 \paragraph{European logic port customization} Normally the European-style logic port with inverted output are marked with a small triangle; if you want you can change it with the key \texttt{tripoles/european not symbol}; its default is \texttt{triangle} but you can set it to \texttt{circle} like in the following example. As you can see, the circle size is the same as the circuit poles; if you prefer the size used in the IEEE standard ports, you can use set it to \texttt{ieee circle}.
 
