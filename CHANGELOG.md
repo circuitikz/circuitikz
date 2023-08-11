@@ -3,6 +3,10 @@ The major changes among the different CircuiTikZ versions are listed here. See <
 
 * Version 1.6.4 (unreleased)
 
+    A bit of enhancement and fixes for the European-style logic ports.
+
+    - The symbol in european logic ports is now rotation-invariant, and its font can be customizable (suggested by [user `@sputeanus` on GitHub](https://github.com/circuitikz/circuitikz/issues/730))
+    - Added a couple of "blank" (no symbol) European logic ports
     - Documentation fixes
 
 * Version 1.6.3 (2023-06-23)
