@@ -5,7 +5,7 @@ The major changes among the different CircuiTikZ versions are listed here. See <
 
     A bit of enhancement and fixes for the European-style logic ports.
 
-    - The symbol in european logic ports is now rotation-invariant, and its font can be customizable (suggested by [user `@sputeanus` on GitHub](https://github.com/circuitikz/circuitikz/issues/730))
+    - The symbol in European logic ports is now rotation-invariant, and its font can be customized (suggested by [user `@sputeanus` on GitHub](https://github.com/circuitikz/circuitikz/issues/730))
     - Added a couple of "blank" (no symbol) European logic ports
     - Documentation fixes
 
@@ -17,7 +17,7 @@ The major changes among the different CircuiTikZ versions are listed here. See <
     - Change the definition of the "minus" symbol (see [this issue](https://github.com/circuitikz/circuitikz/issues/721)) for details
     - Add documentation on how to contact the border of the source symbols (suggested by [user `@Tipounk` on GitHub](https://github.com/circuitikz/circuitikz/issues/722))
     - in transistors, solder dots and connection dots for body diodes [are now configurable](https://github.com/circuitikz/circuitikz/issues/720)
-    - Add anchors for the symbols on the `oo`-type sources, suggested [by user @lapreindl on GitHub](https://github.com/circuitikz/circuitikz/issues/725); the symbols have been slightly changed and repositioned in the process
+    - Add anchors for the symbols on the `oo`-type sources, suggested by [user `@lapreindl` on GitHub](https://github.com/circuitikz/circuitikz/issues/725); the symbols have been slightly changed and repositioned in the process
     - several documentation fixes
 
 * Version 1.6.2 (2023-05-13)
