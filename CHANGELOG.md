@@ -3,10 +3,12 @@ The major changes among the different CircuiTikZ versions are listed here. See <
 
 * Version 1.6.4 (unreleased)
 
-    A bit of enhancement and fixes for the European-style logic ports.
+    A bit of enhancement and fixes for the European-style logic ports, more switches (and a bit more configurability).
 
     - The symbol in European logic ports is now rotation-invariant, and its font can be customized (suggested by [user `@sputeanus` on GitHub](https://github.com/circuitikz/circuitikz/issues/730))
     - Added a couple of "blank" (no symbol) European logic ports
+    - Added for new "traditional" switches (contributed by Jakob "DraUX" on GitHub)(https://github.com/circuitikz/circuitikz/issues/734)
+    - Added configurability (color, thickness, dash) to switch arrows
     - Documentation fixes
 
 * Version 1.6.3 (2023-06-23)
