@@ -1884,6 +1884,7 @@
 \ctikzset{bipoles/vsourceam/height/.initial=.60}
 \ctikzset{bipoles/vsourceam/width/.initial=.60}
 \ctikzset{bipoles/vsourceam/margin/.initial=.7}
+\ctikzset{bipoles/isourcesin/angle/.initial=90}
 \ctikzset{bipoles/isourcesin/height/.initial=.60}
 \ctikzset{bipoles/isourcesin/width/.initial=.60}
 \ctikzset{bipoles/vsourcesin/height/.initial=.60}
@@ -2815,7 +2816,7 @@
     \endpgfscope
 }
 
-%% Independent sinusoidal current source
+%% Independent sinusoidal current source with open shape
 \pgfcircdeclarebipolescaled{sources}
 {}
 {\ctikzvalof{bipoles/isource/height}}
@@ -2825,8 +2826,16 @@
 {
     \pgfpointorigin
     \pgf@circ@setlinewidth{bipoles}{\pgfstartlinewidth}
-    \pgfpathellipse{\pgfpointorigin}{\pgfpoint{0}{\pgf@circ@res@up}}{\pgfpoint{\pgf@circ@res@left}{0}}
-    \pgf@circ@draworfill
+    \pgfscope
+        \pgfpathellipse{\pgfpointorigin}{\pgfpoint{0}{\pgf@circ@res@up}}{\pgfpoint{\pgf@circ@res@left}{0}}
+        \pgf@circ@maybefill
+    \endpgfscope
+    \edef\@@angle{\ctikzvalof{bipoles/isourcesin/angle}}
+    \pgfpathmoveto{\pgfpointpolar{\@@angle}{\pgf@circ@res@up}}
+    \pgfpatharc{\@@angle}{-\@@angle}{\pgf@circ@res@up}
+    \pgfpathmoveto{\pgfpointpolar{180-\@@angle}{\pgf@circ@res@up}}
+    \pgfpatharc{180-\@@angle}{180+\@@angle}{\pgf@circ@res@up}
+    \pgfusepath{draw}
 
     \pgf@circ@res@up = .5\pgf@circ@res@up
     \pgfscope

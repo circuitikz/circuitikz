@@ -9,6 +9,7 @@ The major changes among the different CircuiTikZ versions are listed here. See <
     - Added a couple of "blank" (no symbol) European logic ports
     - Added for new "traditional" switches (contributed by Jakob "DraUX" on GitHub)(https://github.com/circuitikz/circuitikz/issues/734)
     - Added configurability (color, thickness, dash) to switch arrows
+    - Added configurable open shape to the sinusoidal current source (contributed by [Maximilian Martin](https://github.com/circuitikz/circuitikz/pull/737))
     - Documentation fixes
 
 * Version 1.6.3 (2023-06-23)
