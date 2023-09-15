@@ -1,0 +1,2298 @@
+% Copyright 2018-2023 by Romano Giannetti
+% Copyright 2015-2023 by Stefan Lindner
+% Copyright 2013-2023 by Stefan Erhardt
+% Copyright 2007-2023 by Massimo Redaelli
+%
+% This file may be distributed and/or modified
+%
+% 1. under the LaTeX Project Public License and/or
+% 2. under the GNU Public License.
+%
+% See the files gpl-3.0_license.txt and lppl-1-3c_license.txt for more details.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Chips and Rotary Switches
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% Definitions for Chips and Rotary switches (multipoles) %<<<1
+%
+\ctikzset{multipoles/thickness/.initial=2}
+\ctikzset{multipoles/font/.initial=\pgf@circ@font@tiny}
+\ctikzset{multipoles/draw only pins/.initial={all}}
+\ctikzset{multipoles/draw only left pins/.initial={all}}
+\ctikzset{multipoles/draw only right pins/.initial={all}}
+\ctikzset{multipoles/draw only top pins/.initial={all}}
+\ctikzset{multipoles/draw only bottom pins/.initial={all}}
+\pgfqkeys{/tikz}{draw only pins/.add code={}{\ctikzset{multipoles/draw only pins={#1}}}}
+\pgfqkeys{/tikz}{draw only left pins/.add code={}{\ctikzset{multipoles/draw only left pins={#1}}}}
+\pgfqkeys{/tikz}{draw only right pins/.add code={}{\ctikzset{multipoles/draw only right pins={#1}}}}
+\pgfqkeys{/tikz}{draw only top pins/.add code={}{\ctikzset{multipoles/draw only top pins={#1}}}}
+\pgfqkeys{/tikz}{draw only bottom pins/.add code={}{\ctikzset{multipoles/draw only bottom pins={#1}}}}
+% DIP (dual in line package) chips
+\ctikzset{multipoles/dipchip/width/.initial=1.2}
+\ctikzset{multipoles/dipchip/num pins/.initial=8}
+\ctikzset{multipoles/dipchip/pin spacing/.initial=0.4}
+\pgfkeys{/tikz/num pins/.add code={}{\ctikzset{multipoles/dipchip/num pins=#1}}}
+% QFP (quad flat package) chips
+\ctikzset{multipoles/qfpchip/num pins/.initial=8}
+\ctikzset{multipoles/qfpchip/pin spacing/.initial=0.4}
+\pgfkeys{/tikz/num pins/.add code={}{\ctikzset{multipoles/qfpchip/num pins=#1}}}
+% chip numbers
+\newif\ifpgf@circuit@chip@shownumbers\pgf@circuit@chip@shownumberstrue
+\pgfkeys{/tikz/show numbers/.add code={}{\pgf@circuit@chip@shownumberstrue}}
+\ctikzset{show numbers/.add code={}{\pgf@circuit@chip@shownumberstrue}}
+\pgfkeys{/tikz/hide numbers/.add code={}{\pgf@circuit@chip@shownumbersfalse}}
+\ctikzset{hide numbers/.add code={}{\pgf@circuit@chip@shownumbersfalse}}
+\newif\ifpgf@circuit@chip@straightnumbers\pgf@circuit@chip@straightnumberstrue
+\pgfkeys{/tikz/straight numbers/.add code={}{\pgf@circuit@chip@straightnumberstrue}}
+\ctikzset{straight numbers/.add code={}{\pgf@circuit@chip@straightnumberstrue}}
+\pgfkeys{/tikz/rotated numbers/.add code={}{\pgf@circuit@chip@straightnumbersfalse}}
+\ctikzset{rotated numbers/.add code={}{\pgf@circuit@chip@straightnumbersfalse}}
+% external chip pins
+\ctikzset{multipoles/external pins thickness/.initial=1}
+\ctikzset{multipoles/external pins width/.initial=0.2}
+\ctikzset{multipoles/external pad fraction/.initial=0}
+\pgfkeys{/tikz/external pins width/.add code={}{\ctikzset{multipoles/external pins width=#1}}}
+\pgfkeys{/tikz/external pad fraction/.add code={}{\ctikzset{multipoles/external pad fraction=#1}}}
+% topmarks
+\newif\ifpgf@circuit@chip@topmark\pgf@circuit@chip@topmarktrue
+\pgfkeys{/tikz/topmark/.add code={}{\pgf@circuit@chip@topmarktrue}}
+\ctikzset{topmark/.add code={}{\pgf@circuit@chip@topmarktrue}}
+\pgfkeys{/tikz/no topmark/.add code={}{\pgf@circuit@chip@topmarkfalse}}
+\ctikzset{no topmark/.add code={}{\pgf@circuit@chip@topmarkfalse}}
+
+% rotary switch by Romano
+\ctikzset{multipoles/rotary/thickness/.initial=1}
+\ctikzset{multipoles/rotary/shape/.initial=ocirc}
+\ctikzset{multipoles/rotary/channels/.initial=5}
+\ctikzset{multipoles/rotary/angle/.initial=60}
+\ctikzset{multipoles/rotary/wiper/.initial=20}
+\ctikzset{multipoles/rotary/arrow/.is choice}
+\newif\ifpgf@circ@rotaryarrow\pgf@circ@rotaryarrowfalse
+\newif\ifpgf@circ@rotaryarrow@cw\pgf@circ@rotaryarrow@cwfalse
+\newif\ifpgf@circ@rotaryarrow@ccw\pgf@circ@rotaryarrow@ccwfalse
+\ctikzset{multipoles/rotary/arrow/none/.code={\pgf@circ@rotaryarrowfalse\pgf@circ@rotaryarrow@cwfalse\pgf@circ@rotaryarrow@ccwfalse}}
+\ctikzset{multipoles/rotary/arrow/both/.code={\pgf@circ@rotaryarrowtrue\pgf@circ@rotaryarrow@cwtrue\pgf@circ@rotaryarrow@ccwtrue}}
+\ctikzset{multipoles/rotary/arrow/cw/.code={\pgf@circ@rotaryarrowtrue\pgf@circ@rotaryarrow@cwtrue\pgf@circ@rotaryarrow@ccwfalse}}
+\ctikzset{multipoles/rotary/arrow/ccw/.code={\pgf@circ@rotaryarrowtrue\pgf@circ@rotaryarrow@cwfalse\pgf@circ@rotaryarrow@ccwtrue}}
+
+\tikzset{%
+    rotary switch/.style args={#1in#2wiper#3}{%
+        shape=rotaryswitch,
+        /tikz/circuitikz/multipoles/rotary/channels=#1,
+        /tikz/circuitikz/multipoles/rotary/angle=#2,
+        /tikz/circuitikz/multipoles/rotary/wiper=#3,
+    },
+    rotary switch -/.style args={#1in#2wiper#3}{
+        rotary switch=#1 in #2 wiper #3,
+        /tikz/circuitikz/multipoles/rotary/arrow=none,
+    },
+    rotary switch <-/.style args={#1in#2wiper#3}{
+        rotary switch=#1 in #2 wiper #3,
+        /tikz/circuitikz/multipoles/rotary/arrow=ccw,
+    },
+    rotary switch ->/.style args={#1in#2wiper#3}{
+        rotary switch=#1 in #2 wiper #3,
+        /tikz/circuitikz/multipoles/rotary/arrow=cw,
+    },
+    rotary switch <->/.style args={#1in#2wiper#3}{
+        rotary switch=#1 in #2 wiper #3,
+        /tikz/circuitikz/multipoles/rotary/arrow=both,
+    },
+    % Notice that these should be the same as the initial values of the keys
+    rotary switch/.default={5 in 60 wiper 20},
+    rotary switch -/.default={5 in 60 wiper 20},
+    rotary switch <-/.default={5 in 60 wiper 20},
+    rotary switch ->/.default={5 in 60 wiper 20},
+    rotary switch <->/.default={5 in 60 wiper 20},
+}
+%%>>>
+
+%% Nodes definitions for chips%<<<
+
+%%%%%%%%%
+%% Chips
+%%%%%%%%%
+
+% let's use the same shifts everywhere, no magic numbers
+\def\pgf@circ@dip@pin@shift{0.5}
+\def\pgf@circ@qfp@pin@shift{0.25}
+
+% derived from https://tex.stackexchange.com/a/146753/38080
+% original author Mark Wibrow
+% Thanks also to John Kormylo https://tex.stackexchange.com/a/372996/38080
+% a lot of thanks to @marmot  for the un-rotation hint
+% https://tex.stackexchange.com/a/473571/38080
+% modifications for 'draw only pins' by Jonathan P. Spratte
+
+% DIP (dual in line package) chips
+
+% helper macro to set the anchors inside a loop (to expand the current count)
+\pgfutil@protected\def\pgf@circ@make@dippin@anchor#1%
+  {%
+    \expandafter\gdef\csname pgf@anchor@dipchip@pin #1\endcsname
+      {%
+        \pgf@circ@if@num@in@list\pgf@circ@pins@list{#1}
+          {\pgf@circ@dippinanchor{#1}{1}}
+          {\pgf@circ@dippinanchor{#1}{0}}%
+      }%
+    \expandafter\gdef\csname pgf@anchor@dipchip@bpin #1\endcsname
+      {\pgf@circ@dippinanchor{#1}{0}}%
+  }
+
+\pgfdeclareshape{dipchip}{
+    \savedmacro{\ctikzclass}{\edef\ctikzclass{chips}}
+    \saveddimen{\scaledRlen}{\pgfmathsetlength{\pgf@x}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}}
+    \savedmacro\numpins{%
+            \pgf@circ@count@a=\ctikzvalof{multipoles/dipchip/num pins}%
+            \def\numpins{\the\pgf@circ@count@a}
+    }
+    \savedmacro\pgf@circ@pins@list
+      {%
+        \pgfkeysgetvalue
+          {\circuitikzbasekey/multipoles/draw only pins}\pgf@circ@temp
+        \expandafter\pgf@circ@set@list
+          \expandafter\pgf@circ@pins@list
+          \expandafter{\pgf@circ@temp}%
+      }%
+    \savedanchor\centerpoint{%
+        \pgf@x=-.5\wd\pgfnodeparttextbox%
+        \pgf@y=-.5\ht\pgfnodeparttextbox%
+        \advance\pgf@y by+.5\dp\pgfnodeparttextbox%
+    }%
+    \savedanchor\origin{\pgfpoint{0pt}{0pt}}
+    \anchor{center}{\origin}
+    \anchor{text}{\centerpoint}% to adjust text
+    \saveddimen\height{%
+        \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
+        \pgfmathsetlength\pgf@x{((\numpins)
+        *\ctikzvalof{multipoles/dipchip/pin spacing})*\pgf@circ@scaled@Rlen/2}%
+    }%
+    \saveddimen{\chipspacing}{
+        \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
+        \pgfmathsetlength\pgf@x{\pgf@circ@scaled@Rlen*\ctikzvalof{multipoles/dipchip/pin spacing}}}
+    \saveddimen{\width}{
+        \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
+        \pgfmathsetlength\pgf@x{\pgf@circ@scaled@Rlen*\ctikzvalof{multipoles/dipchip/width}}}
+    \saveddimen{\extshift}{
+        \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
+        \pgfmathsetlength\pgf@x{\pgf@circ@scaled@Rlen*\ctikzvalof{multipoles/external pins width}}}
+    % standard anchors
+    \savedanchor\northwest{%
+        \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
+        \pgfmathsetlength\pgf@y{0.5*((\numpins)
+        *\ctikzvalof{multipoles/dipchip/pin spacing})*\pgf@circ@scaled@Rlen/2}%
+        \pgfmathsetlength\pgf@x{-0.5*\pgf@circ@scaled@Rlen*\ctikzvalof{multipoles/dipchip/width}}
+    }
+    \anchor{dot}{\northwest
+        \pgfmathsetlength\pgf@x{\pgf@x + 0.3*\chipspacing}
+        \pgfmathsetlength\pgf@y{\pgf@y - 0.3*\chipspacing}
+    }
+    \anchor{nw}{\northwest}
+    \anchor{ne}{\northwest\pgf@x=-\pgf@x}
+    \anchor{se}{\northwest\pgf@x=-\pgf@x\pgf@y=-\pgf@y}
+    \anchor{sw}{\northwest\pgf@y=-\pgf@y}
+    \anchor{north west}{\northwest}
+    \anchor{north east}{\northwest\pgf@x=-\pgf@x}
+    \anchor{south east}{\northwest\pgf@x=-\pgf@x \pgf@y=-\pgf@y}
+    \anchor{south west}{\northwest\pgf@y=-\pgf@y}
+    \anchor{n}{\northwest\pgf@x=0pt }
+    \anchor{e}{\northwest\pgf@x=-\pgf@x\pgf@y=0pt }
+    \anchor{s}{\northwest\pgf@x=0pt\pgf@y=-\pgf@y}
+    \anchor{w}{\northwest\pgf@y=0pt }
+    \anchor{north}{\northwest\pgf@x=0pt }
+    \anchor{east}{\northwest\pgf@x=-\pgf@x\pgf@y=0pt }
+    \anchor{south}{\northwest\pgf@x=0pt\pgf@y=-\pgf@y}
+    \anchor{west}{\northwest\pgf@y=0pt }
+    % start drawing
+    \pgf@circ@draw@component{%
+        \northwest
+        \pgf@circ@res@up = \pgf@y
+        \pgf@circ@res@down = -\pgf@y
+        \pgf@circ@res@right = -\pgf@x
+        \pgf@circ@res@left = \pgf@x
+        \pgf@circ@scaled@Rlen=\scaledRlen
+        \pgf@circ@res@step = \ctikzvalof{multipoles/dipchip/pin spacing}\pgf@circ@scaled@Rlen
+        \pgf@circ@res@other = \ctikzvalof{multipoles/external pins width}\pgf@circ@scaled@Rlen
+        \pgfscope% (for the line width)
+        \pgf@circ@setlinewidth{multipoles}{\pgflinewidth}
+        \pgfpathrectanglecorners{\pgfpoint{-\width/2}{-\height/2}}{\pgfpoint{\width/2}{\height/2}}%
+        \pgf@circ@draworfill
+        %% upside mark
+        \ifpgf@circuit@chip@topmark
+            \pgfpathmoveto{\pgfpoint{0.2*\pgf@circ@res@left}{\pgf@circ@res@up}}
+            \pgfpatharc{0}{180}{0.2*\pgf@circ@res@left}
+        \fi
+        \pgfusepath{stroke}%
+        \pgf@circ@setcolor
+        % Adding the pin number
+        \ifpgf@circuit@chip@shownumbers
+            \pgf@circ@count@a=\numpins\relax
+            \divide\pgf@circ@count@a by 2 \pgf@circ@count@b=\pgf@circ@count@a
+            % thanks to @marmot: https://tex.stackexchange.com/a/473571/38080
+            \ifpgf@circuit@chip@straightnumbers
+                \pgfgettransformentries\a\b\temp\temp\temp\temp
+                \pgfmathsetmacro{\rot}{-atan2(\b,\a)}
+                \pgfmathtruncatemacro{\quadrant}{mod(4+int(360+(\rot+45)/90),4)}
+            \else
+                \pgfmathsetmacro{\rot}{0}
+                \pgfmathsetmacro{\quadrant}{0}
+            \fi
+            \def\pgf@circ@strut{\vrule width 0pt height 1em depth 0.4em\relax}
+            \pgfscope\pgf@circ@text@strokecolor
+            \def\mytext{\ctikzvalof{multipoles/font}\space\pgf@circ@strut\the\pgf@circ@count@c\space}
+            \pgfmathloop%
+            \ifnum\pgf@circ@count@a>0
+                \ifcase\quadrant % rotation 0
+                    % left
+                    \pgf@circ@count@c=\pgf@circ@count@a
+                    \pgftext[left,
+                        at=\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@up+(\pgf@circ@dip@pin@shift-\the\pgf@circ@count@a)*\pgf@circ@res@step},
+                        rotate=\rot]{\mytext}
+                    % right
+                    \pgf@circ@count@c=\numexpr2*\pgf@circ@count@b-\pgf@circ@count@a+1\relax
+                    \pgftext[right,
+                        at=\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@up+(\pgf@circ@dip@pin@shift-\the\pgf@circ@count@a)*\pgf@circ@res@step},
+                        rotate=\rot]{\mytext}
+                \or % rotation -90
+                    % left
+                    \pgf@circ@count@c=\pgf@circ@count@a
+                    \pgftext[top,
+                        at=\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@up+(\pgf@circ@dip@pin@shift-\the\pgf@circ@count@a)*\pgf@circ@res@step},
+                        rotate=\rot]{\mytext}
+                    % right
+                    \pgf@circ@count@c=\numexpr2*\pgf@circ@count@b-\pgf@circ@count@a+1\relax
+                    \pgftext[bottom,
+                        at=\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@up+(\pgf@circ@dip@pin@shift-\the\pgf@circ@count@a)*\pgf@circ@res@step},
+                        rotate=\rot]{\mytext}
+                \or %rotation 180
+                    % left
+                    \pgf@circ@count@c=\pgf@circ@count@a
+                    \pgftext[right,
+                        at=\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@up+(\pgf@circ@dip@pin@shift-\the\pgf@circ@count@a)*\pgf@circ@res@step},
+                        rotate=\rot]{\mytext}
+                    % right
+                    \pgf@circ@count@c=\numexpr2*\pgf@circ@count@b-\pgf@circ@count@a+1\relax
+                    \pgftext[left,
+                        at=\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@up+(\pgf@circ@dip@pin@shift-\the\pgf@circ@count@a)*\pgf@circ@res@step},
+                        rotate=\rot]{\mytext}
+                \or % rotation +90
+                    % left
+                    \pgf@circ@count@c=\pgf@circ@count@a
+                    \pgftext[bottom,
+                        at=\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@up+(\pgf@circ@dip@pin@shift-\the\pgf@circ@count@a)*\pgf@circ@res@step},
+                        rotate=\rot]{\mytext}
+                    % right
+                    \pgf@circ@count@c=\numexpr2*\pgf@circ@count@b-\pgf@circ@count@a+1\relax
+                    \pgftext[top,
+                        at=\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@up+(\pgf@circ@dip@pin@shift-\the\pgf@circ@count@a)*\pgf@circ@res@step},
+                        rotate=\rot]{\mytext}
+                \fi
+                \advance\pgf@circ@count@a-1\relax%
+                \repeatpgfmathloop
+                \endpgfscope % for color of text
+            \fi
+            \endpgfscope
+            % draw external pins or pads
+            \ifdim\pgf@circ@res@other>0pt
+            \ifpgfcirc@draw@input@leads
+            \pgfscope
+                \pgfsetlinewidth{\ctikzvalof{multipoles/external pins thickness}\pgflinewidth}
+                \pgf@circ@count@a=\numpins\relax
+                \divide\pgf@circ@count@a by 2 \pgf@circ@count@b=\pgf@circ@count@a
+                \edef\padfrac{\ctikzvalof{multipoles/external pad fraction}}
+                \ifnum\padfrac>0
+                    \pgf@circ@res@temp=\pgf@circ@res@step\divide\pgf@circ@res@temp by \padfrac
+                \fi
+                \pgfmathloop%
+                \ifnum\pgf@circ@count@a>0
+                    % left side
+                    \pgf@circ@if@num@in@list\pgf@circ@pins@list\pgf@circ@count@a
+                      {%
+                        \ifnum\padfrac>0
+                          % pads
+                          \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@temp+\pgf@circ@res@up+(\pgf@circ@dip@pin@shift-\the\pgf@circ@count@a)*\pgf@circ@res@step}}
+                          \pgfpathlineto{\pgfpoint{\pgf@circ@res@left-\pgf@circ@res@other}{\pgf@circ@res@temp+\pgf@circ@res@up+(\pgf@circ@dip@pin@shift-\the\pgf@circ@count@a)*\pgf@circ@res@step}}
+                          \pgfpathlineto{\pgfpoint{\pgf@circ@res@left-\pgf@circ@res@other}{-\pgf@circ@res@temp+\pgf@circ@res@up+(\pgf@circ@dip@pin@shift-\the\pgf@circ@count@a)*\pgf@circ@res@step}}
+                          \pgfpathlineto{\pgfpoint{\pgf@circ@res@left}{-\pgf@circ@res@temp+\pgf@circ@res@up+(\pgf@circ@dip@pin@shift-\the\pgf@circ@count@a)*\pgf@circ@res@step}}
+                        \else
+                          % pins
+                          \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@up+(\pgf@circ@dip@pin@shift-\the\pgf@circ@count@a)*\pgf@circ@res@step}}
+                          \pgfpathlineto{\pgfpoint{\pgf@circ@res@left-\pgf@circ@res@other}{\pgf@circ@res@up+(\pgf@circ@dip@pin@shift-\the\pgf@circ@count@a)*\pgf@circ@res@step}}
+                        \fi
+                      }
+                      {}%
+                    % right side
+                    \pgf@circ@if@num@in@list\pgf@circ@pins@list{\numpins+1-\pgf@circ@count@a}
+                      {%
+                        \ifnum\padfrac>0
+                          % pads
+                          \pgfpathmoveto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@temp+\pgf@circ@res@up+(\pgf@circ@dip@pin@shift-\the\pgf@circ@count@a)*\pgf@circ@res@step}}
+                          \pgfpathlineto{\pgfpoint{\pgf@circ@res@right+\pgf@circ@res@other}{\pgf@circ@res@temp+\pgf@circ@res@up+(\pgf@circ@dip@pin@shift-\the\pgf@circ@count@a)*\pgf@circ@res@step}}
+                          \pgfpathlineto{\pgfpoint{\pgf@circ@res@right+\pgf@circ@res@other}{-\pgf@circ@res@temp+\pgf@circ@res@up+(\pgf@circ@dip@pin@shift-\the\pgf@circ@count@a)*\pgf@circ@res@step}}
+                          \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{-\pgf@circ@res@temp+\pgf@circ@res@up+(\pgf@circ@dip@pin@shift-\the\pgf@circ@count@a)*\pgf@circ@res@step}}
+                        \else
+                          % pins
+                          \pgfpathmoveto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@up+(\pgf@circ@dip@pin@shift-\the\pgf@circ@count@a)*\pgf@circ@res@step}}
+                          \pgfpathlineto{\pgfpoint{\pgf@circ@res@right+\pgf@circ@res@other}{\pgf@circ@res@up+(\pgf@circ@dip@pin@shift-\the\pgf@circ@count@a)*\pgf@circ@res@step}}
+                        \fi
+                      }
+                      {}%
+                    \advance\pgf@circ@count@a by -1\relax%
+                \repeatpgfmathloop
+                \pgfusepath{stroke}
+            \endpgfscope
+            \fi
+            \fi
+        }%
+        \pgfutil@g@addto@macro\pgf@sh@s@dipchip{%
+          \pgf@circ@count@a=\numpins
+          \pgfmathloop
+            \ifnum\pgf@circ@count@a>0
+            % we will create two anchors per pin: the "normal one" like `pin 1` for the
+            % electrical contact, and the "border one" like `bpin 1` for labels.
+            % they will coincide if `external pins width` is set to 0.
+            % see the helper function above the start of the shape definition (by Jonathan P. Spratte)
+            \expandafter\pgf@circ@make@dippin@anchor\expandafter{\the\pgf@circ@count@a}%
+            \advance\pgf@circ@count@a by -1\relax
+          \repeatpgfmathloop
+        }%
+        }
+
+% QFP (quad flat package) chips
+% helper macro to set the anchors inside a loop (to expand the current count)
+\pgfutil@protected\def\pgf@circ@make@qfppin@anchor#1%
+  {%
+    \expandafter\gdef\csname pgf@anchor@qfpchip@pin #1\endcsname
+      {%
+        \pgf@circ@if@num@in@list\pgf@circ@pins@list{#1}
+          {\pgf@circ@qfppinanchor{#1}{1}}
+          {\pgf@circ@qfppinanchor{#1}{0}}%
+      }%
+    \expandafter\gdef\csname pgf@anchor@qfpchip@bpin #1\endcsname
+      {\pgf@circ@qfppinanchor{#1}{0}}%
+  }
+
+\pgfdeclareshape{qfpchip}{
+    \savedmacro{\ctikzclass}{\edef\ctikzclass{chips}}
+    \saveddimen{\scaledRlen}{\pgfmathsetlength{\pgf@x}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}}
+    \savedmacro\numpins{%
+            \pgf@circ@count@a=\ctikzvalof{multipoles/qfpchip/num pins}%
+            \def\numpins{\the\pgf@circ@count@a}
+    }
+    \savedmacro\pgf@circ@pins@list
+      {% some magic here, thanks to Jonathan P. Spratte
+        \pgfkeysgetvalue
+          {\circuitikzbasekey/multipoles/draw only pins}\pgf@circ@temp
+        \expandafter\pgf@circ@set@list
+          \expandafter\pgf@circ@pins@list
+          \expandafter{\pgf@circ@temp}%
+      }%
+    \savedanchor\centerpoint{%
+        \pgf@x=-.5\wd\pgfnodeparttextbox%
+        \pgf@y=-.5\ht\pgfnodeparttextbox%
+        \advance\pgf@y by+.5\dp\pgfnodeparttextbox%
+    }%
+    \savedanchor\origin{\pgfpoint{0pt}{0pt}}
+    \anchor{center}{\origin}
+    \anchor{text}{\centerpoint}% to adjust text
+    \saveddimen\height{%
+        \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
+        \pgfmathsetlength\pgf@x{((\numpins+2)
+        *\ctikzvalof{multipoles/qfpchip/pin spacing})*\pgf@circ@scaled@Rlen/4}%
+    }%
+    \saveddimen\width{%
+        \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
+        \pgfmathsetlength\pgf@x{((\numpins+2)
+        *\ctikzvalof{multipoles/qfpchip/pin spacing})*\pgf@circ@scaled@Rlen/4}%
+    }%
+    \saveddimen{\chipspacing}{
+        \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
+        \pgfmathsetlength\pgf@x{\pgf@circ@scaled@Rlen*\ctikzvalof{multipoles/qfpchip/pin spacing}}}
+    \saveddimen{\extshift}{
+        \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
+        \pgfmathsetlength\pgf@x{\pgf@circ@scaled@Rlen*\ctikzvalof{multipoles/external pins width}}}
+    % standard anchors
+    \savedanchor\northwest{%
+        \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
+        \pgfmathsetlength\pgf@y{0.5*((\numpins+2)
+        *\ctikzvalof{multipoles/qfpchip/pin spacing})*\pgf@circ@scaled@Rlen/4}%
+        \pgf@x=-\pgf@y
+    }
+    \anchor{dot}{\northwest
+        \pgfmathsetlength\pgf@x{\pgf@x + 0.3*\chipspacing}
+        \pgfmathsetlength\pgf@y{\pgf@y - 0.3*\chipspacing}
+    }
+    \anchor{nw}{\northwest}
+    \anchor{ne}{\northwest\pgf@x=-\pgf@x}
+    \anchor{se}{\northwest\pgf@x=-\pgf@x\pgf@y=-\pgf@y}
+    \anchor{sw}{\northwest\pgf@y=-\pgf@y}
+    \anchor{north west}{\northwest}
+    \anchor{north east}{\northwest\pgf@x=-\pgf@x}
+    \anchor{south east}{\northwest\pgf@x=-\pgf@x \pgf@y=-\pgf@y}
+    \anchor{south west}{\northwest\pgf@y=-\pgf@y}
+    \anchor{n}{\northwest\pgf@x=0pt }
+    \anchor{e}{\northwest\pgf@x=-\pgf@x\pgf@y=0pt }
+    \anchor{s}{\northwest\pgf@x=0pt\pgf@y=-\pgf@y}
+    \anchor{w}{\northwest\pgf@y=0pt }
+    \anchor{north}{\northwest\pgf@x=0pt }
+    \anchor{east}{\northwest\pgf@x=-\pgf@x\pgf@y=0pt }
+    \anchor{south}{\northwest\pgf@x=0pt\pgf@y=-\pgf@y}
+    \anchor{west}{\northwest\pgf@y=0pt }
+    % start drawing
+    \pgf@circ@draw@component{%
+        \northwest
+        \pgf@circ@res@up = \pgf@y
+        \pgf@circ@res@down = -\pgf@y
+        \pgf@circ@res@right = -\pgf@x
+        \pgf@circ@res@left = \pgf@x
+        \pgf@circ@scaled@Rlen=\scaledRlen
+        \pgf@circ@res@step = \ctikzvalof{multipoles/qfpchip/pin spacing}\pgf@circ@scaled@Rlen
+        \pgf@circ@res@other = \ctikzvalof{multipoles/external pins width}\pgf@circ@scaled@Rlen
+        \pgfscope% (for the line width)
+        \pgf@circ@setlinewidth{multipoles}{\pgflinewidth}
+        %% upside mark
+        \ifpgf@circuit@chip@topmark
+            \pgfpathmoveto{\pgfpoint{-\width/2}{\height/2-\pgf@circ@res@step/2}}
+            \pgfpathlineto{\pgfpoint{-\width/2+\pgf@circ@res@step/2}{\height/2}}
+        \else
+            \pgfpathmoveto{\pgfpoint{-\width/2}{\height/2}}
+        \fi
+        %% rest of the shape
+        \pgfpathlineto{\pgfpoint{\width/2}{\height/2}}
+        \pgfpathlineto{\pgfpoint{\width/2}{-\height/2}}
+        \pgfpathlineto{\pgfpoint{-\width/2}{-\height/2}}
+        \pgfpathclose
+        \pgf@circ@draworfill
+        % Adding the pin number
+        \pgf@circ@setcolor
+        \ifpgf@circuit@chip@shownumbers
+            \pgf@circ@count@a=\numpins%
+            \divide\pgf@circ@count@a by 4 \pgf@circ@count@b=\pgf@circ@count@a
+            % thanks to @marmot: https://tex.stackexchange.com/a/473571/38080
+            \ifpgf@circuit@chip@straightnumbers
+                \pgfgettransformentries\a\b\temp\temp\temp\temp
+                \pgfmathsetmacro{\rot}{-atan2(\b,\a)}
+                \pgfmathtruncatemacro{\quadrant}{mod(4+int(360+(\rot+45)/90),4)}
+            \else
+                \pgfmathsetmacro{\rot}{0}
+                \pgfmathsetmacro{\quadrant}{0}
+            \fi
+            \def\pgf@circ@strut{\vrule width 0pt height 1em depth 0.4em\relax}
+            \def\mytext{\ctikzvalof{multipoles/font}\space\pgf@circ@strut\the\pgf@circ@count@c\space}
+            \pgfscope\pgf@circ@text@strokecolor
+            \pgfmathloop%
+            \ifnum\pgf@circ@count@a>0
+                \ifcase\quadrant % rotation 0
+                    % left
+                    \pgf@circ@count@c=\pgf@circ@count@a
+                    \pgftext[left,
+                        at=\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@up+(\pgf@circ@qfp@pin@shift-\the\pgf@circ@count@a)*\pgf@circ@res@step},
+                        rotate=\rot]{\mytext}
+                    % bottom
+                    \pgf@circ@count@c=\numexpr\pgf@circ@count@b+\pgf@circ@count@a\relax
+                    \pgftext[bottom,
+                        at=\pgfpoint{\pgf@circ@res@left-(\pgf@circ@qfp@pin@shift-\the\pgf@circ@count@a)*\pgf@circ@res@step}{\pgf@circ@res@down},
+                        rotate=\rot]{\mytext}
+                    % right
+                    \pgf@circ@count@c=\numexpr3*\pgf@circ@count@b-\pgf@circ@count@a+1\relax
+                    \pgftext[right,
+                        at=\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@up+(\pgf@circ@qfp@pin@shift-\the\pgf@circ@count@a)*\pgf@circ@res@step},
+                        rotate=\rot]{\mytext}
+                    % top
+                    \pgf@circ@count@c=\numexpr3*\pgf@circ@count@b+\pgf@circ@count@a\relax
+                    \pgftext[top,
+                        at=\pgfpoint{\pgf@circ@res@right+(\pgf@circ@qfp@pin@shift-\the\pgf@circ@count@a)*\pgf@circ@res@step}{\pgf@circ@res@up},
+                        rotate=\rot]{\mytext}
+                \or % rotation -90
+                    % left
+                    \pgf@circ@count@c=\pgf@circ@count@a
+                    \pgftext[top,
+                        at=\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@up+(\pgf@circ@qfp@pin@shift-\the\pgf@circ@count@a)*\pgf@circ@res@step},
+                        rotate=\rot]{\mytext}
+                    % bottom
+                    \pgf@circ@count@c=\numexpr\pgf@circ@count@b+\pgf@circ@count@a\relax
+                    \pgftext[left,
+                        at=\pgfpoint{\pgf@circ@res@left-(\pgf@circ@qfp@pin@shift-\the\pgf@circ@count@a)*\pgf@circ@res@step}{\pgf@circ@res@down},
+                        rotate=\rot]{\mytext}
+                    % right
+                    \pgf@circ@count@c=\numexpr3*\pgf@circ@count@b-\pgf@circ@count@a+1\relax
+                    \pgftext[bottom,
+                        at=\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@up+(\pgf@circ@qfp@pin@shift-\the\pgf@circ@count@a)*\pgf@circ@res@step},
+                        rotate=\rot]{\mytext}
+                    % top
+                    \pgf@circ@count@c=\numexpr3*\pgf@circ@count@b+\pgf@circ@count@a\relax
+                    \pgftext[right,
+                        at=\pgfpoint{\pgf@circ@res@right+(\pgf@circ@qfp@pin@shift-\the\pgf@circ@count@a)*\pgf@circ@res@step}{\pgf@circ@res@up},
+                        rotate=\rot]{\mytext}
+                \or %rotation 180
+                    % left
+                    \pgf@circ@count@c=\pgf@circ@count@a
+                    \pgftext[right,
+                        at=\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@up+(\pgf@circ@qfp@pin@shift-\the\pgf@circ@count@a)*\pgf@circ@res@step},
+                        rotate=\rot]{\mytext}
+                    % bottom
+                    \pgf@circ@count@c=\numexpr\pgf@circ@count@b+\pgf@circ@count@a\relax
+                    \pgftext[top,
+                        at=\pgfpoint{\pgf@circ@res@left-(\pgf@circ@qfp@pin@shift-\the\pgf@circ@count@a)*\pgf@circ@res@step}{\pgf@circ@res@down},
+                        rotate=\rot]{\mytext}
+                    % right
+                    \pgf@circ@count@c=\numexpr3*\pgf@circ@count@b-\pgf@circ@count@a+1\relax
+                    \pgftext[left,
+                        at=\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@up+(\pgf@circ@qfp@pin@shift-\the\pgf@circ@count@a)*\pgf@circ@res@step},
+                        rotate=\rot]{\mytext}
+                    % top
+                    \pgf@circ@count@c=\numexpr3*\pgf@circ@count@b+\pgf@circ@count@a\relax
+                    \pgftext[bottom,
+                        at=\pgfpoint{\pgf@circ@res@right+(\pgf@circ@qfp@pin@shift-\the\pgf@circ@count@a)*\pgf@circ@res@step}{\pgf@circ@res@up},
+                        rotate=\rot]{\mytext}
+                \or % rotation +90
+                    % left
+                    \pgf@circ@count@c=\pgf@circ@count@a
+                    \pgftext[bottom,
+                        at=\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@up+(\pgf@circ@qfp@pin@shift-\the\pgf@circ@count@a)*\pgf@circ@res@step},
+                        rotate=\rot]{\mytext}
+                    % bottom
+                    \pgf@circ@count@c=\numexpr\pgf@circ@count@b+\pgf@circ@count@a\relax
+                    \pgftext[right,
+                        at=\pgfpoint{\pgf@circ@res@left-(\pgf@circ@qfp@pin@shift-\the\pgf@circ@count@a)*\pgf@circ@res@step}{\pgf@circ@res@down},
+                        rotate=\rot]{\mytext}
+                    % right
+                    \pgf@circ@count@c=\numexpr3*\pgf@circ@count@b-\pgf@circ@count@a+1\relax
+                    \pgftext[top,
+                        at=\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@up+(\pgf@circ@qfp@pin@shift-\the\pgf@circ@count@a)*\pgf@circ@res@step},
+                        rotate=\rot]{\mytext}
+                    % top
+                    \pgf@circ@count@c=\numexpr3*\pgf@circ@count@b+\pgf@circ@count@a\relax
+                    \pgftext[left,
+                        at=\pgfpoint{\pgf@circ@res@right+(\pgf@circ@qfp@pin@shift-\the\pgf@circ@count@a)*\pgf@circ@res@step}{\pgf@circ@res@up},
+                        rotate=\rot]{\mytext}
+                \fi
+                \advance\pgf@circ@count@a-1\relax%
+                \repeatpgfmathloop
+                \endpgfscope % for the text labels
+            \fi
+            \endpgfscope
+            \ifdim\pgf@circ@res@other>0pt
+            \ifpgfcirc@draw@input@leads
+            \pgfscope
+                \pgfsetlinewidth{\ctikzvalof{multipoles/external pins thickness}\pgflinewidth}
+                \pgf@circ@count@a=\numpins%
+                \divide\pgf@circ@count@a by 4 \pgf@circ@count@b=\pgf@circ@count@a
+                \pgfmathloop%
+                \ifnum\pgf@circ@count@a>0
+                    \edef\padfrac{\ctikzvalof{multipoles/external pad fraction}}
+                    \ifnum\padfrac>0
+                        \pgf@circ@res@temp=\pgf@circ@res@step\divide\pgf@circ@res@temp by \padfrac
+                        % left side pads
+                        \pgf@circ@if@num@in@list\pgf@circ@pins@list\pgf@circ@count@a
+                        {%
+                            \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@temp+\pgf@circ@res@up+(\pgf@circ@qfp@pin@shift-\the\pgf@circ@count@a)*\pgf@circ@res@step}}
+                            \pgfpathlineto{\pgfpoint{\pgf@circ@res@left-\pgf@circ@res@other}{\pgf@circ@res@temp+\pgf@circ@res@up+(\pgf@circ@qfp@pin@shift-\the\pgf@circ@count@a)*\pgf@circ@res@step}}
+                            \pgfpathlineto{\pgfpoint{\pgf@circ@res@left-\pgf@circ@res@other}{-\pgf@circ@res@temp+\pgf@circ@res@up+(\pgf@circ@qfp@pin@shift-\the\pgf@circ@count@a)*\pgf@circ@res@step}}
+                            \pgfpathlineto{\pgfpoint{\pgf@circ@res@left}{-\pgf@circ@res@temp+\pgf@circ@res@up+(\pgf@circ@qfp@pin@shift-\the\pgf@circ@count@a)*\pgf@circ@res@step}}
+                        }{}%
+                        % bottom side pads
+                        \pgf@circ@if@num@in@list\pgf@circ@pins@list{\numpins/4+\pgf@circ@count@a}
+                        {%
+                            \pgfpathmoveto{\pgfpoint{-\pgf@circ@res@temp+\pgf@circ@res@left-(\pgf@circ@qfp@pin@shift-\the\pgf@circ@count@a)*\pgf@circ@res@step}{\pgf@circ@res@down}}
+                            \pgfpathlineto{\pgfpoint{-\pgf@circ@res@temp+\pgf@circ@res@left-(\pgf@circ@qfp@pin@shift-\the\pgf@circ@count@a)*\pgf@circ@res@step}{\pgf@circ@res@down-\pgf@circ@res@other}}
+                            \pgfpathlineto{\pgfpoint{\pgf@circ@res@temp+\pgf@circ@res@left-(\pgf@circ@qfp@pin@shift-\the\pgf@circ@count@a)*\pgf@circ@res@step}{\pgf@circ@res@down-\pgf@circ@res@other}}
+                            \pgfpathlineto{\pgfpoint{\pgf@circ@res@temp+\pgf@circ@res@left-(\pgf@circ@qfp@pin@shift-\the\pgf@circ@count@a)*\pgf@circ@res@step}{\pgf@circ@res@down}}
+                        }{}%
+                        % right side pads
+                        \pgf@circ@if@num@in@list\pgf@circ@pins@list{3*\numpins/4+1-\pgf@circ@count@a}
+                        {%
+                            \pgfpathmoveto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@temp+\pgf@circ@res@up+(\pgf@circ@qfp@pin@shift-\the\pgf@circ@count@a)*\pgf@circ@res@step}}
+                            \pgfpathlineto{\pgfpoint{\pgf@circ@res@right+\pgf@circ@res@other}{\pgf@circ@res@temp+\pgf@circ@res@up+(\pgf@circ@qfp@pin@shift-\the\pgf@circ@count@a)*\pgf@circ@res@step}}
+                            \pgfpathlineto{\pgfpoint{\pgf@circ@res@right+\pgf@circ@res@other}{-\pgf@circ@res@temp+\pgf@circ@res@up+(\pgf@circ@qfp@pin@shift-\the\pgf@circ@count@a)*\pgf@circ@res@step}}
+                            \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{-\pgf@circ@res@temp+\pgf@circ@res@up+(\pgf@circ@qfp@pin@shift-\the\pgf@circ@count@a)*\pgf@circ@res@step}}
+                        }{}%
+                        % top side pads
+                        \pgf@circ@if@num@in@list\pgf@circ@pins@list{3*\numpins/4+\pgf@circ@count@a}
+                        {%
+                            \pgfpathmoveto{\pgfpoint{\pgf@circ@res@temp+\pgf@circ@res@right+(\pgf@circ@qfp@pin@shift-\the\pgf@circ@count@a)*\pgf@circ@res@step}{\pgf@circ@res@up}}
+                            \pgfpathlineto{\pgfpoint{\pgf@circ@res@temp+\pgf@circ@res@right+(\pgf@circ@qfp@pin@shift-\the\pgf@circ@count@a)*\pgf@circ@res@step}{\pgf@circ@res@up+\pgf@circ@res@other}}
+                            \pgfpathlineto{\pgfpoint{-\pgf@circ@res@temp+\pgf@circ@res@right+(\pgf@circ@qfp@pin@shift-\the\pgf@circ@count@a)*\pgf@circ@res@step}{\pgf@circ@res@up+\pgf@circ@res@other}}
+                            \pgfpathlineto{\pgfpoint{-\pgf@circ@res@temp+\pgf@circ@res@right+(\pgf@circ@qfp@pin@shift-\the\pgf@circ@count@a)*\pgf@circ@res@step}{\pgf@circ@res@up}}
+                        }{}%
+                    \else
+                        % left side pins
+                        \pgf@circ@if@num@in@list\pgf@circ@pins@list\pgf@circ@count@a
+                        {%
+                            \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@up+(\pgf@circ@qfp@pin@shift-\the\pgf@circ@count@a)*\pgf@circ@res@step}}
+                            \pgfpathlineto{\pgfpoint{\pgf@circ@res@left-\pgf@circ@res@other}{\pgf@circ@res@up+(\pgf@circ@qfp@pin@shift-\the\pgf@circ@count@a)*\pgf@circ@res@step}}
+                        }{}%
+                        % bottom side pins
+                        \pgf@circ@if@num@in@list\pgf@circ@pins@list{\numpins/4+\pgf@circ@count@a}
+                        {%
+                            \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left-(\pgf@circ@qfp@pin@shift-\the\pgf@circ@count@a)*\pgf@circ@res@step}{\pgf@circ@res@down}}
+                            \pgfpathlineto{\pgfpoint{\pgf@circ@res@left-(\pgf@circ@qfp@pin@shift-\the\pgf@circ@count@a)*\pgf@circ@res@step}{\pgf@circ@res@down-\pgf@circ@res@other}}
+                        }{}%
+                        % right side pins
+                        \pgf@circ@if@num@in@list\pgf@circ@pins@list{3*\numpins/4+1-\pgf@circ@count@a}
+                        {%
+                            \pgfpathmoveto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@up+(\pgf@circ@qfp@pin@shift-\the\pgf@circ@count@a)*\pgf@circ@res@step}}
+                            \pgfpathlineto{\pgfpoint{\pgf@circ@res@right+\pgf@circ@res@other}{\pgf@circ@res@up+(\pgf@circ@qfp@pin@shift-\the\pgf@circ@count@a)*\pgf@circ@res@step}}
+                        }{}%
+                        % top side pins
+                        \pgf@circ@if@num@in@list\pgf@circ@pins@list{3*\numpins/4+\pgf@circ@count@a}
+                        {%
+                            \pgfpathmoveto{\pgfpoint{\pgf@circ@res@right+(\pgf@circ@qfp@pin@shift-\the\pgf@circ@count@a)*\pgf@circ@res@step}{\pgf@circ@res@up}}
+                            \pgfpathlineto{\pgfpoint{\pgf@circ@res@right+(\pgf@circ@qfp@pin@shift-\the\pgf@circ@count@a)*\pgf@circ@res@step}{\pgf@circ@res@up+\pgf@circ@res@other}}
+                        }{}%
+                    \fi
+                    \advance\pgf@circ@count@a-1\relax%
+                \repeatpgfmathloop
+                \pgfusepath{stroke}
+            \endpgfscope
+            \fi
+            \fi
+        }%
+        % \pgf@sh@s@<name of the shape here> contains all the code for the shape
+        % and is executed just before a node is drawn.
+        \pgfutil@g@addto@macro\pgf@sh@s@qfpchip{%
+            % Start with the maximum pin number and go backwards.
+            \pgf@circ@count@a=\numpins%
+            \pgfmathloop%
+            \ifnum\pgf@circ@count@a>0
+                \expandafter\pgf@circ@make@qfppin@anchor\expandafter{\the\pgf@circ@count@a}%
+                \advance\pgf@circ@count@a-1\relax%
+            \repeatpgfmathloop%
+            }%
+        }
+
+%% anchors for DIP
+\def\pgf@circ@dippinanchor#1#2{% #1: pin number #2: 0 for border pin, 1 for external pin
+    \c@pgf@countc=\numpins\relax
+    \divide\c@pgf@countc by 2
+    \ifnum #1 > \the\c@pgf@countc
+        % right side
+        \pgfpoint{\width/2+#2*\extshift}{-\height/2+(\pgf@circ@dip@pin@shift-\c@pgf@countc+#1-1)*\chipspacing}
+    \else
+        \pgfpoint{-\width/2-#2*\extshift}{\height/2+(\pgf@circ@dip@pin@shift-#1)*\chipspacing}
+\fi
+}
+
+%% anchors for QFP
+\def\pgf@circ@qfppinanchor#1#2{% #1: pin number #2: 0 for border pin, 1 for external pin
+    \c@pgf@countc=\numpins\relax
+    \divide\c@pgf@countc by 4
+    \ifnum #1 > \the\c@pgf@countc
+        \c@pgf@countb=\c@pgf@countc \multiply \c@pgf@countb by 2
+        \ifnum #1 > \the\c@pgf@countb
+            \c@pgf@countb=\c@pgf@countc \multiply \c@pgf@countb by 3
+            \ifnum #1 > \the\c@pgf@countb
+                % 3*npins/4 < pin, top side
+                \pgfpoint{\width/2+(\pgf@circ@qfp@pin@shift+\c@pgf@countb-#1)*\chipspacing}{\height/2+#2*\extshift}%
+            \else
+                % 2*npins/4 < pin <= 3*npins/4, right side
+                \pgfpoint{\width/2+#2*\extshift}{\height/2+(\pgf@circ@qfp@pin@shift-\c@pgf@countb+#1-1)*\chipspacing}%
+            \fi
+        \else
+            %  npins/4 < pin <= 2*npins/4, bottom side
+            \pgfpoint{\width/2+(\pgf@circ@qfp@pin@shift-\c@pgf@countb+#1-1)*\chipspacing}{-\height/2-#2*\extshift}%
+        \fi
+    \else
+        % <= npins/4, left side
+        \pgfpoint{-\width/2-#2*\extshift}{\height/2+(\pgf@circ@qfp@pin@shift-#1)*\chipspacing}%
+    \fi
+}% %>>>
+
+%% Nodes definition for rotaryswitch%<<<
+
+%%%%%%%%%%%%%%%%%
+%% Rotary Switch
+%%%%%%%%%%%%%%%%%
+
+\pgfdeclareshape{rotaryswitch}
+{
+    \savedmacro{\ctikzclass}{\edef\ctikzclass{switches}}
+    \saveddimen{\scaledRlen}{\pgfmathsetlength{\pgf@x}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}}
+    \savedanchor\northeast{%
+        \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
+        % this strange value makes the 2-pole rotary switch equal to the 2 poles cute spdt
+        % the magic number is 0.25/cos(35)
+        % try to recalculate it for the actual switch
+        \pgf@circ@res@temp=\ctikzvalof{tripoles/spdt/width}\pgf@circ@scaled@Rlen
+        \pgf@circ@res@temp=.3052\pgf@circ@res@temp
+        \edef\a{\ctikzvalof{multipoles/rotary/angle}}
+        \edef\r{\ctikzvalof{nodes width}}
+        \pgfmathsetlength{\pgf@y}{\r*\pgf@circ@scaled@Rlen +(\a>90 ? 2 : 2*sin(\a))*\pgf@circ@res@temp}
+        \pgfmathsetlength{\pgf@x}{\r*\pgf@circ@scaled@Rlen + \pgf@circ@res@temp}
+    }
+    \savedanchor\northwest{%
+        \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
+        % this strange value makes the 2-pole rotary switch equal to the 2 poles cute spdt
+        % the magic number is 0.25/cos(35)
+        % try to recalculate it for the actual switch
+        \pgf@circ@res@temp=\ctikzvalof{tripoles/spdt/width}\pgf@circ@scaled@Rlen
+        \pgf@circ@res@temp=.3052\pgf@circ@res@temp
+        \edef\a{\ctikzvalof{multipoles/rotary/angle}}
+        \edef\r{\ctikzvalof{nodes width}}
+        \pgfmathsetlength{\pgf@y}{\r*\pgf@circ@scaled@Rlen +(\a>90 ? 2 : 2*sin(\a))*\pgf@circ@res@temp}
+        \pgfmathsetlength{\pgf@x}{-\r*\pgf@circ@scaled@Rlen - (\a<90 ? 1 : 1-2*cos(\a))*\pgf@circ@res@temp}
+    }
+    \savedanchor\central{%
+        \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
+        % this strange value makes the 2-pole rotary switch equal to the 2 poles cute spdt
+        % the magic number is 0.25/cos(35)
+        % try to recalculate it for the actual switch
+        \pgf@circ@res@temp=\ctikzvalof{tripoles/spdt/width}\pgf@circ@scaled@Rlen
+        \pgf@circ@res@temp=.3052\pgf@circ@res@temp
+        \edef\a{\ctikzvalof{multipoles/rotary/angle}}
+        \edef\r{\ctikzvalof{nodes width}}
+        \pgfmathsetlength{\pgf@y}{\r*\pgf@circ@scaled@Rlen +(\a>90 ? 2 : 2*sin(\a))*\pgf@circ@res@temp}
+        \pgfmathsetlength{\pgf@x}{(\a<90 ? 0 : cos(\a))*\pgf@circ@res@temp}
+    }
+    % external square limits
+    \savedanchor\extnorthwest{%
+        \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
+        \pgf@x=-\ctikzvalof{tripoles/spdt/width}\pgf@circ@scaled@Rlen
+        % this strange value makes the 2-pole rotary switch equal to the 2 poles cute spdt
+        \pgf@x=.3052\pgf@x % the magic number is 0.25/cos(35)
+        \pgf@x=2.5\pgf@x % external square size
+        \pgf@y=-\pgf@x %square thing when angle=180?
+    }
+    \saveddimen{\width}{
+        \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
+        \pgfmathsetlength\pgf@x{0.3052*\pgf@circ@scaled@Rlen*\ctikzvalof{tripoles/spdt/width}}}
+    % radius of the connector
+    % This is the radius of the "ocirc" shape (see pgfcircshapes.tex)
+    \saveddimen{\radius}{\pgfmathsetlength\pgf@x{\pgf@circ@Rlen*\ctikzvalof{nodes width}}}
+    % shapename
+    \savedmacro{\thisshape}{\def\thisshape{\tikz@fig@name}}
+    % shape type
+    \savedmacro{\cshape}{\def\cshape{\ctikzvalof{multipoles/rotary/shape}}}
+    \savedmacro{\channels}{\def\channels{\ctikzvalof{multipoles/rotary/channels}}}
+    \savedmacro{\angle}{\def\angle{\ctikzvalof{multipoles/rotary/angle}}}
+    \savedmacro{\wiper}{\def\wiper{\ctikzvalof{multipoles/rotary/wiper}}}
+    \savedmacro{\stepa}{\pgfmathsetmacro{\stepa}{2*\ctikzvalof{multipoles/rotary/angle}/(\ctikzvalof{multipoles/rotary/channels}-1)}}
+    % mid of the lever, to stack switches
+    %\anchor{mid}{\midlever}
+    \anchor{mid}{\northwest
+        \pgf@circ@res@temp=-\pgf@x
+        \pgfmathsetlength{\pgf@x}{\pgf@circ@res@temp*(-1+cos(\wiper))}
+        \pgfmathsetlength{\pgf@y}{\pgf@circ@res@temp*sin(\wiper)}
+    }
+    %
+    % Notice that the "in" anchors must mimic "ext center", otherwise they are
+    % wrong for angles > 90 degrees!
+    %
+    % center anchors
+    \anchor{cin}{ \pgf@y=0pt \pgf@x=0pt \advance\pgf@x by -\width}
+    % horizontal angles
+    \anchor{in}{ \pgf@y=0pt \pgf@x=0pt \advance\pgf@x by -\width \advance\pgf@x by -\radius}
+    \anchor{ain}{ \pgf@y=0pt \pgf@x=0pt \advance\pgf@x by -\width \advance\pgf@x by -\radius}
+
+    \anchor{center}{ \central \pgf@y=0pt }
+    \anchor{east}{ \northeast \pgf@y=0pt }
+    \anchor{west}{ \northwest \pgf@y=0pt }
+    \anchor{south}{ \central \pgf@y=-\pgf@y }
+    \anchor{north}{ \central }
+    \anchor{south west}{ \northwest \pgf@y=-\pgf@y }
+    \anchor{north east}{ \northeast }
+    \anchor{north west}{ \northwest }
+    \anchor{south east}{ \northeast \pgf@y=-\pgf@y }
+
+    \anchor{ext center}{ \pgf@y=0pt \pgf@x=0pt \advance\pgf@x by -\width}
+    \anchor{ext east}{ \extnorthwest \pgf@y=0pt \pgf@x=-\pgf@x \advance\pgf@x by -\width}
+    \anchor{ext west}{ \extnorthwest \pgf@y=0pt \advance\pgf@x by -\width}
+    \anchor{ext south}{ \extnorthwest \pgf@x=0pt \pgf@y=-\pgf@y \advance\pgf@x by -\width}
+    \anchor{ext north}{ \extnorthwest \pgf@x=0pt \advance\pgf@x by -\width}
+    \anchor{ext south west}{ \extnorthwest \pgf@y=-\pgf@y \advance\pgf@x by -\width}
+    \anchor{ext north east}{ \extnorthwest \pgf@x=-\pgf@x \advance\pgf@x by -\width}
+    \anchor{ext north west}{ \extnorthwest \advance\pgf@x by -\width}
+    \anchor{ext south east}{ \extnorthwest \pgf@x=-\pgf@x \pgf@y=-\pgf@y \advance\pgf@x by -\width}
+
+    \pgf@circ@draw@component{
+        \pgf@circ@setcolor
+        \pgf@circ@res@right = \width
+        \pgf@circ@res@left = -\width
+
+        \pgfscope %wiper
+        % This is the radius of the "ocirc" shape (see pgfcircshapes.tex)
+        \pgf@circ@res@temp=\radius\relax
+        \pgf@circ@res@temp=\ctikzvalof{multipoles/rotary/thickness}\pgf@circ@res@temp
+        \pgfsetlinewidth{2\pgf@circ@res@temp}
+        \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{0pt}}
+        \pgfpathlineto{\pgfpointadd{\pgfpoint{\pgf@circ@res@left}{0pt}}{\pgfpointpolar{\wiper}{2\pgf@circ@res@right}}}
+        \pgfsetroundcap\pgfusepath{draw}
+        \endpgfscope
+
+        \ifpgf@circ@rotaryarrow
+            \pgfscope % arrow
+                \pgfcirc@set@arrows{switch}{\ifpgf@circ@rotaryarrow@ccw latexslim\fi}{\ifpgf@circ@rotaryarrow@cw latexslim\fi}
+                \pgf@circ@setlinewidth{bipoles}{\pgflinewidth}
+                \pgftransformshift{\pgfpoint{\pgf@circ@res@left}{0pt}} % center of cin node
+                \pgftransformrotate{\wiper}
+                \pgfpathmoveto{\pgfpointpolar{50}{1.0\pgf@circ@res@right}}
+                \pgfpatharc{50}{-50}{1.0\pgf@circ@res@right}
+                \ifpgf@circ@rotaryarrow@ccw
+                    \ifpgf@circ@rotaryarrow@cw
+                        % both here, maintain values
+                        \relax
+                    \else
+                        % only ccw: remove end arrow
+                        \pgfsetarrowsend{}
+                    \fi
+                \else
+                    \ifpgf@circ@rotaryarrow@cw
+                        % only cw: remove start arrow
+                        \pgfsetarrowsstart{}
+                    \else
+                        % none: shouldn't happen
+                        \relax
+                    \fi
+                \fi
+                \pgfusepath{draw}
+            \endpgfscope
+        \fi
+
+        % \typeout{CHANNELS\space\channels\space ANGLE\space\angle STEPA\space\stepa}
+        \pgf@circ@count@a=\channels\relax
+        \pgfmathsetmacro{\currenta}{-\angle}
+        \pgfmathloop%
+        \ifnum\pgf@circ@count@a>0
+            % \typeout{LOOPIN\space\space\the\pgf@circ@count@a\space CURRENTA\space\currenta\space RIGHT\space\the\pgf@circ@res@right}
+            \pgfscope
+                \pgftransformshift{\pgfpointadd{\pgfpoint{\pgf@circ@res@left}{0pt}}{\pgfpointpolar{\currenta}{2\pgf@circ@res@right}}}
+                \pgfnode{\cshape}{center}{}{\thisshape-out \the\pgf@circ@count@a}{\pgfusepath{stroke}}
+            \endpgfscope
+            \pgfmathsetmacro{\currenta}{\currenta+\stepa}
+            % \typeout{LOOPOUT\space\the\pgf@circ@count@a\space CURRENTA\space\currenta\space RIGHT\space\the\pgf@circ@res@right}
+            \advance\pgf@circ@count@a by -1\relax%
+        \repeatpgfmathloop
+
+        \pgfscope % input
+        \pgftransformshift{\pgfpoint{\pgf@circ@res@left}{0pt}}
+        \pgfnode{\cshape}{center}{}{\thisshape-in}{\pgfusepath{stroke}}
+        \endpgfscope
+    }
+    % \pgf@sh@s@<name of the shape here> contains all the code for the shape
+    % and is executed just before a node is drawn.
+    \pgfutil@g@addto@macro\pgf@sh@s@rotaryswitch{%
+        % Start with the maximum pin number and go backwards.
+        \pgf@circ@count@a=\channels\relax
+        \pgfmathloop%
+        \ifnum\pgf@circ@count@a>0
+        % we will create two anchors per pin: the "normal one" like `pin 1` for the
+        % electrical contact, and the "border one" like `bpin 1` for labels.
+        % they will coincide if `external pins width` is set to 0.
+        \expandafter\xdef\csname pgf@anchor@rotaryswitch@out\space\the\pgf@circ@count@a\endcsname{%
+            \noexpand\pgf@circ@rotaryanchor{\the\pgf@circ@count@a}{1}{0}%
+        }
+        \expandafter\xdef\csname pgf@anchor@rotaryswitch@cout\space\the\pgf@circ@count@a\endcsname{%
+            \noexpand\pgf@circ@rotaryanchor{\the\pgf@circ@count@a}{0}{0}%
+        }
+        \expandafter\xdef\csname pgf@anchor@rotaryswitch@aout\space\the\pgf@circ@count@a\endcsname{%
+            \noexpand\pgf@circ@rotaryanchor{\the\pgf@circ@count@a}{0}{1}%
+        }
+        \expandafter\xdef\csname pgf@anchor@rotaryswitch@sqout\space\the\pgf@circ@count@a\endcsname{%
+            \noexpand\pgf@circ@rotarysqanchor{\the\pgf@circ@count@a}%
+        }
+        \advance\pgf@circ@count@a by -1\relax%
+        \repeatpgfmathloop%
+    }%
+}
+
+\def\pgf@circ@rotaryanchor#1#2#3{% #1: numero del pin; #2: 1 - x pos, 0 - center; #3 0: inner, 1 outer
+    \pgf@circ@res@temp=\width
+    \pgfmathsetmacro{\myangle}{\angle-(#1-1)*\stepa}
+    \pgfmathsetlength{\pgf@x}{2*(\pgf@circ@res@temp+#3*\radius/2)*cos(\myangle))+#2*\radius}
+    \pgfmathsetlength{\pgf@y}{2*(\pgf@circ@res@temp+#3*\radius/2)*sin(\myangle)}
+    \advance\pgf@x by -\pgf@circ@res@temp
+}
+
+\def\pgf@circ@rotarysqanchor#1{% external square anchors
+    \pgf@circ@res@temp=\width
+    \pgfmathsetmacro{\myangle}{\angle-(#1-1)*\stepa}
+    \pgfpointborderrectangle{\pgfpointpolar{\myangle}{1pt}}{\pgfpoint{2.5\pgf@circ@res@temp}{2.5\pgf@circ@res@temp}}
+    \advance\pgf@x by -\pgf@circ@res@temp
+}% %>>>
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Seven segments displays
+%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% Definitions for seven segment displays by RGtti%<<<1
+
+\newif\ifpgf@circ@sevenseg@dot
+\newif\ifpgf@circ@sevenseg@box
+\def\pgf@circ@sevenseg@dotstate{empty}
+\ctikzset{seven seg/.is family}
+\ctikzset{seven seg/dot/.is choice}
+% none means no dot, not space for it. Empty means no dot, but space
+\ctikzset{seven seg/dot/none/.code={\pgf@circ@sevenseg@dotfalse}}
+\ctikzset{seven seg/dot/empty/.code={\pgf@circ@sevenseg@dottrue\def\pgf@circ@sevenseg@dotstate{empty}}}
+\ctikzset{seven seg/dot/off/.code={\pgf@circ@sevenseg@dottrue\def\pgf@circ@sevenseg@dotstate{off}}}
+\ctikzset{seven seg/dot/on/.code={\pgf@circ@sevenseg@dottrue\def\pgf@circ@sevenseg@dotstate{on}}}
+%
+\ctikzset{seven seg/width/.initial=0.4}% relative to \pgf@circ@Rlen
+\ctikzset{seven seg/thickness/.initial=4pt}% segment thickness
+\ctikzset{seven seg/segment sep/.initial=0.2pt}% gap between segments
+\ctikzset{seven seg/box sep/.initial=1pt}% external box gap
+\ctikzset{seven seg/color on/.initial=red}% color for segment "on"
+\ctikzset{seven seg/color off/.initial=gray!20!white} % ...and "off"
+\ctikzset{seven seg/box/.is choice}
+\ctikzset{seven seg/box/off/.code={\pgf@circ@sevenseg@boxfalse}}
+\ctikzset{seven seg/box/on/.code={\pgf@circ@sevenseg@boxtrue}}
+
+\ctikzset{seven seg/bits/.initial=0000000}
+
+\ctikzset{seven seg/value/.code={%
+    \edef\@@tmp{#1}%
+    \edef\@@n{0} \ifx\@@tmp\@@n\relax\ctikzset{seven seg/bits=1111110}\fi
+    \edef\@@n{1} \ifx\@@tmp\@@n\relax\ctikzset{seven seg/bits=0110000}\fi
+    \edef\@@n{2} \ifx\@@tmp\@@n\relax\ctikzset{seven seg/bits=1101101}\fi
+    \edef\@@n{3} \ifx\@@tmp\@@n\relax\ctikzset{seven seg/bits=1111001}\fi
+    \edef\@@n{4} \ifx\@@tmp\@@n\relax\ctikzset{seven seg/bits=0110011}\fi
+    \edef\@@n{5} \ifx\@@tmp\@@n\relax\ctikzset{seven seg/bits=1011011}\fi
+    \edef\@@n{6} \ifx\@@tmp\@@n\relax\ctikzset{seven seg/bits=1011111}\fi
+    \edef\@@n{7} \ifx\@@tmp\@@n\relax\ctikzset{seven seg/bits=1110000}\fi
+    \edef\@@n{8} \ifx\@@tmp\@@n\relax\ctikzset{seven seg/bits=1111111}\fi
+    \edef\@@n{9} \ifx\@@tmp\@@n\relax\ctikzset{seven seg/bits=1111011}\fi
+    \edef\@@n{10}\ifx\@@tmp\@@n\relax\ctikzset{seven seg/bits=1110111}\fi
+    \edef\@@n{11}\ifx\@@tmp\@@n\relax\ctikzset{seven seg/bits=0011111}\fi
+    \edef\@@n{12}\ifx\@@tmp\@@n\relax\ctikzset{seven seg/bits=1001110}\fi
+    \edef\@@n{13}\ifx\@@tmp\@@n\relax\ctikzset{seven seg/bits=0111101}\fi
+    \edef\@@n{14}\ifx\@@tmp\@@n\relax\ctikzset{seven seg/bits=1001111}\fi
+    \edef\@@n{15}\ifx\@@tmp\@@n\relax\ctikzset{seven seg/bits=1000111}\fi
+    \edef\@@n{A} \ifx\@@tmp\@@n\relax\ctikzset{seven seg/bits=1110111}\fi
+    \edef\@@n{B} \ifx\@@tmp\@@n\relax\ctikzset{seven seg/bits=0011111}\fi
+    \edef\@@n{C} \ifx\@@tmp\@@n\relax\ctikzset{seven seg/bits=1001110}\fi
+    \edef\@@n{D} \ifx\@@tmp\@@n\relax\ctikzset{seven seg/bits=0111101}\fi
+    \edef\@@n{E} \ifx\@@tmp\@@n\relax\ctikzset{seven seg/bits=1001111}\fi
+    \edef\@@n{F} \ifx\@@tmp\@@n\relax\ctikzset{seven seg/bits=1000111}\fi
+    \edef\@@n{a} \ifx\@@tmp\@@n\relax\ctikzset{seven seg/bits=1110111}\fi
+    \edef\@@n{b} \ifx\@@tmp\@@n\relax\ctikzset{seven seg/bits=0011111}\fi
+    \edef\@@n{c} \ifx\@@tmp\@@n\relax\ctikzset{seven seg/bits=1001110}\fi
+    \edef\@@n{d} \ifx\@@tmp\@@n\relax\ctikzset{seven seg/bits=0111101}\fi
+    \edef\@@n{e} \ifx\@@tmp\@@n\relax\ctikzset{seven seg/bits=1001111}\fi
+    \edef\@@n{f} \ifx\@@tmp\@@n\relax\ctikzset{seven seg/bits=1000111}\fi
+    \edef\@@n{-} \ifx\@@tmp\@@n\relax\ctikzset{seven seg/bits=0000001}\fi
+}}
+
+\tikzset{%
+    seven segment val/.style args={#1dot#2box#3}{%
+        shape=bare7seg,
+        /tikz/circuitikz/seven seg/value=#1,
+        /tikz/circuitikz/seven seg/dot=#2,
+        /tikz/circuitikz/seven seg/box=#3,
+    },
+    seven segment bits/.style args={#1dot#2box#3}{%
+        shape=bare7seg,
+        /tikz/circuitikz/seven seg/bits=#1,
+        /tikz/circuitikz/seven seg/dot=#2,
+        /tikz/circuitikz/seven seg/box=#3,
+    },
+}
+%%>>>
+
+%% Nodes definitions for 7-segment display%<<<
+\pgfdeclareshape{bare7seg}{
+    \savedmacro{\ctikzclass}{\edef\ctikzclass{displays}}
+    \saveddimen{\scaledRlen}{\pgfmathsetlength{\pgf@x}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}}
+    \savedmacro{\dotstatus}{\edef\dotstatus{\pgf@circ@sevenseg@dotstate}}
+    \saveddimen{\dotspace}{% the dot is on the right, and occupy the same as the thickness
+        \ifpgf@circ@sevenseg@dot
+            \pgfmathsetlength{\pgf@x}{\ctikzvalof{seven seg/thickness}}
+        \else
+            \pgf@x=0pt
+        \fi
+    }
+    % The object extension is more or less (-width/2,-width) to (width/2,width)
+    % and adjusted for line thickness (both sides) and eventually the dot
+    \saveddimen{\width}{
+        \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
+        \pgfmathsetlength{\pgf@x}{\ctikzvalof{seven seg/width}*\pgf@circ@scaled@Rlen}}
+    \saveddimen{\gap}{\pgfmathsetlength{\pgf@x}{\ctikzvalof{seven seg/segment sep}}}
+    \saveddimen{\boxgap}{\pgfmathsetlength{\pgf@x}{\ctikzvalof{seven seg/box sep}}}
+    \savedanchor{\southwest}{% both negative
+        \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
+        \pgfmathsetlength{\pgf@x}{-0.5*\ctikzvalof{seven seg/width}*\pgf@circ@scaled@Rlen
+        -0.5*\ctikzvalof{seven seg/thickness}-\ctikzvalof{seven seg/box sep}}
+        \pgfmathsetlength{\pgf@y}{-\ctikzvalof{seven seg/width}*\pgf@circ@scaled@Rlen
+        -0.5*\ctikzvalof{seven seg/thickness}-\ctikzvalof{seven seg/box sep}}
+    }
+    \savedanchor{\northeast}{% both positive
+        \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
+        \ifpgf@circ@sevenseg@dot
+            \pgfmathsetlength{\pgf@circ@res@other}{\ctikzvalof{seven seg/thickness}}
+        \else
+            \pgf@circ@res@other=0pt
+        \fi
+        \pgfmathsetlength{\pgf@x}{0.5*\ctikzvalof{seven seg/width}*\pgf@circ@scaled@Rlen
+        +0.5*\ctikzvalof{seven seg/thickness}+\pgf@circ@res@other+\ctikzvalof{seven seg/box sep}}
+        \pgfmathsetlength{\pgf@y}{\ctikzvalof{seven seg/width}*\pgf@circ@scaled@Rlen
+        +0.5*\ctikzvalof{seven seg/thickness}+\ctikzvalof{seven seg/box sep}}
+    }
+    \savedanchor{\topright}{% anchor without the box sep and the thickness
+        \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
+        \pgfmathsetlength{\pgf@x}{0.5*\ctikzvalof{seven seg/width}*\pgf@circ@scaled@Rlen}
+        \pgfmathsetlength{\pgf@y}{\ctikzvalof{seven seg/width}*\pgf@circ@scaled@Rlen}
+    }
+    \anchor{center}{\pgfpointorigin}
+    \anchor{north west}{\southwest\pgf@y=-\pgf@y}
+    \anchor{north east}{\northeast}
+    \anchor{south east}{\northeast\pgf@y=-\pgf@y}
+    \anchor{south west}{\southwest}
+    \anchor{north}{\northeast\pgf@x=0pt}
+    \anchor{east}{\northeast\pgf@y=0pt}
+    \anchor{south}{\southwest\pgf@x=0pt}
+    \anchor{west}{\southwest\pgf@y=0pt}
+    \anchor{a}{\topright\pgf@x=0pt}
+    \anchor{b}{\topright\pgf@y=0.5\pgf@y}
+    \anchor{c}{\topright\pgf@y=-0.5\pgf@y}
+    \anchor{d}{\topright\pgf@y=-\pgf@y\pgf@x=0pt}
+    \anchor{e}{\topright\pgf@x=-\pgf@x\pgf@y=-0.5\pgf@y}
+    \anchor{f}{\topright\pgf@x=-\pgf@x\pgf@y=0.5\pgf@y}
+    \anchor{g}{\pgfpointorigin}
+    \anchor{dot}{\topright\pgf@y=-\pgf@y\advance\pgf@x by \dotspace}
+    \pgf@circ@draw@component{%
+        \southwest % I do not want the dot here, it will stick out
+        \pgf@circ@res@up = -\pgf@y
+        \pgf@circ@res@down = \pgf@y
+        \pgf@circ@res@right = \pgf@x
+        \pgf@circ@res@left = -\pgf@x
+        \pgfscope
+        \pgf@circ@setlinewidth{multipoles}{\pgflinewidth}
+        \pgf@circ@setcolor
+        \pgfpathrectanglecorners%
+        {\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@down}}
+        {\pgfpoint{\pgf@circ@res@left+\dotspace}{\pgf@circ@res@up}}
+        \ifpgf@circ@sevenseg@box
+            \pgf@circ@draworfill
+        \else
+            \pgf@circ@maybefill
+        \fi
+        \endpgfscope
+        \edef\bits{\ctikzvalof{seven seg/bits}}
+        \pgfscope
+            \pfg@circ@sseg@drawbits{\bits}
+        \endpgfscope
+        \pgfscope
+            \ifpgf@circ@sevenseg@dot
+                \pgf@circ@sseg@drawdots
+            \fi
+        \endpgfscope
+    }
+}
+
+\def\pgf@circ@sseg@splitbits#1#2#3#4#5#6#7\relax{%split the seven bits
+    \edef\@@a{#1}\edef\@@b{#2}\edef\@@c{#3}\edef\@@d{#4}\edef\@@e{#5}\edef\@@f{#6}\edef\@@g{#7}%
+}
+\def\pgf@circ@sseg@drawone#1#2#3#4#5{% #1 on off the x1, y1, x2 , y2
+    \ifnum #1 > 0\relax
+        \pgfsetcolor{\ctikzvalof{seven seg/color on}}
+    \else
+        \pgfsetcolor{\ctikzvalof{seven seg/color off}}
+    \fi
+    \pgfpathmoveto{\pgfpoint{#2}{#3}}
+    \pgfpathlineto{\pgfpoint{#4}{#5}}
+    \pgfusepath{draw}
+}
+\def\pfg@circ@sseg@drawbits#1{% #1 must be 7 bits
+    \expandafter\pgf@circ@sseg@splitbits#1\relax% a bit of magic...
+    \pgfmathsetlength{\pgf@circ@res@other}{0.5*\ctikzvalof{seven seg/thickness}}
+    \pgfsetlinewidth{\ctikzvalof{seven seg/thickness}}
+    % \pgfsetroundcap
+    \pgfsetarrowsstart{Triangle Cap[]}
+    \pgfsetarrowsend{Triangle Cap[]}
+    % segments
+    \pgf@circ@sseg@drawone{\@@a}{-\width/2+\gap}{\width}{\width/2-\gap}{\width}
+    \pgf@circ@sseg@drawone{\@@b}{\width/2}{\width-\gap}{\width/2}{0pt+\gap}
+    \pgf@circ@sseg@drawone{\@@c}{\width/2}{0pt-\gap}{\width/2}{-\width+\gap}
+    \pgf@circ@sseg@drawone{\@@d}{\width/2-\gap}{-\width}{-\width/2+\gap}{-\width}
+    \pgf@circ@sseg@drawone{\@@e}{-\width/2}{-\width+\gap}{-\width/2}{0pt-\gap}
+    \pgf@circ@sseg@drawone{\@@f}{-\width/2}{0pt+\gap}{-\width/2}{\width-\gap}
+    \pgf@circ@sseg@drawone{\@@g}{-\width/2+\gap}{0pt}{\width/2-\gap}{0pt}
+}
+\def\pgf@circ@sseg@drawdots{% dots
+    \edef\what{empty}
+    \ifx\what\pgf@circ@sevenseg@dotstate
+        % do nothing
+    \else
+        \pgfmathsetlength{\pgf@circ@res@other}{0.5*\ctikzvalof{seven seg/thickness}}
+        \edef\what{off}
+        \ifx\what\pgf@circ@sevenseg@dotstate
+            % dot off
+            \pgfsetfillcolor{\ctikzvalof{seven seg/color off}}
+            \pgfsetcolor{\ctikzvalof{seven seg/color off}}
+        \else
+            % dot on
+            \pgfsetfillcolor{\ctikzvalof{seven seg/color on}}
+            \pgfsetcolor{\ctikzvalof{seven seg/color on}}
+        \fi
+        \pgfpathcircle{\pgfpoint{\width/2+2*\pgf@circ@res@other}{-\width}}{\pgf@circ@res@other}
+        \pgfusepath{draw,fill}
+    \fi
+}
+% %>>>
+
+%%%%%%%%%%%%%%%%%%%%%%%%
+%% Flip-flops and muxdemuxes
+%%%%%%%%%%%%%%%%%%%%%%%%
+
+% Settings for flip flops and muxdemxes%<<<1
+
+%% flip-flop specific keys (most others are the same as chips)
+
+\ctikzset{multipoles/flipflop/font/.initial=\pgf@circ@font@small}
+\ctikzset{multipoles/flipflop/fontud/.initial=\pgf@circ@font@tiny}
+\ctikzset{multipoles/flipflop/width/.initial=1.2}
+\ctikzset{multipoles/flipflop/pin spacing/.initial=0.6}
+\ctikzset{multipoles/flipflop/clock wedge size/.initial=0.2}
+
+%% muxdemuxes keys
+
+\ctikzset{multipoles/muxdemux/base len/.initial=0.4}
+\ctikzset{multipoles/muxdemux/Lh/.initial=8.0}
+\ctikzset{multipoles/muxdemux/Rh/.initial=6.0}
+\ctikzset{multipoles/muxdemux/w/.initial=3.0}
+\ctikzset{multipoles/muxdemux/inset w/.initial=0.0}
+\ctikzset{multipoles/muxdemux/inset Lh/.initial=0.0}
+\ctikzset{multipoles/muxdemux/inset Rh/.initial=0.0}
+\ctikzset{multipoles/muxdemux/NL/.initial=8}
+\ctikzset{multipoles/muxdemux/NR/.initial=1}
+\ctikzset{multipoles/muxdemux/NB/.initial=3}
+\ctikzset{multipoles/muxdemux/NT/.initial=0}
+\ctikzset{multipoles/muxdemux/square pins/.initial=0}%
+%>>>
+
+%% Node shapes definitions for flip flops%<<<
+
+% Flip flops are a specialized kind of dipchip.
+% they have a class by themselves
+
+%% flip flop definitions --- by default empty
+%% pin texts
+\ctikzset{multipoles/flipflop/t1/.initial={}}
+\ctikzset{multipoles/flipflop/t2/.initial={}}
+\ctikzset{multipoles/flipflop/t3/.initial={}}
+\ctikzset{multipoles/flipflop/t4/.initial={}}
+\ctikzset{multipoles/flipflop/t5/.initial={}}
+\ctikzset{multipoles/flipflop/t6/.initial={}}
+\ctikzset{multipoles/flipflop/tu/.initial={}}
+\ctikzset{multipoles/flipflop/td/.initial={}}
+% pin clock wedge flags
+\ctikzset{multipoles/flipflop/c1/.initial={0}}
+\ctikzset{multipoles/flipflop/c2/.initial={0}}
+\ctikzset{multipoles/flipflop/c3/.initial={0}}
+\ctikzset{multipoles/flipflop/c4/.initial={0}}
+\ctikzset{multipoles/flipflop/c5/.initial={0}}
+\ctikzset{multipoles/flipflop/c6/.initial={0}}
+\ctikzset{multipoles/flipflop/cu/.initial={0}}
+\ctikzset{multipoles/flipflop/cd/.initial={0}}
+% pin negation circle flags
+\ctikzset{multipoles/flipflop/n1/.initial={0}}
+\ctikzset{multipoles/flipflop/n2/.initial={0}}
+\ctikzset{multipoles/flipflop/n3/.initial={0}}
+\ctikzset{multipoles/flipflop/n4/.initial={0}}
+\ctikzset{multipoles/flipflop/n5/.initial={0}}
+\ctikzset{multipoles/flipflop/n6/.initial={0}}
+\ctikzset{multipoles/flipflop/nu/.initial={0}}
+\ctikzset{multipoles/flipflop/nd/.initial={0}}
+
+
+% Thanks to @marmot
+\tikzset{flipflop def/.code=\pgfqkeys{\circuitikzbasekey/multipoles/flipflop}{#1}}
+
+% default set of flip flops
+\tikzset{
+    % async
+    latch/.style={flipflop, flipflop def={t1=D, t6=Q, t3=CLK, t4=\ctikztextnot{Q}}},
+    flipflop SR/.style={flipflop, flipflop def={t1=S, t3=R, t6=Q, t4=\ctikztextnot{Q}}},
+    % sync
+    flipflop D/.style={flipflop, flipflop def={t1=D, t6=Q, c3=1, t4=\ctikztextnot{Q}}},
+    flipflop T/.style={flipflop, flipflop def={t1=T, t6=Q, c3=1, t4=\ctikztextnot{Q}}},
+    flipflop JK/.style={flipflop, flipflop def={t1=J, t3=K, c2=1, t6=Q, t4=\ctikztextnot{Q}}},
+    % additional features
+    add async SR/.style={flipflop def={tu={\ctikztextnot{SET}}, td={\ctikztextnot{RST}}}},
+    dot on notQ/.style={flipflop def={t4={Q}, n4=1}},
+}
+
+%
+% commodity macro to draw the clock wedges. They leave the size of the
+% wedge in \pgf@circ@res@temp so that a possible label can be displaced.
+%
+\def\pgf@circ@do@wedge@left{
+    \pgf@circ@res@temp=0pt\relax
+    \ifnum\ctikzvalof{multipoles/flipflop/c\the\pgf@circ@count@c}>0
+        \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@up+(\pgf@circ@dip@pin@shift-\the\pgf@circ@count@a)*\pgf@circ@res@step+\wedge}}
+        \pgfpathlineto{\pgfpoint{\pgf@circ@res@left+\wedge}{\pgf@circ@res@up+(\pgf@circ@dip@pin@shift-\the\pgf@circ@count@a)*\pgf@circ@res@step}}
+        \pgfpathlineto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@up+(\pgf@circ@dip@pin@shift-\the\pgf@circ@count@a)*\pgf@circ@res@step-\wedge}}
+        \pgfusepath{stroke}
+        \pgf@circ@res@temp=\wedge
+    \fi
+}
+\def\pgf@circ@do@wedge@right{
+    \pgf@circ@res@temp=0pt\relax
+    \ifnum\ctikzvalof{multipoles/flipflop/c\the\pgf@circ@count@c}>0
+        \pgfpathmoveto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@up+(\pgf@circ@dip@pin@shift-\the\pgf@circ@count@a)*\pgf@circ@res@step+\wedge}}
+        \pgfpathlineto{\pgfpoint{\pgf@circ@res@right-\wedge}{\pgf@circ@res@up+(\pgf@circ@dip@pin@shift-\the\pgf@circ@count@a)*\pgf@circ@res@step}}
+        \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@up+(\pgf@circ@dip@pin@shift-\the\pgf@circ@count@a)*\pgf@circ@res@step-\wedge}}
+        \pgfusepath{stroke}
+        \pgf@circ@res@temp=-\wedge
+    \fi
+}
+\def\pgf@circ@do@wedge@up{
+    \pgf@circ@res@temp=0pt\relax
+    \ifnum\ctikzvalof{multipoles/flipflop/cu}>0
+        \pgfpathmoveto{\pgfpoint{-\wedge}{\pgf@circ@res@up}}
+        \pgfpathlineto{\pgfpoint{0pt}{\pgf@circ@res@up-\wedge}}
+        \pgfpathlineto{\pgfpoint{\wedge}{\pgf@circ@res@up}}
+        \pgfusepath{stroke}
+        \pgf@circ@res@temp=-\wedge
+    \fi
+}
+\def\pgf@circ@do@wedge@down{
+    \pgf@circ@res@temp=0pt\relax
+    \ifnum\ctikzvalof{multipoles/flipflop/cd}>0
+        \pgfpathmoveto{\pgfpoint{-\wedge}{\pgf@circ@res@down}}
+        \pgfpathlineto{\pgfpoint{0pt}{\pgf@circ@res@down+\wedge}}
+        \pgfpathlineto{\pgfpoint{\wedge}{\pgf@circ@res@down}}
+        \pgfusepath{stroke}
+        \pgf@circ@res@temp=\wedge
+    \fi
+}
+% generic flip-flop shape
+\pgfdeclareshape{flipflop}{
+    \savedmacro{\ctikzclass}{\edef\ctikzclass{flipflops}}
+    \saveddimen{\scaledRlen}{\pgfmathsetlength{\pgf@x}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}}
+    \savedmacro{\thisshape}{\def\thisshape{\tikz@fig@name}}
+    \savedmacro\numpins{\def\numpins{6}}
+    \savedanchor\centerpoint{%
+        \pgf@x=-.5\wd\pgfnodeparttextbox%
+        \pgf@y=-.5\ht\pgfnodeparttextbox%
+        \advance\pgf@y by+.5\dp\pgfnodeparttextbox%
+    }%
+    \savedanchor\origin{\pgfpoint{0pt}{0pt}}
+    \anchor{center}{\origin}
+    \anchor{text}{\centerpoint}% to adjust text
+    \saveddimen\height{%
+        \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
+        \pgfmathsetlength\pgf@x{((\numpins)
+        *\ctikzvalof{multipoles/flipflop/pin spacing})*\pgf@circ@scaled@Rlen/2}%
+    }%
+    \saveddimen{\chipspacing}{
+        \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
+        \pgfmathsetlength\pgf@x{\pgf@circ@scaled@Rlen*\ctikzvalof{multipoles/flipflop/pin spacing}}}
+    \saveddimen{\width}{
+        \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
+        \pgfmathsetlength\pgf@x{\pgf@circ@scaled@Rlen*\ctikzvalof{multipoles/flipflop/width}}}
+    \saveddimen{\extshift}{
+        \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
+        \pgfmathsetlength\pgf@x{\pgf@circ@scaled@Rlen*\ctikzvalof{multipoles/external pins width}}}
+    % standard anchors
+    \savedanchor\northwest{%
+        \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
+        \pgfmathsetlength\pgf@y{0.5*((\numpins)
+        *\ctikzvalof{multipoles/flipflop/pin spacing})*\pgf@circ@scaled@Rlen/2}%
+        \pgfmathsetlength\pgf@x{-0.5*\pgf@circ@scaled@Rlen*\ctikzvalof{multipoles/flipflop/width}}
+    }
+    \anchor{dot}{\northwest
+        \pgfmathsetlength\pgf@x{\pgf@x + 0.3*\chipspacing}
+        \pgfmathsetlength\pgf@y{\pgf@y - 0.3*\chipspacing}
+    }
+    \anchor{nw}{\northwest}
+    \anchor{ne}{\northwest\pgf@x=-\pgf@x}
+    \anchor{se}{\northwest\pgf@x=-\pgf@x\pgf@y=-\pgf@y}
+    \anchor{sw}{\northwest\pgf@y=-\pgf@y}
+    \anchor{north west}{\northwest}
+    \anchor{north east}{\northwest\pgf@x=-\pgf@x}
+    \anchor{south east}{\northwest\pgf@x=-\pgf@x \pgf@y=-\pgf@y}
+    \anchor{south west}{\northwest\pgf@y=-\pgf@y}
+    \anchor{n}{\northwest\pgf@x=0pt }
+    \anchor{e}{\northwest\pgf@x=-\pgf@x\pgf@y=0pt }
+    \anchor{s}{\northwest\pgf@x=0pt\pgf@y=-\pgf@y}
+    \anchor{w}{\northwest\pgf@y=0pt }
+    \anchor{north}{\northwest\pgf@x=0pt }
+    \anchor{east}{\northwest\pgf@x=-\pgf@x\pgf@y=0pt }
+    \anchor{south}{\northwest\pgf@x=0pt\pgf@y=-\pgf@y}
+    \anchor{west}{\northwest\pgf@y=0pt }
+    % upper and lower pin
+    \anchor{up}{\northwest\pgf@x=0pt\advance\pgf@y by\extshift }
+    \anchor{down}{\northwest\pgf@x=0pt\pgf@y=-\pgf@y\advance\pgf@y by-\extshift}
+    \anchor{bup}{\northwest\pgf@x=0pt }
+    \anchor{bdown}{\northwest\pgf@x=0pt\pgf@y=-\pgf@y}
+    % start drawing
+    \pgf@circ@draw@component{%
+        \northwest
+        \pgf@circ@res@up = \pgf@y
+        \pgf@circ@res@down = -\pgf@y
+        \pgf@circ@res@right = -\pgf@x
+        \pgf@circ@res@left = \pgf@x
+        \pgf@circ@scaled@Rlen=\scaledRlen
+        \pgf@circ@res@step = \ctikzvalof{multipoles/flipflop/pin spacing}\pgf@circ@scaled@Rlen
+        \pgf@circ@res@other = \ctikzvalof{multipoles/external pins width}\pgf@circ@scaled@Rlen
+        \pgf@circ@setcolor
+        \pgfscope% (for the line width)
+            \pgf@circ@setlinewidth{multipoles}{\pgflinewidth}
+            \pgfpathrectanglecorners{\pgfpoint{-\width/2}{-\height/2}}{\pgfpoint{\width/2}{\height/2}}%
+            \pgf@circ@draworfill
+            \pgfusepath{stroke}%
+        \endpgfscope
+        % Adding the pin number
+        \pgf@circ@count@a=\numpins\relax
+        \divide\pgf@circ@count@a by 2 \pgf@circ@count@b=\pgf@circ@count@a
+        % thanks to @marmot: https://tex.stackexchange.com/a/473571/38080
+        \ifpgf@circuit@chip@straightnumbers
+            \pgfgettransformentries\a\b\temp\temp\temp\temp
+            \pgfmathsetmacro{\rot}{-atan2(\b,\a)}
+            \pgfmathtruncatemacro{\quadrant}{mod(4+int(360+(\rot+45)/90),4)}
+        \else
+            \pgfmathsetmacro{\rot}{0}
+            \pgfmathsetmacro{\quadrant}{0}
+        \fi
+        \def\pgf@circ@strut{\vrule width 0pt height 1em depth 0.4em\relax}
+        \pgfscope\pgf@circ@text@strokecolor
+        % text
+        \def\mytext{\ctikzvalof{multipoles/flipflop/font}\space
+                \ctikzvalof{multipoles/flipflop/t\the\pgf@circ@count@c}%
+                \pgf@circ@strut\space}
+        % \typeout{TEXT\space\mytext}
+        \pgfmathloop%
+        \def\wedge{\ctikzvalof{multipoles/flipflop/clock wedge size}\pgf@circ@res@step}
+        \pgf@circ@res@temp=0pt\relax
+        \ifnum\pgf@circ@count@a>0
+            \ifcase\quadrant % rotation 0
+                % left
+                \pgf@circ@count@c=\pgf@circ@count@a
+                \pgf@circ@do@wedge@left
+                % \typeout{TEXT Left Q1\space\mytext}
+                \pgftext[left,
+                    at=\pgfpoint{\pgf@circ@res@left+\pgf@circ@res@temp}{\pgf@circ@res@up+(\pgf@circ@dip@pin@shift-\the\pgf@circ@count@a)*\pgf@circ@res@step},
+                    rotate=\rot]{\mytext}
+                % right
+                \pgf@circ@count@c=\numexpr2*\pgf@circ@count@b-\pgf@circ@count@a+1\relax
+                \pgf@circ@do@wedge@right
+                \pgftext[right,
+                    at=\pgfpoint{\pgf@circ@res@right+\pgf@circ@res@temp}{\pgf@circ@res@up+(\pgf@circ@dip@pin@shift-\the\pgf@circ@count@a)*\pgf@circ@res@step},
+                    rotate=\rot]{\mytext}
+            \or % rotation -90
+                % left
+                \pgf@circ@count@c=\pgf@circ@count@a
+                \pgf@circ@do@wedge@left
+                \pgftext[top,
+                    at=\pgfpoint{\pgf@circ@res@left+\pgf@circ@res@temp}{\pgf@circ@res@up+(\pgf@circ@dip@pin@shift-\the\pgf@circ@count@a)*\pgf@circ@res@step},
+                    rotate=\rot]{\mytext}
+                % right
+                \pgf@circ@count@c=\numexpr2*\pgf@circ@count@b-\pgf@circ@count@a+1\relax
+                \pgf@circ@do@wedge@right
+                \pgftext[bottom,
+                    at=\pgfpoint{\pgf@circ@res@right+\pgf@circ@res@temp}{\pgf@circ@res@up+(\pgf@circ@dip@pin@shift-\the\pgf@circ@count@a)*\pgf@circ@res@step},
+                    rotate=\rot]{\mytext}
+            \or %rotation 180
+                % left
+                \pgf@circ@count@c=\pgf@circ@count@a
+                \pgf@circ@do@wedge@left
+                \pgftext[right,
+                    at=\pgfpoint{\pgf@circ@res@left+\pgf@circ@res@temp}{\pgf@circ@res@up+(\pgf@circ@dip@pin@shift-\the\pgf@circ@count@a)*\pgf@circ@res@step},
+                    rotate=\rot]{\mytext}
+                % right
+                \pgf@circ@count@c=\numexpr2*\pgf@circ@count@b-\pgf@circ@count@a+1\relax
+                \pgf@circ@do@wedge@right
+                \pgftext[left,
+                    at=\pgfpoint{\pgf@circ@res@right+\pgf@circ@res@temp}{\pgf@circ@res@up+(\pgf@circ@dip@pin@shift-\the\pgf@circ@count@a)*\pgf@circ@res@step},
+                    rotate=\rot]{\mytext}
+            \or % rotation +90
+                % left
+                \pgf@circ@count@c=\pgf@circ@count@a
+                \pgf@circ@do@wedge@left
+                \pgftext[bottom,
+                    at=\pgfpoint{\pgf@circ@res@left+\pgf@circ@res@temp}{\pgf@circ@res@up+(\pgf@circ@dip@pin@shift-\the\pgf@circ@count@a)*\pgf@circ@res@step},
+                    rotate=\rot]{\mytext}
+                % right
+                \pgf@circ@count@c=\numexpr2*\pgf@circ@count@b-\pgf@circ@count@a+1\relax
+                \pgf@circ@do@wedge@right
+                \pgftext[top,
+                    at=\pgfpoint{\pgf@circ@res@right+\pgf@circ@res@temp}{\pgf@circ@res@up+(\pgf@circ@dip@pin@shift-\the\pgf@circ@count@a)*\pgf@circ@res@step},
+                    rotate=\rot]{\mytext}
+            \fi
+            \advance\pgf@circ@count@a-1\relax%
+            \repeatpgfmathloop
+            % Now the up and down text
+            % up
+            \def\mytext{\ctikzvalof{multipoles/flipflop/fontud}\space\pgf@circ@strut\ctikzvalof{multipoles/flipflop/tu}\space}
+            \pgf@circ@do@wedge@up
+            \ifcase\quadrant % rotation 0
+                \pgftext[top,
+                    at=\pgfpoint{0pt}{\pgf@circ@res@up+\pgf@circ@res@temp},
+                    rotate=\rot]{\mytext}
+            \or % rotation -90
+                \pgftext[right,
+                    at=\pgfpoint{0pt}{\pgf@circ@res@up+\pgf@circ@res@temp},
+                    rotate=\rot]{\mytext}
+            \or %rotation 180
+                \pgftext[bottom,
+                    at=\pgfpoint{0pt}{\pgf@circ@res@up+\pgf@circ@res@temp},
+                    rotate=\rot]{\mytext}
+            \or % rotation +90
+                \pgftext[left,
+                    at=\pgfpoint{0pt}{\pgf@circ@res@up+\pgf@circ@res@temp},
+                    rotate=\rot]{\mytext}
+            \fi
+            % down
+            \def\mytext{\ctikzvalof{multipoles/flipflop/fontud}\space\pgf@circ@strut\ctikzvalof{multipoles/flipflop/td}\space}
+            \pgf@circ@do@wedge@down
+            \ifcase\quadrant % rotation 0
+                \pgftext[bottom,
+                    at=\pgfpoint{0pt}{\pgf@circ@res@down+\pgf@circ@res@temp},
+                    rotate=\rot]{\mytext}
+            \or % rotation -90
+                \pgftext[left,
+                    at=\pgfpoint{0pt}{\pgf@circ@res@down+\pgf@circ@res@temp},
+                    rotate=\rot]{\mytext}
+            \or %rotation 180
+                \pgftext[top,
+                    at=\pgfpoint{0pt}{\pgf@circ@res@down+\pgf@circ@res@temp},
+                    rotate=\rot]{\mytext}
+            \or % rotation +90
+                \pgftext[right,
+                    at=\pgfpoint{0pt}{\pgf@circ@res@down+\pgf@circ@res@temp},
+                    rotate=\rot]{\mytext}
+            \fi
+            \endpgfscope % for text labels
+            % external pins
+            \ifdim\pgf@circ@res@other>0pt
+            \pgfscope
+                \pgfsetlinewidth{\ctikzvalof{multipoles/external pins thickness}\pgflinewidth}
+                \pgf@circ@count@a=\numpins\relax
+                \divide\pgf@circ@count@a by 2 \pgf@circ@count@b=\pgf@circ@count@a
+                \pgfmathloop%
+                \ifnum\pgf@circ@count@a>0
+                    % left side pins
+                    \pgf@circ@count@c=\pgf@circ@count@a
+                    %% we draw the pin only if it's defined either a text, a clock wedge or a not pin
+                    %% Or'ing tests in core TeX is tough
+                    \edef\@@or{0}
+                    % Just expand the key the minimum needed
+                    \edef\@@tmp{x\unexpandedvalueof{/tikz/circuitikz/multipoles/flipflop/t\the\pgf@circ@count@c}}\edef\@@x{x}
+                    \ifx\@@tmp\@@x\else\edef\@@or{1}\fi
+                    \edef\@@tmp{\ctikzvalof{multipoles/flipflop/c\the\pgf@circ@count@c}}
+                    \ifnum\@@tmp>0\edef\@@or{1}\fi
+                    \edef\@@tmp{\ctikzvalof{multipoles/flipflop/n\the\pgf@circ@count@c}}
+                    \ifnum\@@tmp>0\edef\@@or{1}\fi
+                    \ifnum\@@or>0
+                        \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@up+(\pgf@circ@dip@pin@shift-\the\pgf@circ@count@a)*\pgf@circ@res@step}}
+                        \pgfpathlineto{\pgfpoint{\pgf@circ@res@left-\pgf@circ@res@other}{\pgf@circ@res@up+(\pgf@circ@dip@pin@shift-\the\pgf@circ@count@a)*\pgf@circ@res@step}}
+                        \pgfusepath{stroke}
+                    \fi
+                    % right side pins
+                    \pgf@circ@count@c=\numexpr2*\pgf@circ@count@b-\pgf@circ@count@a+1\relax
+                    \edef\@@or{0}
+                    \edef\@@tmp{x\unexpandedvalueof{/tikz/circuitikz/multipoles/flipflop/t\the\pgf@circ@count@c}}\edef\@@x{x}
+                    \ifx\@@tmp\@@x\else\edef\@@or{1}\fi
+                    \edef\@@tmp{\ctikzvalof{multipoles/flipflop/c\the\pgf@circ@count@c}}
+                    \ifnum\@@tmp>0\edef\@@or{1}\fi
+                    \edef\@@tmp{\ctikzvalof{multipoles/flipflop/n\the\pgf@circ@count@c}}
+                    \ifnum\@@tmp>0\edef\@@or{1}\fi
+                    % \typeout{TEST\space\@@tmp\space\@@x}
+                    \ifnum\@@or>0
+                        \pgfpathmoveto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@up+(\pgf@circ@dip@pin@shift-\the\pgf@circ@count@a)*\pgf@circ@res@step}}
+                        \pgfpathlineto{\pgfpoint{\pgf@circ@res@right+\pgf@circ@res@other}{\pgf@circ@res@up+(\pgf@circ@dip@pin@shift-\the\pgf@circ@count@a)*\pgf@circ@res@step}}
+                        \pgfusepath{stroke}
+                    \fi
+                    \advance\pgf@circ@count@a by -1\relax%
+                \repeatpgfmathloop
+                % up side
+                \edef\@@or{0}
+                \edef\@@tmp{x\unexpandedvalueof{/tikz/circuitikz/multipoles/flipflop/tu}}\edef\@@x{x}
+                \ifx\@@tmp\@@x\else\edef\@@or{1}\fi
+                \edef\@@tmp{\ctikzvalof{multipoles/flipflop/cu}}
+                \ifnum\@@tmp>0\edef\@@or{1}\fi
+                \edef\@@tmp{\ctikzvalof{multipoles/flipflop/nu}}
+                \ifnum\@@tmp>0\edef\@@or{1}\fi
+                % \typeout{TEST\space\@@tmp\space\@@x}
+                \ifnum\@@or>0
+                    \pgfpathmoveto{\pgfpoint{0pt}{\pgf@circ@res@up}}
+                    \pgfpathlineto{\pgfpoint{0pt}{\pgf@circ@res@up+\pgf@circ@res@other}}
+                    \pgfusepath{stroke}
+                \fi
+                % down side
+                \edef\@@or{0}
+                \edef\@@tmp{x\unexpandedvalueof{/tikz/circuitikz/multipoles/flipflop/td}}\edef\@@x{x}
+                \ifx\@@tmp\@@x\else\edef\@@or{1}\fi
+                \edef\@@tmp{\ctikzvalof{multipoles/flipflop/cd}}
+                \ifnum\@@tmp>0\edef\@@or{1}\fi
+                \edef\@@tmp{\ctikzvalof{multipoles/flipflop/nd}}
+                \ifnum\@@tmp>0\edef\@@or{1}\fi
+                % \typeout{TEST\space\@@tmp\space\@@x}
+                \ifnum\@@or>0
+                    \pgfpathmoveto{\pgfpoint{0pt}{\pgf@circ@res@down}}
+                    \pgfpathlineto{\pgfpoint{0pt}{\pgf@circ@res@down-\pgf@circ@res@other}}
+                    \pgfusepath{stroke}
+                \fi
+            \endpgfscope
+            \fi % external pin width >0
+            %
+            % draw "inverting" circles on outputs, they must be last
+            %
+            \pgfscope
+                \ifpgf@circuit@ieeelogicport
+                    \def\@@notcirc{notcirc}
+                \else
+                    \ifpgf@circ@european@port@circle@ieee
+                        \def\@@notcirc{notcirc}
+                    \else
+                        \def\@@notcirc{ocirc}
+                    \fi
+                \fi
+                \pgfsetlinewidth{\ctikzvalof{multipoles/external pins thickness}\pgflinewidth}
+                \pgf@circ@count@a=\numpins\relax
+                \divide\pgf@circ@count@a by 2 \pgf@circ@count@b=\pgf@circ@count@a
+                \pgfmathloop%
+                \ifnum\pgf@circ@count@a>0
+                    % left side pins
+                    \pgf@circ@count@c=\pgf@circ@count@a
+                    \edef\@@tmp{\ctikzvalof{multipoles/flipflop/n\the\pgf@circ@count@c}}
+                    \ifnum\@@tmp>0\pgfscope
+                        \pgftransformshift{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@up+(\pgf@circ@dip@pin@shift-\the\pgf@circ@count@a)*\pgf@circ@res@step}}
+                        \pgfnode{\@@notcirc}{east}{}{\thisshape-N\the\pgf@circ@count@c}{\pgfusepath{stroke}}
+                    \endpgfscope\fi
+                    % right side pins
+                    \pgf@circ@count@c=\numexpr2*\pgf@circ@count@b-\pgf@circ@count@a+1\relax
+                    \edef\@@tmp{\ctikzvalof{multipoles/flipflop/n\the\pgf@circ@count@c}}
+                    \ifnum\@@tmp>0\pgfscope
+                        \pgftransformshift{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@up+(\pgf@circ@dip@pin@shift-\the\pgf@circ@count@a)*\pgf@circ@res@step}}
+                        \pgfnode{\@@notcirc}{west}{}{\thisshape-N\the\pgf@circ@count@c}{\pgfusepath{stroke}}
+                    \endpgfscope\fi
+                    \advance\pgf@circ@count@a by -1\relax%
+                \repeatpgfmathloop
+                % up side
+                \edef\@@tmp{\ctikzvalof{multipoles/flipflop/nu}}
+                \ifnum\@@tmp>0\pgfscope
+                    \pgftransformshift{\pgfpoint{0pt}{\pgf@circ@res@up}}
+                    \pgfnode{\@@notcirc}{south}{}{\thisshape-Nu}{\pgfusepath{stroke}}
+                \endpgfscope\fi
+                % down side
+                \edef\@@tmp{\ctikzvalof{multipoles/flipflop/nd}}
+                \ifnum\@@tmp>0\pgfscope
+                    \pgftransformshift{\pgfpoint{0pt}{\pgf@circ@res@down}}
+                    \pgfnode{\@@notcirc}{north}{}{\thisshape-Nd}{\pgfusepath{stroke}}
+                \endpgfscope\fi
+            \endpgfscope
+        }%
+        % \pgf@sh@s@<name of the shape here> contains all the code for the shape
+        % and is executed just before a node is drawn.
+        \pgfutil@g@addto@macro\pgf@sh@s@flipflop{%
+            % Start with the maximum pin number and go backwards.
+            \pgf@circ@count@a=\numpins\relax
+            \pgfmathloop%
+            \ifnum\pgf@circ@count@a>0
+                % we will create two anchors per pin: the "normal one" like `pin 1` for the
+                % electrical contact, and the "border one" like `bpin 1` for labels.
+                % they will coincide if `external pins width` is set to 0.
+                \expandafter\xdef\csname pgf@anchor@flipflop@pin\space\the\pgf@circ@count@a\endcsname{%
+                    \noexpand\pgf@circ@dippinanchor{\the\pgf@circ@count@a}{1}%
+                }
+                \expandafter\xdef\csname pgf@anchor@flipflop@bpin\space\the\pgf@circ@count@a\endcsname{%
+                    \noexpand\pgf@circ@dippinanchor{\the\pgf@circ@count@a}{0}%
+                }
+                \advance\pgf@circ@count@a by -1\relax%
+                \repeatpgfmathloop%
+            }%
+}
+
+% clock wedge shape, for using in other shapes like muxdemuxes
+\pgfdeclareshape{clockwedge}{
+    \savedmacro{\ctikzclass}{\edef\ctikzclass{flipflops}}
+    \saveddimen{\scaledRlen}{\pgfmathsetlength{\pgf@x}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}}
+    \savedanchor{\northeast}{
+        \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
+        \pgfmathsetlength{\pgf@circ@res@step}{\ctikzvalof{multipoles/flipflop/clock wedge size}*\ctikzvalof{multipoles/flipflop/pin spacing}*\pgf@circ@scaled@Rlen}
+        \pgf@y=\pgf@circ@res@step
+        \pgf@x=\pgf@circ@res@step
+    }
+    \anchor{center}{\pgfpointorigin}
+    \anchor{north west}{\northeast\pgf@x=0pt }
+    \anchor{north east}{\northeast}
+    \anchor{south east}{\northeast\pgf@y=-\pgf@y}
+    \anchor{south west}{\northeast\pgf@y=-\pgf@y\pgf@x=0pt }
+    \anchor{north}{\northeast\pgf@x=0.5\pgf@x }
+    \anchor{east}{\northeast\pgf@y=0pt }
+    \anchor{south}{\northeast\pgf@x=0.5\pgf@x\pgf@y=-\pgf@y}
+    \anchor{west}{\pgfpointorigin}
+    \anchor{nw}{\northeast\pgf@x=0pt }
+    \anchor{ne}{\northeast}
+    \anchor{se}{\northeast\pgf@y=-\pgf@y}
+    \anchor{sw}{\northeast\pgf@y=-\pgf@y\pgf@x=0pt }
+    \anchor{n}{\northeast\pgf@x=0.5\pgf@x }
+    \anchor{e}{\northeast\pgf@y=0pt }
+    \anchor{s}{\northeast\pgf@x=0.5\pgf@x\pgf@y=-\pgf@y}
+    \anchor{w}{\pgfpointorigin}
+    \anchor{left}{\pgfpointorigin}
+    \anchor{right}{\northeast\pgf@y=0pt }
+    \anchor{text}{\northeast\advance \pgf@x by 2pt
+        \pgf@y=\dimexpr.5\dp\pgfnodeparttextbox-.5\ht\pgfnodeparttextbox\relax}% to adjust text
+    \pgf@circ@draw@component{%
+        \northeast
+        \pgf@circ@res@up=\pgf@y
+        \pgf@circ@res@right=\pgf@x
+        \pgfpathmoveto{\pgfpoint{0pt}{\pgf@circ@res@up}}
+        \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{0pt}}
+        \pgfpathlineto{\pgfpoint{0pt}{-\pgf@circ@res@up}}
+        \pgfusepath{stroke}
+    }
+}
+
+% %>>>
+
+%% Node shapes for mux-demuxes%<<<
+
+%
+% MUX-DEMUXES
+%
+% Thanks to @marmot
+\tikzset{muxdemux def/.code=\pgfqkeys{\circuitikzbasekey/multipoles/muxdemux}{#1}}
+\tikzset{demux/.style={muxdemux, muxdemux def={Lh=4, Rh=8, NL=1, NB=3, NR=8}}}
+\tikzset{one bit adder/.style={muxdemux,
+         muxdemux def={Lh=4, NL=2, Rh=2, NR=1, NB=1, w=1.5,
+         inset w=0.5, inset Lh=2, inset Rh=1.5}}}
+\tikzset{ALU/.style={muxdemux,
+         muxdemux def={Lh=5, NL=2, Rh=2, NR=1, NB=2, NT=1, w=2,
+         inset w=1, inset Lh=2, inset Rh=0, square pins=1}}}
+
+%generic mux-demux shape
+
+% helper macros to set the anchors inside a loop (to expand the current count)
+% left
+\pgfutil@protected\def\pgf@circ@make@muxdemux@L@anchor#1%
+  {%
+    \expandafter\gdef\csname pgf@anchor@muxdemux@lpin #1\endcsname
+      {%
+        \pgf@circ@if@num@in@list\pgf@circ@Lpins@list{#1}
+          {\pgf@circ@muxdemux@L@anchor{#1}{1}}
+          {\pgf@circ@muxdemux@L@anchor{#1}{0}}%
+      }%
+    \expandafter\gdef\csname pgf@anchor@muxdemux@blpin #1\endcsname
+      {\pgf@circ@muxdemux@L@anchor{#1}{0}}%
+  }
+% right
+\pgfutil@protected\def\pgf@circ@make@muxdemux@R@anchor#1%
+  {%
+    \expandafter\gdef\csname pgf@anchor@muxdemux@rpin #1\endcsname
+      {%
+        \pgf@circ@if@num@in@list\pgf@circ@Rpins@list{#1}
+          {\pgf@circ@muxdemux@R@anchor{#1}{1}}
+          {\pgf@circ@muxdemux@R@anchor{#1}{0}}%
+      }%
+    \expandafter\gdef\csname pgf@anchor@muxdemux@brpin #1\endcsname
+      {\pgf@circ@muxdemux@R@anchor{#1}{0}}%
+  }
+% bottom
+\pgfutil@protected\def\pgf@circ@make@muxdemux@B@anchor#1%
+  {%
+    \expandafter\gdef\csname pgf@anchor@muxdemux@bpin #1\endcsname
+      {%
+        \pgf@circ@if@num@in@list\pgf@circ@Bpins@list{#1}
+          {\pgf@circ@muxdemux@B@anchor{#1}{1}}
+          {\pgf@circ@muxdemux@B@anchor{#1}{0}}%
+      }%
+    \expandafter\gdef\csname pgf@anchor@muxdemux@bbpin #1\endcsname
+      {\pgf@circ@muxdemux@B@anchor{#1}{0}}%
+  }
+% top
+\pgfutil@protected\def\pgf@circ@make@muxdemux@T@anchor#1%
+  {%
+    \expandafter\gdef\csname pgf@anchor@muxdemux@tpin #1\endcsname
+      {%
+        \pgf@circ@if@num@in@list\pgf@circ@Tpins@list{#1}
+          {\pgf@circ@muxdemux@T@anchor{#1}{1}}
+          {\pgf@circ@muxdemux@T@anchor{#1}{0}}%
+      }%
+    \expandafter\gdef\csname pgf@anchor@muxdemux@btpin #1\endcsname
+      {\pgf@circ@muxdemux@T@anchor{#1}{0}}%
+  }
+
+
+\pgfdeclareshape{muxdemux}{
+    \savedmacro{\ctikzclass}{\edef\ctikzclass{muxdemuxes}}
+    \saveddimen{\scaledRlen}{\pgfmathsetlength{\pgf@x}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}}
+    \savedmacro{\thisshape}{\def\thisshape{\tikz@fig@name}}
+    % pins on the four sides
+    \savedmacro\NL{\edef\NL{\ctikzvalof{multipoles/muxdemux/NL}}}
+    \savedmacro\NR{\edef\NR{\ctikzvalof{multipoles/muxdemux/NR}}}
+    \savedmacro\NT{\edef\NT{\ctikzvalof{multipoles/muxdemux/NT}}}
+    \savedmacro\NB{\edef\NB{\ctikzvalof{multipoles/muxdemux/NB}}}
+    \savedmacro\squarepins{\edef\squarepins{\ctikzvalof{multipoles/muxdemux/square pins}}}
+    % pin lists
+    \savedmacro\pgf@circ@Lpins@list
+      {%
+        \pgfkeysgetvalue
+          {\circuitikzbasekey/multipoles/draw only left pins}\pgf@circ@temp
+        \expandafter\pgf@circ@set@list
+          \expandafter\pgf@circ@Lpins@list
+          \expandafter{\pgf@circ@temp}%
+      }%
+    \savedmacro\pgf@circ@Rpins@list
+      {%
+        \pgfkeysgetvalue
+          {\circuitikzbasekey/multipoles/draw only right pins}\pgf@circ@temp
+        \expandafter\pgf@circ@set@list
+          \expandafter\pgf@circ@Rpins@list
+          \expandafter{\pgf@circ@temp}%
+      }%
+    \savedmacro\pgf@circ@Tpins@list
+      {%
+        \pgfkeysgetvalue
+          {\circuitikzbasekey/multipoles/draw only top pins}\pgf@circ@temp
+        \expandafter\pgf@circ@set@list
+          \expandafter\pgf@circ@Tpins@list
+          \expandafter{\pgf@circ@temp}%
+      }%
+    \savedmacro\pgf@circ@Bpins@list
+      {%
+        \pgfkeysgetvalue
+          {\circuitikzbasekey/multipoles/draw only bottom pins}\pgf@circ@temp
+        \expandafter\pgf@circ@set@list
+          \expandafter\pgf@circ@Bpins@list
+          \expandafter{\pgf@circ@temp}%
+      }%
+    % topleft and topright sizes
+    \savedanchor{\topleft}{%
+        \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
+        \pgfmathsetlength\pgf@y{\ctikzvalof{multipoles/muxdemux/base len}*\ctikzvalof{multipoles/muxdemux/Lh}*\pgf@circ@scaled@Rlen/2}
+        \pgfmathsetlength\pgf@x{-\ctikzvalof{multipoles/muxdemux/base len}*\ctikzvalof{multipoles/muxdemux/w}*\pgf@circ@scaled@Rlen/2}
+    }
+    \savedanchor{\topright}{%
+        \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
+        \pgfmathsetlength\pgf@y{\ctikzvalof{multipoles/muxdemux/base len}*\ctikzvalof{multipoles/muxdemux/Rh}*\pgf@circ@scaled@Rlen/2}
+        \pgfmathsetlength\pgf@x{\ctikzvalof{multipoles/muxdemux/base len}*\ctikzvalof{multipoles/muxdemux/w}*\pgf@circ@scaled@Rlen/2}
+    }
+    \savedanchor{\insetnortheast}{%
+        \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
+        \pgfmathsetlength\pgf@y{\ctikzvalof{multipoles/muxdemux/base len}*\ctikzvalof{multipoles/muxdemux/inset Lh}*\pgf@circ@scaled@Rlen/2}
+        \pgfmathsetlength\pgf@x{-\ctikzvalof{multipoles/muxdemux/base len}*
+        (\ctikzvalof{multipoles/muxdemux/w}-2*\ctikzvalof{multipoles/muxdemux/inset w})*\pgf@circ@scaled@Rlen/2}
+    }
+    \saveddimen{\insethright}{
+        \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
+        \pgfmathsetlength\pgf@x{\ctikzvalof{multipoles/muxdemux/base len}*\ctikzvalof{multipoles/muxdemux/inset Rh}*\pgf@circ@scaled@Rlen/2}}
+    \saveddimen{\extshift}{
+        \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
+        \pgfmathsetlength\pgf@x{\pgf@circ@scaled@Rlen*\ctikzvalof{multipoles/external pins width}}}
+    \savedanchor{\northwest}{%
+        \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
+        \pgfmathsetlength\pgf@y{\ctikzvalof{multipoles/muxdemux/base len}*max(\ctikzvalof{multipoles/muxdemux/Rh},\ctikzvalof{multipoles/muxdemux/Lh})*\pgf@circ@scaled@Rlen/2}
+        \pgfmathsetlength\pgf@x{-\ctikzvalof{multipoles/muxdemux/base len}*\ctikzvalof{multipoles/muxdemux/w}*\pgf@circ@scaled@Rlen/2}
+    }
+    \anchor{nw}{\northwest}
+    \anchor{ne}{\northwest\pgf@x=-\pgf@x}
+    \anchor{se}{\northwest\pgf@x=-\pgf@x\pgf@y=-\pgf@y}
+    \anchor{sw}{\northwest\pgf@y=-\pgf@y}
+    \anchor{north west}{\northwest}
+    \anchor{north east}{\northwest\pgf@x=-\pgf@x}
+    \anchor{south east}{\northwest\pgf@x=-\pgf@x \pgf@y=-\pgf@y}
+    \anchor{south west}{\northwest\pgf@y=-\pgf@y}
+    \anchor{n}{\northwest\pgf@x=0pt }
+    \anchor{e}{\northwest\pgf@x=-\pgf@x\pgf@y=0pt }
+    \anchor{s}{\northwest\pgf@x=0pt\pgf@y=-\pgf@y}
+    \anchor{w}{\northwest\pgf@y=0pt }
+    \anchor{north}{\northwest\pgf@x=0pt }
+    \anchor{east}{\northwest\pgf@x=-\pgf@x\pgf@y=0pt }
+    \anchor{south}{\northwest\pgf@x=0pt\pgf@y=-\pgf@y}
+    \anchor{west}{\northwest\pgf@y=0pt }
+    \anchor{center}{\pgfpointorigin}
+    \anchor{top right}{\topright}
+    \anchor{bottom right}{\topright\pgf@y=-\pgf@y}
+    \anchor{right}{\topright\pgf@y=0pt\relax}
+    \anchor{top left}{\topleft}
+    \anchor{bottom left}{\topleft\pgf@y=-\pgf@y}
+    \anchor{left}{\topleft\pgf@y=0pt\relax}
+    \anchor{top}{\topright\pgf@ya=\pgf@y \topleft \advance\pgf@y by \pgf@ya
+        \divide\pgf@y by 2 \pgf@x=0pt\relax}
+    \anchor{bottom}{\topright\pgf@ya=\pgf@y \topleft \advance\pgf@y by \pgf@ya
+        \divide\pgf@y by 2 \pgf@y=-\pgf@y \pgf@x=0pt\relax}
+    \anchor{inset top right}{\pgf@ya=\insethright\insetnortheast\advance\pgf@y by -0.5\pgf@ya}
+    \anchor{inset bottom right}{\pgf@ya=\insethright\insetnortheast\advance\pgf@y by -0.5\pgf@ya\pgf@y=-\pgf@y}
+    \anchor{inset right}{\insetnortheast\pgf@y=0pt\relax}
+    \anchor{inset top left}{\insetnortheast\pgf@ya=\pgf@y\topleft\pgf@y=\pgf@ya}
+    \anchor{inset bottom left}{\insetnortheast\pgf@ya=\pgf@y\topleft\pgf@y=-\pgf@ya}
+    \anchor{inset left}{\topleft\pgf@y=0pt\relax}
+    \anchor{inset bottom}{\topleft\pgf@xa=\pgf@x\pgf@ya=\insethright
+        \insetnortheast\pgf@xb=\pgf@x\pgf@yb=\pgf@x
+        \pgfpoint{(\pgf@xa+\pgf@xb)/2}{-\pgf@ya+\pgf@yb/2}}
+    \anchor{inset top}{\topleft\pgf@xa=\pgf@x\pgf@ya=\insethright
+        \insetnortheast\pgf@xb=\pgf@x\pgf@yb=\pgf@x
+        \pgfpoint{(\pgf@xa+\pgf@xb)/2}{\pgf@ya-\pgf@yb/2}}
+    \anchor{inset center}{\topleft\pgf@xa=\pgf@x\insetnortheast
+        \advance\pgf@x by \pgf@xa \divide\pgf@x by 2 \pgf@y=0pt\relax}
+    \anchor{narrow center}{\insetnortheast\pgf@xa=\pgf@x\topright
+        \advance\pgf@x by \pgf@xa \divide\pgf@x by 2\pgf@y=0pt\relax}
+    \anchor{center up}{\topright\pgf@ya=\pgf@y \topleft \advance\pgf@y by \pgf@ya
+        \divide\pgf@y by 2
+        \pgf@yb = \insethright \advance\pgf@y by \pgf@yb
+        \divide\pgf@y by 2 \pgf@x=0pt\relax}
+    \anchor{center down}{\topright\pgf@ya=\pgf@y \topleft \advance\pgf@y by \pgf@ya
+        \divide\pgf@y by 2
+        \pgf@yb = \insethright \advance\pgf@y by \pgf@yb
+        \divide\pgf@y by 2 \pgf@y=-\pgf@y \pgf@x=0pt\relax}
+    \anchor{text}{%
+        \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
+        \pgfmathsetlength\pgf@x{\ctikzvalof{multipoles/muxdemux/base len}*
+          \ctikzvalof{multipoles/muxdemux/inset w}*\pgf@circ@scaled@Rlen/2}
+        \advance\pgf@x by -.5\wd\pgfnodeparttextbox%
+        \pgf@y=-.5\ht\pgfnodeparttextbox%
+        \advance\pgf@y by+.5\dp\pgfnodeparttextbox%
+    }%
+    \pgf@circ@draw@component{%
+        \topleft
+        \pgf@circ@res@up = \pgf@y
+        \pgf@circ@res@down = -\pgf@y
+        \pgf@circ@res@left = \pgf@x
+        \topright
+        \pgf@circ@res@other = \pgf@y
+        \pgf@circ@res@right = \pgf@x
+        \insetnortheast
+        \pgf@circ@res@step = \pgf@x
+        \pgf@circ@res@temp = \pgf@y
+        %
+        % external block
+        %
+        \pgfscope% (for the line width)
+            \pgf@circ@setlinewidth{multipoles}{\pgflinewidth}
+            \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@up}}
+            \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@other}}
+            \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{-\pgf@circ@res@other}}
+            \pgfpathlineto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@down}}
+            % inset, starting down
+            \ifdim\pgf@circ@res@temp>0pt % inset
+                % \typeout{INSETw\space\the\pgf@circ@res@right\space x\space\the\pgf@circ@res@step\space  y\space\the\pgf@circ@res@temp}
+                \pgfpathlineto{\pgfpoint{\pgf@circ@res@left}{-\pgf@circ@res@temp}}
+                \pgfpathlineto{\pgfpoint{\pgf@circ@res@step}{-\insethright}}
+                \pgfpathlineto{\pgfpoint{\pgf@circ@res@step}{\insethright}}
+                \pgfpathlineto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@temp}}
+            \fi
+            \pgfpathclose
+            \pgf@circ@draworfill
+        \endpgfscope
+        % now we have to draw the pins, if needed
+        \ifdim\extshift>0pt\ifpgfcirc@draw@input@leads\pgfscope % let's avoid too much indent
+        % Ok, we have to draw the leads (a.k.a. pins)
+            \pgfsetlinewidth{\ctikzvalof{multipoles/external pins thickness}\pgflinewidth}
+            % We mimic the anchors here --- probably there is a better way
+            % left pins
+            \ifnum\NL>0\relax % not indented, closed on \repeatpgfmathloop
+            \pgf@circ@count@a=\NL\relax
+            \pgf@circ@count@b=\NL \divide\pgf@circ@count@b by 2 % see https://tex.stackexchange.com/questions/146523/why-does-numexpr-integer-division-round-rather-than-truncate
+            \topleft\pgf@circ@res@left=\pgf@x \pgf@circ@res@up=\pgf@y
+            \insetnortheast\pgf@circ@res@right=\pgf@x \pgf@circ@res@down=\pgf@y
+            \ifdim\pgf@circ@res@down>0pt % check if we have an inset
+            % we have to check oddity
+                \ifodd\NL
+                    \ifnum\NL=1
+                        % only centerpin, step should not be used, but anyway...
+                        \pgfmathsetlength{\pgf@circ@res@step}{2*(\pgf@circ@res@up-\pgf@circ@res@down)/(\NL)}
+                    \else
+                        \pgfmathsetlength{\pgf@circ@res@step}{2*(\pgf@circ@res@up-\pgf@circ@res@down)/(\NL-1)}
+                    \fi
+                \else
+                    \pgfmathsetlength{\pgf@circ@res@step}{2*(\pgf@circ@res@up-\pgf@circ@res@down)/\NL}
+                \fi
+            \else % no inset
+                \pgfmathsetlength{\pgf@circ@res@step}{2*\pgf@circ@res@up/\NL}
+            \fi
+            \pgfmathloop%
+            \ifnum\pgf@circ@count@a>0
+                %%%%% check if we want to draw this pin
+                \pgf@circ@if@num@in@list\pgf@circ@Lpins@list\pgf@circ@count@a{%
+                \ifdim\pgf@circ@res@down>0pt % check if we have an inset
+                    \ifnum\pgf@circ@count@a>\pgf@circ@count@b\relax
+                        % for lower pins we have to shift them down
+                        % \typeout{DEBUGTEST1\space #1\space entering\space \NL}
+                        \ifodd\NL
+                            % odd number of pins
+                            \ifnum\pgf@circ@count@a=\numexpr\the\pgf@circ@count@b+1\relax
+                                % centerpin!
+                                \pgfpathmoveto{\pgfpoint{\pgf@circ@res@right}{0pt}}
+                                \ifnum\squarepins>0
+                                    \pgfpathlineto{\pgfpoint{\pgf@circ@res@left-\extshift}{0pt}}
+                                \else
+                                    \pgfpathlineto{\pgfpoint{\pgf@circ@res@right-\extshift}{0pt}}
+                                \fi
+                            \else
+                                \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@up+(0.5-\pgf@circ@count@a+1)*\pgf@circ@res@step-2*\pgf@circ@res@down}}
+                                \pgfpathlineto{\pgfpoint{\pgf@circ@res@left-\extshift}{\pgf@circ@res@up+(0.5-\pgf@circ@count@a+1)*\pgf@circ@res@step-2*\pgf@circ@res@down}}
+                            \fi
+                        \else
+                            % even numer of pins: just go down
+                            \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@up+(0.5-\pgf@circ@count@a)*\pgf@circ@res@step-2*\pgf@circ@res@down}}
+                            \pgfpathlineto{\pgfpoint{\pgf@circ@res@left-\extshift}{\pgf@circ@res@up+(0.5-\pgf@circ@count@a)*\pgf@circ@res@step-2*\pgf@circ@res@down}}
+                        \fi
+                    \else
+                        % nothing need for #1<=NL/2
+                        \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@up+(0.5-\pgf@circ@count@a)*\pgf@circ@res@step}}
+                        \pgfpathlineto{\pgfpoint{\pgf@circ@res@left-\extshift}{\pgf@circ@res@up+(0.5-\pgf@circ@count@a)*\pgf@circ@res@step}}
+                    \fi
+                \else
+                % no inset
+                    \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@up+(0.5-\pgf@circ@count@a)*\pgf@circ@res@step}}
+                    \pgfpathlineto{\pgfpoint{\pgf@circ@res@left-\extshift}{\pgf@circ@res@up+(0.5-\pgf@circ@count@a)*\pgf@circ@res@step}}
+                \fi
+                %%%%%
+                }{}% close the pin list check
+                \advance\pgf@circ@count@a by -1\relax%
+            \repeatpgfmathloop\fi%
+            % right pins
+            \ifnum\NR>0\pgf@circ@count@a=\NR\relax
+            \pgfmathloop%
+            \topright\pgf@circ@res@right=\pgf@x \pgf@circ@res@up=\pgf@y
+            \pgfmathsetlength{\pgf@circ@res@step}{2*\pgf@circ@res@up/\NR}
+            \ifnum\pgf@circ@count@a>0
+                %%%%% check if we want to draw this pin
+                \pgf@circ@if@num@in@list\pgf@circ@Rpins@list\pgf@circ@count@a{%
+                \pgfpathmoveto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@up+(0.5-\pgf@circ@count@a)*\pgf@circ@res@step}}
+                \pgfpathlineto{\pgfpoint{\pgf@circ@res@right+\extshift}{\pgf@circ@res@up+(0.5-\pgf@circ@count@a)*\pgf@circ@res@step}}
+                }{}%
+            \advance\pgf@circ@count@a by -1\relax%
+            \repeatpgfmathloop\fi%
+            % bottom pins
+            \ifnum\NB>0\pgf@circ@count@a=\NB\relax %%%
+            \pgfmathloop%
+            \topleft\pgf@circ@res@left=\pgf@x \pgf@circ@res@up=\pgf@y
+            \topright\pgf@circ@res@right=\pgf@x \pgf@circ@res@down=\pgf@y
+            \pgfmathsetlength{\pgf@circ@res@step}{2*\pgf@circ@res@right/\NB}
+            \pgfmathsetlength{\pgf@circ@res@other}{(\pgf@circ@res@down-\pgf@circ@res@up)/(\pgf@circ@res@right-\pgf@circ@res@left)*\pgf@circ@res@step}
+            \ifnum\pgf@circ@count@a>0
+                %%%%% check if we want to draw this pin
+                \pgf@circ@if@num@in@list\pgf@circ@Bpins@list\pgf@circ@count@a{%
+                \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left+(\pgf@circ@count@a-0.5)*\pgf@circ@res@step}
+                {-\pgf@circ@res@down+(\NB-\pgf@circ@count@a+0.5)*\pgf@circ@res@other}}
+                \ifnum\squarepins>0
+                    \pgfpathlineto{\pgfpoint{\pgf@circ@res@left+(\pgf@circ@count@a-0.5)*\pgf@circ@res@step}
+                    {-max(\pgf@circ@res@down, \pgf@circ@res@up)-\extshift}}
+                \else
+                    \pgfpathlineto{\pgfpoint{\pgf@circ@res@left+(\pgf@circ@count@a-0.5)*\pgf@circ@res@step}
+                    {-\pgf@circ@res@down+(\NB-\pgf@circ@count@a+0.5)*\pgf@circ@res@other-\extshift}}
+                \fi
+                }{}%
+            \advance\pgf@circ@count@a by -1\relax%
+            \repeatpgfmathloop\fi%
+            % top pins
+            \ifnum\NT>0\pgf@circ@count@a=\NT\relax
+            \pgfmathloop%
+            \topleft\pgf@circ@res@left=\pgf@x \pgf@circ@res@up=\pgf@y
+            \topright\pgf@circ@res@right=\pgf@x \pgf@circ@res@down=\pgf@y
+            \pgfmathsetlength{\pgf@circ@res@step}{2*\pgf@circ@res@right/\NT}
+            \pgfmathsetlength{\pgf@circ@res@other}{(\pgf@circ@res@down-\pgf@circ@res@up)/(\pgf@circ@res@right-\pgf@circ@res@left)*\pgf@circ@res@step}
+            \ifnum\pgf@circ@count@a>0
+                %%%%% check if we want to draw this pin
+                \pgf@circ@if@num@in@list\pgf@circ@Tpins@list\pgf@circ@count@a{%
+                \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left+(\pgf@circ@count@a-0.5)*\pgf@circ@res@step}
+                {\pgf@circ@res@down-(\NT-\pgf@circ@count@a+0.5)*\pgf@circ@res@other}}
+                \ifnum\squarepins>0
+                    \pgfpathlineto{\pgfpoint{\pgf@circ@res@left+(\pgf@circ@count@a-0.5)*\pgf@circ@res@step}
+                    {max(\pgf@circ@res@down, \pgf@circ@res@up)+\extshift}}
+                \else
+                    \pgfpathlineto{\pgfpoint{\pgf@circ@res@left+(\pgf@circ@count@a-0.5)*\pgf@circ@res@step}
+                    {\pgf@circ@res@down-(\NT-\pgf@circ@count@a+0.5)*\pgf@circ@res@other+\extshift}}
+                \fi
+                }{}%
+            \advance\pgf@circ@count@a by -1\relax%
+            \repeatpgfmathloop\fi%
+        % end drawing pins; stroke them
+        \pgfusepath{stroke}
+        \endpgfscope\fi\fi
+    }
+    % let's start adding anchors
+    \pgfutil@g@addto@macro\pgf@sh@s@muxdemux{%
+        % left side anchors
+        \pgf@circ@count@a=\NL\relax
+        % \typeout{STARTGENERATINGLEFT\space\the\pgf@circ@count@a\space FOR\space\thisshape\space\NL}
+        \pgfmathloop%
+        \ifnum\pgf@circ@count@a>0
+        % \typeout{GENERATINGLEFT\space\the\pgf@circ@count@a\space FOR\space\thisshape\space\NL}
+            % we will create two anchors per pin: the "normal one" like `lpin 1` for the
+            % external leads, and the "border one" like `blpin 1` for internal ones.
+            % they will coincide if `external pins width` is set to 0.
+            \expandafter\pgf@circ@make@muxdemux@L@anchor\expandafter{\the\pgf@circ@count@a}%
+            \advance\pgf@circ@count@a by -1\relax%
+        \repeatpgfmathloop%
+        % right anchors
+        \pgf@circ@count@a=\NR\relax
+        \pgfmathloop%
+        \ifnum\pgf@circ@count@a>0
+            % we will create two anchors per pin: the "normal one" like `rpin 1` for the
+            % external leads, and the "border one" like `brpin 1` for internal ones.
+            % they will coincide if `external pins width` is set to 0.
+            \expandafter\pgf@circ@make@muxdemux@R@anchor\expandafter{\the\pgf@circ@count@a}%
+            \advance\pgf@circ@count@a by -1\relax%
+        \repeatpgfmathloop%
+        % bottom anchors
+        \pgf@circ@count@a=\NB\relax
+        \pgfmathloop%
+        \ifnum\pgf@circ@count@a>0
+            % we will create two anchors per pin: the "normal one" like `bpin 1` for the
+            % external leads, and the "border one" like `bbpin 1` for internal ones.
+            % they will coincide if `external pins width` is set to 0.
+            \expandafter\pgf@circ@make@muxdemux@B@anchor\expandafter{\the\pgf@circ@count@a}%
+            \advance\pgf@circ@count@a by -1\relax%
+        \repeatpgfmathloop%
+        % top anchors
+        \pgf@circ@count@a=\NT\relax
+        \pgfmathloop%
+        \ifnum\pgf@circ@count@a>0
+            % we will create two anchors per pin: the "normal one" like `tpin 1` for the
+            % external leads, and the "border one" like `btpin 1` for internal ones.
+            % they will coincide if `external pins width` is set to 0.
+            \expandafter\pgf@circ@make@muxdemux@T@anchor\expandafter{\the\pgf@circ@count@a}%
+            \advance\pgf@circ@count@a by -1\relax%
+        \repeatpgfmathloop%
+    }%
+}
+
+%% left anchors for muxdemux
+
+\def\pgf@circ@muxdemux@L@anchor#1#2{% #1: pin number #2: 0 for border pin, 1 for external pin
+    \topleft
+    \pgf@xa=\pgf@x
+    \pgf@ya=\pgf@y
+    \insetnortheast
+    \pgf@xb=\pgf@x
+    \pgf@yb=\pgf@y
+    \ifnum#1>\NL
+        \PackageError{circuitikz}{%
+            You requested left pin #1 for mux/demux shape \thisshape\space \MessageBreak
+            which has been defined with \NL\space left pins%
+        }{Please check the manual about mux/demux shapes; if you press return I'll try to continue}
+    \fi
+    \pgf@circ@count@a=\NL \divide\pgf@circ@count@a by 2 % see https://tex.stackexchange.com/questions/146523/why-does-numexpr-integer-division-round-rather-than-truncate
+    % \typeout{LEFT \the\pgf@xa \space \the\pgf@ya \space \NL}
+    \ifnum\NL>1
+        \ifdim\pgf@yb>0pt % check if we have an inset
+        % we have to check oddity
+            \ifodd\NL
+                \pgfmathsetlength{\pgf@circ@res@step}{2*(\pgf@ya-\pgf@yb)/(\NL-1)}
+            \else
+                \pgfmathsetlength{\pgf@circ@res@step}{2*(\pgf@ya-\pgf@yb)/\NL}
+            \fi
+        \else % no inset
+            \pgfmathsetlength{\pgf@circ@res@step}{2*\pgf@ya/\NL}
+        \fi
+        \ifdim\pgf@yb>0pt % check if we have an inset
+            \ifnum#1>\pgf@circ@count@a\relax
+                % for lower pins we have to shift them down
+                % \typeout{DEBUGTEST1\space #1\space entering\space \NL}
+                \ifodd\NL
+                    % odd number of pins
+                    \ifnum#1=\numexpr\the\pgf@circ@count@a+1\relax
+                        % centerpin!
+                        \ifnum#2=0\relax
+                            \pgfpoint{\pgf@xb}{0pt}
+                        \else
+                            \ifnum\squarepins>0
+                                \pgfpoint{\pgf@xa-#2*\extshift}{0pt}
+                            \else
+                                \pgfpoint{\pgf@xb-#2*\extshift}{0pt}
+                            \fi
+                        \fi
+                    \else
+                        \pgfpoint{\pgf@xa-#2*\extshift}{\pgf@ya+(0.5-#1+1)*\pgf@circ@res@step-2*\pgf@yb}
+                    \fi
+                \else
+                    % even numer of pins: just go down
+                    \pgfpoint{\pgf@xa-#2*\extshift}{\pgf@ya+(0.5-#1)*\pgf@circ@res@step-2*\pgf@yb}
+                \fi
+            \else
+                % nothing need for #1<=NL/2
+                \pgfpoint{\pgf@xa-#2*\extshift}{\pgf@ya+(0.5-#1)*\pgf@circ@res@step}
+            \fi
+        \else
+        % no inset
+            \pgfpoint{\pgf@xa-#2*\extshift}{\pgf@ya+(0.5-#1)*\pgf@circ@res@step}
+        \fi
+    \else
+        \pgfpoint{\pgf@xa-#2*\extshift}{0pt}
+    \fi
+}
+
+% right anchors
+\def\pgf@circ@muxdemux@R@anchor#1#2{% #1: pin number #2: 0 for border pin, 1 for external pin
+    \topright
+    \pgf@xa=\pgf@x
+    \pgf@ya=\pgf@y
+    \ifnum#1>\NR
+        \PackageError{circuitikz}{%
+            You requested right pin #1 for mux/demux shape \thisshape\space \MessageBreak
+            which has been defined with \NR\space right pins%
+        }{Please check the manual about mux/demux shapes; if you press return I'll try to continue}
+    \fi
+    \ifnum\NR>1
+        \pgfmathsetlength{\pgf@circ@res@step}{2*\pgf@ya/\NR}
+        \pgfpoint{\pgf@xa+#2*\extshift}{\pgf@ya+(0.5-#1)*\pgf@circ@res@step}
+    \else
+        \pgfpoint{\pgf@xa+#2*\extshift}{0pt}
+    \fi
+}
+
+% bottom anchors
+\def\pgf@circ@muxdemux@B@anchor#1#2{% #1: pin number #2: 0 for border pin, 1 for external pin
+    \topleft
+    \pgf@xa=\pgf@x
+    \pgf@ya=\pgf@y
+    \topright
+    \pgf@xb=\pgf@x
+    \pgf@yb=\pgf@y
+    \ifnum#1>\NB
+        \PackageError{circuitikz}{%
+            You requested bottom pin #1 for mux/demux shape \thisshape\space \MessageBreak
+            which has been defined with \NB\space bottom pins%
+        }{Please check the manual about mux/demux shapes; if you press return I'll try to continue}
+    \fi
+    \ifnum\NB>0
+        % \typeout{DEBUGTESTtopleft\space\the\pgf@ya \space topright\space\the\pgf@yb \space\NB}
+        \pgfmathsetlength{\pgf@circ@res@step}{2*\pgf@xb/\NB}
+        \pgfmathsetlength{\pgf@circ@res@other}{(\pgf@yb-\pgf@ya)/(\pgf@xb-\pgf@xa)*\pgf@circ@res@step}
+        \pgfmathsetlength\pgf@x{\pgf@xa+(#1-0.5)*\pgf@circ@res@step}
+        \ifnum#2=0\relax
+            \pgfmathsetlength\pgf@y{-\pgf@yb+(\NB-#1+0.5)*\pgf@circ@res@other}
+        \else
+            \ifnum\squarepins>0\relax
+                \pgfmathsetlength\pgf@y{-max(\pgf@ya,\pgf@yb)-\extshift}
+            \else
+                \pgfmathsetlength\pgf@y{-\pgf@yb+(\NB-#1+0.5)*\pgf@circ@res@other-\extshift}
+            \fi
+        \fi
+    \else
+        % should not happen, give the same as pin 1 anyway
+        \ifnum#2=0\relax
+        \pgfpoint{0pt}{-\pgf@yb+(\pgf@yb-\pgf@ya)/2}
+        \else
+            \pgfpoint{0pt}{-max(\pgf@ya,\pgf@yb)-\extshift}
+        \fi
+    \fi
+}
+
+% top anchors
+\def\pgf@circ@muxdemux@T@anchor#1#2{% #1: pin number #2: 0 for border pin, 1 for external pin
+    \topleft
+    \pgf@xa=\pgf@x
+    \pgf@ya=\pgf@y
+    \topright
+    \pgf@xb=\pgf@x
+    \pgf@yb=\pgf@y
+    \ifnum#1>\NT
+        \PackageError{circuitikz}{%
+            You requested top pin #1 for mux/demux shape \thisshape\space \MessageBreak
+            which has been defined with \NT\space top pins%
+        }{Please check the manual about mux/demux shapes; if you press return I'll try to continue}
+    \fi
+    \ifnum\NT>0
+        \pgfmathsetlength{\pgf@circ@res@step}{2*\pgf@xb/\NT}
+        \pgfmathsetlength{\pgf@circ@res@other}{(\pgf@yb-\pgf@ya)/(\pgf@xb-\pgf@xa)*\pgf@circ@res@step}
+        \pgfmathsetlength\pgf@x{\pgf@xa+(#1-0.5)*\pgf@circ@res@step}
+        \ifnum#2=0\relax
+            \pgfmathsetlength\pgf@y{\pgf@yb-(\NT-#1+0.5)*\pgf@circ@res@other}
+        \else
+            \ifnum\squarepins>0
+                \pgfmathsetlength\pgf@y{max(\pgf@ya,\pgf@yb)+\extshift}
+            \else
+                \pgfmathsetlength\pgf@y{\pgf@yb-(\NT-#1+0.5)*\pgf@circ@res@other+\extshift}
+            \fi
+        \fi
+    \else
+        % should not happen, give the same as pin 1 anyway
+        \ifnum#2=0\relax
+        \pgfpoint{0pt}{\pgf@yb-(\pgf@yb-\pgf@ya)/2}
+        \else
+            \pgfpoint{0pt}{max(\pgf@ya,\pgf@yb)+\extshift}
+        \fi
+    \fi
+}
+% %>>>
+
+%% definitions and shape for wedgeinv and circleinv%<<<
+
+\ctikzset{wedge inversion mark/width/.initial = 0.2}
+\ctikzset{wedge inversion mark/height/.initial = 0.1}
+\pgfdeclareshape{wedgeinv}{
+    \savedmacro{\ctikzclass}{\edef\ctikzclass{muxdemuxes}}
+    \saveddimen{\scaledRlen}{\pgfmathsetlength{\pgf@x}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}}
+    \savedanchor\northeast{%
+        \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
+        \pgf@y=\ctikzvalof{wedge inversion mark/height}\pgf@circ@scaled@Rlen
+        \pgf@x=\ctikzvalof{wedge inversion mark/width}\pgf@circ@scaled@Rlen
+    }
+    \anchor{center}{\pgfpointorigin}
+    \anchor{top}{\northeast\pgf@x=0pt\relax}
+    \anchor{apex}{\northeast\pgf@y=0pt\relax}
+    \anchor{base}{\pgfpointorigin}
+    \anchor{mid}{\northeast\pgf@x=0.5\pgf@x\pgf@y=0.5\pgf@y}
+    % not standard geoanchors, south west is the same as 0,0...
+    \anchor{right}{\northeast\pgf@y=0pt\relax}
+    \anchor{east}{\northeast\pgf@y=0pt\relax}
+    \anchor{e}{\northeast\pgf@y=0pt\relax}
+    \anchor{left}{\pgfpointorigin}
+    \anchor{west}{\pgfpointorigin}
+    \anchor{w}{\pgfpointorigin}
+    \anchor{south}{\northeast\pgf@y=0pt\pgf@x=0.5\pgf@x}
+    \anchor{s}{\northeast\pgf@y=0pt\pgf@x=0.5\pgf@x}
+    \anchor{north}{\northeast\pgf@x=0.5\pgf@x}
+    \anchor{n}{\northeast\pgf@x=0.5\pgf@x}
+    \anchor{south west}{\pgfpointorigin}
+    \anchor{sw}{\pgfpointorigin}
+    \anchor{north east}{\northeast}
+    \anchor{ne}{\northeast}
+    \anchor{north west}{\northeast\pgf@x=0pt\relax}
+    \anchor{nw}{\northeast\pgf@x=0pt\relax}
+    \anchor{south east}{\northeast\pgf@y=0pt\relax}
+    \anchor{se}{\northeast\pgf@y=0pt\relax}
+    %
+    \pgf@circ@draw@component{
+        \northeast\pgf@circ@res@up=\pgf@y\pgf@circ@res@right=\pgf@x
+        \pgfsetbeveljoin % otherwise it sticks often "inside" the component
+        \pgfpathmoveto{\pgfpointorigin}
+        \pgfpathlineto{\pgfpoint{0pt}{\pgf@circ@res@up}}
+        \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{0pt}}
+        \pgfpathclose
+        \pgfusepath{draw}
+    }
+}
+% this is *almost* the same as notcirc, but scales with muxdemuxes and
+% has the default anchor to the left side
+\pgfdeclareshape{circleinv}{
+    \savedmacro{\ctikzclass}{\edef\ctikzclass{muxdemuxes}}
+    \savedanchor\northwest{%
+        \pgf@circ@notradius
+        \pgf@y=\pgf@circ@res@temp
+        \pgf@x=-\pgf@y
+    }
+    \pgfcirc@northwest@symmetric@geoanchors
+    %% use the left side as default anchor
+    \anchor{center}{\northwest\pgf@y=0pt}
+    \anchor{geocenter}{\pgfpointorigin}
+    \anchor{base}{\northwest\pgf@y=0pt}
+    \anchor{apex}{\northwest\pgf@y=0pt\pgf@x=-\pgf@x}
+    \anchor{mid}{\northwest\pgf@x=0pt}
+    \anchor{top}{\northwest\pgf@x=0pt}
+    \anchor{bottom}{\northwest\pgf@x=0pt\pgf@y=-\pgf@y}
+    \anchorborder{
+        \pgf@circ@res@left=\pgf@x
+        \pgf@circ@res@up=\pgf@y
+        \northwest\pgf@circ@res@temp=\pgf@y
+        \pgfpointborderellipse{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@up}}%
+        {\pgfpoint{\pgf@circ@res@temp}{\pgf@circ@res@temp}}
+    }
+    \pgf@circ@draw@component{
+        \pgfscope
+            \northwest\pgf@circ@res@temp=\pgf@y
+            \pgf@circ@setcolor
+            \pgf@circ@setlinewidth{multipoles}{\pgflinewidth}
+            \pgfpathcircle{\pgfpointorigin}{\pgf@circ@res@temp}
+            \ifx\tikz@fillcolor\pgfutil@empty
+                % set the default fill color to white
+                \pgfsetfillcolor{white}
+                % ...but override it if the class is defined!
+                \pgf@circ@setifdefinedfill{draw, fill}{draw, fill}
+            \else
+                \pgfsetfillcolor{\tikz@fillcolor}
+            \fi
+            \pgfusepath{draw,fill}
+        \endpgfscope
+    }
+}
+%% %>>>
+
+% vim: set fdm=marker fmr=%<<<,%>>>:

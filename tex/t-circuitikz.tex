@@ -1,0 +1,157 @@
+% Copyright 2018-2023 by Romano Giannetti
+% Copyright 2015-2023 by Stefan Lindner
+% Copyright 2013-2023 by Stefan Erhardt
+% Copyright 2007-2023 by Massimo Redaelli
+%
+% This file may be distributed and/or modified
+%
+% 1. under the LaTeX Project Public License and/or
+% 2. under the GNU Public License.
+%
+% See the files gpl-3.0_license.txt and lppl-1-3c_license.txt for more details.
+%
+% This module file is normally overriden by the provided m-circuitikz.tex
+% in the newer ConTeXt distributions.
+%
+\startmodule[circuitikz]
+\usemodule[tikz]
+
+\def\pgfcircversion{1.6.4-unreleased}
+\def\pgfcircversiondate{2023/07/28}
+\writestatus{loading}{\pgfcircversiondate{} The CircuiTikz circuit drawing package version \pgfcircversion}
+
+
+\usetikzlibrary[calc]
+\usetikzlibrary[arrows.meta, bending]
+\usetikzlibrary[fpu] % may be needed for use fpu reciprocal (v1.0.1)
+
+\unprotect
+
+\edef\tikzatcode{\the\catcode`\@}
+\edef\tikzbarcode{\the\catcode`\|}
+\edef\tikzexclaimcode{\the\catcode`\!}
+\catcode`\@=11
+\catcode`\|=12
+\catcode`\!=12
+
+\input pgfcirc.defines.tex
+\input pgfcircutils.tex
+\input pgfcircpath.tex
+
+\input pgfcircshapes.tex
+\input pgfcircmonopoles.tex
+\input pgfcircbipoles.tex
+\input pgfcirctripoles.tex
+\input pgfcircquadpoles.tex
+\input pgfcircmultipoles.tex
+
+\input pgfcirclabel.tex
+\input pgfcircvoltage.tex
+\input pgfcirccurrent.tex
+\input pgfcircflow.tex
+
+% defaults
+
+\setupmodule
+   [current=european,
+    voltage=european,
+    resistor=american,
+    inductor=cute,
+    logic=american,
+    siunitx=true,
+    arrowmos=false]
+
+\processaction
+   [\currentmoduleparameter{voltage}]
+   [european=>\ctikzset{voltage=european},
+    american=>\ctikzset{voltage=american}]
+
+\processaction
+   [\currentmoduleparameter{current}]
+   [european=>\ctikzset{ current=european},
+    american=>\ctikzset{ current=american}]
+
+\processaction
+   [\currentmoduleparameter{label}]
+   [straight=>\ctikzset{label/align = straight},
+    align=>\ctikzset{label/align = rotate},
+    smart=>\ctikzset{label/align = smart}]
+
+\processaction
+   [\currentmoduleparameter{resistor}]
+   [european=>\ctikzset{ resistor=european},
+    american=>\ctikzset{ resistor=american}]
+
+\processaction
+   [\currentmoduleparameter{inductor}]
+   [european=>\ctikzset{ inductor=european},
+    american=>\ctikzset{ inductor=american},
+    cute=>\ctikzset{ inductor=cute}]
+
+\processaction
+   [\currentmoduleparameter{diode}]
+   [full=>\ctikzset{ diode=full},
+    empty=>\ctikzset{ diode=empty}]
+
+\processaction
+   [\currentmoduleparameter{logic}]
+   [european=>\ctikzset{ logic ports=european},
+    american=>\ctikzset{ logic ports=american}]
+
+% This tiny siunitx emulation layer (REALLY tiny) is practically never
+% enabled because recent ConTeXt releases override this file with
+% m-circuitikz.tex and in that file it has been removed.
+
+\processaction
+   [\currentmoduleparameter{siunitx}]
+   [true=>\def\SI#1#2{#1\,#2}
+    \def\ampere{\rm{A}}
+    \def\volt{\rm{V}}
+    \def\ohm{\Omega}
+    \def\siemens{\rm{S}}
+    \def\farad{\rm{F}}
+    \def\henry{\rm{H}}
+    \def\second{\rm{s}}
+    \def\coulomb{\rm{C}}
+    \def\siemens{\rm{S}}
+    \def\radians{\rm{rad}}
+    \def\milli{\rm{m}}
+    \def\micro{\mu}
+    \def\nano{\rm{n}}
+    \def\pico{\rm{p}}
+    \def\kilo{\rm{k}}
+    \def\mega{\rm{M}}
+    \def\giga{\rm{G}}
+    \def\tera{\rm{T}},
+    false=>]
+%   \s!default=>\pgf@circ@siunitxtrue,
+
+\processaction
+   [\currentmoduleparameter{arrowmos}]
+   [true=>\pgf@circuit@mos@arrowstrue,
+    false=>\pgf@circuit@mos@arrowsfalse]
+%   \s!default=>\pgf@circuit@mos@arrowstrue,
+
+
+\ifpgf@circ@siunitx
+ % nothing! siunitx and xstrings don't work in context
+\fi
+
+
+% Context specific
+
+\ctikzset{tripoles/op amp/font/.initial=\switchtobodyfont[small]}
+
+
+\catcode`\@=\tikzatcode
+\catcode`\|=\tikzbarcode
+\catcode`\!=\tikzexclaimcode
+
+% define the environment
+\long\def\startcircuitikz#1\stopcircuitikz{\starttikzpicture#1\stoptikzpicture}
+
+\protect
+
+\stopmodule
+
+\endinput

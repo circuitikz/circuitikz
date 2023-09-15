@@ -1,0 +1,1194 @@
+% Copyright 2018-2023 by Romano Giannetti
+% Copyright 2015-2023 by Stefan Lindner
+% Copyright 2013-2023 by Stefan Erhardt
+% Copyright 2007-2023 by Massimo Redaelli
+%
+% This file may be distributed and/or modified
+%
+% 1. under the LaTeX Project Public License and/or
+% 2. under the GNU Public License.
+%
+% See the files gpl-3.0_license.txt and lppl-1-3c_license.txt for more details.
+%
+% This file has folding marks for vim (See last line).
+%
+
+%
+% This file is loaded *before* the options for the package are executed, mainly
+% for the following three ifs
+%
+% these three ifs are fundamental for the package loading options;
+% do not move away
+\newif\ifpgf@circ@siunitx
+\newif\ifpgf@circ@siunitx@res
+\newif\ifpgf@circuit@compat
+
+%% Key managements%<<<1
+
+\long\def\pgf@circ@comment#1{}
+
+\def\circuitikzbasekey{/tikz/circuitikz}
+
+\pgfkeys{\circuitikzbasekey/.is family}
+
+\def\circuitikzset{\expandafter\pgfqkeys\expandafter{\circuitikzbasekey}}
+\let\ctikzset\circuitikzset
+\def\ctikzvalof#1{\pgfkeysvalueof{\circuitikzbasekey/#1}}
+\def\ctikzsetvalof#1#2{\pgfkeyssetvalue{\circuitikzbasekey/#1}{#2}}
+
+\pgfkeys{\circuitikzbasekey/.search also={/tikz}}
+%%>>>
+
+%% Temporary Counters and dimensions%<<<1
+%% Temporary Counters
+\newcount\pgf@circ@count@a
+\newcount\pgf@circ@count@b
+\newcount\pgf@circ@count@c
+%%%%%%%%%%%%
+%% Dimensions
+% coordinate
+\newdimen\pgf@circ@res@up
+\newdimen\pgf@circ@res@down
+\newdimen\pgf@circ@res@zero
+\newdimen\pgf@circ@res@left
+\newdimen\pgf@circ@res@right
+\newdimen\pgf@circ@res@other
+\newdimen\pgf@circ@res@step
+\newdimen\pgf@circ@res@temp
+% Base len for all circuitikz
+\newdimen\pgf@circ@Rlen
+% scaled length for internal use in scalable shapes
+\newdimen\pgf@circ@scaled@Rlen
+\ctikzset{bipoles/length/.code={\pgf@circ@Rlen = #1\pgf@circ@scaled@Rlen=\pgf@circ@Rlen}}
+\pgf@circ@Rlen = 1.4cm
+% by default scale is 1.0
+\pgf@circ@scaled@Rlen=\pgf@circ@Rlen
+% inital thickness
+\newdimen \pgfstartlinewidth
+%%>>>
+
+%% Colors%<<<
+
+% The following code is by @muzimuzhi --- see comment in
+% https://github.com/circuitikz/circuitikz/issues/605#issuecomment-1030745366
+\newif\ifpgf@circ@setcolor
+
+% similar to how `/tikz/draw` and `/tikz/fill` are defined
+%
+% - `color=none`, \pgfusecolor is not executed at the beginning of node path(s)
+% - `color` or `color=` (no or empty value), ignored
+% - `color=<color name>`, \pgfusecolor{<color name>} will be executed
+\ctikzset{
+  color/.code={%
+    \edef\pgf@circ@temp{#1}%
+    \ifx\pgf@circ@temp\pgf@nonetext
+      \pgf@circ@setcolorfalse
+    \else
+      \ifx\pgf@circ@temp\pgfutil@empty
+      \else
+        \pgf@circ@setcolortrue
+        \pgfkeyssetvalue{\circuitikzbasekey/color}{#1}%
+        \edef\ctikz@strokecolor{\ctikzvalof{color}}%
+      \fi
+    \fi
+  },
+  % init
+  color=none
+}
+
+\let\ctikz@strokecolor\pgfutil@empty
+\let\ctikz@fillcolor\pgfutil@empty
+% do our tracking of color
+\pgfkeys{/tikz/color/.add code={}{%
+    \edef\ctikz@strokecolor{#1}\ctikzset{color={#1}}}}
+% do our tracking of fill
+\pgfkeys{/tikz/fill/.add code={}{%
+    \edef\ctikz@fillcolor{#1}}}
+%
+% This is to try to track the "implicit" color specification of Tikz,
+% like \draw[red,...] ...; which are not exactly the same than saying
+% \draw[color=red,...] ...;
+% This is too dangerous to issue by default (it was in 1.5.0 and it
+% was an error), so we will just define a command and tell it in the
+% manual.
+% It needs \usepackage{regexpatch} (which is not compatible with
+% xpatch, unfortunately)
+% I do not know how to do the xpatchcmd in ConTeXt...
+%
+\def\ctikzPatchImplicitColor{%
+\ifpgfutil@format@is@latex
+    \pgfkeysgetvalue{/tikz/.unknown/.@cmd}{\my@temp}
+    \xpatchcmd*\my@temp % use starred-form to replace all (two places actually)
+      {\expandafter\tikz@addoption\expandafter}
+        {\edef\ctikz@strokecolor{\tikz@key}%
+        \expandafter\tikz@addoption\expandafter}
+      {}{%
+      \pgfutil@packagewarning{circuitikz}{%
+        Color patch failed, use only explicit color=... (see manual)}}
+    \pgfkeyslet{/tikz/.unknown/.@cmd}{\my@temp}
+\else
+    \pgfutil@packagewarning{circuitikz}{%
+        Not on LaTeX: patch failed, ^^J%
+        use only explicit color=...(see manual).}
+\fi
+}
+%
+\def\pgf@circ@setcolor{%
+  \ifpgf@circ@setcolor
+    \pgfsetcolor{\ctikzvalof{color}}%
+  \fi
+}%
+%
+% Try our best to set the fill color the same as the draw
+% color. This needs the patch above
+%
+\def\pgf@circ@setfillcolorasdraw{%
+    \ifx\tikz@strokecolor\pgfutil@empty
+        % we do not have the stroke color. Resort to the
+        % last explicit color command; this will fail if
+        % the color is changed mid-draw.
+        % "Doctor, it hurts if I touch here..."
+        \ifx\ctikz@strokecolor\pgfutil@empty
+            % no info here. Try to use the current color.
+            \pgfsetfillcolor{.}%
+        \else
+            % Try with the last seen change-color command
+            \pgfsetfillcolor{\ctikz@strokecolor}
+        \fi
+    \else
+        % we have strokecolor, yay!
+        \pgfsetfillcolor{\tikz@strokecolor}
+    \fi
+}
+% we call this when we want to fill of the "draw"
+% color. So if we have no explicit color, use ".".
+\def\pgf@circ@fill@strokecolor{%
+    \pgf@circ@setfillcolorasdraw
+}
+% this is to select the \pgftext color; set it as
+% the stroke color (\pgftext uses the fill color)
+\def\pgf@circ@text@strokecolor{%
+    \pgf@circ@setfillcolorasdraw
+}
+% debug text
+\def\pgf@circ@debug@colors{%
+    \pgfscope
+        \pgfsetcolor{black}%
+        \pgftext[y=10pt]{\tiny S:\tikz@strokecolor~T:\tikz@textcolor~F:\tikz@fillcolor}%
+        \pgftext[y=16pt]{\tiny CS:\ctikz@strokecolor~CF:\ctikz@fillcolor}%
+    \endpgfscope
+}
+%>>>
+
+
+%% Macros for basic drawing%<<<
+%
+\long\gdef\pgf@circ@draw@component#1{%
+    \behindbackgroundpath{%
+        \pgf@circ@start@draw@hooks
+        #1%
+        \pgf@circ@end@draw@hooks
+    }%
+}%
+%
+% auxiliary macros to reset some thing in paths, for background images.
+% use with care and ALWAYS inside a \pgfscope, see here:
+% https://matrix.to/#/!NuxCISwYQJuyWwNsEI:matrix.org/$vQO6luq1F66LJ79dERmaqKI46qMBcjStqYCPi725uZE?via=matrix.org&via=2krueger.de&via=im.f3l.de
+% Thanks to @muzimuzhi
+%
+\def\pgf@circ@reset@arrows{%
+    \pgfsetshortenstart{+0pt}\pgfsetshortenend{+0pt}\pgfsetarrows{-}%
+}
+\def\pgf@circ@reset@rounded{%
+    \pgfsetcornersarced{\pgfpointorigin}%
+}
+\def\pgf@circ@reset@arrows@rounded{%
+    \pgf@circ@reset@arrows\pgf@circ@reset@rounded
+}
+\def\pgf@circ@adjustfill{%
+    \ifx\ctikz@fillcolor\pgfutil@empty
+    % do  nothing
+    \else
+        \ifx\ctikz@fillcolor\pgf@nonetext
+        % do nothing
+        \else
+            \pgfsetfillcolor{\ctikz@fillcolor}%
+        \fi
+    \fi
+}
+%% Hook macros for the start and end of component drawing. The idea is that
+%% specific macros overrides class macro that overrides generic macro
+%% the generic macro is the one that resets arrows and curved path parameters
+%% but let the path inherits the rest (dashed, etc.)
+
+\def\pgf@circ@start@draw@hooks{%
+    % \typeout{SHAPE: \pgf@sm@shape@name}
+    \ifcsname ctikz@hook@start@draw@component@\pgf@sm@shape@name\endcsname
+        \csname ctikz@hook@start@draw@component@\pgf@sm@shape@name\endcsname
+    \else
+        \ifcsname ctikzclass\endcsname
+            \ifcsname ctikz@hook@start@draw@class@\ctikzclass\endcsname
+                \csname ctikz@hook@start@draw@class@\ctikzclass\endcsname
+            % class defined, but no hook, run generic hook
+            \else
+                \csname ctikz@hook@start@draw@default\endcsname
+            \fi
+        % we have no class, we did not run specific hook:run generic hook
+        \else
+            \csname ctikz@hook@start@draw@default\endcsname
+        \fi
+    \fi
+}
+\def\pgf@circ@end@draw@hooks{%
+    % \typeout{SHAPE: \pgf@sm@shape@name}
+    \ifcsname ctikz@hook@end@draw@component@\pgf@sm@shape@name\endcsname
+        \csname ctikz@hook@end@draw@component@\pgf@sm@shape@name\endcsname
+    \else
+        \ifcsname ctikzclass\endcsname
+            \ifcsname ctikz@hook@end@draw@class@\ctikzclass\endcsname
+                \csname ctikz@hook@end@draw@class@\ctikzclass\endcsname
+            % class defined, but no hook, run generic hook
+            \else
+                \csname ctikz@hook@end@draw@default\endcsname
+            \fi
+        % we have no class, we did not run specific hook:run generic hook
+        \else
+            \csname ctikz@hook@end@draw@default\endcsname
+        \fi
+    \fi
+}
+%
+%% default hook is to stop the propagation of arrows parameters and
+%% arced corners.
+%
+\def\ctikz@hook@start@draw@default{\pgf@circ@reset@arrows@rounded}
+%
+%
+%>>>
+
+%% arrow tips macros and utilities %<<<1
+
+% the default arrow is latexslim, which has been ported over old arrows library (deprecated)
+% see https://tex.stackexchange.com/questions/234084/latex-arrow-tip-with-arrows-meta-library
+% this was the original definition of latex' tips, renamed to avoid clashes
+%
+\pgfarrowsdeclare{latexslim}{latexslim}
+{
+  \pgfutil@tempdima=0.28pt%
+  \advance\pgfutil@tempdima by.3\pgflinewidth%
+  \pgfarrowsleftextend{+-4\pgfutil@tempdima}
+  \pgfarrowsrightextend{+6\pgfutil@tempdima}
+}
+{
+  \pgfutil@tempdima=0.28pt%
+  \advance\pgfutil@tempdima by.3\pgflinewidth%
+  \pgfpathmoveto{\pgfqpoint{6\pgfutil@tempdima}{0\pgfutil@tempdima}}
+  \pgfpathcurveto
+  {\pgfqpoint{3.5\pgfutil@tempdima}{.5\pgfutil@tempdima}}
+  {\pgfqpoint{-1\pgfutil@tempdima}{1.5\pgfutil@tempdima}}
+  {\pgfqpoint{-4\pgfutil@tempdima}{3.75\pgfutil@tempdima}}
+  \pgfpathcurveto
+  {\pgfqpoint{-1.5\pgfutil@tempdima}{1\pgfutil@tempdima}}
+  {\pgfqpoint{-1.5\pgfutil@tempdima}{-1\pgfutil@tempdima}}
+  {\pgfqpoint{-4\pgfutil@tempdima}{-3.75\pgfutil@tempdima}}
+  \pgfpathcurveto
+  {\pgfqpoint{-1\pgfutil@tempdima}{-1.5\pgfutil@tempdima}}
+  {\pgfqpoint{3.5\pgfutil@tempdima}{-.5\pgfutil@tempdima}}
+  {\pgfqpoint{6\pgfutil@tempdima}{0\pgfutil@tempdima}}
+  \pgfpathclose
+  \pgfusepathqfill
+}
+
+\pgfarrowsdeclarereversed{latexslim reversed}{latexslim reversed}{latexslim}{latexslim}
+
+% select the arrows using available defaults.
+\def\pgfcirc@arrow@default{default}
+% choose the arrows to use. Use #2 and #3 if the key is equal to "default"
+% arguments: type, default start, default end
+\def\pgfcirc@set@arrows#1#2#3{%
+        \pgfkeysifdefined{\circuitikzbasekey/#1 start arrow}%
+            {\edef\@@start{\ctikzvalof{#1 start arrow}}}%
+            {\edef\@@start{\pgfcirc@arrow@default}}
+        \pgfkeysifdefined{\circuitikzbasekey/#1 end arrow}%
+            {\edef\@@end{\ctikzvalof{#1 end arrow}}}%
+            {\edef\@@end{\pgfcirc@arrow@default}}
+        \ifx\@@start\pgfcirc@arrow@default
+            \pgfsetarrowsstart{#2}%
+        \else
+            \pgfsetarrowsstart{\@@start}%
+        \fi
+        \ifx\@@end\pgfcirc@arrow@default
+            \pgfsetarrowsend{#3}%
+        \else
+            \pgfsetarrowsend{\@@end}%
+        \fi
+}
+
+\def\pgf@circ@declare@family@arrows#1{%
+    \ctikzset{#1 start arrow/.initial={default}}
+    \ctikzset{#1 end arrow/.initial={default}}
+    \tikzset{#1 start arrow/.style={\circuitikzbasekey/#1 start arrow={##1}}}
+    \tikzset{#1 end arrow/.style={\circuitikzbasekey/#1 end arrow={##1}}}
+}
+%%>>>
+
+%% Macros to do things depending on the class%<<<1
+
+\def\pgf@circ@setifdefinedfill#1#2{%
+    % if \ctikzclass is defined and \ctikzclass/fill is defined and is not none:
+    % set the fill color and execute \pgfusepath{#1}, else execute \pgfusepath{#2}
+    % \typeout{SETIFDEF:#1\space#2:}
+    \ifdefined\ctikzclass
+        \pgfkeysifdefined{\circuitikzbasekey/\ctikzclass/fill}%
+        {% yes, it's defined
+            \edef\@@tmp{\ctikzvalof{\ctikzclass/fill}}\edef\@@none{none}%
+            \ifx\@@tmp\@@none % but it's none
+                \pgfusepath{#2}%
+            \else
+                \pgfsetfillcolor{\@@tmp}%
+                \pgfusepath{#1}%
+            \fi
+        }{% the class is defined but the fill key not; use  #2
+            \pgfusepath{#2}%
+        }
+    \else
+    \pgfusepath{#2}%
+    \fi
+}
+
+%% Macro to fill or draw
+
+\def\pgf@circ@draworfill{%
+    \ifx\tikz@fillcolor\pgfutil@empty
+        \ifx\ctikz@fillcolor\pgfutil@empty
+            \pgf@circ@setifdefinedfill{draw,fill}{draw}
+        \else
+            \ifx\ctikz@fillcolor\pgf@nonetext
+                 \pgf@circ@setifdefinedfill{draw,fill}{draw}
+            \else
+                \pgfsetfillcolor{\ctikz@fillcolor}
+                \pgfusepath{draw, fill}
+            \fi
+        \fi
+    \else
+        \pgfsetfillcolor{\tikz@fillcolor}
+        \pgfusepath{draw, fill}
+    \fi
+}
+
+\def\pgf@circ@draworfillandclip{%
+    \ifx\tikz@fillcolor\pgfutil@empty
+        \ifx\ctikz@fillcolor\pgfutil@empty
+            \pgf@circ@setifdefinedfill{draw, clip, fill}{draw, clip}
+            \pgfusepath{draw, clip}
+        \else
+            \ifx\ctikz@fillcolor\pgf@nonetext
+                \pgf@circ@setifdefinedfill{draw, clip, fill}{draw, clip}
+                \pgfusepath{draw, clip}
+            \else
+                \pgfsetfillcolor{\ctikz@fillcolor}
+                \pgfusepath{draw, clip, fill}
+            \fi
+        \fi
+    \else
+        \pgfsetfillcolor{\tikz@fillcolor}
+        \pgfusepath{draw, clip, fill}
+    \fi
+}
+
+\def\pgf@circ@maybefill{%
+    % \typeout{MAYBEFILL\tikz@fillcolor}%
+    \ifx\tikz@fillcolor\pgfutil@empty
+        \ifx\ctikz@fillcolor\pgfutil@empty
+            \pgf@circ@setifdefinedfill{fill}{discard}
+        \else
+            \ifx\ctikz@fillcolor\pgf@nonetext
+                \pgf@circ@setifdefinedfill{fill}{discard}
+            \else
+                \pgfsetfillcolor{\ctikz@fillcolor}
+                \pgfusepath{fill}
+            \fi
+        \fi
+    \else
+        \pgfsetfillcolor{\tikz@fillcolor}
+        \pgfusepath{fill}
+    \fi
+}
+
+%% Macros for setting linewidth
+% #1 is the legacy class (bipoles, tripoles) etc
+% #2 is the reference linewidth
+\def\pgf@circ@setlinewidth#1#2{%
+    \ifdefined\ctikzclass
+        \pgfkeysifdefined{\circuitikzbasekey/\ctikzclass/thickness}%
+        {% yes, it's defined
+        \edef\@@tmp{\ctikzvalof{\ctikzclass/thickness}}\edef\@@none{none}%
+        \ifx\@@tmp\@@none % but it's none
+            \pgfsetlinewidth{\ctikzvalof{#1/thickness}#2}% passthrough legacy class
+        \else
+            \pgfsetlinewidth{\@@tmp #2}%
+        \fi
+        }{ % key not defined, do the legacy thing
+            \pgfsetlinewidth{\ctikzvalof{#1/thickness}#2}%
+        }% Ok, do nothing
+    \else % no class
+        \pgfsetlinewidth{\ctikzvalof{#1/thickness}#2}%
+    \fi
+}
+% use \pgf@circ@setlinewidth{none}{\pgflinewidth} if there is no legacy case
+\ctikzset{none/thickness/.initial=1.0} % do not touch
+
+% set thickness relative to current thickness if exists class and key
+\def\pgf@circ@set@relative@thickness#1{%
+    \ifdefined\ctikzclass
+        \pgfkeysifdefined{\circuitikzbasekey/\ctikzclass/#1}
+        {% yes, it's defined
+            \pgfsetlinewidth{\ctikzvalof{\ctikzclass/#1}\pgflinewidth}%
+        }{}
+    \fi
+}
+
+% set the color and dash pattern for a subset of the shape, following keys #1/color
+% and #1/dash. The keys must exist, and check for none or default for both
+\def\pgf@circ@subset@color@dash#1{%
+    % You *must* be sure that this is called inside a \pgfscope!
+    \edef\@@none{none}\edef\@@default{default}
+    \edef\@@tmp{\ctikzvalof{#1/color}}
+    \ifx\@@tmp\@@default\else
+        \pgfsetcolor{\@@tmp}
+    \fi
+    \edef\@@tmp{\ctikzvalof{#1/dash}}
+    \ifx\@@tmp\@@default\else
+        \ifx\@@tmp\@@none
+            \pgfsetdash{}{0pt}% solid line, override dash
+        \else
+            \expandafter\pgfsetdash\expandafter{\@@tmp}{0cm}
+        \fi
+    \fi
+}
+
+% set the text color (via \color) if the color is not default or none
+% needed in some strange case (like bodydiode' dots)
+\def\pgf@circ@maybe@color#1{%
+    \edef\@@none{none}\edef\@@default{default}%
+     \edef\@@tmp{\ctikzvalof{#1}}%
+     \ifx\@@tmp\@@default\else
+        \ifx\@@tmp\@@none\else
+            \color{\@@tmp}%
+        \fi
+     \fi
+}
+
+%%>>>
+
+%% font changes compatible with plain/LaTeX/ConTeXt%<<<1
+%% thanks to Henri Menke https://github.com/circuitikz/circuitikz/issues/285#issuecomment-537224605
+
+\ifpgfutil@format@is@latex
+    \long\def\pgf@circ@font@tiny{\tiny}
+    \long\def\pgf@circ@font@small{\small}
+    \long\def\pgf@circ@font@bold{\textbf}
+    \long\def\pgf@circ@font@boldmath{\boldmath}
+    \long\def\pgf@circ@font@sixbm{\fontsize{6}{7}\selectfont\boldmath}
+    \long\def\pgf@circ@font@tenbm{\fontsize{10}{12}\selectfont\boldmath}
+    \long\def\pgf@circ@font@twelve{\fontsize{12}{14}\selectfont}
+\else\ifpgfutil@format@is@plain
+    \long\def\pgf@circ@font@tiny{\fiverm}
+    \long\def\pgf@circ@font@small{\sevenrm}
+    \long\def\pgf@circ@font@bold#1{{\bf#1}}
+    \long\def\pgf@circ@font@boldmath{\bf}       % to be tested
+    \long\def\pgf@circ@font@sixbm{\sevenrm\bf}  %
+    \long\def\pgf@circ@font@tenbm{\tenrm\bf}    %
+    \long\def\pgf@circ@font@twelve{\twelverm}   %
+\else\ifpgfutil@format@is@context
+    \long\def\pgf@circ@font@tiny{\tfxx}
+    \long\def\pgf@circ@font@small{\tfx}
+    \long\def\pgf@circ@font@bold{\bold}
+    \long\def\pgf@circ@font@boldmath{\bold}    % to be tested
+    \long\def\pgf@circ@font@sixbm{\tfx\bold}   %
+    \long\def\pgf@circ@font@tenbm{\normal\bold}%
+    \long\def\pgf@circ@font@twelve{\tfa}       %
+\fi\fi\fi
+
+
+%
+% Thanks to Phelype Oleinik https://tex.stackexchange.com/a/520806/38080
+%
+% this is needed to avoid problems with \ConTeXt
+\ifcsname normalunexpanded\endcsname
+  \let\pgfcircutil@unexpanded\normalunexpanded
+\else
+  \let\pgfcircutil@unexpanded\unexpanded
+\fi
+% minimally expand a pgfkey to check if it's {}/undefined or filled.
+\def\unexpandedvalueof#1{%
+  \pgfcircutil@unexpanded\expandafter\expandafter
+    \expandafter\pgf@circ@valueof@chk\pgfkeysvalueof{#1}}
+\def\pgf@circ@valueof@chk#1{%
+  \ifx\relax#1%
+    \expandafter\pgfutil@firstoftwo
+  \else
+    \expandafter\pgfutil@secondoftwo
+  \fi
+    {{}}% #1 is \relax, so consider empty
+    {\expandafter{#1}}% otherwise, leave the key after one more expansion
+}%
+%>>>
+
+%% Generic macro for defining a bipole shape%<<<
+% #1 - additional anchors
+% #2 - lower y-size of the bipole (from the center).
+% #3 - #shape is the name of the shape
+% #4 - upper y-size of the bipole (from the center)
+% #5 - width of the bipole
+% #6 - macros drawing the bipole
+%
+\long\def\pgfcircdeclarebipole{%
+    \pgfcircdeclarebipolescaled{default}}
+
+%% Generic macro for defining a bipole shape
+% #1 - scale factor
+% #2 - additional anchors
+% #3 - lower y-size of the bipole (from the center).
+% #4 - #shape is the name of the shape
+% #5 - upper y-size of the bipole (from the center)
+% #6 - width of the bipole
+% #7 - macros drawing the bipole
+%
+\long\def\pgfcircdeclarebipolescaled#1#2#3#4#5#6#7{
+    \pgfdeclareshape{#4shape}{
+        \savedmacro{\ctikzclass}{\edef\ctikzclass{#1}}
+        \saveddimen{\scaledRlen}{\pgfmathsetlength{\pgf@x}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}}
+        \savedanchor{\northeast}{
+            \pgf@circ@scaled@Rlen=\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen
+            \pgf@y=#5\pgf@circ@scaled@Rlen
+            \pgf@y=.5\pgf@y
+            \pgf@x=#6\pgf@circ@scaled@Rlen
+            \pgf@x=.5\pgf@x
+        }
+        \savedanchor{\northeastborder}{
+            \pgf@circ@scaled@Rlen=\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen
+            \pgf@y=#5\pgf@circ@scaled@Rlen
+            \pgf@y=.5\pgf@y
+            \pgf@y=\ctikzvalof{bipoles/border margin}\pgf@y
+            \pgf@x=#6\pgf@circ@scaled@Rlen
+            \pgf@x=.5\pgf@x
+            \pgf@x=\ctikzvalof{bipoles/border margin}\pgf@x
+        }
+        \savedanchor{\southwestborder}{
+            \pgf@circ@scaled@Rlen=\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen
+            \pgf@y=-#3\pgf@circ@scaled@Rlen
+            \pgf@y=.5\pgf@y
+            \pgf@y=\ctikzvalof{bipoles/border margin}\pgf@y
+            \pgf@x=-#6\pgf@circ@scaled@Rlen
+            \pgf@x=.5\pgf@x
+            \pgf@x=\ctikzvalof{bipoles/border margin}\pgf@x
+        }
+        \savedanchor{\southwest}{
+            \pgf@circ@scaled@Rlen=\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen
+            \pgf@y=-#3\pgf@circ@scaled@Rlen
+            \pgf@y=.5\pgf@y
+            \pgf@x=-#6\pgf@circ@scaled@Rlen
+            \pgf@x=.5\pgf@x
+        }
+        \savedanchor{\centerpoint}{
+            \pgf@circ@scaled@Rlen=\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen
+            \pgf@circ@res@down=-#3\pgf@circ@scaled@Rlen
+            \pgf@circ@res@up=#5\pgf@circ@scaled@Rlen
+            \pgfpointorigin
+            \pgf@y=\pgf@circ@res@up
+            \advance\pgf@y by\pgf@circ@res@down
+            \pgf@y=.5\pgf@y
+        }
+        \anchor{center}{\pgfpointorigin}
+        \anchor{n}{
+            \northeast
+            \pgf@x=0cm
+        }
+        \anchor{north east}{
+            \northeast
+        }
+        \anchor{north west}{
+            \northeast
+            \pgf@x=-\pgf@x
+        }
+        \anchor{ne}{
+            \northeast
+        }
+        \anchor{nw}{
+            \northeast
+            \pgf@x=-\pgf@x
+        }
+        \anchor{e}{
+            \northeast
+            \pgf@y=0cm
+        }
+        \anchor{s}{
+            \southwest
+            \pgf@x=0cm
+        }
+        \anchor{south east}{
+            \southwest
+            \pgf@x=-\pgf@x
+        }
+        \anchor{south west}{
+            \southwest
+        }
+        \anchor{se}{
+            \southwest
+            \pgf@x=-\pgf@x
+        }
+        \anchor{sw}{
+            \southwest
+        }
+        \anchor{w}{
+            \southwest
+            \pgf@y=0cm
+        }
+        \anchor{north}{
+            \northeast
+            \pgf@x=0cm
+        }
+        \anchor{east}{
+            \northeast
+            \pgf@y=0cm
+        }
+        \anchor{south}{
+            \southwest
+            \pgf@x=0cm
+        }
+        \anchor{west}{
+            \southwest
+            \pgf@y=0cm
+        }
+        \anchor{right}{
+            \northeast
+            \pgf@y=0cm
+        }
+        \anchor{above}{
+            \northeast
+            \pgf@x=0cm
+        }
+        \anchor{left}{
+            \southwest
+            \pgf@y=0cm
+        }
+        \anchor{below}{
+            \southwest
+            \pgf@x=0cm
+        }
+        \anchor{a}{
+            \northeast
+            \pgf@y=0cm
+        }
+        \anchor{b}{
+            \southwest
+            \pgf@y=0cm
+        }
+        \savedanchor{\textanchor}{%
+            \pgf@y=\ht\pgfnodeparttextbox
+            \pgf@x=-.5\wd\pgfnodeparttextbox
+        }
+        \anchor{text}{
+            \textanchor
+        }
+        \anchorborder{%
+            \ifpgf@circuit@bipole@inverted
+                \pgf@circ@res@left=-\pgf@x
+                \pgf@circ@res@up=-\pgf@y
+            \else
+                \pgf@circ@res@left=\pgf@x
+                \pgf@circ@res@up=\pgf@y
+            \fi
+            \ifdim\pgf@circ@res@up>0cm
+                \pgfpointborderrectangle{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@up}}{\northeastborder}
+            \else
+                \southwestborder
+                \pgfpointborderrectangle{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@up}}{\pgfpoint{-\pgf@x}{-\pgf@y}}
+            \fi
+        }
+        #2%
+        \pgf@circ@draw@component{
+            \pgf@circ@setcolor
+
+            \northeast
+            \pgf@circ@res@up = \pgf@y
+            \pgf@circ@res@zero = 0cm
+            \pgf@circ@res@left = -\pgf@x
+            \pgf@circ@res@right = \pgf@x
+            \southwest
+            \pgf@circ@res@down = \pgf@y
+            \pgf@circ@scaled@Rlen=\scaledRlen
+            \pgfstartlinewidth=\pgflinewidth
+            % we used to reset arced corners here --- now it's in the hooks. I hope.
+            #7%
+            \pgfsetlinewidth{\pgfstartlinewidth}
+        }
+    }
+}% %>>>
+
+%% anchor adjustment macros%<<<
+
+% Extend the border anchor position by the specified factors on the right-top (north east corner)
+% and the left-down (southwest border). Argument must be number (possibly decimal) without sign
+
+\def\pgfcirc@border@extend@full#1#2#3#4{% right, top, left, down
+    \anchorborder{%
+        \ifpgf@circuit@bipole@inverted
+            \pgf@circ@res@left=-\pgf@x
+            \pgf@circ@res@up=-\pgf@y
+        \else
+            \pgf@circ@res@left=\pgf@x
+            \pgf@circ@res@up=\pgf@y
+        \fi
+        \ifdim\pgf@circ@res@up>0cm
+            \northeastborder
+            \pgfpointborderrectangle{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@up}}{\pgfpoint{#1\pgf@x}{#2\pgf@y}}
+        \else
+            \southwestborder
+            \pgfpointborderrectangle{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@up}}{\pgfpoint{-#3\pgf@x}{-#4\pgf@y}}
+        \fi
+    }
+}
+
+% Just up and down (very common)
+\def\pgfcirc@border@extend@updown#1#2{\pgfcirc@border@extend@full{1}{#1}{1}{#2}}%
+
+
+% set of symmetrical, geographical anchors when a \northwest saved anchor is available
+\long\def\pgfcirc@northwest@symmetric@geoanchors{%
+    \anchor{right}{\northwest\pgf@y=0pt\pgf@x=-\pgf@x}
+    \anchor{east}{\northwest\pgf@y=0pt\pgf@x=-\pgf@x}
+    \anchor{e}{\northwest\pgf@y=0pt\pgf@x=-\pgf@x}
+    \anchor{left}{\northwest\pgf@y=0pt}
+    \anchor{west}{\northwest\pgf@y=0pt}
+    \anchor{w}{\northwest\pgf@y=0pt}
+    \anchor{south}{\northwest\pgf@x=0pt\pgf@y=-\pgf@y}
+    \anchor{s}{\northwest\pgf@x=0pt\pgf@y=-\pgf@y}
+    \anchor{north}{\northwest\pgf@x=0pt}
+    \anchor{n}{\northwest\pgf@x=0pt}
+    \anchor{south west}{\northwest\pgf@y=-\pgf@y}
+    \anchor{sw}{\northwest\pgf@y=-\pgf@y}
+    \anchor{north east}{\northwest\pgf@x=-\pgf@x}
+    \anchor{ne}{\northwest\pgf@x=-\pgf@x}
+    \anchor{north west}{\northwest}
+    \anchor{nw}{\northwest}
+    \anchor{south east}{\northwest\pgf@x=-\pgf@x\pgf@y=-\pgf@y}
+    \anchor{se}{\northwest\pgf@x=-\pgf@x\pgf@y=-\pgf@y}
+}
+% the same, when we have \northeast (I know...)
+\long\def\pgfcirc@northeast@symmetric@geoanchors{%
+    \anchor{north}{\northeast\pgf@x=0cm\relax}
+    \anchor{n}{\northeast\pgf@x=0cm\relax}
+    \anchor{east}{\northeast\pgf@y=0cm\relax}
+    \anchor{e}{\northeast\pgf@y=0cm\relax}
+    \anchor{right}{\northeast\pgf@y=0cm\relax}
+    \anchor{south}{\northeast\pgf@y=-\pgf@y \pgf@x=0cm\relax}
+    \anchor{s}{\northeast\pgf@y=-\pgf@y \pgf@x=0cm\relax}
+    \anchor{west}{\northeast\pgf@y=0cm\pgf@x=-\pgf@x}
+    \anchor{w}{\northeast\pgf@y=0cm\pgf@x=-\pgf@x}
+    \anchor{left}{\northeast\pgf@y=0cm\pgf@x=-\pgf@x}
+    \anchor{north east}{\northeast}
+    \anchor{ne}{\northeast}
+    \anchor{north west}{\northeast\pgf@x=-\pgf@x}
+    \anchor{nw}{\northeast\pgf@x=-\pgf@x}
+    \anchor{south east}{\northeast\pgf@y=-\pgf@y}
+    \anchor{se}{\northeast\pgf@y=-\pgf@y}
+    \anchor{south west}{\northeast\pgf@y=-\pgf@y\pgf@x=-\pgf@x}
+    \anchor{sw}{\northeast\pgf@y=-\pgf@y\pgf@x=-\pgf@x}
+}
+%>>>
+
+%% text position in some component.%<<<1
+% (added with ieeestd logic ports. Maybe to be extended to other components,
+% like amplifiers)
+%
+\newif\ifpgf@circ@center@text\pgf@circ@center@texttrue
+\tikzset{component text/.is choice}%
+\tikzset{component text/center/.code={\pgf@circ@center@texttrue}}%
+\tikzset{component text/left/.code={\pgf@circ@center@textfalse}}%
+\ctikzset{component text/.is choice}%
+\ctikzset{component text/center/.code={\pgf@circ@center@texttrue}}%
+\ctikzset{component text/left/.code={\pgf@circ@center@textfalse}}%
+\ctikzset{left text distance/.initial=0.3em}%
+%>>>
+
+%% voltage direction options%<<<1
+
+\newif\ifpgf@circ@oldvoltagedirection % default false
+\newif\ifpgf@circ@explicitvdir
+\newif\ifpgf@circ@fixbatteries
+
+\ctikzset{voltage dir/.is choice}
+\ctikzset{voltage dir/old/.code={\pgf@circ@oldvoltagedirectiontrue\pgf@circ@fixbatteriesfalse}}
+\ctikzset{voltage dir/noold/.code={\pgf@circ@oldvoltagedirectionfalse\pgf@circ@fixbatteriesfalse}}
+\ctikzset{voltage dir/RP/.code={\pgf@circ@oldvoltagedirectiontrue\pgf@circ@fixbatteriestrue}}
+\ctikzset{voltage dir/EF/.code={\pgf@circ@oldvoltagedirectionfalse\pgf@circ@fixbatteriestrue}}
+\tikzset{voltage dir/.style={circuitikz/voltage dir=#1}}%
+%>>>
+
+%% bipole definitions for path component and text decorations%%<<<1
+%
+% Option "t=*" for nodes
+\pgfkeys{/tikz/t/.add code={}{\ctikzset{text=#1}}}
+\pgfkeys{/tikz/t1/.add code={}{\ctikzset{text in=#1}}}
+\pgfkeys{/tikz/t2/.add code={}{\ctikzset{text out=#1}}}
+%
+\ctikzset{bipole/.is family}
+\ctikzset{bipole/kind/.initial=}
+\ctikzset{bipole/name/.initial=}
+\newif\ifpgf@circuit@bipole@isvoltage
+\ctikzset{bipole/is voltage/.is if=pgf@circuit@bipole@isvoltage}
+\newif\ifpgf@circuit@bipole@override@source@vif
+\ctikzset{bipole/override source vif/.is if=pgf@circuit@bipole@override@source@vif}
+\newif\ifpgf@circuit@bipole@voltageoutsideofsymbol
+\ctikzset{bipole/is voltageoutsideofsymbol/.is if=pgf@circuit@bipole@voltageoutsideofsymbol}
+\newif\ifpgf@circuit@bipole@strokedsymbol
+\ctikzset{bipole/is strokedsymbol/.is if=pgf@circuit@bipole@strokedsymbol}
+\newif\ifpgf@circuit@bipole@iscurrent
+\ctikzset{bipole/is current/.is if=pgf@circuit@bipole@iscurrent}
+
+\ctikzset{bipole/voltage/.is family}
+\newif\ifpgf@circuit@bipole@voltage@backward
+\ctikzset{bipole/voltage/direction/.is choice}
+\ctikzset{bipole/voltage/direction/forward/.code={\pgf@circuit@bipole@voltage@backwardfalse}}
+\ctikzset{bipole/voltage/direction/backward/.code={\pgf@circuit@bipole@voltage@backwardtrue}}
+\newif\ifpgf@circuit@bipole@voltage@below
+\ctikzset{bipole/voltage/position/.is choice}
+\ctikzset{bipole/voltage/position/above/.code={\pgf@circuit@bipole@voltage@belowfalse}}
+\ctikzset{bipole/voltage/position/below/.code={\pgf@circuit@bipole@voltage@belowtrue}}
+
+\ctikzset{bipole/voltage/label/unit/.initial=}
+\ctikzset{bipole/voltage/label/name/.initial=}
+
+\ctikzset{bipole/current/.is family}
+\newif\ifpgf@circuit@bipole@current@backward
+\ctikzset{bipole/current/direction/.is choice}
+\ctikzset{bipole/current/direction/forward/.code={\pgf@circuit@bipole@current@backwardfalse}}
+\ctikzset{bipole/current/direction/backward/.code={\pgf@circuit@bipole@current@backwardtrue}}
+\newif\ifpgf@circuit@bipole@current@before
+\ctikzset{bipole/current/x position/.is choice}
+\ctikzset{bipole/current/x position/after/.code={\pgf@circuit@bipole@current@beforefalse}}
+\ctikzset{bipole/current/x position/before/.code={\pgf@circuit@bipole@current@beforetrue}}
+\newif\ifpgf@circuit@bipole@current@below
+\ctikzset{bipole/current/y position/.is choice}
+\ctikzset{bipole/current/y position/above/.code={\pgf@circuit@bipole@current@belowfalse}}
+\ctikzset{bipole/current/y position/below/.code={\pgf@circuit@bipole@current@belowtrue}}
+\ctikzset{bipole/current/label/unit/.initial=}
+\ctikzset{bipole/current/label/name/.initial=}
+
+\ctikzset{bipole/flow/.is family}
+\newif\ifpgf@circuit@bipole@flow@backward
+\ctikzset{bipole/flow/direction/.is choice}
+\ctikzset{bipole/flow/direction/forward/.code={\pgf@circuit@bipole@flow@backwardfalse}}
+\ctikzset{bipole/flow/direction/backward/.code={\pgf@circuit@bipole@flow@backwardtrue}}
+\newif\ifpgf@circuit@bipole@flow@before
+\ctikzset{bipole/flow/x position/.is choice}
+\ctikzset{bipole/flow/x position/after/.code={\pgf@circuit@bipole@flow@beforefalse}}
+\ctikzset{bipole/flow/x position/before/.code={\pgf@circuit@bipole@flow@beforetrue}}
+\newif\ifpgf@circuit@bipole@flow@below
+\ctikzset{bipole/flow/y position/.is choice}
+\ctikzset{bipole/flow/y position/above/.code={\pgf@circuit@bipole@flow@belowfalse}}
+\ctikzset{bipole/flow/y position/below/.code={\pgf@circuit@bipole@flow@belowtrue}}
+\ctikzset{bipole/flow/label/unit/.initial=}
+\ctikzset{bipole/flow/label/name/.initial=}
+\ctikzset{flow/distance/.initial = .5}
+\ctikzset{flow/offset/.initial = .2}%distance between flow-arrow and conductor
+
+\ctikzset{bipole/label/.is family}
+\ctikzset{bipole/label/position/.initial=90}
+\ctikzset{bipole/label/unit/.initial=}
+\ctikzset{bipole/label/name/.initial=}
+\ctikzset{bipole/annotation/.is family}
+\ctikzset{bipole/annotation/position/.initial=-90}
+\ctikzset{bipole/annotation/unit/.initial=}
+\ctikzset{bipole/annotation/name/.initial=}
+
+
+\ctikzset{label/align/.is choice}
+\ctikzset{label/align/straight/.code={\ctikzsetvalof{label/align}{straight}}}
+\ctikzset{label/align/rotate/.code={\ctikzsetvalof{label/align}{rotate}}}
+\ctikzset{label/align/smart/.code={\ctikzsetvalof{label/align}{smart}}}
+%%>>>
+
+%% traditional styles %<<<1
+%
+\ctikzset{thickness/.initial=2}
+\ctikzset{bipoles/border margin/.initial=1.1}
+\ctikzset{bipoles/thickness/.initial=2}
+\ctikzset{tripoles/thickness/.initial=2}
+\ctikzset{quadpoles/thickness/.initial=2}
+\ctikzset{nodes width/.initial=.04}
+%%>>>
+
+%% Styles definitions and macros%<<<1
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% main style definitions
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% load a style file: search ctikzstyle-NAME.tex in path
+\def\ctikzloadstyle#1{%
+    \pgfutil@InputIfFileExists{ctikzstyle-#1}{}{%
+        \tikzerror{I did not find the circuitikz style #1}}%
+}
+
+% load and enact a style
+\def\ctikzsetstyle#1{%
+    \ctikzloadstyle{#1}%
+    \tikzset{#1 circuit style}%
+}
+
+% global style parameters
+\ctikzset{default/scale/.initial=1.0}   % do not touch
+\ctikzset{default/fill/.initial=none}   % do not touch
+\ctikzset{default/thickness/.initial=none}   % do not touch
+% default is use as the generic default style for bipoles
+
+% mostly bipoles:
+
+\ctikzset{resistors/scale/.initial=1.0}
+\ctikzset{resistors/fill/.initial=none}
+\ctikzset{resistors/thickness/.initial=none}
+\ctikzset{resistors/modifier thickness/.initial=1}% relative to main thickness
+
+\ctikzset{capacitors/scale/.initial=1.0}
+\ctikzset{capacitors/fill/.initial=none}
+\ctikzset{capacitors/thickness/.initial=none}
+\ctikzset{capacitors/modifier thickness/.initial=1}
+
+\ctikzset{inductors/scale/.initial=1.0}
+\ctikzset{inductors/fill/.initial=none}
+\ctikzset{inductors/thickness/.initial=none}
+\ctikzset{inductors/modifier thickness/.initial=1}
+
+\ctikzset{diodes/scale/.initial=1.0}
+\ctikzset{diodes/fill/.initial=none}
+\ctikzset{diodes/thickness/.initial=none}
+% we define opto arrows style here because they are used also
+% in transistors
+\ctikzset{opto arrows/.is family}
+\ctikzset{opto arrows/relative thickness/.initial=1}
+\ctikzset{opto arrows/color/.initial=default}
+\ctikzset{opto arrows/dash/.initial=default}
+\def\pgf@circ@set@optoarrow@style{%
+    % You *must* be sure that this is called inside a \pgfscope!
+    \pgfsetlinewidth{\ctikzvalof{opto arrows/relative thickness}\pgflinewidth}
+        \pgf@circ@subset@color@dash{opto arrows}
+        \pgfcirc@set@arrows{opto}{}{latexslim}
+    }
+
+\ctikzset{batteries/scale/.initial=1.0}
+\ctikzset{batteries/fill/.initial=none}
+\ctikzset{batteries/thickness/.initial=none}
+
+\ctikzset{sources/scale/.initial=1.0}
+\ctikzset{sources/fill/.initial=none}
+\ctikzset{sources/thickness/.initial=none}
+
+\ctikzset{csources/scale/.initial=1.0}
+\ctikzset{csources/fill/.initial=none}
+\ctikzset{csources/thickness/.initial=none}
+
+\ctikzset{instruments/scale/.initial=1.0}
+\ctikzset{instruments/fill/.initial=none}
+\ctikzset{instruments/thickness/.initial=none}
+
+\ctikzset{mechanicals/scale/.initial=1.0}
+\ctikzset{mechanicals/fill/.initial=none}
+\ctikzset{mechanicals/thickness/.initial=none}
+
+\ctikzset{misc/scale/.initial=1.0}
+\ctikzset{misc/fill/.initial=none}
+\ctikzset{misc/thickness/.initial=none}
+
+\ctikzset{blocks/scale/.initial=1.0}
+\ctikzset{blocks/fill/.initial=none}
+\ctikzset{blocks/thickness/.initial=none}
+
+% mostly nodes
+
+\ctikzset{grounds/scale/.initial=1.0}
+\ctikzset{grounds/fill/.initial=none}
+\ctikzset{grounds/thickness/.initial=none}
+
+\ctikzset{power supplies/scale/.initial=1.0}
+\ctikzset{power supplies/fill/.initial=none}
+\ctikzset{power supplies/thickness/.initial=none}
+
+\ctikzset{transistors/scale/.initial=1.0}
+\ctikzset{transistors/fill/.initial=none}
+\ctikzset{transistors/thickness/.initial=none}
+\ctikzset{transistors/modifier thickness/.initial=1}% relative to main thickness
+
+\ctikzset{tubes/scale/.initial=1.0}
+\ctikzset{tubes/fill/.initial=none}
+\ctikzset{tubes/thickness/.initial=none}
+
+\ctikzset{RF/scale/.initial=1.0}
+\ctikzset{RF/fill/.initial=none}
+\ctikzset{RF/thickness/.initial=none}
+
+\ctikzset{electromechanicals/scale/.initial=1.0}
+\ctikzset{electromechanicals/fill/.initial=none}
+\ctikzset{electromechanicals/thickness/.initial=none}
+
+% transformers go with inductors
+\ctikzset{amplifiers/scale/.initial=1.0}
+\ctikzset{amplifiers/fill/.initial=none}
+\ctikzset{amplifiers/thickness/.initial=none}
+
+\ctikzset{switches/scale/.initial=1.0}
+\ctikzset{switches/fill/.initial=none}
+\ctikzset{switches/thickness/.initial=none}
+
+\ctikzset{logic ports/scale/.initial=1.0}
+\ctikzset{logic ports/fill/.initial=none}
+\ctikzset{logic ports/thickness/.initial=none}
+
+\ctikzset{flipflops/scale/.initial=1.0}
+\ctikzset{flipflops/fill/.initial=none}
+\ctikzset{flipflops/thickness/.initial=none}
+
+\ctikzset{muxdemuxes/scale/.initial=1.0}
+\ctikzset{muxdemuxes/fill/.initial=none}
+\ctikzset{muxdemuxes/thickness/.initial=none}
+
+\ctikzset{chips/scale/.initial=1.0}
+\ctikzset{chips/fill/.initial=none}
+\ctikzset{chips/thickness/.initial=none}
+
+\ctikzset{displays/scale/.initial=1.0}
+\ctikzset{displays/fill/.initial=none}
+\ctikzset{displays/thickness/.initial=none}
+%
+% general styles
+%
+\tikzset{european/.style = {european currents, european voltages, european resistors, european inductors, european ports, european gas filled surge arrester set}}
+\tikzset{american/.style = {american currents, american voltages, american resistors, american inductors, american ports, american gas filled surge arrester set}}
+\tikzset{cute/.style = {european currents, european voltages, american resistors, cute inductors, american ports}}
+%%>>>
+
+%% voltage and current options%<<<1
+%
+\ctikzset{current arrow scale/.initial=16}
+\ctikzset{current/distance/.initial = .5}
+
+\newif\ifpgf@circuit@europeancurrent
+\newif\ifpgf@circuit@europeanvoltage
+\newif\ifpgf@circuit@bipole@voltage@straight
+\newif\ifpgf@circuit@bipole@voltage@raised
+
+\ctikzset{voltage/.is choice}
+%
+% straight is expected to be a subset of european, so disable it in american style
+%
+\ctikzset{voltage/american/.code = {%
+    \pgf@circuit@europeanvoltagefalse
+    \pgf@circuit@bipole@voltage@straightfalse
+    \pgf@circuit@bipole@voltage@raisedfalse
+}}
+\ctikzset{voltage/raised/.code = {%
+    \pgf@circuit@europeanvoltagefalse
+    \pgf@circuit@bipole@voltage@straightfalse
+    \pgf@circuit@bipole@voltage@raisedtrue
+}}
+\ctikzset{voltage/european/.code = {%
+    \pgf@circuit@europeanvoltagetrue
+    \pgf@circuit@bipole@voltage@straightfalse
+    \pgf@circuit@bipole@voltage@raisedfalse
+}}
+\ctikzset{voltage/straight/.code = {%
+    \pgf@circuit@europeanvoltagetrue
+    \pgf@circuit@bipole@voltage@straighttrue
+    \pgf@circuit@bipole@voltage@raisedfalse
+}}
+\ctikzset{voltage/curved/.code = {%
+    \pgf@circuit@europeanvoltagetrue
+    \pgf@circuit@bipole@voltage@straightfalse
+    \pgf@circuit@bipole@voltage@raisedfalse
+}}
+% are these used?
+\ctikzset{current/.is choice}
+\ctikzset{current/american/.code = \pgf@circuit@europeancurrentfalse}
+\ctikzset{current/european/.code = \pgf@circuit@europeancurrenttrue}
+
+% this is left for backward compatibility...
+\ctikzset{straight/.is choice}
+\ctikzset{straight/true/.code = {\pgf@circuit@bipole@voltage@straighttrue}}
+\ctikzset{straight/false/.code = {\pgf@circuit@bipole@voltage@straightfalse}}
+\ctikzset{bipole/straight/.is if=pgf@circuit@bipole@voltage@straight}
+%
+% voltage is used also to set parameters, apart for the /.is choice
+% above. I hope it is ok --- would be a mess otherwise
+%
+\ctikzset{voltage/shift/.initial=0.0} % shift form the cable of voltage symbols
+\ctikzset{voltage shift/.style={\circuitikzbasekey/voltage/shift=#1}}
+\tikzset{voltage shift/.style={\circuitikzbasekey/voltage/shift=#1}}
+%
+% keys for exporting voltage, current, flow anchors
+%
+\newif\ifpgfcirc@has@v\pgfcirc@has@vfalse
+\newif\ifpgfcirc@has@f\pgfcirc@has@ffalse
+\newif\ifpgfcirc@has@i\pgfcirc@has@ifalse
+\def\ctikzgetanchor#1#2{\csname pgfcirc@#1-#2-anchor\endcsname}
+\def\ctikzgetdirection#1{\csname pgfcirc@#1-direction\endcsname}
+%
+% shaping the +/- sign, see pgfcircvoltage.tex
+\ctikzset{voltage/american font/.initial={}}
+\ctikzset{voltage/american plus/.initial={$+$}}
+% In the mayority of fonts, the size of - is smaller than +, so we have
+% unaligned signs when positioned independently.
+% See https://github.com/circuitikz/circuitikz/issues/721
+\ctikzset{voltage/american minus/.initial={$\vphantom{+}-$}}
+% here we start the voltage adjustments for special components.
+% default values:
+%
+% this is the distance of the "point" marking the voltage along the line
+% 0.0 is on the external nodes of the to path
+% 1.0 is cramped on the object
+% this can be overriden component by component
+\ctikzset{voltage/distance from node/.initial=.5}% pos, 0->1
+%
+% this is the distance from the line (perpendicular to) where the voltage is drawn.
+% It is global, and not adjustable by component (use the "label distance" or locally
+% if you need it)
+\ctikzset{voltage/distance from line/.initial=.08}% in \pgf@circ@scaled@Rlen units
+%
+% bend paramenters for european arc. You can override them component-based
+\ctikzset{voltage/bump b/.initial=1.5}
+%
+% generator voltages symbols or arrows (always straight) are put along the
+% 60 ... 120 angles of the symbol (don't ask why). The distance here is on the
+% center..angle line. It's called bump a because I don't know...
+%
+\ctikzset{voltage/bump a/.initial=1.2}
+%
+% these are the label distances FROM the drawings.
+% You can override them component by component.
+\ctikzset{voltage/european label distance/.initial=1.4}
+\ctikzset{voltage/straight label distance/.initial=1.4}
+\ctikzset{voltage/american label distance/.initial=1.4}
+% american open voltage adjusting
+%
+\newif\ifpgf@adjust@open@voltage\pgf@adjust@open@voltagetrue
+\ctikzset{open voltage position/.is choice}
+\ctikzset{open voltage position/center/.code={\pgf@adjust@open@voltagetrue}}
+\ctikzset{open voltage position/legacy/.code={\pgf@adjust@open@voltagefalse}}
+% bad names, kept for compatibility, don't use
+\ctikzset{american open voltage/.is choice}
+\ctikzset{american open voltage/center/.code={\pgf@adjust@open@voltagetrue}}
+\ctikzset{american open voltage/legacy/.code={\pgf@adjust@open@voltagefalse}}
+%
+% voltage and current styles
+%
+\tikzset{american currents/.style = {\circuitikzbasekey/current = american}}
+\tikzset{european currents/.style = {\circuitikzbasekey/current = european}}
+\tikzset{american voltages/.style = {\circuitikzbasekey/voltage = american}}
+\tikzset{european voltages/.style = {\circuitikzbasekey/voltage = european}}
+\tikzset{straight voltages/.style = {\circuitikzbasekey/voltage = straight}}
+\tikzset{raised voltages/.style = {\circuitikzbasekey/voltage = raised}}
+%%>>>
+
+\endinput
+% vim: set fdm=marker fmr=%<<<,%>>>:

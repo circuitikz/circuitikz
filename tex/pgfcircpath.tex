@@ -1,0 +1,361 @@
+% Copyright 2018-2023 by Romano Giannetti
+% Copyright 2015-2023 by Stefan Lindner
+% Copyright 2013-2023 by Stefan Erhardt
+% Copyright 2007-2023 by Massimo Redaelli
+%
+% This file may be distributed and/or modified
+%
+% 1. under the LaTeX Project Public License and/or
+% 2. under the GNU Public License.
+%
+% See the files gpl-3.0_license.txt and lppl-1-3c_license.txt for more details.
+
+
+\def\pgf@circ@direction{0.0}
+
+% swap two coordinates
+\def\pgfcirc@swap@coordinates#1#2{%
+    coordinate (pgfcirc@tmp@swap) at (#1)
+    coordinate (#1) at (#2)
+    coordinate (#2) at (pgfcirc@tmp@swap)
+}
+
+% Names
+\ctikzset{name/.style = { n={#1} } } %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%@@@
+\ctikzset{n/.code = {
+	\pgfkeys{/tikz/circuitikz/bipole/name={#1}}
+}}
+
+% Reflect the node along
+\ctikzset{mirrored/.is choice}
+\ctikzset{mirror value/.initial=1}
+\ctikzset{mirrored/true/.code = {\ctikzsetvalof{mirror value}{-1}} }
+\ctikzset{mirrored/false/.code = {\ctikzsetvalof{mirror value}{1}} }
+\ctikzset{mirror/.style = {/tikz/circuitikz/mirrored=true}}
+
+% Invert node along path
+\ctikzset{inverted/.is choice}
+\ctikzset{invert value/.initial=1}
+\ctikzset{inverted/true/.code = {\ctikzsetvalof{invert value}{-1}\pgf@circuit@bipole@invertedtrue}}
+\ctikzset{inverted/false/.code = {\ctikzsetvalof{invert value}{1}\pgf@circuit@bipole@invertedfalse}}
+\ctikzset{invert/.style = {/tikz/circuitikz/inverted=true}}
+\newif\ifpgf@circuit@bipole@inverted
+\ctikzset{bipole/inverted/.is if=pgf@circuit@bipole@inverted}
+
+\newif\ifpgf@circuit@bipole@voltage@backward
+\ctikzset{bipole/voltage/direction/.is choice}
+\ctikzset{bipole/voltage/direction/forward/.code={\pgf@circuit@bipole@voltage@backwardfalse}}
+\ctikzset{bipole/voltage/direction/backward/.code={\pgf@circuit@bipole@voltage@backwardtrue}}
+
+% Initialize paths
+\def\pgfcircresetpath{
+    \ctikzset{bipole/name=, bipole/label/name=, bipole/label/position=90, ,bipole/annotation/name=, bipole/annotation/position=-90,
+        bipole/inverted=false, bipole/kind=,
+        bipole/voltage/direction=backward, bipole/voltage/label/name=, bipole/voltage/position=below,
+        bipole/nodes/left=none, bipole/nodes/right=none, bipole/is voltage=false,bipole/is voltageoutsideofsymbol=false,bipole/is strokedsymbol=false,
+        bipole/is current=false, bipole/current/label/name=, bipole/current/x position=after,
+        bipole/current/y position=above, bipole/current/direction=forward,
+        mirrored=false
+    }
+}
+
+%
+% expandable IF for the extra nodes (thanks to Henri Menke)
+% see https://chat.stackexchange.com/transcript/message/56560808#56560808
+%
+\def\pgfcirc@if@has@i{%
+    \ifpgfcirc@has@i
+        \expandafter\pgfutil@firstoftwo
+    \else
+        \expandafter\pgfutil@secondoftwo
+    \fi}
+\def\pgfcirc@if@has@v{%
+    \ifpgfcirc@has@v
+        \expandafter\pgfutil@firstoftwo
+    \else
+        \expandafter\pgfutil@secondoftwo
+    \fi}
+\def\pgfcirc@if@has@f{%
+    \ifpgfcirc@has@f
+        \expandafter\pgfutil@firstoftwo
+    \else
+        \expandafter\pgfutil@secondoftwo
+    \fi}
+
+
+
+%% Generic bipole path
+\def\pgf@circ@bipole@path#1#2{
+    % Create a bipole path from the shapes defined with \pgfcircdeclarebipole
+    % or \pgfcircdeclarebipolescaled; the node shapes are named with a "shape"
+    % appended to the main (path-style) name
+    % #1 path-style node name
+    % #2 the argument passed from the to-path structure; don't touch
+    %
+    % Example:
+    % \def\pgf@circ@capacitor@path#1{\pgf@circ@bipole@path{capacitor}{#1}}
+    %
+    \pgf@circ@bipole@path@base{shape}{}{#1}{#2}
+}
+%%
+%% ultra-generic bipole path
+%% I am not sure what the last argument is needed for, but don't touch it or everything explodes
+%%
+\def\pgf@circ@bipole@path@base#1#2#3#4{%
+    %
+    % Create a path-style component based on a node-style shape
+    % #1: postfix to be added to the name path to obtain the main shape name
+    % #2: text to be passed as text to the node
+    % #3: name of the bipole component
+    % #4: this will be filled by the argument of the to-path
+    %
+    \pgfextra{
+        \ctikzset{bipole/kind = #3}
+        \edef\pgf@temp{\ctikzvalof{bipole/name}}
+        \def\pgf@circ@temp{}
+        \ifx\pgf@temp\pgf@circ@temp % if it has not a name
+            \pgfmathrandominteger{\pgf@circ@rand}{1000}{9999}
+            \ctikzset{bipole/name = pgfcirc@#3\pgf@circ@rand} % create it (re-usage should not create problem, but...)
+            \edef\pgfcirc@a@prefix{pgfcirc}% do not pollute the namespace for nothing
+        \else
+            \edef\pgfcirc@a@prefix{\ctikzvalof{bipole/name}}% for exporting v-i-f anchors
+        \fi
+    }
+    % save start and stop values
+    % notice that we DO NOT MOVE the path position at all!
+    coordinate (\ctikzvalof{bipole/name}start) at (\tikztostart)
+    coordinate (\ctikzvalof{bipole/name}end) at (\tikztotarget)
+    \pgfextra{
+        % find the direction (angle) of the path
+        \pgfmathanglebetweenpoints{\pgfpointanchor{\ctikzvalof{bipole/name}start}{center}}
+            {\pgfpointanchor{\ctikzvalof{bipole/name}end}{center}}
+        \edef\pgf@circ@direction{\pgfmathresult}
+        % the global macro  pgfcirc@whatever-direction is accessible as \ctikzgetdirection{whatever}
+        % this gives access to the element path direction
+        \expandafter\xdef\csname pgfcirc@\pgfcirc@a@prefix-direction\endcsname{\pgf@circ@direction}
+    }
+    % position the component in the middle of the path. We DO NOT MOVE the current position!
+    node[#3#1, rotate=\pgf@circ@direction, yscale=\ctikzvalof{mirror value},
+        xscale=\ctikzvalof{invert value}] (\ctikzvalof{bipole/name})
+        at ($(\tikztostart) ! .5 ! (\tikztotarget)$) {#2}
+    % set start and end labels
+    \ifpgf@circuit@bipole@inverted
+        \ifcsname pgf@anchor@#3#1@pathstart\endcsname%if special path-anchors are defined, use them!
+            coordinate	(pgfcirc@anchorstartnode) at (\ctikzvalof{bipole/name}.pathend)
+            coordinate	(pgfcirc@anchorendnode) at (\ctikzvalof{bipole/name}.pathstart)
+        \else
+            coordinate	(pgfcirc@anchorstartnode) at (\ctikzvalof{bipole/name}.right)
+            coordinate	(pgfcirc@anchorendnode) at (\ctikzvalof{bipole/name}.left)
+        \fi
+        \else
+        \ifcsname pgf@anchor@#3#1@pathstart\endcsname%if special path-anchors are defined, use them!
+            coordinate	(pgfcirc@anchorstartnode) at (\ctikzvalof{bipole/name}.pathstart)
+            coordinate	(pgfcirc@anchorendnode) at (\ctikzvalof{bipole/name}.pathend)
+        \else
+            coordinate	(pgfcirc@anchorstartnode) at (\ctikzvalof{bipole/name}.left)
+            coordinate	(pgfcirc@anchorendnode) at (\ctikzvalof{bipole/name}.right)
+        \fi
+    \fi
+    % draw the leads unless it's an open circuit
+    % stop at the component
+    \pgfextra{\def\pgf@temp{open}\def\pgf@circ@temp{#3}}
+    \ifx\pgf@temp\pgf@circ@temp  % if it is an open do nothing
+    \else
+        % it is important to start the path with -- to have correct line joins!
+        -- (pgfcirc@anchorstartnode)
+    \fi
+    % Add all the "ornaments": labels, annotations, voltages, currents and flows
+    \drawpoles
+    \pgf@circ@ifkeyempty{bipole/label/name}\else\pgf@circ@drawlabels{label}\fi
+    \pgf@circ@ifkeyempty{bipole/annotation/name}\else\pgf@circ@drawlabels{annotation}\fi
+    % the following  must be made in their own path scope to avoid crash in TikZ 3.1.8/3.1.8a
+    % it should be logically safe for older version too --- even if TikZ reverted the change
+    % use explandable ifs too, thanks to Henri Menke
+    {\pgfcirc@if@has@v{\pgf@circ@drawvoltage}{}}%
+    {\pgfcirc@if@has@i{\pgf@circ@drawcurrent}{}}%
+    {\pgfcirc@if@has@f{\pgf@circ@drawflow}{}}%
+    % finish the path from the component to the final target
+    % you never know --- re-set \pgf@temp to detect open
+    \pgfextra{\def\pgf@temp{open}\def\pgf@circ@temp{#3}}
+    \ifx\pgf@temp\pgf@circ@temp  % if it is an open do nothing
+        (\tikztotarget)
+    \else
+        (pgfcirc@anchorendnode)  -- (\tikztotarget)
+    \fi
+    % reset internal circuit keys
+    \pgfextra{\pgfcircresetpath}
+    %draw pending nodes an path
+    \tikztonodes
+}
+
+%% Macros for path and style activation for bipoles or path-style
+
+\def\comnpatname{\ifpgf@circuit@compat *\else\fi}
+\def\compattikzset#1{%
+    % \typeout{BIPOLEDEF:\space \detokenize{#1}}%
+    \tikzset{\comnpatname#1}}
+%
+% this is used for components that are mainly node-style but have a path-style form
+%
+\def\pgfcirc@node@to@path#1#2#3{%
+    % add a path-style component based on a node-style one without mangling the name
+    % of the shape.
+    % #1: node-type shape name (existing)
+    % #2: path-type name (to be created)
+    % #3: additional options to add to the path style
+    %
+    \expandafter\def\csname pgf@circ@#1@path\endcsname##1{\pgf@circ@bipole@path@base{}{##1}{#1}{}}%
+    \compattikzset{#2/.style = {\circuitikzbasekey,
+        /tikz/to path=\csname pgf@circ@#1@path\endcsname{##1},
+        #3}}%
+    \ctikzset{bipoles/#1/height/.initial=1}%
+}
+%
+% this one is for normal definition: path to style, directly
+% the first parameter (#1) here is l,v,i (l=..., v=..., i=...)
+% the last parameter are options to be inserted in the "to path" definition
+%
+\def\pgfcirc@path@to@style#1#2#3#4{% using #1 as label, assign \pgf@circ@#2@path to style #3
+    \compattikzset{#3/.style={\circuitikzbasekey, #4, /tikz/to path=\csname pgf@circ@#2@path\endcsname, #1={##1}}}%
+}
+% this one create a alias style from a node definition
+\def\pgfcirc@node@to@style#1#2#3#4{% using #1 as label, assign \pgf@circ@bipole@path{#2} to style #3
+    \compattikzset{#3/.style={\circuitikzbasekey, #4, /tikz/to path=\pgf@circ@bipole@path{#2}, #1={##1}}}%
+}
+% this create an alias style
+\def\pgfcirc@style@to@style#1#2{% alias style #1 to style #2
+    \compattikzset{#2/.style={\comnpatname #1={##1}}}%
+}
+% this create an alias style, changing the labelling
+\def\pgfcirc@style@to@style@label#1#2#3{% alias style #1 to style #2
+    \compattikzset{#2/.style={\comnpatname #1, #3={##1}}}%
+}
+% create a bipole
+\def\pgfcirc@activate@bipole#1#2#3#4{% path name, base node name, style name
+    \expandafter\def\csname pgf@circ@#2@path\endcsname##1{\pgf@circ@bipole@path{#3}{##1}}%
+    \pgfcirc@path@to@style{#1}{#2}{#4}{}% no options here, let's see
+}
+\def\pgfcirc@activate@bipole@simple#1#2{\pgfcirc@activate@bipole{#1}{#2}{#2}{#2}}
+% create a bipole with options
+\def\pgfcirc@activate@bipole@opt#1#2#3#4#5{% path name, base node name, style name
+    \expandafter\def\csname pgf@circ@#2@path\endcsname##1{\pgf@circ@bipole@path{#3}{##1}}%
+    \pgfcirc@path@to@style{#1}{#2}{#4}{#5}% no options here, let's see
+}
+\def\pgfcirc@activate@bipole@simple@opt#1#2#3{\pgfcirc@activate@bipole@opt{#1}{#2}{#2}{#2}{#3}}
+
+
+%% New system, for simple object
+%% \pgfcirc@activate@bipole@simple{l}{mass}
+%% New system, different names
+%% The old system is the following
+%% 1 - define just the pgf@circ@path@whatever#1
+%% (see for example the variable one)
+%% 2 - set the style
+%% \compattikzset{resistor/.style= {\circuitikzbasekey, /tikz/to path=\pgf@circ@resistor@path, l={#1}}}
+
+%% Path definition with the new mechanism have been moved to where the nodes
+%% are defined.
+
+%% Handling of terminals%<<<
+
+\ctikzset{bipole/nodes/.is family}
+\ctikzset{bipole/nodes/left/.initial=none}
+\ctikzset{bipole/nodes/right/.initial=none}
+\tikzset{bipole nodes/.style n args={2}{%
+    \circuitikzbasekey/bipole/nodes/left=#1,
+    \circuitikzbasekey/bipole/nodes/right=#2%
+    }
+}
+
+%% Easily usable styles
+
+\ctikzset{o-o/.style = {\circuitikzbasekey/bipole/nodes/left=ocirc, \circuitikzbasekey/bipole/nodes/right=ocirc}}
+\ctikzset{-o/.style = {\circuitikzbasekey/bipole/nodes/left=none, \circuitikzbasekey/bipole/nodes/right=ocirc}}
+\ctikzset{o-/.style = {\circuitikzbasekey/bipole/nodes/left=ocirc, \circuitikzbasekey/bipole/nodes/right=none}}
+\ctikzset{*-o/.style = {\circuitikzbasekey/bipole/nodes/left=circ, \circuitikzbasekey/bipole/nodes/right=ocirc}}
+\ctikzset{o-*/.style = {\circuitikzbasekey/bipole/nodes/left=ocirc, \circuitikzbasekey/bipole/nodes/right=circ}}
+\ctikzset{d-o/.style = {\circuitikzbasekey/bipole/nodes/left=diamondpole, \circuitikzbasekey/bipole/nodes/right=ocirc}}
+\ctikzset{o-d/.style = {\circuitikzbasekey/bipole/nodes/left=ocirc, \circuitikzbasekey/bipole/nodes/right=diamondpole}}
+\ctikzset{*-/.style = {\circuitikzbasekey/bipole/nodes/left=circ, \circuitikzbasekey/bipole/nodes/right=none}}
+\ctikzset{-*/.style = {\circuitikzbasekey/bipole/nodes/left=none, \circuitikzbasekey/bipole/nodes/right=circ}}
+\ctikzset{d-/.style = {\circuitikzbasekey/bipole/nodes/left=diamondpole, \circuitikzbasekey/bipole/nodes/right=none}}
+\ctikzset{-d/.style = {\circuitikzbasekey/bipole/nodes/left=none, \circuitikzbasekey/bipole/nodes/right=diamondpole}}
+\ctikzset{*-*/.style = {\circuitikzbasekey/bipole/nodes/left=circ, \circuitikzbasekey/bipole/nodes/right=circ}}
+\ctikzset{d-*/.style = {\circuitikzbasekey/bipole/nodes/left=diamondpole, \circuitikzbasekey/bipole/nodes/right=circ}}
+\ctikzset{*-d/.style = {\circuitikzbasekey/bipole/nodes/left=circ, \circuitikzbasekey/bipole/nodes/right=diamondpole}}
+\ctikzset{d-d/.style = {\circuitikzbasekey/bipole/nodes/left=diamondpole, \circuitikzbasekey/bipole/nodes/right=diamondpole}}
+
+% rectjoinfill workarounds
+
+\ctikzset{.-/.style = {\circuitikzbasekey/bipole/nodes/left=rectjoinfill, \circuitikzbasekey/bipole/nodes/right=none}}
+\ctikzset{.-*/.style = {\circuitikzbasekey/bipole/nodes/left=rectjoinfill, \circuitikzbasekey/bipole/nodes/right=circ}}
+\ctikzset{.-o/.style = {\circuitikzbasekey/bipole/nodes/left=rectjoinfill, \circuitikzbasekey/bipole/nodes/right=ocirc}}
+\ctikzset{.-d/.style = {\circuitikzbasekey/bipole/nodes/left=rectjoinfill, \circuitikzbasekey/bipole/nodes/right=diamondpole}}
+\ctikzset{-./.style = {\circuitikzbasekey/bipole/nodes/left=none, \circuitikzbasekey/bipole/nodes/right=rectjoinfill}}
+\ctikzset{o-./.style = {\circuitikzbasekey/bipole/nodes/left=ocirc, \circuitikzbasekey/bipole/nodes/right=rectjoinfill}}
+\ctikzset{*-./.style = {\circuitikzbasekey/bipole/nodes/left=circ, \circuitikzbasekey/bipole/nodes/right=rectjoinfill}}
+\ctikzset{d-./.style = {\circuitikzbasekey/bipole/nodes/left=diamondpole, \circuitikzbasekey/bipole/nodes/right=rectjoinfill}}
+\ctikzset{.-./.style = {\circuitikzbasekey/bipole/nodes/left=rectjoinfill, \circuitikzbasekey/bipole/nodes/right=rectjoinfill}}
+
+\tikzset{reversed/.style = {\circuitikzbasekey/bipole/inverted=true}}
+
+\def\drawpoles{
+    \pgfextra{ \edef\pgf@circ@temp{\ctikzvalof{bipole/nodes/left}} \def\pgf@temp{none}}
+    \ifx\pgf@temp\pgf@circ@temp\else(\tikztostart) node[\pgf@circ@temp] {}\fi
+    \pgfextra{ \edef\pgf@circ@temp{\ctikzvalof{bipole/nodes/right}} }
+    \ifx\pgf@temp\pgf@circ@temp\else(\tikztotarget) node[\pgf@circ@temp] {}\fi
+}
+% %>>>
+
+%%
+%% Definition of path for transistors
+%%
+% Transistor like bipoles
+
+\def\pgf@circ@trans@path#1#2{
+    \pgfextra{
+        \edef\pgf@temp{\ctikzvalof{bipole/name}}
+        \def\pgf@circ@temp{#2}
+        \ifx\pgf@temp\pgf@circ@temp % if it has not a name
+            \pgfmathrandominteger{\pgf@circ@rand}{1000}{9999}
+            \ctikzset{bipole/name = trans\pgf@circ@rand} % create it
+        \fi
+    }
+    \ifpgf@circuit@bipole@inverted
+        (\tikztostart) node[coordinate] (\ctikzvalof{bipole/name}end) {}
+        (\tikztotarget) node[coordinate] (\ctikzvalof{bipole/name}start) {}
+    \else
+        (\tikztostart) node[coordinate] (\ctikzvalof{bipole/name}start) {}
+        (\tikztotarget) node[coordinate] (\ctikzvalof{bipole/name}end) {}
+    \fi
+    \pgfextra{
+        \pgfmathanglebetweenpoints{\pgfpointanchor{\ctikzvalof{bipole/name}start}{center}}
+        {\pgfpointanchor{\ctikzvalof{bipole/name}end}{center}}
+        \pgfmathadd{\pgfmathresult}{-90}
+        \pgfmathround{\pgfmathresult}
+        \edef\pgf@circ@direction{\pgfmathresult}
+    }
+    ($(\tikztostart) ! .5 ! (\tikztotarget)$)
+    node[#1, /tikz/rotate=\pgf@circ@direction, xscale=\ctikzvalof{mirror value}]
+    (\ctikzvalof{bipole/name}) {}
+    node {\ctikzvalof{bipole/label/name}}
+    \ifcsname pgf@anchor@#1@pathstart\endcsname%if special path-anchors are defined, use them!
+        (\ctikzvalof{bipole/name}start.center) --(\ctikzvalof{bipole/name}.pathstart)
+        (\ctikzvalof{bipole/name}.pathend)  -- (\ctikzvalof{bipole/name}end.center)
+    \else
+        (\ctikzvalof{bipole/name}start.center) --(\ctikzvalof{bipole/name}.left)
+        (\ctikzvalof{bipole/name}.right)  -- (\ctikzvalof{bipole/name}end.center)
+    \fi
+    \drawpoles
+    \pgfextra{
+        \pgfcircresetpath
+    }
+    (\tikztotarget) 	\tikztonodes  % and go on!
+}
+
+\def\pgf@circ@definetranspath#1{
+	\compattikzset{T#1/.style = {\circuitikzbasekey, /tikz/to path=\pgf@circ@trans@path{#1}{}, l=##1}}
+}
+
+%
+% vim: set fdm=marker fmr=%<<<,%>>>:

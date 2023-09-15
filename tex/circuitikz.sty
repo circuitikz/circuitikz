@@ -1,0 +1,403 @@
+% Copyright 2018-2023 by Romano Giannetti
+% Copyright 2015-2023 by Stefan Lindner
+% Copyright 2013-2023 by Stefan Erhardt
+% Copyright 2007-2023 by Massimo Redaelli
+%
+% This file may be distributed and/or modified
+%
+% 1. under the LaTeX Project Public License and/or
+% 2. under the GNU Public License.
+%
+% See the files gpl-3.0_license.txt and lppl-1-3c_license.txt for more details.
+
+\NeedsTeXFormat{LaTeX2e}
+
+% set up the rollback system
+\providecommand\DeclareRelease[3]{}
+\providecommand\DeclareCurrentRelease[2]{}
+
+\def\pgfcircversion{1.6.4-unreleased}
+\def\pgfcircversiondate{2023/07/28}
+
+\DeclareRelease{0.4}{2012/12/20}{circuitikz-0.4-body.tex}
+\DeclareRelease{v0.4}{2012/12/20}{circuitikz-0.4-body.tex}
+\DeclareRelease{0.6}{2016/06/06}{circuitikz-0.6-body.tex}
+\DeclareRelease{v0.6}{2016/06/06}{circuitikz-0.6-body.tex}
+\DeclareRelease{0.7}{2016/09/08}{circuitikz-0.7-body.tex}
+\DeclareRelease{v0.7}{2016/09/08}{circuitikz-0.7-body.tex}
+\DeclareRelease{0.8.3}{2017/05/28}{circuitikz-0.8.3-body.tex}
+\DeclareRelease{v0.8.3}{2017/05/28}{circuitikz-0.8.3-body.tex}
+\DeclareRelease{0.9.3}{2019/07/13}{circuitikz-0.9.3-body.tex}
+\DeclareRelease{v0.9.3}{2019/07/13}{circuitikz-0.9.3-body.tex}
+\DeclareRelease{0.9.6}{2019/11/09}{circuitikz-0.9.6-body.tex}
+\DeclareRelease{v0.9.6}{2019/11/09}{circuitikz-0.9.6-body.tex}
+\DeclareRelease{1.0}{2020/02/04}{circuitikz-1.0-body.tex}
+\DeclareRelease{v1.0}{2020/02/04}{circuitikz-1.0-body.tex}
+\DeclareRelease{1.1.2}{2020/05/17}{circuitikz-1.1.2-body.tex}
+\DeclareRelease{v1.1.2}{2020/05/17}{circuitikz-1.1.2-body.tex}
+\DeclareRelease{1.2.7}{2020/12/27}{circuitikz-1.2.7-body.tex}
+\DeclareRelease{v1.2.7}{2020/12/27}{circuitikz-1.2.7-body.tex}
+\DeclareRelease{1.4.6}{2022/02/04}{circuitikz-1.4.6-body.tex}
+\DeclareRelease{v1.4.6}{2022/02/04}{circuitikz-1.4.6-body.tex}
+\DeclareCurrentRelease{\pgfcircversion}{\pgfcircversiondate}
+
+\ProvidesPackage{circuitikz}%
+[\pgfcircversiondate{} The CircuiTikz circuit drawing package version \pgfcircversion]
+
+%% Version 3.0 of pgf/TikZ is required
+\RequirePackage{tikz}
+\usetikzlibrary{calc}
+%
+% "arrows" library is deprecated, and behave badly with
+% arrows on short paths. Change to the new arrows.meta
+% In pfgcirc.define, we will add the old definition of
+% latex' which we have lost in the transition
+%
+\usetikzlibrary{arrows.meta, bending}
+\usetikzlibrary{fpu} % may be needed for use fpu reciprocal (v1.0.1)
+%
+% global of options (better use styles!)
+%
+\DeclareOption{european}{\AtEndOfPackage{%
+    \ctikzset{voltage=european} \ctikzset{current=european} \ctikzset{inductor=european}
+\ctikzset{resistor=european} \ctikzset{logic ports=european} \ctikzset{gas filled surge arrester choice = european}}
+}
+\DeclareOption{american}{\AtEndOfPackage{%
+    \ctikzset{voltage=american} \ctikzset{current=american} \ctikzset{resistor=american} \ctikzset{inductor=american} \ctikzset{gas filled surge arrester choice = american}
+\ctikzset{logic ports = american}}
+}
+%
+% voltages
+%
+\DeclareOption{europeanvoltage}{\AtEndOfPackage{%
+    \ctikzset{voltage=european}}
+}
+\DeclareOption{straightvoltages}{\AtEndOfPackage{%
+    \ctikzset{voltage=straight}}
+}
+\DeclareOption{americanvoltage}{\AtEndOfPackage{%
+    \ctikzset{voltage=american}}
+}
+\DeclareOption{europeanvoltages}{\AtEndOfPackage{%
+    \ctikzset{voltage=european}}
+}
+\DeclareOption{americanvoltages}{\AtEndOfPackage{%
+    \ctikzset{voltage=american}}
+}
+% Voltage directions
+\DeclareOption{oldvoltagedirection}{\AtEndOfPackage{%
+    \pgf@circ@oldvoltagedirectiontrue
+    \pgf@circ@explicitvdirtrue
+    \pgf@circ@fixbatteriesfalse}
+}
+\DeclareOption{nooldvoltagedirection}{\AtEndOfPackage{%
+    \pgf@circ@oldvoltagedirectionfalse
+    \pgf@circ@explicitvdirtrue
+    \pgf@circ@fixbatteriesfalse}
+}
+\DeclareOption{RPvoltages}{\AtEndOfPackage{%
+    \pgf@circ@oldvoltagedirectiontrue
+    \pgf@circ@explicitvdirtrue
+    \pgf@circ@fixbatteriestrue}
+}
+\DeclareOption{EFvoltages}{\AtEndOfPackage{%
+    \pgf@circ@oldvoltagedirectionfalse
+    \pgf@circ@explicitvdirtrue
+    \pgf@circ@fixbatteriestrue}
+}
+%
+% currents
+%
+\DeclareOption{europeancurrent}{\AtEndOfPackage{%
+    \ctikzset{current = european}}
+}
+\DeclareOption{americancurrent}{\AtEndOfPackage{%
+    \ctikzset{current = american}}
+}
+\DeclareOption{europeancurrents}{\AtEndOfPackage{%
+    \ctikzset{current = european}}
+}
+\DeclareOption{americancurrents}{\AtEndOfPackage{%
+    \ctikzset{current = american}}
+}
+%
+% resistors
+%
+\DeclareOption{americanresistor}{\AtEndOfPackage{%
+    \ctikzset{resistor = american}}
+}
+\DeclareOption{europeanresistor}{\AtEndOfPackage{%
+    \ctikzset{resistor = european}}
+}
+\DeclareOption{americanresistors}{\AtEndOfPackage{%
+    \ctikzset{resistor = american}}
+}
+\DeclareOption{europeanresistors}{\AtEndOfPackage{%
+    \ctikzset{resistor = european}}
+}
+%
+% inductors
+%
+\DeclareOption{americaninductor}{\AtEndOfPackage{%
+    \ctikzset{inductor = american}}
+}
+\DeclareOption{europeaninductor}{\AtEndOfPackage{%
+    \ctikzset{inductor = european}}
+}
+\DeclareOption{cuteinductor}{\AtEndOfPackage{%
+    \ctikzset{inductor = cute}}
+}
+\DeclareOption{americaninductors}{\AtEndOfPackage{%
+    \ctikzset{inductor = american}}
+}
+\DeclareOption{europeaninductors}{\AtEndOfPackage{%
+    \ctikzset{inductor = european}}
+}
+\DeclareOption{cuteinductors}{\AtEndOfPackage{%
+    \ctikzset{inductor = cute}}
+}
+%
+% logic ports
+%
+\DeclareOption{americanport}{\AtEndOfPackage{%
+    \ctikzset{logic ports = american}}
+}
+\DeclareOption{europeanport}{\AtEndOfPackage{%
+    \ctikzset{logic ports = european}}
+}
+\DeclareOption{americanports}{\AtEndOfPackage{%
+    \ctikzset{logic ports = american}}
+}
+\DeclareOption{europeanports}{\AtEndOfPackage{%
+    \ctikzset{logic ports = european}}
+}
+%
+% surge arresters (really?)
+%
+\DeclareOption{americangfsurgearrester}{\AtEndOfPackage{%
+    \ctikzset{gas filled surge arrester choice = american}}
+}
+\DeclareOption{europeangfsurgearrester}{\AtEndOfPackage{%
+    \ctikzset{gas filled surge arrester choice = european}}
+}
+%
+% diodes
+%
+\DeclareOption{fulldiodes}{\AtEndOfPackage{%
+    \ctikzset{diode = full}}
+}
+\DeclareOption{emptydiodes}{\AtEndOfPackage{%
+    \ctikzset{diode = empty}}
+}
+\DeclareOption{strokediodes}{\AtEndOfPackage{%
+    \ctikzset{diode = stroke}}
+}
+\DeclareOption{fulldiode}{\AtEndOfPackage{%
+    \ctikzset{diode = full}}
+}
+\DeclareOption{emptydiode}{\AtEndOfPackage{%
+    \ctikzset{diode = empty}}
+}
+\DeclareOption{strokediode}{\AtEndOfPackage{%
+    \ctikzset{diode = stroke}}
+}
+%
+% MOSes and FETs
+%
+\DeclareOption{arrowmos}{\AtEndOfPackage{%
+    \pgf@circuit@mos@arrowstrue}
+}
+\DeclareOption{noarrowmos}{\AtEndOfPackage{%
+    \pgf@circuit@mos@arrowsfalse}
+}
+\DeclareOption{fetbodydiode}{\AtEndOfPackage{%
+    \pgf@circuit@fet@bodydiodetrue}
+}
+\DeclareOption{nofetbodydiode}{\AtEndOfPackage{%
+    \pgf@circuit@fet@bodydiodefalse}
+}
+\DeclareOption{fetsolderdot}{\AtEndOfPackage{%
+    \pgf@circuit@fet@solderdottrue}
+}
+\DeclareOption{nofetsolderdot}{\AtEndOfPackage{%
+    \pgf@circuit@fet@solderdotfalse}
+}
+\DeclareOption{emptypmoscircle}{\AtEndOfPackage{%
+    \pgf@circuit@pmos@emptycircletrue}
+}
+\DeclareOption{lazymos}{\AtEndOfPackage{%
+    \ctikzset{tripoles/nmos/width=.5}
+    \ctikzset{tripoles/nmos/gate height=.35}
+    \ctikzset{tripoles/nmos/base height=.35}
+    \ctikzset{tripoles/nmos/height/.initial=1.2}
+    \ctikzset{tripoles/nmos/base width=.5}
+    \ctikzset{tripoles/nmos/gate width=.65}
+    \ctikzset{tripoles/pmos/width=.5}
+    \ctikzset{tripoles/pmos/gate height=.35}
+    \ctikzset{tripoles/pmos/base height=.35}
+    \ctikzset{tripoles/pmos/height/.initial=1.2}
+    \ctikzset{tripoles/pmos/base width=.5}
+    \ctikzset{tripoles/pmos/gate width=.65}
+\pgf@circuit@pmos@emptycircletrue}
+}
+%
+% BJTs labels
+%
+\DeclareOption{legacytransistorstext}{\AtEndOfPackage{%
+    \pgf@circuit@transisors@fixlabelsfalse}
+}
+\DeclareOption{nolegacytransistorstext}{\AtEndOfPackage{%
+    \pgf@circuit@transisors@fixlabelstrue}
+}
+\DeclareOption{centertransistorstext}{\AtEndOfPackage{%
+    \pgf@circuit@transisors@fixlabelstrue}
+}
+%
+% labels
+%
+\DeclareOption{straightlabels}{\AtEndOfPackage{%
+    \ctikzset{label/align = straight}}
+}
+\DeclareOption{rotatelabels}{\AtEndOfPackage{%
+    \ctikzset{label/align = rotate}}
+}
+\DeclareOption{smartlabels}{\AtEndOfPackage{%
+    \ctikzset{label/align = smart}}
+}
+%
+% Several options (better use styles)
+%
+\DeclareOption{betterproportions}{\AtEndOfPackage{%
+    \ctikzset{monopoles/ground/width/.initial=.15}
+    \ctikzset{bipoles/resistor/height/.initial=.23}
+    \ctikzset{bipoles/resistor/width/.initial=.6}
+    \ctikzset{bipoles/capacitor/height/.initial=.4}
+    \ctikzset{bipoles/capacitor/width/.initial=.1}
+    \ctikzset{bipoles/potentiometer/height/.initial=.6}
+    \ctikzset{bipoles/potentiometer/height 2/.initial=.23}
+    \ctikzset{bipoles/potentiometer/width/.initial=.6}
+    \ctikzset{bipoles/photoresistor/height/.initial=.6}
+    \ctikzset{bipoles/photoresistor/height 2/.initial=.23}
+    \ctikzset{bipoles/photoresistor/width/.initial=.6}
+    \ctikzset{bipoles/thermistor/main/.initial=.7}
+    \ctikzset{bipoles/thermistor/height/.initial=.328}%.23/.7
+    \ctikzset{bipoles/thermistor/width/.initial=.6}
+    \ctikzset{bipoles/thermistorntc/width/.initial=.6}
+    \ctikzset{bipoles/thermistorntc/main/.initial=.7}
+    \ctikzset{bipoles/thermistorntc/height/.initial=.328}%.23/.7
+    \ctikzset{bipoles/thermistorntc/height 2/.initial=.75}%.23/.7
+    \ctikzset{bipoles/thermistorptc/width/.initial=.6}
+    \ctikzset{bipoles/thermistorptc/main/.initial=.7}
+    \ctikzset{bipoles/thermistorptc/height/.initial=.328}%.23/.7
+    \ctikzset{bipoles/varistor/main/.initial=.7}
+    \ctikzset{bipoles/varistor/height/.initial=.328}%.23/.7
+    \ctikzset{bipoles/varistor/width/.initial=.6}
+    \ctikzset{bipoles/vresistor/height/.initial=.45}
+    \ctikzset{bipoles/vresistor/width/.initial=.6}
+    \ctikzset{bipoles/generic/height/.initial=.23}
+    \ctikzset{bipoles/generic/width/.initial=.6}
+    \ctikzset{bipoles/generic potentiometer/height/.initial=.6}
+    \ctikzset{bipoles/generic potentiometer/height 2/.initial=.23}
+    \ctikzset{bipoles/generic potentiometer/width/.initial=.6}
+    \ctikzset{bipoles/ageneric/height/.initial=.23}
+    \ctikzset{bipoles/ageneric/width/.initial=.6}
+    \ctikzset{bipoles/memristor/height/.initial=.23}
+    \ctikzset{bipoles/memristor/wave height/.initial=.375}
+    \ctikzset{bipoles/memristor/width/.initial=.60}
+    \ctikzset{bipoles/tgeneric/height/.initial=.525}
+    \ctikzset{bipoles/tgeneric/width/.initial=.6}
+    \ctikzset{bipoles/tfullgeneric/height/.initial=.525}
+    \ctikzset{bipoles/tfullgeneric/width/.initial=.60}
+    \ctikzset{bipoles/fullgeneric/height/.initial=.23}
+    \ctikzset{bipoles/fullgeneric/width/.initial=.6}
+    \ctikzset{bipoles/diode/height/.initial=.3}
+    \ctikzset{bipoles/diode/width/.initial=.25}
+    \ctikzset{bipoles/bidirectionaldiode/height/.initial=.66}
+    \ctikzset{bipoles/bidirectionaldiode/width/.initial=.6}
+    \ctikzset{bipoles/bidirectionaldiode/diode width left/.initial=.3}
+    \ctikzset{bipoles/bidirectionaldiode/diode width right/.initial=.3}
+    \ctikzset{tripoles/thyristor/height/.initial=.66}
+    \ctikzset{tripoles/thyristor/height 2/.initial=.3}
+    \ctikzset{tripoles/thyristor/width/.initial=.6}
+    \ctikzset{tripoles/thyristor/diode height/.initial=.3}
+    \ctikzset{tripoles/thyristor/diode width left/.initial=.4}
+    \ctikzset{tripoles/thyristor/diode width right/.initial=.3}
+    \ctikzset{tripoles/triac/height/.initial=.66}
+    \ctikzset{tripoles/triac/width/.initial=.6}
+    \ctikzset{tripoles/triac/diode width left/.initial=.3}
+    \ctikzset{tripoles/triac/diode width right/.initial=.3}}
+}
+% This is a nice hack that prints all the shapes declared
+% by the package. Very useful for coverage testing and debugging.
+%
+% \let\origpgfdeclareshape=\pgfdeclareshape
+% \def\pgfdeclareshape#1{%
+%     \typeout{SHAPE:\space"#1"}%
+%     \origpgfdeclareshape{#1}
+% }
+%
+%
+%%%%%%%%%
+%%% These is the only direct options!
+\DeclareOption{siunitx}{
+    \pgf@circ@siunitxtrue
+}
+\DeclareOption{nosiunitx}{
+    \pgf@circ@siunitxfalse
+}
+\DeclareOption{compatibility}{
+    \pgf@circuit@compattrue
+}
+
+
+%% we have to load this before options to define the magics for compatibility
+\input pgfcirc.defines.tex
+
+% setup option defaults and process them
+% notice that the default is nooldvoltagedirection; it's not explicitly set to allow for the warning
+\ExecuteOptions{nofetbodydiode, nofetsolderdot, europeancurrents, europeanvoltages, americanports, americanresistors, cuteinductors ,europeangfsurgearrester, nosiunitx, noarrowmos, smartlabels}
+\ProcessOptions\relax
+
+\input pgfcircutils.tex
+\input pgfcircpath.tex
+
+\input pgfcircshapes.tex
+\input pgfcircmonopoles.tex
+\input pgfcircbipoles.tex
+\input pgfcirctripoles.tex
+\input pgfcircquadpoles.tex
+\input pgfcircmultipoles.tex
+
+\input pgfcirclabel.tex
+\input pgfcircvoltage.tex
+\input pgfcirccurrent.tex
+\input pgfcircflow.tex
+
+\ifpgf@circ@siunitx
+    \RequirePackage{xstring}[2009/03/13]
+    %\expandafter\let\csname angstrom\endcsname\relax
+    \RequirePackage{siunitx}
+\fi
+
+%% This should be executed *after* all the options!
+%
+% Remove the warning; nobody cares.
+%
+% \AtEndOfPackage{%
+% \ifpgf@circ@explicitvdir\else
+%     \PackageWarningNoLine{circuitikz}{%
+%         You did not specify one of the voltage directions:\MessageBreak
+%         \space\space    oldvoltagedirection, nooldvoltagedirection, \MessageBreak
+%         \space\space    RPvoltages or EFvoltages \MessageBreak
+%         Default directions may have changed, \MessageBreak
+%         please check the manual%
+%     }
+% \fi
+% }
+
+\newenvironment{circuitikz}{\begin{tikzpicture}}{\end{tikzpicture}}
+%override (unused) circuitikz environment for compability to externalization)
+\let\circuitikz\tikzpicture
+\let\endcircuitikz\endtikzpicture
+
+\endinput

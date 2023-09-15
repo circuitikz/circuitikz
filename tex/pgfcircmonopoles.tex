@@ -1,0 +1,1266 @@
+% Copyright 2018-2023 by Romano Giannetti
+% Copyright 2015-2023 by Stefan Lindner
+% Copyright 2013-2023 by Stefan Erhardt
+% Copyright 2007-2023 by Massimo Redaelli
+%
+% This file may be distributed and/or modified
+%
+% 1. under the LaTeX Project Public License and/or
+% 2. under the GNU Public License.
+%
+% See the files gpl-3.0_license.txt and lppl-1-3c_license.txt for more details.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Monopoles
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%
+%% Grounds
+%%%%%%%%%%%%%
+
+
+% grounds and power supplies%<<<1
+
+\ctikzset{monopoles/.is family}
+\ctikzset{monopoles/ground/width/.initial=.25}
+\ctikzset{monopoles/ground/connectionthickness/.initial=1}
+\ctikzset{monopoles/ground/thickness/.initial=2}
+\ctikzset{monopoles/rground/thickness/.initial=2}
+\ctikzset{monopoles/tground/thickness/.initial=3}
+\ctikzset{monopoles/vcc/width/.initial=.2}
+\ctikzset{monopoles/vcc/arrow/.initial=legacy}
+\ctikzset{monopoles/vee/arrow/.initial=legacy}
+\ctikzset{monopoles/match/width/.initial=.4}
+\ctikzset{monopoles/chassis/width/.initial=.25}
+\ctikzset{monopoles/alternative chassis/width/.initial=.25}
+\ctikzset{monopoles/equipotentiality/width/.initial=.25}
+\ctikzset{monopoles/antenna/width/.initial=.25}
+\ctikzset{monopoles/antenna/label/xanchor/.initial=.4}
+\ctikzset{monopoles/antenna/label/yanchor/.initial=.75}
+\ctikzset{monopoles/txantenna/label/xanchor/.initial=.4}
+\ctikzset{monopoles/txantenna/label/yanchor/.initial=.75}
+\ctikzset{monopoles/txantenna/width/.initial=.25}
+\ctikzset{monopoles/rxantenna/label/xanchor/.initial=.4}
+\ctikzset{monopoles/rxantenna/label/yanchor/.initial=.75}
+\ctikzset{monopoles/rxantenna/width/.initial=.25}
+\ctikzset{monopoles/bareantenna/width/.initial=.25}
+\ctikzset{monopoles/bareantenna/label/xanchor/.initial=1}
+\ctikzset{monopoles/bareantenna/label/yanchor/.initial=0.5}
+\ctikzset{monopoles/dinantenna/width/.initial=.2}
+\ctikzset{monopoles/dinantenna/height/.initial=.6}
+\ctikzset{monopoles/waves/width/.initial=0.5}%
+%>>>
+
+%% Node shapes for grounds and power supply%<<<
+
+%% Ground symbol
+% #1 -> name
+% #2 -> width
+% #3 -> depth
+% #4 -> code
+\long\def\pgf@circ@declareground#1#2#3#4{
+    \pgfdeclareshape{#1}{
+        \savedmacro{\ctikzclass}{\edef\ctikzclass{grounds}}  % class of these components
+        \saveddimen{\scaledRlen}{\pgfmathsetlength{\pgf@x}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}}
+        \savedanchor{\southeast}{
+            \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
+            \pgf@x=\ctikzvalof{monopoles/ground/width}\pgf@circ@scaled@Rlen
+            \pgf@x=#2\pgf@x
+            \pgf@y=\ctikzvalof{monopoles/ground/width}\pgf@circ@scaled@Rlen
+            \pgf@y=-#3\pgf@y
+        }
+        \anchor{north}{\pgfpointorigin}
+        \anchor{north east}{\southeast\pgf@y=0pt\relax}
+        \anchor{east}{\southeast\pgf@y=.5\pgf@y}
+        \anchor{south east}{\southeast}
+        \anchor{south}{\southeast\pgf@x=0pt\relax}
+        \anchor{south west}{\southeast\pgf@x=-\pgf@x}
+        \anchor{west}{\southeast\pgf@y=.5\pgf@y\pgf@x=-\pgf@x}
+        \anchor{north west}{\southeast\pgf@y=0pt\pgf@x=-\pgf@x}
+        \anchor{left}{\pgfpointorigin}
+        \anchor{right}{\pgfpointorigin}
+        \anchor{center}{\pgfpointorigin}
+        \pgf@circ@draw@component{
+            \pgf@circ@scaled@Rlen=\scaledRlen
+            \pgf@circ@res@step=\ctikzvalof{monopoles/ground/width}\pgf@circ@scaled@Rlen
+            \pgfscope
+                \pgfstartlinewidth=\pgflinewidth
+                #4
+            \endpgfscope
+        }
+    }
+}
+
+
+\pgf@circ@declareground{ground}{0.6}{1.6}{
+    \pgfsetlinewidth{\ctikzvalof{monopoles/ground/connectionthickness}\pgfstartlinewidth}
+    \pgfpathmoveto{\pgfpointorigin}
+    \pgfpathlineto{\pgfpoint{0pt}{-1.2\pgf@circ@res@step}}
+    \pgfusepath{draw}
+    \pgf@circ@setlinewidth{monopoles/ground}{\pgfstartlinewidth}
+    \pgfpathmoveto{\pgfpoint{-.6\pgf@circ@res@step}{-1.2\pgf@circ@res@step}}
+    \pgfpathlineto{\pgfpoint{.6\pgf@circ@res@step}{-1.2\pgf@circ@res@step}}
+    \pgfpathmoveto{\pgfpoint{-.4\pgf@circ@res@step}{-1.4\pgf@circ@res@step}}
+    \pgfpathlineto{\pgfpoint{.4\pgf@circ@res@step}{-1.4\pgf@circ@res@step}}
+    \pgfpathmoveto{\pgfpoint{-.25\pgf@circ@res@step}{-1.6\pgf@circ@res@step}}
+    \pgfpathlineto{\pgfpoint{.25\pgf@circ@res@step}{-1.6\pgf@circ@res@step}}
+    \pgfusepath{draw}
+}
+
+\pgf@circ@declareground{tlground}{0.6}{0.4}{
+    \pgf@circ@setlinewidth{monopoles/ground}{\pgfstartlinewidth}
+    \pgfpathmoveto{\pgfpoint{-.6\pgf@circ@res@step}{0pt}}
+    \pgfpathlineto{\pgfpoint{.6\pgf@circ@res@step}{0pt}}
+    \pgfpathmoveto{\pgfpoint{-.4\pgf@circ@res@step}{-0.2\pgf@circ@res@step}}
+    \pgfpathlineto{\pgfpoint{.4\pgf@circ@res@step}{-0.2\pgf@circ@res@step}}
+    \pgfpathmoveto{\pgfpoint{-.25\pgf@circ@res@step}{-0.4\pgf@circ@res@step}}
+    \pgfpathlineto{\pgfpoint{.25\pgf@circ@res@step}{-0.4\pgf@circ@res@step}}
+    \pgfusepath{draw}
+}
+
+
+\pgf@circ@declareground{rground}{0.6}{1}{
+    \pgfpathmoveto{\pgfpointorigin}
+    \pgfpathlineto{\pgfpoint{0pt}{-\pgf@circ@res@step}}
+    \pgfusepath{draw}
+
+    \pgfstartlinewidth=\pgflinewidth
+    \pgf@circ@setlinewidth{monopoles/rground}{\pgfstartlinewidth}
+
+    \pgfpathmoveto{\pgfpoint{-.6\pgf@circ@res@step}{-\pgf@circ@res@step}}
+    \pgfpathlineto{\pgfpoint{.6\pgf@circ@res@step}{-\pgf@circ@res@step}}
+    \pgfsetroundcap\pgfusepath{draw}
+}
+
+\pgf@circ@declareground{tground}{0.6}{0}{
+    \pgfpathmoveto{\pgfpointorigin}
+    \pgfusepath{draw}
+
+    \pgfstartlinewidth=\pgflinewidth
+    \pgf@circ@setlinewidth{monopoles/tground}{\pgfstartlinewidth}
+
+    \pgfpathmoveto{\pgfpoint{-.6\pgf@circ@res@step}{0pt}}
+    \pgfpathlineto{\pgfpoint{.6\pgf@circ@res@step}{0pt}}
+    \pgfusepath{draw}
+}
+
+\pgf@circ@declareground{sground}{0.6}{1.8}{
+    \pgfpathmoveto{\pgfpointorigin}
+    \pgfpathlineto{\pgfpoint{0pt}{-\pgf@circ@res@step}}
+    \pgfusepath{draw}
+
+    \pgfstartlinewidth=\pgflinewidth
+    \pgf@circ@setlinewidth{bipoles}{\pgfstartlinewidth}
+
+    \pgfpathmoveto{\pgfpoint{-.6\pgf@circ@res@step}{-\pgf@circ@res@step}}
+    \pgfpathlineto{\pgfpoint{.6\pgf@circ@res@step}{-\pgf@circ@res@step}}
+    \pgfpathlineto{\pgfpoint{0}{-1.8\pgf@circ@res@step}}
+    \pgfpathclose
+    \pgf@circ@draworfill
+}
+
+% noiseless ground
+\pgf@circ@declareground{nground}{0.9}{1.6}{
+    \pgfsetlinewidth{\ctikzvalof{monopoles/ground/connectionthickness}\pgfstartlinewidth}
+    \pgfpathmoveto{\pgfpointorigin}
+    \pgfpathlineto{\pgfpoint{0pt}{-1.2\pgf@circ@res@step}}
+    \pgfusepath{draw}
+    \pgf@circ@setlinewidth{monopoles/ground}{\pgfstartlinewidth}
+    \pgfpathmoveto{\pgfpoint{-.6\pgf@circ@res@step}{-1.2\pgf@circ@res@step}}
+    \pgfpathlineto{\pgfpoint{.6\pgf@circ@res@step}{-1.2\pgf@circ@res@step}}
+    \pgfpathmoveto{\pgfpoint{-.4\pgf@circ@res@step}{-1.4\pgf@circ@res@step}}
+    \pgfpathlineto{\pgfpoint{.4\pgf@circ@res@step}{-1.4\pgf@circ@res@step}}
+    \pgfpathmoveto{\pgfpoint{-.25\pgf@circ@res@step}{-1.6\pgf@circ@res@step}}
+    \pgfpathlineto{\pgfpoint{.25\pgf@circ@res@step}{-1.6\pgf@circ@res@step}}
+    \pgfusepath{draw}
+    \pgfpathmoveto{\pgfpoint{0.9\pgf@circ@res@step}{-1.6\pgf@circ@res@step}}
+    \pgfpatharc{0}{180}{0.9\pgf@circ@res@step}
+    \pgfusepath{draw}
+}
+
+% protective ground
+\pgf@circ@declareground{pground}{0.9}{1.8}{
+    \pgf@circ@setlinewidth{monopoles/ground}{\pgfstartlinewidth}
+    \pgfpathcircle{\pgfpoint{0pt}{-0.9\pgf@circ@res@step}}{0.9\pgf@circ@res@step}
+    \pgf@circ@draworfill
+    \pgfsetlinewidth{\ctikzvalof{monopoles/ground/connectionthickness}\pgfstartlinewidth}
+    \pgfpathmoveto{\pgfpointorigin}
+    \pgfpathlineto{\pgfpoint{0pt}{-1\pgf@circ@res@step}}
+    \pgfusepath{draw}
+    \pgf@circ@setlinewidth{monopoles/ground}{\pgfstartlinewidth}
+    \pgfpathmoveto{\pgfpoint{-.6\pgf@circ@res@step}{-1\pgf@circ@res@step}}
+    \pgfpathlineto{\pgfpoint{.6\pgf@circ@res@step}{-1\pgf@circ@res@step}}
+    \pgfpathmoveto{\pgfpoint{-.4\pgf@circ@res@step}{-1.2\pgf@circ@res@step}}
+    \pgfpathlineto{\pgfpoint{.4\pgf@circ@res@step}{-1.2\pgf@circ@res@step}}
+    \pgfpathmoveto{\pgfpoint{-.25\pgf@circ@res@step}{-1.4\pgf@circ@res@step}}
+    \pgfpathlineto{\pgfpoint{.25\pgf@circ@res@step}{-1.4\pgf@circ@res@step}}
+    \pgfusepath{draw}
+}
+
+% chassis ground
+\pgf@circ@declareground{cground}{1}{2}{
+    \pgfsetlinewidth{\ctikzvalof{monopoles/ground/connectionthickness}\pgfstartlinewidth}
+    \pgfpathmoveto{\pgfpointorigin}
+    \pgfpathlineto{\pgfpoint{0pt}{-1.5\pgf@circ@res@step}}
+    \pgfusepath{draw}
+    \pgf@circ@setlinewidth{monopoles/ground}{\pgfstartlinewidth}
+    \pgfpathmoveto{\pgfpoint{-1.00\pgf@circ@res@step}{-2.10\pgf@circ@res@step}}
+    \pgfpathlineto{\pgfpoint{-0.75\pgf@circ@res@step}{-1.50\pgf@circ@res@step}}
+    \pgfpathlineto{\pgfpoint{ 0.75\pgf@circ@res@step}{-1.50\pgf@circ@res@step}}
+    \pgfpathlineto{\pgfpoint{ 0.50\pgf@circ@res@step}{-2.10\pgf@circ@res@step}}
+    \pgfpathmoveto{\pgfpoint{ 0.00\pgf@circ@res@step}{-1.50\pgf@circ@res@step}}
+    \pgfpathlineto{\pgfpoint{-0.25\pgf@circ@res@step}{-2.10\pgf@circ@res@step}}
+    \pgfusepath{draw}
+}
+
+% Contributed by @fotesan https://github.com/fotesan
+% european ground
+\pgf@circ@declareground{eground}{1.1}{1.7}{
+    \pgfpathmoveto{\pgfpointorigin}
+    \pgfpathlineto{\pgfpoint{0pt}{-\pgf@circ@res@step}}
+    \pgfusepath{draw}
+
+    \pgfstartlinewidth=\pgflinewidth
+    \pgf@circ@setlinewidth{monopoles/tground}{\pgfstartlinewidth}
+
+    \pgfpathmoveto{\pgfpoint{-1\pgf@circ@res@step}{-\pgf@circ@res@step}}
+    \pgfpathlineto{\pgfpoint{1\pgf@circ@res@step}{-\pgf@circ@res@step}}
+    \pgfusepath{draw}
+
+    \pgfsetlinewidth{\pgfstartlinewidth}
+    \pgfpathmoveto{\pgfpoint{-1.1\pgf@circ@res@step}{-1.7\pgf@circ@res@step}}
+    \pgfpathlineto{\pgfpoint{-.6\pgf@circ@res@step}{-1\pgf@circ@res@step}}
+    \pgfpathmoveto{\pgfpoint{-.6\pgf@circ@res@step}{-1.7\pgf@circ@res@step}}
+    \pgfpathlineto{\pgfpoint{-.1\pgf@circ@res@step}{-1\pgf@circ@res@step}}
+    \pgfpathmoveto{\pgfpoint{-.1\pgf@circ@res@step}{-1.7\pgf@circ@res@step}}
+    \pgfpathlineto{\pgfpoint{.4\pgf@circ@res@step}{-1\pgf@circ@res@step}}
+    \pgfpathmoveto{\pgfpoint{.4\pgf@circ@res@step}{-1.7\pgf@circ@res@step}}
+    \pgfpathlineto{\pgfpoint{.9\pgf@circ@res@step}{-1\pgf@circ@res@step}}
+    \pgfusepath{draw}
+}
+
+\pgf@circ@declareground{eground2}{1.1}{1.7}{
+    \pgfpathmoveto{\pgfpointorigin}
+    \pgfpathlineto{\pgfpoint{0pt}{-\pgf@circ@res@step}}
+    \pgfusepath{draw}
+
+    \pgfstartlinewidth=\pgflinewidth
+    \pgf@circ@setlinewidth{monopoles/tground}{\pgfstartlinewidth}
+
+    \pgfpathmoveto{\pgfpoint{-1\pgf@circ@res@step}{-\pgf@circ@res@step}}
+    \pgfpathlineto{\pgfpoint{1\pgf@circ@res@step}{-\pgf@circ@res@step}}
+    \pgfusepath{draw}
+
+    \pgfsetlinewidth{\pgfstartlinewidth}
+    \pgfpathmoveto{\pgfpoint{-1.1\pgf@circ@res@step}{-1.7\pgf@circ@res@step}}
+    \pgfpathlineto{\pgfpoint{-.4\pgf@circ@res@step}{-1\pgf@circ@res@step}}
+    \pgfpathmoveto{\pgfpoint{-.45\pgf@circ@res@step}{-1.7\pgf@circ@res@step}}
+    \pgfpathlineto{\pgfpoint{.25\pgf@circ@res@step}{-1\pgf@circ@res@step}}
+    \pgfpathmoveto{\pgfpoint{.2\pgf@circ@res@step}{-1.7\pgf@circ@res@step}}
+    \pgfpathlineto{\pgfpoint{.9\pgf@circ@res@step}{-1\pgf@circ@res@step}}
+    \pgfusepath{draw}
+}
+
+%%%%%%%%%%%%%%%%%%
+%% Power supplies
+%%%%%%%%%%%%%%%%%%
+
+% Vcc
+\pgfdeclareshape{vcc}{
+    \savedmacro{\ctikzclass}{\edef\ctikzclass{power supplies}}  % class of these components
+    \saveddimen{\scaledRlen}{\pgfmathsetlength{\pgf@x}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}}
+    \saveddimen{\scaledwidth}{% thanks to @Schrödinger's cat on https://tex.stackexchange.com/a/506249/38080
+        \pgfgettransformentries{\tmpa}{\tmpb}{\tmpc}{\tmpd}{\tmp}{\tmp}%
+        \pgfmathsetmacro{\gscale}{sqrt(abs(\tmpa*\tmpd-\tmpb*\tmpc))}% abs should not be needed
+        \pgfmathsetlength{\pgf@x}{(\ctikzvalof{\ctikzclass/scale}*\gscale*\ctikzvalof{monopoles/vcc/width})*\pgf@circ@Rlen}%
+    }
+    \savedanchor{\northeast}{%
+        \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
+        \pgf@circ@res@step=\ctikzvalof{monopoles/vcc/width}\pgf@circ@scaled@Rlen
+        \pgf@x=.5\pgf@circ@res@step
+        \pgf@y=3\pgf@x%
+    }
+    \anchor{north}{\northeast\pgf@x=0cm\relax}
+    \anchor{east}{\northeast\pgf@y=0.5\pgf@y\relax}
+    \anchor{south}{\pgfpointorigin}
+    \anchor{west}{\northeast\pgf@y=0.5\pgf@y\pgf@x=-\pgf@x}
+    \anchor{north east}{\northeast}
+    \anchor{north west}{\northeast\pgf@x=-\pgf@x}
+    \anchor{south east}{\northeast\pgf@y=0pt\relax}
+    \anchor{south west}{\northeast\pgf@y=0pt\pgf@x=-\pgf@x}
+    \anchor{center}{\pgfpointorigin}
+    \anchor{left}{\pgfpointorigin}
+    \anchor{right}{\pgfpointorigin}
+    \anchor{text}{
+        \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
+        \pgf@circ@res@step=\ctikzvalof{monopoles/vcc/width}\pgf@circ@scaled@Rlen
+        \pgfpathmoveto{\pgfpoint{-.5\wd\pgfnodeparttextbox}{2\pgf@circ@res@step+2\ht\pgfnodeparttextbox}}
+        \pgfpathmoveto{\pgfpoint{.5\wd\pgfnodeparttextbox}{2\pgf@circ@res@step+2\ht\pgfnodeparttextbox}}
+        \pgf@x=0pt
+        \pgf@y=2\pgf@circ@res@step
+        \advance \pgf@y by 0.5\ht\pgfnodeparttextbox
+        \pgf@x=-.5\wd\pgfnodeparttextbox
+    }
+    \pgf@circ@draw@component{
+        \pgf@circ@scaled@Rlen=\scaledRlen
+        \pgf@circ@res@step=\ctikzvalof{monopoles/vcc/width}\pgf@circ@scaled@Rlen
+        \pgfscope
+            \edef\pgf@circ@temp{\ctikzvalof{monopoles/vcc/arrow}}\edef\pgf@temp{legacy}
+            \ifx\pgf@temp\pgf@circ@temp
+                \pgfstartlinewidth=\pgflinewidth
+                \pgf@circ@setlinewidth{bipoles}{\pgfstartlinewidth}
+
+                \pgfpathmoveto{\pgfpoint{-0.5\pgf@circ@res@step}{.8\pgf@circ@res@step}}
+                \pgfpathlineto{\pgfpoint{0}{1.5\pgf@circ@res@step}}
+                \pgfpathlineto{\pgfpoint{0.5\pgf@circ@res@step}{.8\pgf@circ@res@step}}
+                \pgfusepath{draw}
+
+                \pgfsetlinewidth{\pgfstartlinewidth}
+            \else
+            \pgfsetarrowsend{\pgf@circ@temp}
+        \fi
+        \pgfpathmoveto{\pgfpointorigin}
+        \pgfpathlineto{\pgfpoint{0pt}{1.5\pgf@circ@res@step}}
+        \pgfusepath{draw}
+    \endpgfscope
+    }
+}
+
+% Vee
+\pgfdeclareshape{vee}{
+    \savedmacro{\ctikzclass}{\edef\ctikzclass{power supplies}}  % class of these components
+    \saveddimen{\scaledRlen}{\pgfmathsetlength{\pgf@x}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}}
+    \saveddimen{\scaledwidth}{% thanks to @Schrödinger's cat on https://tex.stackexchange.com/a/506249/38080
+        \pgfgettransformentries{\tmpa}{\tmpb}{\tmpc}{\tmpd}{\tmp}{\tmp}%
+        \pgfmathsetmacro{\gscale}{sqrt(abs(\tmpa*\tmpd-\tmpb*\tmpc))}% abs should not be needed
+        \pgfmathsetlength{\pgf@x}{(\ctikzvalof{\ctikzclass/scale}*\gscale*\ctikzvalof{monopoles/vcc/width})*\pgf@circ@Rlen}%
+    }
+    \savedanchor{\northeast}{%
+        \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
+        \pgf@circ@res@step=\ctikzvalof{monopoles/vcc/width}\pgf@circ@scaled@Rlen
+        \pgf@x=.5\pgf@circ@res@step
+        \pgf@y=-3\pgf@x%
+    }
+    \anchor{south}{\northeast\pgf@x=0cm\relax}
+    \anchor{east}{\northeast\pgf@y=0.5\pgf@y\relax}
+    \anchor{north}{\pgfpointorigin}
+    \anchor{west}{\northeast\pgf@y=0.5\pgf@y\pgf@x=-\pgf@x}
+    \anchor{south east}{\northeast}
+    \anchor{south west}{\northeast\pgf@x=-\pgf@x}
+    \anchor{north east}{\northeast\pgf@y=0pt\relax}
+    \anchor{north west}{\northeast\pgf@y=0pt\pgf@x=-\pgf@x}
+    \anchor{center}{\pgfpointorigin}
+    \anchor{left}{\pgfpointorigin}
+    \anchor{right}{\pgfpointorigin}
+    \anchor{text}{
+        \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
+        \pgf@circ@res@step=\ctikzvalof{monopoles/vcc/width}\pgf@circ@scaled@Rlen
+        \pgfpathmoveto{\pgfpoint{-.5\wd\pgfnodeparttextbox}{-2\pgf@circ@res@step-2\ht\pgfnodeparttextbox}}
+        \pgfpathmoveto{\pgfpoint{.5\wd\pgfnodeparttextbox}{-2\pgf@circ@res@step-2\ht\pgfnodeparttextbox}}
+        \pgf@x=0pt
+        \pgf@y=-2\pgf@circ@res@step
+        \advance \pgf@y by -1.5\ht\pgfnodeparttextbox
+        \pgf@x=-.5\wd\pgfnodeparttextbox
+    }
+
+    \pgf@circ@draw@component{
+        \pgf@circ@scaled@Rlen=\scaledRlen
+        \pgf@circ@res@step=\ctikzvalof{monopoles/vcc/width}\pgf@circ@scaled@Rlen
+        \pgfscope
+            \edef\pgf@circ@temp{\ctikzvalof{monopoles/vee/arrow}}\edef\pgf@temp{legacy}
+            \ifx\pgf@temp\pgf@circ@temp
+
+                \pgfstartlinewidth=\pgflinewidth
+                \pgf@circ@setlinewidth{bipoles}{\pgfstartlinewidth}
+
+                \pgfpathmoveto{\pgfpoint{-0.5\pgf@circ@res@step}{-.8\pgf@circ@res@step}}
+                \pgfpathlineto{\pgfpoint{0}{-1.5\pgf@circ@res@step}}
+                \pgfpathlineto{\pgfpoint{0.5\pgf@circ@res@step}{-.8\pgf@circ@res@step}}
+                \pgfusepath{draw}
+                \pgfsetlinewidth{\pgfstartlinewidth}
+            \else
+                \pgfsetarrowsend{\pgf@circ@temp}
+            \fi
+            \pgfpathmoveto{\pgfpointorigin}
+            \pgfpathlineto{\pgfpoint{0pt}{-1.5\pgf@circ@res@step}}
+            \pgfusepath{draw}
+        \endpgfscope
+    }
+}% %>>>
+
+
+%% This are strange, and probably wrong FIXME
+% \compattikzset{vdd/.style = {\comnpatname vcc = #1}}
+% \compattikzset{vss/.style = {\comnpatname vee = #1}}
+\pgfcirc@style@to@style{vcc}{vdd}
+\pgfcirc@style@to@style{vee}{vss}
+
+
+%%%%%%%%%%%%%%
+%% RF bipoles and monopoles
+%%%%%%%%%%%%%%
+
+%% RF bipoles and monopoles settings %<<<1
+\ctikzset{bipoles/mstline/height/.initial=0.3}
+\ctikzset{bipoles/mstline/width/.initial=1.2}
+\pgfkeys{/tikz/mstlinelen/.add code={}{\ctikzset{bipoles/mstline/width=#1}}}
+\ctikzset{monopoles/msport/width/.initial=.5}
+\ctikzset{monopoles/msrstub/height/.initial=1.0}
+\ctikzset{monopoles/msrstub/width/.initial=0.6}%
+%>>>
+
+%% Node shapes for RF bipoles%<<<
+\ctikzset{bipoles/tline/height/.initial=.3}
+\ctikzset{bipoles/tline/width/.initial=.6}
+\newif\ifpgf@circ@bare@tline
+\ctikzset{bipoles/tline/bare/.is if=pgf@circ@bare@tline}
+\pgfcircdeclarebipolescaled{RF}
+{
+    \savedmacro{\recessright}{\edef\recessright{\ifpgf@circ@bare@tline -0.4\else 0.0\fi}}
+    \anchor{center right}{\northeast \advance\pgf@x by -0.4\pgf@y\pgf@y=0pt}
+    \anchor{top right}{\northeast \advance\pgf@x by -0.4\pgf@y}
+    \anchor{bottom right}{\northeast \advance\pgf@x by -0.4\pgf@y\pgf@y=-\pgf@y}
+    \anchor{center left}{\northeast \advance\pgf@x by -0.4\pgf@y\pgf@x=-\pgf@x\pgf@y=0pt}
+    \anchor{top left}{\northeast \advance\pgf@x by -0.4\pgf@y\pgf@x=-\pgf@x}
+    \anchor{bottom left}{\northeast \advance\pgf@x by -0.4\pgf@y\pgf@x=-\pgf@x\pgf@y=-\pgf@y}
+    \anchor{right}{\northeast \advance\pgf@x by \recessright\pgf@y\pgf@y=0pt}
+}
+{\ctikzvalof{bipoles/tline/height}}
+{tline}
+{\ctikzvalof{bipoles/tline/height}}
+{\ctikzvalof{bipoles/tline/width}}
+{
+    \pgf@circ@res@step=.4\pgf@circ@res@up % the size of the ellipsis is proportional to the height
+    \pgfscope
+        \pgf@circ@setlinewidth{bipoles}{\pgfstartlinewidth}
+        \pgfpathmoveto{\pgfpoint{\pgf@circ@res@right-\pgf@circ@res@step}{\pgf@circ@res@up}}
+        \pgfpathlineto{\pgfpoint{\pgf@circ@res@left+\pgf@circ@res@step}{\pgf@circ@res@up}}
+        \pgfpatharc{-90}{90}{-\pgf@circ@res@step and -\pgf@circ@res@up}
+        \pgfpathlineto{\pgfpoint{\pgf@circ@res@right-\pgf@circ@res@step}{\pgf@circ@res@down}}
+        \pgfpatharc{-90}{90}{\pgf@circ@res@step and \pgf@circ@res@up}
+        \pgf@circ@draworfill
+        \pgfpathmoveto{\pgfpoint{\pgf@circ@res@right-\pgf@circ@res@step}{\pgf@circ@res@up}}
+        \pgfpatharc{-90}{90}{-\pgf@circ@res@step and -\pgf@circ@res@up}
+        \pgfusepath{stroke}
+    \endpgfscope
+    \ifpgf@circ@bare@tline\else
+        \pgfsetlinewidth{\pgfstartlinewidth}
+        \pgfpathmoveto{\pgfpoint{\pgf@circ@res@right-\pgf@circ@res@step}{0pt}}
+        \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{0pt}}
+        \pgfusepath{stroke}
+    \fi
+}
+
+% microstrip transmission line
+\pgfcircdeclarebipolescaled{RF}
+{}
+{\ctikzvalof{bipoles/mstline/height}}
+{mstline}
+{\ctikzvalof{bipoles/mstline/height}}
+{\ctikzvalof{bipoles/mstline/width}}
+{
+    \pgfpathrectanglecorners{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@up}}{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@down}}
+    \pgf@circ@setlinewidth{bipoles}{\pgfstartlinewidth}
+    \pgf@circ@draworfill
+}% %>>>
+
+%% Path definitions for RF path objects%<<<
+\pgfcirc@activate@bipole@simple{l}{mstline}
+\pgfcirc@activate@bipole@simple{l}{tline}
+\pgfcirc@style@to@style{tline}{transmission line}
+\pgfcirc@style@to@style{tline}{TL}
+% %>>>
+
+%% Node shapes for RF monopoles%<<<
+
+% Legacy tlinestub
+% Contributed by Leonardo Azzinnari
+\pgfdeclareshape{tlinestub}{
+    \savedmacro{\ctikzclass}{\edef\ctikzclass{RF}}
+    \saveddimen{\scaledRlen}{\pgfmathsetlength{\pgf@x}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}}
+    \savedanchor{\northeast}{%
+        \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
+        \pgf@circ@res@step = \ctikzvalof{bipoles/tline/width} \pgf@circ@scaled@Rlen
+        \pgf@x=1.2\pgf@circ@res@step
+        \pgf@circ@res@step = \ctikzvalof{bipoles/tline/width} \pgf@circ@scaled@Rlen
+        \pgf@y=.2\pgf@circ@res@step%
+    }
+    % the center is on the left side of the shape for facility of usage
+    \anchor{north}{\northeast\pgf@x=0.5\pgf@x\relax}
+    \anchor{east}{\northeast\pgf@y=0cm\relax}
+    \anchor{south}{\northeast\pgf@y=-\pgf@y \pgf@x=0.5\pgf@x\relax}
+    \anchor{west}{\pgfpointorigin}
+    \anchor{north east}{\northeast}
+    \anchor{north west}{\northeast\pgf@x=0cm\relax}
+    \anchor{south east}{\northeast\pgf@y=-\pgf@y}
+    \anchor{south west}{\northeast\pgf@x=0cm\pgf@y=-\pgf@y}
+    \anchor{center}{\pgfpointorigin}
+    % this is not exact, but it's better than nothing
+    \anchor{text}{\northeast\pgf@xa=\pgf@x\pgf@ya=\pgf@y
+        \pgfpoint{\dimexpr-.5\wd\pgfnodeparttextbox+.8\pgf@xa}
+        {\dimexpr-.5\dp\pgfnodeparttextbox+.5\ht\pgfnodeparttextbox+\pgf@ya}}
+    \pgf@circ@draw@component{
+        \pgfstartlinewidth=\pgflinewidth
+
+        \pgf@circ@scaled@Rlen=\scaledRlen
+        \pgf@circ@res@step=\ctikzvalof{bipoles/tline/width}\pgf@circ@scaled@Rlen
+
+        \pgfscope
+            \pgfpathmoveto{\pgfpoint{0.5\pgf@circ@res@step}{0.25\pgf@circ@res@step}}
+            \pgfpathlineto{\pgfpoint{1.5\pgf@circ@res@step}{0.25\pgf@circ@res@step}}
+            \pgfpatharc{90}{-90}{0.125\pgf@circ@res@step and 0.25\pgf@circ@res@step}
+            \pgfpathlineto{\pgfpoint{0.5\pgf@circ@res@step}{-0.25\pgf@circ@res@step}}
+            \pgf@circ@setlinewidth{bipoles}{\pgfstartlinewidth}
+            \pgfpatharc{90}{-90}{-0.125\pgf@circ@res@step and -0.25\pgf@circ@res@step}
+            \pgf@circ@draworfill
+            \pgfpathmoveto{\pgfpoint{0.5\pgf@circ@res@step}{0.25\pgf@circ@res@step}}
+            \pgfpatharc{90}{-90}{0.125\pgf@circ@res@step and 0.25\pgf@circ@res@step}
+            \pgfusepath{stroke}
+        \endpgfscope
+        \pgfpathmoveto{\pgfpointorigin}
+        \pgfpathlineto{\pgfpoint{0.5\pgf@circ@res@step}{0pt}}
+        \pgfusepath{draw}
+    }
+}
+
+%% New antennas without tails
+
+% main body of antennas
+\def\pgf@circ@antennabody{%
+    \pgfstartlinewidth=\pgflinewidth
+    \pgf@circ@scaled@Rlen=\scaledRlen
+    \pgf@circ@setcolor
+    \pgf@circ@res@step=\ctikzvalof{monopoles/bareantenna/width}\pgf@circ@scaled@Rlen
+    \pgfscope
+        \pgf@circ@setlinewidth{bipoles}{\pgfstartlinewidth}
+        \pgfpathmoveto{\pgfpointorigin}
+        \pgfpathlineto{\pgfpoint{-\pgf@circ@res@step}{2\pgf@circ@res@step}}
+        \pgfpathlineto{\pgfpoint{\pgf@circ@res@step}{2\pgf@circ@res@step}}
+        \pgfsetbeveljoin
+        \pgfpathclose
+        \pgf@circ@draworfill
+    \endpgfscope
+    \pgfsetlinewidth{\pgfstartlinewidth}
+    \pgfpathmoveto{\pgfpointorigin}
+    \pgfpathlineto{\pgfpoint{0pt}{2\pgf@circ@res@step}}
+    \pgfusepath{draw}
+}
+
+% Waves for the antennas.
+\def\pgf@circ@antennawaves{%
+    \pgfscope
+    % define a triangle for clipping the waves
+    \pgfpathmoveto{\pgfpoint{0pt}{\pgf@circ@res@step}}
+    \pgfpathlineto{\pgfpoint{4.2\pgf@circ@res@step}{3\pgf@circ@res@step}}
+    \pgfpathlineto{\pgfpoint{4.2\pgf@circ@res@step}{-1\pgf@circ@res@step}}
+    \pgfpathclose
+    \pgfusepath{clip}
+    % ...and build the waves as clipped circles
+    \pgf@circ@count@a=8\pgf@circ@res@other=0.5\pgf@circ@res@step
+    \pgfmathloop%
+    \ifnum\pgf@circ@count@a>2
+        \pgfpathcircle{\pgfpoint{0pt}{\pgf@circ@res@step}}{\the\pgf@circ@count@a*\pgf@circ@res@other}
+        \advance\pgf@circ@count@a-1\relax%
+        \repeatpgfmathloop
+        \pgfusepath{draw}
+    \endpgfscope
+}
+
+% additional shape with the waves
+\pgfdeclareshape{waves}{
+    \savedmacro{\ctikzclass}{\edef\ctikzclass{RF}}
+    \saveddimen{\scaledRlen}{\pgfmathsetlength{\pgf@x}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}}
+    \anchor{center}{\pgfpointorigin}
+    \savedanchor{\northeast}{
+        \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
+        \pgf@circ@res@step=\ctikzvalof{monopoles/waves/width}\pgf@circ@scaled@Rlen
+        \pgf@x=\pgf@circ@res@step
+        \pgf@y=\pgf@circ@res@step
+    }
+    \anchor{text}{
+        \northeast
+        \pgf@y=\dimexpr\pgf@y+.5\dp\pgfnodeparttextbox-.5\ht\pgfnodeparttextbox\relax
+    }
+    \anchor{top}{\northeast\pgf@x=0pt}
+    \anchor{right}{\northeast\pgf@y=0pt}
+    \anchor{left}{\northeast\pgf@x=-\pgf@x\pgf@y=0pt}
+    \anchor{bottom}{\northeast\pgf@y=-\pgf@y\pgf@x=0pt}
+    \anchor{north}{\northeast\pgf@x=0pt}
+    \anchor{north east}{\northeast}
+    \anchor{east}{\northeast\pgf@y=0pt}
+    \anchor{south east}{\northeast\pgf@y=-\pgf@y}
+    \anchor{south}{\northeast\pgf@y=-\pgf@y\pgf@x=0pt}
+    \anchor{south west}{\northeast\pgf@y=-\pgf@y\pgf@x=-\pgf@x}
+    \anchor{west}{\northeast\pgf@x=-\pgf@x\pgf@y=0pt}
+    \anchor{north west}{\northeast\pgf@x=-\pgf@x}
+    \pgf@circ@draw@component{
+        \pgf@circ@scaled@Rlen=\scaledRlen
+        \pgf@circ@res@step=\ctikzvalof{monopoles/waves/width}\pgf@circ@scaled@Rlen
+        \pgf@circ@res@step=0.5\pgf@circ@res@step
+        \pgf@circ@setcolor
+        \pgfscope
+        % define a triangle for clipping the waves
+        \pgfpathmoveto{\pgfpoint{-2\pgf@circ@res@step}{0pt}}
+        \pgfpathlineto{\pgfpoint{2.1\pgf@circ@res@step}{2\pgf@circ@res@step}}
+        \pgfpathlineto{\pgfpoint{2.1\pgf@circ@res@step}{-2\pgf@circ@res@step}}
+        \pgfpathclose
+        \pgfusepath{clip}
+        % ...and build the waves as clipped circles
+        \c@pgf@counta=8\pgf@circ@res@other=0.5\pgf@circ@res@step
+        \pgfmathloop%
+        \ifnum\c@pgf@counta>1
+            \pgfpathcircle{\pgfpoint{-2\pgf@circ@res@step}{0pt}}{\the\c@pgf@counta*\pgf@circ@res@other}
+            \advance\c@pgf@counta-1\relax%
+            \repeatpgfmathloop
+            \pgfusepath{draw}
+        \endpgfscope
+    }
+}
+
+% the four types of antennas: simple, din, TX, RX. Notice that you can flip them...
+%
+\pgfdeclareshape{bareantenna}{
+    \savedmacro{\ctikzclass}{\edef\ctikzclass{RF}}
+    \saveddimen{\scaledRlen}{\pgfmathsetlength{\pgf@x}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}}
+    \anchor{center}{\pgfpointorigin}
+    \savedanchor{\northeast}{
+        \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
+        \pgf@circ@res@step=\ctikzvalof{monopoles/bareantenna/width}\pgf@circ@scaled@Rlen
+        \pgf@x=\pgf@circ@res@step
+        \pgf@y=2\pgf@circ@res@step
+    }
+    \anchor{text}{
+        \northeast
+        \pgf@x=\ctikzvalof{monopoles/bareantenna/label/xanchor}\pgf@x
+        \pgf@y=\ctikzvalof{monopoles/bareantenna/label/yanchor}\pgf@y
+        \pgf@y=\dimexpr\pgf@y+.5\dp\pgfnodeparttextbox-.5\ht\pgfnodeparttextbox\relax
+    }
+    \anchor{top}{\northeast\pgf@x=0pt}
+    \anchor{right}{\northeast\pgf@y=0.5\pgf@y}
+    \anchor{left}{\northeast\pgf@x=-\pgf@x\pgf@y=0.5\pgf@y}
+    \anchor{bottom}{\pgfpointorigin}
+    \anchor{north}{\northeast\pgf@x=0pt}
+    \anchor{east}{\northeast\pgf@y=0.5\pgf@y}
+    \anchor{west}{\northeast\pgf@x=-\pgf@x\pgf@y=0.5\pgf@y}
+    \anchor{south}{\pgfpointorigin}
+    \anchor{north east}{\northeast}
+    \anchor{north west}{\northeast\pgf@x=-\pgf@x}
+    \anchor{south east}{\northeast\pgf@y=0pt\relax}
+    \anchor{south west}{\northeast\pgf@y=0pt\pgf@x=-\pgf@x}
+    \pgf@circ@draw@component{
+        \pgf@circ@antennabody
+    }
+}
+%
+\pgfdeclareshape{dinantenna}{
+    \savedmacro{\ctikzclass}{\edef\ctikzclass{RF}}
+    \saveddimen{\scaledRlen}{\pgfmathsetlength{\pgf@x}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}}
+    \anchor{center}{\pgfpointorigin}
+    \savedanchor{\northeast}{
+        \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
+        \pgf@circ@res@step=\ctikzvalof{monopoles/dinantenna/width}\pgf@circ@scaled@Rlen
+        \pgf@circ@res@other=\ctikzvalof{monopoles/dinantenna/height}\pgf@circ@scaled@Rlen
+        \pgf@x=\pgf@circ@res@step
+        \pgf@y=\pgf@circ@res@other
+    }
+    \anchor{text}{
+        \northeast
+        \pgf@y=\dimexpr.5\pgf@y+.5\dp\pgfnodeparttextbox-.5\ht\pgfnodeparttextbox\relax
+    }
+    \anchor{top}{\northeast\pgf@x=0pt}
+    \anchor{right}{\northeast\pgf@y=0.5\pgf@y}
+    \anchor{left}{\northeast\pgf@x=-\pgf@x\pgf@y=0.5\pgf@y}
+    \anchor{bottom}{\pgfpointorigin}
+    \anchor{north}{\northeast\pgf@x=0pt}
+    \anchor{east}{\northeast\pgf@y=0.5\pgf@y}
+    \anchor{west}{\northeast\pgf@x=-\pgf@x\pgf@y=0.5\pgf@y}
+    \anchor{south}{\pgfpointorigin}
+    \anchor{north east}{\northeast}
+    \anchor{north west}{\northeast\pgf@x=-\pgf@x}
+    \anchor{south east}{\northeast\pgf@y=0pt\relax}
+    \anchor{south west}{\northeast\pgf@y=0pt\pgf@x=-\pgf@x}
+    \pgf@circ@draw@component{
+        \pgfstartlinewidth=\pgflinewidth
+        \pgf@circ@scaled@Rlen=\scaledRlen
+        \pgf@circ@setcolor
+        \pgf@circ@res@right=\ctikzvalof{monopoles/dinantenna/width}\pgf@circ@scaled@Rlen
+        \pgf@circ@res@up=\ctikzvalof{monopoles/dinantenna/height}\pgf@circ@scaled@Rlen
+        \pgfscope
+            \pgf@circ@setlinewidth{bipoles}{\pgfstartlinewidth}
+            \pgfpathmoveto{\pgfpointorigin}
+            \pgfpathlineto{\pgfpoint{0pt}{\pgf@circ@res@up}}
+            \pgfpathmoveto{\pgfpoint{0pt}{0.5\pgf@circ@res@up}}
+            \pgfpathlineto{\pgfpoint{-\pgf@circ@res@right}{\pgf@circ@res@up}}
+            \pgfpathmoveto{\pgfpoint{0pt}{0.5\pgf@circ@res@up}}
+            \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@up}}
+            \pgfpathmoveto{\pgfpoint{0pt}{0.5\pgf@circ@res@up}}
+            \pgfpathlineto{\pgfpoint{0pt}{\pgf@circ@res@up}}
+            \pgfusepath{draw}
+        \endpgfscope
+    }
+}
+
+\pgfdeclareshape{bareTXantenna}{
+    \savedmacro{\ctikzclass}{\edef\ctikzclass{RF}}
+    \saveddimen{\scaledRlen}{\pgfmathsetlength{\pgf@x}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}}
+    \anchor{center}{\pgfpointorigin}
+    \savedanchor{\northeast}{
+        \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
+        \pgf@circ@res@step=\ctikzvalof{monopoles/bareantenna/width}\pgf@circ@scaled@Rlen
+        \pgf@x=\pgf@circ@res@step
+        \pgf@y=2\pgf@circ@res@step
+    }
+    \savedanchor{\savedwaves}{
+        \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
+        \pgf@circ@res@step=\ctikzvalof{monopoles/bareantenna/width}\pgf@circ@scaled@Rlen
+        \pgf@x=4.2\pgf@circ@res@step
+        \pgf@y=\pgf@circ@res@step
+    }
+    \anchor{text}{
+        \northeast
+        \pgf@x=\ctikzvalof{monopoles/bareantenna/label/xanchor}\pgf@x
+        \pgf@y=\ctikzvalof{monopoles/bareantenna/label/yanchor}\pgf@y
+        \pgf@x=\dimexpr-\pgf@x-\wd\pgfnodeparttextbox\relax
+        \pgf@y=\dimexpr\pgf@y+.5\dp\pgfnodeparttextbox-.5\ht\pgfnodeparttextbox\relax
+    }
+    \anchor{waves}{\savedwaves}
+    \anchor{top}{\northeast\pgf@x=0pt}
+    \anchor{right}{\northeast\pgf@y=0.5\pgf@y}
+    \anchor{left}{\northeast\pgf@x=-\pgf@x\pgf@y=0.5\pgf@y}
+    \anchor{bottom}{\pgfpointorigin}
+    \anchor{north}{\northeast\pgf@x=0pt}
+    \anchor{east}{\northeast\pgf@y=0.5\pgf@y}
+    \anchor{west}{\northeast\pgf@x=-\pgf@x\pgf@y=0.5\pgf@y}
+    \anchor{south}{\pgfpointorigin}
+    \anchor{north east}{\northeast}
+    \anchor{north west}{\northeast\pgf@x=-\pgf@x}
+    \anchor{south east}{\northeast\pgf@y=0pt\relax}
+    \anchor{south west}{\northeast\pgf@y=0pt\pgf@x=-\pgf@x}
+    \pgf@circ@draw@component{
+        \pgf@circ@antennabody
+        \pgf@circ@antennawaves
+    }
+}
+
+\pgfdeclareshape{bareRXantenna}{
+    \savedmacro{\ctikzclass}{\edef\ctikzclass{RF}}
+    \saveddimen{\scaledRlen}{\pgfmathsetlength{\pgf@x}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}}
+    \anchor{center}{\pgfpointorigin}
+    \savedanchor{\northeast}{
+        \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
+        \pgf@circ@res@step=\ctikzvalof{monopoles/bareantenna/width}\pgf@circ@scaled@Rlen
+        \pgf@x=\pgf@circ@res@step
+        \pgf@y=2\pgf@circ@res@step
+    }
+    \savedanchor{\savedwaves}{
+        \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
+        \pgf@circ@res@step=\ctikzvalof{monopoles/bareantenna/width}\pgf@circ@scaled@Rlen
+        \pgf@x=-4.2\pgf@circ@res@step
+        \pgf@y=\pgf@circ@res@step
+    }
+    \anchor{text}{
+        \northeast
+        \pgf@x=\ctikzvalof{monopoles/bareantenna/label/xanchor}\pgf@x
+        \pgf@y=\ctikzvalof{monopoles/bareantenna/label/yanchor}\pgf@y
+        \pgf@y=\dimexpr\pgf@y+.5\dp\pgfnodeparttextbox-.5\ht\pgfnodeparttextbox\relax
+    }
+    \anchor{waves}{\savedwaves}
+    \anchor{top}{\northeast\pgf@x=0pt}
+    \anchor{right}{\northeast\pgf@y=0.5\pgf@y}
+    \anchor{left}{\northeast\pgf@x=-\pgf@x\pgf@y=0.5\pgf@y}
+    \anchor{bottom}{\pgfpointorigin}
+    \anchor{north}{\northeast\pgf@x=0pt}
+    \anchor{east}{\northeast\pgf@y=0.5\pgf@y}
+    \anchor{west}{\northeast\pgf@x=-\pgf@x\pgf@y=0.5\pgf@y}
+    \anchor{south}{\pgfpointorigin}
+    \anchor{north east}{\northeast}
+    \anchor{north west}{\northeast\pgf@x=-\pgf@x}
+    \anchor{south east}{\northeast\pgf@y=0pt\relax}
+    \anchor{south west}{\northeast\pgf@y=0pt\pgf@x=-\pgf@x}
+    \pgf@circ@draw@component{
+        \pgf@circ@antennabody
+        \pgftransformxshift{-5.2\pgf@circ@res@step}
+        \pgf@circ@antennawaves
+    }
+}
+
+%%% dynodes (see https://github.com/circuitikz/circuitikz/issues/469)
+\ctikzset{monopoles/dynode/width/.initial=0.4}
+\ctikzset{monopoles/dynode/height/.initial=0.8}
+\ctikzset{monopoles/dynode/arc pos/.initial=0.5}
+\ctikzset{monopoles/dynode/arc angle/.initial=30}
+\ctikzset{monopoles/dynode/top width/.initial=1.0}
+
+\pgfdeclareshape{dynode}{
+    \savedmacro{\ctikzclass}{\edef\ctikzclass{tubes}}
+    \saveddimen{\scaledRlen}{\pgfmathsetlength{\pgf@x}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}}
+    \anchor{center}{\pgfpointorigin}
+    \savedanchor{\northeast}{
+        \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
+        \pgf@x=\ctikzvalof{monopoles/dynode/width}\pgf@circ@scaled@Rlen
+        \pgf@x=0.5\pgf@x
+        \pgf@y=\ctikzvalof{monopoles/dynode/height}\pgf@circ@scaled@Rlen
+    }
+    \savedanchor{\arcpos}{% bottom part of the arc pos
+        \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
+        \pgf@x=0pt
+        \pgf@y=\ctikzvalof{monopoles/dynode/height}\pgf@circ@scaled@Rlen
+        \pgf@y=\ctikzvalof{monopoles/dynode/arc pos}\pgf@y
+    }
+    \savedanchor{\topright}{%
+        \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
+        \pgf@x=\ctikzvalof{monopoles/dynode/width}\pgf@circ@scaled@Rlen
+        \pgf@x=\ctikzvalof{monopoles/dynode/top width}\pgf@x
+        \pgf@x=0.5\pgf@x
+        \pgf@y=\ctikzvalof{monopoles/dynode/height}\pgf@circ@scaled@Rlen
+    }
+    \anchor{arc}{\arcpos}
+    \anchor{top right}{\topright}
+    \anchor{top left}{\topright\pgf@x=-\pgf@x}
+    \anchor{text}{
+        \northeast
+        \advance\pgf@x by 4pt\relax
+        \pgf@y=\dimexpr0.5\pgf@y+.5\dp\pgfnodeparttextbox-.5\ht\pgfnodeparttextbox\relax
+    }
+    \anchor{top}{\northeast\pgf@x=0pt}
+    \anchor{right}{\northeast\pgf@y=0.5\pgf@y}
+    \anchor{left}{\northeast\pgf@x=-\pgf@x\pgf@y=0.5\pgf@y}
+    \anchor{bottom}{\pgfpointorigin}
+    \anchor{north}{\northeast\pgf@x=0pt}
+    \anchor{east}{\northeast\pgf@y=0.5\pgf@y}
+    \anchor{west}{\northeast\pgf@x=-\pgf@x\pgf@y=0.5\pgf@y}
+    \anchor{south}{\pgfpointorigin}
+    \anchor{north east}{\northeast}
+    \anchor{north west}{\northeast\pgf@x=-\pgf@x}
+    \anchor{south east}{\northeast\pgf@y=0pt\relax}
+    \anchor{south west}{\northeast\pgf@y=0pt\pgf@x=-\pgf@x}
+    \pgf@circ@draw@component{
+        \pgfstartlinewidth=\pgflinewidth
+        \pgf@circ@scaled@Rlen=\scaledRlen
+        \pgf@circ@setcolor
+        \northeast
+        \pgf@circ@res@right=\pgf@x
+        \pgf@circ@res@up=\pgf@y
+        \arcpos
+        \pgf@circ@res@step=\pgf@y
+        % top
+        \pgfscope
+            \pgf@circ@setlinewidth{bipoles}{\pgfstartlinewidth}
+            \pgfpathmoveto{\pgfpoint{-\ctikzvalof{monopoles/dynode/top width}*\pgf@circ@res@right}{\pgf@circ@res@up}}
+            \pgfpathlineto{\pgfpoint{\ctikzvalof{monopoles/dynode/top width}*\pgf@circ@res@right}{\pgf@circ@res@up}}
+            \pgfusepath{draw}
+        \endpgfscope
+        % arc
+        \edef\@@angle{\ctikzvalof{monopoles/dynode/arc angle}}
+        \ifnum90=\@@angle\else % avoid divisions by zero
+            % radius
+            \pgfmathsetlength{\pgf@circ@res@other}{\pgf@circ@res@right/cos(\@@angle)}
+            % start angle y position
+            \pgfmathsetlength{\pgf@circ@res@step}{\pgf@circ@res@step+\pgf@circ@res@other*(1-sin(\@@angle))}
+            \pgfsetlinewidth{\pgfstartlinewidth}
+            \pgfpathmoveto{\pgfpoint{-\pgf@circ@res@right}{\pgf@circ@res@step}}
+            \pgfpatharc{-180+\@@angle}{-\@@angle}{\pgf@circ@res@other}
+        \fi
+        % tail
+        \pgfpathmoveto{\pgfpointorigin}
+        \pgfpathlineto{\pgfpoint{0pt}{\pgf@circ@res@up}}
+        \pgfusepath{draw}
+    }
+}
+% Microstrip monopoles
+
+\pgfdeclareshape{mslstub}{
+    \savedmacro{\ctikzclass}{\edef\ctikzclass{RF}}
+    \saveddimen{\scaledRlen}{\pgfmathsetlength{\pgf@x}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}}
+    \savedanchor{\southeast}{
+        \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
+        \pgf@x=\ctikzvalof{bipoles/mstline/width}\pgf@circ@scaled@Rlen
+        \pgf@x=.5\pgf@x
+        \pgf@y=\ctikzvalof{bipoles/mstline/height}\pgf@circ@scaled@Rlen
+        \pgf@y=-.5\pgf@y
+    }
+    \savedanchor{\northwest}{
+        \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
+        \pgf@x=\ctikzvalof{bipoles/mstline/width}\pgf@circ@scaled@Rlen
+        \pgf@x=-.5\pgf@x
+        \pgf@y=\ctikzvalof{bipoles/mstline/height}\pgf@circ@scaled@Rlen
+        \pgf@y=.5\pgf@y
+    }
+    \anchor{north}{\northwest\pgf@x=0pt\relax}
+    \anchor{north east}{\northwest\pgf@x=-\pgf@x}
+    \anchor{east}{\southeast\pgf@y=0pt\relax}
+    \anchor{south east}{\southeast}
+    \anchor{south}{\southeast\pgf@x=0pt\relax}
+    \anchor{south west}{\southeast\pgf@x=-\pgf@x}
+    \anchor{west}{\northwest\pgf@y=0pt\relax}
+    \anchor{north west}{\northwest}
+    %
+    \anchor{center}{\northwest\pgf@y=0pt\relax}
+    \anchor{left}{\northwest\pgf@y=0pt\relax}
+    \anchor{right}{\southeast\pgf@y=0pt\relax}
+    % put the node text above and centered
+    \anchor{text}{\pgfextracty{\pgf@circ@res@up}{\northwest}
+        \pgfpoint{-.5\wd\pgfnodeparttextbox}{
+            \dimexpr.5\dp\pgfnodeparttextbox+.5\ht\pgfnodeparttextbox+\pgf@circ@res@up\relax
+        }
+    }
+    \pgf@circ@draw@component{
+        \pgfextracty{\pgf@circ@res@up}{\northwest}
+        \pgfextractx{\pgf@circ@res@right}{\southeast}
+        \pgfextractx{\pgf@circ@res@left}{\northwest}
+        \pgfextracty{\pgf@circ@res@down}{\southeast}
+        \pgfmathsetlength{\pgf@circ@res@step}{0.25*\pgf@circ@res@up}
+        \pgfstartlinewidth=\pgflinewidth
+        \pgfscope
+            \pgf@circ@setlinewidth{bipoles}{\pgfstartlinewidth}
+            \pgfpathrectanglecorners{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@up}}{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@down}}
+            \pgf@circ@draworfill
+        \endpgfscope
+    }
+}
+
+\pgfdeclareshape{msrstub}{
+    \savedmacro{\ctikzclass}{\edef\ctikzclass{RF}}
+    \saveddimen{\scaledRlen}{\pgfmathsetlength{\pgf@x}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}}
+    \savedanchor{\southeast}{
+        \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
+        \pgf@x=\ctikzvalof{monopoles/msrstub/width}\pgf@circ@scaled@Rlen
+        \pgf@x=.5\pgf@x
+        \pgf@y=0pt\relax
+    }
+    \savedanchor{\northwest}{
+        \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
+        \pgf@x=\ctikzvalof{monopoles/msrstub/width}\pgf@circ@scaled@Rlen
+        \pgf@x=-.5\pgf@x
+        \pgf@y=\ctikzvalof{monopoles/msrstub/height}\pgf@circ@scaled@Rlen
+        \pgf@y=.5\pgf@y
+    }
+    \anchor{north}{\northwest\pgf@x=0pt\relax}
+    \anchor{north east}{\northwest\pgf@x=-\pgf@x}
+    \anchor{east}{\southeast\pgf@y=0pt\relax}
+    \anchor{south east}{\southeast}
+    \anchor{south}{\southeast\pgf@x=0pt\relax}
+    \anchor{south west}{\southeast\pgf@x=-\pgf@x}
+    \anchor{west}{\northwest\pgf@y=0pt\relax}
+    \anchor{north west}{\northwest}
+    %
+    \anchor{center}{\pgfpointorigin}
+    \anchor{left}{\pgfpointorigin}
+    \anchor{right}{\pgfpointorigin}
+    % put the node text above and centered
+    \anchor{text}{\pgfextracty{\pgf@circ@res@up}{\northwest}
+        \pgfpoint{-.5\wd\pgfnodeparttextbox}{
+            \dimexpr.5\dp\pgfnodeparttextbox+.5\ht\pgfnodeparttextbox+\pgf@circ@res@up\relax
+        }
+    }
+    \pgf@circ@draw@component{
+        \pgfextracty{\pgf@circ@res@up}{\northwest}
+        \pgfextractx{\pgf@circ@res@right}{\southeast}
+        \pgfextractx{\pgf@circ@res@left}{\northwest}
+        \pgfextracty{\pgf@circ@res@down}{\southeast}
+        \pgfmathsetlength{\pgf@circ@res@step}{0.25*\pgf@circ@res@up}
+        \pgfstartlinewidth=\pgflinewidth
+        \pgfscope
+            \pgfpathmoveto{\pgfpointorigin}
+            \pgfpathlineto{\pgfpoint{0pt}{\pgf@circ@res@step}}
+            \pgfusepath{draw}
+            \pgf@circ@setlinewidth{bipoles}{\pgfstartlinewidth}
+            \pgfpathmoveto{\pgfpointpolar{135}{\pgf@circ@res@step}}
+            \pgfpatharc{135}{45}{\pgf@circ@res@step}
+            \pgfpathlineto{\pgfpointpolar{45}{\pgf@circ@res@up}}
+            \pgfpatharc{45}{135}{\pgf@circ@res@up}
+            \pgfclosepath
+            \pgf@circ@draworfill
+        \endpgfscope
+    }
+}
+
+\pgfdeclareshape{msport}{
+    \savedmacro{\ctikzclass}{\edef\ctikzclass{RF}}
+    \saveddimen{\scaledRlen}{\pgfmathsetlength{\pgf@x}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}}
+    \savedanchor{\southeast}{
+        \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
+        \pgf@x=\ctikzvalof{monopoles/msport/width}\pgf@circ@scaled@Rlen
+        \pgf@x=.5\pgf@x
+        \pgf@y=\ctikzvalof{bipoles/mstline/height}\pgf@circ@scaled@Rlen
+        \pgf@y=-.5\pgf@y
+    }
+    \savedanchor{\northwest}{
+        \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
+        \pgf@x=\ctikzvalof{monopoles/msport/width}\pgf@circ@scaled@Rlen
+        \pgf@x=-.5\pgf@x
+        \pgf@y=\ctikzvalof{bipoles/mstline/height}\pgf@circ@scaled@Rlen
+        \pgf@y=.5\pgf@y
+    }
+    \anchor{north}{\northwest\pgf@x=0pt\relax}
+    \anchor{north east}{\northwest\pgf@x=-\pgf@x}
+    \anchor{east}{\southeast\pgf@y=0pt\relax}
+    \anchor{south east}{\southeast}
+    \anchor{south}{\southeast\pgf@x=0pt\relax}
+    \anchor{south west}{\southeast\pgf@x=-\pgf@x}
+    \anchor{west}{\northwest\pgf@y=0pt\relax}
+    \anchor{north west}{\northwest}
+    %
+    \anchor{center}{\northwest\pgf@y=0pt\relax}
+    \anchor{left}{\northwest\pgf@y=0pt\relax}
+    \anchor{right}{\southeast\pgf@y=0pt\relax}
+    % put the node text above and centered
+    \anchor{text}{\pgfextracty{\pgf@circ@res@up}{\northwest}
+        \pgfpoint{-.5\wd\pgfnodeparttextbox}{
+            \dimexpr-.5\dp\pgfnodeparttextbox-.5\ht\pgfnodeparttextbox\relax
+        }
+    }
+    \pgf@circ@draw@component{
+        \pgfextracty{\pgf@circ@res@up}{\northwest}
+        \pgfextractx{\pgf@circ@res@right}{\southeast}
+        \pgfextractx{\pgf@circ@res@left}{\northwest}
+        \pgfextracty{\pgf@circ@res@down}{\southeast}
+        \pgfmathsetlength{\pgf@circ@res@step}{0.5*\pgf@circ@res@up}
+        \pgfstartlinewidth=\pgflinewidth
+        \pgfscope
+            \pgf@circ@setlinewidth{bipoles}{\pgfstartlinewidth}
+            \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{0pt}}
+            \pgfpathlineto{\pgfpoint{\pgf@circ@res@left+\pgf@circ@res@step}{\pgf@circ@res@up}}
+            \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@up}}
+            \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@down}}
+            \pgfpathlineto{\pgfpoint{\pgf@circ@res@left+\pgf@circ@res@step}{\pgf@circ@res@down}}
+            \pgfpathclose
+            \pgf@circ@draworfill
+        \endpgfscope
+    }
+}
+
+% Legacy antennas (with tails)
+\def\pgf@circ@shift@antenna@xy#1#2{%
+    \pgf@y=\dimexpr\pgf@y+#2\pgf@circ@res@step
+    \pgf@x=\dimexpr\pgf@x+#1\pgf@circ@res@step
+\relax}
+
+% Legacy antenna
+\pgfdeclareshape{antenna}{
+    \savedmacro{\ctikzclass}{\edef\ctikzclass{RF}}
+    \saveddimen{\scaledRlen}{\pgfmathsetlength{\pgf@x}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}}
+    \anchor{center}{\pgfpointorigin}
+    \savedanchor{\northeast}{
+        \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
+        \pgf@circ@res@step=\ctikzvalof{monopoles/antenna/width}\pgf@circ@scaled@Rlen
+        \pgf@x=\pgf@circ@res@step%-0.5\pgflinewidth
+        \pgf@y=4\pgf@circ@res@step
+    }
+    \anchor{north}{\northeast\pgf@circ@res@step=\pgf@x\pgf@x=0cm\pgf@circ@shift@antenna@xy{0}{2}}
+    \anchor{east}{\northeast\pgf@circ@res@step=\pgf@x\pgf@y=0cm\pgf@circ@shift@antenna@xy{0}{3}\relax}
+    \anchor{south}{\northeast\pgf@circ@res@step=\pgf@x\pgf@y=-\pgf@y \pgf@x=0cm\pgf@circ@shift@antenna@xy{0}{4}\relax}
+    \anchor{west}{\northeast\pgf@circ@res@step=\pgf@x\pgf@y=0cm\pgf@x=-\pgf@x\pgf@circ@shift@antenna@xy{0}{3}}
+    \anchor{north east}{\northeast\pgf@circ@res@step=\pgf@x\pgf@circ@shift@antenna@xy{0}{2}}
+    \anchor{north west}{\northeast\pgf@circ@res@step=\pgf@x\pgf@x=-\pgf@x\pgf@circ@shift@antenna@xy{0}{2}}
+    \anchor{south east}{\northeast\pgf@circ@res@step=\pgf@x\pgf@y=-\pgf@y\pgf@circ@shift@antenna@xy{0}{4}}
+    \anchor{south west}{\northeast\pgf@circ@res@step=\pgf@x\pgf@y=-\pgf@y\pgf@x=-\pgf@x\pgf@circ@shift@antenna@xy{0}{4}}
+    \anchor{text}{
+        \northeast
+        \pgf@x=\ctikzvalof{monopoles/antenna/label/xanchor}\pgf@x
+        \pgf@y=\ctikzvalof{monopoles/antenna/label/yanchor}\pgf@y
+    }
+    \pgf@circ@draw@component{
+        \pgfstartlinewidth=\pgflinewidth
+        \pgf@circ@scaled@Rlen=\scaledRlen
+        \pgf@circ@res@step=\ctikzvalof{monopoles/antenna/width}\pgf@circ@scaled@Rlen
+
+        \pgftransformxshift{ -4\pgf@circ@res@step }
+
+        \pgfpathmoveto{\pgfpoint{4\pgf@circ@res@step-0.5\pgflinewidth}{0pt}}
+        \pgfpathlineto{\pgfpoint{4\pgf@circ@res@step-0.5\pgflinewidth}{6\pgf@circ@res@step}}
+
+        \pgfusepath{draw}
+
+        \pgfscope
+            \pgfpathmoveto{\pgfpoint{4\pgf@circ@res@step-0.5\pgflinewidth}{6\pgf@circ@res@step}}
+            \pgfpathlineto{\pgfpoint{5\pgf@circ@res@step-0.5\pgflinewidth}{6\pgf@circ@res@step}}
+            \pgfpathlineto{\pgfpoint{4\pgf@circ@res@step-0.5\pgflinewidth}{4\pgf@circ@res@step}}
+            \pgfpathlineto{\pgfpoint{3\pgf@circ@res@step-0.5\pgflinewidth}{6\pgf@circ@res@step}}
+            \pgfpathlineto{\pgfpoint{4\pgf@circ@res@step-0.5\pgflinewidth}{6\pgf@circ@res@step}}
+            \pgf@circ@setcolor
+            \pgf@circ@setlinewidth{bipoles}{\pgfstartlinewidth}
+            \pgfusepath{draw}
+        \endpgfscope
+        \pgfsetlinewidth{\pgfstartlinewidth}
+
+    }
+}
+
+% Legacy TX antenna
+\pgfdeclareshape{txantenna}{
+    \savedmacro{\ctikzclass}{\edef\ctikzclass{RF}}
+    \saveddimen{\scaledRlen}{\pgfmathsetlength{\pgf@x}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}}
+    \anchor{center}{\pgfpointorigin}
+    \savedanchor{\northeast}{
+        \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
+        \pgf@circ@res@step=\ctikzvalof{monopoles/antenna/width}\pgf@circ@scaled@Rlen
+        \pgf@x=\pgf@circ@res@step%-0.5\pgflinewidth
+        \pgf@y=4\pgf@circ@res@step
+    }
+    \anchor{north}{\northeast\pgf@circ@res@step=\pgf@x\pgf@x=0cm\pgf@circ@shift@antenna@xy{2}{2}}
+    \anchor{east}{\northeast\pgf@circ@res@step=\pgf@x\pgf@y=0cm\pgf@circ@shift@antenna@xy{4}{3}\relax}
+    \anchor{south}{\northeast\pgf@circ@res@step=\pgf@x\pgf@y=-\pgf@y \pgf@x=0cm\pgf@circ@shift@antenna@xy{2}{4}\relax}
+    \anchor{west}{\northeast\pgf@circ@res@step=\pgf@x\pgf@y=0cm\pgf@x=-\pgf@x\pgf@circ@shift@antenna@xy{1}{3}}
+    \anchor{north east}{\northeast\pgf@circ@res@step=\pgf@x\pgf@circ@shift@antenna@xy{4}{2}}
+    \anchor{north west}{\northeast\pgf@circ@res@step=\pgf@x\pgf@x=-\pgf@x\pgf@circ@shift@antenna@xy{1}{2}}
+    \anchor{south east}{\northeast\pgf@circ@res@step=\pgf@x\pgf@y=-\pgf@y\pgf@circ@shift@antenna@xy{4}{4}}
+    \anchor{south west}{\northeast\pgf@circ@res@step=\pgf@x\pgf@y=-\pgf@y\pgf@x=-\pgf@x\pgf@circ@shift@antenna@xy{1}{4}}
+    \anchor{text}{
+        \northeast
+        \pgf@x=\ctikzvalof{monopoles/txantenna/label/xanchor}\pgf@x
+        \pgf@y=\ctikzvalof{monopoles/txantenna/label/yanchor}\pgf@y
+    }
+    \pgf@circ@draw@component{
+        \pgfstartlinewidth=\pgflinewidth
+        \pgf@circ@scaled@Rlen=\scaledRlen
+        \pgf@circ@res@step=\ctikzvalof{monopoles/txantenna/width}\pgf@circ@scaled@Rlen
+
+        \pgfpathmoveto{\pgfpointorigin}
+        \pgfpathlineto{\pgfpoint{4\pgf@circ@res@step}{0pt}}
+        \pgfpathmoveto{\pgfpoint{4\pgf@circ@res@step-0.5\pgflinewidth}{0pt}}
+        \pgfpathlineto{\pgfpoint{4\pgf@circ@res@step-0.5\pgflinewidth}{6\pgf@circ@res@step}}
+
+        \pgfusepath{draw}
+
+        \pgfscope
+            \pgfpathmoveto{\pgfpoint{4\pgf@circ@res@step-0.5\pgflinewidth}{6\pgf@circ@res@step}}
+            \pgfpathlineto{\pgfpoint{5\pgf@circ@res@step-0.5\pgflinewidth}{6\pgf@circ@res@step}}
+            \pgfpathlineto{\pgfpoint{4\pgf@circ@res@step-0.5\pgflinewidth}{4\pgf@circ@res@step}}
+            \pgfpathlineto{\pgfpoint{3\pgf@circ@res@step-0.5\pgflinewidth}{6\pgf@circ@res@step}}
+            \pgfpathlineto{\pgfpoint{4\pgf@circ@res@step-0.5\pgflinewidth}{6\pgf@circ@res@step}}
+            \pgf@circ@setcolor
+            \pgf@circ@setlinewidth{bipoles}{\pgfstartlinewidth}
+            \pgfusepath{draw}
+        \endpgfscope
+        \pgfpathmoveto{\pgfpoint{5.5\pgf@circ@res@step}{6\pgf@circ@res@step}}
+        %        \pgfpatharc{60}{-60}{\pgf@circ@res@step and \pgf@circ@res@step}
+        \pgfpatharc{30}{-30}{2\pgf@circ@res@step}         \pgfpathmoveto{\pgfpoint{6\pgf@circ@res@step}{6.25\pgf@circ@res@step}}
+        \pgfpatharc{30}{-30}{2.5\pgf@circ@res@step}
+        \pgfpathmoveto{\pgfpoint{6.5\pgf@circ@res@step}{6.5\pgf@circ@res@step}}
+        \pgfpatharc{30}{-30}{3\pgf@circ@res@step}
+        \pgfpathmoveto{\pgfpoint{7\pgf@circ@res@step}{6.75\pgf@circ@res@step}}
+        \pgfpatharc{30}{-30}{3.5\pgf@circ@res@step}
+        \pgfpathmoveto{\pgfpoint{7.5\pgf@circ@res@step}{7\pgf@circ@res@step}}
+        \pgfpatharc{30}{-30}{4\pgf@circ@res@step}
+        \pgfusepath{draw}
+        \pgfsetlinewidth{\pgfstartlinewidth}
+
+    }
+}
+
+% Legacy RX antenna
+\pgfdeclareshape{rxantenna}{
+    \savedmacro{\ctikzclass}{\edef\ctikzclass{RF}}
+    \saveddimen{\scaledRlen}{\pgfmathsetlength{\pgf@x}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}}
+    \anchor{center}{\pgfpointorigin}
+    \savedanchor{\northeast}{
+        \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
+        \pgf@circ@res@step=\ctikzvalof{monopoles/antenna/width}\pgf@circ@scaled@Rlen
+        \pgf@x=\pgf@circ@res@step%-0.5\pgflinewidth
+        \pgf@y=4\pgf@circ@res@step
+    }
+    \anchor{north}{\northeast\pgf@circ@res@step=\pgf@x\pgf@x=0cm\pgf@circ@shift@antenna@xy{2}{2}}
+    \anchor{east}{\northeast\pgf@circ@res@step=\pgf@x\pgf@y=0cm\pgf@circ@shift@antenna@xy{4}{3}\relax}
+    \anchor{south}{\northeast\pgf@circ@res@step=\pgf@x\pgf@y=-\pgf@y \pgf@x=0cm\pgf@circ@shift@antenna@xy{2}{4}\relax}
+    \anchor{west}{\northeast\pgf@circ@res@step=\pgf@x\pgf@y=0cm\pgf@x=-\pgf@x\pgf@circ@shift@antenna@xy{1}{3}}
+    \anchor{north east}{\northeast\pgf@circ@res@step=\pgf@x\pgf@circ@shift@antenna@xy{4}{2}}
+    \anchor{north west}{\northeast\pgf@circ@res@step=\pgf@x\pgf@x=-\pgf@x\pgf@circ@shift@antenna@xy{1}{2}}
+    \anchor{south east}{\northeast\pgf@circ@res@step=\pgf@x\pgf@y=-\pgf@y\pgf@circ@shift@antenna@xy{4}{4}}
+    \anchor{south west}{\northeast\pgf@circ@res@step=\pgf@x\pgf@y=-\pgf@y\pgf@x=-\pgf@x\pgf@circ@shift@antenna@xy{1}{4}}
+    \anchor{text}{
+        \northeast
+        \pgf@x=\ctikzvalof{monopoles/rxantenna/label/xanchor}\pgf@x
+        \pgf@y=\ctikzvalof{monopoles/rxantenna/label/yanchor}\pgf@y
+    }
+    \pgf@circ@draw@component{
+        \pgfstartlinewidth=\pgflinewidth
+        \pgf@circ@scaled@Rlen=\scaledRlen
+        \pgf@circ@res@step=\ctikzvalof{monopoles/rxantenna/width}\pgf@circ@scaled@Rlen
+
+        \pgfpathmoveto{\pgfpointorigin}
+        \pgfpathlineto{\pgfpoint{4\pgf@circ@res@step}{0pt}}
+        \pgfpathmoveto{\pgfpoint{4\pgf@circ@res@step-0.5\pgflinewidth}{0pt}}
+        \pgfpathlineto{\pgfpoint{4\pgf@circ@res@step-0.5\pgflinewidth}{6\pgf@circ@res@step}}
+
+        \pgfusepath{draw}
+
+        \pgfscope
+            \pgfpathmoveto{\pgfpoint{4\pgf@circ@res@step-0.5\pgflinewidth}{6\pgf@circ@res@step}}
+            \pgfpathlineto{\pgfpoint{5\pgf@circ@res@step-0.5\pgflinewidth}{6\pgf@circ@res@step}}
+            \pgfpathlineto{\pgfpoint{4\pgf@circ@res@step-0.5\pgflinewidth}{4\pgf@circ@res@step}}
+            \pgfpathlineto{\pgfpoint{3\pgf@circ@res@step-0.5\pgflinewidth}{6\pgf@circ@res@step}}
+            \pgfpathlineto{\pgfpoint{4\pgf@circ@res@step-0.5\pgflinewidth}{6\pgf@circ@res@step}}
+            \pgf@circ@setcolor
+            \pgf@circ@setlinewidth{bipoles}{\pgfstartlinewidth}
+            \pgfusepath{draw}
+        \endpgfscope
+
+        \pgfpathmoveto{\pgfpoint{6\pgf@circ@res@step}{7\pgf@circ@res@step}}
+        %             \pgfpatharc{60}{-60}{\pgf@circ@res@step and \pgf@circ@res@step}
+        \pgfpatharc{150}{210}{4\pgf@circ@res@step}              \pgfpathmoveto{\pgfpoint{6.5\pgf@circ@res@step}{6.75\pgf@circ@res@step}}
+        \pgfpatharc{150}{210}{3.5\pgf@circ@res@step}
+        \pgfpathmoveto{\pgfpoint{7\pgf@circ@res@step}{6.5\pgf@circ@res@step}}
+        \pgfpatharc{150}{210}{3\pgf@circ@res@step}
+        \pgfpathmoveto{\pgfpoint{7.5\pgf@circ@res@step}{6.25\pgf@circ@res@step}}
+        \pgfpatharc{150}{210}{2.5\pgf@circ@res@step}
+        \pgfpathmoveto{\pgfpoint{8\pgf@circ@res@step}{6\pgf@circ@res@step}}
+        \pgfpatharc{150}{210}{2\pgf@circ@res@step}
+        \pgfusepath{draw}
+        \pgfsetlinewidth{\pgfstartlinewidth}
+    }
+}
+
+% Legacy match
+\pgfdeclareshape{match}{
+    \savedmacro{\ctikzclass}{\edef\ctikzclass{RF}}
+    \saveddimen{\scaledRlen}{\pgfmathsetlength{\pgf@x}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}}
+    \savedanchor{\northeast}{%
+        \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
+        \pgf@circ@res@step = \ctikzvalof{monopoles/match/width} \pgf@circ@scaled@Rlen
+        \pgf@x=2\pgf@circ@res@step
+        \pgf@circ@res@step = \ctikzvalof{monopoles/match/width} \pgf@circ@scaled@Rlen
+        \pgf@y=.5\pgf@circ@res@step%
+    }
+    % the center is on the left side of the shape for facility of usage
+    \anchor{north}{\northeast\pgf@x=0.5\pgf@x\relax}
+    \anchor{east}{\northeast\pgf@y=0cm\relax}
+    \anchor{south}{\northeast\pgf@y=0pt\pgf@x=0.5\pgf@x\relax}
+    \anchor{west}{\pgfpointorigin}
+    \anchor{north east}{\northeast}
+    \anchor{north west}{\northeast\pgf@x=0cm\relax}
+    \anchor{south east}{\northeast\pgf@y=0pt\relax}
+    \anchor{south west}{\pgfpointorigin}
+    \anchor{center}{
+        \pgfpointorigin
+    }
+    \anchor{text}{
+        \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
+        \pgf@x=\ctikzvalof{monopoles/match/width}\pgf@circ@scaled@Rlen
+        \pgf@x=1.5\pgf@x
+        \advance \pgf@x by -.5\wd\pgfnodeparttextbox
+        \pgf@y=-1.5\ht\pgfnodeparttextbox
+    }
+    \pgf@circ@draw@component{
+        \pgf@circ@scaled@Rlen=\scaledRlen
+        \pgf@circ@res@step=\ctikzvalof{monopoles/match/width}\pgf@circ@scaled@Rlen
+
+        \pgfscope
+            \pgfpathmoveto{\pgfpointorigin}
+            \pgfpathlineto{\pgfpoint{2\pgf@circ@res@step}{0pt}}
+            \pgfusepath{draw}
+
+            \pgfpathmoveto{\pgfpoint{\pgf@circ@res@step}{0pt}}
+            \pgfpathlineto{\pgfpoint{2\pgf@circ@res@step}{0.5\pgf@circ@res@step}}
+            \pgfpathlineto{\pgfpoint{2\pgf@circ@res@step}{0}}
+            \pgf@circ@fill@strokecolor
+            \pgfusepath{fill}
+
+            \pgfsetlinewidth{\pgfstartlinewidth}
+        \endpgfscope
+    }
+}
+% %>>>
+
+\endinput
+% vim: set fdm=marker fmr=%<<<,%>>>:

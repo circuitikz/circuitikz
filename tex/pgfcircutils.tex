@@ -1,0 +1,405 @@
+% Copyright 2018-2023 by Romano Giannetti
+% Copyright 2015-2023 by Stefan Lindner
+% Copyright 2013-2023 by Stefan Erhardt
+% Copyright 2007-2023 by Massimo Redaelli
+%
+% This file may be distributed and/or modified
+%
+% 1. under the LaTeX Project Public License and/or
+% 2. under the GNU Public License.
+%
+% See the files gpl-3.0_license.txt and lppl-1-3c_license.txt for more details.
+
+\def\pgf@circ@handleSI#1{
+    \noexpandarg
+    \def\pgf@temp{}
+    \StrBetween{#1}{<}{>}[\pgf@circ@handleSI@unit]
+    \StrLen{\pgf@circ@handleSI@unit}[\pgf@circ@handleSI@unit@len]
+
+    \ifnum\pgf@circ@handleSI@unit@len=0
+    \pgf@circ@siunitx@resfalse
+    \else
+    \IfEndWith{#1}{>}{
+        \pgf@circ@siunitx@restrue
+        \noexpandarg
+        \StrBefore{#1}{<}[\pgf@circ@handleSI@val]
+        %\typeout{si |#1|}
+        }{
+        \pgf@circ@siunitx@resfalse
+        %\typeout{no si |#1|}
+    }
+\fi
+}
+
+\def\pgf@circ@ifkeyempty#1{
+    \pgfextra{
+        \ctikzset{#1/.get=\pgf@circ@temp}
+        \edef\pgf@temp{}
+    }
+    \ifx\pgf@circ@temp\pgf@temp
+    }
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%    Math routines
+
+\def\pgf@circ@stripdecimals#1.#2\pgf@nil{#1}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% useful commands
+
+\ifpgfutil@format@is@latex
+    %% flipping text
+    \def\ctikzflipx#1{\scalebox{-1}[1]{#1}}
+    \def\ctikzflipy#1{\scalebox{1}[-1]{#1}}
+    \def\ctikzflipxy#1{\scalebox{-1}[-1]{#1}}
+    % text mode overbar
+    % Thanks to @egreg https://tex.stackexchange.com/a/24133/38080
+    \def\ctikztextnot#1{$\overline{\hbox{#1}}\m@th$}
+\else\ifpgfutil@format@is@plain
+    % text mode overbar
+    % but really circuitikz will not work in plain...
+    % Thanks to @egreg https://tex.stackexchange.com/a/24133/38080
+    \def\ctikztextnot#1{$\overline{\hbox{#1}}$}
+\else\ifpgfutil@format@is@context
+    %% flipping text
+    \def\ctikzflipx#1{\mirror{#1}}
+    \def\ctikzflipy#1{\mirror{\rotate[rotation=180]{#1}}}
+    \def\ctikzflipxy#1{\rotate[rotation=180]{#1}}
+    % text mode overbar
+    % Thanks to @egreg https://tex.stackexchange.com/a/24133/38080
+    \def\ctikztextnot#1{$\overline{\hbox{#1}}$}
+\fi\fi\fi
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% switch to use fpu in reciprocal scale transformations
+%%
+%% this code has been contributed by Schrödinger's cat
+%% https://tex.stackexchange.com/a/529159/38080
+%%
+%% Use the official key to use the fpu if installed, see
+%% https://github.com/pgf-tikz/pgf/issues/861
+%%
+%% Thanks to "muzimuzhi Z" https://tex.stackexchange.com/a/547085/38080
+%% Thanks to Henri Menke for a faster approach https://github.com/circuitikz/circuitikz/commit/00966c45c42b464fab5429f89f2b7fb414e9b3f7#commitcomment-54592494
+%%
+\pgfkeysifdefined{/pgf/fpu/install only/.@cmd}{%
+    \pgfqkeys{/pgf}{use fpu reciprocal/.code={\pgfkeys{/pgf/fpu/install only={reciprocal}}}}%
+    }{%
+    \pgfkeysifdefined{/pgf/use fpu reciprocal/.@cmd}{% use stock one
+        }{
+        \pgfqkeys{/pgf}{use fpu reciprocal/.code={%
+                \def\pgfmathreciprocal@##1{%
+                    \begingroup
+                    \pgfmathfloatparsenumber{##1}%
+                    \pgfmathfloatreciprocal@{\pgfmathresult}%
+                    \pgfmathfloattofixed@{\pgfmathresult}%
+                    \pgfmath@smuggleone\pgfmathresult
+                    \endgroup
+    }}}}%
+}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% subcircuits (experimental)
+%%
+%% introduced by Romano Giannetti around April 2021
+%% changes suggested by Jonathan P. Spratte
+%%
+\newbox\ctikz@scratchbox
+\pgfutil@protected\def\ctikzsubcircuitdef#1#2#3{%
+    \expandafter\gdef\csname #1@Anchor\endcsname{}%
+    \expandafter\gdef\csname #1@setanchors\endcsname{%
+        \setbox\ctikz@scratchbox=\hbox{%
+        \tikzpicture
+        \draw (0,0) \csname#1\endcsname{T-#1}{};
+        \foreach [count=\i] \anchor in {#2}
+        % reference anchor is -center
+        \draw (0,{2-\i/2}) let \p1 = ($(T-#1-subckt@reference)-(T-#1-\anchor)$) in
+            node[right]{\anchor: \x1,\y1 \expandafter\xdef\csname #1@Anchor\anchor\endcsname{++(\x1,\y1)}};
+        \endtikzpicture
+        }%
+    }%
+    \expandafter\gdef\csname#1\endcsname##1##2{%
+        \csname #1@Anchor##2\endcsname coordinate(##1-subckt@reference)#3%
+    }%
+}
+\long\def\ctikzsubcircuitactivate#1{\csname #1@setanchors\endcsname}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Basic utility macros
+%%
+%% Functions provided here are:
+%%  \pgf@circ@ifempty{<argument>}{<true>}{<false>}
+%%    Tests whether <argument> is completely empty.
+%%  \pgf@circ@ifblank{<argument>}{<true>}{<false>}
+%%    Tests whether <argument> is either empty or only contains spaces.
+%%  \pgf@circ@trimspaces@do{<argument>}{<next>}
+%%    Trims at most one space from either end of <argument> and forwards the
+%%    result to <next> as <next>{<trimmed argument>}
+
+% these two are pretty standard code
+\long\def\pgf@circ@ifempty#1%
+  {%
+    \if\relax\detokenize{#1}\relax
+      \expandafter\pgfutil@firstoftwo
+    \else
+      \expandafter\pgfutil@secondoftwo
+    \fi
+  }
+\long\def\pgf@circ@ifblank#1%
+  {%
+    \if\relax\detokenize\expandafter{\pgfutil@gobble#1.}\relax
+      \expandafter\pgfutil@firstoftwo
+    \else
+      \expandafter\pgfutil@secondoftwo
+    \fi
+  }
+
+% \pgfutil@trimspaces needs two expansions. The first expansion we'll do during
+% the definition.
+\def\pgf@circ@trimspaces@do#1%
+  {%
+    \def\pgf@circ@trimspaces@do##1%
+      {\expandafter\pgf@circ@trimspaces@do@\expandafter{#1}}%
+  }
+\expandafter\pgf@circ@trimspaces@do\expandafter{\pgfutil@trimspaces{#1}}
+\def\pgf@circ@trimspaces@do@#1#2{#2{#1}}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% list handling
+%%
+%% Contribution by Jonathan P. Spratte (blame him!)
+%%
+%% The list implementation here has a few limitations. Those are:
+%%  1. not long, so no \par in the lists (but many used functions in pgfutil
+%%     aren't long as well)
+%%  2. list elements can't contain a Q with category code 3 (but the used
+%%     function \pgfutil@trimspaces doesn't support them as well, and this
+%%     should be a very rare token anyway)
+%%  3. list elements can't contain the token \pgf@circ@set@list as that is used
+%%     as the end marker
+%%  4. currently these lists are meant for numeric data (hence only
+%%     \pgf@circ@if@num@in@list is provided as a test), as a result there is
+%%     another limitation for the data here. If the list element contains no
+%%     hyphen '-', the element will be stored without further processing
+%%     'as-is' (well, after trimming spaces). If there is a hyphen we assume
+%%     well-behaved input data and will interpret this as a num-range without
+%%     further tests.
+%%
+%% Functions provided here are:
+%%  \pgf@circ@set@list<macro>{<csv-list>}
+%%    Parses the <csv-list> and stores the result inside <macro> (local
+%%    assignment). If a num-range given as <start - stop> (with or without
+%%    spaces) is found it will be expanded to <start>,<start+1>,...,<stop>.
+%%  \pgf@circ@if@num@in@list<macro>{<value>}{<true>}{<false>}
+%%    Checks whether <value> (numeric value, evaluated once with \numexpr) is
+%%    found inside the list stored in <macro>. There are two special cases: If
+%%    <macro> is undefined <false> is executed. If the list contains only one
+%%    element and that is `all' <true> is executed.
+
+% set the catcode of our marker
+\chardef\pgf@circ@temp=\the\catcode`\Q
+\catcode`\Q=3
+
+% lists will have the structure
+% <marker><element 1><marker>...<element n><marker>
+% As marker we use a Q with category 3. Under the assumption that no list
+% element does ever contain that token we can set the elements without braces,
+% allowing us to use \pgfutil@in@ to search for elements (see above). The other
+% token that isn't allowed to show up in the list is \pgf@circ@set@list, that we
+% use as another marker during parsing.
+% The other big restriction in this implementation is that lists can't contain a
+% \par (but \pgfutil@in@ doesn't support that anyway so there is not much
+% sense in supporting it here)
+\pgfutil@protected\def\pgf@circ@set@list#1#2%
+  {%
+    % clear the error flag
+    \let\pgf@circ@error@marker\pgf@circ@undefined
+    % set the list
+    \edef#1%
+      {Q\pgf@circ@set@list@sanitize#2,\pgf@circ@set@list,\pgf@circ@set@list}%
+    % there was an error, throw the error message, recovery was already done by
+    % ignoring the offending elements.
+    \ifx\pgf@circ@error@marker\relax
+      \begingroup
+        \newlinechar`\^^J
+        \pgfutil@packageerror{circuitikz}
+          {%
+            Unallowed marker found in list^^J%
+            \pgfutil@unexpanded{#2}.^^J%
+            Offending elements were ignored.%
+          }
+          {Lists can't contain a Q with category code 3}%
+      \endgroup
+    \fi
+  }
+% just a utility for the <marker> test
+\def\pgf@circ@set@list@gobbletomarker#1Q{}
+% quick way to check whether list parsing is done by gobbling up to a marker, in
+% this case the marker is \pgf@circ@set@list
+\def\pgf@circ@set@list@sanitize@checkend#1\pgf@circ@set@list{}
+% will only be called after the last element is handled, will gobble the
+% remainder of the current sanitizing step
+\def\pgf@circ@set@list@sanitize@end\pgf@circ@set@list#1\pgf@circ@set@list{}
+% grabs the next list element, checks whether we're done, and if not sanitizes
+% it (meaning stripping spaces from either end and placing the <marker>).
+\def\pgf@circ@set@list@sanitize#1,%
+  {%
+    \pgf@circ@set@list@sanitize@checkend
+      #1\pgf@circ@set@list@sanitize@end\pgf@circ@set@list
+    \pgf@circ@set@list@sanitize@a{#1}%
+  }
+% testing whether a list element contains the used <marker> expandably, if it
+% does set the flag, else continue sanitizing.
+\def\pgf@circ@set@list@sanitize@a#1%
+  {%
+    \expandafter\pgf@circ@ifempty\expandafter
+      % if this is empty no marker was found
+      {\pgf@circ@set@list@gobbletomarker#1Q}
+      {%
+        \pgf@circ@ifblank{#1}
+          {}% ignore blank entries
+          {\pgf@circ@trimspaces@do{#1}\pgf@circ@set@list@sanitize@b}%
+      }
+      {%
+        % panic, there was a marker found in a list element. We'll recover by
+        % ignoring the current element after setting a flag. When we do
+        % \csname ...\endcsname on an undefined macro name TeX will let that
+        % macro to relax and we exploit this to expandable set a flag and
+        % gobbling the result.
+        \expandafter\pgfutil@gobble\csname pgf@circ@error@marker\endcsname
+      }%
+    % get the next element
+    \pgf@circ@set@list@sanitize
+  }
+% we'll protect any element from further expanding using \unexpanded and place
+% the marker after the element, and ignore empty/blank elements
+\def\pgf@circ@set@list@sanitize@b#1%
+  {%
+    \expandafter\pgf@circ@ifempty\expandafter
+      % if this is empty no hyphen is found
+      {\pgf@circ@gobbletohyphen#1-}
+      {\pgfutil@unexpanded{#1}Q}
+      {\pgf@circ@set@list@parse@range{#1}}%
+  }
+\def\pgf@circ@gobbletohyphen#1-{}
+\def\pgf@circ@set@list@parse@range#1{\pgf@circ@set@list@parse@range@a#1Q}
+\def\pgf@circ@set@list@parse@range@a#1-#2Q%
+  {%
+    \expandafter\pgf@circ@set@list@parse@range@b
+      \the\numexpr#1\expandafter Q\the\numexpr#2Q%
+  }
+\def\pgf@circ@set@list@parse@range@b#1Q#2Q%
+  {%
+    \ifnum#1<#2
+      % expand to the range from #1 to #2 (inclusive)
+      \pgf@circ@set@list@range{#1}{#2}%
+    \else
+      \ifnum#2<#1
+        % if #2 is smaller than #1 just swap the order
+        \pgf@circ@set@list@range{#2}{#1}%
+      \else
+        % last case, they are equal, so just put the result here
+        #1Q%
+      \fi
+    \fi
+  }
+\def\pgf@circ@set@list@parse@range@norange#1Q#2{\pgfutil@unexpanded{#2}Q}
+\def\pgf@circ@set@list@range#1#2%
+  {%
+    #1Q%
+    \ifnum#1<#2
+      \expandafter\pgfutil@secondoftwo
+    \fi
+    \pgfutil@gobble
+    {\expandafter\pgf@circ@set@list@range\expandafter{\the\numexpr#1+1}{#2}}%
+  }
+
+% flag for special value
+\def\pgf@circ@all@flag{QallQ}
+\pgfutil@protected\def\pgf@circ@if@num@in@list#1#2%
+  {%
+    % test whether the list macro is defined, if it isn't result is false
+    \pgfutil@ifx\pgf@circ@undefined#1%
+      {\pgfutil@secondoftwo}
+      {%
+        % test whether the list macro is just the special value 'all', if so
+        % true, else search (and start that by evaluating a numexpr)
+        \pgfutil@ifx\pgf@circ@all@flag#1%
+          {\pgfutil@firstoftwo}
+          {%
+            \expandafter\pgf@circ@if@num@in@list@a\expandafter
+              {\the\numexpr#2}%
+              #1%
+          }%
+      }%
+  }
+% next step is expanding the list macro
+\pgfutil@protected\def\pgf@circ@if@num@in@list@a#1#2%
+  {\expandafter\pgf@circ@if@num@in@list@b\expandafter{#2}{#1}}
+% now use \pgfutil@in@ to check whether there is the searched list element
+\pgfutil@protected\def\pgf@circ@if@num@in@list@b#1#2%
+  {%
+    \begingroup
+      % put the <marker> around the number to make sure only full matches are
+      % found. \pgfutil@in@ will set \ifpgfutil@in@ to true if it finds a match
+      \pgfutil@in@{Q#2Q}{#1}%
+      \expandafter
+    \endgroup
+    \ifpgfutil@in@
+      \expandafter\pgfutil@firstoftwo
+    \else
+      \expandafter\pgfutil@secondoftwo
+    \fi
+  }
+
+% reset the catcode of Q
+\catcode`\Q=\pgf@circ@temp
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% temporary fix for old TikZ versions (remove me)
+%%
+%% All blame to Romano Giannetti for this code!
+%%
+%% This tries to be smart and provide \pgfutil@unexpanded and \pgfutil@ifx if
+%% PGF doesn't provide them.
+
+\ifx\pgfutil@unexpanded\pgf@circ@undefined
+  \ifpgfutil@format@is@context
+    \let\pgfutil@unexpanded\normalunexpanded
+  \else
+    \let\pgfutil@unexpanded\unexpanded
+  \fi
+\fi
+
+\ifx\pgfutil@ifx\pgf@circ@undefined
+  \long\def\pgfutil@ifx#1#2{%
+    \ifx#1#2%
+      \expandafter\pgfutil@firstoftwo
+    \else
+      \expandafter\pgfutil@secondoftwo
+    \fi}
+\fi
+
+%%
+%% generic tunable arrow for components that have no "variable" thing
+%%
+\def\ctikztunablearrow{\pgfutil@ifnextchar[{\ctikztunablearrow@full}{\ctikztunablearrow@simple}}%
+\def\ctikztunablearrow@simple{\ctikztunablearrow@full[]}%
+\def\ctikztunablearrow@full[#1]#2#3#4#5{%
+    % add tunable arrow to a component
+    % relative thickness, relative length, rotation from axis, name of the component
+    \scope
+    \draw
+    \pgfextra{\pgfcirc@set@arrows{tunable}{}{latexslim}
+    \pgfsetlinewidth{#2\pgflinewidth}} [#1]
+        let \p1=($(#5.north east)-(#5.south west)$), \p2=($(#5.east)-(#5.west)$),
+        \n1 = {veclen(\x1,\y1)},
+        \n2 = {atan2(\y2,\x2)} in
+        % node[above]{\n1, \n2}
+        % notice that some node has the "center" on one side, so
+        % midway from east to west is a safer bet for the center
+        ($(#5.west)!0.5!(#5.east)$) ++({\n2+(#4)}:{-0.5*(\n1)*(#3)}) -- ++({\n2+(#4)}:{(\n1)*(#3)});
+    \endscope
+}
+\endinput
