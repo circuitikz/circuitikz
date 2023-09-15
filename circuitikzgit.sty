@@ -16,8 +16,8 @@
 \providecommand\DeclareRelease[3]{}
 \providecommand\DeclareCurrentRelease[2]{}
 
-\def\pgfcircversion{1.6.4-unreleased-4d39cc6}
-\def\pgfcircversiondate{2023/09/09}
+\def\pgfcircversion{1.6.4-unreleased-ba77854}
+\def\pgfcircversiondate{2023/09/15}
 
 \DeclareRelease{0.4}{2012/12/20}{circuitikz-0.4-body.tex}
 \DeclareRelease{v0.4}{2012/12/20}{circuitikz-0.4-body.tex}
@@ -6391,7 +6391,7 @@
 % noise sources
 \ctikzset{bipoles/noise sources/fillcolor/.initial=gray!50}
 
-% for special symbols in the sources: sin, square, triangle, delta, wye, zig, etc.
+% for special symbols in the sources: sin, square, triangle, delta, wye, eyw, zig, etc.
 \ctikzset{sources/symbol/thickness/.initial={1}}
 \ctikzset{csources/symbol/thickness/.initial={1}}
 \ctikzset{sources/symbol/rotate/.initial={90}}
@@ -6413,28 +6413,34 @@
 % % % primary windings
 \newif\ifpgf@circ@prim@delta
 \newif\ifpgf@circ@prim@wye
+\newif\ifpgf@circ@prim@eyw
 \newif\ifpgf@circ@prim@zig
 \pgfkeys{tikz/prim/.is choice}
 \pgfkeys{tikz/prim/delta/.add code={}{\pgf@circ@prim@deltatrue}}
 \pgfkeys{tikz/prim/wye/.add code={}{\pgf@circ@prim@wyetrue}}
+\pgfkeys{tikz/prim/eyw/.add code={}{\pgf@circ@prim@eywtrue}}
 \pgfkeys{tikz/prim/zig/.add code={}{\pgf@circ@prim@zigtrue}}
 
 % % % secondary windings
 \newif\ifpgf@circ@sec@delta
 \newif\ifpgf@circ@sec@wye
+\newif\ifpgf@circ@sec@eyw
 \newif\ifpgf@circ@sec@zig
 \pgfkeys{tikz/sec/.is choice}
 \pgfkeys{tikz/sec/delta/.add code={}{\pgf@circ@sec@deltatrue}}
 \pgfkeys{tikz/sec/wye/.add code={}{\pgf@circ@sec@wyetrue}}
+\pgfkeys{tikz/sec/eyw/.add code={}{\pgf@circ@sec@eywtrue}}
 \pgfkeys{tikz/sec/zig/.add code={}{\pgf@circ@sec@zigtrue}}
 
 % % % tertiary windings (ooosource)
 \newif\ifpgf@circ@tert@delta
 \newif\ifpgf@circ@tert@wye
+\newif\ifpgf@circ@tert@eyw
 \newif\ifpgf@circ@tert@zig
 \pgfkeys{tikz/tert/.is choice}
 \pgfkeys{tikz/tert/delta/.add code={}{\pgf@circ@tert@deltatrue}}
 \pgfkeys{tikz/tert/wye/.add code={}{\pgf@circ@tert@wyetrue}}
+\pgfkeys{tikz/tert/eyw/.add code={}{\pgf@circ@tert@eywtrue}}
 \pgfkeys{tikz/tert/zig/.add code={}{\pgf@circ@tert@zigtrue}}%
 
 % nullator and norator
@@ -6586,7 +6592,7 @@
 %% Round and diamond sources
 %%%%%%%%%%%
 
-% % % symbol drawing macros (NOT for delta, wye, zig)
+% % % symbol drawing macros (NOT for delta, wye, eyw, zig)
 \def\pgf@circ@sources@symbol@setup{% called in a pgfscope
     \edef\@@@auto{auto}\edef\@@@rotate{\ctikzvalof{\ctikzclass/symbol/rotate}}
     \ifx\@@@auto\@@@rotate
@@ -6901,6 +6907,7 @@
 % % % winding symbols
 \ctikzset{sources/symbol/delta scale/.initial={1}}
 \ctikzset{sources/symbol/wye scale/.initial={1}}
+\ctikzset{sources/symbol/eyw scale/.initial={1}}
 \ctikzset{sources/symbol/zig scale/.initial={1}}
 % triangle
 \def\pgf@circ@delta#1{
@@ -6938,6 +6945,24 @@
         \pgfpathlineto{\pgfpointpolar{-150}{\pgf@circ@res@down}}
         \pgfusepath{stroke}
     \endpgfscope
+}
+
+% reverse star
+\def\pgf@circ@eyw#1{
+	\pgfscope
+		\pgftransformscale{-.015*\ctikzvalof{\ctikzclass/symbol/eyw scale}*\pgf@circ@res@left*#1}
+		\def\pgfcircmathresult{\expandafter\pgf@circ@stripdecimals\pgf@circ@direction\pgf@nil}
+			\pgftransformrotate{-\pgfcircmathresult}
+	
+		\pgf@circ@setlinewidth{bipoles}{\pgfstartlinewidth}
+		\pgf@circ@set@relative@thickness{symbol/thickness}
+		\pgfpathmoveto{\pgfpoint{0}{\pgf@circ@res@up}}
+		\pgfpathlineto{\pgfpointorigin}
+		\pgfpathlineto{\pgfpointpolar{30}{\pgf@circ@res@down}}
+		\pgfpathmoveto{\pgfpointorigin}
+		\pgfpathlineto{\pgfpointpolar{150}{\pgf@circ@res@down}}
+		\pgfusepath{stroke}
+	\endpgfscope
 }
 
 % zigzag
@@ -7018,13 +7043,19 @@
             \pgftransformxshift{\ctikzvalof{bipoles/oosourcetrans/circlesize}\pgf@circ@res@left}
             \pgf@circ@wye{\ctikzvalof{bipoles/oosourcetrans/vectorgroupscale}}
         \endpgfscope
+        
+        \else\ifpgf@circ@prim@eyw
+        \pgfscope
+        \pgftransformxshift{\ctikzvalof{bipoles/oosourcetrans/circlesize}\pgf@circ@res@left}
+        \pgf@circ@eyw{\ctikzvalof{bipoles/oosourcetrans/vectorgroupscale}}
+        \endpgfscope
 
     \else\ifpgf@circ@prim@zig
         \pgfscope
             \pgftransformxshift{\ctikzvalof{bipoles/oosourcetrans/circlesize}\pgf@circ@res@left}
             \pgf@circ@zig{\ctikzvalof{bipoles/oosourcetrans/vectorgroupscale}}
         \endpgfscope
-    \fi\fi\fi
+    \fi\fi\fi\fi
 
     %%secondary winding
     \ifpgf@circ@sec@delta
@@ -7038,13 +7069,19 @@
             \pgftransformxshift{\ctikzvalof{bipoles/oosourcetrans/circlesize}\pgf@circ@res@right}
             \pgf@circ@wye{\ctikzvalof{bipoles/oosourcetrans/vectorgroupscale}}
         \endpgfscope
+        
+        \else\ifpgf@circ@sec@eyw
+        \pgfscope
+        \pgftransformxshift{\ctikzvalof{bipoles/oosourcetrans/circlesize}\pgf@circ@res@right}
+        \pgf@circ@eyw{\ctikzvalof{bipoles/oosourcetrans/vectorgroupscale}}
+        \endpgfscope
 
     \else\ifpgf@circ@sec@zig
         \pgfscope
             \pgftransformxshift{\ctikzvalof{bipoles/oosourcetrans/circlesize}\pgf@circ@res@right}
             \pgf@circ@zig{\ctikzvalof{bipoles/oosourcetrans/vectorgroupscale}}
         \endpgfscope
-    \fi\fi\fi
+    \fi\fi\fi\fi
 }
 
 
@@ -7220,13 +7257,19 @@
             \pgftransformxshift{.6\pgf@circ@res@left}
             \pgf@circ@wye{\ctikzvalof{bipoles/ooosource/vectorgroupscale}}
         \endpgfscope
+        
+        \else\ifpgf@circ@prim@eyw
+        \pgfscope
+        \pgftransformxshift{.6\pgf@circ@res@left}
+        \pgf@circ@eyw{\ctikzvalof{bipoles/ooosource/vectorgroupscale}}
+        \endpgfscope
 
     \else\ifpgf@circ@prim@zig
         \pgfscope
             \pgftransformxshift{.6\pgf@circ@res@left}
             \pgf@circ@zig{\ctikzvalof{bipoles/ooosource/vectorgroupscale}}
         \endpgfscope
-    \fi\fi\fi
+    \fi\fi\fi\fi
 
 % %     secondary winding
     \ifpgf@circ@sec@delta
@@ -7241,13 +7284,19 @@
             \pgftransformshift{\pgfpointpolar{60}{0.6\pgf@circ@res@right}}
             \pgf@circ@wye{\ctikzvalof{bipoles/ooosource/vectorgroupscale}}
         \endpgfscope
+        
+        \else\ifpgf@circ@sec@eyw
+        \pgfscope
+        \pgftransformshift{\pgfpointpolar{60}{0.6\pgf@circ@res@right}}
+        \pgf@circ@eyw{\ctikzvalof{bipoles/ooosource/vectorgroupscale}}
+        \endpgfscope
 
     \else\ifpgf@circ@sec@zig
         \pgfscope
             \pgftransformshift{\pgfpointpolar{60}{0.6\pgf@circ@res@right}}
             \pgf@circ@zig{\ctikzvalof{bipoles/ooosource/vectorgroupscale}}
         \endpgfscope
-    \fi\fi\fi
+    \fi\fi\fi\fi
 
 % %     tertiary winding
     \ifpgf@circ@tert@delta
@@ -7261,13 +7310,19 @@
             \pgftransformshift{\pgfpointpolar{-60}{0.6\pgf@circ@res@right}}
             \pgf@circ@wye{\ctikzvalof{bipoles/ooosource/vectorgroupscale}}
         \endpgfscope
+        
+        \else\ifpgf@circ@tert@eyw
+        \pgfscope
+        \pgftransformshift{\pgfpointpolar{-60}{0.6\pgf@circ@res@right}}
+        \pgf@circ@eyw{\ctikzvalof{bipoles/ooosource/vectorgroupscale}}
+        \endpgfscope
 
     \else\ifpgf@circ@tert@zig
         \pgfscope
             \pgftransformshift{\pgfpointpolar{-60}{0.6\pgf@circ@res@right}}
             \pgf@circ@zig{\ctikzvalof{bipoles/ooosource/vectorgroupscale}}
         \endpgfscope
-    \fi\fi\fi
+    \fi\fi\fi\fi
 }
 
 %% Independent current source - American
