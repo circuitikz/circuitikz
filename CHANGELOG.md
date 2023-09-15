@@ -9,6 +9,7 @@ The major changes among the different CircuiTikZ versions are listed here. See <
     - Added a couple of "blank" (no symbol) European logic ports
     - Added for new "traditional" switches (contributed by Jakob "DraUX" on GitHub)(https://github.com/circuitikz/circuitikz/issues/734)
     - Added configurability (color, thickness, dash) to switch arrows
+    - Added "eyw"-symbol (reverse star) for "oo"-type sources [https://github.com/circuitikz/circuitikz/pull/742](contributed by Jakob «DraUX» on GitHub)
     - Added configurable open shape to the sinusoidal current source (contributed by [Maximilian Martin](https://github.com/circuitikz/circuitikz/pull/737))
     - Documentation fixes
 
