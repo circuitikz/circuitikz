@@ -1,9 +1,9 @@
 <!--- CircuiTikz - Changelog --->
 The major changes among the different CircuiTikZ versions are listed here. See <https://github.com/circuitikz/circuitikz/commits> for a full list of changes.
 
-* Version 1.6.4 (unreleased)
+* Version 1.6.4 (2023-10-10)
 
-    A bit of enhancement and fixes for the European-style logic ports, more switches (and a bit more configurability).
+    A bit of enhancement and fixes for the European-style logic ports, more switches (and a bit more configurabilityi for them), more option for some sources.
 
     - The symbol in European logic ports is now rotation-invariant, and its font can be customized (suggested by [user `@sputeanus` on GitHub](https://github.com/circuitikz/circuitikz/issues/730))
     - Added a couple of "blank" (no symbol) European logic ports
