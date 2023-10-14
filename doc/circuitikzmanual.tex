@@ -7281,7 +7281,46 @@ The code that implemented the printing of the numbers (which in \texttt{muxdemux
     \foreach \myp in {1,...,\NB} \node[above, font=\tiny] at (\myn.bbpin \myp){\myp};
     \foreach \myp in {1,...,\NT} \node[below, font=\tiny] at (\myn.btpin \myp){\myp};
 }
+\end{circuitikz}
 \end{lstlisting}
+
+\subsubsection{Adding labels to the pin}\label{sec:muxdemux-labels}
+
+In \texttt{muxdemux}es, there is no automatic labelling of pins with numbers as in chips; there is no simple standard enumeration possible. But since \texttt{v1.6.5} it is possible to associate a name to the pins that will be printed with the shape; that names are called \emph{pin labels}. They will be printed in the inside of the shape, with the font specified in the \verb|\ctikzset| key \texttt{multipoles/muxdemux/label font} (default is \verb|\tiny| in \LaTeX, other engine can have it different --- better set it in case of doubt) and with a padding setting with the key \texttt{multipoles/muxdemux/label padding} (default \texttt{2pt}). Labels are counter-rotated by default if the shape is rotated, as in chips~(see \ref{sec:chip-rotation}), but you can avoid it with the key \texttt{rotated numbers} (the default is \texttt{straight numbers}).
+
+\begin{LTXexample}[varwidth=true]
+\begin{circuitikz}
+\tikzset{myICwl/.style={muxdemux,
+    muxdemux def={Lh=4, Rh=4, w=4,
+        NR=1, NL=2, NB=2, NT=2,},
+    muxdemux label={L1=left1, L2=left2,
+        R1=r1, B2=b2, T1=t1, T2=t2},
+    }
+}
+\draw (0, 0) node[myICwl]{chip} ++(3,0)
+    node[myICwl, rotate=-90]{chip};
+\draw (0, -3) node[myICwl]{chip} ++(3,0)
+    node[myICwl, rotate=-90,
+        rotated numbers]{chip};
+\end{circuitikz}
+\end{LTXexample}
+
+As you can see, the syntax is to add a \texttt{muxdemux label} to the specification; the labels are set using one of the letter \texttt{L}, \texttt{R}, \texttt{B}, and \texttt{T} for respectively left, right, bottom and top labels. You can define all the labels, none (which will give the default behavior of no-labels as it was before \texttt{v1.6.5}), or any number you wish.
+If you want some specific label rotated in a different way, you have to do it manually, as shown in the following example.
+
+\begin{LTXexample}[varwidth=true]
+\begin{circuitikz}
+\tikzset{mux 4by2 wl/.style={muxdemux,
+    muxdemux def={Lh=6, NL=6, Rh=3, NB=2, w=3, NT=1},
+    draw only left pins={2-5},
+    muxdemux label={B1=$A_1$, B2=$A_0$, R1=OUT,
+        L2=$D_{00}$, L3=$D_{01}$, L4=$D_{10}$, L5=$D_{11}$,
+        T1=\rotatebox{90}{\texttt{Enable}}},
+    circuitikz/multipoles/muxdemux/label padding=3pt}}
+\node [mux 4by2 wl]{};
+\end{circuitikz}
+\end{LTXexample}
+
 
 \subsubsection{Adding wedge or circular inversion markers}\label{sec:wedge-inversion}
 
@@ -7331,21 +7370,19 @@ As an additional example, this was used before the introduction of the \texttt{d
 \end{circuitikz}
 \end{LTXexample}
 
-Finally, you can play with them to create chips that have generic numbers of pins on the four sides, as in the following example (asked on \href{https://tex.stackexchange.com/q/596320/38080}{TeX.Stackexchange}):
+Finally, you can play with them to create chips that have generic numbers of pins on the four sides, as in the following example (asked on \href{https://tex.stackexchange.com/q/596320/38080}{TeX.Stackexchange}; notice however that this example has been made \emph{before} the option for labels existed; it could be quite streamlined now, as shown later):
 
-\begin{LTXexample}[varwidth=true]
-\begin{tikzpicture}[scale=0.8, transform shape]
+\begin{LTXexample}[varwidth=true, basicstyle=\scriptsize\ttfamily]
+\begin{tikzpicture}[scale=0.7, transform shape]
     \tikzset{ic555/.style={muxdemux,
-            muxdemux def={Lh=10, NL=5, Rh=10, NR=5,
-            NB=2, w=6, NT=2, square pins=1},
+            muxdemux def={Lh=10, NL=5, Rh=10, NR=5, NB=2, w=6, NT=2,
+            square pins=1},
         no input leads, external pins width=0.4,
         circuitikz/muxdemuxes/fill=blue!10}
     }
-    \node [ic555, font=\small\ttfamily,align=center](A)
-        at (0,0) {555\\Astable};
+    \node [ic555, font=\small\ttfamily,align=center](A) at (0,0) {555\\Astable};
     % left pins
-    \foreach \rawpin/\npin/\label in
-        {2/7/Discharge, 4/2/Trigger, 5/6/Threshold} {
+    \foreach \rawpin/\npin/\label in {2/7/Discharge, 4/2/Trigger, 5/6/Threshold}{
         \draw (A.lpin \rawpin) -- (A.blpin \rawpin)
             node[midway, blue, font=\small, above]{\npin}
             node[right, font=\small]{\label};
@@ -7360,11 +7397,40 @@ Finally, you can play with them to create chips that have generic numbers of pin
         \draw (A.bpin \rawpin) -- (A.bbpin \rawpin)
             node[midway, blue, font=\small, left]{\npin};
     }
-    % finally, left
+    % finally, right
     \draw (A.rpin 3) -- (A.brpin 3)
         node[midway, blue, font=\small, above]{3};
 \end{tikzpicture}
 \end{LTXexample}
+
+In a version of \Circuitikz{} better or equal to \texttt{v1.6.5}, you can do this (the external numbers are still manual, but much easier now):
+
+\begin{LTXexample}[varwidth=true, basicstyle=\scriptsize\ttfamily]
+\begin{tikzpicture}[scale=0.7, transform shape]
+    \tikzset{ic555/.style={muxdemux,
+        muxdemux def={Lh=10, NL=5, Rh=10, NR=1, NB=2, w=6, NT=2},
+        muxdemux label={L2=Discharge, L4=Trigger, L5=Threshold},
+        external pins width=0.4,
+        draw only left pins={2,4,5},
+        circuitikz/muxdemuxes/fill=blue!10}
+    }
+    \node [ic555, font=\small\ttfamily,align=center](A)
+        at (0,0) {555\\Astable};
+    % put the pin numbers manually
+    % left pins
+    \foreach \rawpin/\npin in {2/7, 4/2, 5/6}
+        \node[blue, font=\small, above left] at (A.blpin \rawpin) {\npin};
+    % top pins
+    \foreach \rawpin/\npin in {1/8, 2/4}
+        \node[blue, font=\small, above left] at (A.btpin \rawpin) {\npin};
+    % bottom pins
+    \foreach \rawpin/\npin in {1/5, 2/1}
+        \node[blue, font=\small, below left] at (A.bbpin \rawpin) {\npin};
+    % finally, right
+    \node[blue, font=\small, above right] at (A.brpin 1) {3};
+\end{tikzpicture}
+\end{LTXexample}
+
 
 
 \subsection{Chips (integrated circuits)}\label{sec:chips}
@@ -7471,7 +7537,7 @@ with the \texttt{bpin \textit{n}} anchors for the suppressed pins.
     \end{circuitikz}
 \end{LTXexample}
 
-\subsubsection{Chips anchors}
+\subsubsection{Chip anchors}
 
 Chips have anchors on pins and global anchors for the main shape.
 The pin anchors to be used to connect wires to the chip are called \texttt{pin 1}, \texttt{pin 2} , \dots, with just one space between \texttt{pin} and the number.
@@ -7506,7 +7572,7 @@ Additionally, you have geometrical anchors on the chip ``box'', see the followin
     \end{circuitikz}
 \end{quote}
 
-\subsubsection{Chips rotation}
+\subsubsection{Chip rotation}\label{sec:chip-rotation}
 
 You can rotate chips, and normally the pin numbers are kept straight (option \texttt{straight numbers}, which is the default), but you can rotate them if you like with \texttt{rotated numbers}.
 Notice that the main label has to be (counter-) rotated manually in this case.

@@ -1645,7 +1645,15 @@
 % MUX-DEMUXES
 %
 % Thanks to @marmot
+% this should automatically create a key in this subfaimly
+\pgfkeys{\circuitikzbasekey/multipoles/muxdemux/label/.is family,
+    \circuitikzbasekey/multipoles/muxdemux/label,
+    .unknown/.code = {
+        \pgfkeyssetvalue{\pgfkeyscurrentpath/\pgfkeyscurrentname}{#1}
+    }
+}
 \tikzset{muxdemux def/.code=\pgfqkeys{\circuitikzbasekey/multipoles/muxdemux}{#1}}
+\tikzset{muxdemux label/.code=\pgfqkeys{\circuitikzbasekey/multipoles/muxdemux/label}{#1}}
 \tikzset{demux/.style={muxdemux, muxdemux def={Lh=4, Rh=8, NL=1, NB=3, NR=8}}}
 \tikzset{one bit adder/.style={muxdemux,
          muxdemux def={Lh=4, NL=2, Rh=2, NR=1, NB=1, w=1.5,
@@ -1653,6 +1661,8 @@
 \tikzset{ALU/.style={muxdemux,
          muxdemux def={Lh=5, NL=2, Rh=2, NR=1, NB=2, NT=1, w=2,
          inset w=1, inset Lh=2, inset Rh=0, square pins=1}}}
+\ctikzset{multipoles/muxdemux/label font/.initial=\pgf@circ@font@tiny}
+\ctikzset{multipoles/muxdemux/label padding/.initial=2pt}
 
 %generic mux-demux shape
 
@@ -1705,8 +1715,26 @@
     \expandafter\gdef\csname pgf@anchor@muxdemux@btpin #1\endcsname
       {\pgf@circ@muxdemux@T@anchor{#1}{0}}%
   }
-
-
+%% put some label somewhere
+\def\pgf@circ@muxdemux@label#1#2#3#4#5{%
+    % #1: which label: L,R,T,B
+    % #2: rotation
+    % #3: padding sign
+    % #4: padding axis (0->x, 1->y)
+    % #5: text position
+    % uses external variables \pgf@circ@count@a and \pgf@circ@res@other
+    \pgftransformrotate{#2}
+    \ifnum#4=0
+        \pgftransformxshift{#3\pgf@circ@res@temp}
+    \else
+        \pgftransformyshift{#3\pgf@circ@res@temp}
+    \fi
+    % Ok, now we have the point in the correct position, we add the label
+    \edef\@@thislabel{\circuitikzbasekey/multipoles/muxdemux/label/#1\the\pgf@circ@count@a}
+    \pgfkeysifdefined{\@@thislabel}{%
+        \pgftext[#5]{\pgfkeysvalueof{\circuitikzbasekey/multipoles/muxdemux/label font}\pgfkeysvalueof{\@@thislabel}}
+    }{}
+}
 \pgfdeclareshape{muxdemux}{
     \savedmacro{\ctikzclass}{\edef\ctikzclass{muxdemuxes}}
     \saveddimen{\scaledRlen}{\pgfmathsetlength{\pgf@x}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}}
@@ -1866,7 +1894,7 @@
                 \pgfpathlineto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@temp}}
             \fi
             \pgfpathclose
-            \pgf@circ@draworfill
+        \pgf@circ@draworfill
         \endpgfscope
         % now we have to draw the pins, if needed
         \ifdim\extshift>0pt\ifpgfcirc@draw@input@leads\pgfscope % let's avoid too much indent
@@ -1995,6 +2023,149 @@
         % end drawing pins; stroke them
         \pgfusepath{stroke}
         \endpgfscope\fi\fi
+        %%%% Labels. Added by Romano 14/10/2023.
+        % manage labels. This is independent from the drawing of pins; redo the loops. Surely
+        % there is a better way; but it's complex to factor out code. Let's go the KISS way.
+        \ifpgf@circuit@chip@straightnumbers
+            \pgfgettransformentries\a\b\temp\temp\temp\temp
+            \pgfmathsetmacro{\rot}{-atan2(\b,\a)}
+            \pgfmathtruncatemacro{\quadrant}{mod(4+int(360+(\rot+45)/90),4)}
+        \else
+            \pgfmathsetmacro{\rot}{0}
+            \pgfmathsetmacro{\quadrant}{0}
+        \fi
+        % padding
+        \pgfmathsetlength\pgf@circ@res@temp{\pgfkeysvalueof{\circuitikzbasekey/multipoles/muxdemux/label padding}}
+        % left pins
+        \ifnum\NL>0\relax
+            \pgf@circ@count@a=\NL\relax
+            \pgf@circ@count@b=\NL \divide\pgf@circ@count@b by 2 % see https://tex.stackexchange.com/questions/146523/why-does-numexpr-integer-division-round-rather-than-truncate
+            \topleft\pgf@circ@res@left=\pgf@x \pgf@circ@res@up=\pgf@y
+            \insetnortheast\pgf@circ@res@right=\pgf@x \pgf@circ@res@down=\pgf@y
+            \ifdim\pgf@circ@res@down>0pt % check if we have an inset
+            % we have to check oddity
+                \ifodd\NL
+                    \ifnum\NL=1
+                        % only centerpin, step should not be used, but anyway...
+                        \pgfmathsetlength{\pgf@circ@res@step}{2*(\pgf@circ@res@up-\pgf@circ@res@down)/(\NL)}
+                    \else
+                        \pgfmathsetlength{\pgf@circ@res@step}{2*(\pgf@circ@res@up-\pgf@circ@res@down)/(\NL-1)}
+                    \fi
+                \else
+                    \pgfmathsetlength{\pgf@circ@res@step}{2*(\pgf@circ@res@up-\pgf@circ@res@down)/\NL}
+                \fi
+            \else % no inset
+                \pgfmathsetlength{\pgf@circ@res@step}{2*\pgf@circ@res@up/\NL}
+            \fi
+            \pgfmathloop%
+                \ifnum\pgf@circ@count@a>0
+                \pgfscope
+                \ifdim\pgf@circ@res@down>0pt % check if we have an inset
+                    \ifnum\pgf@circ@count@a>\pgf@circ@count@b\relax
+                        % for lower pins we have to shift them down
+                        \ifodd\NL
+                            % odd number of pins
+                            \ifnum\pgf@circ@count@a=\numexpr\the\pgf@circ@count@b+1\relax
+                                % centerpin!
+                                \pgftransformshift{\pgfpoint{\pgf@circ@res@right}{0pt}}
+                            \else
+                                \pgftransformshift{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@up+(0.5-\pgf@circ@count@a+1)*\pgf@circ@res@step-2*\pgf@circ@res@down}}
+                            \fi
+                        \else
+                            % even numer of pins: just go down
+                            \pgftransformshift{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@up+(0.5-\pgf@circ@count@a)*\pgf@circ@res@step-2*\pgf@circ@res@down}}
+                        \fi
+                    \else
+                        % nothing need for #1<=NL/2
+                        \pgftransformshift{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@up+(0.5-\pgf@circ@count@a)*\pgf@circ@res@step}}
+                    \fi
+                \else
+                % no inset
+                    \pgftransformshift{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@up+(0.5-\pgf@circ@count@a)*\pgf@circ@res@step}}
+                \fi
+                %% put the labels
+                \ifcase\quadrant % rotation 0; left label are at the left
+                    \pgf@circ@muxdemux@label{L}{0}{+}{0}{left}% type, rot, pad sign, pad axis, text pos
+                \or %rotation -90; left labels are at the top
+                    \pgf@circ@muxdemux@label{L}{90}{-}{1}{top}% type, rot, pad sign, pad axis, text pos
+                \or %rotation 180; left labels are at the right
+                    \pgf@circ@muxdemux@label{L}{180}{-}{0}{right}% type, rot, pad sign, pad axis, text pos
+                \or %rotation +90; left labels are at the bottom
+                    \pgf@circ@muxdemux@label{L}{-90}{+}{1}{bottom}% type, rot, pad sign, pad axis, text pos
+                \fi
+            \endpgfscope
+            \advance\pgf@circ@count@a by -1\relax%
+            \repeatpgfmathloop
+        \fi
+        %% right pins
+        \ifnum\NR>0\pgf@circ@count@a=\NR\relax
+            \pgfmathloop%
+            \topright\pgf@circ@res@right=\pgf@x \pgf@circ@res@up=\pgf@y
+            \pgfmathsetlength{\pgf@circ@res@step}{2*\pgf@circ@res@up/\NR}
+            \ifnum\pgf@circ@count@a>0
+            \pgfscope
+                \pgftransformshift{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@up+(0.5-\pgf@circ@count@a)*\pgf@circ@res@step}}
+                \ifcase\quadrant % rotation 0; right label are at the right
+                    \pgf@circ@muxdemux@label{R}{0}{-}{0}{right}% type, rot, pad sign, pad axis, text pos
+                \or %rotation -90; right labels are at the bottom
+                    \pgf@circ@muxdemux@label{R}{90}{+}{1}{bottom}% type, rot, pad sign, pad axis, text pos
+                \or %rotation 180; right labels are at the left
+                    \pgf@circ@muxdemux@label{R}{180}{+}{0}{left}% type, rot, pad sign, pad axis, text pos
+                \or %rotation +90; right labels are at the top
+                    \pgf@circ@muxdemux@label{R}{-90}{-}{1}{top}% type, rot, pad sign, pad axis, text pos
+                \fi
+            \endpgfscope
+            \advance\pgf@circ@count@a by -1\relax%
+            \repeatpgfmathloop
+        \fi
+        %% bottom pins
+        \ifnum\NB>0\pgf@circ@count@a=\NB\relax %%%
+            \pgfmathloop%
+            \topleft\pgf@circ@res@left=\pgf@x \pgf@circ@res@up=\pgf@y
+            \topright\pgf@circ@res@right=\pgf@x \pgf@circ@res@down=\pgf@y
+            \pgfmathsetlength{\pgf@circ@res@step}{2*\pgf@circ@res@right/\NB}
+            \pgfmathsetlength{\pgf@circ@res@other}{(\pgf@circ@res@down-\pgf@circ@res@up)/(\pgf@circ@res@right-\pgf@circ@res@left)*\pgf@circ@res@step}
+            \ifnum\pgf@circ@count@a>0
+            \pgfscope
+                \pgftransformshift{\pgfpoint{\pgf@circ@res@left+(\pgf@circ@count@a-0.5)*\pgf@circ@res@step}
+                        {-\pgf@circ@res@down+(\NB-\pgf@circ@count@a+0.5)*\pgf@circ@res@other}}
+                \ifcase\quadrant % rotation 0; bottom label are at the bottom
+                    \pgf@circ@muxdemux@label{B}{0}{+}{1}{bottom}% type, rot, pad sign, pad axis, text pos
+                \or %rotation -90; bottom labels are at the left
+                    \pgf@circ@muxdemux@label{B}{90}{+}{0}{left}% type, rot, pad sign, pad axis, text pos
+                \or %rotation 180; bottom labels are at the top
+                    \pgf@circ@muxdemux@label{B}{180}{-}{1}{top}% type, rot, pad sign, pad axis, text pos
+                \or %rotation +90; bottom labels are at the right
+                    \pgf@circ@muxdemux@label{B}{-90}{-}{0}{right}% type, rot, pad sign, pad axis, text pos
+                \fi
+            \endpgfscope
+            \advance\pgf@circ@count@a by -1\relax%
+            \repeatpgfmathloop
+        \fi
+        %% top pins
+        \ifnum\NT>0\pgf@circ@count@a=\NT\relax
+            \pgfmathloop%
+            \topleft\pgf@circ@res@left=\pgf@x \pgf@circ@res@up=\pgf@y
+            \topright\pgf@circ@res@right=\pgf@x \pgf@circ@res@down=\pgf@y
+            \pgfmathsetlength{\pgf@circ@res@step}{2*\pgf@circ@res@right/\NT}
+            \pgfmathsetlength{\pgf@circ@res@other}{(\pgf@circ@res@down-\pgf@circ@res@up)/(\pgf@circ@res@right-\pgf@circ@res@left)*\pgf@circ@res@step}
+            \ifnum\pgf@circ@count@a>0
+            \pgfscope
+                \pgftransformshift{\pgfpoint{\pgf@circ@res@left+(\pgf@circ@count@a-0.5)*\pgf@circ@res@step}
+                {\pgf@circ@res@down-(\NT-\pgf@circ@count@a+0.5)*\pgf@circ@res@other}}
+                \ifcase\quadrant % rotation 0; top label are at the top
+                    \pgf@circ@muxdemux@label{T}{0}{-}{1}{top}% type, rot, pad sign, pad axis, text pos
+                \or %rotation -90; top labels are at the right
+                    \pgf@circ@muxdemux@label{T}{90}{-}{0}{right}% type, rot, pad sign, pad axis, text pos
+                \or %rotation 180; top labels are at the bottom
+                    \pgf@circ@muxdemux@label{T}{180}{+}{1}{bottom}% type, rot, pad sign, pad axis, text pos
+                \or %rotation +90; top labels are at the left
+                    \pgf@circ@muxdemux@label{T}{-90}{+}{0}{left}% type, rot, pad sign, pad axis, text pos
+                \fi
+            \endpgfscope
+            \advance\pgf@circ@count@a by -1\relax%
+            \repeatpgfmathloop
+        \fi
     }
     % let's start adding anchors
     \pgfutil@g@addto@macro\pgf@sh@s@muxdemux{%

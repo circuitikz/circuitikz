@@ -3,6 +3,10 @@ The major changes among the different CircuiTikZ versions are listed here. See <
 
 * Version 1.6.5 (unreleased)
 
+    The big change is the possibility to add labels to the `muxdemux` shapes, that enables an easy way to create custom components.
+
+    - Added labels to the `muxdemux` shapes (by Romano)
+
 * Version 1.6.4 (2023-10-10)
 
     A bit of enhancement and fixes for the European-style logic ports, more switches (and a bit more configurabilityi for them), more option for some sources.
