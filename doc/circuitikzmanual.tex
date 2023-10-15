@@ -7286,7 +7286,9 @@ The code that implemented the printing of the numbers (which in \texttt{muxdemux
 
 \subsubsection{Adding labels to the pin}\label{sec:muxdemux-labels}
 
-In \texttt{muxdemux}es, there is no automatic labelling of pins with numbers as in chips; there is no simple standard enumeration possible. But since \texttt{v1.6.5} it is possible to associate a name to the pins that will be printed with the shape; that names are called \emph{pin labels}. They will be printed in the inside of the shape, with the font specified in the \verb|\ctikzset| key \texttt{multipoles/muxdemux/label font} (default is \verb|\tiny| in \LaTeX, other engine can have it different --- better set it in case of doubt) and with a padding setting with the key \texttt{multipoles/muxdemux/label padding} (default \texttt{2pt}). Labels are counter-rotated by default if the shape is rotated, as in chips~(see \ref{sec:chip-rotation}), but you can avoid it with the key \texttt{rotated numbers} (the default is \texttt{straight numbers}).
+In \texttt{muxdemux}es, there is no automatic labelling of pins with numbers as in chips; there is no simple standard enumeration possible. But since \texttt{v1.6.5} it is possible to associate a name to the pins that will be printed with the shape; that names are called \emph{pin labels}.
+
+\paragraph{Internal pin labels} will be printed in the inside of the shape, with the font specified in the \verb|\ctikzset| key \texttt{multipoles/muxdemux/label font} (default is \verb|\tiny| in \LaTeX, other engine can have it different --- better set it in case of doubt) and with a padding setting with the key \texttt{multipoles/muxdemux/label padding} (default \texttt{2pt}). Labels are counter-rotated by default if the shape is rotated, as in chips~(see \ref{sec:chip-rotation}), but you can avoid it with the key \texttt{rotated numbers} (the default is \texttt{straight numbers}).
 
 \begin{LTXexample}[varwidth=true]
 \begin{circuitikz}
@@ -7321,6 +7323,29 @@ If you want some specific label rotated in a different way, you have to do it ma
 \end{circuitikz}
 \end{LTXexample}
 
+\paragraph{External pin labels} will be printed on the outside of the pin position --- in the case of left and right pins, either above (``up'', identified by \texttt{LU} and \texttt{RU} labels), or below (``down'', \texttt{LD} and \texttt{RD} labels); in the case of top and bottom pin, either at the left (\texttt{TL} and \texttt{BL}) or at the right (\texttt{TR} and \texttt{BR}). They will use the same padding as the internal pins, and the font specified in the key \texttt{multipoles/muxdemux/external label font} (default \verb|\tiny|).
+
+\begin{LTXexample}[varwidth=true]
+\begin{circuitikz}
+\ctikzset{multipoles/muxdemux/external label
+    font={\tiny\ttfamily\color{blue}}}
+\tikzset{myICwl/.style={muxdemux,
+    muxdemux def={Lh=4, Rh=4, w=4,
+        NR=1, NL=2, NB=2, NT=2,},
+    muxdemux label={L1=left1, L2=left2,
+        R1=r1, B2=b2, T1=t1, T2=t2,
+        LU1=lu1, LU2=lu2, LD1=ld1, LD2=ld2,
+        BR1=br1, BL1=bl1, BR2=br2, BL2=bl2,
+        RU1=ru1, RD1=rd1,TR2=tr2, TL2=tl2,
+        TR1=tr1, TL1=tl1},}
+}
+\draw (0, 0) node[myICwl]{chip} ++(3,0)
+    node[myICwl, rotate=-90]{chip};
+\draw (0, -3) node[myICwl]{chip} ++(3,0)
+    node[myICwl, rotate=-90,
+        rotated numbers]{chip};
+\end{circuitikz}
+\end{LTXexample}
 
 \subsubsection{Adding wedge or circular inversion markers}\label{sec:wedge-inversion}
 
@@ -7403,34 +7428,25 @@ Finally, you can play with them to create chips that have generic numbers of pin
 \end{tikzpicture}
 \end{LTXexample}
 
-In a version of \Circuitikz{} better or equal to \texttt{v1.6.5}, you can do this (the external numbers are still manual, but much easier now):
+In a version of \Circuitikz{} better or equal to \texttt{v1.6.5}, you can do this:
 
 \begin{LTXexample}[varwidth=true, basicstyle=\scriptsize\ttfamily]
 \begin{tikzpicture}[scale=0.7, transform shape]
+\ctikzset{multipoles/muxdemux/label font=\small}
+\ctikzset{multipoles/muxdemux/external label font={\small\color{blue}}}
     \tikzset{ic555/.style={muxdemux,
         muxdemux def={Lh=10, NL=5, Rh=10, NR=1, NB=2, w=6, NT=2},
-        muxdemux label={L2=Discharge, L4=Trigger, L5=Threshold},
+        muxdemux label={L2=Discharge, L4=Trigger, L5=Threshold,
+        T1=VCC, B2=GND,
+        LU2=7, LU4=2, LU5=6, TL1=8, TL2=4, RU1=3, BL1=5, BL2=1},
         external pins width=0.4,
         draw only left pins={2,4,5},
         circuitikz/muxdemuxes/fill=blue!10}
     }
     \node [ic555, font=\small\ttfamily,align=center](A)
         at (0,0) {555\\Astable};
-    % put the pin numbers manually
-    % left pins
-    \foreach \rawpin/\npin in {2/7, 4/2, 5/6}
-        \node[blue, font=\small, above left] at (A.blpin \rawpin) {\npin};
-    % top pins
-    \foreach \rawpin/\npin in {1/8, 2/4}
-        \node[blue, font=\small, above left] at (A.btpin \rawpin) {\npin};
-    % bottom pins
-    \foreach \rawpin/\npin in {1/5, 2/1}
-        \node[blue, font=\small, below left] at (A.bbpin \rawpin) {\npin};
-    % finally, right
-    \node[blue, font=\small, above right] at (A.brpin 1) {3};
 \end{tikzpicture}
 \end{LTXexample}
-
 
 
 \subsection{Chips (integrated circuits)}\label{sec:chips}
