@@ -1716,23 +1716,23 @@
       {\pgf@circ@muxdemux@T@anchor{#1}{0}}%
   }
 %% put some label somewhere
-\def\pgf@circ@muxdemux@label#1#2#3#4#5{%
+\def\pgf@circ@muxdemux@label@xy#1#2#3#4#5#6#7{%
     % #1: which label: L,R,T,B
     % #2: rotation
-    % #3: padding sign
-    % #4: padding axis (0->x, 1->y)
+    % #3: scale pad x
+    % #4: scale pad y
     % #5: text position
-    % uses external variables \pgf@circ@count@a and \pgf@circ@res@other
+    % #6: operation on label text
+    % #7: font key
+    % uses external variables \pgf@circ@count@a and \pgf@circ@res@temp
     \pgftransformrotate{#2}
-    \ifnum#4=0
-        \pgftransformxshift{#3\pgf@circ@res@temp}
-    \else
-        \pgftransformyshift{#3\pgf@circ@res@temp}
-    \fi
+    \pgftransformxshift{#3\pgf@circ@res@temp}
+    \pgftransformyshift{#4\pgf@circ@res@temp}
     % Ok, now we have the point in the correct position, we add the label
     \edef\@@thislabel{\circuitikzbasekey/multipoles/muxdemux/label/#1\the\pgf@circ@count@a}
     \pgfkeysifdefined{\@@thislabel}{%
-        \pgftext[#5]{\pgfkeysvalueof{\circuitikzbasekey/multipoles/muxdemux/label font}\pgfkeysvalueof{\@@thislabel}}
+        \pgftext[#5]{\pgfkeysvalueof{\circuitikzbasekey/multipoles/muxdemux/#7}%
+        \expandafter\csname#6\endcsname{\pgfkeysvalueof{\@@thislabel}}}
     }{}
 }
 \pgfdeclareshape{muxdemux}{
@@ -2034,7 +2034,7 @@
             \pgfmathsetmacro{\rot}{0}
             \pgfmathsetmacro{\quadrant}{0}
         \fi
-        % padding
+        % padding for internal labels (the first one to be used)
         \pgfmathsetlength\pgf@circ@res@temp{\pgfkeysvalueof{\circuitikzbasekey/multipoles/muxdemux/label padding}}
         % left pins
         \ifnum\NL>0\relax
@@ -2085,13 +2085,13 @@
                 \fi
                 %% put the labels
                 \ifcase\quadrant % rotation 0; left label are at the left
-                    \pgf@circ@muxdemux@label{L}{0}{+}{0}{left}% type, rot, pad sign, pad axis, text pos
+                    \pgf@circ@muxdemux@label@xy{L}{0}{1}{0}{left}{pgfcirc@nop}{label font}% type, rot, pad x, pad y, text pos, op, font
                 \or %rotation -90; left labels are at the top
-                    \pgf@circ@muxdemux@label{L}{90}{-}{1}{top}% type, rot, pad sign, pad axis, text pos
+                    \pgf@circ@muxdemux@label@xy{L}{90}{0}{-1}{top}{pgfcirc@nop}{label font}% type, rot, pad x, pad y, text pos, op, font
                 \or %rotation 180; left labels are at the right
-                    \pgf@circ@muxdemux@label{L}{180}{-}{0}{right}% type, rot, pad sign, pad axis, text pos
+                    \pgf@circ@muxdemux@label@xy{L}{180}{-1}{0}{right}{pgfcirc@nop}{label font}% type, rot, pad x, pad y, text pos, op, font
                 \or %rotation +90; left labels are at the bottom
-                    \pgf@circ@muxdemux@label{L}{-90}{+}{1}{bottom}% type, rot, pad sign, pad axis, text pos
+                    \pgf@circ@muxdemux@label@xy{L}{-90}{0}{1}{bottom}{pgfcirc@nop}{label font}% type, rot, pad x, pad y, text pos, op, font
                 \fi
             \endpgfscope
             \advance\pgf@circ@count@a by -1\relax%
@@ -2106,13 +2106,13 @@
             \pgfscope
                 \pgftransformshift{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@up+(0.5-\pgf@circ@count@a)*\pgf@circ@res@step}}
                 \ifcase\quadrant % rotation 0; right label are at the right
-                    \pgf@circ@muxdemux@label{R}{0}{-}{0}{right}% type, rot, pad sign, pad axis, text pos
+                    \pgf@circ@muxdemux@label@xy{R}{0}{-1}{0}{right}{pgfcirc@nop}{label font}% type, rot, pad x, pad y, text pos, op, font
                 \or %rotation -90; right labels are at the bottom
-                    \pgf@circ@muxdemux@label{R}{90}{+}{1}{bottom}% type, rot, pad sign, pad axis, text pos
+                    \pgf@circ@muxdemux@label@xy{R}{90}{0}{1}{bottom}{pgfcirc@nop}{label font}% type, rot, pad x, pad y, text pos, op, font
                 \or %rotation 180; right labels are at the left
-                    \pgf@circ@muxdemux@label{R}{180}{+}{0}{left}% type, rot, pad sign, pad axis, text pos
+                    \pgf@circ@muxdemux@label@xy{R}{180}{1}{0}{left}{pgfcirc@nop}{label font}% type, rot, pad x, pad y, text pos, op, font
                 \or %rotation +90; right labels are at the top
-                    \pgf@circ@muxdemux@label{R}{-90}{-}{1}{top}% type, rot, pad sign, pad axis, text pos
+                    \pgf@circ@muxdemux@label@xy{R}{-90}{0}{-1}{top}{pgfcirc@nop}{label font}% type, rot, pad x, pad y, text pos, op, font
                 \fi
             \endpgfscope
             \advance\pgf@circ@count@a by -1\relax%
@@ -2130,13 +2130,13 @@
                 \pgftransformshift{\pgfpoint{\pgf@circ@res@left+(\pgf@circ@count@a-0.5)*\pgf@circ@res@step}
                         {-\pgf@circ@res@down+(\NB-\pgf@circ@count@a+0.5)*\pgf@circ@res@other}}
                 \ifcase\quadrant % rotation 0; bottom label are at the bottom
-                    \pgf@circ@muxdemux@label{B}{0}{+}{1}{bottom}% type, rot, pad sign, pad axis, text pos
+                    \pgf@circ@muxdemux@label@xy{B}{0}{0}{1}{bottom}{pgfcirc@nop}{label font}% type, rot, pad x, pad y, text pos, op, font
                 \or %rotation -90; bottom labels are at the left
-                    \pgf@circ@muxdemux@label{B}{90}{+}{0}{left}% type, rot, pad sign, pad axis, text pos
+                    \pgf@circ@muxdemux@label@xy{B}{90}{1}{0}{left}{pgfcirc@nop}{label font}% type, rot, pad x, pad y, text pos, op, font
                 \or %rotation 180; bottom labels are at the top
-                    \pgf@circ@muxdemux@label{B}{180}{-}{1}{top}% type, rot, pad sign, pad axis, text pos
+                    \pgf@circ@muxdemux@label@xy{B}{180}{0}{-1}{top}{pgfcirc@nop}{label font}% type, rot, pad x, pad y, text pos, op, font
                 \or %rotation +90; bottom labels are at the right
-                    \pgf@circ@muxdemux@label{B}{-90}{-}{0}{right}% type, rot, pad sign, pad axis, text pos
+                    \pgf@circ@muxdemux@label@xy{B}{-90}{-1}{0}{right}{pgfcirc@nop}{label font}% type, rot, pad x, pad y, text pos, op, font
                 \fi
             \endpgfscope
             \advance\pgf@circ@count@a by -1\relax%
@@ -2154,13 +2154,13 @@
                 \pgftransformshift{\pgfpoint{\pgf@circ@res@left+(\pgf@circ@count@a-0.5)*\pgf@circ@res@step}
                 {\pgf@circ@res@down-(\NT-\pgf@circ@count@a+0.5)*\pgf@circ@res@other}}
                 \ifcase\quadrant % rotation 0; top label are at the top
-                    \pgf@circ@muxdemux@label{T}{0}{-}{1}{top}% type, rot, pad sign, pad axis, text pos
+                    \pgf@circ@muxdemux@label@xy{T}{0}{0}{-1}{top}{pgfcirc@nop}{label font}% type, rot, pad x, pad y, text pos, op, font
                 \or %rotation -90; top labels are at the right
-                    \pgf@circ@muxdemux@label{T}{90}{-}{0}{right}% type, rot, pad sign, pad axis, text pos
+                    \pgf@circ@muxdemux@label@xy{T}{90}{-1}{0}{right}{pgfcirc@nop}{label font}% type, rot, pad x, pad y, text pos, op, font
                 \or %rotation 180; top labels are at the bottom
-                    \pgf@circ@muxdemux@label{T}{180}{+}{1}{bottom}% type, rot, pad sign, pad axis, text pos
+                    \pgf@circ@muxdemux@label@xy{T}{180}{0}{1}{bottom}{pgfcirc@nop}{label font}% type, rot, pad x, pad y, text pos, op, font
                 \or %rotation +90; top labels are at the left
-                    \pgf@circ@muxdemux@label{T}{-90}{+}{0}{left}% type, rot, pad sign, pad axis, text pos
+                    \pgf@circ@muxdemux@label@xy{T}{-90}{1}{0}{left}{pgfcirc@nop}{label font}% type, rot, pad x, pad y, text pos, op, font
                 \fi
             \endpgfscope
             \advance\pgf@circ@count@a by -1\relax%
