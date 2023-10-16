@@ -7284,11 +7284,13 @@ The code that implemented the printing of the numbers (which in \texttt{muxdemux
 \end{circuitikz}
 \end{lstlisting}
 
-\subsubsection{Adding labels to the pin}\label{sec:muxdemux-labels}
+\subsubsection{Adding labels to the pins}\label{sec:muxdemux-labels}
 
 In \texttt{muxdemux}es, there is no automatic labelling of pins with numbers as in chips; there is no simple standard enumeration possible. But since \texttt{v1.6.5} it is possible to associate a name to the pins that will be printed with the shape; that names are called \emph{pin labels}.
+Pin labels are counter-rotated by default if the shape is rotated, as in chip pin numbers~(see \ref{sec:chip-rotation}), but you can avoid it with the key \texttt{rotated numbers} (the default is \texttt{straight numbers}).
+Additionally, you can set also \emph{border labels} on the four borders (more or less, see later); that are normally not counter-rotated \emph{unless} the result would be upside-down (or if you use \texttt{straight numbers}, of course).
 
-\paragraph{Internal pin labels} will be printed in the inside of the shape, with the font specified in the \verb|\ctikzset| key \texttt{multipoles/muxdemux/label font} (default is \verb|\tiny| in \LaTeX, other engine can have it different --- better set it in case of doubt) and with a padding setting with the key \texttt{multipoles/muxdemux/label padding} (default \texttt{2pt}). Labels are counter-rotated by default if the shape is rotated, as in chips~(see \ref{sec:chip-rotation}), but you can avoid it with the key \texttt{rotated numbers} (the default is \texttt{straight numbers}).
+\paragraph{Inner pin labels} will be printed in the inside of the shape, with the font specified in the \verb|\ctikzset| key \texttt{muxdemux/inner label font} (default is \verb|\tiny| in \LaTeX, other engine can have it different --- better set it in case of doubt) and with a padding setting with the keys \texttt{muxdemux/inner label xsep} and  \texttt{muxdemux/inner label ysep} (respectively for horizontal and vertical shifts; default for both \texttt{2pt}). You can also use the key \texttt{muxdemux/inner label sep} to set both at the same time.
 
 \begin{LTXexample}[varwidth=true]
 \begin{circuitikz}
@@ -7318,16 +7320,16 @@ If you want some specific label rotated in a different way, you have to do it ma
     muxdemux label={B1=$A_1$, B2=$A_0$, R1=OUT,
         L2=$D_{00}$, L3=$D_{01}$, L4=$D_{10}$, L5=$D_{11}$,
         T1=\rotatebox{90}{\texttt{Enable}}},
-    circuitikz/multipoles/muxdemux/label padding=3pt}}
+    circuitikz/muxdemux/inner label ysep=4pt}}
 \node [mux 4by2 wl]{};
 \end{circuitikz}
 \end{LTXexample}
 
-\paragraph{External pin labels} will be printed on the outside of the pin position --- in the case of left and right pins, either above (``up'', identified by \texttt{LU} and \texttt{RU} labels), or below (``down'', \texttt{LD} and \texttt{RD} labels); in the case of top and bottom pin, either at the left (\texttt{TL} and \texttt{BL}) or at the right (\texttt{TR} and \texttt{BR}). They will use the same padding as the internal pins, and the font specified in the key \texttt{multipoles/muxdemux/external label font} (default \verb|\tiny|).
+\paragraph{Outer pin labels} will be printed on the outside of the pin position --- in the case of left and right pins, either above (``up'', identified by \texttt{LU} and \texttt{RU} labels), or below (``down'', \texttt{LD} and \texttt{RD} labels); in the case of top and bottom pin, either at the left (\texttt{TL} and \texttt{BL}) or at the right (\texttt{TR} and \texttt{BR}). The font is specified in the key \texttt{muxdemux/outer label font} (default \verb|\tiny|) and the padding with the corresponding \texttt{muxdemux/outer label xsep} and  \texttt{muxdemux/outer label ysep} (default for both \texttt{2pt}), or \texttt{muxdemux/outer label sep} to set both at the same time.
 
 \begin{LTXexample}[varwidth=true]
 \begin{circuitikz}
-\ctikzset{multipoles/muxdemux/external label
+\ctikzset{muxdemux/outer label
     font={\tiny\ttfamily\color{blue}}}
 \tikzset{myICwl/.style={muxdemux,
     muxdemux def={Lh=4, Rh=4, w=4,
@@ -7346,6 +7348,30 @@ If you want some specific label rotated in a different way, you have to do it ma
         rotated numbers]{chip};
 \end{circuitikz}
 \end{LTXexample}
+
+\paragraph{Border labels} are drawn \emph{before} the other labels along the external border (to be exact: in north, south, east, and west position) of the component.
+You set them with the key \texttt{N}, \texttt{S}, \texttt{W}, and \texttt{E} for the outer position, and \texttt{Ni}, \texttt{Si}, \texttt{Wi}, and \texttt{Ei} for the inner ones.
+The font is specified in the key \texttt{muxdemux/border label font} (default \verb|\tiny|) and the padding with the corresponding \texttt{muxdemux/border label xsep} and  \texttt{muxdemux/border label ysep} (default for both \texttt{2pt}), or \texttt{muxdemux/border label sep} to set both at the same time.
+\begin{LTXexample}[varwidth=true]
+\begin{circuitikz}
+\ctikzset{muxdemux/outer label
+    font={\tiny\ttfamily\color{blue}}}
+\tikzset{myICwl/.style={muxdemux,
+    muxdemux def={Lh=4, Rh=4, w=4,
+        NR=1, NL=2, NB=0, NT=0,},
+    muxdemux label={L1=inA, L2=inB,
+        R1=OUT, RU1=3, LU1=1, LU2=2,
+        N=mychip},}
+}
+\draw (0, 0) node[myICwl]{} ++(3,0)
+    node[myICwl, rotate=180]{};
+\draw (0, -3) node[myICwl,
+    muxdemux label={N=another}]{};
+\end{circuitikz}
+\end{LTXexample}
+
+As you can see, you can locally change any label in a specific instance.
+
 
 \subsubsection{Adding wedge or circular inversion markers}\label{sec:wedge-inversion}
 
@@ -7432,8 +7458,8 @@ In a version of \Circuitikz{} better or equal to \texttt{v1.6.5}, you can do thi
 
 \begin{LTXexample}[varwidth=true, basicstyle=\scriptsize\ttfamily]
 \begin{tikzpicture}[scale=0.7, transform shape]
-\ctikzset{multipoles/muxdemux/label font=\small}
-\ctikzset{multipoles/muxdemux/external label font={\small\color{blue}}}
+\ctikzset{muxdemux/inner label font=\small}
+\ctikzset{muxdemux/outer label font={\small\color{blue}}}
     \tikzset{ic555/.style={muxdemux,
         muxdemux def={Lh=10, NL=5, Rh=10, NR=1, NB=2, w=6, NT=2},
         muxdemux label={L2=Discharge, L4=Trigger, L5=Threshold,

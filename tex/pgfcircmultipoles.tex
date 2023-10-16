@@ -1144,7 +1144,7 @@
 \ctikzset{multipoles/flipflop/pin spacing/.initial=0.6}
 \ctikzset{multipoles/flipflop/clock wedge size/.initial=0.2}
 
-%% muxdemuxes keys
+%% muxdemuxes internal keys
 
 \ctikzset{multipoles/muxdemux/base len/.initial=0.4}
 \ctikzset{multipoles/muxdemux/Lh/.initial=8.0}
@@ -1158,6 +1158,38 @@
 \ctikzset{multipoles/muxdemux/NB/.initial=3}
 \ctikzset{multipoles/muxdemux/NT/.initial=0}
 \ctikzset{multipoles/muxdemux/square pins/.initial=0}%
+% Thanks to @marmot
+% this should automatically create a key in this subfamily
+\pgfkeys{\circuitikzbasekey/multipoles/muxdemux/label/.is family,
+    \circuitikzbasekey/multipoles/muxdemux/label,
+    .unknown/.code = {
+        \pgfkeyssetvalue{\pgfkeyscurrentpath/\pgfkeyscurrentname}{#1}
+    }
+}
+\tikzset{muxdemux def/.code=\pgfqkeys{\circuitikzbasekey/multipoles/muxdemux}{#1}}
+\tikzset{muxdemux label/.code=\pgfqkeys{\circuitikzbasekey/multipoles/muxdemux/label}{#1}}
+% external (class-like) muxdemux settings for labels
+\ctikzset{muxdemux/inner label font/.initial=\pgf@circ@font@tiny}
+\ctikzset{muxdemux/outer label font/.initial=\pgf@circ@font@tiny}
+\ctikzset{muxdemux/border label font/.initial=\pgf@circ@font@tiny}
+\ctikzset{muxdemux/inner label xsep/.initial=2pt}
+\ctikzset{muxdemux/inner label ysep/.initial=2pt}
+\ctikzset{muxdemux/outer label xsep/.initial=2pt}
+\ctikzset{muxdemux/outer label ysep/.initial=2pt}
+\ctikzset{muxdemux/border label xsep/.initial=2pt}
+\ctikzset{muxdemux/border label ysep/.initial=2pt}
+\ctikzset{muxdemux/inner label sep/.code={%
+        \ctikzset{muxdemux/inner label xsep=#1}%
+        \ctikzset{muxdemux/inner label ysep=#1}%
+}}
+\ctikzset{muxdemux/outer label sep/.code={%
+        \ctikzset{muxdemux/outer label xsep=#1}%
+        \ctikzset{muxdemux/outer label ysep=#1}%
+}}
+\ctikzset{muxdemux/border label sep/.code={%
+        \ctikzset{muxdemux/border label xsep=#1}%
+        \ctikzset{muxdemux/border label ysep=#1}%
+}}
 %>>>
 
 %% Node shapes definitions for flip flops%<<<
@@ -1644,16 +1676,8 @@
 %
 % MUX-DEMUXES
 %
-% Thanks to @marmot
-% this should automatically create a key in this subfaimly
-\pgfkeys{\circuitikzbasekey/multipoles/muxdemux/label/.is family,
-    \circuitikzbasekey/multipoles/muxdemux/label,
-    .unknown/.code = {
-        \pgfkeyssetvalue{\pgfkeyscurrentpath/\pgfkeyscurrentname}{#1}
-    }
-}
-\tikzset{muxdemux def/.code=\pgfqkeys{\circuitikzbasekey/multipoles/muxdemux}{#1}}
-\tikzset{muxdemux label/.code=\pgfqkeys{\circuitikzbasekey/multipoles/muxdemux/label}{#1}}
+% predefined muxdemux shapes (see manual) 
+%
 \tikzset{demux/.style={muxdemux, muxdemux def={Lh=4, Rh=8, NL=1, NB=3, NR=8}}}
 \tikzset{one bit adder/.style={muxdemux,
          muxdemux def={Lh=4, NL=2, Rh=2, NR=1, NB=1, w=1.5,
@@ -1661,12 +1685,7 @@
 \tikzset{ALU/.style={muxdemux,
          muxdemux def={Lh=5, NL=2, Rh=2, NR=1, NB=2, NT=1, w=2,
          inset w=1, inset Lh=2, inset Rh=0, square pins=1}}}
-\ctikzset{multipoles/muxdemux/label font/.initial=\pgf@circ@font@tiny}
-\ctikzset{multipoles/muxdemux/external label font/.initial=\pgf@circ@font@tiny}
-\ctikzset{multipoles/muxdemux/label padding/.initial=2pt}
-
 %generic mux-demux shape
-
 % helper macros to set the anchors inside a loop (to expand the current count)
 % left
 \pgfutil@protected\def\pgf@circ@make@muxdemux@L@anchor#1%
@@ -1724,16 +1743,22 @@
     % #4: scale pad y
     % #5: text position
     % #6: operation on label text
-    % #7: font key
+    % #7: type: inner, outer, border
     % uses external variables \pgf@circ@count@a and \pgf@circ@res@temp
     \pgfscope
         \pgftransformrotate{#2}
+        \pgfmathsetlength\pgf@circ@res@temp{\pgfkeysvalueof{\circuitikzbasekey/muxdemux/#7 label xsep}}
+        \pgfmathsetlength\pgf@circ@res@other{\pgfkeysvalueof{\circuitikzbasekey/muxdemux/#7 label ysep}}
         \pgftransformxshift{#3\pgf@circ@res@temp}
-        \pgftransformyshift{#4\pgf@circ@res@temp}
+        \pgftransformyshift{#4\pgf@circ@res@other}
         % Ok, now we have the point in the correct position, we add the label
-        \edef\@@thislabel{\circuitikzbasekey/multipoles/muxdemux/label/#1\the\pgf@circ@count@a}
-        \pgfkeysifdefined{\@@thislabel}{%
-            \pgftext[#5]{\pgfkeysvalueof{\circuitikzbasekey/multipoles/muxdemux/#7}%
+        \ifnum\pgf@circ@count@a=0
+            \edef\@@thislabel{\circuitikzbasekey/multipoles/muxdemux/label/#1}
+        \else
+            \edef\@@thislabel{\circuitikzbasekey/multipoles/muxdemux/label/#1\the\pgf@circ@count@a}
+        \fi
+            \pgfkeysifdefined{\@@thislabel}{%
+            \pgftext[#5]{\pgfkeysvalueof{\circuitikzbasekey/muxdemux/#7 label font}%
             \expandafter\csname#6\endcsname{\pgfkeysvalueof{\@@thislabel}}}
         }{}
     \endpgfscope
@@ -2037,8 +2062,54 @@
             \pgfmathsetmacro{\rot}{0}
             \pgfmathsetmacro{\quadrant}{0}
         \fi
-        % padding for internal labels (the first one to be used)
-        \pgfmathsetlength\pgf@circ@res@temp{\pgfkeysvalueof{\circuitikzbasekey/multipoles/muxdemux/label padding}}
+        %% border labels
+        \pgf@circ@count@a=0
+        % go to north
+        \topleft\pgf@circ@res@left=\pgf@x \pgf@circ@res@up=\pgf@y
+        \pgfscope
+        \pgftransformshift{\pgfpoint{0pt}{\pgf@circ@res@up}}
+        \ifnum\quadrant=2
+            \pgf@circ@muxdemux@label@xy{N}{180}{0}{-1}{top}{pgfcirc@nop}{border}% type, rot, pad x, pad y, text pos, op, type
+            \pgf@circ@muxdemux@label@xy{Ni}{180}{0}{1}{bottom}{pgfcirc@nop}{border}% type, rot, pad x, pad y, text pos, op, type
+        \else
+            \pgf@circ@muxdemux@label@xy{N}{0}{0}{1}{bottom}{pgfcirc@nop}{border}% type, rot, pad x, pad y, text pos, op, type
+            \pgf@circ@muxdemux@label@xy{Ni}{0}{0}{-1}{top}{pgfcirc@nop}{border}% type, rot, pad x, pad y, text pos, op, type
+        \fi
+        \endpgfscope
+        % go south!
+        \pgfscope
+        \pgftransformshift{\pgfpoint{0pt}{-\pgf@circ@res@up}}
+        \ifnum\quadrant=2
+            \pgf@circ@muxdemux@label@xy{S}{180}{0}{1}{bottom}{pgfcirc@nop}{border}% type, rot, pad x, pad y, text pos, op, type
+            \pgf@circ@muxdemux@label@xy{Si}{180}{0}{-1}{top}{pgfcirc@nop}{border}% type, rot, pad x, pad y, text pos, op, type
+        \else
+            \pgf@circ@muxdemux@label@xy{S}{0}{0}{-1}{top}{pgfcirc@nop}{border}% type, rot, pad x, pad y, text pos, op, type
+            \pgf@circ@muxdemux@label@xy{Si}{0}{0}{1}{bottom}{pgfcirc@nop}{border}% type, rot, pad x, pad y, text pos, op, type
+        \fi
+        \endpgfscope
+        % go west!
+        \pgfscope
+        \pgftransformshift{\pgfpoint{\pgf@circ@res@left}{0pt}}
+        \ifnum\quadrant=3
+            \pgf@circ@muxdemux@label@xy{W}{-90}{0}{-1}{top}{pgfcirc@nop}{border}% type, rot, pad x, pad y, text pos, op, type
+            \pgf@circ@muxdemux@label@xy{Wi}{-90}{0}{1}{bottom}{pgfcirc@nop}{border}% type, rot, pad x, pad y, text pos, op, type
+        \else
+            \pgf@circ@muxdemux@label@xy{W}{90}{0}{1}{bottom}{pgfcirc@nop}{border}% type, rot, pad x, pad y, text pos, op, type
+            \pgf@circ@muxdemux@label@xy{Wi}{90}{0}{-1}{top}{pgfcirc@nop}{border}% type, rot, pad x, pad y, text pos, op, type
+        \fi
+        \endpgfscope
+        % go east!
+        \pgfscope
+        \pgftransformshift{\pgfpoint{-\pgf@circ@res@left}{0pt}}
+        \ifnum\quadrant=3
+            \pgf@circ@muxdemux@label@xy{E}{-90}{0}{1}{bottom}{pgfcirc@nop}{border}% type, rot, pad x, pad y, text pos, op, type
+            \pgf@circ@muxdemux@label@xy{Ei}{-90}{0}{-1}{top}{pgfcirc@nop}{border}% type, rot, pad x, pad y, text pos, op, type
+        \else
+            \pgf@circ@muxdemux@label@xy{E}{90}{0}{-1}{top}{pgfcirc@nop}{border}% type, rot, pad x, pad y, text pos, op, type
+            \pgf@circ@muxdemux@label@xy{Ei}{90}{0}{1}{bottom}{pgfcirc@nop}{border}% type, rot, pad x, pad y, text pos, op, type
+        \fi
+        \endpgfscope
+        % start exploring all the pins. We repeat the steps to position the coordinate on every pin.
         % left pins
         \ifnum\NL>0\relax
             \pgf@circ@count@a=\NL\relax
@@ -2088,21 +2159,21 @@
                 \fi
                 %% put the labels
                 \ifcase\quadrant % rotation 0; left label are at the left
-                    \pgf@circ@muxdemux@label@xy{L}{0}{1}{0}{left}{pgfcirc@nop}{label font}% type, rot, pad x, pad y, text pos, op, font
-                    \pgf@circ@muxdemux@label@xy{LU}{0}{-1}{1}{bottom}{llap}{external label font}%
-                    \pgf@circ@muxdemux@label@xy{LD}{0}{-1}{-1}{top}{llap}{external label font}%
+                    \pgf@circ@muxdemux@label@xy{L}{0}{1}{0}{left}{pgfcirc@nop}{inner}% type, rot, pad x, pad y, text pos, op, type
+                    \pgf@circ@muxdemux@label@xy{LU}{0}{-1}{1}{bottom}{llap}{outer}%
+                    \pgf@circ@muxdemux@label@xy{LD}{0}{-1}{-1}{top}{llap}{outer}%
                 \or %rotation -90; left labels are at the top
-                    \pgf@circ@muxdemux@label@xy{L}{90}{0}{-1}{top}{pgfcirc@nop}{label font}% type, rot, pad x, pad y, text pos, op, font
-                    \pgf@circ@muxdemux@label@xy{LU}{90}{-1}{1}{bottom}{llap}{external label font}%
-                    \pgf@circ@muxdemux@label@xy{LD}{90}{1}{1}{bottom}{rlap}{external label font}%
+                    \pgf@circ@muxdemux@label@xy{L}{90}{0}{-1}{top}{pgfcirc@nop}{inner}% type, rot, pad x, pad y, text pos, op, type
+                    \pgf@circ@muxdemux@label@xy{LU}{90}{-1}{1}{bottom}{llap}{outer}%
+                    \pgf@circ@muxdemux@label@xy{LD}{90}{1}{1}{bottom}{rlap}{outer}%
                 \or %rotation 180; left labels are at the right
-                    \pgf@circ@muxdemux@label@xy{L}{180}{-1}{0}{right}{pgfcirc@nop}{label font}% type, rot, pad x, pad y, text pos, op, font
-                    \pgf@circ@muxdemux@label@xy{LU}{180}{1}{1}{bottom}{rlap}{external label font}%
-                    \pgf@circ@muxdemux@label@xy{LD}{180}{1}{-1}{top}{rlap}{external label font}%
+                    \pgf@circ@muxdemux@label@xy{L}{180}{-1}{0}{right}{pgfcirc@nop}{inner}% type, rot, pad x, pad y, text pos, op, type
+                    \pgf@circ@muxdemux@label@xy{LU}{180}{1}{1}{bottom}{rlap}{outer}%
+                    \pgf@circ@muxdemux@label@xy{LD}{180}{1}{-1}{top}{rlap}{outer}%
                 \or %rotation +90; left labels are at the bottom
-                    \pgf@circ@muxdemux@label@xy{L}{-90}{0}{1}{bottom}{pgfcirc@nop}{label font}% type, rot, pad x, pad y, text pos, op, font
-                    \pgf@circ@muxdemux@label@xy{LU}{-90}{-1}{-1}{top}{llap}{external label font}%
-                    \pgf@circ@muxdemux@label@xy{LD}{-90}{1}{-1}{top}{rlap}{external label font}%
+                    \pgf@circ@muxdemux@label@xy{L}{-90}{0}{1}{bottom}{pgfcirc@nop}{inner}% type, rot, pad x, pad y, text pos, op, type
+                    \pgf@circ@muxdemux@label@xy{LU}{-90}{-1}{-1}{top}{llap}{outer}%
+                    \pgf@circ@muxdemux@label@xy{LD}{-90}{1}{-1}{top}{rlap}{outer}%
                 \fi
             \endpgfscope
             \advance\pgf@circ@count@a by -1\relax%
@@ -2117,21 +2188,21 @@
             \pgfscope
                 \pgftransformshift{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@up+(0.5-\pgf@circ@count@a)*\pgf@circ@res@step}}
                 \ifcase\quadrant % rotation 0; right label are at the right
-                    \pgf@circ@muxdemux@label@xy{R}{0}{-1}{0}{right}{pgfcirc@nop}{label font}% type, rot, pad x, pad y, text pos, op, font
-                    \pgf@circ@muxdemux@label@xy{RU}{0}{1}{1}{bottom}{rlap}{external label font}%
-                    \pgf@circ@muxdemux@label@xy{RD}{0}{1}{-1}{top}{rlap}{external label font}%
+                    \pgf@circ@muxdemux@label@xy{R}{0}{-1}{0}{right}{pgfcirc@nop}{inner}% type, rot, pad x, pad y, text pos, op, type
+                    \pgf@circ@muxdemux@label@xy{RU}{0}{1}{1}{bottom}{rlap}{outer}%
+                    \pgf@circ@muxdemux@label@xy{RD}{0}{1}{-1}{top}{rlap}{outer}%
                 \or %rotation -90; right labels are at the bottom
-                    \pgf@circ@muxdemux@label@xy{R}{90}{0}{1}{bottom}{pgfcirc@nop}{label font}% type, rot, pad x, pad y, text pos, op, font
-                    \pgf@circ@muxdemux@label@xy{RU}{90}{-1}{-1}{top}{llap}{external label font}%
-                    \pgf@circ@muxdemux@label@xy{RD}{90}{1}{-1}{top}{rlap}{external label font}%
+                    \pgf@circ@muxdemux@label@xy{R}{90}{0}{1}{bottom}{pgfcirc@nop}{inner}% type, rot, pad x, pad y, text pos, op, type
+                    \pgf@circ@muxdemux@label@xy{RU}{90}{-1}{-1}{top}{llap}{outer}%
+                    \pgf@circ@muxdemux@label@xy{RD}{90}{1}{-1}{top}{rlap}{outer}%
                 \or %rotation 180; right labels are at the left
-                    \pgf@circ@muxdemux@label@xy{R}{180}{1}{0}{left}{pgfcirc@nop}{label font}% type, rot, pad x, pad y, text pos, op, font
-                    \pgf@circ@muxdemux@label@xy{RU}{180}{-1}{1}{bottom}{llap}{external label font}%
-                    \pgf@circ@muxdemux@label@xy{RD}{180}{-1}{-1}{top}{llap}{external label font}%
+                    \pgf@circ@muxdemux@label@xy{R}{180}{1}{0}{left}{pgfcirc@nop}{inner}% type, rot, pad x, pad y, text pos, op, type
+                    \pgf@circ@muxdemux@label@xy{RU}{180}{-1}{1}{bottom}{llap}{outer}%
+                    \pgf@circ@muxdemux@label@xy{RD}{180}{-1}{-1}{top}{llap}{outer}%
                 \or %rotation +90; right labels are at the top
-                    \pgf@circ@muxdemux@label@xy{R}{-90}{0}{-1}{top}{pgfcirc@nop}{label font}% type, rot, pad x, pad y, text pos, op, font
-                    \pgf@circ@muxdemux@label@xy{RU}{-90}{-1}{1}{bottom}{llap}{external label font}%
-                    \pgf@circ@muxdemux@label@xy{RD}{-90}{1}{1}{bottom}{rlap}{external label font}%
+                    \pgf@circ@muxdemux@label@xy{R}{-90}{0}{-1}{top}{pgfcirc@nop}{inner}% type, rot, pad x, pad y, text pos, op, type
+                    \pgf@circ@muxdemux@label@xy{RU}{-90}{-1}{1}{bottom}{llap}{outer}%
+                    \pgf@circ@muxdemux@label@xy{RD}{-90}{1}{1}{bottom}{rlap}{outer}%
                 \fi
             \endpgfscope
             \advance\pgf@circ@count@a by -1\relax%
@@ -2149,21 +2220,21 @@
                 \pgftransformshift{\pgfpoint{\pgf@circ@res@left+(\pgf@circ@count@a-0.5)*\pgf@circ@res@step}
                         {-\pgf@circ@res@down+(\NB-\pgf@circ@count@a+0.5)*\pgf@circ@res@other}}
                 \ifcase\quadrant % rotation 0; bottom label are at the bottom
-                    \pgf@circ@muxdemux@label@xy{B}{0}{0}{1}{bottom}{pgfcirc@nop}{label font}% type, rot, pad x, pad y, text pos, op, font
-                    \pgf@circ@muxdemux@label@xy{BL}{0}{-1}{-1}{top}{llap}{external label font}%
-                    \pgf@circ@muxdemux@label@xy{BR}{0}{1}{-1}{top}{rlap}{external label font}%
+                    \pgf@circ@muxdemux@label@xy{B}{0}{0}{1}{bottom}{pgfcirc@nop}{inner}% type, rot, pad x, pad y, text pos, op, type
+                    \pgf@circ@muxdemux@label@xy{BL}{0}{-1}{-1}{top}{llap}{outer}%
+                    \pgf@circ@muxdemux@label@xy{BR}{0}{1}{-1}{top}{rlap}{outer}%
                 \or %rotation -90; bottom labels are at the left
-                    \pgf@circ@muxdemux@label@xy{B}{90}{1}{0}{left}{pgfcirc@nop}{label font}% type, rot, pad x, pad y, text pos, op, font
-                    \pgf@circ@muxdemux@label@xy{BL}{90}{-1}{1}{bottom}{llap}{external label font}%
-                    \pgf@circ@muxdemux@label@xy{BR}{90}{-1}{-1}{top}{llap}{external label font}%
+                    \pgf@circ@muxdemux@label@xy{B}{90}{1}{0}{left}{pgfcirc@nop}{inner}% type, rot, pad x, pad y, text pos, op, type
+                    \pgf@circ@muxdemux@label@xy{BL}{90}{-1}{1}{bottom}{llap}{outer}%
+                    \pgf@circ@muxdemux@label@xy{BR}{90}{-1}{-1}{top}{llap}{outer}%
                 \or %rotation 180; bottom labels are at the top
-                    \pgf@circ@muxdemux@label@xy{B}{180}{0}{-1}{top}{pgfcirc@nop}{label font}% type, rot, pad x, pad y, text pos, op, font
-                    \pgf@circ@muxdemux@label@xy{BL}{180}{-1}{1}{bottom}{llap}{external label font}%
-                    \pgf@circ@muxdemux@label@xy{BR}{180}{1}{1}{bottom}{rlap}{external label font}%
+                    \pgf@circ@muxdemux@label@xy{B}{180}{0}{-1}{top}{pgfcirc@nop}{inner}% type, rot, pad x, pad y, text pos, op, type
+                    \pgf@circ@muxdemux@label@xy{BL}{180}{-1}{1}{bottom}{llap}{outer}%
+                    \pgf@circ@muxdemux@label@xy{BR}{180}{1}{1}{bottom}{rlap}{outer}%
                 \or %rotation +90; bottom labels are at the right
-                    \pgf@circ@muxdemux@label@xy{B}{-90}{-1}{0}{right}{pgfcirc@nop}{label font}% type, rot, pad x, pad y, text pos, op, font
-                    \pgf@circ@muxdemux@label@xy{BL}{-90}{1}{1}{bottom}{rlap}{external label font}%
-                    \pgf@circ@muxdemux@label@xy{BR}{-90}{1}{-1}{top}{rlap}{external label font}%
+                    \pgf@circ@muxdemux@label@xy{B}{-90}{-1}{0}{right}{pgfcirc@nop}{inner}% type, rot, pad x, pad y, text pos, op, type
+                    \pgf@circ@muxdemux@label@xy{BL}{-90}{1}{1}{bottom}{rlap}{outer}%
+                    \pgf@circ@muxdemux@label@xy{BR}{-90}{1}{-1}{top}{rlap}{outer}%
                 \fi
             \endpgfscope
             \advance\pgf@circ@count@a by -1\relax%
@@ -2181,21 +2252,21 @@
                 \pgftransformshift{\pgfpoint{\pgf@circ@res@left+(\pgf@circ@count@a-0.5)*\pgf@circ@res@step}
                 {\pgf@circ@res@down-(\NT-\pgf@circ@count@a+0.5)*\pgf@circ@res@other}}
                 \ifcase\quadrant % rotation 0; top label are at the top
-                    \pgf@circ@muxdemux@label@xy{T}{0}{0}{-1}{top}{pgfcirc@nop}{label font}% type, rot, pad x, pad y, text pos, op, font
-                    \pgf@circ@muxdemux@label@xy{TL}{0}{-1}{1}{bottom}{llap}{external label font}%
-                    \pgf@circ@muxdemux@label@xy{TR}{0}{1}{1}{bottom}{rlap}{external label font}%
+                    \pgf@circ@muxdemux@label@xy{T}{0}{0}{-1}{top}{pgfcirc@nop}{inner}% type, rot, pad x, pad y, text pos, op, type
+                    \pgf@circ@muxdemux@label@xy{TL}{0}{-1}{1}{bottom}{llap}{outer}%
+                    \pgf@circ@muxdemux@label@xy{TR}{0}{1}{1}{bottom}{rlap}{outer}%
                 \or %rotation -90; top labels are at the right
-                    \pgf@circ@muxdemux@label@xy{T}{90}{-1}{0}{right}{pgfcirc@nop}{label font}% type, rot, pad x, pad y, text pos, op, font
-                    \pgf@circ@muxdemux@label@xy{TL}{90}{1}{1}{bottom}{rlap}{external label font}%
-                    \pgf@circ@muxdemux@label@xy{TR}{90}{1}{-1}{top}{rlap}{external label font}%
+                    \pgf@circ@muxdemux@label@xy{T}{90}{-1}{0}{right}{pgfcirc@nop}{inner}% type, rot, pad x, pad y, text pos, op, type
+                    \pgf@circ@muxdemux@label@xy{TL}{90}{1}{1}{bottom}{rlap}{outer}%
+                    \pgf@circ@muxdemux@label@xy{TR}{90}{1}{-1}{top}{rlap}{outer}%
                 \or %rotation 180; top labels are at the bottom
-                    \pgf@circ@muxdemux@label@xy{T}{180}{0}{1}{bottom}{pgfcirc@nop}{label font}% type, rot, pad x, pad y, text pos, op, font
-                    \pgf@circ@muxdemux@label@xy{TL}{180}{-1}{-1}{top}{llap}{external label font}%
-                    \pgf@circ@muxdemux@label@xy{TR}{180}{1}{-1}{top}{rlap}{external label font}%
+                    \pgf@circ@muxdemux@label@xy{T}{180}{0}{1}{bottom}{pgfcirc@nop}{inner}% type, rot, pad x, pad y, text pos, op, type
+                    \pgf@circ@muxdemux@label@xy{TL}{180}{-1}{-1}{top}{llap}{outer}%
+                    \pgf@circ@muxdemux@label@xy{TR}{180}{1}{-1}{top}{rlap}{outer}%
                 \or %rotation +90; top labels are at the left
-                    \pgf@circ@muxdemux@label@xy{T}{-90}{1}{0}{left}{pgfcirc@nop}{label font}% type, rot, pad x, pad y, text pos, op, font
-                    \pgf@circ@muxdemux@label@xy{TL}{-90}{-1}{1}{bottom}{llap}{external label font}%
-                    \pgf@circ@muxdemux@label@xy{TR}{-90}{-1}{-1}{top}{llap}{external label font}%
+                    \pgf@circ@muxdemux@label@xy{T}{-90}{1}{0}{left}{pgfcirc@nop}{inner}% type, rot, pad x, pad y, text pos, op, type
+                    \pgf@circ@muxdemux@label@xy{TL}{-90}{-1}{1}{bottom}{llap}{outer}%
+                    \pgf@circ@muxdemux@label@xy{TR}{-90}{-1}{-1}{top}{llap}{outer}%
                 \fi
             \endpgfscope
             \advance\pgf@circ@count@a by -1\relax%
