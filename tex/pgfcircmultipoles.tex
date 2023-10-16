@@ -1744,24 +1744,24 @@
     % #5: text position
     % #6: operation on label text
     % #7: type: inner, outer, border
-    % uses external variables \pgf@circ@count@a and \pgf@circ@res@temp
-    \pgfscope
-        \pgftransformrotate{#2}
-        \pgfmathsetlength\pgf@circ@res@temp{\pgfkeysvalueof{\circuitikzbasekey/muxdemux/#7 label xsep}}
-        \pgfmathsetlength\pgf@circ@res@other{\pgfkeysvalueof{\circuitikzbasekey/muxdemux/#7 label ysep}}
-        \pgftransformxshift{#3\pgf@circ@res@temp}
-        \pgftransformyshift{#4\pgf@circ@res@other}
-        % Ok, now we have the point in the correct position, we add the label
-        \ifnum\pgf@circ@count@a=0
-            \edef\@@thislabel{\circuitikzbasekey/multipoles/muxdemux/label/#1}
-        \else
-            \edef\@@thislabel{\circuitikzbasekey/multipoles/muxdemux/label/#1\the\pgf@circ@count@a}
-        \fi
-            \pgfkeysifdefined{\@@thislabel}{%
-            \pgftext[#5]{\pgfkeysvalueof{\circuitikzbasekey/muxdemux/#7 label font}%
-            \expandafter\csname#6\endcsname{\pgfkeysvalueof{\@@thislabel}}}
-        }{}
-    \endpgfscope
+    % uses external variables \pgf@circ@count@a unless it's zero, in which case omit it
+    \ifnum\pgf@circ@count@a=0
+        \edef\@@thislabel{\circuitikzbasekey/multipoles/muxdemux/label/#1}
+    \else
+        \edef\@@thislabel{\circuitikzbasekey/multipoles/muxdemux/label/#1\the\pgf@circ@count@a}
+    \fi
+    \pgfkeysifdefined{\@@thislabel}{%
+        \pgfscope
+            \pgftransformrotate{#2}
+            \pgfmathsetlength\pgf@circ@res@temp{\pgfkeysvalueof{\circuitikzbasekey/muxdemux/#7 label xsep}}
+            \pgfmathsetlength\pgf@circ@res@other{\pgfkeysvalueof{\circuitikzbasekey/muxdemux/#7 label ysep}}
+            \pgftransformxshift{#3\pgf@circ@res@temp}
+            \pgftransformyshift{#4\pgf@circ@res@other}
+            % Ok, now we have the point in the correct position, we add the label
+                \pgftext[#5]{\pgfkeysvalueof{\circuitikzbasekey/muxdemux/#7 label font}%
+                \expandafter\csname#6\endcsname{\pgfkeysvalueof{\@@thislabel}}}
+        \endpgfscope
+    }{}
 }
 \pgfdeclareshape{muxdemux}{
     \savedmacro{\ctikzclass}{\edef\ctikzclass{muxdemuxes}}
