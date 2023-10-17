@@ -3,9 +3,11 @@ The major changes among the different CircuiTikZ versions are listed here. See <
 
 * Version 1.6.5 (unreleased)
 
-    The big change is the possibility to add labels to the `muxdemux` shapes, that enables an easy way to create custom components.
+   This version features an important overhaul of the `muxdemux` configurable component/shape, making it much more flexible and powerful.
 
-    - Added labels to the `muxdemux` shapes (by Romano)
+    - Added optional and configurable inner, outer and border labels to the `muxdemux` shapes
+    - Added optional clock wedge and negation signs to the pins of `muxdemux` shapes
+    - Added the possibility to add a background drawing to `muxdemux` shapes
 
 * Version 1.6.4 (2023-10-10)
 

@@ -7377,7 +7377,7 @@ As you can see, you can locally change any label in a specific instance.
 \paragraph{Clock and negation symbols} are not exactly labels, but they can be added with the same mechanism. There are four symbols available:
 \begin{description}
     \item [clock wedge:] activated by the key \texttt{c} followed by the position (for example, \texttt{cL2} will set the clock wedge on the second left pin);
-    \item [not ball:] activated  by the key \texttt{n} followed by the position (for example, \texttt{cR1} will set the clock wedge on the first right pin); the type and shape of the ball will depend on the logic port negation in use (basically it will use a \texttt{circleinv} shape unless you are using european ports with the small \texttt{ocirc} negation symbol);
+    \item [not ball:] activated  by the key \texttt{n} followed by the position (for example, \texttt{cR1} will set the negation circle on the first right pin); the type and shape of the ball will depend on the logic port negation in use (basically it will use a \texttt{circleinv} shape unless you are using european ports with the small \texttt{ocirc} negation symbol);
     \item [wedge in:] a wedge negation \emph{entering} the component (with the point on the border), activated  by the key \texttt{wi} followed by the position;
     \item [wedge out:] a wedge negation \emph{exiting} the component (with the base on the border), activated  by the key \texttt{wo} followed by the position.
 \end{description}
@@ -7402,7 +7402,7 @@ The value of the key should be \texttt{0}  or \texttt{1} for clocks and not circ
 
 As you can see, the label position is not affected (with the exception of the clock wedge, that displaces the inner label), so you have to manually take care of not having overruns; you can change the \texttt{xsep} or \texttt{ysep} or, as shown in the example, modify the heigh and depth of the affected labels.
 
-You have also to take care of the effect shown for the flip-flops in section~\ref{sec:flip-flop-cust}, to avoid overrun the not circles when connecting wires. The notelements are named after the instance as \texttt{\textsl{<nodename>}-\textsl{<activating key>}} to give access to the border (show also in the example, although in bit of forced way\dots look at the red arrow).
+You have also to take care of the effect shown for the flip-flops in section~\ref{sec:flip-flop-cust}, to avoid overrun the not circles when connecting wires. The ``not'' elements are named after the instance as \texttt{\textsl{<nodename>}-\textsl{<activating key>}} to give access to the border (show also in the example, although in bit of forced way\dots look at the red arrow).
 
 \subsubsection{Manually adding wedges or circular inversion markers}\label{sec:wedge-inversion}
 
@@ -7434,29 +7434,49 @@ Similarly, there is also a \texttt{circleinv} shape, which is basically the same
 
 \subsubsection{Adding a background drawing to the muxdemux}
 
-In a similar way to the oscilloscope waveform, you can add a drawing to the \texttt{muxdemux} component, provided you use basic-level \texttt{pgf} commands. You have to define a \texttt{.code} key named \texttt{bgpicture} in the \texttt{muxdemux def} definitions, as in the following example. The coordinate system is changed so that the shape is mapped between \SI{-1}{\cm} and \SI{+1}{\cm} along both axis.
+In a similar way to the oscilloscope waveform, you can add a drawing to the \texttt{muxdemux} component, provided you use basic-level \texttt{pgf} commands. You have to define a \texttt{.code} key named \texttt{bgpicture} in the \texttt{muxdemux def} definitions, as in the following example. The coordinate system is changed so that the horizontal axis of the shape is mapped between \SI{-1}{\cm} and \SI{+1}{\cm} and the origin at the center; the vertical extent will then depend on the form factor of the \texttt{muxdemux}: for example, the vertical coordinate of the top left border will be $\SI{1}{\cm}\cdot{\mathtt{Lh}/\mathtt{w}}$.
 
-\begin{LTXexample}[varwidth=true, basicstyle=\scriptsize\ttfamily]
+\begin{LTXexample}[varwidth=true, basicstyle=\scriptsize\ttfamily, keepspaces=true]
 \begin{circuitikz}
 \ctikzset{muxdemux/outer label font={\tiny\ttfamily\color{blue}}}
 \tikzset{myICwl/.style={muxdemux,
-    muxdemux def={Lh=4, Rh=4, w=4, NR=1, NL=2, NB=0, NT=0,
+    muxdemux def={Lh=4, Rh=4, w=3, NR=1, NL=2, NB=0, NT=0,
     bgpicture/.code={%
         \pgfsetcolor{gray!50}\pgfsetlinewidth{1mm}
-        \pgfpathmoveto{\pgfpoint{-1cm}{1cm}} \pgfpathlineto{\pgfpointorigin}
-        \pgfpathmoveto{\pgfpoint{-1cm}{-1cm}} \pgfpathlineto{\pgfpointorigin}
-        \pgfpathmoveto{\pgfpoint{1cm}{0cm}} \pgfpathlineto{\pgfpointorigin}
+        \pgfpathmoveto{\pgfpoint{-1cm}{1cm*4/3}} \pgfpathlineto{\pgfpointorigin}
+        \pgfpathmoveto{\pgfpoint{-1cm}{-1cm*4/3}}\pgfpathlineto{\pgfpointorigin}
+        \pgfpathmoveto{\pgfpoint{1cm}{0cm}}      \pgfpathlineto{\pgfpointorigin}
         \pgfpathcircle{\pgfpointorigin}{0.5cm}
         \pgfusepath{draw}
         },
     },
-    muxdemux label={ RU1=3, LU1=1, LU2=2, N=flux, Ni=converter},}
+    muxdemux label={RU1=3, LU1=1, LU2=2, N=flux, Ni=converter},}
 }
 \draw (0, 0) node[myICwl]{}{};
 \end{circuitikz}
 \end{LTXexample}
 
+You can even embed images:
+
+\begin{LTXexample}[varwidth=true, basicstyle=\scriptsize\ttfamily]
+\begin{circuitikz}
+\ctikzset{muxdemux/outer label font={\tiny\ttfamily\color{blue}}}
+\tikzset{myICwl/.style={muxdemux,
+    muxdemux def={Lh=4, Rh=4, w=3, NR=1, NL=2, NB=0, NT=0,
+    bgpicture/.code={%
+            \pgfdeclareimage[width=1.5cm]{myimg}{example-image-a}
+            \pgftext{\pgfuseimage{myimg}}
+        },
+    },
+    muxdemux label={RU1=3, LU1=1, LU2=2, N=embedding, Ni=images},}
+}
+\draw (0, 0) node[myICwl]{}{};
+\end{circuitikz}
+\end{LTXexample}
+
+
 For more complex things, consider using a normal macro that draws on the background layer and that use the geographical coordinates of the node to locate it.
+
 
 \subsubsection{Mux-Demux special usage}
 
