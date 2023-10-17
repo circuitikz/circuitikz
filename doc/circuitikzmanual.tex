@@ -7404,10 +7404,6 @@ As you can see, the label position is not affected (with the exception of the cl
 
 You have also to take care of the effect shown for the flip-flops in section~\ref{sec:flip-flop-cust}, to avoid overrun the not circles when connecting wires. The notelements are named after the instance as \texttt{\textsl{<nodename>}-\textsl{<activating key>}} to give access to the border (show also in the example, although in bit of forced way\dots look at the red arrow).
 
-
-
-
-
 \subsubsection{Manually adding wedges or circular inversion markers}\label{sec:wedge-inversion}
 
 If the standard ``internal'' negation symbols are not sufficiently configurable for your application, you can add them manually.
@@ -7435,6 +7431,32 @@ Similarly, there is also a \texttt{circleinv} shape, which is basically the same
     \draw (mdemux.brpin 1) node[circleinv]{};
 \end{tikzpicture}
 \end{LTXexample}
+
+\subsubsection{Adding a background drawing to the muxdemux}
+
+In a similar way to the oscilloscope waveform, you can add a drawing to the \texttt{muxdemux} component, provided you use basic-level \texttt{pgf} commands. You have to define a \texttt{.code} key named \texttt{bgpicture} in the \texttt{muxdemux def} definitions, as in the following example. The coordinate system is changed so that the shape is mapped between \SI{-1}{\cm} and \SI{+1}{\cm} along both axis.
+
+\begin{LTXexample}[varwidth=true, basicstyle=\scriptsize\ttfamily]
+\begin{circuitikz}
+\ctikzset{muxdemux/outer label font={\tiny\ttfamily\color{blue}}}
+\tikzset{myICwl/.style={muxdemux,
+    muxdemux def={Lh=4, Rh=4, w=4, NR=1, NL=2, NB=0, NT=0,
+    bgpicture/.code={%
+        \pgfsetcolor{gray!50}\pgfsetlinewidth{1mm}
+        \pgfpathmoveto{\pgfpoint{-1cm}{1cm}} \pgfpathlineto{\pgfpointorigin}
+        \pgfpathmoveto{\pgfpoint{-1cm}{-1cm}} \pgfpathlineto{\pgfpointorigin}
+        \pgfpathmoveto{\pgfpoint{1cm}{0cm}} \pgfpathlineto{\pgfpointorigin}
+        \pgfpathcircle{\pgfpointorigin}{0.5cm}
+        \pgfusepath{draw}
+        },
+    },
+    muxdemux label={ RU1=3, LU1=1, LU2=2, N=flux, Ni=converter},}
+}
+\draw (0, 0) node[myICwl]{}{};
+\end{circuitikz}
+\end{LTXexample}
+
+For more complex things, consider using a normal macro that draws on the background layer and that use the geographical coordinates of the node to locate it.
 
 \subsubsection{Mux-Demux special usage}
 
