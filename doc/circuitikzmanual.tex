@@ -7288,7 +7288,9 @@ The code that implemented the printing of the numbers (which in \texttt{muxdemux
 
 In \texttt{muxdemux}es, there is no automatic labelling of pins with numbers as in chips; there is no simple standard enumeration possible. But since \texttt{v1.6.5} it is possible to associate a name to the pins that will be printed with the shape; that names are called \emph{pin labels}.
 Pin labels are counter-rotated by default if the shape is rotated, as in chip pin numbers~(see \ref{sec:chip-rotation}), but you can avoid it with the key \texttt{rotated numbers} (the default is \texttt{straight numbers}).
-Additionally, you can set also \emph{border labels} on the four borders (more or less, see later); that are normally not counter-rotated \emph{unless} the result would be upside-down (or if you use \texttt{straight numbers}, of course).
+Additionally, you can set also \emph{border labels} on the four borders (more or less, see later); that are normally not counter-rotated \emph{unless} the result would be upside-down (or if you use \texttt{straight numbers}, of course), and clock and negation symbols.
+
+All of these labels and symbols are added by specifying them in a \texttt{muxdemux label=\{\dots\}} clause. Notice that the key specified there are not checked for validity; if you misspell any of that, it will be simply ignored.
 
 \paragraph{Inner pin labels} will be printed in the inside of the shape, with the font specified in the \verb|\ctikzset| key \texttt{muxdemux/inner label font} (default is \verb|\tiny| in \LaTeX, other engine can have it different --- better set it in case of doubt) and with a padding setting with the keys \texttt{muxdemux/inner label xsep} and  \texttt{muxdemux/inner label ysep} (respectively for horizontal and vertical shifts; default for both \texttt{2pt}). You can also use the key \texttt{muxdemux/inner label sep} to set both at the same time.
 
@@ -7372,10 +7374,44 @@ The font is specified in the key \texttt{muxdemux/border label font} (default \v
 
 As you can see, you can locally change any label in a specific instance.
 
+\paragraph{Clock and negation symbols} are not exactly labels, but they can be added with the same mechanism. There are four symbols available:
+\begin{description}
+    \item [clock wedge:] activated by the key \texttt{c} followed by the position (for example, \texttt{cL2} will set the clock wedge on the second left pin);
+    \item [not ball:] activated  by the key \texttt{n} followed by the position (for example, \texttt{cR1} will set the clock wedge on the first right pin); the type and shape of the ball will depend on the logic port negation in use (basically it will use a \texttt{circleinv} shape unless you are using european ports with the small \texttt{ocirc} negation symbol);
+    \item [wedge in:] a wedge negation \emph{entering} the component (with the point on the border), activated  by the key \texttt{wi} followed by the position;
+    \item [wedge out:] a wedge negation \emph{exiting} the component (with the base on the border), activated  by the key \texttt{wo} followed by the position.
+\end{description}
+The value of the key should be \texttt{0}  or \texttt{1} for clocks and not circles; zero means ``do not draw'' and is used to override a previously specified element. In the case of wedge-style not, the \texttt{-1} value flips the side of the triangle (see the following example).
 
-\subsubsection{Adding wedge or circular inversion markers}\label{sec:wedge-inversion}
+\begin{LTXexample}[varwidth=true]
+\begin{circuitikz} \ctikzset{muxdemux/outer label
+    font={\tiny\ttfamily\color{blue}}}
+\ctikzset{logic ports=ieee, multipoles/external pins width=0.3}
+\tikzset{myICwl/.style={muxdemux,
+    muxdemux def={Lh=4, Rh=4, w=4, NR=2, NL=2, NB=1, NT=0,},
+    muxdemux label={L1=inA, L2=inB, R1=OUT, RU1=3, LU1=1, LU2=2,
+        N=example, nL1=1, woR1=1, woR2=-1, wiB1=1, cL2=1},}
+}
+\draw (0, 0) node[myICwl]{};
+\draw (0, -3) node[myICwl,
+    muxdemux label={N=another, LU1={1\strut},
+        RU1={3\strut}, cL2=0}](A){};
+\draw[red, <-] (A-nL1.-135) -- ++(-135:0.3);
+\end{circuitikz}
+\end{LTXexample}
 
-Although you can add ``negation balls'' as seen for, for example, flip-flops (see section~\ref{sec:flip-flop-cust}), sometimes the European-style notation (also accepted by the IEEE standard) with the small wedge is preferred. The \texttt{wedgeinv} shape will nicely do. It'll scale with the \texttt{muxdemuxes} class, and the length and height can be changed with the keys \texttt{wedge inversion mark/width} (default \texttt{0.2}) and \texttt{height} (default \texttt{0.1}), with the same units that are used for the \texttt{external pins width} and similar keys.
+As you can see, the label position is not affected (with the exception of the clock wedge, that displaces the inner label), so you have to manually take care of not having overruns; you can change the \texttt{xsep} or \texttt{ysep} or, as shown in the example, modify the heigh and depth of the affected labels.
+
+You have also to take care of the effect shown for the flip-flops in section~\ref{sec:flip-flop-cust}, to avoid overrun the not circles when connecting wires. The notelements are named after the instance as \texttt{\textsl{<nodename>}-\textsl{<activating key>}} to give access to the border (show also in the example, although in bit of forced way\dots look at the red arrow).
+
+
+
+
+
+\subsubsection{Manually adding wedges or circular inversion markers}\label{sec:wedge-inversion}
+
+If the standard ``internal'' negation symbols are not sufficiently configurable for your application, you can add them manually.
+To add the wedge symbol, the \texttt{wedgeinv} shape will nicely do. It'll scale with the \texttt{muxdemuxes} class, and the length and height can be changed with the keys \texttt{wedge inversion mark/width} (default \texttt{0.2}) and \texttt{height} (default \texttt{0.1}), with the same units that are used for the \texttt{external pins width} and similar keys.
 
 Similarly, there is also a \texttt{circleinv} shape, which is basically the same as the \texttt{notcirc} (see~\ref{sec:ieeestdports}) one, but that scales with the \texttt{muxdemuxes} class and that has the default anchor at its left, similarly to \texttt{wedgeinv}. This one will be filled if the class says so, contrary to the wedge-like shapes that are always open.
 
