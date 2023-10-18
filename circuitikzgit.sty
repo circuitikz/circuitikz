@@ -16,8 +16,8 @@
 \providecommand\DeclareRelease[3]{}
 \providecommand\DeclareCurrentRelease[2]{}
 
-\def\pgfcircversion{1.6.5-unreleased-d4c11fa}
-\def\pgfcircversiondate{2023/10/14}
+\def\pgfcircversion{1.6.5-unreleased-49b12cd}
+\def\pgfcircversiondate{2023/10/18}
 
 \DeclareRelease{0.4}{2012/12/20}{circuitikz-0.4-body.tex}
 \DeclareRelease{v0.4}{2012/12/20}{circuitikz-0.4-body.tex}
@@ -864,8 +864,9 @@
     \long\def\pgf@circ@font@tenbm{\normal\bold}%
     \long\def\pgf@circ@font@twelve{\tfa}       %
 \fi\fi\fi
-
-
+% noop
+\def\pgfcirc@nop#1{#1}% no operation, just strip {}
+%
 %
 % Thanks to Phelype Oleinik https://tex.stackexchange.com/a/520806/38080
 %
@@ -24082,7 +24083,7 @@
 \ctikzset{multipoles/flipflop/pin spacing/.initial=0.6}
 \ctikzset{multipoles/flipflop/clock wedge size/.initial=0.2}
 
-%% muxdemuxes keys
+%% muxdemuxes internal keys
 
 \ctikzset{multipoles/muxdemux/base len/.initial=0.4}
 \ctikzset{multipoles/muxdemux/Lh/.initial=8.0}
@@ -24096,6 +24097,41 @@
 \ctikzset{multipoles/muxdemux/NB/.initial=3}
 \ctikzset{multipoles/muxdemux/NT/.initial=0}
 \ctikzset{multipoles/muxdemux/square pins/.initial=0}%
+\ctikzset{multipoles/muxdemux/bgpicture/.code={}}%
+
+% Thanks to @marmot
+% this should automatically create a key in this subfamily
+\pgfkeys{\circuitikzbasekey/multipoles/muxdemux/label/.is family,
+    \circuitikzbasekey/multipoles/muxdemux/label,
+    .unknown/.code = {
+        \pgfkeyssetvalue{\pgfkeyscurrentpath/\pgfkeyscurrentname}{#1}
+    }
+}
+\tikzset{muxdemux def/.code=\pgfqkeys{\circuitikzbasekey/multipoles/muxdemux}{#1}}
+\tikzset{muxdemux label/.code=\pgfqkeys{\circuitikzbasekey/multipoles/muxdemux/label}{#1}}
+% external (class-like) muxdemux settings for labels
+\ctikzset{muxdemux/inner label font/.initial=\pgf@circ@font@tiny}
+\ctikzset{muxdemux/outer label font/.initial=\pgf@circ@font@tiny}
+\ctikzset{muxdemux/border label font/.initial=\pgf@circ@font@tiny}
+\ctikzset{muxdemux/inner label xsep/.initial=2pt}
+\ctikzset{muxdemux/inner label ysep/.initial=2pt}
+\ctikzset{muxdemux/outer label xsep/.initial=2pt}
+\ctikzset{muxdemux/outer label ysep/.initial=2pt}
+\ctikzset{muxdemux/border label xsep/.initial=2pt}
+\ctikzset{muxdemux/border label ysep/.initial=2pt}
+\ctikzset{muxdemux/inner label sep/.code={%
+        \ctikzset{muxdemux/inner label xsep=#1}%
+        \ctikzset{muxdemux/inner label ysep=#1}%
+}}
+\ctikzset{muxdemux/outer label sep/.code={%
+        \ctikzset{muxdemux/outer label xsep=#1}%
+        \ctikzset{muxdemux/outer label ysep=#1}%
+}}
+\ctikzset{muxdemux/border label sep/.code={%
+        \ctikzset{muxdemux/border label xsep=#1}%
+        \ctikzset{muxdemux/border label ysep=#1}%
+}}
+\ctikzset{muxdemux/clock wedge size/.initial=0.2}
 %>>>
 
 %% Node shapes definitions for flip flops%<<<
@@ -24582,8 +24618,8 @@
 %
 % MUX-DEMUXES
 %
-% Thanks to @marmot
-\tikzset{muxdemux def/.code=\pgfqkeys{\circuitikzbasekey/multipoles/muxdemux}{#1}}
+% predefined muxdemux shapes (see manual)
+%
 \tikzset{demux/.style={muxdemux, muxdemux def={Lh=4, Rh=8, NL=1, NB=3, NR=8}}}
 \tikzset{one bit adder/.style={muxdemux,
          muxdemux def={Lh=4, NL=2, Rh=2, NR=1, NB=1, w=1.5,
@@ -24591,9 +24627,7 @@
 \tikzset{ALU/.style={muxdemux,
          muxdemux def={Lh=5, NL=2, Rh=2, NR=1, NB=2, NT=1, w=2,
          inset w=1, inset Lh=2, inset Rh=0, square pins=1}}}
-
 %generic mux-demux shape
-
 % helper macros to set the anchors inside a loop (to expand the current count)
 % left
 \pgfutil@protected\def\pgf@circ@make@muxdemux@L@anchor#1%
@@ -24643,8 +24677,92 @@
     \expandafter\gdef\csname pgf@anchor@muxdemux@btpin #1\endcsname
       {\pgf@circ@muxdemux@T@anchor{#1}{0}}%
   }
-
-
+%% put some label somewhere
+\def\pgf@circ@muxdemux@label@xy#1#2#3#4#5#6#7{%
+    % #1: which label: L,R,T,B or the outer ones with U/D/R/L
+    % #2: rotation
+    % #3: scale pad x
+    % #4: scale pad y
+    % #5: text position
+    % #6: operation on label text
+    % #7: type: inner, outer, border
+    % uses external variables \pgf@circ@count@a unless it's zero, in which case omit it
+    \ifnum\pgf@circ@count@a=0
+        \edef\@@thislabel{\circuitikzbasekey/multipoles/muxdemux/label/#1}
+    \else
+        \edef\@@thislabel{\circuitikzbasekey/multipoles/muxdemux/label/#1\the\pgf@circ@count@a}
+    \fi
+    \pgfkeysifdefined{\@@thislabel}{%
+        \pgfscope
+            \pgftransformrotate{#2}
+            \pgfmathsetlength\pgf@circ@res@zero{\pgfkeysvalueof{\circuitikzbasekey/muxdemux/#7 label xsep}}
+            \pgfmathsetlength\pgf@circ@res@other{\pgfkeysvalueof{\circuitikzbasekey/muxdemux/#7 label ysep}}
+            %%% temp is added when we have wedges; it's a bit of a hack but it works if #3,#4 are -1,0,+1
+            \pgftransformxshift{(#3)*(\pgf@circ@res@zero+\pgf@circ@res@temp)}
+            \pgftransformyshift{(#4)*(\pgf@circ@res@other+\pgf@circ@res@temp)}
+            % Ok, now we have the point in the correct position, we add the label
+                \pgftext[#5]{\pgfkeysvalueof{\circuitikzbasekey/muxdemux/#7 label font}%
+                \expandafter\csname#6\endcsname{\pgfkeysvalueof{\@@thislabel}}}
+        \endpgfscope
+    }{}
+}
+%% put a clock wedge here
+\def\pgf@circ@muxdemux@clockwedge#1#2{%
+    % #1: which label: cL,cR,cT,cB
+    % #2: rotation
+    % uses external variables \pgf@circ@count@a
+    \edef\@@thislabel{\circuitikzbasekey/multipoles/muxdemux/label/#1\the\pgf@circ@count@a}
+    \pgfkeysifdefined{\@@thislabel}{%
+        \edef\value{\pgfkeysvalueof{\@@thislabel}}
+        \ifnum\value=0
+            \pgf@circ@res@temp=0pt
+        \else\pgfscope
+            \pgftransformrotate{#2}
+            \pgfpathmoveto{\pgfpoint{+0pt}{-\clockwedge}}
+            \pgfpathlineto{\pgfpoint{\clockwedge}{+0pt}}
+            \pgfpathlineto{\pgfpoint{+0pt}{\clockwedge}}
+            \pgfusepath{draw}
+        \endpgfscope
+            \pgf@circ@res@temp=\clockwedge
+        \fi
+    }{}
+}
+%% put a negation here
+\def\pgf@circ@muxdemux@not@ball#1#2{%
+    % #1: which label: nL,nR,nT,nB
+    % #2: anchor
+    % uses external variables \pgf@circ@count@a
+    \edef\@@thislabel{\circuitikzbasekey/multipoles/muxdemux/label/#1\the\pgf@circ@count@a}
+    \pgfkeysifdefined{\@@thislabel}{%
+        \edef\value{\pgfkeysvalueof{\@@thislabel}}
+        \ifnum\value=0
+        \else
+            \pgfnode{\@@notcirc}{#2}{}{\thisshape-#1\the\pgf@circ@count@a}{\pgfusepath{stroke}}
+        \fi
+    }{}
+}
+%% put a negation wedge here
+\def\pgf@circ@muxdemux@not@wedge#1#2#3#4#5{%
+    % #1: which label: wi/wp with L,R,T,B
+    % #2: anchor
+    % #3: xscale
+    % #4: yscale
+    % #5: rotation
+    % uses external variables \pgf@circ@count@a
+    \edef\@@thislabel{\circuitikzbasekey/multipoles/muxdemux/label/#1\the\pgf@circ@count@a}
+    \pgfkeysifdefined{\@@thislabel}{%
+        \edef\value{\pgfkeysvalueof{\@@thislabel}}
+        \ifnum\value=0
+        \else\pgfscope
+            \pgftransformrotate{#5}
+            \pgftransformxscale{#3}
+            \pgftransformyscale{#4}
+            \pgftransformyscale{\value}% to flip
+            \pgfnode{wedgeinv}{#2}{}{\thisshape-#1\the\pgf@circ@count@a}{\pgfusepath{stroke}}
+        \endpgfscope\fi
+    }{}
+}
+%
 \pgfdeclareshape{muxdemux}{
     \savedmacro{\ctikzclass}{\edef\ctikzclass{muxdemuxes}}
     \saveddimen{\scaledRlen}{\pgfmathsetlength{\pgf@x}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}}
@@ -24787,6 +24905,18 @@
         \pgf@circ@res@step = \pgf@x
         \pgf@circ@res@temp = \pgf@y
         %
+        % draw the (user-selectable) background
+        %
+        \pgfscope
+            \pgfmathsetmacro{\@@scalex}{\pgf@circ@res@right/1cm}
+            % It's better not to change the scale in an asymmetric way
+            % \pgfmathsetmacro{\@@scaley}{\pgf@circ@res@up/1cm}
+            \pgftransformxscale{\@@scalex}
+            \pgftransformyscale{\@@scalex}
+            \pgf@circ@setlinewidth{multipoles}{\pgfstartlinewidth}
+            \pgfkeys{\circuitikzbasekey/multipoles/muxdemux/bgpicture}
+        \endpgfscope
+        %
         % external block
         %
         \pgfscope% (for the line width)
@@ -24804,7 +24934,7 @@
                 \pgfpathlineto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@temp}}
             \fi
             \pgfpathclose
-            \pgf@circ@draworfill
+        \pgf@circ@draworfill
         \endpgfscope
         % now we have to draw the pins, if needed
         \ifdim\extshift>0pt\ifpgfcirc@draw@input@leads\pgfscope % let's avoid too much indent
@@ -24933,6 +25063,281 @@
         % end drawing pins; stroke them
         \pgfusepath{stroke}
         \endpgfscope\fi\fi
+        %%%% Labels. Added by Romano 14/10/2023.
+        % manage labels. This is independent from the drawing of pins; redo the loops. Surely
+        % there is a better way; but it's complex to factor out code. Let's go the KISS way.
+        \ifpgf@circuit@chip@straightnumbers
+            \pgfgettransformentries\a\b\temp\temp\temp\temp
+            \pgfmathsetmacro{\rot}{-atan2(\b,\a)}
+            \pgfmathtruncatemacro{\quadrant}{mod(4+int(360+(\rot+45)/90),4)}
+        \else
+            \pgfmathsetmacro{\rot}{0}
+            \pgfmathsetmacro{\quadrant}{0}
+        \fi
+        % clockwedge size
+        \pgfmathsetlength{\pgf@circ@res@temp}{\ctikzvalof{muxdemux/clock wedge size}*\ctikzvalof{multipoles/muxdemux/base len}*\scaledRlen}
+        \edef\clockwedge{\the\pgf@circ@res@temp}
+        % select which negation ball to use
+        \ifpgf@circuit@ieeelogicport
+            \def\@@notcirc{circleinv}
+        \else
+            \ifpgf@circ@european@port@circle@ieee
+                \def\@@notcirc{circleinv}
+            \else
+                \def\@@notcirc{ocirc}
+            \fi
+        \fi
+        %% border labels
+        \pgf@circ@res@temp=0pt
+        \pgf@circ@count@a=0
+        % go to north
+        \topleft\pgf@circ@res@left=\pgf@x \pgf@circ@res@up=\pgf@y
+        \pgfscope
+        \pgftransformshift{\pgfpoint{0pt}{\pgf@circ@res@up}}
+        \ifnum\quadrant=2
+            \pgf@circ@muxdemux@label@xy{N}{180}{0}{-1}{top}{pgfcirc@nop}{border}% type, rot, pad x, pad y, text pos, op, type
+            \pgf@circ@muxdemux@label@xy{Ni}{180}{0}{1}{bottom}{pgfcirc@nop}{border}%
+        \else
+            \pgf@circ@muxdemux@label@xy{N}{0}{0}{1}{bottom}{pgfcirc@nop}{border}%
+            \pgf@circ@muxdemux@label@xy{Ni}{0}{0}{-1}{top}{pgfcirc@nop}{border}%
+        \fi
+        \endpgfscope
+        % go south!
+        \pgfscope
+        \pgftransformshift{\pgfpoint{0pt}{-\pgf@circ@res@up}}
+        \ifnum\quadrant=2
+            \pgf@circ@muxdemux@label@xy{S}{180}{0}{1}{bottom}{pgfcirc@nop}{border}% type, rot, pad x, pad y, text pos, op, type
+            \pgf@circ@muxdemux@label@xy{Si}{180}{0}{-1}{top}{pgfcirc@nop}{border}%
+        \else
+            \pgf@circ@muxdemux@label@xy{S}{0}{0}{-1}{top}{pgfcirc@nop}{border}% type, rot, pad x, pad y, text pos, op, type
+            \pgf@circ@muxdemux@label@xy{Si}{0}{0}{1}{bottom}{pgfcirc@nop}{border}%
+        \fi
+        \endpgfscope
+        % go west!
+        \pgfscope
+        \pgftransformshift{\pgfpoint{\pgf@circ@res@left}{0pt}}
+        \ifnum\quadrant=3
+            \pgf@circ@muxdemux@label@xy{W}{-90}{0}{-1}{top}{pgfcirc@nop}{border}% type, rot, pad x, pad y, text pos, op, type
+            \pgf@circ@muxdemux@label@xy{Wi}{-90}{0}{1}{bottom}{pgfcirc@nop}{border}%
+        \else
+            \pgf@circ@muxdemux@label@xy{W}{90}{0}{1}{bottom}{pgfcirc@nop}{border}%
+            \pgf@circ@muxdemux@label@xy{Wi}{90}{0}{-1}{top}{pgfcirc@nop}{border}%
+        \fi
+        \endpgfscope
+        % go east!
+        \pgfscope
+        \pgftransformshift{\pgfpoint{-\pgf@circ@res@left}{0pt}}
+        \ifnum\quadrant=3
+            \pgf@circ@muxdemux@label@xy{E}{-90}{0}{1}{bottom}{pgfcirc@nop}{border}% type, rot, pad x, pad y, text pos, op, type
+            \pgf@circ@muxdemux@label@xy{Ei}{-90}{0}{-1}{top}{pgfcirc@nop}{border}%
+        \else
+            \pgf@circ@muxdemux@label@xy{E}{90}{0}{-1}{top}{pgfcirc@nop}{border}%
+            \pgf@circ@muxdemux@label@xy{Ei}{90}{0}{1}{bottom}{pgfcirc@nop}{border}%
+        \fi
+        \endpgfscope
+        % start exploring all the pins. We repeat the steps to position the coordinate on every pin.
+        % left pins
+        \ifnum\NL>0\relax
+            \pgf@circ@count@a=\NL\relax
+            \pgf@circ@count@b=\NL \divide\pgf@circ@count@b by 2 % see https://tex.stackexchange.com/questions/146523/why-does-numexpr-integer-division-round-rather-than-truncate
+            \topleft\pgf@circ@res@left=\pgf@x \pgf@circ@res@up=\pgf@y
+            \insetnortheast\pgf@circ@res@right=\pgf@x \pgf@circ@res@down=\pgf@y
+            \ifdim\pgf@circ@res@down>0pt % check if we have an inset
+            % we have to check oddity
+                \ifodd\NL
+                    \ifnum\NL=1
+                        % only centerpin, step should not be used, but anyway...
+                        \pgfmathsetlength{\pgf@circ@res@step}{2*(\pgf@circ@res@up-\pgf@circ@res@down)/(\NL)}
+                    \else
+                        \pgfmathsetlength{\pgf@circ@res@step}{2*(\pgf@circ@res@up-\pgf@circ@res@down)/(\NL-1)}
+                    \fi
+                \else
+                    \pgfmathsetlength{\pgf@circ@res@step}{2*(\pgf@circ@res@up-\pgf@circ@res@down)/\NL}
+                \fi
+            \else % no inset
+                \pgfmathsetlength{\pgf@circ@res@step}{2*\pgf@circ@res@up/\NL}
+            \fi
+            \pgfmathloop%
+                \ifnum\pgf@circ@count@a>0
+                \pgfscope
+                \ifdim\pgf@circ@res@down>0pt % check if we have an inset
+                    \ifnum\pgf@circ@count@a>\pgf@circ@count@b\relax
+                        % for lower pins we have to shift them down
+                        \ifodd\NL
+                            % odd number of pins
+                            \ifnum\pgf@circ@count@a=\numexpr\the\pgf@circ@count@b+1\relax
+                                % centerpin!
+                                \pgftransformshift{\pgfpoint{\pgf@circ@res@right}{0pt}}
+                            \else
+                                \pgftransformshift{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@up+(0.5-\pgf@circ@count@a+1)*\pgf@circ@res@step-2*\pgf@circ@res@down}}
+                            \fi
+                        \else
+                            % even numer of pins: just go down
+                            \pgftransformshift{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@up+(0.5-\pgf@circ@count@a)*\pgf@circ@res@step-2*\pgf@circ@res@down}}
+                        \fi
+                    \else
+                        % nothing need for #1<=NL/2
+                        \pgftransformshift{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@up+(0.5-\pgf@circ@count@a)*\pgf@circ@res@step}}
+                    \fi
+                \else
+                % no inset
+                    \pgftransformshift{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@up+(0.5-\pgf@circ@count@a)*\pgf@circ@res@step}}
+                \fi
+                % put the not ball/wedges if needed
+                \pgf@circ@muxdemux@not@ball{nL}{east}
+                \pgf@circ@muxdemux@not@wedge{wiL}{east}{1}{1}{0}
+                \pgf@circ@muxdemux@not@wedge{woL}{west}{-1}{1}{0}
+                % \fi
+                \pgf@circ@muxdemux@clockwedge{cL}{0}
+                %% put the labels
+                \ifcase\quadrant % rotation 0; left label are at the left
+                    \pgf@circ@muxdemux@label@xy{L}{0}{1}{0}{left}{pgfcirc@nop}{inner}% type, rot, pad x, pad y, text pos, op, type
+                    \pgf@circ@res@temp=0pt
+                    \pgf@circ@muxdemux@label@xy{LU}{0}{-1}{1}{bottom}{llap}{outer}%
+                    \pgf@circ@muxdemux@label@xy{LD}{0}{-1}{-1}{top}{llap}{outer}%
+                \or %rotation -90; left labels are at the top
+                    \pgf@circ@muxdemux@label@xy{L}{90}{0}{-1}{top}{pgfcirc@nop}{inner}% type, rot, pad x, pad y, text pos, op, type
+                    \pgf@circ@res@temp=0pt
+                    \pgf@circ@muxdemux@label@xy{LU}{90}{-1}{1}{bottom}{llap}{outer}%
+                    \pgf@circ@muxdemux@label@xy{LD}{90}{1}{1}{bottom}{rlap}{outer}%
+                \or %rotation 180; left labels are at the right
+                    \pgf@circ@muxdemux@label@xy{L}{180}{-1}{0}{right}{pgfcirc@nop}{inner}% type, rot, pad x, pad y, text pos, op, type
+                    \pgf@circ@res@temp=0pt
+                    \pgf@circ@muxdemux@label@xy{LU}{180}{1}{1}{bottom}{rlap}{outer}%
+                    \pgf@circ@muxdemux@label@xy{LD}{180}{1}{-1}{top}{rlap}{outer}%
+                \or %rotation +90; left labels are at the bottom
+                    \pgf@circ@muxdemux@label@xy{L}{-90}{0}{1}{bottom}{pgfcirc@nop}{inner}% type, rot, pad x, pad y, text pos, op, type
+                    \pgf@circ@res@temp=0pt
+                    \pgf@circ@muxdemux@label@xy{LU}{-90}{-1}{-1}{top}{llap}{outer}%
+                    \pgf@circ@muxdemux@label@xy{LD}{-90}{1}{-1}{top}{rlap}{outer}%
+                \fi
+            \endpgfscope
+            \advance\pgf@circ@count@a by -1\relax%
+            \repeatpgfmathloop
+        \fi
+        %% right pins
+        \ifnum\NR>0\pgf@circ@count@a=\NR\relax
+            \pgfmathloop%
+            \topright\pgf@circ@res@right=\pgf@x \pgf@circ@res@up=\pgf@y
+            \pgfmathsetlength{\pgf@circ@res@step}{2*\pgf@circ@res@up/\NR}
+            \ifnum\pgf@circ@count@a>0
+            \pgfscope
+                \pgftransformshift{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@up+(0.5-\pgf@circ@count@a)*\pgf@circ@res@step}}
+                % put the not ball/wedge if needed
+                \pgf@circ@muxdemux@not@ball{nR}{west}
+                \pgf@circ@muxdemux@not@wedge{wiR}{east}{-1}{1}{0}
+                \pgf@circ@muxdemux@not@wedge{woR}{west}{1}{1}{0}
+                % put the clock wedge if needed
+                \pgf@circ@muxdemux@clockwedge{cR}{180}
+                \ifcase\quadrant % rotation 0; right label are at the right
+                    \pgf@circ@muxdemux@label@xy{R}{0}{-1}{0}{right}{pgfcirc@nop}{inner}% type, rot, pad x, pad y, text pos, op, type
+                    \pgf@circ@res@temp=0pt
+                    \pgf@circ@muxdemux@label@xy{RU}{0}{1}{1}{bottom}{rlap}{outer}%
+                    \pgf@circ@muxdemux@label@xy{RD}{0}{1}{-1}{top}{rlap}{outer}%
+                \or %rotation -90; right labels are at the bottom
+                    \pgf@circ@muxdemux@label@xy{R}{90}{0}{1}{bottom}{pgfcirc@nop}{inner}% type, rot, pad x, pad y, text pos, op, type
+                    \pgf@circ@res@temp=0pt
+                    \pgf@circ@muxdemux@label@xy{RU}{90}{-1}{-1}{top}{llap}{outer}%
+                    \pgf@circ@muxdemux@label@xy{RD}{90}{1}{-1}{top}{rlap}{outer}%
+                \or %rotation 180; right labels are at the left
+                    \pgf@circ@muxdemux@label@xy{R}{180}{1}{0}{left}{pgfcirc@nop}{inner}% type, rot, pad x, pad y, text pos, op, type
+                    \pgf@circ@res@temp=0pt
+                    \pgf@circ@muxdemux@label@xy{RU}{180}{-1}{1}{bottom}{llap}{outer}%
+                    \pgf@circ@muxdemux@label@xy{RD}{180}{-1}{-1}{top}{llap}{outer}%
+                \or %rotation +90; right labels are at the top
+                    \pgf@circ@muxdemux@label@xy{R}{-90}{0}{-1}{top}{pgfcirc@nop}{inner}% type, rot, pad x, pad y, text pos, op, type
+                    \pgf@circ@res@temp=0pt
+                    \pgf@circ@muxdemux@label@xy{RU}{-90}{-1}{1}{bottom}{llap}{outer}%
+                    \pgf@circ@muxdemux@label@xy{RD}{-90}{1}{1}{bottom}{rlap}{outer}%
+                \fi
+            \endpgfscope
+            \advance\pgf@circ@count@a by -1\relax%
+            \repeatpgfmathloop
+        \fi
+        %% bottom pins
+        \ifnum\NB>0\pgf@circ@count@a=\NB\relax %%%
+            \pgfmathloop%
+            \topleft\pgf@circ@res@left=\pgf@x \pgf@circ@res@up=\pgf@y
+            \topright\pgf@circ@res@right=\pgf@x \pgf@circ@res@down=\pgf@y
+            \pgfmathsetlength{\pgf@circ@res@step}{2*\pgf@circ@res@right/\NB}
+            \pgfmathsetlength{\pgf@circ@res@other}{(\pgf@circ@res@down-\pgf@circ@res@up)/(\pgf@circ@res@right-\pgf@circ@res@left)*\pgf@circ@res@step}
+            \ifnum\pgf@circ@count@a>0
+            \pgfscope
+                \pgftransformshift{\pgfpoint{\pgf@circ@res@left+(\pgf@circ@count@a-0.5)*\pgf@circ@res@step}
+                        {-\pgf@circ@res@down+(\NB-\pgf@circ@count@a+0.5)*\pgf@circ@res@other}}
+                % put the not ball/wedge if needed
+                \pgf@circ@muxdemux@not@ball{nB}{north}
+                \pgf@circ@muxdemux@not@wedge{wiB}{east}{1}{1}{90}
+                \pgf@circ@muxdemux@not@wedge{woB}{west}{-1}{1}{90}
+                % put the clock wedge if needed
+                \pgf@circ@muxdemux@clockwedge{cB}{90}
+                \ifcase\quadrant % rotation 0; bottom label are at the bottom
+                    \pgf@circ@muxdemux@label@xy{B}{0}{0}{1}{bottom}{pgfcirc@nop}{inner}% type, rot, pad x, pad y, text pos, op, type
+                    \pgf@circ@res@temp=0pt
+                    \pgf@circ@muxdemux@label@xy{BL}{0}{-1}{-1}{top}{llap}{outer}%
+                    \pgf@circ@muxdemux@label@xy{BR}{0}{1}{-1}{top}{rlap}{outer}%
+                \or %rotation -90; bottom labels are at the left
+                    \pgf@circ@muxdemux@label@xy{B}{90}{1}{0}{left}{pgfcirc@nop}{inner}% type, rot, pad x, pad y, text pos, op, type
+                    \pgf@circ@res@temp=0pt
+                    \pgf@circ@muxdemux@label@xy{BL}{90}{-1}{1}{bottom}{llap}{outer}%
+                    \pgf@circ@muxdemux@label@xy{BR}{90}{-1}{-1}{top}{llap}{outer}%
+                \or %rotation 180; bottom labels are at the top
+                    \pgf@circ@muxdemux@label@xy{B}{180}{0}{-1}{top}{pgfcirc@nop}{inner}% type, rot, pad x, pad y, text pos, op, type
+                    \pgf@circ@res@temp=0pt
+                    \pgf@circ@muxdemux@label@xy{BL}{180}{-1}{1}{bottom}{llap}{outer}%
+                    \pgf@circ@muxdemux@label@xy{BR}{180}{1}{1}{bottom}{rlap}{outer}%
+                \or %rotation +90; bottom labels are at the right
+                    \pgf@circ@muxdemux@label@xy{B}{-90}{-1}{0}{right}{pgfcirc@nop}{inner}% type, rot, pad x, pad y, text pos, op, type
+                    \pgf@circ@res@temp=0pt
+                    \pgf@circ@muxdemux@label@xy{BL}{-90}{1}{1}{bottom}{rlap}{outer}%
+                    \pgf@circ@muxdemux@label@xy{BR}{-90}{1}{-1}{top}{rlap}{outer}%
+                \fi
+            \endpgfscope
+            \advance\pgf@circ@count@a by -1\relax%
+            \repeatpgfmathloop
+        \fi
+        %% top pins
+        \ifnum\NT>0\pgf@circ@count@a=\NT\relax
+            \pgfmathloop%
+            \topleft\pgf@circ@res@left=\pgf@x \pgf@circ@res@up=\pgf@y
+            \topright\pgf@circ@res@right=\pgf@x \pgf@circ@res@down=\pgf@y
+            \pgfmathsetlength{\pgf@circ@res@step}{2*\pgf@circ@res@right/\NT}
+            \pgfmathsetlength{\pgf@circ@res@other}{(\pgf@circ@res@down-\pgf@circ@res@up)/(\pgf@circ@res@right-\pgf@circ@res@left)*\pgf@circ@res@step}
+            \ifnum\pgf@circ@count@a>0
+            \pgfscope
+                \pgftransformshift{\pgfpoint{\pgf@circ@res@left+(\pgf@circ@count@a-0.5)*\pgf@circ@res@step}
+                {\pgf@circ@res@down-(\NT-\pgf@circ@count@a+0.5)*\pgf@circ@res@other}}
+                % put the not ball/wedge if needed
+                \pgf@circ@muxdemux@not@ball{nT}{south}
+                \pgf@circ@muxdemux@not@wedge{wiT}{east}{1}{-1}{-90}
+                \pgf@circ@muxdemux@not@wedge{woT}{west}{-1}{-1}{-90}
+                % put the clock wedge if needed
+                \pgf@circ@muxdemux@clockwedge{cT}{-90}
+                \ifcase\quadrant % rotation 0; top label are at the top
+                    \pgf@circ@muxdemux@label@xy{T}{0}{0}{-1}{top}{pgfcirc@nop}{inner}% type, rot, pad x, pad y, text pos, op, type
+                    \pgf@circ@res@temp=0pt
+                    \pgf@circ@muxdemux@label@xy{TL}{0}{-1}{1}{bottom}{llap}{outer}%
+                    \pgf@circ@muxdemux@label@xy{TR}{0}{1}{1}{bottom}{rlap}{outer}%
+                \or %rotation -90; top labels are at the right
+                    \pgf@circ@muxdemux@label@xy{T}{90}{-1}{0}{right}{pgfcirc@nop}{inner}% type, rot, pad x, pad y, text pos, op, type
+                    \pgf@circ@res@temp=0pt
+                    \pgf@circ@muxdemux@label@xy{TL}{90}{1}{1}{bottom}{rlap}{outer}%
+                    \pgf@circ@muxdemux@label@xy{TR}{90}{1}{-1}{top}{rlap}{outer}%
+                \or %rotation 180; top labels are at the bottom
+                    \pgf@circ@muxdemux@label@xy{T}{180}{0}{1}{bottom}{pgfcirc@nop}{inner}% type, rot, pad x, pad y, text pos, op, type
+                    \pgf@circ@res@temp=0pt
+                    \pgf@circ@muxdemux@label@xy{TL}{180}{-1}{-1}{top}{llap}{outer}%
+                    \pgf@circ@muxdemux@label@xy{TR}{180}{1}{-1}{top}{rlap}{outer}%
+                \or %rotation +90; top labels are at the left
+                    \pgf@circ@muxdemux@label@xy{T}{-90}{1}{0}{left}{pgfcirc@nop}{inner}% type, rot, pad x, pad y, text pos, op, type
+                    \pgf@circ@res@temp=0pt
+                    \pgf@circ@muxdemux@label@xy{TL}{-90}{-1}{1}{bottom}{llap}{outer}%
+                    \pgf@circ@muxdemux@label@xy{TR}{-90}{-1}{-1}{top}{llap}{outer}%
+                \fi
+            \endpgfscope
+            \advance\pgf@circ@count@a by -1\relax%
+            \repeatpgfmathloop
+        \fi
     }
     % let's start adding anchors
     \pgfutil@g@addto@macro\pgf@sh@s@muxdemux{%
