@@ -3,6 +3,12 @@ The major changes among the different CircuiTikZ versions are listed here. See <
 
 * Version 1.6.5 (unreleased)
 
+   This version features an important overhaul of the `muxdemux` configurable component/shape, making it much more flexible and powerful.
+
+    - Added optional and configurable inner, outer and border labels to the `muxdemux` shapes
+    - Added optional clock wedge and negation signs to the pins of `muxdemux` shapes
+    - Added the possibility to add a background drawing to `muxdemux` shapes
+
 * Version 1.6.4 (2023-10-10)
 
     A bit of enhancement and fixes for the European-style logic ports, more switches (and a bit more configurabilityi for them), more option for some sources.
