@@ -16,7 +16,7 @@
 \startmodule[circuitikzgit]
 \usemodule[tikz]
 
-\def\pgfcircversion{1.6.5-unreleased-146d49d}
+\def\pgfcircversion{1.6.5-unreleased-47fde5b}
 \def\pgfcircversiondate{2023/10/29}
 \writestatus{loading}{\pgfcircversiondate{} The CircuiTikz circuit drawing package version \pgfcircversion}
 
@@ -26090,6 +26090,8 @@
 % %>>>
 
 %% Output routine for voltage sources%<<<
+% (ugly) workaround for https://github.com/circuitikz/circuitikz/issues/747
+\ctikzset{voltage shift sources adjust/.initial=0.5} % coefficient added "by feel". Sorry.
 \def\pgf@circ@drawvoltagegenerator{
     % the following is affected indirectly by voltage/shift, you can move the arrow with voltage/bump a.
     % it's not perfect, but I can't find the way to do it correctly...
@@ -26113,7 +26115,7 @@
         {
             \edef\addvshift{0}
         }
-        \pgfmathsetmacro{\bumpaplus}{\bumpa + 0.5*\shiftv} % coefficient added "by feel". Sorry.
+        \pgfmathsetmacro{\bumpaplus}{\bumpa + \ctikzvalof{voltage shift sources adjust}*\shiftv}
     }
     \ifpgf@circuit@bipole@voltage@below
         coordinate (pgfcirc@Vfrom0) at ($(\ctikzvalof{bipole/name}.center) ! \bumpaplus ! (\ctikzvalof{bipole/name}.-120)$)
