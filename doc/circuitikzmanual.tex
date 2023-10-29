@@ -8664,6 +8664,25 @@ Negative values do work as expected:
 \end{circuitikz}
 \end{LTXexample}
 
+Unfortunately\footnote{see \href{https://github.com/circuitikz/circuitikz/issues/747}{this bug report}.} the amount of shift given by \texttt{voltage shift} is not always the same between sources and passive bipoles, especially if the sizes of the component is very different from the default. Although this qualifies as a bug, and should be fixed in a more comprehensive way, a workaround is available with the key \texttt{voltage shift sources adjust} (default: \texttt{\ctikzvalof{voltage shift sources adjust}}). A smaller value is better for smaller components, as you can see in the example below.
+
+\begin{LTXexample}[varwidth=true, basicstyle=\small\ttfamily]
+\newcommand{\example}[2][]{\draw[#1] (#2)
+        to [V_=$U$] ++(0, -1) (#2) ++(2,0)
+        to [R,v=$U_R$] ++(0,-1);
+    }
+\ctikzset{resistors/scale=0.55,inductors/scale=0.55,
+    capacitors/scale=0.6,sources/scale=.8}
+\begin{circuitikz}[circuitikz/voltage=straight,
+    voltage dir=EF]
+    \example{0,4}
+    \ctikzset{voltage shift=2}
+    \example[color=red]{0,2}
+    \ctikzset{voltage shift sources adjust=0.2}
+    \example[color=blue]{0,0}
+\end{circuitikz}
+\end{LTXexample}
+
 You can fine-tune the position of the \texttt{+} and \texttt{-} symbols and the label in independent way using \texttt{voltage/shift} (default \texttt{0.0} for the former and \texttt{voltage/american label distance} (the distance of the label from the lines of the symbols, default \texttt{1.4}) for the latter.
 
 \begin{LTXexample}[varwidth=true]
