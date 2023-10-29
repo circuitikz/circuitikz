@@ -9,6 +9,7 @@ The major changes among the different CircuiTikZ versions are listed here. See <
     - Added optional clock wedge and negation signs to the pins of `muxdemux` shapes
     - Added the possibility to add a background drawing to `muxdemux` shapes
     - Fixed a [bug](https://github.com/circuitikz/circuitikz/issues/748) with `straightvoltages` and `open`
+    - Added an (ugly) workaround for a [voltage shift mismatch](https://github.com/circuitikz/circuitikz/issues/747) for sources
 
 * Version 1.6.4 (2023-10-10)
 
