@@ -1,9 +1,10 @@
 <!--- CircuiTikz - Changelog --->
 The major changes among the different CircuiTikZ versions are listed here. See <https://github.com/circuitikz/circuitikz/commits> for a full list of changes.
 
-* Version 1.6.5 (unreleased)
+* Version 1.6.5 (2023-10-29)
 
-   This version features an important overhaul of the `muxdemux` configurable component/shape, making it much more flexible and powerful.
+   This version features an important overhaul of the `muxdemux` configurable component/shape, making it much more flexible and powerful, by adding configurable labels and negation and clock symbols to the pins.
+   Also, a couple of minor fixes/workarounds.
 
     - Added optional and configurable inner, outer and border labels to the `muxdemux` shapes
     - Added optional clock wedge and negation signs to the pins of `muxdemux` shapes
