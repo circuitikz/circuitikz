@@ -3,7 +3,7 @@ The major changes among the different CircuiTikZ versions are listed here. See <
 
 * Version 1.6.6 (unreleased)
 
-    - Bump version number
+    - Added the symbol for metal-oxide varistor `mov`
 
 * Version 1.6.5 (2023-10-29)
 
