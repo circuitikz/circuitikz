@@ -2054,6 +2054,7 @@ If  instead \texttt{europeanresistors} option is active (or the style \texttt{[e
 Other miscellaneous resistor-like devices:
 \begin{groupdesc}
     \circuitdescbip*{varistor}{Varistor}{}
+    \circuitdescbip*{mov}{Metal-Oxide varistor}{}
     \circuitdescbip*[photoresistor]{phR}{Photoresistor}{photoresistor}(arrows/0/0.3)
     \circuitdescbip*[thermistor]{thR}{Thermistor}{thermistor}
     \circuitdescbip*[thermistorptc]{thRp}{PTC thermistor}{thermistor ptc}
@@ -3162,7 +3163,6 @@ Or, if you want a more physical structure for the measurement setup:
 
 You can change the scale of all the mechanical elements by setting the key \texttt{mechanicals/scale} to something different from the default \texttt{1.0}.
 
-
 \subsection{Miscellaneous bipoles}
 
 Here you'll find bipoles that are not easily grouped in the categories above.
@@ -3171,12 +3171,13 @@ Here you'll find bipoles that are not easily grouped in the categories above.
     \circuitdescbip{thermocouple}{Thermocouple}{}
     \circuitdescbip*{fuse}{Fuse}{}
     \circuitdescbip*{afuse}{Asymmetric fuse}{asymmetric fuse}
+    \circuitdescbip{wfuse}{``wiggly'' fuse}{wiggly fuse}()[left/110/0.2, right/70/0.2]
     \circuitdescbip{squid}{Squid}{}
     \circuitdescbip{barrier}{Barrier}{}
     \circuitdescbip{openbarrier}{Open barrier}{}
 \end{groupdesc}
 
-    You can tune how big is the gap in the \texttt{openbarrier} component by setting the key \texttt{bipoles/openbarrier/gap} (default value \texttt{0.5}; \texttt{0} means no gap and \texttt{1} full gap).
+You can tune how big is the gap in the \texttt{openbarrier} component by setting the key \texttt{bipoles/openbarrier/gap} (default value \texttt{0.5}; \texttt{0} means no gap and \texttt{1} full gap).
 
 \begin{groupdesc}
     \circuitdescbip*{european gas filled surge arrester}{European gas filled surge arrester}{}
@@ -3230,6 +3231,22 @@ You have two types of microphones; \texttt{mic} has protruding connection and \t
 \subsubsection{Miscellaneous element customization}\label{sec:tweak-misc}
 
 You can change the scale of all the miscellaneous elements by setting the key \texttt{misc/scale} to something different from the default \texttt{1.0}.
+
+\paragraph{Wiggly fuses} can have (or not) poles, by setting to \texttt{true} or \texttt{false} (default \texttt{true}) the key \texttt{bipoles/wfuse/dots}, and if the have poles, you can chose any of the poles shapes with the key \texttt{bipoles/wfuse/shape}.
+The poles nodes are named (\texttt{-left} and \texttt{-right}) so that you can access their borders.
+
+\begin{LTXexample}[varwidth=true, basicstyle=\small\ttfamily]
+\begin{circuitikz}
+    \draw (0,3) to[wfuse, bipoles/wfuse/dots=false] ++(2,0);
+    \draw (0,2) to[wfuse, name=A] ++(2,0);
+    \ctikzset{bipoles/wfuse/shape=osquarepole}
+    \draw (0,1) to[wfuse, name=B] ++(2,0);
+    \draw [red, densely dashed]
+        (A-left.-135) to[bend right] (B-left.135);
+    \ctikzset{bipoles/wfuse/shape=circ}
+    \draw (0,0) to[wfuse, name=B] ++(2,0);
+\end{circuitikz}
+\end{LTXexample}
 
 \subsection{Multiple wires (buses)}
 
