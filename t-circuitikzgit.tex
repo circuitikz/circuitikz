@@ -16,8 +16,8 @@
 \startmodule[circuitikzgit]
 \usemodule[tikz]
 
-\def\pgfcircversion{1.6.6-unreleased-093cd8e}
-\def\pgfcircversiondate{2023/10/29}
+\def\pgfcircversion{1.6.6-unreleased-c91d157}
+\def\pgfcircversiondate{2023/11/07}
 \writestatus{loading}{\pgfcircversiondate{} The CircuiTikz circuit drawing package version \pgfcircversion}
 
 
@@ -4658,7 +4658,28 @@
     \pgf@circ@text@strokecolor
     \pgftext[top,x=.65\pgf@circ@res@left,y=1.2\pgf@circ@res@down]{{\pgf@circ@font@tiny\textsf{U}}}
 }
-
+%% MOV
+\pgfcircdeclarebipolescaled{resistors}
+{
+    \pgfcirc@border@extend@updown{1.2}{1.2}
+}
+{\ctikzvalof{bipoles/varistor/height}}
+{mov}
+{\ctikzvalof{bipoles/varistor/height}}
+{\ctikzvalof{bipoles/varistor/width}}
+{
+    \pgfscope
+        \pgfpathrectanglecorners{\pgfpoint{\pgf@circ@res@left}{\ctikzvalof{bipoles/varistor/main}\pgf@circ@res@up}}{\pgfpoint{\pgf@circ@res@right}{-\ctikzvalof{bipoles/varistor/main}\pgf@circ@res@up}}
+        \pgf@circ@setlinewidth{bipoles}{\pgfstartlinewidth}
+        \pgf@circ@draworfill
+        \pgf@circ@set@relative@thickness{modifier thickness}
+        \pgfpathmoveto{\pgfpoint{-\pgf@circ@res@left}{-1.1\pgf@circ@res@down}}
+        \pgfpathlineto{\pgfpoint{-0.7\pgf@circ@res@left}{-1.1\pgf@circ@res@down}}
+        \pgfpathlineto{\pgfpoint{0.7\pgf@circ@res@left}{1.1\pgf@circ@res@down}}
+        \pgfpathlineto{\pgfpoint{\pgf@circ@res@left}{1.1\pgf@circ@res@down}}
+        \pgfusepath{draw}
+    \endpgfscope
+}
 %% Generic tunable
 \pgfcircdeclarebipolescaled{resistors}
 {
@@ -4991,6 +5012,7 @@
 \pgfcirc@activate@bipole@simple{l}{photoresistor}
 \pgfcirc@style@to@style{photoresistor}{phR}
 \pgfcirc@activate@bipole@simple{l}{varistor}
+\pgfcirc@activate@bipole@simple{l}{mov}
 \pgfcirc@activate@bipole@simple{l}{memristor}
 \pgfcirc@style@to@style{memristor}{Mr}%
 % %>>>
@@ -6631,7 +6653,7 @@
 		\pgftransformscale{-.015*\ctikzvalof{\ctikzclass/symbol/eyw scale}*\pgf@circ@res@left*#1}
 		\def\pgfcircmathresult{\expandafter\pgf@circ@stripdecimals\pgf@circ@direction\pgf@nil}
 			\pgftransformrotate{-\pgfcircmathresult}
-	
+
 		\pgf@circ@setlinewidth{bipoles}{\pgfstartlinewidth}
 		\pgf@circ@set@relative@thickness{symbol/thickness}
 		\pgfpathmoveto{\pgfpoint{0}{\pgf@circ@res@up}}
@@ -6721,7 +6743,7 @@
             \pgftransformxshift{\ctikzvalof{bipoles/oosourcetrans/circlesize}\pgf@circ@res@left}
             \pgf@circ@wye{\ctikzvalof{bipoles/oosourcetrans/vectorgroupscale}}
         \endpgfscope
-        
+
         \else\ifpgf@circ@prim@eyw
         \pgfscope
         \pgftransformxshift{\ctikzvalof{bipoles/oosourcetrans/circlesize}\pgf@circ@res@left}
@@ -6747,7 +6769,7 @@
             \pgftransformxshift{\ctikzvalof{bipoles/oosourcetrans/circlesize}\pgf@circ@res@right}
             \pgf@circ@wye{\ctikzvalof{bipoles/oosourcetrans/vectorgroupscale}}
         \endpgfscope
-        
+
         \else\ifpgf@circ@sec@eyw
         \pgfscope
         \pgftransformxshift{\ctikzvalof{bipoles/oosourcetrans/circlesize}\pgf@circ@res@right}
@@ -6935,7 +6957,7 @@
             \pgftransformxshift{.6\pgf@circ@res@left}
             \pgf@circ@wye{\ctikzvalof{bipoles/ooosource/vectorgroupscale}}
         \endpgfscope
-        
+
         \else\ifpgf@circ@prim@eyw
         \pgfscope
         \pgftransformxshift{.6\pgf@circ@res@left}
@@ -6962,7 +6984,7 @@
             \pgftransformshift{\pgfpointpolar{60}{0.6\pgf@circ@res@right}}
             \pgf@circ@wye{\ctikzvalof{bipoles/ooosource/vectorgroupscale}}
         \endpgfscope
-        
+
         \else\ifpgf@circ@sec@eyw
         \pgfscope
         \pgftransformshift{\pgfpointpolar{60}{0.6\pgf@circ@res@right}}
@@ -6988,7 +7010,7 @@
             \pgftransformshift{\pgfpointpolar{-60}{0.6\pgf@circ@res@right}}
             \pgf@circ@wye{\ctikzvalof{bipoles/ooosource/vectorgroupscale}}
         \endpgfscope
-        
+
         \else\ifpgf@circ@tert@eyw
         \pgfscope
         \pgftransformshift{\pgfpointpolar{-60}{0.6\pgf@circ@res@right}}
@@ -11064,12 +11086,20 @@
 \ctikzset{bipoles/american gas filled surge arrester/inside/.initial=.15}
 \ctikzset{bipoles/american gas filled surge arrester/dot x/.initial=.25}
 \ctikzset{bipoles/american gas filled surge arrester/dot y/.initial=.45}
+% fuses: normal, asymmetric, wiggle
 \ctikzset{bipoles/american gas filled surge arrester/size/.initial=.1}
 \ctikzset{bipoles/fuse/height/.initial=.20}
 \ctikzset{bipoles/fuse/width/.initial=.50}
 \ctikzset{bipoles/afuse/height/.initial=.20}
 \ctikzset{bipoles/afuse/width/.initial=.50}
 \ctikzset{bipoles/lamp/height/.initial=.60}
+\ctikzset{bipoles/wfuse/height/.initial=.20}
+\ctikzset{bipoles/wfuse/width/.initial=.50}
+\ctikzset{bipoles/wfuse/shape/.initial=ocirc}
+\newif\ifpgf@circ@wfuse@dots\pgf@circ@wfuse@dotstrue
+\ctikzset{bipoles/wfuse/dots/.is choice}
+\ctikzset{bipoles/wfuse/dots/.is if=pgf@circ@wfuse@dots}
+%
 \ctikzset{bipoles/lamp/width/.initial=.60}
 \ctikzset{bipoles/bulb/height/.initial=.8}
 \ctikzset{bipoles/bulb/width/.initial=.8}
@@ -11239,7 +11269,6 @@
     \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{0}}
     \pgfusepath{draw}
 }
-
 %% fuse
 \pgfcircdeclarebipolescaled{misc}
 {}
@@ -11259,7 +11288,6 @@
     \pgfusepath{draw}
 
 }
-
 %% asymmetric fuse
 \pgfcircdeclarebipolescaled{misc}
 {}
@@ -11282,7 +11310,28 @@
     \pgf@circ@fill@strokecolor
     \pgfusepath{stroke,fill}
 }
-
+%% wiggly fuse
+\pgfcircdeclarebipolescaled{misc}
+{
+    \savedmacro{\thisshape}{\def\thisshape{\tikz@fig@name}}
+    \savedmacro{\cshape}{\def\cshape{\ctikzvalof{bipoles/wfuse/shape}}}
+}
+{\ctikzvalof{bipoles/wfuse/height}}
+{wfuse}
+{\ctikzvalof{bipoles/wfuse/height}}
+{\ctikzvalof{bipoles/wfuse/width}}
+{
+    \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{0pt}}
+    \pgfpatharc{0}{180}{.5\pgf@circ@res@left}
+    \pgfpatharc{0}{-180}{.5\pgf@circ@res@left}
+    \pgfusepath{draw}
+    \ifpgf@circ@wfuse@dots
+        \pgftransformshift{\pgfpoint{\pgf@circ@res@left}{0pt}}
+        \pgfnode{\cshape}{center}{}{\thisshape-left}{\pgfusepath{draw}}
+        \pgftransformshift{\pgfpoint{2\pgf@circ@res@right}{0pt}}
+        \pgfnode{\cshape}{center}{}{\thisshape-right}{\pgfusepath{draw}}
+    \fi
+}
 %% SQUID added by Cor Molenaar 5 March 2010
 \pgfcircdeclarebipolescaled{misc}
 {}
@@ -11403,6 +11452,8 @@
 \pgfcirc@activate@bipole@simple{l}{fuse}
 \pgfcirc@activate@bipole{l}{afuse}{afuse}{asymmetric fuse}
 \pgfcirc@style@to@style{asymmetric fuse}{afuse}
+\pgfcirc@activate@bipole@simple{l}{wfuse}
+\pgfcirc@activate@bipole{l}{wfuse}{wfuse}{wiggly fuse}
 \def\pgf@circ@gfsurgearrester@path#1{\ifpgf@circuit@europeangfsurgearrester\pgf@circ@europeangfsurgearrester@path{#1}\else\pgf@circ@americangfsurgearrester@path{#1}\fi}
 \pgfcirc@activate@bipole{l}{europeangfsurgearrester}{european gas filled surge arrester}{european gas filled surge arrester}
 \pgfcirc@activate@bipole{l}{americangfsurgearrester}{american gas filled surge arrester}{american gas filled surge arrester}
