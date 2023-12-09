@@ -1,7 +1,7 @@
 <!--- CircuiTikz - Changelog --->
 The major changes among the different CircuiTikZ versions are listed here. See <https://github.com/circuitikz/circuitikz/commits> for a full list of changes.
 
-* Version 1.6.6 (unreleased)
+* Version 1.6.6 (2023-12-09)
 
     Several new components.
 
