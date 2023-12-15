@@ -549,6 +549,7 @@
 \ctikzset{bipoles/dsp/width/.initial=.7}
 \ctikzset{bipoles/fft/width/.initial=.7}
 \ctikzset{bipoles/amp/width/.initial=.7}
+\ctikzset{bipoles/iamp/width/.initial=.7}
 \ctikzset{bipoles/vamp/width/.initial=.7}
 \ctikzset{bipoles/piattenuator/width/.initial=.7}
 \ctikzset{bipoles/vpiattenuator/width/.initial=.7}
@@ -557,6 +558,8 @@
 \ctikzset{bipoles/phaseshifter/width/.initial=.7}
 \ctikzset{bipoles/vphaseshifter/width/.initial=.7}
 \ctikzset{bipoles/detector/width/.initial=.7}
+\ctikzset{bipoles/saturation/width/.initial=.7}
+\ctikzset{bipoles/sigmoid/width/.initial=.7}
 \ctikzset{tripoles/mixer/width/.initial=0.7}
 \ctikzset{tripoles/adder/width/.initial=0.7}
 \ctikzset{tripoles/circulator/width/.initial=.7}
@@ -1043,7 +1046,6 @@
     \pgf@circ@text@strokecolor
     \pgftext[center,x=0,y=0]{\Large$\varphi$}
 }
-
 %% detector
 \pgfcirc@define@twoports@norotate{blocks}
 {}
@@ -1067,7 +1069,42 @@
         \pgfnode{emptydiodeshape}{center}{}{pgf@emptydiode}{\pgfusepath{fill}}
     \fi
 }
-
+%% saturation block, contributed by P.Sacco <paul.sacco@estaca,eu>
+\pgfcirc@define@twoports{blocks}
+{}
+{\ctikzvalof{bipoles/saturation/width}}
+{saturation}
+{\ctikzvalof{bipoles/saturation/width}}
+{\ctikzvalof{bipoles/saturation/width}}
+{
+    \pgfsetlinewidth{1.2\pgfstartlinewidth}
+    \pgfpathmoveto{\pgfpointorigin}
+    \pgfpathlineto{\pgfpoint{.4\pgf@circ@res@step}{.4\pgf@circ@res@step}}
+    \pgfpathlineto{\pgfpoint{0.65\pgf@circ@res@step}{.4\pgf@circ@res@step}}
+    %
+    \pgfpathmoveto{\pgfpointorigin}
+    \pgfpathlineto{\pgfpoint{-.4\pgf@circ@res@step}{-.4\pgf@circ@res@step}}
+    \pgfpathlineto{\pgfpoint{-0.65\pgf@circ@res@step}{-.4\pgf@circ@res@step}}
+    \pgfusepath{draw}
+}
+%% sigmoid
+\pgfcirc@define@twoports{blocks}
+{}
+{\ctikzvalof{bipoles/sigmoid/width}}
+{sigmoid}
+{\ctikzvalof{bipoles/sigmoid/width}}
+{\ctikzvalof{bipoles/sigmoid/width}}
+{
+    \pgfsetlinewidth{1.2\pgfstartlinewidth}
+    \pgfpathmoveto{\pgfpoint{-.65\pgf@circ@res@step}{-.4\pgf@circ@res@step}}
+    \pgfpathlineto{\pgfpoint{-.45\pgf@circ@res@step}{-.4\pgf@circ@res@step}}
+    \pgfpathparabola{\pgfpointorigin}{\pgfpoint{.45\pgf@circ@res@step}{.4\pgf@circ@res@step}}
+    %
+    \pgfpathmoveto{\pgfpoint{.65\pgf@circ@res@step}{.4\pgf@circ@res@step}}
+    \pgfpathlineto{\pgfpoint{.45\pgf@circ@res@step}{.4\pgf@circ@res@step}}
+    \pgfpathparabola{\pgfpointorigin}{\pgfpoint{-.45\pgf@circ@res@step}{-.4\pgf@circ@res@step}}
+    \pgfusepath{draw}
+}
 %% converters help function
 %% definition for styling the DC symbols (GitHub issue #680)
 \ctikzset{blocks dc in segments/.initial=1}
@@ -1357,7 +1394,7 @@
     \pfgcirc@twoport@rotate@inner@symbol
     \pgfcirc@twoport@draw@sine{0}{0}
 }
-%% amplifier and vamplifier
+%% amplifier, iamplifier, and vamplifier
 %% Amplifier %% Beware, not using the generic twoport(s) macros.
 \pgfcirc@define@twoports@boxed{blocks}
 {
@@ -1395,8 +1432,45 @@
         \pgftext[center,x=-0.12\pgf@circ@res@step,y=0]{\ctikzvalof{bipoles/twoport/text}}
     \fi
 }
+%% Instrumentation amplifier %% Beware, not using the generic twoport(s) macros.
+\pgfcirc@define@twoports@boxed{blocks}
+{
+    \anchor{up}{%
+        \northeast\pgf@x=0pt\relax
+        \ifnum\componentisboxed=0
+            \pgf@y=0.75\pgf@y
+        \fi
+    }
+    \anchor{down}{%
+        \northeast\pgf@x=0pt\pgf@y=-\pgf@y\relax
+        \ifnum\componentisboxed=0
+            \pgf@y=0.75\pgf@y
+        \fi
+    }
+}
+{\ifpgf@circuit@boxed\ctikzvalof{bipoles/twoport/width}\else\ctikzvalof{bipoles/amp/width}\fi}
+{iamp}
+{\ifpgf@circuit@boxed\ctikzvalof{bipoles/twoport/width}\else\ctikzvalof{bipoles/amp/width}\fi}
+{\ifpgf@circuit@boxed\ctikzvalof{bipoles/twoport/width}\else\ctikzvalof{bipoles/amp/width}\fi}
+{
+    % draw blunt triangle
+    \pgfpathmoveto{\pgfpoint{-0.5\pgf@circ@res@step}{0.55\pgf@circ@res@step}}
+    \pgfpathlineto{\pgfpoint{0.5\pgf@circ@res@step}{0.2\pgf@circ@res@step}}
+    \pgfpathlineto{\pgfpoint{0.5\pgf@circ@res@step}{-0.2\pgf@circ@res@step}}
+    \pgfpathlineto{\pgfpoint{-0.5\pgf@circ@res@step}{-0.55\pgf@circ@res@step}}
+    \pgfpathclose
+    \pgf@circ@draworfill
+    \pfgcirc@twoport@get@symbol@rotation
+    % draw inner text
+    \pgf@circ@text@strokecolor
+    \ifnum\@@rotation=180
+        \pgftransformrotate{180}
+        \pgftext[center,x=0.12\pgf@circ@res@step,y=0]{\ctikzvalof{bipoles/twoport/text}}
+    \else
+        \pgftext[center,x=-0.12\pgf@circ@res@step,y=0]{\ctikzvalof{bipoles/twoport/text}}
+    \fi
+}
 %% variable amplifier %% Beware, not using the generic twoport(s) macros.
-% \pgfcircdeclarebipolescaled{blocks}
 \pgfcirc@define@twoports@boxed{blocks}
 {
     \anchor{up}{%
@@ -1458,6 +1532,7 @@
 \pgfcirc@activate@bipole@simple{l}{dsp}
 \pgfcirc@activate@bipole@simple{l}{fft}
 \pgfcirc@activate@bipole@simple{l}{amp}
+\pgfcirc@activate@bipole@simple{l}{iamp}
 \pgfcirc@activate@bipole@simple{l}{vamp}
 \pgfcirc@activate@bipole@simple{l}{piattenuator}
 \pgfcirc@activate@bipole@simple{l}{vpiattenuator}
@@ -1466,6 +1541,8 @@
 \pgfcirc@activate@bipole@simple{l}{phaseshifter}
 \pgfcirc@activate@bipole@simple{l}{vphaseshifter}
 \pgfcirc@activate@bipole@simple{l}{detector}
+\pgfcirc@activate@bipole@simple{l}{saturation}
+\pgfcirc@activate@bipole@simple{l}{sigmoid}
 \pgfcirc@activate@bipole@simple{l}{sacdc}
 \pgfcirc@activate@bipole@simple{l}{sdcac}
 \pgfcirc@activate@bipole@simple{l}{sdcdc}

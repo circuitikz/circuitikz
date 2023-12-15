@@ -3,7 +3,11 @@ The major changes among the different CircuiTikZ versions are listed here. See <
 
 * Version 1.6.7 (unreleased)
 
-    - Bump version number
+    Several new blocks.
+
+    - Added `saturation` block (contributed by [P. Sacco <paul.sacco@estaca.eu>](https://github.com/circuitikz/circuitikz/issues/758)
+    - Added `iamp` block
+    - Added `sigmoid` block
 
 * Version 1.6.6 (2023-12-09)
 
