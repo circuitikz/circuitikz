@@ -549,6 +549,7 @@
 \ctikzset{bipoles/dsp/width/.initial=.7}
 \ctikzset{bipoles/fft/width/.initial=.7}
 \ctikzset{bipoles/amp/width/.initial=.7}
+\ctikzset{bipoles/iamp/width/.initial=.7}
 \ctikzset{bipoles/vamp/width/.initial=.7}
 \ctikzset{bipoles/piattenuator/width/.initial=.7}
 \ctikzset{bipoles/vpiattenuator/width/.initial=.7}
@@ -1374,7 +1375,7 @@
     \pfgcirc@twoport@rotate@inner@symbol
     \pgfcirc@twoport@draw@sine{0}{0}
 }
-%% amplifier and vamplifier
+%% amplifier, iamplifier, and vamplifier
 %% Amplifier %% Beware, not using the generic twoport(s) macros.
 \pgfcirc@define@twoports@boxed{blocks}
 {
@@ -1412,8 +1413,45 @@
         \pgftext[center,x=-0.12\pgf@circ@res@step,y=0]{\ctikzvalof{bipoles/twoport/text}}
     \fi
 }
+%% Instrumentation amplifier %% Beware, not using the generic twoport(s) macros.
+\pgfcirc@define@twoports@boxed{blocks}
+{
+    \anchor{up}{%
+        \northeast\pgf@x=0pt\relax
+        \ifnum\componentisboxed=0
+            \pgf@y=0.75\pgf@y
+        \fi
+    }
+    \anchor{down}{%
+        \northeast\pgf@x=0pt\pgf@y=-\pgf@y\relax
+        \ifnum\componentisboxed=0
+            \pgf@y=0.75\pgf@y
+        \fi
+    }
+}
+{\ifpgf@circuit@boxed\ctikzvalof{bipoles/twoport/width}\else\ctikzvalof{bipoles/amp/width}\fi}
+{iamp}
+{\ifpgf@circuit@boxed\ctikzvalof{bipoles/twoport/width}\else\ctikzvalof{bipoles/amp/width}\fi}
+{\ifpgf@circuit@boxed\ctikzvalof{bipoles/twoport/width}\else\ctikzvalof{bipoles/amp/width}\fi}
+{
+    % draw blunt triangle
+    \pgfpathmoveto{\pgfpoint{-0.5\pgf@circ@res@step}{0.55\pgf@circ@res@step}}
+    \pgfpathlineto{\pgfpoint{0.5\pgf@circ@res@step}{0.2\pgf@circ@res@step}}
+    \pgfpathlineto{\pgfpoint{0.5\pgf@circ@res@step}{-0.2\pgf@circ@res@step}}
+    \pgfpathlineto{\pgfpoint{-0.5\pgf@circ@res@step}{-0.55\pgf@circ@res@step}}
+    \pgfpathclose
+    \pgf@circ@draworfill
+    \pfgcirc@twoport@get@symbol@rotation
+    % draw inner text
+    \pgf@circ@text@strokecolor
+    \ifnum\@@rotation=180
+        \pgftransformrotate{180}
+        \pgftext[center,x=0.12\pgf@circ@res@step,y=0]{\ctikzvalof{bipoles/twoport/text}}
+    \else
+        \pgftext[center,x=-0.12\pgf@circ@res@step,y=0]{\ctikzvalof{bipoles/twoport/text}}
+    \fi
+}
 %% variable amplifier %% Beware, not using the generic twoport(s) macros.
-% \pgfcircdeclarebipolescaled{blocks}
 \pgfcirc@define@twoports@boxed{blocks}
 {
     \anchor{up}{%
@@ -1475,6 +1513,7 @@
 \pgfcirc@activate@bipole@simple{l}{dsp}
 \pgfcirc@activate@bipole@simple{l}{fft}
 \pgfcirc@activate@bipole@simple{l}{amp}
+\pgfcirc@activate@bipole@simple{l}{iamp}
 \pgfcirc@activate@bipole@simple{l}{vamp}
 \pgfcirc@activate@bipole@simple{l}{piattenuator}
 \pgfcirc@activate@bipole@simple{l}{vpiattenuator}
