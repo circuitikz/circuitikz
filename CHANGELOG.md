@@ -7,6 +7,7 @@ The major changes among the different CircuiTikZ versions are listed here. See <
 
     - Added `saturation` block (contributed by [P. Sacco <paul.sacco@estaca.eu>](https://github.com/circuitikz/circuitikz/issues/758)
     - Added `iamp`, `sigmoid`, and `allornothing` blocks
+    - Now the position of the lateral anchors (`left up` and similar) of blocks is configurable (suggested by [user "sputeanus" on GitHub](https://github.com/circuitikz/circuitikz/issues/769))
 
 * Version 1.6.6 (2023-12-09)
 
