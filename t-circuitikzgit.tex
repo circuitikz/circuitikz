@@ -16,8 +16,8 @@
 \startmodule[circuitikzgit]
 \usemodule[tikz]
 
-\def\pgfcircversion{1.6.7-unreleased-edc5344}
-\def\pgfcircversiondate{2023/12/30}
+\def\pgfcircversion{1.6.7-unreleased-008b515}
+\def\pgfcircversiondate{2024/01/19}
 \writestatus{loading}{\pgfcircversiondate{} The CircuiTikz circuit drawing package version \pgfcircversion}
 
 
@@ -21130,11 +21130,19 @@
     \fi
 }
 %%% blocks additional anchors
+\ctikzset{block left anchors pos/.initial=0.5}
+\ctikzset{block right anchors pos/.initial=0.5}
+\ctikzset{block lateral anchors pos/.code={
+    \ctikzset{block left anchors pos=#1}%
+    \ctikzset{block right anchors pos=#1}%
+}}
 \def\pgcirc@twoport@additional@anchors{%
-    \anchor{right down}{\northeast\pgf@y=-0.5\pgf@y}
-    \anchor{left down}{\northeast\pgf@x=-\pgf@x\pgf@y=-0.5\pgf@y}
-    \anchor{left up}{\northeast\pgf@x=-\pgf@x\pgf@y=0.5\pgf@y}
-    \anchor{right up}{\northeast\pgf@y=0.5\pgf@y}
+    \savedmacro{\blockleftanchorpos}{\edef\blockleftanchorpos{\ctikzvalof{block left anchors pos}}}
+    \savedmacro{\blockrightanchorpos}{\edef\blockrightanchorpos{\ctikzvalof{block right anchors pos}}}
+    \anchor{right down}{\northeast\pgf@y=-\blockrightanchorpos\pgf@y}
+    \anchor{left down}{\northeast\pgf@x=-\pgf@x\pgf@y=-\blockleftanchorpos\pgf@y}
+    \anchor{left up}{\northeast\pgf@x=-\pgf@x\pgf@y=\blockleftanchorpos\pgf@y}
+    \anchor{right up}{\northeast\pgf@y=\blockrightanchorpos\pgf@y}
     \anchor{up}{\northeast\pgf@x=0pt\relax}
     \anchor{down}{\northeast\pgf@y=-\pgf@y\pgf@x=0pt\relax}
 }
