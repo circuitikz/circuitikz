@@ -3648,20 +3648,36 @@ In addition, since \texttt{v1.6.0},  most blocks also have the \texttt{left up},
     (bp.left up) node[circ, red]{}
     (bp.left down) node[circ, blue]{}
     (bp.right up) node[circ, green]{}
-    (bp.right down) node[circ, yellow]{}
+    (bp.right down) node[circ, orange]{}
 ;\end{circuitikz}
 \end{LTXexample}
 
-You can use those anchors to build ``mixed-type'' circuits, positioning the node-shapes:
+Since \texttt{1.6.7} you can change the relative position of the lateral generic anchors\footnote{Suggested by \href{https://github.com/circuitikz/circuitikz/issues/769}{user @sputeanus} on GitHub} using the keys \texttt{block left anchors pos} and \texttt{block right anchor pos} (default \texttt{0.5}, as in previous releases) which set the position as a fraction of the top to center segment.
+
+\begin{LTXexample}[varwidth=true]
+\begin{circuitikz}
+    \ctikzset{block left anchors pos=0.8, block right anchors pos=0.2}
+    \draw (0,0) to[bandpass, name=bp] ++(2,0)
+    (bp.left up) node[circ, red]{}
+    (bp.left down) node[circ, blue]{}
+    (bp.right up) node[circ, green]{}
+    (bp.right down) node[circ, orange]{}
+;\end{circuitikz}
+\end{LTXexample}
+
+To set both left and right at the same value, you can use the key \texttt{block lateral anchors pos}, which set both to the same number.
+You can use those anchors to build ``mixed-type'' circuits, using the node-shapes (the following drawing is a bit silly, but shows that the anchor position can be changed locally):
 \begin{LTXexample}[pos=t, varwidth=true]
 \begin{tikzpicture}[
     big/.style={circuitikz/blocks/scale=1.5},
     long/.style={circuitikz/bipoles/twoportsplit/width=1.5}]
-    \path (0,0) node[sacdcshape, big](A){}
+    \ctikzset{block lateral anchors pos=0.8}
+    \path (0,0) node[sacdcshape, big, circuitikz/block right anchors pos=0.2](A){}
         (5,0) node[twoportsplitshape, big, long, t1=LNA, t2=Digital](B){};
     \draw (A.right up) -- (B.left up) (A.right down) to[cute choke] (B.left down);
 \end{tikzpicture}
 \end{LTXexample}
+
 Notice also from the previous example that the generic blocks (\texttt{twoport} and \texttt{twoportsplit}) can be made ``longer'' by setting different \texttt{width} and \texttt{height} (the other blocks are square, and just use the \texttt{width} key for both dimensions).
 
 Also, for \texttt{amp} and \texttt{vamp}, the \texttt{up} and \texttt{down} anchors follow the shape when they are not boxed.
