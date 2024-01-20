@@ -1537,6 +1537,74 @@
         \pgftext[center,x=-0.12\pgf@circ@res@step,y=0]{\ctikzvalof{bipoles/twoport/text}}
     \fi
 }
+
+%% optical fiber
+\pgfcircdeclarebipolescaled{blocks}
+{}
+{\ctikzvalof{bipoles/bandpass/width}}
+{fiber}
+{\ctikzvalof{bipoles/bandpass/width}}
+{\ctikzvalof{bipoles/bandpass/width}}
+{
+
+    \pgf@circ@res@step = \ctikzvalof{bipoles/bandpass/width}\pgf@circ@scaled@Rlen
+    \divide \pgf@circ@res@step by 2
+
+    \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@zero}}
+    \pgf@circ@res@other = \pgf@circ@res@left
+    \advance\pgf@circ@res@other by \pgf@circ@res@step
+
+    \ifpgf@circuit@dashed
+        \pgfsetdash{{0.1cm}{0.1cm}}{0cm}
+    \fi
+
+    % draw outer box
+    \pgf@circ@twoportbox
+
+    \ifpgf@circuit@inputarrow
+        {
+            \advance \pgf@circ@res@left by -.5\ctikzvalof{bipoles/thickness}\pgfstartlinewidth
+            \pgftransformshift{\pgfpoint{\pgf@circ@res@left}{0pt}}
+            \pgfnode{inputarrow}{tip}{}{pgf@inputarrow}{\pgfusepath{fill}}
+        }
+    \fi
+
+    % rotate inner symbol
+    \def\pgfcircmathresult{\expandafter\pgf@circ@stripdecimals\pgf@circ@direction\pgf@nil}
+    \ifnum \pgfcircmathresult > 45 \ifnum \pgfcircmathresult < 135
+        \pgftransformrotate{270}
+    \fi\fi
+    \ifnum \pgfcircmathresult > 134 \ifnum \pgfcircmathresult < 225  % 134 degree, because >= 135 is not possible
+        \pgftransformrotate{180}
+    \fi\fi
+    \ifnum \pgfcircmathresult > 224 \ifnum \pgfcircmathresult < 315
+        \pgftransformrotate{90}
+    \fi\fi
+
+    % draw inner symbol
+     \pgfsetdash{}{0pt}	% always draw solid line for inner symbol
+     \pgfsetarrows{-} %never draw arrows
+     \pgfsetlinewidth{\pgfstartlinewidth}
+	\pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@zero}}
+	\pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@zero}}
+     \pgfusepath{draw}
+
+%	\pgfpathmoveto{\pgfpoint{0.75\pgf@circ@res@left}{\pgf@circ@res@zero}}
+	\pgfpathcircle{\pgfpoint{0.2\pgf@circ@res@left}{6}}{6}
+	\pgfusepath{draw}
+
+	\pgfpathcircle{\pgfpoint{0\pgf@circ@res@left}{6}}{6}
+	\pgfusepath{draw}
+
+	\pgfpathcircle{\pgfpoint{-0.2\pgf@circ@res@left}{6}}{6}
+	\pgfusepath{draw}
+
+
+}
+
+\def\pgf@circ@fiber@path#1{\pgf@circ@bipole@path{fiber}{#1}}
+\compattikzset{fiber/.style = {\circuitikzbasekey,
+/tikz/to path=\pgf@circ@fiber@path, l=#1}}
 % %>>>
 
 %% Path definitions for Blocks%<<<
