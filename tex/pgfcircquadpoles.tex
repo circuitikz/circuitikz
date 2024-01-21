@@ -565,6 +565,7 @@
 \ctikzset{tripoles/adder/width/.initial=0.7}
 \ctikzset{tripoles/circulator/width/.initial=.7}
 \ctikzset{tripoles/oscillator/width/.initial=.7}
+\ctikzset{bipoles/fiber/width/.initial=.7}
 
 \ctikzset{tripoles/wilkinson/height/.initial=1.3}
 \ctikzset{tripoles/wilkinson/width/.initial=1.3}
@@ -1539,72 +1540,26 @@
 }
 
 %% optical fiber
-\pgfcircdeclarebipolescaled{blocks}
+\pgfcirc@define@twoports@norotate{blocks}
 {}
-{\ctikzvalof{bipoles/bandpass/width}}
+{\ctikzvalof{bipoles/fiber/width}}
 {fiber}
-{\ctikzvalof{bipoles/bandpass/width}}
-{\ctikzvalof{bipoles/bandpass/width}}
+{\ctikzvalof{bipoles/fiber/width}}
+{\ctikzvalof{bipoles/fiber/width}}
 {
-
-    \pgf@circ@res@step = \ctikzvalof{bipoles/bandpass/width}\pgf@circ@scaled@Rlen
-    \divide \pgf@circ@res@step by 2
-
-    \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@zero}}
-    \pgf@circ@res@other = \pgf@circ@res@left
-    \advance\pgf@circ@res@other by \pgf@circ@res@step
-
-    \ifpgf@circuit@dashed
-        \pgfsetdash{{0.1cm}{0.1cm}}{0cm}
-    \fi
-
-    % draw outer box
-    \pgf@circ@twoportbox
-
-    \ifpgf@circuit@inputarrow
-        {
-            \advance \pgf@circ@res@left by -.5\ctikzvalof{bipoles/thickness}\pgfstartlinewidth
-            \pgftransformshift{\pgfpoint{\pgf@circ@res@left}{0pt}}
-            \pgfnode{inputarrow}{tip}{}{pgf@inputarrow}{\pgfusepath{fill}}
-        }
-    \fi
-
-    % rotate inner symbol
-    \def\pgfcircmathresult{\expandafter\pgf@circ@stripdecimals\pgf@circ@direction\pgf@nil}
-    \ifnum \pgfcircmathresult > 45 \ifnum \pgfcircmathresult < 135
-        \pgftransformrotate{270}
-    \fi\fi
-    \ifnum \pgfcircmathresult > 134 \ifnum \pgfcircmathresult < 225  % 134 degree, because >= 135 is not possible
-        \pgftransformrotate{180}
-    \fi\fi
-    \ifnum \pgfcircmathresult > 224 \ifnum \pgfcircmathresult < 315
-        \pgftransformrotate{90}
-    \fi\fi
-
-    % draw inner symbol
-     \pgfsetdash{}{0pt}	% always draw solid line for inner symbol
-     \pgfsetarrows{-} %never draw arrows
-     \pgfsetlinewidth{\pgfstartlinewidth}
-	\pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@zero}}
-	\pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@zero}}
-     \pgfusepath{draw}
-
-%	\pgfpathmoveto{\pgfpoint{0.75\pgf@circ@res@left}{\pgf@circ@res@zero}}
-	\pgfpathcircle{\pgfpoint{0.2\pgf@circ@res@left}{6}}{6}
+	\pgfpathcircle{\pgfpoint{0.2\pgf@circ@res@left}{0.4\pgf@circ@res@up}}{0.4\pgf@circ@res@up}
+	\pgfpathcircle{\pgfpoint{0\pgf@circ@res@left}{0.4\pgf@circ@res@up}}{0.4\pgf@circ@res@up}
+        \pgfpathcircle{\pgfpoint{-0.2\pgf@circ@res@left}{0.4\pgf@circ@res@up}}{0.4\pgf@circ@res@up}
 	\pgfusepath{draw}
-
-	\pgfpathcircle{\pgfpoint{0\pgf@circ@res@left}{6}}{6}
+        % always use basic line width for this
+        \pgfsetlinewidth{\pgfstartlinewidth}
+        \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@zero}}
+        \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@zero}}
 	\pgfusepath{draw}
-
-	\pgfpathcircle{\pgfpoint{-0.2\pgf@circ@res@left}{6}}{6}
-	\pgfusepath{draw}
-
-
 }
 
-\def\pgf@circ@fiber@path#1{\pgf@circ@bipole@path{fiber}{#1}}
-\compattikzset{fiber/.style = {\circuitikzbasekey,
-/tikz/to path=\pgf@circ@fiber@path, l=#1}}
+\pgfcirc@activate@bipole@simple{l}{fiber}
+%
 % %>>>
 
 %% Path definitions for Blocks%<<<
@@ -1636,6 +1591,7 @@
 \pgfcirc@activate@bipole@simple{l}{saturation}
 \pgfcirc@activate@bipole@simple{l}{sigmoid}
 \pgfcirc@activate@bipole@simple{l}{allornothing}
+\pgfcirc@activate@bipole@simple{l}{fiber}
 \pgfcirc@activate@bipole@simple{l}{sacdc}
 \pgfcirc@activate@bipole@simple{l}{sdcac}
 \pgfcirc@activate@bipole@simple{l}{sdcdc}
