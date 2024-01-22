@@ -9,6 +9,7 @@ The major changes among the different CircuiTikZ versions are listed here. See <
     - Added `iamp`, `sigmoid`, and `allornothing` blocks
     - Added optical fiber `fiber` (contributed by [Christopher Beck](https://github.com/circuitikz/circuitikz/pull/771))
     - Now the position of the lateral anchors (`left up` and similar) of blocks is configurable (suggested by [user "sputeanus" on GitHub](https://github.com/circuitikz/circuitikz/issues/769))
+    - New section in the manual about related packages
 
 * Version 1.6.6 (2023-12-09)
 
