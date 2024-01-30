@@ -2167,12 +2167,74 @@
     \pgfusepath{draw}
 }
 
+
+%% macros for the sources with plus and minus internally
 %% To change the internal symbols of the voltage source american style
 \ctikzset{bipoles/vsourceam/inner plus/.initial={$+$}}
 % In the mayority of fonts, the size of - is smaller than +, so we have
 % unaligned signs when positioned independently.
 % See https://github.com/circuitikz/circuitikz/issues/721
 \ctikzset{bipoles/vsourceam/inner minus/.initial={$\vphantom{+}-$}}
+%%
+%% add the possibility to change the orientation of signs
+\ctikzset{sources/symbol/sign rotation/.initial=default}% default, auto, or value
+%% this should be more or less equivalent to \ctikzset{sources/symbol/sign rotation=90}, but it's font-dependent,
+%% so you never know. Let's keep the traditional one here.
+\def\pgf@circ@vsources@signs@default{%
+    \ifpgf@circ@oldvoltagedirection
+        \pgftext[bottom,rotate=90,y=\ctikzvalof{bipoles/vsourceam/margin}\pgf@circ@res@down]{\ctikzvalof{bipoles/vsourceam/inner plus}}%
+        \pgftext[top,rotate=90,y=\ctikzvalof{bipoles/vsourceam/margin}\pgf@circ@res@up]{\ctikzvalof{bipoles/vsourceam/inner minus}}%
+    \else
+        \pgftext[bottom,rotate=90,y=\ctikzvalof{bipoles/vsourceam/margin}\pgf@circ@res@down]{\ctikzvalof{bipoles/vsourceam/inner minus}}%
+        \pgftext[top,rotate=90,y=\ctikzvalof{bipoles/vsourceam/margin}\pgf@circ@res@up]{\ctikzvalof{bipoles/vsourceam/inner plus}}%
+    \fi
+}
+\def\pgf@circ@vsources@sign@auto@or@fix{%
+    \pgfgettransformentries\a\b\temp\temp\temp\temp
+    \pgfmathsetmacro{\rot}{-atan2(\b,\a)}
+    % the distance here is choosen so that it seems ok with standard fonts... probably, it must be changed.
+    \pgfmathsetlength{\pgf@circ@res@temp}{%
+        \ctikzvalof{bipoles/vsourceam/margin}*\pgf@circ@res@up
+        -0.5*height("\ctikzvalof{bipoles/vsourceam/inner plus}")}
+    \ifx\@@rotmode\@@auto
+        \pgfmathsetmacro{\innerrot}{abs(\rot)<46?0:(abs(\rot)>134?0:90)}
+    \else
+        \ifx\@@rotmode\@@straight
+            \pgfmathsetmacro{\innerrot}{\rot}
+        \else
+            \pgfmathsetmacro{\innerrot}{\@@rotmode}
+        \fi
+    \fi
+    \ifpgf@circ@oldvoltagedirection
+        \pgfscope
+            \pgftransformxshift{\pgf@circ@res@temp}
+            \pgftext[rotate=\innerrot]{\ctikzvalof{bipoles/vsourceam/inner plus}}
+        \endpgfscope
+        \pgfscope
+            \pgftransformxshift{-\pgf@circ@res@temp}
+            \pgftext[rotate=\innerrot]{\ctikzvalof{bipoles/vsourceam/inner minus}}
+        \endpgfscope
+    \else
+        \pgfscope
+            \pgftransformxshift{\pgf@circ@res@temp}
+            \pgftext[rotate=\innerrot]{\ctikzvalof{bipoles/vsourceam/inner minus}}
+        \endpgfscope
+        \pgfscope
+            \pgftransformxshift{-\pgf@circ@res@temp}
+            \pgftext[rotate=\innerrot]{\ctikzvalof{bipoles/vsourceam/inner plus}}
+        \endpgfscope
+    \fi
+}
+\def\pgf@circ@vsources@draw@signs{%
+    \edef\@@auto{auto}\edef\@@default{default}\edef\@@straight{straight}%
+    \edef\@@rotmode{\ctikzvalof{sources/symbol/sign rotation}}%
+    \ifx\@@rotmode\@@default
+        \pgf@circ@vsources@signs@default
+    \else
+        \pgf@circ@vsources@sign@auto@or@fix
+    \fi
+}
+
 %% Independent voltage source - American style
 \pgfcircdeclarebipolescaled{sources}
 {}
@@ -2188,13 +2250,7 @@
         \pgf@circ@draworfill
     \endpgfscope
     \pgf@circ@text@strokecolor
-    \ifpgf@circ@oldvoltagedirection
-        \pgftext[bottom,rotate=90,y=\ctikzvalof{bipoles/vsourceam/margin}\pgf@circ@res@down]{\ctikzvalof{bipoles/vsourceam/inner plus}}
-        \pgftext[top,rotate=90,y=\ctikzvalof{bipoles/vsourceam/margin}\pgf@circ@res@up]{\ctikzvalof{bipoles/vsourceam/inner minus}}
-    \else
-        \pgftext[bottom,rotate=90,y=\ctikzvalof{bipoles/vsourceam/margin}\pgf@circ@res@down]{\ctikzvalof{bipoles/vsourceam/inner minus}}
-        \pgftext[top,rotate=90,y=\ctikzvalof{bipoles/vsourceam/margin}\pgf@circ@res@up]{\ctikzvalof{bipoles/vsourceam/inner plus}}
-    \fi
+    \pgf@circ@vsources@draw@signs
 }
 
 %% Independent sinusoidal voltage source
@@ -2992,13 +3048,7 @@
         \pgf@circ@draworfill
     \endpgfscope
     \pgf@circ@text@strokecolor
-    \ifpgf@circ@oldvoltagedirection
-        \pgftext[bottom,rotate=90,y=\ctikzvalof{bipoles/cvsourceam/margin}\pgf@circ@res@left]{\ctikzvalof{bipoles/cvsourceam/inner plus}}
-        \pgftext[top,rotate=90,y=\ctikzvalof{bipoles/cvsourceam/margin}\pgf@circ@res@right]{\ctikzvalof{bipoles/cvsourceam/inner minus}}
-    \else
-        \pgftext[bottom,rotate=90,y=\ctikzvalof{bipoles/cvsourceam/margin}\pgf@circ@res@left]{\ctikzvalof{bipoles/cvsourceam/inner minus}}
-        \pgftext[top,rotate=90,y=\ctikzvalof{bipoles/cvsourceam/margin}\pgf@circ@res@right]{\ctikzvalof{bipoles/cvsourceam/inner plus}}
-    \fi
+    \pgf@circ@vsources@draw@signs
 }
 
 %% Controlled sinusoidal voltage source
