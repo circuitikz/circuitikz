@@ -1,5 +1,6 @@
 # XELATEXOPTIONS:=-8bit -interaction=nonstopmode
-XELATEXOPTIONS:=-8bit -halt-on-error
+PDFLATEXOPTIONS:=-8bit -halt-on-error
+# XELATEXOPTIONS:=-8bit -halt-on-error
 GIT_REV:=$(shell git rev-parse --short HEAD)
 GIT_DATE:=$(shell export LC_ALL=C;date +"%Y\/%m\/%d" --date=@`git show -s --format=%ct`)
 #GIT_DATE:=$(shell date)
@@ -15,8 +16,8 @@ help:
 # to check if it compiles, we do not need to fully build the manual; we save 2 compilation steps
 test-compile: changelog
 	cd doc; TEXINPUTS=.:../tex/: context circuitikz-context.tex
-	cd doc; TEXINPUTS=.:../tex/: xelatex $(XELATEXOPTIONS) compatibility.tex
-	cd doc; TEXINPUTS=.:../tex/: xelatex $(XELATEXOPTIONS) circuitikzmanual.tex
+	cd doc; TEXINPUTS=.:../tex/: pdflatex $(PDFLATEXOPTIONS) compatibility.tex
+	cd doc; TEXINPUTS=.:../tex/: pdflatex $(PDFLATEXOPTIONS) circuitikzmanual.tex
 
 
 manual-git: flat
@@ -49,7 +50,7 @@ manual-context: changelog
 manual-latex: changelog
 	rm -f doc/circuitikzmanual.pdf
 	rm -f doc/tmp.pdf
-	cd doc; TEXINPUTS=.:../tex/: xelatex $(XELATEXOPTIONS) compatibility.tex && TEXINPUTS=.:../tex/: xelatex $(XELATEXOPTIONS) circuitikzmanual.tex &&  TEXINPUTS=.:../tex/: xelatex $(XELATEXOPTIONS) circuitikzmanual.tex && TEXINPUTS=.:../tex/: xelatex $(XELATEXOPTIONS) circuitikzmanual.tex
+	cd doc; TEXINPUTS=.:../tex/: pdflatex $(PDFLATEXOPTIONS) compatibility.tex && TEXINPUTS=.:../tex/: pdflatex $(PDFLATEXOPTIONS) circuitikzmanual.tex &&  TEXINPUTS=.:../tex/: pdflatex $(PDFLATEXOPTIONS) circuitikzmanual.tex && TEXINPUTS=.:../tex/: pdflatex $(PDFLATEXOPTIONS) circuitikzmanual.tex
 
 changelog:
 	echo "%DO NOT EDIT THIS AUTOMATICALLY GENERATED FILE, run \"make changelog\" at toplevel!!!" > doc/changelog.tex
