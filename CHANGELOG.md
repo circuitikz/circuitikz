@@ -1,6 +1,10 @@
 <!--- CircuiTikz - Changelog --->
 The major changes among the different CircuiTikZ versions are listed here. See <https://github.com/circuitikz/circuitikz/commits> for a full list of changes.
 
+* Version 1.6.8 (unreleased)
+
+    - Bump version number
+
 * Version 1.6.7 (2024-02-09)
 
     Several new blocks, more flexible generic anchors for blocks, and a new option to align the signs on american-style voltage sources.
