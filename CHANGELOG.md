@@ -4,6 +4,7 @@ The major changes among the different CircuiTikZ versions are listed here. See <
 * Version 1.6.8 (unreleased)
 
     - Added `mid` anchor to all traditional switches
+    - Added a slashed generic European-style resistor (thanks to Jana, see https://tex.stackexchange.com/q/711702/38080)
     - Switch the default compiler to pdflatex (see https://tex.stackexchange.com/q/709273/38080)
     - Added a warning about color and engine in the documentation
 
