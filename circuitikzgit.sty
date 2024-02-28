@@ -16,8 +16,8 @@
 \providecommand\DeclareRelease[3]{}
 \providecommand\DeclareCurrentRelease[2]{}
 
-\def\pgfcircversion{1.6.8-unreleased-2df0324}
-\def\pgfcircversiondate{2024/02/11}
+\def\pgfcircversion{1.6.8-unreleased-4dd381a}
+\def\pgfcircversiondate{2024/02/28}
 
 \DeclareRelease{0.4}{2012/12/20}{circuitikz-0.4-body.tex}
 \DeclareRelease{v0.4}{2012/12/20}{circuitikz-0.4-body.tex}
@@ -9286,12 +9286,22 @@
     \pgf@circ@subset@color@dash{switch arrows}
     \pgfcirc@set@arrows{switch}{}{latexslim}
     }
+\def\pgf@circ@savedanchor@trad@midlever#1#2{% #1 -> name #2 -> relative height
+    \savedanchor\midlever{% this is the full height of the "handle" of switch
+        \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
+        \pgf@y=\ctikzvalof{bipoles/#1/height}\pgf@circ@scaled@Rlen
+        \pgf@x=0pt\pgf@y=0.5\pgf@y
+    }
+    \anchor{mid}{\midlever\pgf@y=#2\pgf@y}
+}
 %%>>>
 
 %% Shapes Node for bipoles switches and similar things%<<<
 %% (Closing) SPST
 \pgfcircdeclarebipolescaled{switches}
-{}
+{
+    \pgf@circ@savedanchor@trad@midlever{spst}{0.6}
+}
 {\ctikzvalof{bipoles/spst/depth}}
 {cspst}
 {\ctikzvalof{bipoles/spst/height}}
@@ -9313,7 +9323,9 @@
 
 %% Opening SPST
 \pgfcircdeclarebipolescaled{switches}
-{}
+{
+    \pgf@circ@savedanchor@trad@midlever{spst}{0.6}
+}
 {\ctikzvalof{bipoles/spst/depth}}
 {ospst}
 {\ctikzvalof{bipoles/spst/height}}
@@ -9335,7 +9347,9 @@
 
 %% Normal open Switch
 \pgfcircdeclarebipolescaled{switches}
-{}
+{
+        \pgf@circ@savedanchor@trad@midlever{nos}{0.5}
+}
 {\ctikzvalof{bipoles/nos/depth}}
 {nos}
 {\ctikzvalof{bipoles/nos/height}}
@@ -9350,7 +9364,9 @@
 
 %% Normal closed Switch
 \pgfcircdeclarebipolescaled{switches}
-{}
+{
+        \pgf@circ@savedanchor@trad@midlever{ncs}{0.5}
+}
 {\ctikzvalof{bipoles/ncs/depth}}
 {ncs}
 {\ctikzvalof{bipoles/ncs/height}}
@@ -9369,7 +9385,9 @@
 
 % Opening normal closed Switch
 \pgfcircdeclarebipolescaled{switches}
-{}
+{
+        \pgf@circ@savedanchor@trad@midlever{ncs}{0.5}
+}
 {\ctikzvalof{bipoles/ncs/depth}}
 {oncs}
 {\ctikzvalof{bipoles/ncs/height}}
@@ -9397,7 +9415,9 @@
 
 %% Closing normal closed Switch
 \pgfcircdeclarebipolescaled{switches}
-{}
+{
+        \pgf@circ@savedanchor@trad@midlever{ncs}{0.5}
+}
 {\ctikzvalof{bipoles/ncs/depth}}
 {cncs}
 {\ctikzvalof{bipoles/ncs/height}}
@@ -9425,7 +9445,9 @@
 
 %% Opening normal open Switch
 \pgfcircdeclarebipolescaled{switches}
-{}
+{
+        \pgf@circ@savedanchor@trad@midlever{ncs}{0.5}
+}
 {\ctikzvalof{bipoles/ncs/depth}}
 {onos}
 {\ctikzvalof{bipoles/ncs/height}}
@@ -9453,7 +9475,9 @@
 
 %% Closing normal open Switch
 \pgfcircdeclarebipolescaled{switches}
-{}
+{
+        \pgf@circ@savedanchor@trad@midlever{ncs}{0.5}
+}
 {\ctikzvalof{bipoles/ncs/depth}}
 {cnos}
 {\ctikzvalof{bipoles/ncs/height}}
@@ -9483,6 +9507,8 @@
 \pgfcircdeclarebipolescaled{switches}
 {
     \anchor{tip}{\northeast\pgf@x=0pt\relax}
+    % we can use the generic here, the "bar" is related to bipoles/*/height
+    \pgf@circ@savedanchor@trad@midlever{pushbutton}{0.5}
 }
 {\ctikzvalof{bipoles/pushbutton/height 2}}
 {pushbutton}
@@ -9506,6 +9532,11 @@
 \pgfcircdeclarebipolescaled{switches}
 {
     \anchor{tip}{\northeast\pgf@x=0pt\relax}
+    \savedanchor{\nodeheight}{
+        \pgf@x=0pt\pgf@y=\ctikzvalof{nodes width}\pgf@circ@Rlen
+    }
+    \anchor{mid}{\nodeheight\pgf@y=-\pgf@y}
+    % \pgf@circ@savedanchor@trad@midlever{pushbutton}{0.5}
 }
 {\ctikzvalof{bipoles/pushbutton/height 2}}
 {ncpushbutton}
@@ -9531,11 +9562,15 @@
 %% https://github.com/circuitikz/circuitikz/issues/128#issuecomment-731771299
 \pgfcircdeclarebipolescaled{switches}
 {
+    \savedanchor{\nodeheight}{
+        \pgf@x=0pt\pgf@y=\ctikzvalof{nodes width}\pgf@circ@Rlen
+    }
     \anchor{tip}{
-        \pgf@circ@res@temp=\ctikzvalof{nodes width}\pgf@circ@Rlen
+        \nodeheight\pgf@circ@res@temp=\pgf@y
         \northeast\divide\pgf@y by 2\advance\pgf@y by \pgf@circ@res@temp
         \pgf@x=0pt\relax
     }
+    \anchor{mid}{\nodeheight}
 }
 {\ctikzvalof{bipoles/pushbutton/height 2}}
 {pushbuttonc}
@@ -9559,11 +9594,15 @@
 %% Normally closed Push Button now open
 \pgfcircdeclarebipolescaled{switches}
 {
+    \savedanchor{\nodeheight}{
+        \pgf@x=0pt\pgf@y=\ctikzvalof{nodes width}\pgf@circ@Rlen
+    }
     \anchor{tip}{
-        \pgf@circ@res@temp=\ctikzvalof{nodes width}\pgf@circ@Rlen
+        \nodeheight\pgf@circ@res@temp=\pgf@y
         \northeast\divide\pgf@y by 2\advance\pgf@y by \pgf@circ@res@temp
         \pgf@x=0pt\relax
     }
+    \anchor{mid}{\northeast\pgf@x=0pt\pgf@y=-0.5\pgf@y}
 }
 {\ctikzvalof{bipoles/pushbutton/height 2}}
 {ncpushbuttono}
@@ -9587,7 +9626,9 @@
 }
 %%% reed switches
 \pgfcircdeclarebipolescaled{switches}
-{}
+{
+        \pgf@circ@savedanchor@trad@midlever{nos}{0.5}
+}
 {\ctikzvalof{bipoles/reed/depth}}
 {reed}
 {\ctikzvalof{bipoles/reed/height}}
@@ -9714,14 +9755,10 @@
     }
 
 \pgfcircdeclarebipole{
-    \anchor{out 1}{
-        \northeast
-        \pgf@y=0cm
-    }
-    \anchor{out 2}{
-        \northeast
-        \pgf@y=.8\pgf@y
-    }
+    \anchor{out 1}{\northeast\pgf@y=0pt\relax}
+    \anchor{out 2}{\northeast\pgf@y=.8\pgf@y}
+    \anchor{in}{\northeast\pgf@y=0pt\pgf@x=-\pgf@x}
+    \anchor{mid}{\northeast\pgf@x=0.2\pgf@x\pgf@y=0.25\pgf@y}
 }
 {\ctikzvalof{tripoles/toggleswitch/height 2}}
 {toggleswitch}
@@ -9781,82 +9818,30 @@
         \pgf@x=-\ctikzvalof{tripoles/spdt/width}\pgf@circ@scaled@Rlen
         \pgf@x=.5\pgf@x
     }
-    \anchor{left}{%
-        \northwest
-        \pgf@y=0pt
-    }
-    \anchor{in}{
-        \northwest
-        \pgf@y=0pt
-    }
-    \anchor{out 1}{
-        \northwest
-        \pgf@x=-\pgf@x
-    }
-    \anchor{out 2}{
-        \northwest
-        \pgf@x=-\pgf@x
-        \pgf@y=-\pgf@y
-    }
-    \anchor{center}{
-        \pgf@y=0pt
-        \pgf@x=0pt
-    }
-    \anchor{east}{
-        \northwest
-        \pgf@y=0pt
-        \pgf@x=-\pgf@x
-    }
-    \anchor{west}{
-        \northwest
-        \pgf@y=0pt
-    }
-    \anchor{south}{
-        \northwest
-        \pgf@x=0pt
-        \pgf@y=-\pgf@y
-    }
-    \anchor{north}{
-        \northwest
-        \pgf@x=0pt
-    }
-    \anchor{south west}{
-        \northwest
-        \pgf@y=-\pgf@y
-    }
-    \anchor{north east}{
-        \northwest
-        \pgf@x=-\pgf@x
-    }
-    \anchor{north west}{
-        \northwest
-    }
-    \anchor{south east}{
-        \northwest
-        \pgf@x=-\pgf@x
-        \pgf@y=-\pgf@y
-    }
+    \pgfcirc@northwest@symmetric@geoanchors
+    \anchor{in}{\northwest\pgf@y=0pt}
+    \anchor{out 1}{\northwest\pgf@x=-\pgf@x}
+    % this is "by eye", it'll be wrong with non-standard ocirc
+    \anchor{mid}{\northwest\pgf@x=0pt\pgf@y=0.37\pgf@y}
+    \anchor{out 2}{\northwest\pgf@x=-\pgf@x \pgf@y=-\pgf@y}
+    \anchor{center}{\pgf@y=0pt\pgf@x=0pt}
     \pgf@circ@draw@component{
         \pgf@circ@setcolor
-
         \northwest
         \pgf@circ@res@up = \pgf@y
         \pgf@circ@res@down = -\pgf@y
         \pgf@circ@res@right = -\pgf@x
         \pgf@circ@res@left = \pgf@x
         \pgf@circ@res@other = \ctikzvalof{tripoles/spdt/margin}\pgf@circ@res@left
-
-
+        %
         \pgfpathmoveto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@up}}
         \pgfpathlineto{\pgfpoint{-\pgf@circ@res@other}{\pgf@circ@res@up}}
         \pgfpathmoveto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@down}}
         \pgfpathlineto{\pgfpoint{-\pgf@circ@res@other}{\pgf@circ@res@down}}
-
+        %
         \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{0pt}}
         \pgfpathlineto{\pgfpoint{\pgf@circ@res@other}{0pt}}
-
         \pgfusepath{draw}
-
         \pgfscope
             \pgftransformshift{\pgfpoint{-\pgf@circ@res@other}{\pgf@circ@res@up}}
             \pgfnode{ocirc}{center}{}{spdt1}{\pgfusepath{stroke}}
@@ -9869,7 +9854,6 @@
             \pgftransformshift{\pgfpoint{\pgf@circ@res@other}{0pt}}
             \pgfnode{ocirc}{center}{}{spdt2}{\pgfusepath{stroke}}
         \endpgfscope
-
         \pgfscope
             \pgfpathmoveto{\pgfpointshapeborder{spdt2}{\pgfpointorigin}}
             \pgfpathlineto{
