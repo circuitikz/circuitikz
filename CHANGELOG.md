@@ -3,8 +3,9 @@ The major changes among the different CircuiTikZ versions are listed here. See <
 
 * Version 1.6.8 (unreleased)
 
+    - Added `mid` anchor to all traditional switches
     - Switch the default compiler to pdflatex (see https://tex.stackexchange.com/q/709273/38080)
-    - Add a warning about color and engine in the documentation
+    - Added a warning about color and engine in the documentation
 
 * Version 1.6.7 (2024-02-09)
 
