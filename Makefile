@@ -7,6 +7,7 @@ GIT_DATE:=$(shell export LC_ALL=C;date +"%Y\/%m\/%d" --date=@`git show -s --form
 CTIKZ_GIT_FILENAME:=circuitikzgit.sty
 CTIKZ_CONTEXT_GIT_FILENAME:=t-circuitikzgit.tex
 .PHONY: ctan clean
+HAVE_CONTEXT := $(shell command -v context 2> /dev/null)
 
 help:
 	@echo ---HELP---
@@ -15,7 +16,12 @@ help:
 
 # to check if it compiles, we do not need to fully build the manual; we save 2 compilation steps
 test-compile: changelog
+	echo $(HAVE_CONTEXT)
+ifdef HAVE_CONTEXT
 	cd doc; TEXINPUTS=.:../tex/: context circuitikz-context.tex
+else
+	echo "ConTeXt not found, check compatibility skipped"
+endif
 	cd doc; TEXINPUTS=.:../tex/: pdflatex $(PDFLATEXOPTIONS) compatibility.tex
 	cd doc; TEXINPUTS=.:../tex/: pdflatex $(PDFLATEXOPTIONS) circuitikzmanual.tex
 
@@ -43,9 +49,13 @@ manual-git-fail:
 manual: manual-latex manual-context clean
 
 manual-context: changelog
+ifdef HAVE_CONTEXT
 	rm -f doc/circuitikz-context.pdf
 	rm -f doc/tmp.pdf
 	cd doc; TEXINPUTS=.:../tex/: context circuitikz-context.tex
+else
+	echo "ConTeXt not found, check compatibility skipped"
+endif
 
 manual-latex: changelog
 	rm -f doc/circuitikzmanual.pdf
