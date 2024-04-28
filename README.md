@@ -37,6 +37,8 @@ in the preamble and compile away, both with PS and PDF target output.
 
 It is higly recommended to go through the [tutorials in the manual](https://circuitikz.github.io/circuitikz/circuitikzmanualgit.pdf#c) and to learn a bit of Ti*k*Z before for example, go through at least the [basic Ti*k*Z one](https://tikz.dev/tutorial), but there are more suggestions in the documentation.
 
+*Notice* that for the time being, due to [this bug](https://bugs.launchpad.net/ubuntu/+source/context/+bug/2058409), automatic (CI) checks for ConTeXt compatibility is disabled. I (Romano) am still checking it at home, but I am not able to have it integrated in the CI.
+
 ### Development or newer version
 
 If you want to use the git version, go to the [GitHub page for the project](https://circuitikz.github.io/circuitikz/), download the last version (or the one you want to use)  — it's the links called "download the latest version in a single file". You will have a file called `circuitikzgit.sty` that you should put somewhere in your LaTeX input path; the best place is in the same directory where your main file live. Then, just use it instead of the normal one:
@@ -53,7 +55,7 @@ Be aware that options and style files can (and do) change between versions, so y
 
 ### Older version
 
-There is a roll-back mechanism in the package, that let you use older versions if you need them; the details are in the manual, look at the section named *"Incompabilities between versions"*  for details.
+There is a roll-back mechanism in the package, that let you use older versions if you need them; the details are in the manual, look at the section named *"Incompatibilities between versions"*  for details.
 
 You have all the code and the corresponding manual available in the  [in the github page](http://circuitikz.github.io/circuitikz/)  of the project, since version 0.6 onward.
 
