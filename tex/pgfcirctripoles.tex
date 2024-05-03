@@ -8547,11 +8547,34 @@
     \fi
 }
 
-%% The diode (tube), triode, tetrode and pentode only differ in the
-%% number of grids. So we construct a generic declare function in
-%% which we can put code for the grid anchors and grid drawing code
-%% \pgfcircdeclaretube{tube name}{grid anchors}{grid drawing code}
-\long\def\pgfcircdeclaretube#1#2#3{%
+\long\def\pgfcirctubedrawanodestd{% Standard anode code (one anode)
+    % Anode (or plate)
+    \pgfpathmoveto{\pgfpoint{0pt}{\pgf@circ@res@up}} % north
+    \pgfpathlineto{\pgfpoint{0pt}{\ctikzvalof{tubes/anode distance}\pgf@circ@res@up}}
+    \pgfpathmoveto{\pgfpoint{-\ctikzvalof{tubes/anode width}\pgf@circ@res@right}{\ctikzvalof{tubes/anode distance}\pgf@circ@res@up}}
+    \pgfpathlineto{\pgfpoint{\ctikzvalof{tubes/anode width}\pgf@circ@res@right}{\ctikzvalof{tubes/anode distance}\pgf@circ@res@up}}
+}
+\long\def\pgfcirctubedrawcathodestd{% Standard cathode code (one cathode)
+    % Cathode
+    \ifpgf@circuit@tubes@nocathode
+        \pgf@circuit@tubes@nocathodefalse
+    \else
+        \pgfsetcornersarced{\pgfpoint{\ctikzvalof{tubes/cathode corners}\pgf@circ@res@up}{\ctikzvalof{tubes/cathode corners}\pgf@circ@res@up}}
+        \pgfpathmoveto{\pgfpoint{-\ctikzvalof{tubes/cathode width}\pgf@circ@res@right}{-\pgf@circ@res@up}}
+        \pgfpathlineto{\pgfpoint{-\ctikzvalof{tubes/cathode width}\pgf@circ@res@right}{-\ctikzvalof{tubes/cathode distance}\pgf@circ@res@up}}
+        \pgfpathlineto{\pgfpoint{\ctikzvalof{tubes/cathode width}\pgf@circ@res@right}{-\ctikzvalof{tubes/cathode distance}\pgf@circ@res@up}}
+        \ifpgf@circuit@tubes@fullcathode
+            \pgfpathlineto{\pgfpoint{\ctikzvalof{tubes/cathode width}\pgf@circ@res@right}{-\pgf@circ@res@up}}
+            \pgf@circuit@tubes@fullcathodefalse
+        \else
+            \pgfpathlineto{\pgfpoint{\ctikzvalof{tubes/cathode width}\pgf@circ@res@right}{-\ctikzvalof{tubes/cathode distance}\pgf@circ@res@up-\ctikzvalof{tubes/cathode right extend}\pgf@circ@res@up}}
+        \fi
+    \fi
+}
+
+%% generic macro to create a tube. Most of them will use the standard macro for
+%% anode and cathode (see above)
+\long\def\pgfcircdeclaretubegeneric#1#2#3#4#5#6{% name, anchors, grid, anode, cathode variable anchors
     \pgfdeclareshape{#1}{
         \savedmacro{\ctikzclass}{\edef\ctikzclass{tubes}}
         \saveddimen{\scaledRlen}{\pgfmathsetlength{\pgf@x}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}}
@@ -8693,31 +8716,22 @@
                 \fi
 
                 % Anode (or plate)
-                \pgfpathmoveto{\pgfpoint{0pt}{\pgf@circ@res@up}} % north
-                \pgfpathlineto{\pgfpoint{0pt}{\ctikzvalof{tubes/anode distance}\pgf@circ@res@up}}
-                \pgfpathmoveto{\pgfpoint{-\ctikzvalof{tubes/anode width}\pgf@circ@res@right}{\ctikzvalof{tubes/anode distance}\pgf@circ@res@up}}
-                \pgfpathlineto{\pgfpoint{\ctikzvalof{tubes/anode width}\pgf@circ@res@right}{\ctikzvalof{tubes/anode distance}\pgf@circ@res@up}}
-
+                #4
                 % Cathode
-                \ifpgf@circuit@tubes@nocathode
-                    \pgf@circuit@tubes@nocathodefalse
-                \else
-                    \pgfsetcornersarced{\pgfpoint{\ctikzvalof{tubes/cathode corners}\pgf@circ@res@up}{\ctikzvalof{tubes/cathode corners}\pgf@circ@res@up}}
-                    \pgfpathmoveto{\pgfpoint{-\ctikzvalof{tubes/cathode width}\pgf@circ@res@right}{-\pgf@circ@res@up}}
-                    \pgfpathlineto{\pgfpoint{-\ctikzvalof{tubes/cathode width}\pgf@circ@res@right}{-\ctikzvalof{tubes/cathode distance}\pgf@circ@res@up}}
-                    \pgfpathlineto{\pgfpoint{\ctikzvalof{tubes/cathode width}\pgf@circ@res@right}{-\ctikzvalof{tubes/cathode distance}\pgf@circ@res@up}}
-                    \ifpgf@circuit@tubes@fullcathode
-                        \pgfpathlineto{\pgfpoint{\ctikzvalof{tubes/cathode width}\pgf@circ@res@right}{-\pgf@circ@res@up}}
-                        \pgf@circuit@tubes@fullcathodefalse
-                    \else
-                        \pgfpathlineto{\pgfpoint{\ctikzvalof{tubes/cathode width}\pgf@circ@res@right}{-\ctikzvalof{tubes/cathode distance}\pgf@circ@res@up-\ctikzvalof{tubes/cathode right extend}\pgf@circ@res@up}}
-                    \fi
-                \fi
-
+                #5
                 % Draw the background
                 \pgfusepath{draw}
         }
+        #6
     }
+}
+
+%% The diode (tube), triode, tetrode and pentode only differ in the
+%% number of grids. So we construct a generic declare function in
+%% which we can put code for the grid anchors and grid drawing code
+%% \pgfcircdeclaretube{tube name}{grid anchors}{grid drawing code}
+\long\def\pgfcircdeclaretube#1#2#3{% name, anchors, grid
+    \pgfcircdeclaretubegeneric{#1}{#2}{#3}{\pgfcirctubedrawanodestd}{\pgfcirctubedrawcathodestd}{}
 }
 
 \pgfcircdeclaretube{diodetube}{}{} % shape diode already exists
