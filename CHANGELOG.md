@@ -5,9 +5,10 @@ The major changes among the different CircuiTikZ versions are listed here. See <
 
     - Added `mid` anchor to all traditional switches
     - Added a slashed generic European-style resistor (thanks to [Jana](https://tex.stackexchange.com/q/711702/38080))
-    - Added a multi-anode tube for implementing nixies and vfd (thanks to [GitHub user @nogger33](https://github.com/circuitikz/circuitikz/issues/785))
+    - Added a multi-anode tube for implementing nixies and vfd (thanks to [GitHub user nogger33](https://github.com/circuitikz/circuitikz/issues/785))
     - Switch the default compiler to pdflatex (see https://tex.stackexchange.com/q/709273/38080)
     - Added a warning about color and engine in the documentation
+    - Enhanced the documentation for instruments (thanks to [Github user mxxmxm](https://github.com/circuitikz/circuitikz/issues/787))
 
 * Version 1.6.7 (2024-02-09)
 
