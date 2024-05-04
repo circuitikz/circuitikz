@@ -4949,6 +4949,60 @@ The dashed line pattern can be changed by setting the key \texttt{tubes/partial 
 \end{LTXexample}
 
 
+\subsubsection{Multi-anode tube}
+
+The multi-anode tube (\texttt{matube}) is a component thought to be tailored for several different usages,\footnote{It was added in \texttt{v1.6.8} after suggestions by user \texttt{bogger33} on GitHub \href{https://github.com/circuitikz/circuitikz/issues/781}{here} and \href{https://github.com/circuitikz/circuitikz/issues/785}{here}.} as shown in the examples below.
+
+The anchors for the multiple anodes have also alias names to ease the use in the case of implementing nixie tubes, because in that case the anode/cathode roles are swapped.
+
+\begin{groupdesc}
+    \circuitdesc*{matube}{Multi-anode tube}{}(anode 1/110/0.2, anode 2/60/0.2, anode 3/-30/0.2, cathode/-90/0.2, control/180/0.2 )
+    \circuitdesc*{matube, nixieanode, anodedot, nogrid}{Multi-anode tube used for nixie tubes}{}(nixie k1/110/0.2, nixie k2/60/0.2, nixie k3/-30/0.2, nixie a/-90/0.2)
+\end{groupdesc}
+
+Basically all the parameters available for triodes are available. The main difference is that the \texttt{anode width} parameter define the length of \emph{all} the anodes; those tubes are normally used with a \texttt{width} parameter bigger than \texttt{height}, to have an elongated device.
+
+The additional parameters/flags available only for \texttt{matube}s are the following.
+
+\begin{tabular}{l | l | l}
+  Key/Flag & Default value & Description\\
+  \hline
+  \texttt{anodes} & 3 & number of anodes \\
+  \texttt{anodedot} & false & substitute anodes bar for dots \\
+  \texttt{nixieanode} & false & substitute the cathode for the nixie-style anode \\
+  \texttt{nogrid} & false & suppresses the drawing of the grid \\
+\end{tabular}
+
+In the next example, we define a 10-anodes VFD tube:
+
+\begin{LTXexample}[varwidth=true, basicstyle=\small\ttfamily]
+\tikzset{vfd 10/.style={matube, filament, nocathode,
+        circuitikz/tubes/.cd,
+        width=3.6, height=1, anodes=10, anode width=0.6,
+        cathode width=0.1,
+}}
+\begin{circuitikz}[european]
+   \draw (0,0) node[vfd 10](A){};
+   \foreach \i in {1,...,10} \path (A.anode \i)
+        node[red, ocirc]{} node[above]{\tiny \i};
+\end{circuitikz}
+\end{LTXexample}
+
+And a 10-cathodes nixie tube:
+
+
+\begin{LTXexample}[varwidth=true, basicstyle=\small\ttfamily]
+\tikzset{nixie/.style={matube, nogrid, nixieanode,
+        anodedot, circuitikz/tubes/.cd, cathode width=0.6,
+        width=3.6, height=1, anodes=10, anode width=0.6,
+}}
+\begin{circuitikz}[european]
+\draw (0,0) node[nixie](A){};
+\foreach \i in {1,...,10} \path (A.nixie k\i)
+    node[red, ocirc]{} node[above]{\tiny \i};
+    \path (A.nixie a) node[red, ocirc]{};
+\end{circuitikz}
+\end{LTXexample}
 
 \subsubsection{Other tubes-like components}
 
