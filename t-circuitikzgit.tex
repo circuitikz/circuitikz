@@ -16,8 +16,8 @@
 \startmodule[circuitikzgit]
 \usemodule[tikz]
 
-\def\pgfcircversion{1.6.8-unreleased-c875459}
-\def\pgfcircversiondate{2024/04/28}
+\def\pgfcircversion{1.6.8-unreleased-d9891c2}
+\def\pgfcircversiondate{2024/05/04}
 \writestatus{loading}{\pgfcircversiondate{} The CircuiTikz circuit drawing package version \pgfcircversion}
 
 
@@ -20134,11 +20134,34 @@
     \fi
 }
 
-%% The diode (tube), triode, tetrode and pentode only differ in the
-%% number of grids. So we construct a generic declare function in
-%% which we can put code for the grid anchors and grid drawing code
-%% \pgfcircdeclaretube{tube name}{grid anchors}{grid drawing code}
-\long\def\pgfcircdeclaretube#1#2#3{%
+\long\def\pgfcirctubedrawanodestd{% Standard anode code (one anode)
+    % Anode (or plate)
+    \pgfpathmoveto{\pgfpoint{0pt}{\pgf@circ@res@up}} % north
+    \pgfpathlineto{\pgfpoint{0pt}{\ctikzvalof{tubes/anode distance}\pgf@circ@res@up}}
+    \pgfpathmoveto{\pgfpoint{-\ctikzvalof{tubes/anode width}\pgf@circ@res@right}{\ctikzvalof{tubes/anode distance}\pgf@circ@res@up}}
+    \pgfpathlineto{\pgfpoint{\ctikzvalof{tubes/anode width}\pgf@circ@res@right}{\ctikzvalof{tubes/anode distance}\pgf@circ@res@up}}
+}
+\long\def\pgfcirctubedrawcathodestd{% Standard cathode code (one cathode)
+    % Cathode
+    \ifpgf@circuit@tubes@nocathode
+        \pgf@circuit@tubes@nocathodefalse
+    \else
+        \pgfsetcornersarced{\pgfpoint{\ctikzvalof{tubes/cathode corners}\pgf@circ@res@up}{\ctikzvalof{tubes/cathode corners}\pgf@circ@res@up}}
+        \pgfpathmoveto{\pgfpoint{-\ctikzvalof{tubes/cathode width}\pgf@circ@res@right}{-\pgf@circ@res@up}}
+        \pgfpathlineto{\pgfpoint{-\ctikzvalof{tubes/cathode width}\pgf@circ@res@right}{-\ctikzvalof{tubes/cathode distance}\pgf@circ@res@up}}
+        \pgfpathlineto{\pgfpoint{\ctikzvalof{tubes/cathode width}\pgf@circ@res@right}{-\ctikzvalof{tubes/cathode distance}\pgf@circ@res@up}}
+        \ifpgf@circuit@tubes@fullcathode
+            \pgfpathlineto{\pgfpoint{\ctikzvalof{tubes/cathode width}\pgf@circ@res@right}{-\pgf@circ@res@up}}
+            \pgf@circuit@tubes@fullcathodefalse
+        \else
+            \pgfpathlineto{\pgfpoint{\ctikzvalof{tubes/cathode width}\pgf@circ@res@right}{-\ctikzvalof{tubes/cathode distance}\pgf@circ@res@up-\ctikzvalof{tubes/cathode right extend}\pgf@circ@res@up}}
+        \fi
+    \fi
+}
+
+%% generic macro to create a tube. Most of them will use the standard macro for
+%% anode and cathode (see above)
+\long\def\pgfcircdeclaretubegeneric#1#2#3#4#5#6{% name, anchors, grid, anode, cathode variable anchors
     \pgfdeclareshape{#1}{
         \savedmacro{\ctikzclass}{\edef\ctikzclass{tubes}}
         \saveddimen{\scaledRlen}{\pgfmathsetlength{\pgf@x}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}}
@@ -20280,31 +20303,22 @@
                 \fi
 
                 % Anode (or plate)
-                \pgfpathmoveto{\pgfpoint{0pt}{\pgf@circ@res@up}} % north
-                \pgfpathlineto{\pgfpoint{0pt}{\ctikzvalof{tubes/anode distance}\pgf@circ@res@up}}
-                \pgfpathmoveto{\pgfpoint{-\ctikzvalof{tubes/anode width}\pgf@circ@res@right}{\ctikzvalof{tubes/anode distance}\pgf@circ@res@up}}
-                \pgfpathlineto{\pgfpoint{\ctikzvalof{tubes/anode width}\pgf@circ@res@right}{\ctikzvalof{tubes/anode distance}\pgf@circ@res@up}}
-
+                #4
                 % Cathode
-                \ifpgf@circuit@tubes@nocathode
-                    \pgf@circuit@tubes@nocathodefalse
-                \else
-                    \pgfsetcornersarced{\pgfpoint{\ctikzvalof{tubes/cathode corners}\pgf@circ@res@up}{\ctikzvalof{tubes/cathode corners}\pgf@circ@res@up}}
-                    \pgfpathmoveto{\pgfpoint{-\ctikzvalof{tubes/cathode width}\pgf@circ@res@right}{-\pgf@circ@res@up}}
-                    \pgfpathlineto{\pgfpoint{-\ctikzvalof{tubes/cathode width}\pgf@circ@res@right}{-\ctikzvalof{tubes/cathode distance}\pgf@circ@res@up}}
-                    \pgfpathlineto{\pgfpoint{\ctikzvalof{tubes/cathode width}\pgf@circ@res@right}{-\ctikzvalof{tubes/cathode distance}\pgf@circ@res@up}}
-                    \ifpgf@circuit@tubes@fullcathode
-                        \pgfpathlineto{\pgfpoint{\ctikzvalof{tubes/cathode width}\pgf@circ@res@right}{-\pgf@circ@res@up}}
-                        \pgf@circuit@tubes@fullcathodefalse
-                    \else
-                        \pgfpathlineto{\pgfpoint{\ctikzvalof{tubes/cathode width}\pgf@circ@res@right}{-\ctikzvalof{tubes/cathode distance}\pgf@circ@res@up-\ctikzvalof{tubes/cathode right extend}\pgf@circ@res@up}}
-                    \fi
-                \fi
-
+                #5
                 % Draw the background
                 \pgfusepath{draw}
         }
+        #6
     }
+}
+
+%% The diode (tube), triode, tetrode and pentode only differ in the
+%% number of grids. So we construct a generic declare function in
+%% which we can put code for the grid anchors and grid drawing code
+%% \pgfcircdeclaretube{tube name}{grid anchors}{grid drawing code}
+\long\def\pgfcircdeclaretube#1#2#3{% name, anchors, grid
+    \pgfcircdeclaretubegeneric{#1}{#2}{#3}{\pgfcirctubedrawanodestd}{\pgfcirctubedrawcathodestd}{}
 }
 
 \pgfcircdeclaretube{diodetube}{}{} % shape diode already exists
@@ -20538,7 +20552,143 @@
 	\pgfpathlineto{\pgfpoint{\pgf@circ@res@temp}{\pgfutil@tempdima-2*\ctikzvalof{tubes/grid separation}\pgf@circ@res@up}}
 	\pgfpathlineto{\pgfpoint{\ctikzvalof{tubes/cathode width}\pgf@circ@res@right-0.4142136*\ctikzvalof{tubes/cathode corners}\pgf@circ@res@right}{-\ctikzvalof{tubes/cathode distance}\pgf@circ@res@up-0.4142136*\ctikzvalof{tubes/cathode corners}\pgf@circ@res@up}}
 
-}% %>>>
+}%
+%
+% multi-anode tube, added by Romano for version 1.6.8, suggested by @bogger33 on GitHub
+% see https://github.com/circuitikz/circuitikz/issues/785
+%
+\ctikzset{tubes/anodes/.initial=3}  % number of anodes. Ignored in most tubes.
+\newif\ifpgf@circuit@tubes@anodedot\pgf@circuit@tubes@anodedotfalse
+\pgfkeys{/tikz/anodedot/.add code={}{\pgf@circuit@tubes@anodedottrue}}
+\ctikzset{tubes/anodedot/.add code={}{\pgf@circuit@tubes@anodedottrue}}
+\newif\ifpgf@circuit@tubes@nogrid\pgf@circuit@tubes@nogridfalse
+\pgfkeys{/tikz/nogrid/.add code={}{\pgf@circuit@tubes@nogridtrue}}
+\ctikzset{tubes/nogrid/.add code={}{\pgf@circuit@tubes@nogridtrue}}
+\newif\ifpgf@circuit@tubes@nixieanode\pgf@circuit@tubes@nixieanodefalse
+\pgfkeys{/tikz/nixieanode/.add code={}{\pgf@circuit@tubes@nixieanodetrue}}
+\ctikzset{tubes/nixieanode/.add code={}{\pgf@circuit@tubes@nixieanodetrue}}
+\long\def\pgfcirctubedraw@multi@anode{% Separate to override in matubes
+    % Anodes (or plates)
+    % Use saved len/anchors to find the first drawn position.
+    \pgf@circ@res@temp=\anodelen\divide\pgf@circ@res@temp by 2 % half the anode length
+    \firstanodepos\pgf@circ@res@other=\pgf@x
+    \advance\pgf@circ@res@other by \pgf@circ@res@temp
+    \pgf@circ@count@a=0
+    \loop
+        \pgfpathmoveto{\pgfpoint{\pgf@circ@res@other}{\pgf@circ@res@up}} % north
+        \pgfpathlineto{\pgfpoint{\pgf@circ@res@other}{\ctikzvalof{tubes/anode distance}\pgf@circ@res@up}}
+        \ifpgf@circuit@tubes@anodedot
+            \pgfpathcircle{\pgfpoint{\pgf@circ@res@other}{\ctikzvalof{tubes/anode distance}\pgf@circ@res@up-0.5*\circlelen}}{\circlelen}
+        \else
+            % this is the horizontal line of the anode
+            \pgfpathmoveto{\pgfpoint{\pgf@circ@res@other-\pgf@circ@res@temp}{\ctikzvalof{tubes/anode distance}\pgf@circ@res@up}}
+            \pgfpathlineto{\pgfpoint{\pgf@circ@res@other+\pgf@circ@res@temp}{\ctikzvalof{tubes/anode distance}\pgf@circ@res@up}}
+        \fi
+        \advance\pgf@circ@res@other by 4\pgf@circ@res@temp
+        \advance\pgf@circ@count@a by 1
+    \ifnum\pgf@circ@count@a<\Nanodes\relax
+    \repeat
+}
+\long\def\pgfcirctubedraw@cathode@or@nixie{%
+    \ifpgf@circuit@tubes@nixieanode
+        \pgfpathmoveto{\pgfpoint{0pt}{-\pgf@circ@res@up}}
+        \pgfpathlineto{\pgfpoint{0pt}{-\ctikzvalof{tubes/cathode distance}\pgf@circ@res@up}}
+        \pgfpathmoveto{\pgfpoint{-\ctikzvalof{tubes/cathode width}\pgf@circ@res@right}{-\ctikzvalof{tubes/cathode distance}\pgf@circ@res@up}}
+        \pgfpathlineto{\pgfpoint{\ctikzvalof{tubes/cathode width}\pgf@circ@res@right}{-\ctikzvalof{tubes/cathode distance}\pgf@circ@res@up}}
+    \else
+        \pgfcirctubedrawcathodestd
+    \fi
+}
+\pgfcircdeclaretubegeneric{matube}
+{% anchors
+    \savedmacro{\Nanodes}{\edef\Nanodes{\ctikzvalof{tubes/anodes}}}
+    \savedanchor\firstanodepos{%
+        \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
+        \pgf@circ@res@up=\ctikzvalof{tubes/height}\pgf@circ@scaled@Rlen
+        \pgf@circ@res@right=\ctikzvalof{tubes/width}\pgf@circ@scaled@Rlen
+        \pgf@circ@res@right=\ctikzvalof{tubes/anode width}\pgf@circ@res@right
+        % x and y are one half
+        \pgf@y=\pgf@circ@res@up
+        \pgf@y=.5\pgf@y
+        \pgf@x=-\pgf@circ@res@right
+        \pgf@x=.5\pgf@x
+    }
+    \saveddimen\anodelen{%
+        \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
+        \pgf@circ@res@right=\ctikzvalof{tubes/width}\pgf@circ@scaled@Rlen % full width, left to right
+        % the length of one of the N anodes is the full width divided by 2*N+1
+        \pgfmathsetlength\pgf@x{\ctikzvalof{tubes/anode width}*\pgf@circ@res@right/(2*\Nanodes-1)}
+    }
+    \saveddimen\circlelen{%
+        \pgf@x=\ctikzvalof{nodes width}\pgf@circ@Rlen
+    }
+    \anchor{grid} {% should not be used
+        \northwest
+        \pgf@y=\ctikzvalof{tubes/grid shift}\pgf@y
+    }
+    \anchor{control} {%
+        \northwest
+        \pgf@y=\ctikzvalof{tubes/grid shift}\pgf@y
+    }
+    \anchor{nixie a}{%
+        \northwest\pgf@x=0pt\pgf@y=-\pgf@y
+    }
+}
+{% grid
+    \ifpgf@circuit@tubes@nogrid\else
+    % Grid protrusion
+    \pgf@xa=-\ctikzvalof{tubes/tube radius}\pgf@circ@res@right
+    \advance\pgf@xa by -\ctikzvalof{tubes/grid protrusion}\pgf@circ@res@right
+    \pgfpathmoveto{\pgfpoint{-\pgf@circ@res@right}{\ctikzvalof{tubes/grid shift}\pgf@circ@res@up}}
+    \pgfpathlineto{\pgfpoint{\pgf@xa}{\ctikzvalof{tubes/grid shift}\pgf@circ@res@up}}
+    % Grid dashes: calculations
+    \pgf@xb=2\pgf@circ@res@right
+    \pgf@circ@res@step=\ctikzvalof{tubes/tube radius}\pgf@xb
+    \pgf@circ@count@a=\ctikzvalof{tubes/grid dashes}  % dashes*2+1
+    \multiply\pgf@circ@count@a by 2\relax
+    \advance\pgf@circ@count@a by 1\relax
+    \advance\pgf@circ@res@step by -\pgf@xa
+    \divide\pgf@circ@res@step by \pgf@circ@count@a
+    % Grid dashes: draw
+    \pgf@circ@res@temp=\pgf@xa
+    \pgf@circ@count@a=\ctikzvalof{tubes/grid dashes}
+    \loop
+    \advance\pgf@circ@res@temp by\pgf@circ@res@step
+    \pgfpathmoveto{\pgfpoint{\pgf@circ@res@temp}{\ctikzvalof{tubes/grid shift}\pgf@circ@res@up}}
+    \advance\pgf@circ@res@temp by\pgf@circ@res@step
+    \pgfpathlineto{\pgfpoint{\pgf@circ@res@temp}{\ctikzvalof{tubes/grid shift}\pgf@circ@res@up}}
+    \advance\pgf@circ@count@a by-1
+    \ifnum\pgf@circ@count@a>0\relax
+    \repeat
+    \fi
+}
+{\pgfcirctubedraw@multi@anode}% anodes
+{\pgfcirctubedraw@cathode@or@nixie}% cathode
+{% extra dynamics anchors
+    \pgfutil@g@addto@macro\pgf@sh@s@matube{%
+        % Start with the maximum pin number and go backwards.
+        \pgf@circ@count@a=\Nanodes\relax
+        \pgfmathloop%
+        \ifnum\pgf@circ@count@a>0
+        \expandafter\xdef\csname pgf@anchor@matube@anode\space\the\pgf@circ@count@a\endcsname{%
+            \noexpand\pgf@circ@ma@anode@anchor{\the\pgf@circ@count@a}%
+        }
+        \expandafter\xdef\csname pgf@anchor@matube@nixie\space k\the\pgf@circ@count@a\endcsname{%
+            \noexpand\pgf@circ@ma@anode@anchor{\the\pgf@circ@count@a}%
+        }
+        \advance\pgf@circ@count@a by -1\relax%
+        \repeatpgfmathloop%
+    }%
+}
+\def\pgf@circ@ma@anode@anchor#1{
+    \firstanodepos
+    \pgf@circ@res@temp=\pgf@x
+    \pgfmathsetlength\pgf@x{\pgf@circ@res@temp + (0.5 + 2*(#1 -1))*\anodelen}
+}
+
+
+
+%>>>
 
 % vim: set fdm=marker fmr=%<<<,%>>>:
 %%%---------- close: tex/pgfcirctripoles
