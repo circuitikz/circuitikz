@@ -1,7 +1,9 @@
 <!--- CircuiTikz - Changelog --->
 The major changes among the different CircuiTikZ versions are listed here. See <https://github.com/circuitikz/circuitikz/commits> for a full list of changes.
 
-* Version 1.6.8 (unreleased)
+* Version 1.6.8 (2024-05-05)
+
+    Several new components, more anchors, a bit of documentation enhancement; maybe the biggest change is the new "flexible" tube.
 
     - Added `mid` anchor to all traditional switches
     - Added a slashed generic European-style resistor (thanks to [Jana](https://tex.stackexchange.com/q/711702/38080))
