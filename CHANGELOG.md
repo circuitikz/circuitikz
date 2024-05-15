@@ -5,7 +5,7 @@ The major changes among the different CircuiTikZ versions are listed here. See <
 
     Several new components
 
-    - Added a Relais-Shape (contributed by [Jakob "DraUX" on GitHub](https://github.com/circuitikz/circuitikz/issues/734))
+    - Added a Relais-Shape (contributed by [Jakob "DraUX" on GitHub](https://github.com/circuitikz/circuitikz/pull/795))
 
 * Version 1.6.8 (2024-05-05)
 
