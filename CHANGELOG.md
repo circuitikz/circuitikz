@@ -1,6 +1,12 @@
 <!--- CircuiTikz - Changelog --->
 The major changes among the different CircuiTikZ versions are listed here. See <https://github.com/circuitikz/circuitikz/commits> for a full list of changes.
 
+* Version 1.6.9
+
+    Several new components
+
+    - Added a Relais-Shape (contributed by [Jakob "DraUX" on GitHub](https://github.com/circuitikz/circuitikz/issues/734))
+
 * Version 1.6.8 (2024-05-05)
 
     Several new components, more anchors, a bit of documentation enhancement; maybe the biggest change is the new "flexible" tube.
