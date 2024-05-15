@@ -3,6 +3,8 @@ The major changes among the different CircuiTikZ versions are listed here. See <
 
 * Version 1.6.9 (unreleased)
 
+    - Added a Relais-Shape (contributed by [Jakob "DraUX" on GitHub](https://github.com/circuitikz/circuitikz/pull/795)
+
 * Version 1.6.8 (2024-05-05)
 
     Several new components, more anchors, a bit of documentation enhancement; maybe the biggest change is the new "flexible" tube.
