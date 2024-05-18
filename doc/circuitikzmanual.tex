@@ -4829,7 +4829,8 @@ Note that the \verb|diodetube| is used as component name to avoid clashes with t
 Normally, the filament is not drawn. If you want a filament, put the \verb|filament| option in the node description:
 
 \begin{groupdesc}
-	\circuitdesc*{diodetube,filament}{Tube Diode}{}(anode/90/0.2, filament 1/-135/0.2, filament 2/-45/0.2 )
+    \circuitdesc*{diodetube,filament}{Tube Diode\footnotemark}{}(anode/90/0.2, filament 1/-90/0.4, filament 2/-45/0.2, filament center/0/0.5 )
+    \footnotetext{The \texttt{filament center} anchor has been added in \texttt{v1.6.9}  thanks to a suggestion by \href{https://github.com/circuitikz/circuitikz/issues/792}{user bogger33 on GitHub}.}
 \end{groupdesc}
 
 Sometimes, you don't want the cathode to be drawn (but you do want the filament). Use the \verb|nocathode| option in the node description:
@@ -4871,17 +4872,26 @@ fully configurable, and the attributes are described below:
   \verb|tubes/filament angle| & \verb|15|          & angle from the centerpoint   \\
 \end{tabular}
 
-Conventionally, the model of the tube is indicated at the \verb|east| anchor:
+Conventionally, the model of the tube is indicated at the \verb|east| anchor, and you can access filament anchors if you need them:
 
-\begin{LTXexample}[varwidth]
-\ctikzset{tubes/width=1.4}
-\ctikzset{tubes/height=1}
 
+\begin{LTXexample}[varwidth=true, basicstyle=\small\ttfamily]
+\ctikzset{tubes/width=1.4, tubes/height=1}
 \begin{circuitikz}
-\draw (0,0) node[triode] (Tri) {};
-\draw  (Tri.east) node[right] {12AX7};
-\end{circuitikz}
+    \draw (0,2) node[triode, filament] (Tri) {};
+    \draw  (Tri.east) node[right] {12AX7};
+    \ctikzset{tubes/filament angle=40,
+        tubes/filament distance=0.2}
+    \draw (0,0) node[triode, filament] (Pent) {};
+    \draw  (Pent.east) node[right] {BOH};
+    \path (Tri.filament 1) node[red,ocirc]{};
+    \path (Pent.filament 1) node[red,ocirc]{};
+    \path (Tri.filament center) node[blue,ocirc]{};
+    \draw (Pent.filament center) -- ++(0,-1) node[tlground]{};
+    \end{circuitikz}
 \end{LTXexample}
+
+
 
 Example triode amplifier:
 
