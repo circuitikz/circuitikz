@@ -6994,6 +6994,7 @@
 \ctikzset{bipoles/afuse/height/.initial=.20}
 \ctikzset{bipoles/afuse/width/.initial=.50}
 \ctikzset{bipoles/lamp/height/.initial=.60}
+\ctikzset{bipoles/lamp/width/.initial=.60}
 \ctikzset{bipoles/wfuse/height/.initial=.20}
 \ctikzset{bipoles/wfuse/width/.initial=.50}
 \ctikzset{bipoles/wfuse/shape/.initial=ocirc}
@@ -7004,9 +7005,12 @@
 \ctikzset{bipoles/relais/height/.initial=.8}
 \ctikzset{bipoles/relais/width/.initial=.3}
 %
-\ctikzset{bipoles/lamp/width/.initial=.60}
 \ctikzset{bipoles/bulb/height/.initial=.8}
 \ctikzset{bipoles/bulb/width/.initial=.8}
+% suggested by @bogger33, see https://github.com/circuitikz/circuitikz/issues/793
+\ctikzset{bipoles/neonlampcc/height/.initial=.60}
+\ctikzset{bipoles/neonlampac/height/.initial=.60}
+%
 \ctikzset{bipoles/squid/height/.initial=.60}
 \ctikzset{bipoles/squid/width/.initial=.60}
 \ctikzset{bipoles/barrier/height/.initial=.60}
@@ -7362,11 +7366,80 @@
     \pgfsetbeveljoin
     \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@zero}}
     \pgfusepath{draw}
-}% %>>>
+}%
+% neon lamps, suggested by @bogger33 https://github.com/circuitikz/circuitikz/issues/793
+% implemented by Romano
+% double-cathode (capacitor) style
+\pgfcircdeclarebipolescaled{misc}
+{}
+{\ctikzvalof{bipoles/neonlampcc/height}}
+{neonlampcc}
+{\ctikzvalof{bipoles/neonlampcc/height}}
+{\ctikzvalof{bipoles/neonlampcc/height}}
+{
+    \pgf@circ@setlinewidth{bipoles}{\pgfstartlinewidth}
+    \pgfpathellipse{\pgfpointorigin}{\pgfpoint{0}{\pgf@circ@res@up}}{\pgfpoint{\pgf@circ@res@left}{0}}
+    \pgf@circ@draworfill
+    %% leads in
+    \pgfsetlinewidth{\pgfstartlinewidth}
+    \def\@@w{0.2}\def\@@h{0.6}
+    \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{0pt}}
+    \pgfpathlineto{\pgfpoint{\@@w\pgf@circ@res@left}{0pt}}
+    \pgfpathmoveto{\pgfpoint{\pgf@circ@res@right}{0pt}}
+    \pgfpathlineto{\pgfpoint{\@@w\pgf@circ@res@right}{0pt}}
+    %% "capacitor style" symbol
+    \pgfusepath{draw}
+    \pgf@circ@setlinewidth{bipoles}{\pgfstartlinewidth}
+    \pgfpathmoveto{\pgfpoint{\@@w\pgf@circ@res@right}{\@@h\pgf@circ@res@down}}
+    \pgfpathlineto{\pgfpoint{\@@w\pgf@circ@res@right}{\@@h\pgf@circ@res@up}}
+    \pgfpathmoveto{\pgfpoint{\@@w\pgf@circ@res@left}{\@@h\pgf@circ@res@down}}
+    \pgfpathlineto{\pgfpoint{\@@w\pgf@circ@res@left}{\@@h\pgf@circ@res@up}}
+    \pgfusepath{draw}
+    %% dot
+    \pgftransformshift{\pgfpoint{\@@w\pgf@circ@res@left-3*\ctikzvalof{nodes width}\pgf@circ@Rlen}
+        {\@@h\pgf@circ@res@down + 2*\ctikzvalof{nodes width}\pgf@circ@Rlen}}
+    \pgfnode{circ}{center}{}{}{\pgfusepath{draw,fill}}
+}
+% anode-cathode style
+\pgfcircdeclarebipolescaled{misc}
+{}
+{\ctikzvalof{bipoles/neonlampac/height}}
+{neonlampac}
+{\ctikzvalof{bipoles/neonlampac/height}}
+{\ctikzvalof{bipoles/neonlampac/height}}
+{
+    \pgf@circ@setlinewidth{bipoles}{\pgfstartlinewidth}
+    \pgfpathellipse{\pgfpointorigin}{\pgfpoint{0}{\pgf@circ@res@up}}{\pgfpoint{\pgf@circ@res@left}{0}}
+    \pgf@circ@draworfill
+    %% leads in
+    \pgfsetlinewidth{\pgfstartlinewidth}
+    \def\@@w{0.5}\def\@@h{0.5}
+    \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{0pt}}
+    \pgfpathlineto{\pgfpoint{\@@w\pgf@circ@res@left}{0pt}}
+    \pgfpathmoveto{\pgfpoint{\pgf@circ@res@right}{0pt}}
+    \pgfpathlineto{\pgfpoint{\@@w\pgf@circ@res@right}{0pt}}
+    \pgfusepath{draw}
+    %% one terminal is a straight plate
+    \pgf@circ@setlinewidth{bipoles}{\pgfstartlinewidth}
+    \pgfpathmoveto{\pgfpoint{\@@w\pgf@circ@res@left}{\@@h\pgf@circ@res@down}}
+    \pgfpathlineto{\pgfpoint{\@@w\pgf@circ@res@left}{\@@h\pgf@circ@res@up}}
+    \pgfusepath{draw}
+    %% the other is an "ocirc" shape
+    \pgftransformshift{\pgfpoint{\@@w\pgf@circ@res@right}{0pt}}
+    \pgfnode{ocirc}{center}{}{}{\pgfusepath{draw,fill}}
+    %% dot
+    \pgftransformshift{\pgfpoint{-\@@w\pgf@circ@res@right}{\@@h\pgf@circ@res@down}}
+    \pgfnode{circ}{center}{}{}{\pgfusepath{draw,fill}}
+}
+
+
+%>>>
 
 %% Path definitions for Miscellaneous%<<<
 
 \pgfcirc@activate@bipole@simple{l}{lamp}
+\pgfcirc@activate@bipole@simple{l}{neonlampcc}
+\pgfcirc@activate@bipole@simple{l}{neonlampac}
 \pgfcirc@activate@bipole@simple{l}{bulb}
 \pgfcirc@activate@bipole@simple{l}{squid}
 \pgfcirc@activate@bipole@simple{l}{barrier}

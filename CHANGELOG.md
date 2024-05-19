@@ -4,8 +4,9 @@ The major changes among the different CircuiTikZ versions are listed here. See <
 * Version 1.6.9 (unreleased)
 
     - Added a Relais-Shape (contributed by [Jakob "DraUX" on GitHub](https://github.com/circuitikz/circuitikz/pull/795)
-    - Fix a long-standing problem when [(locally) switching diode type](https://github.com/circuitikz/circuitikz/issues/794)
     - Added a center tap anchor for tube's filament (suggested by [user bogger33 on GitHub](https://github.com/circuitikz/circuitikz/issues/792))
+    - Added neon lamps (two versions, suggested by [user bogger33 on GitHub](https://github.com/circuitikz/circuitikz/issues/793))
+    - Fix a long-standing problem when [(locally) switching diode type](https://github.com/circuitikz/circuitikz/issues/794)
 
 * Version 1.6.8 (2024-05-05)
 
