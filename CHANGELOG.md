@@ -1,10 +1,12 @@
 <!--- CircuiTikz - Changelog --->
 The major changes among the different CircuiTikZ versions are listed here. See <https://github.com/circuitikz/circuitikz/commits> for a full list of changes.
 
-* Version 1.6.9 (unreleased)
+* Version 1.6.9 (2024-05-25)
+
+    Several new components and a bug fix for a nasty long-standing bug about switching diode types.
 
     - Added a Relais-Shape (contributed by [Jakob "DraUX" on GitHub](https://github.com/circuitikz/circuitikz/pull/795)
-    - Added a center tap anchor for tube's filament (suggested by [user bogger33 on GitHub](https://github.com/circuitikz/circuitikz/issues/792))
+    - Added a center tap anchor for tube filament (suggested by [user bogger33 on GitHub](https://github.com/circuitikz/circuitikz/issues/792))
     - Added neon lamps (two versions, suggested by [user bogger33 on GitHub](https://github.com/circuitikz/circuitikz/issues/793))
     - Added a configurable spark gap (suggested by [user bogger33 on GitHub](https://github.com/circuitikz/circuitikz/issues/800))
     - Fix a long-standing problem when [(locally) switching diode type](https://github.com/circuitikz/circuitikz/issues/794)
