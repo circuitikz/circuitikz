@@ -16,8 +16,8 @@
 \providecommand\DeclareRelease[3]{}
 \providecommand\DeclareCurrentRelease[2]{}
 
-\def\pgfcircversion{1.6.9-unreleased-583764f}
-\def\pgfcircversiondate{2024/05/19}
+\def\pgfcircversion{1.6.9-unreleased-0733a2e}
+\def\pgfcircversiondate{2024/05/25}
 
 \DeclareRelease{0.4}{2012/12/20}{circuitikz-0.4-body.tex}
 \DeclareRelease{v0.4}{2012/12/20}{circuitikz-0.4-body.tex}
@@ -11487,6 +11487,13 @@
 % suggested by @bogger33, see https://github.com/circuitikz/circuitikz/issues/793
 \ctikzset{bipoles/neonlampcc/height/.initial=.60}
 \ctikzset{bipoles/neonlampac/height/.initial=.60}
+\pgf@circ@declare@family@arrows{sparkgap}
+\newif\ifpgf@sparkgap@dot
+\newif\ifpgf@sparkgap@circle
+\ctikzset{sparkgap/circle/.is if=pgf@sparkgap@circle}
+\ctikzset{sparkgap/dot/.is if=pgf@sparkgap@dot}
+\ctikzset{sparkgap/gap/.initial=.05}
+\ctikzset{bipoles/sparkgap/height/.initial=.60}
 %
 \ctikzset{bipoles/squid/height/.initial=.60}
 \ctikzset{bipoles/squid/width/.initial=.60}
@@ -11908,7 +11915,42 @@
     \pgftransformshift{\pgfpoint{-\@@w\pgf@circ@res@right}{\@@h\pgf@circ@res@down}}
     \pgfnode{circ}{center}{}{}{\pgfusepath{draw,fill}}
 }
-
+% spark gap, suggested by @bogger33 https://github.com/circuitikz/circuitikz/issues/800
+\pgfcircdeclarebipolescaled{misc}
+{
+    \savedmacro{\changeh}{\edef\changeh{\ifpgf@sparkgap@circle 1 \else 0.5 \fi}}
+    \pgfcirc@border@extend@updown{\changeh}{\changeh}
+}
+{\ctikzvalof{bipoles/sparkgap/height}}
+{sparkgap}
+{\ctikzvalof{bipoles/sparkgap/height}}
+{\ctikzvalof{bipoles/sparkgap/height}}{
+    % circle (if requested)
+    \pgfscope
+        \ifpgf@sparkgap@circle
+            \pgf@circ@setlinewidth{bipoles}{\pgfstartlinewidth}
+            \pgfpathcircle{\pgfpointorigin}{\pgf@circ@res@up}
+            \pgf@circ@draworfill
+        \fi
+    \endpgfscope
+    % arrows
+    \pgfscope
+        \pgfcirc@set@arrows{sparkgap}{}{Triangle[scale=2]}
+        \pgfpathmoveto{\pgfpoint{\pgf@circ@res@right}{0pt}}
+        \pgfpathlineto{\pgfpoint{\ctikzvalof{sparkgap/gap}\pgf@circ@res@right}{0pt}}
+        \pgfusepath{draw}
+        \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{0pt}}
+        \pgfpathlineto{\pgfpoint{\ctikzvalof{sparkgap/gap}\pgf@circ@res@left}{0pt}}
+        \pgfusepath{draw}
+    \endpgfscope{}
+    % dot (if requested)
+    \ifpgf@sparkgap@dot
+        \pgftransformshift{\pgfpoint
+            {\ctikzvalof{sparkgap/gap}\pgf@circ@res@left-1*\ctikzvalof{nodes width}\pgf@circ@Rlen}
+            {-4*\ctikzvalof{nodes width}\pgf@circ@Rlen}}
+        \pgfnode{circ}{center}{}{}{\pgfusepath{draw,fill}}
+    \fi
+}
 
 %>>>
 
@@ -11917,6 +11959,7 @@
 \pgfcirc@activate@bipole@simple{l}{lamp}
 \pgfcirc@activate@bipole@simple{l}{neonlampcc}
 \pgfcirc@activate@bipole@simple{l}{neonlampac}
+\pgfcirc@activate@bipole@simple{l}{sparkgap}
 \pgfcirc@activate@bipole@simple{l}{bulb}
 \pgfcirc@activate@bipole@simple{l}{squid}
 \pgfcirc@activate@bipole@simple{l}{barrier}
