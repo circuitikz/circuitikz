@@ -1,6 +1,10 @@
 <!--- CircuiTikz - Changelog --->
 The major changes among the different CircuiTikZ versions are listed here. See <https://github.com/circuitikz/circuitikz/commits> for a full list of changes.
 
+* Version 1.6.10 (unreleased)
+    
+    - Minor additions in documentation (`rectjoinfill`).
+
 * Version 1.6.9 (2024-05-25)
 
     Several new components and a bug fix for a nasty long-standing bug about switching diode types.
