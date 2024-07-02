@@ -6031,6 +6031,9 @@
 \ctikzset{bipoles/qpprobe/voltage/additional shift/.initial=.5}
 \ctikzset{bipoles/iloop/width/.initial=.40}
 \ctikzset{bipoles/iloop/height/.initial=.60}
+% currtap see https://github.com/circuitikz/circuitikz/issues/807
+\ctikzset{bipoles/currtap/height/.initial=0.4}
+\ctikzset{bipoles/currtap/dot size/.initial=0.5}
 
 \ctikzset{bipoles/oscope/height/.initial=.60}
 \ctikzset{bipoles/oscope/width/.initial=.60}
@@ -6607,6 +6610,23 @@
         \pgfusepath{draw}
     \endpgfscope
 }
+%% currtap
+\pgfcircdeclarebipolescaled{instruments}
+{
+    \savedmacro{\@@dotsize}{\def\@@dotsize{\ctikzvalof{bipoles/currtap/dot size}}}
+    \anchor{tap}{\northeast\pgf@x=0pt\pgf@y=\@@dotsize\pgf@y\pgf@y=-\pgf@y}
+}
+{\ctikzvalof{bipoles/currtap/height}}
+{currtap}
+{\ctikzvalof{bipoles/currtap/height}}
+{\ctikzvalof{bipoles/currtap/height}}
+{
+    \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{0pt}}
+    \pgfpatharc{180}{0}{\pgf@circ@res@right}
+    \pgfusepath{draw}
+    \pgfpathcircle{\pgfpoint{0pt}{0pt}}{\@@dotsize*\pgf@circ@res@up}
+    \pgfusepath{fill}
+}
 % %>>>
 
 % Path definitions for Instruments%<<<
@@ -6619,8 +6639,8 @@
 \pgfcirc@activate@bipole@simple{l}{rmeterwa}
 \pgfcirc@activate@bipole@simple{l}{smeter}
 \pgfcirc@activate@bipole@simple{l}{iloop}
-% \pgfcirc@activate@bipole@simple{l}{iloop2} that was wrong
 \pgfcirc@activate@bipole{l}{ilooptwo}{iloop2}{iloop2}
+\pgfcirc@activate@bipole@simple{l}{currtap}
 \pgfcirc@activate@bipole@simple{l}{qvprobe}
 \pgfcirc@activate@bipole@simple{l}{qiprobe}
 \pgfcirc@activate@bipole@simple{l}{qpprobe}
