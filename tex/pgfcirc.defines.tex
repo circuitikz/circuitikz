@@ -298,9 +298,40 @@
   \pgfpathclose
   \pgfusepathqfill
 }
-
 \pgfarrowsdeclarereversed{latexslim reversed}{latexslim reversed}{latexslim}{latexslim}
-
+%% Jack Tap, see
+%% https://github.com/circuitikz/circuitikz/issues/806
+\pgfdeclarearrow{name=Jack Tap,
+    parameters = {%
+    \the\pgfarrowlength,%
+    \the\pgfarrowwidth,%
+    \ifpgfarrowswap s\fi%
+    },
+    setup code = {
+        \pgfarrowssettipend{.5\pgfarrowlength}
+        \pgfarrowssetlineend{-.6\pgfarrowlength}
+        \pgfarrowssetvisualbackend{-.6\pgfarrowlength}
+        \pgfarrowssetbackend{-.6\pgfarrowlength}
+        % hull
+        \pgfarrowshullpoint{.5\pgfarrowlength}{0pt}
+        \pgfarrowshullpoint{0pt}{\pgfarrowwidth}
+        \pgfarrowshullpoint{-.6\pgfarrowlength}{0pt}
+        % Saves: Only the length:
+        \pgfarrowssavethe\pgfarrowlength
+        \pgfarrowssavethe\pgfarrowwidth
+    },
+    drawing code = {
+        \pgfpathmoveto{\pgfqpoint{.5\pgfarrowlength}{0pt}}
+        \pgfpathlineto{\pgfqpoint{0pt}{\pgfarrowwidth}}
+        \pgfpathlineto{\pgfqpoint{-.5\pgfarrowlength}{0pt}}
+        \pgfpathlineto{\pgfqpoint{-.6\pgfarrowlength}{0pt}}
+        \pgfusepathqstroke
+    },
+    defaults = {length = 0.3cm, width=0.15cm},
+    % cache=false, % breaks everything
+}
+\tikzset{v/.tip={Jack Tap[swap]}, ^/.tip={Jack Tap}}
+%
 % select the arrows using available defaults.
 \def\pgfcirc@arrow@default{default}
 % choose the arrows to use. Use #2 and #3 if the key is equal to "default"

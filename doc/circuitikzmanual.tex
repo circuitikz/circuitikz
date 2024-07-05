@@ -3491,9 +3491,9 @@ While the horizontal line will be drawn with the current path values, you can ch
     \end{circuitikz}
 \end{LTXexample}
 
-\subsection{Arrows}\label{sec:arrows}
+\subsection{Arrows (fake and real)}\label{sec:arrows}
 
-These are pseudo-arrows used in lot of places in the packages (for transistors, flows, currents, and so on). The first three arrows are magnified by a factor~3 in the boxes below; for the \texttt{trarrow}, the anchor \texttt{tip} is exactly on the tip and \texttt{btip} is slightly receded.
+The main arrow shapes in \Circuitikz{} are really shapes, used as pseudo-arrows in lot of places in the packages (for transistors, flows, currents, and so on). The first three arrows are magnified by a factor~3 in the boxes below; for the \texttt{trarrow}, the anchor \texttt{tip} is exactly on the tip and \texttt{btip} is slightly receded.
 
 \begin{groupdesc}
     \circuitdesc[3]{currarrow}{Arrow for current and voltage}{}(center/0/0.2)
@@ -3552,6 +3552,27 @@ The arrows are the ones set with the keys \texttt{tunable start arrow} and \text
 \end{LTXexample}
 
 Notice also the need to force a transparency group if you want a semitransparent arrow.
+
+\subsubsection{Arrow tips}\label{sec:arrow-tips}
+
+In addition to the pseudo-arrows, \Circuitikz{} also adds a couple of ``real'' arrow tips.
+The package automatically loads the \texttt{arrows.meta} \TikZ{} library but \emph{not} the deprecated \texttt{arrows} library; in the first versions of the package it used quite a lot the \texttt{latex'} tip, which is not available anymore. To maintain the backward compatibility, the `latexslim` tip has been added, and used by default in several components. This is an old-style arrow tip, with no cusstomization possible.
+
+The other tip is \texttt{Jack Tap}\footnote{Added after a suggestion from \href{https://github.com/circuitikz/circuitikz/issues/806}{Anisio Rogerio Braga} on GitHub}, which is mainly used to build jack connectors (see section~\ref{sec:jacks}). This is a new-style arrow tip, and accepts the parameter \texttt{length} (default \texttt{0.3 cm}), \texttt{width} (default \texttt{0.15 cm}), and the boolean \texttt{swap}.
+
+\begin{LTXexample}[varwidth=true]
+\begin{circuitikz}
+    \draw [-latexslim] (0,1.5) -- ++(1,0);
+    \draw [-{Jack Tap[swap]}] (0,1) -- ++(1,0);
+    \draw [-Jack Tap] (0,0.5) -- ++(1,0);
+    \draw [-{Jack Tap[width=.3cm]}] (0,0) -- ++(1,0);
+    \draw [^-^] (0,-0.5) -- ++(1,0);
+    \draw [v-v] (0,-1) -- ++(1,0);
+\end{circuitikz}
+\end{LTXexample}
+
+As you can see, the normal and swapped \texttt{Jack Tap} tips have the shorthands \texttt{v} and \verb|^|. Notice that the tips are automatically reversed when they are at the \emph{start} of the path.
+
 
 \subsection{Terminal shapes}\label{sec:terminals}
 
@@ -3688,6 +3709,33 @@ You can use the \texttt{plug center} anchor to add the IEC ``multiplier'':
     \draw (0,0) to[iec connector, connectors/scale=2, name=A,
         a={\small\ttfamily output bus}] ++(3,0);
     \draw (A.plug center) ++(-.2,-.4) -- ++(.4,.8) node[above]{8};
+\end{circuitikz}
+\end{LTXexample}
+
+\subsubsection{Jack connectors}\label{sec:jacks}
+
+There are \emph{lots} of different jack connectors symbols --- see the \href{https://github.com/circuitikz/circuitikz/issues/806}{discussion here} for examples. So instead of creating a monster component, it has been decided to add elements to simplify the drawing of such connectors. The first (and for now only) such element is the \texttt{Jack Tap} arrow tip (see section~\ref{sec:arrow-tips}) with its shorthands \texttt{v} and \verb|^|.
+
+For example, and audio jack can be drawn like this:
+
+\begin{LTXexample}[pos=t, varwidth=true]
+% drawing based on one by Anisio Rogerio Braga
+% https://github.com/circuitikz/circuitikz/issues/806
+\newcommand\dx{1.5}\newcommand\dy{1}
+\begin{circuitikz}
+    \draw[-v] (0,\dy/3*4) to[short, o-] ++(\dx,0);
+    \draw[-Triangle] (0,\dy) node[ocirc]{} -| ++(\dx/3,\dy/3);
+    \draw[-Triangle] (0,\dy/3*2) node[ocirc]{} -| ++(\dx/3,-\dy/3);
+    \draw[-^] (0,\dy/3) to[short, o-] ++(2*\dx/3,0);
+    \draw (0,0.0) to[short, o-] ++(1.75*\dx,0) rectangle ++(0.2,4*\dy/3);
+\end{circuitikz}\qquad\qquad
+%---% audio jack with an inserted plug
+\begin{circuitikz}
+    \draw[-v] (0,\dy/3*4) to[short, o-] ++(\dx,0.2);
+    \draw[-Triangle] (0,\dy) node[ocirc]{} -| ++(\dx/3,\dy/3);
+    \draw[-Triangle] (0,\dy/3*2) node[ocirc]{} -| ++(\dx/3,-\dy/3);
+    \draw[-^] (0,\dy/3) to[short, o-] ++(2*\dx/3,-0.2);
+    \draw (0,0.0) to[short, o-] ++(1.75*\dx,0) rectangle ++(0.2,4*\dy/3);
 \end{circuitikz}
 \end{LTXexample}
 
