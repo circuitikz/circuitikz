@@ -306,6 +306,9 @@
     \the\pgfarrowlength,%
     \the\pgfarrowwidth,%
     \ifpgfarrowswap s\fi%
+    \ifpgfarrowopen o\fi%
+    \ifpgfarrowroundjoin j\fi
+    \ifpgfarrowroundcap c\fi%
     },
     setup code = {
         \pgfarrowssettipend{.5\pgfarrowlength}
@@ -321,16 +324,27 @@
         \pgfarrowssavethe\pgfarrowwidth
     },
     drawing code = {
-        \pgfpathmoveto{\pgfqpoint{.5\pgfarrowlength}{0pt}}
-        \pgfpathlineto{\pgfqpoint{0pt}{\pgfarrowwidth}}
+        \pgfsetdash{}{+0pt}
+        \pgfarrowlinewidth=\pgflinewidth
+        \ifpgfarrowroundjoin\pgfsetroundjoin\else\pgfsetmiterjoin\fi
+        \ifpgfarrowroundcap\pgfsetroundcap\else\pgfsetbuttcap\fi
+        \pgfpathmoveto{\pgfqpoint{-.6\pgfarrowlength}{0pt}}
         \pgfpathlineto{\pgfqpoint{-.5\pgfarrowlength}{0pt}}
-        \pgfpathlineto{\pgfqpoint{-.6\pgfarrowlength}{0pt}}
-        \pgfusepathqstroke
+        \pgfpathlineto{\pgfqpoint{0pt}{\pgfarrowwidth}}
+        \pgfpathlineto{\pgfqpoint{.5\pgfarrowlength}{0pt}}
+        \ifpgfarrowopen
+            \pgfusepathqstroke
+        \else
+            \pgfpathclose
+            \ifdim\pgfarrowlinewidth>0pt\pgfusepathqfillstroke\else\pgfusepathqfill\fi
+        \fi
     },
-    defaults = {length = 0.3cm, width=0.15cm},
+    defaults = {length = 0.3cm, width=0.15cm,open},
     % cache=false, % breaks everything
 }
-\tikzset{v/.tip={Jack Tap[swap]}, ^/.tip={Jack Tap}}
+\pgfkeys{/pgf/arrow keys/filled/.code=\pgfarrowsaddtooptions{\pgfarrowopenfalse}}
+\tikzset{v/.tip={Jack Tap[swap]}, ^/.tip={Jack Tap},
+    vf/.tip={Jack Tap[swap,filled]}, ^f/.tip={Jack Tap[filled]}}
 %
 % select the arrows using available defaults.
 \def\pgfcirc@arrow@default{default}
