@@ -266,6 +266,34 @@
 %
 %>>>
 
+%% check loaded TikZ/pgf version %<<<`
+%
+% The following code thanks to Skillmon:
+% https://tex.stackexchange.com/a/722570/38080
+\def\ctikz@@ifpgfatleast@auxi#1#2%
+  {%
+    \ifnum#1
+      \ctikz@@ifpgfatleast@auxii{#2}%
+    \fi
+  }
+\def\ctikz@@ifpgfatleast@auxii#1\fi#2\ctikz@@ifpgfatleast#3{\fi#1}
+\def\ctikz@@ifpgfatleast#1.#2.#3#%
+  {%
+    \ctikz@@ifpgfatleast@auxi{\ctikz@@pgfmayor>#1}\pgfutil@firstoftwo
+    \ctikz@@ifpgfatleast@auxi{\ctikz@@pgfmayor<#1}\pgfutil@secondoftwo
+    \ctikz@@ifpgfatleast@auxi{\ctikz@@pgfminor>#2}\pgfutil@firstoftwo
+    \ctikz@@ifpgfatleast@auxi{\ctikz@@pgfminor<#2}\pgfutil@secondoftwo
+    \ctikz@@ifpgfatleast@auxi{\ctikz@@pgfminorminor<#3}\pgfutil@secondoftwo
+    \pgfutil@gobble\ctikz@@ifpgfatleast\pgfutil@firstoftwo
+  }
+\def\ctikz@@pgfpgfversionsplit#1.#2.#3\ctikz@@pgfstop{\xdef\ctikz@@pgfmayor{#1}\xdef\ctikz@@pgfminor{#2}\xdef\ctikz@@pgfminorminor{#3}}
+\expandafter\ctikz@@pgfpgfversionsplit\pgfversion\ctikz@@pgfstop
+%
+% usage \ctikz@@ifpgfatleast 3.1.11{true}{false}
+%                                 ^^^ no spaces here, braces needed. 
+%
+%>>>
+
 %% arrow tips macros and utilities %<<<1
 
 % the default arrow is latexslim, which has been ported over old arrows library (deprecated)
@@ -342,9 +370,25 @@
     defaults = {length = 0.3cm, width=0.15cm,open},
     % cache=false, % breaks everything
 }
-\pgfkeys{/pgf/arrow keys/filled/.code=\pgfarrowsaddtooptions{\pgfarrowopenfalse}}
+% the new "fill without arg" will be in TikZ 3.1.11. Apply it here if we have an
+% older version
+\ctikz@@ifpgfatleast 3.1.11{\relax}{%
+    % thanks @muzimuzhi https://github.com/pgf-tikz/pgf/issues/1348#issuecomment-2229075269
+    % undo fill/.value required thingy
+    \expandafter\let\csname pgfk@/pgf/arrow keys/fill/.@def\endcsname\@undefined
+    \pgfkeys{/pgf/arrow keys/fill/.code={%
+        \def\pgf@temp{#1}%
+        \ifx\pgf@temp\pgf@nonetext%
+          \pgfarrowsaddtooptions{\pgfarrowopentrue}%
+        \else\ifx\pgf@temp\pgfkeysnovalue@text%
+          \pgfarrowsaddtooptions{\pgfarrowopenfalse}%
+        \else
+          \pgfarrowsaddtooptions{\pgfarrowopenfalse\def\pgf@arrows@fill@color{#1}}%
+        \fi\fi
+    }}%
+}
 \tikzset{v/.tip={Jack Tap[swap]}, ^/.tip={Jack Tap},
-    vf/.tip={Jack Tap[swap,filled]}, ^f/.tip={Jack Tap[filled]}}
+    vf/.tip={Jack Tap[swap,fill]}, ^f/.tip={Jack Tap[fill]}}
 %
 % select the arrows using available defaults.
 \def\pgfcirc@arrow@default{default}
