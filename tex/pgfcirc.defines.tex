@@ -268,29 +268,53 @@
 
 %% check loaded TikZ/pgf version %<<<`
 %
+% parse the release date, thanks to Skillmon
+% https://github.com/pgf-tikz/pgf/issues/1348#issuecomment-2231681032
+% date can be yyyy-mm-dd or (older TikZ) yyyy/mm/dd
+\begingroup
+    \pgfutil@protected\def\parsedate#1%
+      {%
+        \afterassignment\parsedate@month
+        \pgf@circ@count@a=#1\relax
+      }
+    \pgfutil@protected\def\parsedate@month#1%
+      {%
+        \afterassignment\parsedate@day
+        \pgf@circ@count@b=%
+      }
+    \pgfutil@protected\def\parsedate@day#1%
+      {%
+        \afterassignment\parsedate@cleanup
+        \pgf@circ@count@c=%
+      }
+    \def\parsedate@cleanup#1\relax{}%
+    \parsedate{\pgfrevisiondate}%
+    \xdef\ctikz@@pgfyear{\the\pgf@circ@count@a}%
+    \xdef\ctikz@@pgfmonth{\the\pgf@circ@count@b}%
+    \xdef\ctikz@@pgfday{\the\pgf@circ@count@c}%
+\endgroup
 % The following code thanks to Skillmon:
 % https://tex.stackexchange.com/a/722570/38080
-\def\ctikz@@ifpgfatleast@auxi#1#2%
+% modified by romano to check the date
+\def\ctikz@@ifpgfafter@auxi#1#2%
   {%
     \ifnum#1
-      \ctikz@@ifpgfatleast@auxii{#2}%
+      \ctikz@@ifpgfafter@auxii{#2}%
     \fi
   }
-\def\ctikz@@ifpgfatleast@auxii#1\fi#2\ctikz@@ifpgfatleast#3{\fi#1}
-\def\ctikz@@ifpgfatleast#1.#2.#3#%
+\def\ctikz@@ifpgfafter@auxii#1\fi#2\ctikz@@ifpgfafter#3{\fi#1}
+\def\ctikz@@ifpgfafter#1-#2-#3#%
   {%
-    \ctikz@@ifpgfatleast@auxi{\ctikz@@pgfmayor>#1}\pgfutil@firstoftwo
-    \ctikz@@ifpgfatleast@auxi{\ctikz@@pgfmayor<#1}\pgfutil@secondoftwo
-    \ctikz@@ifpgfatleast@auxi{\ctikz@@pgfminor>#2}\pgfutil@firstoftwo
-    \ctikz@@ifpgfatleast@auxi{\ctikz@@pgfminor<#2}\pgfutil@secondoftwo
-    \ctikz@@ifpgfatleast@auxi{\ctikz@@pgfminorminor<#3}\pgfutil@secondoftwo
-    \pgfutil@gobble\ctikz@@ifpgfatleast\pgfutil@firstoftwo
+    \ctikz@@ifpgfafter@auxi{\ctikz@@pgfyear>#1}\pgfutil@firstoftwo
+    \ctikz@@ifpgfafter@auxi{\ctikz@@pgfyear<#1}\pgfutil@secondoftwo
+    \ctikz@@ifpgfafter@auxi{\ctikz@@pgfmonth>#2}\pgfutil@firstoftwo
+    \ctikz@@ifpgfafter@auxi{\ctikz@@pgfmonth<#2}\pgfutil@secondoftwo
+    \ctikz@@ifpgfafter@auxi{\ctikz@@pgfday<#3}\pgfutil@secondoftwo
+    \pgfutil@gobble\ctikz@@ifpgfafter\pgfutil@firstoftwo
   }
-\def\ctikz@@pgfpgfversionsplit#1.#2.#3\ctikz@@pgfstop{\xdef\ctikz@@pgfmayor{#1}\xdef\ctikz@@pgfminor{#2}\xdef\ctikz@@pgfminorminor{#3}}
-\expandafter\ctikz@@pgfpgfversionsplit\pgfversion\ctikz@@pgfstop
 %
-% usage \ctikz@@ifpgfatleast 3.1.11{true}{false}
-%                                 ^^^ no spaces here, braces needed. 
+% usage \ctikz@@ifpgfafter 2023-01-16{true}{false}
+%                                 ^^^ no spaces here, braces needed.
 %
 %>>>
 
@@ -367,14 +391,14 @@
             \ifdim\pgfarrowlinewidth>0pt\pgfusepathqfillstroke\else\pgfusepathqfill\fi
         \fi
     },
-    defaults = {length = 0.3cm, width=0.15cm,open},
+    defaults = {length = 0.3cm, width=0.15cm, open},
     % cache=false, % breaks everything
 }
 % the new "fill without arg" will be in TikZ 3.1.11. Apply it here if we have an
 % older version
-\ctikz@@ifpgfatleast 3.1.11{\relax}{%
+\ctikz@@ifpgfafter 2023-01-16{\relax}{%
     % thanks @muzimuzhi https://github.com/pgf-tikz/pgf/issues/1348#issuecomment-2229075269
-    % undo fill/.value required thingy
+    % undo the fill/.value required key
     \expandafter\let\csname pgfk@/pgf/arrow keys/fill/.@def\endcsname\@undefined
     \pgfkeys{/pgf/arrow keys/fill/.code={%
         \def\pgf@temp{#1}%
