@@ -3,7 +3,8 @@ The major changes among the different CircuiTikZ versions are listed here. See <
 
 * Version 1.6.10 (unreleased)
     
-    - New component: new kind of current tap (suggested by [EEpchi on GitHub](https://github.com/circuitikz/circuitikz/issues/807)
+    - New component: new kind of current tap (suggested by [EEpchi on GitHub](https://github.com/circuitikz/circuitikz/issues/807))
+    - New arrow tip `Jack Tap` to help drawing jack connectors (suggested by [Anisio Rogerio Braga](https://github.com/circuitikz/circuitikz/issues/806))
     - Minor additions in documentation (`rectjoinfill`).
 
 * Version 1.6.9 (2024-05-25)
