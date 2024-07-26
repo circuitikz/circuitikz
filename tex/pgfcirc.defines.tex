@@ -579,7 +579,30 @@
         \fi
     \fi
 }
-
+% similar o the above, use the fill parameter to set fill or draw
+% for a subset of the shape
+\def\pgf@circ@subset@fill@or@draw#1{%
+    % You *must* be sure that this is called inside a \pgfscope!
+    \edef\@@none{none}\edef\@@default{default}
+    \edef\@@tmp{\ctikzvalof{#1/fill}}
+    \ifx\@@tmp\@@none
+        \pgfusepath{draw}
+    \else
+        \ifx\@@tmp\@@default\else
+            \pgfsetfillcolor{\@@tmp}
+        \fi
+        \pgfusepath{draw, fill}
+    \fi
+}
+% ...and for the  thickness
+\def\pgf@circ@subset@thickness#1{%
+    % You *must* be sure that this is called inside a \pgfscope!
+    \edef\@@default{default}
+    \edef\@@tmp{\ctikzvalof{#1/thickness}}
+    \ifx\@@tmp\@@default\else
+        \pgfsetlinewidth{\@@tmp\pgflinewidth}%
+    \fi
+}
 % set the text color (via \color) if the color is not default or none
 % needed in some strange case (like bodydiode' dots)
 \def\pgf@circ@maybe@color#1{%
