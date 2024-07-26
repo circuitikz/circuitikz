@@ -16,8 +16,8 @@
 \startmodule[circuitikzgit]
 \usemodule[tikz]
 
-\def\pgfcircversion{1.6.10-unreleased-39d4e6d}
-\def\pgfcircversiondate{2024/07/24}
+\def\pgfcircversion{1.6.10-unreleased-7d02c73}
+\def\pgfcircversiondate{2024/07/26}
 \writestatus{loading}{\pgfcircversiondate{} The CircuiTikz circuit drawing package version \pgfcircversion}
 
 
@@ -617,7 +617,30 @@
         \fi
     \fi
 }
-
+% similar o the above, use the fill parameter to set fill or draw
+% for a subset of the shape
+\def\pgf@circ@subset@fill@or@draw#1{%
+    % You *must* be sure that this is called inside a \pgfscope!
+    \edef\@@none{none}\edef\@@default{default}
+    \edef\@@tmp{\ctikzvalof{#1/fill}}
+    \ifx\@@tmp\@@none
+        \pgfusepath{draw}
+    \else
+        \ifx\@@tmp\@@default\else
+            \pgfsetfillcolor{\@@tmp}
+        \fi
+        \pgfusepath{draw, fill}
+    \fi
+}
+% ...and for the  thickness
+\def\pgf@circ@subset@thickness#1{%
+    % You *must* be sure that this is called inside a \pgfscope!
+    \edef\@@default{default}
+    \edef\@@tmp{\ctikzvalof{#1/thickness}}
+    \ifx\@@tmp\@@default\else
+        \pgfsetlinewidth{\@@tmp\pgflinewidth}%
+    \fi
+}
 % set the text color (via \color) if the color is not default or none
 % needed in some strange case (like bodydiode' dots)
 \def\pgf@circ@maybe@color#1{%
@@ -10301,6 +10324,10 @@
 % currtap see https://github.com/circuitikz/circuitikz/issues/807
 \ctikzset{bipoles/currtap/height/.initial=0.4}
 \ctikzset{bipoles/currtap/dot size/.initial=0.5}
+\ctikzset{bipoles/currtap/fill/.initial=default}
+\ctikzset{bipoles/currtap/dash/.initial=none}
+\ctikzset{bipoles/currtap/color/.initial=default}
+\ctikzset{bipoles/currtap/thickness/.initial=default}
 
 \ctikzset{bipoles/oscope/height/.initial=.60}
 \ctikzset{bipoles/oscope/width/.initial=.60}
@@ -10889,10 +10916,15 @@
 {\ctikzvalof{bipoles/currtap/height}}
 {
     \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{0pt}}
-    \pgfpatharc{180}{0}{\pgf@circ@res@right}
+    \pgfpathlineto{\pgfpoint{0.95\pgf@circ@res@left}{0pt}}
+    \pgfpatharc{180}{0}{0.95\pgf@circ@res@right}
+    \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{0pt}}
+    \pgfusepath{draw}
+    \pgf@circ@subset@color@dash{bipoles/currtap}
+    \pgf@circ@subset@thickness{bipoles/currtap}
     \pgfusepath{draw}
     \pgfpathcircle{\pgfpoint{0pt}{0pt}}{\@@dotsize*\pgf@circ@res@up}
-    \pgfusepath{fill}
+    \pgf@circ@subset@fill@or@draw{bipoles/currtap}
 }
 % %>>>
 
