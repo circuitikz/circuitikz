@@ -632,13 +632,21 @@
         \pgfusepath{draw}
     \endpgfscope
 }%
-
 %% Zig-zag resistors
+% see https://github.com/circuitikz/circuitikz/discussions/814
+\ctikzset{resistors/zigzag stub/.initial=0}
+\ctikzset{resistors/zigzag hook/.code={}}
 \def\pgf@circ@zigzag#1{%
+    \pgf@circ@res@temp=\ctikzvalof{resistors/zigzag stub}\pgf@circ@res@step
+    \advance \pgf@circ@res@step by -2\pgf@circ@res@temp
     \divide \pgf@circ@res@step by \numexpr4*\zigs\relax
 
     \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left-\pgfhorizontaltransformationadjustment*0.5*\pgflinewidth}{\pgf@circ@res@zero}}
+    \ifdim\pgf@circ@res@temp>0pt
+        \pgfpathlineto{\pgfpoint{\pgf@circ@res@left+\pgf@circ@res@temp -\pgfhorizontaltransformationadjustment*0.5*\pgflinewidth}{\pgf@circ@res@zero}}
+    \fi
     \pgf@circ@res@other = \pgf@circ@res@left
+    \advance\pgf@circ@res@other by \pgf@circ@res@temp
     \pgf@circ@count@a=\zigs\relax
     % first half zig
     \advance\pgf@circ@res@other by \pgf@circ@res@step
@@ -656,10 +664,13 @@
     \pgfpathlineto{\pgfpoint{\pgf@circ@res@other}{#1\pgf@circ@res@down}}
     \advance\pgf@circ@res@other by \pgf@circ@res@step
     \pgfpathlineto{\pgfpoint{\pgf@circ@res@other}{\pgf@circ@res@zero}}
+    \ifdim\pgf@circ@res@temp>0pt
+        \pgfpathlineto{\pgfpoint{\pgf@circ@res@other+\pgf@circ@res@temp}{\pgf@circ@res@zero}}
+    \fi
     \pgfsetbeveljoin
+    \pgfkeys{/tikz/circuitikz/resistors/zigzag hook}
     \pgfusepath{draw}
 }
-
 %% Resistor
 \pgfcircdeclarebipolescaled{resistors}
 {
