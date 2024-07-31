@@ -16,8 +16,8 @@
 \providecommand\DeclareRelease[3]{}
 \providecommand\DeclareCurrentRelease[2]{}
 
-\def\pgfcircversion{1.6.10-unreleased-7d02c73}
-\def\pgfcircversiondate{2024/07/26}
+\def\pgfcircversion{1.7.0-unreleased-4e5b04f}
+\def\pgfcircversiondate{2024/07/31}
 
 \DeclareRelease{0.4}{2012/12/20}{circuitikz-0.4-body.tex}
 \DeclareRelease{v0.4}{2012/12/20}{circuitikz-0.4-body.tex}
@@ -5245,13 +5245,21 @@
         \pgfusepath{draw}
     \endpgfscope
 }%
-
 %% Zig-zag resistors
+% see https://github.com/circuitikz/circuitikz/discussions/814
+\ctikzset{resistors/zigzag stub/.initial=0}
+\ctikzset{resistors/zigzag hook/.code={}}
 \def\pgf@circ@zigzag#1{%
+    \pgf@circ@res@temp=\ctikzvalof{resistors/zigzag stub}\pgf@circ@res@step
+    \advance \pgf@circ@res@step by -2\pgf@circ@res@temp
     \divide \pgf@circ@res@step by \numexpr4*\zigs\relax
 
     \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left-\pgfhorizontaltransformationadjustment*0.5*\pgflinewidth}{\pgf@circ@res@zero}}
+    \ifdim\pgf@circ@res@temp>0pt
+        \pgfpathlineto{\pgfpoint{\pgf@circ@res@left+\pgf@circ@res@temp -\pgfhorizontaltransformationadjustment*0.5*\pgflinewidth}{\pgf@circ@res@zero}}
+    \fi
     \pgf@circ@res@other = \pgf@circ@res@left
+    \advance\pgf@circ@res@other by \pgf@circ@res@temp
     \pgf@circ@count@a=\zigs\relax
     % first half zig
     \advance\pgf@circ@res@other by \pgf@circ@res@step
@@ -5268,11 +5276,14 @@
     \advance\pgf@circ@res@other by 2\pgf@circ@res@step
     \pgfpathlineto{\pgfpoint{\pgf@circ@res@other}{#1\pgf@circ@res@down}}
     \advance\pgf@circ@res@other by \pgf@circ@res@step
-    \pgfpathlineto{\pgfpoint{\pgf@circ@res@other}{\pgf@circ@res@zero}}
+    \pgfpathlineto{\pgfpoint{\pgf@circ@res@other+\pgfhorizontaltransformationadjustment*0.5*\pgflinewidth}{\pgf@circ@res@zero}}
+    \ifdim\pgf@circ@res@temp>0pt
+        \pgfpathlineto{\pgfpoint{\pgf@circ@res@other+\pgf@circ@res@temp+\pgfhorizontaltransformationadjustment*0.5*\pgflinewidth}{\pgf@circ@res@zero}}
+    \fi
     \pgfsetbeveljoin
+    \pgfkeys{/tikz/circuitikz/resistors/zigzag hook}
     \pgfusepath{draw}
 }
-
 %% Resistor
 \pgfcircdeclarebipolescaled{resistors}
 {
@@ -5285,7 +5296,7 @@
 {
     \pgf@circ@setlinewidth{bipoles}{\pgfstartlinewidth}
     \pgftransformationadjustments
-    \pgfmathsetlength{\pgf@circ@res@step}{\ctikzvalof{bipoles/resistor/width}*\scaledRlen+\pgfhorizontaltransformationadjustment*0.5*\pgflinewidth}
+    \pgfmathsetlength{\pgf@circ@res@step}{\ctikzvalof{bipoles/resistor/width}*\scaledRlen}
     \pgf@circ@zigzag{1}
 }
 
@@ -5305,7 +5316,7 @@
 {
     \pgf@circ@setlinewidth{bipoles}{\pgfstartlinewidth}
     \pgftransformationadjustments
-    \pgfmathsetlength{\pgf@circ@res@step}{\ctikzvalof{bipoles/vresistor/width}*\scaledRlen+\pgfhorizontaltransformationadjustment*0.5*\pgflinewidth}
+    \pgfmathsetlength{\pgf@circ@res@step}{\ctikzvalof{bipoles/vresistor/width}*\scaledRlen}
     \pgf@circ@zigzag{.5}
 
     \pgfscope
@@ -5344,7 +5355,7 @@
 {
     \pgf@circ@setlinewidth{bipoles}{\pgfstartlinewidth}
     \pgftransformationadjustments
-    \pgfmathsetlength{\pgf@circ@res@step}{\ctikzvalof{bipoles/potentiometer/width}*\scaledRlen+\pgfhorizontaltransformationadjustment*0.5*\pgflinewidth}
+    \pgfmathsetlength{\pgf@circ@res@step}{\ctikzvalof{bipoles/potentiometer/width}*\scaledRlen}
     \pgf@circ@zigzag{1}
 
     \pgfscope
@@ -5374,7 +5385,7 @@
 {%
     \pgf@circ@setlinewidth{bipoles}{\pgfstartlinewidth}
     \pgftransformationadjustments
-    \pgfmathsetlength{\pgf@circ@res@step}{\ctikzvalof{bipoles/resistivesens/width}*\scaledRlen+\pgfhorizontaltransformationadjustment*0.5*\pgflinewidth}
+    \pgfmathsetlength{\pgf@circ@res@step}{\ctikzvalof{bipoles/resistivesens/width}*\scaledRlen}
     \pgf@circ@zigzag{.5}
 
     \pgfscope
@@ -5423,7 +5434,7 @@
     \pgfpathmoveto{\pgfpoint{\pgf@circ@res@right/\@@intscale+\pgfhorizontaltransformationadjustment*0.5*\pgflinewidth}{+0pt}}
     \pgfpathlineto{\pgfpoint{\pgf@circ@res@right+\pgfhorizontaltransformationadjustment*0.5*\pgflinewidth}{+0pt}}
     \pgftransformationadjustments
-    \pgfmathsetlength{\pgf@circ@res@step}{\ctikzvalof{bipoles/ldresistor/width}*\scaledRlen+\pgfhorizontaltransformationadjustment*0.5*\pgflinewidth}
+    \pgfmathsetlength{\pgf@circ@res@step}{\ctikzvalof{bipoles/ldresistor/width}*\scaledRlen}
     \pgf@circ@zigzag{\@@hscale}
 }%
 
