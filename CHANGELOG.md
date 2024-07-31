@@ -9,6 +9,7 @@ The major changes among the different CircuiTikZ versions are listed here. See <
     - New arrow tip `Jack Tap` to help drawing jack connectors (suggested by [Anisio Rogerio Braga](https://github.com/circuitikz/circuitikz/issues/806))
     - Change the drawing of the thermocouple (suggested by [Dr4UX on GitHub](https://github.com/circuitikz/circuitikz/issues/811))
     - Change and enhancement to the drawing of the American resistors (triggered by [Dr4UX on GitHub](https://github.com/circuitikz/circuitikz/issues/814)), fixing a long-standing small asymmetry that nobody noticed
+    - Minor adjustment for joins (`viscoe`)
     - Minor additions in documentation (`rectjoinfill`).
 
 * Version 1.6.9 (2024-05-25)
