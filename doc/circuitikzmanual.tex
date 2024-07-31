@@ -2200,6 +2200,83 @@ For the \texttt{photoresistor} and the two ``flavors'' of the light-dependent re
 \end{tikzpicture}
 \end{LTXexample}
 
+\begingroup % protect changes to resistors
+\newcommand\showjoin[1]{%
+\begin{tikzpicture}[scale=4, transform shape]
+    \clip (0.2,-0.05) rectangle (0.6,0.3);
+    \draw[ultra thick] (0,0) to[R, resistors/thickness=#1] ++(2,0);
+\end{tikzpicture}%
+}
+\newcommand{\splat}{\begin{center}\ttfamily\scriptsize\begin{tabular}{cccc}
+        \showjoin{1}&\showjoin{2}&\showjoin{3}&\showjoin{4}\\
+        thickness=1 & thickness=2 & thickness=3 & thickness=4 \\
+    \end{tabular}\end{center}%
+}
+\newcommand{\rdivider}[1]{\begin{tikzpicture}
+        \ctikzset{resistors/thickness=#1}
+        \draw (0,0) node[ground]{} to[V] ++(0,2) to[R] ++(2,0)
+        to[R] ++(0,-2) to[short,-*] (0,0);
+\end{tikzpicture}\qquad}
+\newcommand{\divsplat}[1]{#1\par
+    \begin{center}
+    \rdivider{1}\rdivider{2}\rdivider{3}\rdivider{4}
+\end{center}}
+
+\paragraph{Details of American (``zig-zag'') resistors.\label{sec:zigzag-details}} American (zig-zag) resistors have a little joining problem\footnote{Noticed by \href{https://github.com/circuitikz/circuitikz/issues/811}{user Dr4UX on GitHub} and later \href{https://github.com/circuitikz/circuitikz/discussions/814}{discussed here}.} with the leading wires if the thickness is greater than two. In the following drawing you can see the problem when the thickness grows from 1 to 4.
+
+\splat
+
+Since \texttt{v1.7.0}, one possibility to correct the problem is to change the type of joining of the zig-zag line, using the key \texttt{resistors/zigzag join}, which is a command that by default is void. For example, the following effect is obtained by using
+
+\begin{lstlisting}[numbers=none]
+\ctikzset{resistors/zigzag hook/.code={\pgfsetroundcap}}
+\end{lstlisting}
+{\ctikzset{resistors/zigzag hook/.code={\pgfsetroundcap}}
+\splat}
+
+or you can even go full rounded
+
+\begin{lstlisting}[numbers=none]
+\ctikzset{resistors/zigzag hook/.code={\pgfsetroundcap\pgfsetroundjoin}}
+\end{lstlisting}
+{\ctikzset{resistors/zigzag hook/.code={\pgfsetroundcap\pgfsetroundjoin}}
+\splat}
+
+Another possibility is to add a little horizontal ``stub'' to the shape, with the key \texttt{resistors/zigzag stub} (default \texttt{0}), which will add a first part which is a continuation of the wire:
+\begin{lstlisting}[numbers=none]
+\ctikzset{resistors/zigzag stub=0.05}% this is relative to the resistor's length
+\end{lstlisting}
+{\ctikzset{resistors/zigzag stub=0.05}
+\splat}
+
+\dots or you can just combine all of them as you prefer. With the standard join/cap options, the look of the resistors for thickness from 1 to 4 is shown here:
+
+\ctikzset{american}
+\divsplat{Standard drawing of American resistors}
+\divsplat{With a 5\% stub: \ctikzset{resistors/zigzag stub=0.05}}
+\divsplat{With a 20\% stub: \ctikzset{resistors/zigzag stub=0.2}}
+
+
+\bigskip
+Finally, here is the detailed shape with thickness 2 (red=0, blue=0.05, green=0.2), magnified six times:
+
+\vspace*{2cm}% this vspace fences are needed because the transform canvas wreak havoc with the bbox
+\begin{tikzpicture}[transform canvas={scale=6}]
+    \ctikzset{resistors/zigzag stub=0}
+    \draw[red] (0,0.2) to [resistor, resistors/thickness=4] ++(2,0);
+    \ctikzset{resistors/zigzag stub=0.05}
+    \draw[blue] (0,0.1) to [resistor, resistors/thickness=4] ++(2,0);
+    \ctikzset{resistors/zigzag stub=0.2}
+    \draw[green] (0,0) to [resistor, resistors/thickness=4] ++(2,0);
+    % \draw [very thin](1,0.5) -- (1,-0.5);
+    % \draw [very thin](0,0) -- ++(2,0);
+    % \draw [very thin](0,0.1) -- ++(2,0);
+    % \draw [very thin](0,0.2) -- ++(2,0);
+\end{tikzpicture}
+\vspace*{2cm}
+
+\endgroup % changes to resistors stops here
+
 
 \subsection{Capacitors and inductors: dynamical bipoles}
 
