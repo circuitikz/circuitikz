@@ -16,7 +16,7 @@
 \startmodule[circuitikzgit]
 \usemodule[tikz]
 
-\def\pgfcircversion{1.7.0-unreleased-4e5b04f}
+\def\pgfcircversion{1.7.0-unreleased-96f19a7}
 \def\pgfcircversiondate{2024/07/31}
 \writestatus{loading}{\pgfcircversiondate{} The CircuiTikz circuit drawing package version \pgfcircversion}
 
@@ -731,6 +731,7 @@
 % #7 - macros drawing the bipole
 %
 \long\def\pgfcircdeclarebipolescaled#1#2#3#4#5#6#7{
+    % \typeout{Declaring bipole:\space #4,}
     \pgfdeclareshape{#4shape}{
         \savedmacro{\ctikzclass}{\edef\ctikzclass{#1}}
         \saveddimen{\scaledRlen}{\pgfmathsetlength{\pgf@x}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}}
@@ -776,97 +777,33 @@
             \pgf@y=.5\pgf@y
         }
         \anchor{center}{\pgfpointorigin}
-        \anchor{n}{
-            \northeast
-            \pgf@x=0cm
-        }
-        \anchor{north east}{
-            \northeast
-        }
-        \anchor{north west}{
-            \northeast
-            \pgf@x=-\pgf@x
-        }
-        \anchor{ne}{
-            \northeast
-        }
-        \anchor{nw}{
-            \northeast
-            \pgf@x=-\pgf@x
-        }
-        \anchor{e}{
-            \northeast
-            \pgf@y=0cm
-        }
-        \anchor{s}{
-            \southwest
-            \pgf@x=0cm
-        }
-        \anchor{south east}{
-            \southwest
-            \pgf@x=-\pgf@x
-        }
-        \anchor{south west}{
-            \southwest
-        }
-        \anchor{se}{
-            \southwest
-            \pgf@x=-\pgf@x
-        }
-        \anchor{sw}{
-            \southwest
-        }
-        \anchor{w}{
-            \southwest
-            \pgf@y=0cm
-        }
-        \anchor{north}{
-            \northeast
-            \pgf@x=0cm
-        }
-        \anchor{east}{
-            \northeast
-            \pgf@y=0cm
-        }
-        \anchor{south}{
-            \southwest
-            \pgf@x=0cm
-        }
-        \anchor{west}{
-            \southwest
-            \pgf@y=0cm
-        }
-        \anchor{right}{
-            \northeast
-            \pgf@y=0cm
-        }
-        \anchor{above}{
-            \northeast
-            \pgf@x=0cm
-        }
-        \anchor{left}{
-            \southwest
-            \pgf@y=0cm
-        }
-        \anchor{below}{
-            \southwest
-            \pgf@x=0cm
-        }
-        \anchor{a}{
-            \northeast
-            \pgf@y=0cm
-        }
-        \anchor{b}{
-            \southwest
-            \pgf@y=0cm
-        }
+        \anchor{n}{\northeast\pgf@x=0cm }
+        \anchor{north east}{\northeast}
+        \anchor{north west}{\northeast\pgf@x=-\pgf@x}
+        \anchor{ne}{\northeast}
+        \anchor{nw}{\northeast\pgf@x=-\pgf@x}
+        \anchor{e}{\northeast\pgf@y=0cm }
+        \anchor{s}{\southwest\pgf@x=0cm }
+        \anchor{south east}{\southwest\pgf@x=-\pgf@x}
+        \anchor{south west}{\southwest}
+        \anchor{se}{\southwest\pgf@x=-\pgf@x}
+        \anchor{sw}{\southwest}
+        \anchor{w}{\southwest\pgf@y=0cm }
+        \anchor{north}{\northeast\pgf@x=0cm }
+        \anchor{east}{\northeast\pgf@y=0cm }
+        \anchor{south}{\southwest\pgf@x=0cm }
+        \anchor{west}{\southwest\pgf@y=0cm }
+        \anchor{right}{\northeast\pgf@y=0cm }
+        \anchor{above}{\northeast\pgf@x=0cm }
+        \anchor{left}{\southwest\pgf@y=0cm }
+        \anchor{below}{\southwest\pgf@x=0cm }
+        \anchor{a}{\northeast\pgf@y=0cm }
+        \anchor{b}{\southwest\pgf@y=0cm }
         \savedanchor{\textanchor}{%
             \pgf@y=\ht\pgfnodeparttextbox
             \pgf@x=-.5\wd\pgfnodeparttextbox
         }
-        \anchor{text}{
-            \textanchor
-        }
+        \anchor{text}{ \textanchor }
         \anchorborder{%
             \ifpgf@circuit@bipole@inverted
                 \pgf@circ@res@left=-\pgf@x
@@ -885,7 +822,6 @@
         #2%
         \pgf@circ@draw@component{
             \pgf@circ@setcolor
-
             \northeast
             \pgf@circ@res@up = \pgf@y
             \pgf@circ@res@zero = 0cm
@@ -2009,13 +1945,15 @@
     \compattikzset{#2/.style={\comnpatname #1, #3={##1}}}%
 }
 % create a bipole
-\def\pgfcirc@activate@bipole#1#2#3#4{% path name, base node name, style name
+\def\pgfcirc@activate@bipole#1#2#3#4{% type of label, path name, base node name, style name
+    % \typeout{Activate bipole:\space #4,}
     \expandafter\def\csname pgf@circ@#2@path\endcsname##1{\pgf@circ@bipole@path{#3}{##1}}%
     \pgfcirc@path@to@style{#1}{#2}{#4}{}% no options here, let's see
 }
 \def\pgfcirc@activate@bipole@simple#1#2{\pgfcirc@activate@bipole{#1}{#2}{#2}{#2}}
 % create a bipole with options
-\def\pgfcirc@activate@bipole@opt#1#2#3#4#5{% path name, base node name, style name
+\def\pgfcirc@activate@bipole@opt#1#2#3#4#5{% type of label, path name, base node name, style name, options
+    % \typeout{Activate bipole:\space #4,}
     \expandafter\def\csname pgf@circ@#2@path\endcsname##1{\pgf@circ@bipole@path{#3}{##1}}%
     \pgfcirc@path@to@style{#1}{#2}{#4}{#5}% no options here, let's see
 }
@@ -11104,15 +11042,21 @@
 
     % spring into the damper
     \pgfscope
-        \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@zero}}
+    \pgfscope
+        \pgftransformationadjustments
         \pgf@circ@setlinewidth{bipoles}{\pgfstartlinewidth}
+        \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left-\pgfhorizontaltransformationadjustment*0.5*\pgflinewidth}{\pgf@circ@res@zero}}
+        \pgfpathlineto{\pgfpoint{.95\pgf@circ@res@left}{\pgf@circ@res@zero}}
         \pgfsetcornersarced{\pgfpoint{.25\pgf@circ@res@up}{.25\pgf@circ@res@up}}
         \pgfpathlineto{\pgfpoint{.75\pgf@circ@res@left}{.75\pgf@circ@res@up}}
         \pgfpathlineto{\pgfpoint{.5\pgf@circ@res@left}{-.75\pgf@circ@res@up}}
         \pgfpathlineto{\pgfpoint{.25\pgf@circ@res@left}{.75\pgf@circ@res@up}}
         \pgfpathlineto{\pgfpoint{0pt}{-.75\pgf@circ@res@up}}
         \pgfpathlineto{\pgfpoint{\ctikzvalof{bipoles/damper/length}\pgf@circ@res@right}{.75\pgf@circ@res@up}}
+        \pgfsetbuttcap
+        \pgfsetbeveljoin
         \pgfusepath{stroke}
+    \endpgfscope
     \endpgfscope
     % damper box
     \pgf@circ@setlinewidth{bipoles}{\pgfstartlinewidth}
