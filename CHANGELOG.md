@@ -1,6 +1,10 @@
 <!--- CircuiTikz - Changelog --->
 The major changes among the different CircuiTikZ versions are listed here. See <https://github.com/circuitikz/circuitikz/commits> for a full list of changes.
 
+* Version 1.7.1 (unreleased)
+
+    - Version number bump
+
 * Version 1.7.0 (2024-08-03)
 
     There are no big changes here, but the change to the resistor code (maybe one of the most used by the package) well deserves a minor version bump. A couple of new components, and several minor fixes.
