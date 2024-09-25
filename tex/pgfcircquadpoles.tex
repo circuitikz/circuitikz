@@ -544,6 +544,9 @@
 \ctikzset{bipoles/lowpass/width/.initial=.7}
 \ctikzset{bipoles/lowpass2/width/.initial=.7}
 \ctikzset{bipoles/allpass/width/.initial=.7}
+\ctikzset{bipoles/vallpass/width/.initial=.7}
+\ctikzset{bipoles/bgenerator/width/.initial=.7}
+\ctikzset{bipoles/qgenerator/width/.initial=.7}
 \ctikzset{bipoles/adc/width/.initial=.7}
 \ctikzset{bipoles/dac/width/.initial=.7}
 \ctikzset{bipoles/dsp/width/.initial=.7}
@@ -719,6 +722,19 @@
     \endpgfscope
 }
 %
+\def\pgfcirc@twoport@draw@narrowsine#1{% #1 -> y shift
+    \pgfscope
+        \pgfsetlinewidth{\pgfstartlinewidth}
+        \pgftransformyshift{#1\pgf@circ@res@step}
+        \pgfpathmoveto{\pgfpoint{.125\pgf@circ@res@step}{0\pgf@circ@res@step}}
+        \pgfpathsine{\pgfpoint{.125\pgf@circ@res@step}{.125\pgf@circ@res@step}}
+        \pgfpathcosine{\pgfpoint{.125\pgf@circ@res@step}{-.125\pgf@circ@res@step}}
+        \pgfpathsine{\pgfpoint{.125\pgf@circ@res@step}{-.125\pgf@circ@res@step}}
+        \pgfpathcosine{\pgfpoint{.125\pgf@circ@res@step}{.125\pgf@circ@res@step}}
+        \pgfusepath{draw}
+    \endpgfscope
+}
+%
 \def\pgfcirc@twoport@draw@splitline{%
     \pgfscope
         \pgfcirc@twoport@maybedash
@@ -888,6 +904,56 @@
     \pgfcirc@twoport@draw@sine{0.5}{0}
     \pgfcirc@twoport@draw@sine{0.0}{0}
     \pgfcirc@twoport@draw@sine{-0.5}{0}
+}
+%% variable allpass filter
+\pgfcirc@define@twoports{blocks}
+{}
+{\ctikzvalof{bipoles/vallpass/width}}
+{vallpass}
+{\ctikzvalof{bipoles/vallpass/width}}
+{\ctikzvalof{bipoles/vallpass/width}}
+{
+    \pgfcirc@twoport@draw@sine{0.5}{0}
+    \pgfcirc@twoport@draw@sine{0.0}{0}
+    \pgfcirc@twoport@draw@sine{-0.5}{0}
+    \pgfcirc@set@arrows{tunable}{}{latex}
+    \pgfpathmoveto{\pgfpoint{0.7\pgf@circ@res@left}{0.5\pgf@circ@res@down}}
+    \pgfpathlineto{\pgfpoint{0.7\pgf@circ@res@right}{0.8\pgf@circ@res@up}}
+    \pgfusepath{draw}
+}
+%% Block Generator
+\pgfcirc@define@twoports{blocks}
+{}
+{\ctikzvalof{bipoles/bgenerator/width}}
+{bgenerator}
+{\ctikzvalof{bipoles/bgenerator/width}}
+{\ctikzvalof{bipoles/bgenerator/width}}
+{
+    \pgfcirc@twoport@draw@narrowsine{0.25}{0}
+    \pgfcirc@twoport@draw@narrowsine{0.0}{0}
+    \pgfcirc@twoport@draw@narrowsine{-0.25}{0}
+    \pgftext[x=0.45\pgf@circ@res@left]{\ctikzvalof{bipoles/twoport/text}}
+}
+%% Crystal Generator
+\pgfcirc@define@twoports{blocks}
+{}
+{\ctikzvalof{bipoles/qgenerator/width}}
+{qgenerator}
+{\ctikzvalof{bipoles/qgenerator/width}}
+{\ctikzvalof{bipoles/qgenerator/width}}
+{
+    \pgfcirc@twoport@draw@narrowsine{0.45}{0}
+    \pgfcirc@twoport@draw@narrowsine{0.20}{0}
+    \pgfcirc@twoport@draw@narrowsine{-0.05}{0}
+    \pgftext[x=0.45\pgf@circ@res@left,y=0.25\pgf@circ@res@up]{\ctikzvalof{bipoles/twoport/text}}
+	\pgfpathlineto{\pgfpoint{-0.7\pgf@circ@res@step}{-0.4\pgf@circ@res@step}} 
+	\pgfpathlineto{\pgfpoint{ 0.7\pgf@circ@res@step}{-0.4\pgf@circ@res@step}} 
+    \pgfusepath{draw}
+	\pgfpathrectangle{\pgfpoint{-0.7\pgf@circ@res@step}{-0.7\pgf@circ@res@step}}{\pgfpoint{1.4\pgf@circ@res@step}{0.2\pgf@circ@res@step}} 
+    \pgfusepath{draw}
+	\pgfpathlineto{\pgfpoint{-0.7\pgf@circ@res@step}{-0.8\pgf@circ@res@step}} 
+	\pgfpathlineto{\pgfpoint{ 0.7\pgf@circ@res@step}{-0.8\pgf@circ@res@step}} 
+    \pgfusepath{draw}
 }
 %% ADC
 \pgfcirc@define@twoports{blocks}
@@ -1574,6 +1640,9 @@
 \pgfcirc@activate@bipole@simple{l}{lowpass}
 \pgfcirc@activate@bipole@simple{l}{lowpass2}
 \pgfcirc@activate@bipole@simple{l}{allpass}
+\pgfcirc@activate@bipole@simple{l}{vallpass}
+\pgfcirc@activate@bipole@simple{l}{bgenerator}
+\pgfcirc@activate@bipole@simple{l}{qgenerator}
 \pgfcirc@activate@bipole@simple{l}{adc}
 \pgfcirc@activate@bipole@simple{l}{dac}
 \pgfcirc@activate@bipole@simple{l}{dsp}
