@@ -1942,6 +1942,118 @@ And finally do:
 \end{tikzpicture}
 \end{LTXexample}
 
+\subsubsection{Using macros}
+
+Sometimes, a good old \LaTeX{} macro can solve a problem instead of designing a new component.
+For example, GitHub's user Patrick Jansky asked for a generic ``chopper'' block;\footnote{%
+    See \href{https://github.com/circuitikz/circuitikz/issues/828}{the original issue on GitHub}.}
+Unfortunately, this kind of block is quite difficult to implement as a node: it should change size and orientation on the base of the ``port'' terminals you need.
+
+In this case, probably an old-fashioned macro, using partway coordinate specifiers,
+\footnote{See \href{https://tikz.dev/tikz-coordinates\#sec-13.5.3}{\TikZ{} manual section 13.5}}
+could be the best option for this task. Below, one possible example (not optimized at all!).
+
+\begin{lstlisting}
+\NewDocumentCommand{\ChopperByTerminals}{O{} O{0.2cm} m m m}{%
+    % #1 -> options to the draw command
+    % #2 -> half width
+    % by default is drawn to the right (if vertical), to the left if #2 is negative
+    % If horizontal, by default is above, below if #2 is negative
+    % #3 -> terminal A on port 1
+    % #4 -> terminal B on port 2
+    % #5 -> name for the "anchors"
+    \coordinate(#5-P1A) at (#3);
+    \coordinate(#5-P1B) at (#4);
+    % the center of the block is midway P1A to P1B, at distance #2 at 90 clockwise
+    % degrees from the center of the line
+    \coordinate(#5-C1) at ($(#5-P1A)!0.5!(#5-P1B)$);
+    \coordinate(#5-C) at ($(#5-C1)!#2!90:(#5-P1B)$);
+    \coordinate(#5-P2B) at ($(#5-P1A)!2!(#5-C)$);
+    \coordinate(#5-P2A) at ($(#5-P1B)!2!(#5-C)$);
+    \coordinate(#5-T1A) at ($(#5-P1B)!1.2!(#5-P1A)$);
+    \coordinate(#5-T1B) at ($(#5-P1A)!1.2!(#5-P1B)$);
+    \coordinate(#5-T2A) at ($(#5-P2B)!1.2!(#5-P2A)$);
+    \coordinate(#5-T2B) at ($(#5-P2A)!1.2!(#5-P2B)$);
+    \coordinate(#5-CKA) at ($(#5-T1A)!0.5!(#5-T2A)$);
+    \coordinate(#5-CKB) at ($(#5-T1B)!0.5!(#5-T2B)$);
+    \coordinate(#5-C2) at ($(#5-P2A)!0.5!(#5-P2B)$);
+    \draw [draw, thick, fill=white, #1] (#5-T1A) rectangle (#5-T2B);
+    \draw [draw, thick, line join=round, #1] (#5-P1A) -- (#5-P2B) -- 
+        (#5-P1B) -- (#5-P2A) -- (#5-P1A);
+}
+\end{lstlisting}
+
+You can use this definition as follows, for example:
+
+\begin{lstlisting}
+\begin{tikzpicture}[]
+    \node[op amp](A) at (0,0) {};
+    \ChopperByTerminals[draw=red][-0.2cm]{A.-}{A.+}{chopper in}
+    \draw [red, <-] (chopper in-CKA) -- ++(0,.5) node[above]{$f_c$};
+    \ChopperByTerminals[draw=red]{[xshift=1.2cm]A.-}{[xshift=1.2cm]A.+}{chopper out}
+    \draw [red, <-] (chopper out-CKA) -- ++(0,.5) node[above]{$f_c$};
+    %Try another one
+    \draw (4,1) node[npn](Q1){} (7,1) node[npn, xscale=-1](Q2){};
+    \coordinate (Qcenter) at ($(Q1.E)!0.5!(Q2.E)$);
+    \ChopperByTerminals[][-0.2cm]{Q1.E}{Q2.E}{cE}
+    \draw [<-] (cE-CKA) -- ++(-0.5,0) node[left]{$f_c$};
+    % pseudo-anchors
+    \ChopperByTerminals[draw=blue][-1cm]{4,-1.25}{7,-1.25}{C}
+    \foreach \a in {P1A, P1B, P2A, P2B, CKA, CKB, C, C1, C2}
+        \node[circle, draw, inner sep=1pt, pin={[font=\tiny, fill=white]60:C-\a}]
+            at (C-\a) {};
+\end{tikzpicture}
+\end{lstlisting}
+
+Obtaining:
+
+\begin{center} %% to insulate the definition, you never know
+\NewDocumentCommand{\ChopperByTerminals}{O{} O{0.2cm} m m m}{%
+    % #1 -> options to the draw command
+    % #2 -> half width
+    % by default is drawn to the right (if vertical), to the left if #2 is negative
+    % If horizontal, by default is above, below if #2 is negative
+    % #3 -> terminal A on port 1
+    % #4 -> terminal B on port 2
+    % #5 -> name for the "anchors"
+    \coordinate(#5-P1A) at (#3);
+    \coordinate(#5-P1B) at (#4);
+    % the center of the block is midway P1A and P1B, distance #2 at 90 clockwise
+    % degrees from the center
+    \coordinate(#5-C1) at ($(#5-P1A)!0.5!(#5-P1B)$);
+    \coordinate(#5-C) at ($(#5-C1)!#2!90:(#5-P1B)$);
+    \coordinate(#5-P2B) at ($(#5-P1A)!2!(#5-C)$);
+    \coordinate(#5-P2A) at ($(#5-P1B)!2!(#5-C)$);
+    \coordinate(#5-T1A) at ($(#5-P1B)!1.2!(#5-P1A)$);
+    \coordinate(#5-T1B) at ($(#5-P1A)!1.2!(#5-P1B)$);
+    \coordinate(#5-T2A) at ($(#5-P2B)!1.2!(#5-P2A)$);
+    \coordinate(#5-T2B) at ($(#5-P2A)!1.2!(#5-P2B)$);
+    \coordinate(#5-CKA) at ($(#5-T1A)!0.5!(#5-T2A)$);
+    \coordinate(#5-CKB) at ($(#5-T1B)!0.5!(#5-T2B)$);
+    \coordinate(#5-C2) at ($(#5-P2A)!0.5!(#5-P2B)$);
+    \draw [draw, thick, fill=white, #1] (#5-T1A) rectangle (#5-T2B);
+    \draw [draw, thick, line join=round, #1] (#5-P1A) -- (#5-P2B) -- (#5-P1B) -- (#5-P2A) -- (#5-P1A);
+}
+\begin{tikzpicture}[]
+    \node[op amp](A) at (0,0) {};
+    \ChopperByTerminals[draw=red][-0.2cm]{A.-}{A.+}{chopper in}
+    \draw [red, <-] (chopper in-CKA) -- ++(0,.5) node[above]{$f_c$};
+    \ChopperByTerminals[draw=red]{[xshift=1.2cm]A.-}{[xshift=1.2cm]A.+}{chopper out}
+    \draw [red, <-] (chopper out-CKA) -- ++(0,.5) node[above]{$f_c$};
+    %Try another one
+    \draw (4,1) node[npn](Q1){} (7,1) node[npn, xscale=-1](Q2){};
+    \coordinate (Qcenter) at ($(Q1.E)!0.5!(Q2.E)$);
+    \ChopperByTerminals[][-0.2cm]{Q1.E}{Q2.E}{cE}
+    \draw [<-] (cE-CKA) -- ++(-0.5,0) node[left]{$f_c$};
+    % pseudo-anchors
+    \ChopperByTerminals[draw=blue][-1cm]{4,-1.25}{7,-1.25}{C}
+    \foreach \a in {P1A, P1B, P2A, P2B, CKA, CKB, C, C1, C2}
+        \node[circle, draw, inner sep=1pt, pin={[font=\tiny, fill=white]60:C-\a}] at (C-\a) {};
+\end{tikzpicture}
+\end{center}
+
+
+
 
 \section{The components: list}
 
