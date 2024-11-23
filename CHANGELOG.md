@@ -4,6 +4,7 @@ The major changes among the different CircuiTikZ versions are listed here. See <
 * Version 1.7.1 (unreleased)
 
     - Fix for straight voltage on `open` bipoles (reported by [Oliver Wallscheid on GitHub](https://github.com/circuitikz/circuitikz/issues/821))
+    - Fix a very, very old bug about aliases for american/european sources
     - Documentation enhacement (example of chopper macro)
 
 * Version 1.7.0 (2024-08-03)
