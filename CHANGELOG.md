@@ -5,6 +5,7 @@ The major changes among the different CircuiTikZ versions are listed here. See <
 
     - Fix for straight voltage on `open` bipoles (reported by [Oliver Wallscheid on GitHub](https://github.com/circuitikz/circuitikz/issues/821))
     - Fix a very, very old bug about aliases for american/european sources
+    - Fix `barrier` wire linewidth (issue [#833](https://github.com/circuitikz/circuitikz/issues/833) by schtandard).
     - Documentation enhacement (example of chopper macro)
 
 * Version 1.7.0 (2024-08-03)
