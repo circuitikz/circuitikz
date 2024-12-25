@@ -1,7 +1,7 @@
-% Copyright 2018-2022 by Romano Giannetti
-% Copyright 2015-2022 by Stefan Lindner
-% Copyright 2013-2022 by Stefan Erhardt
-% Copyright 2007-2022 by Massimo Redaelli
+% Copyright 2018-2024 by Romano Giannetti
+% Copyright 2015-2024 by Stefan Lindner
+% Copyright 2013-2024 by Stefan Erhardt
+% Copyright 2007-2024 by Massimo Redaelli
 %
 % This file may be distributed and/or modified
 %
@@ -25,7 +25,8 @@
 %
 \pgfkeys{/tikz/number inputs/.initial=0}
 \pgfkeys{/tikz/number inputs/.default=0}
-
+% by default, use the default font (and color, etc.)
+\ctikzset{european ports font/.initial={}}
 \newif\ifpgf@circuit@europeanlogicport
 \ctikzset{logic ports/.is choice}
 \ctikzset{logic ports/european/.code= {\pgf@circuit@europeanlogicporttrue
@@ -37,6 +38,8 @@
     \tikzset{nand port/.style={shape=european nand port}}%
     \tikzset{nor port/.style={shape=european nor port}}%
     \tikzset{xnor port/.style={shape=european xnor port}}%
+    \tikzset{blank port/.style={shape=european blank port}}%
+    \tikzset{blank not port/.style={shape=european blank not port}}%
     % there is no Schmitt ports in european style (yet)
     \tikzset{schmitt port/.style={shape=schmitt}}%
     \tikzset{invschmitt port/.style={shape=invschmitt}}%
@@ -52,6 +55,9 @@
     \tikzset{xnor port/.style={shape=american xnor port}}%
     \tikzset{schmitt port/.style={shape=schmitt}}%
     \tikzset{invschmitt port/.style={shape=invschmitt}}%
+    %%% there are no blank ports for american (no sense to have them)
+    \tikzset{blank port/.style={shape=european blank port}}%
+    \tikzset{blank not port/.style={shape=european blank not port}}%
 }}
 
 \ctikzset{logic ports origin/.is choice}
@@ -70,6 +76,8 @@
     \ctikzset{tripoles/european xnor port/origin/.initial=0.8}%
     \ctikzset{tripoles/european buffer port/origin/.initial=0.8}%
     \ctikzset{tripoles/european not port/origin/.initial=0.8}%
+    \ctikzset{tripoles/european blank port/origin/.initial=0.8}%
+    \ctikzset{tripoles/european blank not port/origin/.initial=0.8}%
     }%
 }
 \ctikzset{logic ports origin/center/.code={%
@@ -87,6 +95,8 @@
     \ctikzset{tripoles/european xnor port/origin/.initial=0}%
     \ctikzset{tripoles/european buffer port/origin/.initial=0}%
     \ctikzset{tripoles/european not port/origin/.initial=0}%
+    \ctikzset{tripoles/european blank port/origin/.initial=0}%
+    \ctikzset{tripoles/european blank not port/origin/.initial=0}%
     }%
 }
 
@@ -195,7 +205,7 @@
 \ctikzset{tripoles/american xnor port/inputs/.initial=2}
 \ctikzset{tripoles/american xnor port/angle/.initial=70}
 \ctikzset{tripoles/american xnor port/inner/.initial=0.3}
-
+%
 \ctikzset{tripoles/european and port/width/.initial=1.4}
 \ctikzset{tripoles/european and port/height/.initial=.65}
 \ctikzset{tripoles/european and port/reserved/.initial=.6}
@@ -255,6 +265,21 @@
 \ctikzset{tripoles/european buffer port/inputs/.initial=1}%
 \ctikzset{tripoles/european not port/origin/.initial=0.8}
 \ctikzset{tripoles/european not port/inputs/.initial=1}%
+%% "blank" ports
+\ctikzset{tripoles/european blank port/width/.initial=1.4}
+\ctikzset{tripoles/european blank port/height/.initial=.65}
+\ctikzset{tripoles/european blank port/reserved/.initial=.6}
+\ctikzset{tripoles/european blank port/input height/.initial=.6}
+\ctikzset{tripoles/european blank not port/width/.initial=1.4}
+\ctikzset{tripoles/european blank not port/not height/.initial=.3}
+\ctikzset{tripoles/european blank not port/not width/.initial=.9}
+\ctikzset{tripoles/european blank not port/height/.initial=.65}
+\ctikzset{tripoles/european blank not port/reserved/.initial=.6}
+\ctikzset{tripoles/european blank not port/input height/.initial=.6}
+\ctikzset{tripoles/european blank port/origin/.initial=0.8}
+\ctikzset{tripoles/european blank port/inputs/.initial=2}
+\ctikzset{tripoles/european blank not port/origin/.initial=0.8}
+\ctikzset{tripoles/european blank not port/inputs/.initial=2}
 %%% parameters that are not used anymore after multi-input
 %%% gates --- left for compatibility of source code.
 \ctikzset{tripoles/american xor port/aaa/.initial=.6}
@@ -1547,8 +1572,11 @@
         \fi
         \pgf@circ@text@strokecolor
         \pgfpathmoveto{\pgfpointorigin}
-        \pgftext{#2}
-        %
+        \pgfscope
+            % text is always in standard direction
+            \pgftransformresetnontranslations
+            \pgftext{\ctikzvalof{european ports font}#2}%
+        \endpgfscope
         }
     }
 }
@@ -1560,7 +1588,8 @@
 \pgfcircdeclareeurologicport{nand}{\&}{\pgf@circ@res@count}{not}
 \pgfcircdeclareeurologicport{nor}{$\ge 1$}{\pgf@circ@res@count}{not}
 \pgfcircdeclareeurologicport{xnor}{$=1$}{\pgf@circ@res@count}{not}
-
+\pgfcircdeclareeurologicport{blank}{}{\pgf@circ@res@count}{}
+\pgfcircdeclareeurologicport{blank not}{}{\pgf@circ@res@count}{not}
 %% end european logic ports
 % %>>>
 
@@ -2999,6 +3028,12 @@
 \ctikzset{tripoles/hemt/bodydiode distance/.initial=.3}
 \ctikzset{tripoles/hemt/bodydiode conn/.initial=.6}
 \ctikzset{tripoles/hemt/curr direction/.initial=1}
+%% New parameters
+\ctikzset{tripoles/hemt/curr direction/.initial=1}
+\ctikzset{tripoles/hemt/gate asym/.initial=0}
+\newif\ifpgf@circ@hemt@split
+\ctikzset{tripoles/hemt/split gate/.is if=pgf@circ@hemt@split}
+\ctikzset{tripoles/hemt/source arrow/.initial=0}
 
 \ctikzset{tripoles/nfet/width/.initial=.7}
 \ctikzset{tripoles/nfet/gate height/.initial=.35}
@@ -3353,7 +3388,7 @@
 \ctikzset{transistor circle/.is family}
 \ctikzset{transistor circle/relative thickness/.initial=1}
 \ctikzset{transistor circle/color/.initial=default}
-\ctikzset{transistor circle/dash/.initial=none}
+\ctikzset{transistor circle/dash/.initial=default}
 \ctikzset{transistor circle/scale circle radius/.initial=1}
 \ctikzset{transistor circle/default base in/.initial=0.9}
 \ctikzset{transistor circle/njfet base in/.initial=1.05}
@@ -3374,7 +3409,39 @@
 \ctikzset{transistor bodydiode/relative thickness/.initial=1}
 \ctikzset{transistor bodydiode/color/.initial=default}
 \ctikzset{transistor bodydiode/dash/.initial=default}
-
+\ctikzset{transistor bodydiode/dot scale/.initial=0.7}
+\ctikzset{transistor solderdot scale/.initial=0.7}
+% this is unfortunate, but needed for backward compatibility
+\ctikzset{transistor bodydiode/scale/.code={%
+    \ctikzset{tripoles/nmos/bodydiode scale=#1}%
+    \ctikzset{tripoles/pmos/bodydiode scale=#1}%
+    \ctikzset{tripoles/nmosd/bodydiode scale=#1}%
+    \ctikzset{tripoles/pmosd/bodydiode scale=#1}%
+    \ctikzset{tripoles/hemt/bodydiode scale=#1}%
+    \ctikzset{tripoles/nfet/bodydiode scale=#1}%
+    \ctikzset{tripoles/pfet/bodydiode scale=#1}%
+    \ctikzset{tripoles/nfetd/bodydiode scale=#1}%
+    \ctikzset{tripoles/pfetd/bodydiode scale=#1}%
+    \ctikzset{tripoles/nigfete/bodydiode scale=#1}%
+    \ctikzset{tripoles/nigfetd/bodydiode scale=#1}%
+    \ctikzset{tripoles/nigfetebulk/bodydiode scale=#1}%
+    \ctikzset{tripoles/pigfete/bodydiode scale=#1}%
+    \ctikzset{tripoles/pigfetd/bodydiode scale=#1}%
+    \ctikzset{tripoles/pigfetebulk/bodydiode scale=#1}%
+    \ctikzset{tripoles/npn/bodydiode scale=#1}%
+    \ctikzset{tripoles/pnp/bodydiode scale=#1}%
+    \ctikzset{tripoles/pigbt/bodydiode scale=#1}%
+    \ctikzset{tripoles/nigbt/bodydiode scale=#1}%
+    \ctikzset{tripoles/Lpigbt/bodydiode scale=#1}%
+    \ctikzset{tripoles/Lnigbt/bodydiode scale=#1}%
+    \ctikzset{tripoles/njfet/bodydiode scale=#1}%
+    \ctikzset{tripoles/pjfet/bodydiode scale=#1}%
+    \ctikzset{tripoles/nujt/bodydiode scale=#1}%
+    \ctikzset{tripoles/pujt/bodydiode scale=#1}%
+    \ctikzset{tripoles/isfet/bodydiode scale=#1}%
+    \ctikzset{tripoles/pgfet/bodydiode scale=#1}%
+    \ctikzset{tripoles/ngfet/bodydiode scale=#1}%
+}}
 %%>>>
 
 
@@ -3435,15 +3502,7 @@
     \pgfscope
         \pgf@circ@setlinewidth{tripoles}{\pgflinewidth}
         \pgfsetlinewidth{\ctikzvalof{transistor circle/relative thickness}\pgflinewidth}
-        \edef\@@none{none}\edef\@@default{default}
-        \edef\@@tmp{\ctikzvalof{transistor circle/color}}
-        \ifx\@@tmp\@@default\else
-            \pgfsetcolor{\@@tmp}
-        \fi
-        \edef\@@tmp{\ctikzvalof{transistor circle/dash}}
-        \ifx\@@tmp\@@none\else
-            \expandafter\pgfsetdash\expandafter{\@@tmp}{0cm}
-        \fi
+        \pgf@circ@subset@color@dash{transistor circle}
         % radius of the circle
         % \pgfmathsetlength{\pgf@circ@res@temp}{((#2+\extrabodydiodelen)-(#1)+(#3)*(#3)/((#2+\extrabodydiodelen)-(#1)))/2}
         % \pgfpathcircle{\pgfpoint{#1+\pgf@circ@res@temp}{0pt}}{\pgf@circ@res@temp}
@@ -3917,45 +3976,46 @@
             \pgf@circ@setcolor
             %
             \ifnum \ctikzvalof{tripoles/#1/curr direction} > 0
-            \pgf@circuit@trans@ntypetrue
+                \pgf@circuit@trans@ntypetrue
             \else
-            \pgf@circuit@trans@ntypefalse
-        \fi
-        \northeast
-        \pgf@circ@res@up = \pgf@y
-        \pgf@circ@res@down = -\pgf@y
-        \pgf@circ@res@right = \pgf@x
-        \left
-        \pgf@circ@res@left = \pgf@x
-        \pgf@circ@scaled@Rlen=\scaledRlen
-        %
-        #3%
-        % BODY DIODE
-        \ifpgf@circuit@fet@bodydiode
-            \pgfscope
-                \pgfsetlinewidth{\ctikzvalof{transistor bodydiode/relative thickness}\pgflinewidth}
-                \edef\@@none{none}\edef\@@default{default}
-                \edef\@@tmp{\ctikzvalof{transistor bodydiode/color}}
-                \ifx\@@tmp\@@default\else
-                    \pgfsetcolor{\@@tmp}
-                \fi
-                \edef\@@tmp{\ctikzvalof{transistor bodydiode/dash}}
-                \ifx\@@tmp\@@default\else
-                    \ifx\@@tmp\@@none
-                        \pgfsetdash{}{0pt}% solid line, override dash
-                    \else
-                        \expandafter\pgfsetdash\expandafter{\@@tmp}{0cm}
-                    \fi
-                \fi
+                \pgf@circuit@trans@ntypefalse
+            \fi
+            \northeast
+            \pgf@circ@res@up = \pgf@y
+            \pgf@circ@res@down = -\pgf@y
+            \pgf@circ@res@right = \pgf@x
+            \left
+            \pgf@circ@res@left = \pgf@x
+            \pgf@circ@scaled@Rlen=\scaledRlen
+            %
+            #3%
+            % BODY DIODE
+            \ifpgf@circuit@fet@bodydiode
                 \drawbodydiode{#1}
-            \endpgfscope
-        \fi
-        %
+            \fi
+            %
+        }
     }
 }
+
+\def\drawdobydiodedot#1#2{
+    % retrieve dot scale
+    \edef\@@tmp{\ctikzvalof{transistor bodydiode/dot scale}}
+    \ifdim\@@tmp pt>0pt
+        \pgfscope
+            \pgftransformshift{\pgfpoint{\pgf@circ@res@right}
+                {\ctikzvalof{tripoles/#1/bodydiode conn}#2}}
+            \pgftransformscale{\@@tmp}
+            % I'm not sure why this is needed, but...
+            \pgf@circ@maybe@color{transistor bodydiode/color}
+            \pgfnode{circ}{center}{}{}{\pgfusepath{draw,fill}}
+        \endpgfscope
+    \fi
 }
 
 \long\def\drawbodydiode#1{
+    \pgfsetlinewidth{\ctikzvalof{transistor bodydiode/relative thickness}\pgflinewidth}
+    \pgf@circ@subset@color@dash{transistor bodydiode}
     \pgfscope
         \pgftransformshift{\pgfpoint{-\ctikzvalof{tripoles/#1/bodydiode distance}\pgf@circ@res@left}{\pgf@circ@res@up+\pgf@circ@res@down}}
         \pgftransformrotate{90}
@@ -3965,6 +4025,8 @@
         \pgfmathsetmacro{\@@BDscale}{\ctikzvalof{tripoles/#1/bodydiode scale}* \ctikzvalof{\ctikzclass/scale}/\ctikzvalof{diodes/scale}}
         \pgftransformscale{\@@BDscale}
         \ifpgf@circuit@fulldiode
+            % I'm not sure why this is needed, but...
+            \pgf@circ@maybe@color{transistor bodydiode/color}
             \pgfnode{fulldiodeshape}{center}{}{pgf@bodydiode}{\pgfusepath{fill}}
         \else
             \pgfnode{emptydiodeshape}{center}{}{pgf@bodydiode}{\pgfusepath{fill}}
@@ -3983,23 +4045,14 @@
     {\ctikzvalof{tripoles/#1/bodydiode conn}\pgf@circ@res@up}}
     \pgfpathlineto{\pgfpointanchor{pgf@bodydiode}{east}}
     \pgfusepath{draw}
-    \pgfscope
-        \pgftransformshift{\pgfpoint{\pgf@circ@res@right}
-        {\ctikzvalof{tripoles/#1/bodydiode conn}\pgf@circ@res@up}}
-        \pgftransformscale{0.5}
-        \pgfnode{circ}{center}{}{}{\pgfusepath{fill}}
-    \endpgfscope{}
+    \drawdobydiodedot{#1}{\pgf@circ@res@up}
     %Draw lower connection to body diode
     \pgfpathmoveto{\pgfpoint{\pgf@circ@res@right}
     {\ctikzvalof{tripoles/#1/bodydiode conn}\pgf@circ@res@down}}
     \pgfpathlineto{\pgfpoint{-\ctikzvalof{tripoles/#1/bodydiode distance}\pgf@circ@res@left}{\ctikzvalof{tripoles/#1/bodydiode conn}\pgf@circ@res@down}}
     \pgfpathlineto{\pgfpointanchor{pgf@bodydiode}{west}}
     \pgfusepath{draw}
-    \pgfscope
-        \pgftransformshift{\pgfpoint{\pgf@circ@res@right}		        	       {\ctikzvalof{tripoles/#1/bodydiode conn}\pgf@circ@res@down}}
-        \pgftransformscale{0.5}
-        \pgfnode{circ}{center}{}{}{\pgfusepath{fill}}
-    \endpgfscope
+    \drawdobydiodedot{#1}{\pgf@circ@res@down}
 }
 
 \long\def\declarebpt#1{
@@ -5270,7 +5323,16 @@
     \pgfcirc@ferroelectric{pmosd}{\ctikzvalof{tripoles/pmosd/depletion width}}
 }
 %% HEMT FET Transistor
+\def\pgf@circ@hemt@gate@anchor@helper{%
+    \northeast
+    \pgf@circ@res@up = \pgf@y
+    \pgf@circ@res@down = -\pgf@y
+    \pgfmathsetlength{\pgf@circ@res@step}{{(1+\gateasym)*\pgf@circ@res@up+(1-\gateasym)*\pgf@circ@res@down}}
+    \left
+    \pgf@y=\pgf@circ@res@step
+}
 \pgfcircdeclaretransistor{hemt}{
+        \savedmacro{\gateasym}{\edef\gateasym{\ctikzvalof{tripoles/hemt/gate asym}}}
         \anchor{inner up}{
             \northeast
             \pgf@y=\ctikzvalof{tripoles/hemt/gate height}\pgf@y
@@ -5279,42 +5341,107 @@
             \northeast
             \pgf@y=-\ctikzvalof{tripoles/hemt/gate height}\pgf@y
         }
+        % override gate/base anchors
+        \anchor{G}{\pgf@circ@hemt@gate@anchor@helper}
+        \anchor{gate}{\pgf@circ@hemt@gate@anchor@helper}
+        \anchor{nogate}{\pgf@circ@hemt@gate@anchor@helper\pgf@x=\ctikzvalof{tripoles/hemt/base width}\pgf@x}
+        \anchor{B}{\pgf@circ@hemt@gate@anchor@helper}
+        \anchor{base}{\pgf@circ@hemt@gate@anchor@helper}
+        \anchor{nobase}{\pgf@circ@hemt@gate@anchor@helper\pgf@x=\ctikzvalof{tripoles/hemt/base width}\pgf@x}
     }{%
     % add the circle if requested (before everything else, so we can fill it)
     \pgfcirc@transistorcircle
+    % upper connection
     \pgfpathmoveto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@up+\pgfverticaltransformationadjustment*.5*\pgflinewidth}}
     \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}
     {\ctikzvalof{tripoles/hemt/gate height}\pgf@circ@res@up}}
     \pgfpathlineto{\pgfpoint
         {\ctikzvalof{tripoles/hemt/base width}\pgf@circ@res@left}
     {\ctikzvalof{tripoles/hemt/gate height}\pgf@circ@res@up}}
-
+    % lower connection
     \pgfpathmoveto{\pgfpoint
         {\ctikzvalof{tripoles/hemt/base width}\pgf@circ@res@left}
-    {\ctikzvalof{tripoles/hemt/gate height}\pgf@circ@res@down}}
+        {\ctikzvalof{tripoles/hemt/gate height}\pgf@circ@res@down}}
     \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}
-    {\ctikzvalof{tripoles/hemt/gate height}\pgf@circ@res@down}}
-    \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@down-\pgfverticaltransformationadjustment*.5*\pgflinewidth}}
+        {\ctikzvalof{tripoles/hemt/gate height}\pgf@circ@res@down}}
+    \pgfpathlineto{\pgfpoint
+        {\pgf@circ@res@right}{\pgf@circ@res@down-\pgfverticaltransformationadjustment*.5*\pgflinewidth}}
     \pgfusepath{draw}
-
     \pgfscope
-        \pgfpathmoveto{\pgfpoint
-            {\ctikzvalof{tripoles/hemt/base width}\pgf@circ@res@left}
-        {\ctikzvalof{tripoles/hemt/base height}\pgf@circ@res@up}}
-        \pgfpathlineto{\pgfpoint
-            {\ctikzvalof{tripoles/hemt/base width}\pgf@circ@res@left}
-        {\ctikzvalof{tripoles/hemt/base height}\pgf@circ@res@down}}
+        \edef\@@tmp{\ctikzvalof{tripoles/hemt/source arrow}}
+        \ifnum\@@tmp=0 \else
+            \ifpgf@circuit@trans@arrowatend
+                \ifnum\@@tmp > 0 %
+                    \pgftransformshift{\pgfpoint
+                        {\pgf@circ@res@right}
+                        {\ctikzvalof{tripoles/hemt/gate height}\pgf@circ@res@down}}
+                \else
+                    \pgftransformshift{\pgfpoint
+                        {\ctikzvalof{tripoles/hemt/base width}\pgf@circ@res@left}
+                        {\ctikzvalof{tripoles/hemt/gate height}\pgf@circ@res@down}}
+                        \ifnum\@@tmp < 0 \pgftransformrotate{180}\fi
+                \fi
+                    \pgfnode{trarrow}{tip}{}{}{\pgfusepath{stroke}}
+            \else
+                % the position here is a bit strange...
+                \pgftransformshift{\pgfpoint
+                    {0.5*\pgf@circ@res@right+0.5*\ctikzvalof{tripoles/hemt/base width}\pgf@circ@res@left}
+                    {\ctikzvalof{tripoles/hemt/gate height}\pgf@circ@res@down}}
+                    \ifnum\@@tmp < 0 \pgftransformrotate{180}\fi
+                    \pgfnode{trarrow}{center}{}{}{\pgfusepath{stroke}}
+            \fi
+        \fi
+    \endpgfscope
+    \pgfscope
+        % draw gate (base) bar
+        \ifpgf@circ@hemt@split
+            \pgfpathmoveto{\pgfpoint
+                {\ctikzvalof{tripoles/hemt/base width}\pgf@circ@res@left}
+                {\ctikzvalof{tripoles/hemt/base height}\pgf@circ@res@up}}
+            \pgfpathlineto{\pgfpoint{\ctikzvalof{tripoles/hemt/base width}\pgf@circ@res@left}
+                {(1.1+\gateasym)*\pgf@circ@res@up +
+                 (0.9-\gateasym)*\pgf@circ@res@down}}
+            \pgfpathmoveto{\pgfpoint{\ctikzvalof{tripoles/hemt/base width}\pgf@circ@res@left}
+                {(1.05+\gateasym)*\pgf@circ@res@up +
+                 (0.95-\gateasym)*\pgf@circ@res@down}}
+            \pgfpathlineto{\pgfpoint{\ctikzvalof{tripoles/hemt/base width}\pgf@circ@res@left}
+                {(0.95+\gateasym)*\pgf@circ@res@up +
+                 (1.05-\gateasym)*\pgf@circ@res@down}}
+            \pgfpathmoveto{\pgfpoint{\ctikzvalof{tripoles/hemt/base width}\pgf@circ@res@left}
+                {(0.9+\gateasym)*\pgf@circ@res@up +
+                 (1.1-\gateasym)*\pgf@circ@res@down}}
+            \pgfpathlineto{\pgfpoint
+                {\ctikzvalof{tripoles/hemt/base width}\pgf@circ@res@left}
+            {\ctikzvalof{tripoles/hemt/base height}\pgf@circ@res@down}}
+        \else
+            \pgfpathmoveto{\pgfpoint
+                {\ctikzvalof{tripoles/hemt/base width}\pgf@circ@res@left}
+            {\ctikzvalof{tripoles/hemt/base height}\pgf@circ@res@up}}
+            \pgfpathlineto{\pgfpoint
+                {\ctikzvalof{tripoles/hemt/base width}\pgf@circ@res@left}
+            {\ctikzvalof{tripoles/hemt/base height}\pgf@circ@res@down}}
+        \fi
         \pgf@circ@setlinewidth{tripoles}{\pgflinewidth}
         \pgfusepath{draw}
     \endpgfscope
-
+    % draw the gate horizontal segment
     \ifpgf@circuit@bpt@drawgate
         \pgfpathmoveto{\pgfpoint
             {\ctikzvalof{tripoles/hemt/base width}\pgf@circ@res@left}
-        {\pgf@circ@res@up+\pgf@circ@res@down}}
-        \pgfpathlineto{\pgfpoint{\pgf@circ@res@left-\pgfhorizontaltransformationadjustment*.5*\pgflinewidth}{\pgf@circ@res@up+\pgf@circ@res@down}}
+        {(1+\gateasym)*\pgf@circ@res@up+(1-\gateasym)*\pgf@circ@res@down}}
+        \pgfpathlineto{\pgfpoint{\pgf@circ@res@left-\pgfhorizontaltransformationadjustment*.5*\pgflinewidth}
+            {(1+\gateasym)*\pgf@circ@res@up+(1-\gateasym)*\pgf@circ@res@down}}
         \pgfusepath{draw}
     \fi
+}
+\tikzset{GaN hemt/.style={hemt,
+        circuitikz/tripoles/hemt/base height=0.6,%length of the "base" vertical bar
+        circuitikz/tripoles/hemt/gate height=0.5,%distance of the S/D terminals
+        circuitikz/tripoles/hemt/bodydiode conn=0.85,% attachment point of body diode
+        circuitikz/tripoles/hemt/gate asym=-0.1,% slightly down
+        circuitikz/tripoles/hemt/split gate=true,% split gate
+        circuitikz/tripoles/hemt/source arrow=1,% right-facing arrow
+    },
 }
 
 \long\def\drawfetcore#1{
@@ -5511,6 +5638,7 @@
         \pgfscope
             \pgftransformshift{\pgfpoint{\pgf@circ@res@right}{
             \ctikzvalof{tripoles/nigfete/gate height}\pgf@circ@res@down}}
+            \pgftransformscale{\ctikzvalof{transistor solderdot scale}}
             \pgfnode{circ}{center}{}{}{}
     \endpgfscope{}
 \fi
@@ -5525,6 +5653,7 @@
         \pgfscope
             \pgftransformshift{\pgfpoint{\pgf@circ@res@right}{
             \ctikzvalof{tripoles/nigfetebulk/gate height}\pgf@circ@res@down}}
+            \pgftransformscale{\ctikzvalof{transistor solderdot scale}}
             \pgfnode{circ}{center}{}{}{}
         \endpgfscope{}
     \fi
@@ -5545,6 +5674,7 @@
         \pgfscope
             \pgftransformshift{\pgfpoint{\pgf@circ@res@right}{
             \ctikzvalof{tripoles/nigfete/gate height}\pgf@circ@res@down}}
+            \pgftransformscale{\ctikzvalof{transistor solderdot scale}}
             \pgfnode{circ}{center}{}{}{}
         \endpgfscope{}
     \fi
@@ -5567,6 +5697,7 @@
         \pgfscope
             \pgftransformshift{\pgfpoint{\pgf@circ@res@right}{
             \ctikzvalof{tripoles/pigfete/gate height}\pgf@circ@res@up}}
+            \pgftransformscale{\ctikzvalof{transistor solderdot scale}}
             \pgfnode{circ}{center}{}{}{}
         \endpgfscope
     \fi
@@ -5594,6 +5725,7 @@
         \pgfscope
             \pgftransformshift{\pgfpoint{\pgf@circ@res@right}{
             \ctikzvalof{tripoles/nigfete/gate height}\pgf@circ@res@up}}
+            \pgftransformscale{\ctikzvalof{transistor solderdot scale}}
             \pgfnode{circ}{center}{}{}{}
         \endpgfscope{}
     \fi
@@ -5801,6 +5933,7 @@
         \pgfscope
             \pgftransformshift{\pgfpoint{\pgf@circ@res@right}{
             \ctikzvalof{tripoles/nigfete/gate height}\pgf@circ@res@down}}
+            \pgftransformscale{\ctikzvalof{transistor solderdot scale}}
             \pgfnode{circ}{center}{}{}{}
         \endpgfscope{}
     \fi
@@ -5995,7 +6128,10 @@
         \ctikzset{tripoles/op amp/font=#1}%
 }}
 \ctikzset{amplifiers/plus/.initial={$+$}}
-\ctikzset{amplifiers/minus/.initial={$-$}}
+% In the mayority of fonts, the size of - is smaller than +, so we have
+% unaligned signs when positioned independently.
+% See https://github.com/circuitikz/circuitikz/issues/721
+\ctikzset{amplifiers/minus/.initial={$\vphantom{+}-$}}
 \tikzset{amp symbol font/.code={%
         \ctikzset{amplifiers/symbol font={#1}}%
     }
@@ -6903,8 +7039,7 @@
         % main component, normally in thicker lines
         \pgfscope
             \newdimen\pgf@circ@res@right@double
-						\pgf@circ@res@right@double=2\pgf@circ@res@right
-
+            \pgf@circ@res@right@double=2\pgf@circ@res@right
             \pgf@circ@setlinewidth{tripoles}{\pgflinewidth}
             \pgftransformxshift{\ctikzvalof{tripoles/fd inst amp/port width}\pgf@circ@res@left}
             \pgf@circ@res@step=\pgf@circ@res@right
@@ -6954,8 +7089,8 @@
         \pgf@circ@text@strokecolor
         \pgftext[left, at=\pgfpoint{\ctikzvalof{tripoles/fd inst amp/port width}\pgf@circ@res@left}{\ctikzvalof{tripoles/fd inst amp/input height}\pgf@circ@res@up}]{\ctikzvalof{tripoles/fd inst amp/font} \ifpgf@circuit@oa@iplusup\pgf@circ@ampli@plus\else\pgf@circ@ampli@minus\fi}
         \pgftext[left, at=\pgfpoint{\ctikzvalof{tripoles/fd inst amp/port width}\pgf@circ@res@left}{\ctikzvalof{tripoles/fd inst amp/input height}\pgf@circ@res@down}]{\ctikzvalof{tripoles/fd inst amp/font} \ifpgf@circuit@oa@iplusup\pgf@circ@ampli@minus\else\pgf@circ@ampli@plus\fi}
-        \pgftext[right, at=\pgfpoint{\ctikzvalof{tripoles/fd inst amp/port width}\pgf@circ@res@right}{\ctikzvalof{tripoles/fd inst amp/output height}\pgf@circ@res@down}]{\ctikzvalof{tripoles/fd inst amp/font}\ifpgf@circuit@oa@oplusup$-\;$\else$+\;$\fi}
-        \pgftext[right, at=\pgfpoint{\ctikzvalof{tripoles/fd inst amp/port width}\pgf@circ@res@right}{\ctikzvalof{tripoles/fd inst amp/output height}\pgf@circ@res@up}]{\ctikzvalof{tripoles/fd inst amp/font}\ifpgf@circuit@oa@oplusup$+\;$\else$-\;$\fi}
+        \pgftext[right, at=\pgfpoint{\ctikzvalof{tripoles/fd inst amp/port width}\pgf@circ@res@right}{\ctikzvalof{tripoles/fd inst amp/output height}\pgf@circ@res@down}]{\ctikzvalof{tripoles/fd inst amp/font}\ifpgf@circuit@oa@oplusup\pgf@circ@ampli@minus\space\else\pgf@circ@ampli@plus\space\fi}
+        \pgftext[right, at=\pgfpoint{\ctikzvalof{tripoles/fd inst amp/port width}\pgf@circ@res@right}{\ctikzvalof{tripoles/fd inst amp/output height}\pgf@circ@res@up}]{\ctikzvalof{tripoles/fd inst amp/font}\ifpgf@circuit@oa@oplusup\pgf@circ@ampli@plus\space\else\pgf@circ@ampli@minus\space\fi}
     }
 }
 
@@ -8414,11 +8549,34 @@
     \fi
 }
 
-%% The diode (tube), triode, tetrode and pentode only differ in the
-%% number of grids. So we construct a generic declare function in
-%% which we can put code for the grid anchors and grid drawing code
-%% \pgfcircdeclaretube{tube name}{grid anchors}{grid drawing code}
-\long\def\pgfcircdeclaretube#1#2#3{%
+\long\def\pgfcirctubedrawanodestd{% Standard anode code (one anode)
+    % Anode (or plate)
+    \pgfpathmoveto{\pgfpoint{0pt}{\pgf@circ@res@up}} % north
+    \pgfpathlineto{\pgfpoint{0pt}{\ctikzvalof{tubes/anode distance}\pgf@circ@res@up}}
+    \pgfpathmoveto{\pgfpoint{-\ctikzvalof{tubes/anode width}\pgf@circ@res@right}{\ctikzvalof{tubes/anode distance}\pgf@circ@res@up}}
+    \pgfpathlineto{\pgfpoint{\ctikzvalof{tubes/anode width}\pgf@circ@res@right}{\ctikzvalof{tubes/anode distance}\pgf@circ@res@up}}
+}
+\long\def\pgfcirctubedrawcathodestd{% Standard cathode code (one cathode)
+    % Cathode
+    \ifpgf@circuit@tubes@nocathode
+        \pgf@circuit@tubes@nocathodefalse
+    \else
+        \pgfsetcornersarced{\pgfpoint{\ctikzvalof{tubes/cathode corners}\pgf@circ@res@up}{\ctikzvalof{tubes/cathode corners}\pgf@circ@res@up}}
+        \pgfpathmoveto{\pgfpoint{-\ctikzvalof{tubes/cathode width}\pgf@circ@res@right}{-\pgf@circ@res@up}}
+        \pgfpathlineto{\pgfpoint{-\ctikzvalof{tubes/cathode width}\pgf@circ@res@right}{-\ctikzvalof{tubes/cathode distance}\pgf@circ@res@up}}
+        \pgfpathlineto{\pgfpoint{\ctikzvalof{tubes/cathode width}\pgf@circ@res@right}{-\ctikzvalof{tubes/cathode distance}\pgf@circ@res@up}}
+        \ifpgf@circuit@tubes@fullcathode
+            \pgfpathlineto{\pgfpoint{\ctikzvalof{tubes/cathode width}\pgf@circ@res@right}{-\pgf@circ@res@up}}
+            \pgf@circuit@tubes@fullcathodefalse
+        \else
+            \pgfpathlineto{\pgfpoint{\ctikzvalof{tubes/cathode width}\pgf@circ@res@right}{-\ctikzvalof{tubes/cathode distance}\pgf@circ@res@up-\ctikzvalof{tubes/cathode right extend}\pgf@circ@res@up}}
+        \fi
+    \fi
+}
+
+%% generic macro to create a tube. Most of them will use the standard macro for
+%% anode and cathode (see above)
+\long\def\pgfcircdeclaretubegeneric#1#2#3#4#5#6{% name, anchors, grid, anode, cathode variable anchors
     \pgfdeclareshape{#1}{
         \savedmacro{\ctikzclass}{\edef\ctikzclass{tubes}}
         \saveddimen{\scaledRlen}{\pgfmathsetlength{\pgf@x}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}}
@@ -8457,6 +8615,11 @@
                 \pgf@y=\pgf@circ@res@up\advance\pgf@y by -\pgf@circ@res@right
             \fi
         }
+        \savedmacro{\tubes@filament@angle}{\edef\tubes@filament@angle{\ctikzvalof{tubes/filament angle}}}
+        \savedmacro{\tubes@filament@distance}{\edef\tubes@filament@distance{\ctikzvalof{tubes/filament distance}}}
+        \savedmacro{\tubes@tube@radius}{\edef\tubes@tube@radius{\ctikzvalof{tubes/tube radius}}}
+        \savedmacro{\tubes@cathode@width}{\edef\tubes@cathode@width{\ctikzvalof{tubes/cathode width}}}
+        \savedmacro{\tubes@cathode@distance}{\edef\tubes@cathode@distance{\ctikzvalof{tubes/cathode distance}}}
         \anchor{tube ne}{\tubene}
         \anchor{tubesq ne}{\tubesquarene}
         % tube shape anchors: geo
@@ -8491,29 +8654,36 @@
         \anchor{cathode}{%
             \northwest
             \pgf@y=-\pgf@y
-            \pgf@x=\ctikzvalof{tubes/cathode width}\pgf@x
+            \pgf@x=\tubes@cathode@width\pgf@x
         }
         \anchor{cathode 1}{%
             \northwest
             \pgf@y=-\pgf@y
-            \pgf@x=\ctikzvalof{tubes/cathode width}\pgf@x
+            \pgf@x=\tubes@cathode@width\pgf@x
         }
         \anchor{cathode 2}{%
             \northwest
             \pgf@y=-\pgf@y
-            \pgf@x=-\ctikzvalof{tubes/cathode width}\pgf@x
+            \pgf@x=-\tubes@cathode@width\pgf@x
         }
         \anchor{filament 1}{%
             \northwest
-            \pgfmathparse{(\ctikzvalof{tubes/tube radius}*sin(\ctikzvalof{tubes/filament angle})}
+            \pgfmathparse{(\tubes@tube@radius*sin(\tubes@filament@angle)}
             \pgf@x=\pgfmathresult\pgf@x
             \pgf@y=-\pgf@y
         }
         \anchor{filament 2}{%
             \northwest
-            \pgfmathparse{(\ctikzvalof{tubes/tube radius}*sin(\ctikzvalof{tubes/filament angle})}
+            \pgfmathparse{(\tubes@tube@radius*sin(\tubes@filament@angle)}
             \pgf@x=-\pgfmathresult\pgf@x
             \pgf@y=-\pgf@y
+        }
+        \anchor{filament center}{%
+            \northwest
+            \pgf@ya=0.5\pgf@y
+            \pgf@ya=-\tubes@cathode@distance\pgf@y
+            \advance\pgf@ya by -\tubes@filament@distance\pgf@y
+            \pgf@x=0pt\pgf@y=\pgf@ya
         }
 
         % Extra anchors
@@ -8560,31 +8730,22 @@
                 \fi
 
                 % Anode (or plate)
-                \pgfpathmoveto{\pgfpoint{0pt}{\pgf@circ@res@up}} % north
-                \pgfpathlineto{\pgfpoint{0pt}{\ctikzvalof{tubes/anode distance}\pgf@circ@res@up}}
-                \pgfpathmoveto{\pgfpoint{-\ctikzvalof{tubes/anode width}\pgf@circ@res@right}{\ctikzvalof{tubes/anode distance}\pgf@circ@res@up}}
-                \pgfpathlineto{\pgfpoint{\ctikzvalof{tubes/anode width}\pgf@circ@res@right}{\ctikzvalof{tubes/anode distance}\pgf@circ@res@up}}
-
+                #4
                 % Cathode
-                \ifpgf@circuit@tubes@nocathode
-                    \pgf@circuit@tubes@nocathodefalse
-                \else
-                    \pgfsetcornersarced{\pgfpoint{\ctikzvalof{tubes/cathode corners}\pgf@circ@res@up}{\ctikzvalof{tubes/cathode corners}\pgf@circ@res@up}}
-                    \pgfpathmoveto{\pgfpoint{-\ctikzvalof{tubes/cathode width}\pgf@circ@res@right}{-\pgf@circ@res@up}}
-                    \pgfpathlineto{\pgfpoint{-\ctikzvalof{tubes/cathode width}\pgf@circ@res@right}{-\ctikzvalof{tubes/cathode distance}\pgf@circ@res@up}}
-                    \pgfpathlineto{\pgfpoint{\ctikzvalof{tubes/cathode width}\pgf@circ@res@right}{-\ctikzvalof{tubes/cathode distance}\pgf@circ@res@up}}
-                    \ifpgf@circuit@tubes@fullcathode
-                        \pgfpathlineto{\pgfpoint{\ctikzvalof{tubes/cathode width}\pgf@circ@res@right}{-\pgf@circ@res@up}}
-                        \pgf@circuit@tubes@fullcathodefalse
-                    \else
-                        \pgfpathlineto{\pgfpoint{\ctikzvalof{tubes/cathode width}\pgf@circ@res@right}{-\ctikzvalof{tubes/cathode distance}\pgf@circ@res@up-\ctikzvalof{tubes/cathode right extend}\pgf@circ@res@up}}
-                    \fi
-                \fi
-
+                #5
                 % Draw the background
                 \pgfusepath{draw}
         }
+        #6
     }
+}
+
+%% The diode (tube), triode, tetrode and pentode only differ in the
+%% number of grids. So we construct a generic declare function in
+%% which we can put code for the grid anchors and grid drawing code
+%% \pgfcircdeclaretube{tube name}{grid anchors}{grid drawing code}
+\long\def\pgfcircdeclaretube#1#2#3{% name, anchors, grid
+    \pgfcircdeclaretubegeneric{#1}{#2}{#3}{\pgfcirctubedrawanodestd}{\pgfcirctubedrawcathodestd}{}
 }
 
 \pgfcircdeclaretube{diodetube}{}{} % shape diode already exists
@@ -8818,7 +8979,143 @@
 	\pgfpathlineto{\pgfpoint{\pgf@circ@res@temp}{\pgfutil@tempdima-2*\ctikzvalof{tubes/grid separation}\pgf@circ@res@up}}
 	\pgfpathlineto{\pgfpoint{\ctikzvalof{tubes/cathode width}\pgf@circ@res@right-0.4142136*\ctikzvalof{tubes/cathode corners}\pgf@circ@res@right}{-\ctikzvalof{tubes/cathode distance}\pgf@circ@res@up-0.4142136*\ctikzvalof{tubes/cathode corners}\pgf@circ@res@up}}
 
-}% %>>>
+}%
+%
+% multi-anode tube, added by Romano for version 1.6.8, suggested by @bogger33 on GitHub
+% see https://github.com/circuitikz/circuitikz/issues/785
+%
+\ctikzset{tubes/anodes/.initial=3}  % number of anodes. Ignored in most tubes.
+\newif\ifpgf@circuit@tubes@anodedot\pgf@circuit@tubes@anodedotfalse
+\pgfkeys{/tikz/anodedot/.add code={}{\pgf@circuit@tubes@anodedottrue}}
+\ctikzset{tubes/anodedot/.add code={}{\pgf@circuit@tubes@anodedottrue}}
+\newif\ifpgf@circuit@tubes@nogrid\pgf@circuit@tubes@nogridfalse
+\pgfkeys{/tikz/nogrid/.add code={}{\pgf@circuit@tubes@nogridtrue}}
+\ctikzset{tubes/nogrid/.add code={}{\pgf@circuit@tubes@nogridtrue}}
+\newif\ifpgf@circuit@tubes@nixieanode\pgf@circuit@tubes@nixieanodefalse
+\pgfkeys{/tikz/nixieanode/.add code={}{\pgf@circuit@tubes@nixieanodetrue}}
+\ctikzset{tubes/nixieanode/.add code={}{\pgf@circuit@tubes@nixieanodetrue}}
+\long\def\pgfcirctubedraw@multi@anode{% Separate to override in matubes
+    % Anodes (or plates)
+    % Use saved len/anchors to find the first drawn position.
+    \pgf@circ@res@temp=\anodelen\divide\pgf@circ@res@temp by 2 % half the anode length
+    \firstanodepos\pgf@circ@res@other=\pgf@x
+    \advance\pgf@circ@res@other by \pgf@circ@res@temp
+    \pgf@circ@count@a=0
+    \loop
+        \pgfpathmoveto{\pgfpoint{\pgf@circ@res@other}{\pgf@circ@res@up}} % north
+        \pgfpathlineto{\pgfpoint{\pgf@circ@res@other}{\ctikzvalof{tubes/anode distance}\pgf@circ@res@up}}
+        \ifpgf@circuit@tubes@anodedot
+            \pgfpathcircle{\pgfpoint{\pgf@circ@res@other}{\ctikzvalof{tubes/anode distance}\pgf@circ@res@up-0.5*\circlelen}}{\circlelen}
+        \else
+            % this is the horizontal line of the anode
+            \pgfpathmoveto{\pgfpoint{\pgf@circ@res@other-\pgf@circ@res@temp}{\ctikzvalof{tubes/anode distance}\pgf@circ@res@up}}
+            \pgfpathlineto{\pgfpoint{\pgf@circ@res@other+\pgf@circ@res@temp}{\ctikzvalof{tubes/anode distance}\pgf@circ@res@up}}
+        \fi
+        \advance\pgf@circ@res@other by 4\pgf@circ@res@temp
+        \advance\pgf@circ@count@a by 1
+    \ifnum\pgf@circ@count@a<\Nanodes\relax
+    \repeat
+}
+\long\def\pgfcirctubedraw@cathode@or@nixie{%
+    \ifpgf@circuit@tubes@nixieanode
+        \pgfpathmoveto{\pgfpoint{0pt}{-\pgf@circ@res@up}}
+        \pgfpathlineto{\pgfpoint{0pt}{-\ctikzvalof{tubes/cathode distance}\pgf@circ@res@up}}
+        \pgfpathmoveto{\pgfpoint{-\ctikzvalof{tubes/cathode width}\pgf@circ@res@right}{-\ctikzvalof{tubes/cathode distance}\pgf@circ@res@up}}
+        \pgfpathlineto{\pgfpoint{\ctikzvalof{tubes/cathode width}\pgf@circ@res@right}{-\ctikzvalof{tubes/cathode distance}\pgf@circ@res@up}}
+    \else
+        \pgfcirctubedrawcathodestd
+    \fi
+}
+\pgfcircdeclaretubegeneric{matube}
+{% anchors
+    \savedmacro{\Nanodes}{\edef\Nanodes{\ctikzvalof{tubes/anodes}}}
+    \savedanchor\firstanodepos{%
+        \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
+        \pgf@circ@res@up=\ctikzvalof{tubes/height}\pgf@circ@scaled@Rlen
+        \pgf@circ@res@right=\ctikzvalof{tubes/width}\pgf@circ@scaled@Rlen
+        \pgf@circ@res@right=\ctikzvalof{tubes/anode width}\pgf@circ@res@right
+        % x and y are one half
+        \pgf@y=\pgf@circ@res@up
+        \pgf@y=.5\pgf@y
+        \pgf@x=-\pgf@circ@res@right
+        \pgf@x=.5\pgf@x
+    }
+    \saveddimen\anodelen{%
+        \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
+        \pgf@circ@res@right=\ctikzvalof{tubes/width}\pgf@circ@scaled@Rlen % full width, left to right
+        % the length of one of the N anodes is the full width divided by 2*N+1
+        \pgfmathsetlength\pgf@x{\ctikzvalof{tubes/anode width}*\pgf@circ@res@right/(2*\Nanodes-1)}
+    }
+    \saveddimen\circlelen{%
+        \pgf@x=\ctikzvalof{nodes width}\pgf@circ@Rlen
+    }
+    \anchor{grid} {% should not be used
+        \northwest
+        \pgf@y=\ctikzvalof{tubes/grid shift}\pgf@y
+    }
+    \anchor{control} {%
+        \northwest
+        \pgf@y=\ctikzvalof{tubes/grid shift}\pgf@y
+    }
+    \anchor{nixie a}{%
+        \northwest\pgf@x=0pt\pgf@y=-\pgf@y
+    }
+}
+{% grid
+    \ifpgf@circuit@tubes@nogrid\else
+    % Grid protrusion
+    \pgf@xa=-\ctikzvalof{tubes/tube radius}\pgf@circ@res@right
+    \advance\pgf@xa by -\ctikzvalof{tubes/grid protrusion}\pgf@circ@res@right
+    \pgfpathmoveto{\pgfpoint{-\pgf@circ@res@right}{\ctikzvalof{tubes/grid shift}\pgf@circ@res@up}}
+    \pgfpathlineto{\pgfpoint{\pgf@xa}{\ctikzvalof{tubes/grid shift}\pgf@circ@res@up}}
+    % Grid dashes: calculations
+    \pgf@xb=2\pgf@circ@res@right
+    \pgf@circ@res@step=\ctikzvalof{tubes/tube radius}\pgf@xb
+    \pgf@circ@count@a=\ctikzvalof{tubes/grid dashes}  % dashes*2+1
+    \multiply\pgf@circ@count@a by 2\relax
+    \advance\pgf@circ@count@a by 1\relax
+    \advance\pgf@circ@res@step by -\pgf@xa
+    \divide\pgf@circ@res@step by \pgf@circ@count@a
+    % Grid dashes: draw
+    \pgf@circ@res@temp=\pgf@xa
+    \pgf@circ@count@a=\ctikzvalof{tubes/grid dashes}
+    \loop
+    \advance\pgf@circ@res@temp by\pgf@circ@res@step
+    \pgfpathmoveto{\pgfpoint{\pgf@circ@res@temp}{\ctikzvalof{tubes/grid shift}\pgf@circ@res@up}}
+    \advance\pgf@circ@res@temp by\pgf@circ@res@step
+    \pgfpathlineto{\pgfpoint{\pgf@circ@res@temp}{\ctikzvalof{tubes/grid shift}\pgf@circ@res@up}}
+    \advance\pgf@circ@count@a by-1
+    \ifnum\pgf@circ@count@a>0\relax
+    \repeat
+    \fi
+}
+{\pgfcirctubedraw@multi@anode}% anodes
+{\pgfcirctubedraw@cathode@or@nixie}% cathode
+{% extra dynamics anchors
+    \pgfutil@g@addto@macro\pgf@sh@s@matube{%
+        % Start with the maximum pin number and go backwards.
+        \pgf@circ@count@a=\Nanodes\relax
+        \pgfmathloop%
+        \ifnum\pgf@circ@count@a>0
+        \expandafter\xdef\csname pgf@anchor@matube@anode\space\the\pgf@circ@count@a\endcsname{%
+            \noexpand\pgf@circ@ma@anode@anchor{\the\pgf@circ@count@a}%
+        }
+        \expandafter\xdef\csname pgf@anchor@matube@nixie\space k\the\pgf@circ@count@a\endcsname{%
+            \noexpand\pgf@circ@ma@anode@anchor{\the\pgf@circ@count@a}%
+        }
+        \advance\pgf@circ@count@a by -1\relax%
+        \repeatpgfmathloop%
+    }%
+}
+\def\pgf@circ@ma@anode@anchor#1{
+    \firstanodepos
+    \pgf@circ@res@temp=\pgf@x
+    \pgfmathsetlength\pgf@x{\pgf@circ@res@temp + (0.5 + 2*(#1 -1))*\anodelen}
+}
+
+
+
+%>>>
 
 \endinput
 % vim: set fdm=marker fmr=%<<<,%>>>:

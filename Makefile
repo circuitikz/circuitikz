@@ -1,11 +1,13 @@
 # XELATEXOPTIONS:=-8bit -interaction=nonstopmode
-XELATEXOPTIONS:=-8bit -halt-on-error
+PDFLATEXOPTIONS:=-8bit -halt-on-error
+# XELATEXOPTIONS:=-8bit -halt-on-error
 GIT_REV:=$(shell git rev-parse --short HEAD)
 GIT_DATE:=$(shell export LC_ALL=C;date +"%Y\/%m\/%d" --date=@`git show -s --format=%ct`)
 #GIT_DATE:=$(shell date)
 CTIKZ_GIT_FILENAME:=circuitikzgit.sty
 CTIKZ_CONTEXT_GIT_FILENAME:=t-circuitikzgit.tex
 .PHONY: ctan clean
+HAVE_CONTEXT := $(shell command -v context 2> /dev/null)
 
 help:
 	@echo ---HELP---
@@ -14,9 +16,14 @@ help:
 
 # to check if it compiles, we do not need to fully build the manual; we save 2 compilation steps
 test-compile: changelog
+	echo $(HAVE_CONTEXT)
+ifdef HAVE_CONTEXT
 	cd doc; TEXINPUTS=.:../tex/: context circuitikz-context.tex
-	cd doc; TEXINPUTS=.:../tex/: xelatex $(XELATEXOPTIONS) compatibility.tex
-	cd doc; TEXINPUTS=.:../tex/: xelatex $(XELATEXOPTIONS) circuitikzmanual.tex
+else
+	echo "ConTeXt not found, check compatibility skipped"
+endif
+	cd doc; TEXINPUTS=.:../tex/: pdflatex $(PDFLATEXOPTIONS) compatibility.tex
+	cd doc; TEXINPUTS=.:../tex/: pdflatex $(PDFLATEXOPTIONS) circuitikzmanual.tex
 
 
 manual-git: flat
@@ -42,14 +49,18 @@ manual-git-fail:
 manual: manual-latex manual-context clean
 
 manual-context: changelog
+ifdef HAVE_CONTEXT
 	rm -f doc/circuitikz-context.pdf
 	rm -f doc/tmp.pdf
 	cd doc; TEXINPUTS=.:../tex/: context circuitikz-context.tex
+else
+	echo "ConTeXt not found, check compatibility skipped"
+endif
 
 manual-latex: changelog
 	rm -f doc/circuitikzmanual.pdf
 	rm -f doc/tmp.pdf
-	cd doc; TEXINPUTS=.:../tex/: xelatex $(XELATEXOPTIONS) compatibility.tex && TEXINPUTS=.:../tex/: xelatex $(XELATEXOPTIONS) circuitikzmanual.tex &&  TEXINPUTS=.:../tex/: xelatex $(XELATEXOPTIONS) circuitikzmanual.tex && TEXINPUTS=.:../tex/: xelatex $(XELATEXOPTIONS) circuitikzmanual.tex
+	cd doc; TEXINPUTS=.:../tex/: pdflatex $(PDFLATEXOPTIONS) compatibility.tex && TEXINPUTS=.:../tex/: pdflatex $(PDFLATEXOPTIONS) circuitikzmanual.tex &&  TEXINPUTS=.:../tex/: pdflatex $(PDFLATEXOPTIONS) circuitikzmanual.tex && TEXINPUTS=.:../tex/: pdflatex $(PDFLATEXOPTIONS) circuitikzmanual.tex
 
 changelog:
 	echo "%DO NOT EDIT THIS AUTOMATICALLY GENERATED FILE, run \"make changelog\" at toplevel!!!" > doc/changelog.tex

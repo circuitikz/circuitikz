@@ -29,11 +29,15 @@ Just place
 ```
 Be sure to check the options you like — you should at least state one of the "voltage direction" ones, like `RPvoltages` shown above, or the usage of `siunitx` special syntax. Be sure to check the relevant sections in the manual.
 
-For ConTeXt, use
+For ConTeXt, you should be able to use
 ```latex
   \usemodule[circuitikz]
 ```
-in the preamble and compile away, both with PS and PDF target output. It is higly recommended to go through the [tutorials in the manual](https://circuitikz.github.io/circuitikz/circuitikzmanualgit.pdf#c) and to learn a bit of Ti*k*Z before for example, go through at least the [basic Ti*k*Z one](https://tikz.dev/tutorial), but there are more suggestions in the documentation.
+in the preamble and compile away, both with PS and PDF target output. 
+
+It is higly recommended to go through the [tutorials in the manual](https://circuitikz.github.io/circuitikz/circuitikzmanualgit.pdf#c) and to learn a bit of Ti*k*Z before for example, go through at least the [basic Ti*k*Z one](https://tikz.dev/tutorial), but there are more suggestions in the documentation.
+
+*Notice* that for the time being, due to [this bug](https://bugs.launchpad.net/ubuntu/+source/context/+bug/2058409), automatic (CI) checks for ConTeXt compatibility is disabled. I (Romano) am still checking it at home, but I am not able to have it integrated in the CI.
 
 ### Development or newer version
 
@@ -51,7 +55,7 @@ Be aware that options and style files can (and do) change between versions, so y
 
 ### Older version
 
-There is a roll-back mechanism in the package, that let you use older versions if you need them; the details are in the manual, look at the section named *"Incompabilities between versions"*  for details.
+There is a roll-back mechanism in the package, that let you use older versions if you need them; the details are in the manual, look at the section named *"Incompatibilities between versions"*  for details.
 
 You have all the code and the corresponding manual available in the  [in the github page](http://circuitikz.github.io/circuitikz/)  of the project, since version 0.6 onward.
 
@@ -80,12 +84,12 @@ This file may be distributed and/or modified
 1. under the LaTeX Project Public License and/or
 2. under the GNU Public License.
 
-Copyright 2018-2022 by Romano Giannetti
+Copyright 2018-2024 by Romano Giannetti
 
-Copyright 2015-2022 by Stefan Lindner
+Copyright 2015-2024 by Stefan Lindner
 
-Copyright 2013-2022 by Stefan Erhardt
+Copyright 2013-2024 by Stefan Erhardt
 
-Copyright 2007-2022 by Massimo Redaelli
+Copyright 2007-2024 by Massimo Redaelli
 
 
