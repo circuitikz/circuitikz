@@ -49,6 +49,7 @@
 \ctikzset{monopoles/dinantenna/width/.initial=.2}
 \ctikzset{monopoles/dinantenna/height/.initial=.6}
 \ctikzset{monopoles/waves/width/.initial=0.5}%
+\ctikzset{monopoles/harmonics/width/.initial=0.5}%
 %>>>
 
 %% Node shapes for grounds and power supply%<<<
@@ -607,6 +608,56 @@
         \pgfusepath{clip}
         % ...and build the waves as clipped circles
         \c@pgf@counta=8\pgf@circ@res@other=0.5\pgf@circ@res@step
+        \pgfmathloop%
+        \ifnum\c@pgf@counta>1
+            \pgfpathcircle{\pgfpoint{-2\pgf@circ@res@step}{0pt}}{\the\c@pgf@counta*\pgf@circ@res@other}
+            \advance\c@pgf@counta-1\relax%
+            \repeatpgfmathloop
+            \pgfusepath{draw}
+        \endpgfscope
+    }
+}
+
+\pgfdeclareshape{harmonics}{
+    \savedmacro{\ctikzclass}{\edef\ctikzclass{RF}}
+    \saveddimen{\scaledRlen}{\pgfmathsetlength{\pgf@x}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}}
+    \anchor{center}{\pgfpointorigin}
+    \savedanchor{\northeast}{
+        \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
+        \pgf@circ@res@step=\ctikzvalof{monopoles/harmonics/width}\pgf@circ@scaled@Rlen
+        \pgf@x=\pgf@circ@res@step
+        \pgf@y=\pgf@circ@res@step
+    }
+    \anchor{text}{
+        \northeast
+        \pgf@y=\dimexpr\pgf@y+.5\dp\pgfnodeparttextbox-.5\ht\pgfnodeparttextbox\relax
+    }
+    \anchor{top}{\northeast\pgf@x=0pt}
+    \anchor{right}{\northeast\pgf@y=0pt}
+    \anchor{left}{\northeast\pgf@x=-\pgf@x\pgf@y=0pt}
+    \anchor{bottom}{\northeast\pgf@y=-\pgf@y\pgf@x=0pt}
+    \anchor{north}{\northeast\pgf@x=0pt}
+    \anchor{north east}{\northeast}
+    \anchor{east}{\northeast\pgf@y=0pt}
+    \anchor{south east}{\northeast\pgf@y=-\pgf@y}
+    \anchor{south}{\northeast\pgf@y=-\pgf@y\pgf@x=0pt}
+    \anchor{south west}{\northeast\pgf@y=-\pgf@y\pgf@x=-\pgf@x}
+    \anchor{west}{\northeast\pgf@x=-\pgf@x\pgf@y=0pt}
+    \anchor{north west}{\northeast\pgf@x=-\pgf@x}
+    \pgf@circ@draw@component{
+        \pgf@circ@scaled@Rlen=\scaledRlen
+        \pgf@circ@res@step=\ctikzvalof{monopoles/waves/width}\pgf@circ@scaled@Rlen
+        \pgf@circ@res@step=0.5\pgf@circ@res@step
+        \pgf@circ@setcolor
+        \pgfscope
+        % define a triangle for clipping the waves
+        \pgfpathmoveto{\pgfpoint{-2\pgf@circ@res@step}{0pt}}
+        \pgfpathlineto{\pgfpoint{2.1\pgf@circ@res@step}{1\pgf@circ@res@step}}
+        \pgfpathlineto{\pgfpoint{2.1\pgf@circ@res@step}{-1\pgf@circ@res@step}}
+        \pgfpathclose
+        \pgfusepath{clip}
+        % ...and build the waves as clipped circles
+        \c@pgf@counta=32\pgf@circ@res@other=0.125\pgf@circ@res@step
         \pgfmathloop%
         \ifnum\c@pgf@counta>1
             \pgfpathcircle{\pgfpoint{-2\pgf@circ@res@step}{0pt}}{\the\c@pgf@counta*\pgf@circ@res@other}
