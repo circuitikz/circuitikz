@@ -3694,6 +3694,13 @@
 }}
 
 %
+% Whiskers for ZZener and TVS
+%
+\newif\ifpgf@zz@straightwhisk
+\pgf@zz@straightwhiskfalse
+\ctikzset{diode straight whiskers/.code=\pgf@zz@straightwhisktrue}
+\ctikzset{diode sloped whiskers/.code=\pgf@zz@straightwhiskfalse}
+%
 % Flipping arrows in LED and photodiodes
 %
 \newif\ifpgf@led@fliparrows
@@ -3787,10 +3794,15 @@
 {
     \pgf@circ@setlinewidth{bipoles}{\pgfstartlinewidth}
     \pgf@circ@fulldiode@triangle@shift
-    \pgfpathmoveto{\pgfpoint{\pgf@circ@res@right-1.8\pgf@circ@res@left}{\pgf@circ@res@down-0.5\pgf@circ@res@up}}
+    \ifpgf@zz@straightwhisk
+        \edef\@@tmp{0.0}
+    \else
+        \edef\@@tmp{0.5}
+    \fi
+    \pgfpathmoveto{\pgfpoint{\pgf@circ@res@right-1.8\pgf@circ@res@left}{\pgf@circ@res@down-\@@tmp\pgf@circ@res@up}}
     \pgfpathlineto{\pgfpoint{\pgf@circ@res@right-\pgf@circ@res@left}{\pgf@circ@res@down}}
     \pgfpathlineto{\pgfpoint{\pgf@circ@res@right-\pgf@circ@res@left}{\pgf@circ@res@up}}
-    \pgfpathlineto{\pgfpoint{\pgf@circ@res@right-0.2\pgf@circ@res@left}{\pgf@circ@res@up-0.5\pgf@circ@res@down}}
+    \pgfpathlineto{\pgfpoint{\pgf@circ@res@right-0.2\pgf@circ@res@left}{\pgf@circ@res@up-\@@tmp\pgf@circ@res@down}}
     \pgfusepath{draw}
 }
 
@@ -4072,10 +4084,15 @@
 
     \pgfscope
         \pgf@circ@basicdiodeshape
-        \pgfpathmoveto{\pgfpoint{\pgf@circ@res@right-1.8\pgf@circ@res@left}{\pgf@circ@res@down-0.5\pgf@circ@res@up}}
+        \ifpgf@zz@straightwhisk
+            \edef\@@tmp{0.0}
+        \else
+            \edef\@@tmp{0.5}
+        \fi
+        \pgfpathmoveto{\pgfpoint{\pgf@circ@res@right-1.8\pgf@circ@res@left}{\pgf@circ@res@down-\@@tmp\pgf@circ@res@up}}
         \pgfpathlineto{\pgfpoint{\pgf@circ@res@right-\pgf@circ@res@left}{\pgf@circ@res@down}}
         \pgfpathlineto{\pgfpoint{\pgf@circ@res@right-\pgf@circ@res@left}{\pgf@circ@res@up}}
-        \pgfpathlineto{\pgfpoint{\pgf@circ@res@right-0.2\pgf@circ@res@left}{\pgf@circ@res@up-0.5\pgf@circ@res@down}}
+        \pgfpathlineto{\pgfpoint{\pgf@circ@res@right-0.2\pgf@circ@res@left}{\pgf@circ@res@up-\@@tmp\pgf@circ@res@down}}
         \pgfusepath{draw}
     \endpgfscope
 }
@@ -4253,10 +4270,15 @@
             \pgftransformxshift{\pgf@circ@res@left}
             \pgf@circ@basicdiodeshape
         \endpgfscope
-        \pgfpathmoveto{\pgfpoint{0.4\pgf@circ@res@left}{1.3\pgf@circ@res@up}}
+        \ifpgf@zz@straightwhisk
+            \edef\@@tmp{1.0}
+        \else
+            \edef\@@tmp{1.3}
+        \fi
+        \pgfpathmoveto{\pgfpoint{0.4\pgf@circ@res@left}{\@@tmp\pgf@circ@res@up}}
         \pgfpathlineto{\pgfpoint{0pt}{\pgf@circ@res@up}}
         \pgfpathlineto{\pgfpoint{0pt}{\pgf@circ@res@down}}
-        \pgfpathlineto{\pgfpoint{0.4\pgf@circ@res@right}{1.3\pgf@circ@res@down}}
+        \pgfpathlineto{\pgfpoint{0.4\pgf@circ@res@right}{\@@tmp\pgf@circ@res@down}}
         \pgfusepath{draw}
     \endpgfscope
 }
@@ -4281,10 +4303,15 @@
         \pgftransformxshift{\pgf@circ@res@left}
         \pgf@circ@fulldiode@triangle@shift
     \endpgfscope
-    \pgfpathmoveto{\pgfpoint{0.4\pgf@circ@res@left}{1.3\pgf@circ@res@up}}
+    \ifpgf@zz@straightwhisk
+        \edef\@@tmp{1.0}
+    \else
+        \edef\@@tmp{1.3}
+    \fi
+    \pgfpathmoveto{\pgfpoint{0.4\pgf@circ@res@left}{\@@tmp\pgf@circ@res@up}}
     \pgfpathlineto{\pgfpoint{0pt}{\pgf@circ@res@up}}
     \pgfpathlineto{\pgfpoint{0pt}{\pgf@circ@res@down}}
-    \pgfpathlineto{\pgfpoint{0.4\pgf@circ@res@right}{1.3\pgf@circ@res@down}}
+    \pgfpathlineto{\pgfpoint{0.4\pgf@circ@res@right}{\@@tmp\pgf@circ@res@down}}
     \pgfusepath{draw}
 }
 
@@ -4762,6 +4789,8 @@
     \pgfcirc@style@to@style{#1 agtobar}{aGTOb#2}
     \pgfcirc@node@to@style{l}{emptytriac}{#1 triac}{\circuitikzbasekey/bipole/is strokedsymbol=true}
     \pgfcirc@style@to@style{#1 triac}{Tr#2}
+    \pgfcirc@node@to@style{l}{emptytvsdiode}{#1 tvsdiode}{\circuitikzbasekey/bipole/is strokedsymbol=true}
+    \pgfcirc@style@to@style{#1 tvsdiode}{Tr#2}
 }
 \pgfcirc@tmp@generatestrokeddiodes{stroke}{-}
 \def\pgfcircdiodestylemacro{\ifpgf@circuit@strokediode stroke \else\ifpgf@circuit@fulldiode full \else empty \fi\fi}
