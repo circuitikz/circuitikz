@@ -3,7 +3,8 @@ The major changes among the different CircuiTikZ versions are listed here. See <
 
 * Version 1.7.1 (unreleased)
     
-    - Added a flag to have German style TVS (suggested by [Matthias Jung](https://github.com/circuitikz/circuitikz/issues/836))
+    - Added a flag to have German style TVS (suggested by [Dr. Matthias Jung](https://github.com/circuitikz/circuitikz/issues/836))
+    - Added many blocks all over the map (suggested by [Dr. Matthias Jung](https://github.com/circuitikz/circuitikz/issues/693))
     - Fix for straight voltage on `open` bipoles (reported by [Oliver Wallscheid on GitHub](https://github.com/circuitikz/circuitikz/issues/821))
     - Fix a very, very old bug about aliases for american/european sources
     - Fix `barrier` wire linewidth (issue [#833](https://github.com/circuitikz/circuitikz/issues/833) by schtandard).
