@@ -10,7 +10,7 @@ The major changes among the different CircuiTikZ versions are listed here. See <
     - Fix stroke-type transorb (which did not work at all)
     - Reduce `barrier` and `openbarrier` default widths so no wire is drawn by default.
         This breaks backward-compatibility and changes the meaning of some associated keys, but the appearance with the default settings remains unchanged. See [#835](https://github.com/circuitikz/circuitikz/pull/835) for rationale.
-    - Documentation enhacement (example of chopper macro)
+    - Documentation enhancement (example of chopper macro)
 
 * Version 1.7.0 (2024-08-03)
 
