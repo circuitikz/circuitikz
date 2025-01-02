@@ -544,6 +544,11 @@
 \ctikzset{bipoles/lowpass/width/.initial=.7}
 \ctikzset{bipoles/lowpass2/width/.initial=.7}
 \ctikzset{bipoles/allpass/width/.initial=.7}
+\ctikzset{bipoles/vallpass/width/.initial=.7}
+\ctikzset{bipoles/bgenerator/width/.initial=.7}
+\ctikzset{bipoles/qgenerator/width/.initial=.7}
+\ctikzset{bipoles/cgenerator/width/.initial=.7}
+\ctikzset{bipoles/ngenerator/width/.initial=.7}
 \ctikzset{bipoles/adc/width/.initial=.7}
 \ctikzset{bipoles/dac/width/.initial=.7}
 \ctikzset{bipoles/dsp/width/.initial=.7}
@@ -557,10 +562,26 @@
 \ctikzset{bipoles/vtattenuator/width/.initial=.7}
 \ctikzset{bipoles/phaseshifter/width/.initial=.7}
 \ctikzset{bipoles/vphaseshifter/width/.initial=.7}
+\ctikzset{bipoles/biast/width/.initial=.7}
+\ctikzset{bipoles/sinetable/width/.initial=.7}
+\ctikzset{bipoles/register/width/.initial=.7}
 \ctikzset{bipoles/detector/width/.initial=.7}
 \ctikzset{bipoles/saturation/width/.initial=.7}
 \ctikzset{bipoles/sigmoid/width/.initial=.7}
 \ctikzset{bipoles/allornothing/width/.initial=.7}
+
+\ctikzset{bipoles/camera/height/.initial=1.2}
+\ctikzset{bipoles/camera/depth/.initial=.3}
+\ctikzset{bipoles/camera/width/.initial=.4}
+\ctikzset{bipoles/tvset/width/.initial=0.6}
+\ctikzset{bipoles/tvset/height/.initial=.4}
+\ctikzset{bipoles/trx/width/.initial=1}
+\ctikzset{bipoles/trx/height/.initial=.4}
+\ctikzset{bipoles/swr/width/.initial=0.6}
+\ctikzset{bipoles/swr/height/.initial=.4}
+\ctikzset{bipoles/power/width/.initial=1}
+\ctikzset{bipoles/power/height/.initial=.4}
+
 \ctikzset{tripoles/mixer/width/.initial=0.7}
 \ctikzset{tripoles/adder/width/.initial=0.7}
 \ctikzset{tripoles/circulator/width/.initial=.7}
@@ -715,6 +736,19 @@
             \pgfpathmoveto{\pgfpoint{0.15\pgf@circ@res@step}{0.15\pgf@circ@res@step}}
             \pgfpathlineto{\pgfpoint{-0.15\pgf@circ@res@step}{-0.15\pgf@circ@res@step}}
         \fi
+        \pgfusepath{draw}
+    \endpgfscope
+}
+%
+\def\pgfcirc@twoport@draw@narrowsine#1{% #1 -> y shift
+    \pgfscope
+        \pgfsetlinewidth{\pgfstartlinewidth}
+        \pgftransformyshift{#1\pgf@circ@res@step}
+        \pgfpathmoveto{\pgfpoint{.125\pgf@circ@res@step}{0\pgf@circ@res@step}}
+        \pgfpathsine{\pgfpoint{.125\pgf@circ@res@step}{.125\pgf@circ@res@step}}
+        \pgfpathcosine{\pgfpoint{.125\pgf@circ@res@step}{-.125\pgf@circ@res@step}}
+        \pgfpathsine{\pgfpoint{.125\pgf@circ@res@step}{-.125\pgf@circ@res@step}}
+        \pgfpathcosine{\pgfpoint{.125\pgf@circ@res@step}{.125\pgf@circ@res@step}}
         \pgfusepath{draw}
     \endpgfscope
 }
@@ -889,6 +923,90 @@
     \pgfcirc@twoport@draw@sine{0.0}{0}
     \pgfcirc@twoport@draw@sine{-0.5}{0}
 }
+%% variable allpass filter
+\pgfcirc@define@twoports{blocks}
+{}
+{\ctikzvalof{bipoles/vallpass/width}}
+{vallpass}
+{\ctikzvalof{bipoles/vallpass/width}}
+{\ctikzvalof{bipoles/vallpass/width}}
+{
+    \pgfcirc@twoport@draw@sine{0.5}{0}
+    \pgfcirc@twoport@draw@sine{0.0}{0}
+    \pgfcirc@twoport@draw@sine{-0.5}{0}
+    \pgfcirc@set@arrows{tunable}{}{latex}
+    \pgfpathmoveto{\pgfpoint{0.7\pgf@circ@res@left}{0.5\pgf@circ@res@down}}
+    \pgfpathlineto{\pgfpoint{0.7\pgf@circ@res@right}{0.8\pgf@circ@res@up}}
+    \pgfusepath{draw}
+}
+%% Block Generator
+\pgfcirc@define@twoports{blocks}
+{}
+{\ctikzvalof{bipoles/bgenerator/width}}
+{bgenerator}
+{\ctikzvalof{bipoles/bgenerator/width}}
+{\ctikzvalof{bipoles/bgenerator/width}}
+{
+    \pgfcirc@twoport@draw@narrowsine{0.25}
+    \pgfcirc@twoport@draw@narrowsine{0.0}
+    \pgfcirc@twoport@draw@narrowsine{-0.25}
+    \pgftext[x=0.45\pgf@circ@res@left]{\ctikzvalof{bipoles/twoport/text}}
+}
+%% Crystal Generator
+\pgfcirc@define@twoports{blocks}
+{}
+{\ctikzvalof{bipoles/qgenerator/width}}
+{qgenerator}
+{\ctikzvalof{bipoles/qgenerator/width}}
+{\ctikzvalof{bipoles/qgenerator/width}}
+{
+    \pgfcirc@twoport@draw@narrowsine{0.45}
+    \pgfcirc@twoport@draw@narrowsine{0.20}
+    \pgfcirc@twoport@draw@narrowsine{-0.05}
+    \pgftext[x=0.45\pgf@circ@res@left,y=0.25\pgf@circ@res@up]{\ctikzvalof{bipoles/twoport/text}}
+    \pgfpathlineto{\pgfpoint{-0.7\pgf@circ@res@step}{-0.4\pgf@circ@res@step}}
+    \pgfpathlineto{\pgfpoint{ 0.7\pgf@circ@res@step}{-0.4\pgf@circ@res@step}}
+    \pgfusepath{draw}
+    \pgfpathrectangle{\pgfpoint{-0.7\pgf@circ@res@step}{-0.7\pgf@circ@res@step}}
+        {\pgfpoint{1.4\pgf@circ@res@step}{0.2\pgf@circ@res@step}}
+    \pgfusepath{draw}
+    \pgfpathmoveto{\pgfpoint{-0.7\pgf@circ@res@step}{-0.8\pgf@circ@res@step}}
+    \pgfpathlineto{\pgfpoint{ 0.7\pgf@circ@res@step}{-0.8\pgf@circ@res@step}}
+    \pgfpathmoveto{\pgfpoint{-0.7\pgf@circ@res@step}{-0.4\pgf@circ@res@step}}
+    \pgfpathlineto{\pgfpoint{ 0.7\pgf@circ@res@step}{-0.4\pgf@circ@res@step}}
+    \pgfusepath{draw}
+}
+%% Clock generator
+\pgfcirc@define@twoports{blocks}
+{}
+{\ctikzvalof{bipoles/cgenerator/width}}
+{cgenerator}
+{\ctikzvalof{bipoles/cgenerator/width}}
+{\ctikzvalof{bipoles/cgenerator/width}}
+{
+    \pgfpathmoveto{\pgfpoint{-0.70\pgf@circ@res@step}{-0.35\pgf@circ@res@step}}
+    \pgfpathlineto{\pgfpoint{-0.42\pgf@circ@res@step}{-0.35\pgf@circ@res@step}}
+    \pgfpathlineto{\pgfpoint{-0.42\pgf@circ@res@step}{+0.35\pgf@circ@res@step}}
+    \pgfpathlineto{\pgfpoint{-0.14\pgf@circ@res@step}{+0.35\pgf@circ@res@step}}
+    \pgfpathlineto{\pgfpoint{-0.14\pgf@circ@res@step}{-0.35\pgf@circ@res@step}}
+    \pgfpathlineto{\pgfpoint{+0.14\pgf@circ@res@step}{-0.35\pgf@circ@res@step}}
+    \pgfpathlineto{\pgfpoint{+0.14\pgf@circ@res@step}{+0.35\pgf@circ@res@step}}
+    \pgfpathlineto{\pgfpoint{+0.42\pgf@circ@res@step}{+0.35\pgf@circ@res@step}}
+    \pgfpathlineto{\pgfpoint{+0.42\pgf@circ@res@step}{-0.35\pgf@circ@res@step}}
+    \pgfpathlineto{\pgfpoint{+0.70\pgf@circ@res@step}{-0.35\pgf@circ@res@step}}
+    \pgfusepath{draw}
+}
+%% Generic generator
+\pgfcirc@define@twoports{blocks}
+{}
+{\ctikzvalof{bipoles/ngenerator/width}}
+{ngenerator}
+{\ctikzvalof{bipoles/ngenerator/width}}
+{\ctikzvalof{bipoles/ngenerator/width}}
+{
+    \pgfcirc@twoport@draw@sine{0.5}{0}
+    \pgftext[y=-0.35\pgf@circ@res@up]{\ctikzvalof{bipoles/twoport/text}}
+}
 %% ADC
 \pgfcirc@define@twoports{blocks}
 {}
@@ -1056,6 +1174,89 @@
     \pgf@circ@text@strokecolor
     \pgftext[center,x=0,y=0]{\Large$\varphi$}
 }
+%% BIAS-T
+\pgfcirc@define@twoports{blocks}
+{}
+{\ctikzvalof{bipoles/biast/width}}
+{biast}
+{\ctikzvalof{bipoles/biast/width}}
+{\ctikzvalof{bipoles/biast/width}}
+{
+    \pgfpathmoveto{\pgfpoint{-0.80\pgf@circ@res@step}{-0.50\pgf@circ@res@step}} % Line to Plate 1
+    \pgfpathlineto{\pgfpoint{-0.50\pgf@circ@res@step}{-0.50\pgf@circ@res@step}}
+    \pgfpathmoveto{\pgfpoint{-0.50\pgf@circ@res@step}{-0.50\pgf@circ@res@step}} % Plate 1
+    \pgfpathlineto{\pgfpoint{-0.50\pgf@circ@res@step}{-0.20\pgf@circ@res@step}}
+    \pgfpathmoveto{\pgfpoint{-0.50\pgf@circ@res@step}{-0.50\pgf@circ@res@step}}
+    \pgfpathlineto{\pgfpoint{-0.50\pgf@circ@res@step}{-0.80\pgf@circ@res@step}}
+    \pgfpathmoveto{\pgfpoint{-0.30\pgf@circ@res@step}{-0.50\pgf@circ@res@step}} % Plate 1
+    \pgfpathlineto{\pgfpoint{-0.30\pgf@circ@res@step}{-0.20\pgf@circ@res@step}}
+    \pgfpathmoveto{\pgfpoint{-0.30\pgf@circ@res@step}{-0.50\pgf@circ@res@step}}
+    \pgfpathlineto{\pgfpoint{-0.30\pgf@circ@res@step}{-0.80\pgf@circ@res@step}}
+    \pgfpathmoveto{\pgfpoint{-0.30\pgf@circ@res@step}{-0.50\pgf@circ@res@step}} % Line to Center
+    \pgfpathlineto{\pgfpoint{ 0.00\pgf@circ@res@step}{-0.50\pgf@circ@res@step}}
+    \pgfusepath{draw}
+    \pgfpathcircle{\pgfpoint{ 0.00\pgf@circ@res@step}{-0.50\pgf@circ@res@step}}{0.075\pgf@circ@res@step}
+    \pgfusepath{fill}
+    \pgfpathmoveto{\pgfpoint{ 0.00\pgf@circ@res@step}{-0.50\pgf@circ@res@step}} % Line to Right
+    \pgfpathlineto{\pgfpoint{ 0.80\pgf@circ@res@step}{-0.50\pgf@circ@res@step}}
+    \pgfusepath{draw}
+    \pgfpathmoveto{\pgfpoint{ 0.00\pgf@circ@res@step}{-0.50\pgf@circ@res@step}} % Line to Coils
+    \pgfpathlineto{\pgfpoint{ 0.00\pgf@circ@res@step}{-0.20\pgf@circ@res@step}}
+    \pgfusepath{draw}
+    \pgfpathmoveto{\pgfpoint{ 0.00\pgf@circ@res@step}{-0.20\pgf@circ@res@step}} % Arc1
+    \pgfpatharc{-90}{90}{0.09\pgf@circ@res@step}
+    \pgfpathmoveto{\pgfpoint{ 0.00\pgf@circ@res@step}{-0.02\pgf@circ@res@step}} % Arc2
+    \pgfpatharc{-90}{90}{0.09\pgf@circ@res@step}
+    \pgfpathmoveto{\pgfpoint{ 0.00\pgf@circ@res@step}{+0.16\pgf@circ@res@step}} % Arc3
+    \pgfpatharc{-90}{90}{0.09\pgf@circ@res@step}
+    \pgfpathmoveto{\pgfpoint{ 0.00\pgf@circ@res@step}{+0.36\pgf@circ@res@step}} % Arc4
+    \pgfpatharc{-90}{90}{0.09\pgf@circ@res@step}
+    \pgfusepath{draw}
+    \pgfpathmoveto{\pgfpoint{ 0.00\pgf@circ@res@step}{+0.52\pgf@circ@res@step}} % Line to Coils
+    \pgfpathlineto{\pgfpoint{ 0.00\pgf@circ@res@step}{+0.80\pgf@circ@res@step}}
+    \pgfusepath{draw}
+}
+%% Sine table
+\pgfcirc@define@twoports{blocks}
+{}
+{\ctikzvalof{bipoles/sinetable/width}}
+{sinetable}
+{\ctikzvalof{bipoles/sinetable/width}}
+{\ctikzvalof{bipoles/sinetable/width}}
+{
+    \pgfcirc@twoport@draw@sine{0.0}{0}
+    \pgfcirc@set@arrows{tunable}{}{latex}
+    \pgfpathmoveto{\pgfpoint{-0.70\pgf@circ@res@step}{-0.70\pgf@circ@res@step}}
+    \pgfpathlineto{\pgfpoint{+0.70\pgf@circ@res@step}{-0.70\pgf@circ@res@step}}
+    \pgfusepath{draw}
+    \pgfpathmoveto{\pgfpoint{-0.70\pgf@circ@res@step}{-0.70\pgf@circ@res@step}}
+    \pgfpathlineto{\pgfpoint{-0.70\pgf@circ@res@step}{+0.70\pgf@circ@res@step}}
+    \pgfusepath{draw}
+}
+%% Register
+\pgfcirc@define@twoports{blocks}
+{
+    \savedanchor\northwest{
+        \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
+        \pgf@y=\ctikzvalof{bipoles/twoport/width}\pgf@circ@scaled@Rlen
+        \pgf@y=.5\pgf@y
+        \pgf@x=-\ctikzvalof{bipoles/twoport/width}\pgf@circ@scaled@Rlen
+        \pgf@x=.5\pgf@x
+    }
+    \anchor{clk}{\northwest\pgf@y=0.5\pgf@y}
+}
+{\ctikzvalof{bipoles/register/width}}
+{register}
+{\ctikzvalof{bipoles/register/width}}
+{\ctikzvalof{bipoles/register/width}}
+{
+    \pgfpathmoveto{\pgfpoint{-1.00\pgf@circ@res@step}{+0.70\pgf@circ@res@step}}
+    \pgfpathlineto{\pgfpoint{-0.60\pgf@circ@res@step}{+0.50\pgf@circ@res@step}}
+    \pgfpathlineto{\pgfpoint{-1.00\pgf@circ@res@step}{+0.30\pgf@circ@res@step}}
+    \pgfusepath{draw}
+    \pgf@circ@text@strokecolor
+    \pgftext[center,x=0,y=0]{\ctikzvalof{bipoles/twoport/text}}
+}
 %% detector
 \pgfcirc@define@twoports@norotate{blocks}
 {}
@@ -1130,6 +1331,139 @@
     \pgfpathlineto{\pgfpoint{0.55\pgf@circ@res@step}{.4\pgf@circ@res@step}}
     \pgfusepath{draw}
 }
+
+%% Camera:
+\pgfcircdeclarebipolescaled{misc}
+{}
+{\ctikzvalof{bipoles/camera/depth}}
+{camera}
+{\ctikzvalof{bipoles/camera/height}}
+{\ctikzvalof{bipoles/camera/width}}{
+    \pgfpathrectanglecorners{\pgfpoint{\pgf@circ@res@left}{.7\pgf@circ@res@up}}
+        {\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@down}}
+    \pgfpathmoveto{\pgfpoint{0.5\pgf@circ@res@left}{.7\pgf@circ@res@up}}
+    \pgfpathlineto{\pgfpoint{0.8\pgf@circ@res@left}{\pgf@circ@res@up}}
+    \pgfpathlineto{\pgfpoint{0.8\pgf@circ@res@right}{\pgf@circ@res@up}}
+    \pgfpathlineto{\pgfpoint{0.5\pgf@circ@res@right}{.7\pgf@circ@res@up}}
+    \pgfpathclose
+    \pgf@circ@setlinewidth{bipoles}{\pgfstartlinewidth}
+    \pgf@circ@draworfill
+}
+
+% TV:
+\pgfcirc@define@twoports{blocks}
+{}
+{\ctikzvalof{bipoles/tvset/height}}
+{tvset}
+{\ctikzvalof{bipoles/tvset/height}}
+{\ctikzvalof{bipoles/tvset/width}}
+{
+    \pgfsetlinewidth{2\pgflinewidth} % double in size
+    % Legs
+    \pgfpathmoveto{\pgfpoint{+0.60\pgf@circ@res@step}{-1.10\pgf@circ@res@step}}
+    \pgfpathlineto{\pgfpoint{+0.30\pgf@circ@res@step}{-0.70\pgf@circ@res@step}}
+    \pgfusepath{draw}
+    %
+    \pgfpathmoveto{\pgfpoint{-0.60\pgf@circ@res@step}{-1.10\pgf@circ@res@step}}
+    \pgfpathlineto{\pgfpoint{-0.30\pgf@circ@res@step}{-0.70\pgf@circ@res@step}}
+    \pgfusepath{draw}
+}
+
+% Transceiver (TRX)
+\pgfcirc@define@twoports{blocks}
+{
+    \anchor{plus}{\northeast \advance\pgf@y by -0.2\pgf@x\pgf@x=-\pgf@x}
+    \anchor{minus}{\northeast \advance\pgf@y by -0.2\pgf@x\pgf@x=-\pgf@x\pgf@y=-\pgf@y}
+}
+{\ctikzvalof{bipoles/trx/height}}
+{trx}
+{\ctikzvalof{bipoles/trx/height}}
+{\ctikzvalof{bipoles/trx/width}}
+{
+    % VFO-Wheel:
+    \pgfpathcircle{\pgfpoint{0.60\pgf@circ@res@step}{0.00\pgf@circ@res@step}}{0.25\pgf@circ@res@step}
+    \pgfpathcircle{\pgfpoint{0.68\pgf@circ@res@step}{0.10\pgf@circ@res@step}}{0.06\pgf@circ@res@step}
+    % Volume and Squelch:
+    \pgfpathcircle{\pgfpoint{-0.8\pgf@circ@res@step}{+0.15\pgf@circ@res@step}}{0.1\pgf@circ@res@step}
+    \pgfpathcircle{\pgfpoint{-0.8\pgf@circ@res@step}{-0.15\pgf@circ@res@step}}{0.1\pgf@circ@res@step}
+    % Display:
+    \pgfpathrectangle{\pgfpoint{-0.55\pgf@circ@res@step}{-0.25\pgf@circ@res@step}}
+        {\pgfpoint{+0.75\pgf@circ@res@step}{+0.5\pgf@circ@res@step}}%
+    \pgfusepath{draw}
+}
+% Standing Wave Ratio (SWR) Meter
+\pgfcirc@define@twoports{blocks}
+{}
+{\ctikzvalof{bipoles/swr/height}}
+{swr}
+{\ctikzvalof{bipoles/swr/height}}
+{\ctikzvalof{bipoles/swr/width}}
+{
+	% Screen:
+    \pgfscope
+        \pgfsetstrokecolor{gray}\pgfsetdash{{1.5pt}{1pt}}{0pt}
+        \pgfpathmoveto{\pgfpoint{-0.5\pgf@circ@res@step}{-0.25\pgf@circ@res@step}}
+        \pgfpatharc{160}{110}{1.1\pgf@circ@res@step}
+        \pgfpathmoveto{\pgfpoint{0.5\pgf@circ@res@step}{-0.25\pgf@circ@res@step}}
+        \pgfpatharc{-160}{-110}{-1.1\pgf@circ@res@step}
+        \pgfusepath{draw}
+    \endpgfscope
+    \pgfpathmoveto{\pgfpoint{-0.7\pgf@circ@res@step}{0.5\pgf@circ@res@step}}
+    \pgfpathlineto{\pgfpoint{0.7\pgf@circ@res@step}{0.5\pgf@circ@res@step}}
+    \pgfpathlineto{\pgfpoint{0.7\pgf@circ@res@step}{-0.2\pgf@circ@res@step}}
+    \pgfpathlineto{\pgfpoint{0pt}{-0.4\pgf@circ@res@step}}
+    \pgfpathlineto{\pgfpoint{-0.7\pgf@circ@res@step}{-0.2\pgf@circ@res@step}}
+    \pgfpathclose
+    \pgfpathmoveto{\pgfpoint{-0.35\pgf@circ@res@step}{-0.3\pgf@circ@res@step}}
+    \pgfpathlineto{\pgfpoint{0.3\pgf@circ@res@step}{0.3\pgf@circ@res@step}}
+    \pgfpathmoveto{\pgfpoint{0.35\pgf@circ@res@step}{-0.3\pgf@circ@res@step}}
+    \pgfpathlineto{\pgfpoint{-0.3\pgf@circ@res@step}{0.3\pgf@circ@res@step}}
+    \pgfusepath{draw}
+}
+% Power supply
+\pgfcirc@define@twoports{blocks}
+{
+    \anchor{u1}{\northeast \advance\pgf@y by -0.2\pgf@x\pgf@x=-\pgf@x}
+    \anchor{u2}{\northeast \advance\pgf@y by -0.2\pgf@x\pgf@x=-\pgf@x\pgf@y=-\pgf@y}
+    \anchor{plus}{\northeast \advance\pgf@y by -0.2\pgf@x \advance\pgf@x by -0.25\pgf@x}
+    \anchor{minus}{\northeast \advance\pgf@y by -0.2\pgf@x\pgf@y=-\pgf@y \advance\pgf@x by -0.25\pgf@x}
+}
+{\ctikzvalof{bipoles/power/height}}
+{power}
+{\ctikzvalof{bipoles/power/height}}
+{\ctikzvalof{bipoles/power/width}}
+{
+    % Plus:
+    \color{red}
+    \pgfsetstrokecolor{red}
+    \pgfpathcircle{\pgfpoint{0.75\pgf@circ@res@step}{0.20\pgf@circ@res@step}}{0.075\pgf@circ@res@step}%
+    \pgfusepath{fill}
+    \pgfpathmoveto{\pgfpoint{0.50\pgf@circ@res@step}{0.20\pgf@circ@res@step}}
+    \pgfpathlineto{\pgfpoint{0.60\pgf@circ@res@step}{0.20\pgf@circ@res@step}}
+    \pgfpathmoveto{\pgfpoint{0.55\pgf@circ@res@step}{0.25\pgf@circ@res@step}}
+    \pgfpathlineto{\pgfpoint{0.55\pgf@circ@res@step}{0.15\pgf@circ@res@step}}
+    \pgfusepath{stroke}
+    % Minus:
+    \color{black}
+    \pgfsetstrokecolor{black}
+    \pgfpathcircle{\pgfpoint{0.75\pgf@circ@res@step}{-0.20\pgf@circ@res@step}}{0.075\pgf@circ@res@step}%
+    \pgfusepath{fill}
+    \pgfpathmoveto{\pgfpoint{0.50\pgf@circ@res@step}{-0.20\pgf@circ@res@step}}
+    \pgfpathlineto{\pgfpoint{0.60\pgf@circ@res@step}{-0.20\pgf@circ@res@step}}
+    \pgfusepath{stroke}
+    % Displays:
+    \pgfpathrectangle{\pgfpoint{-0.5\pgf@circ@res@step}{0.00\pgf@circ@res@step}}{\pgfpoint{+0.4\pgf@circ@res@step}{+0.25\pgf@circ@res@step}}%
+    \pgfpathrectangle{\pgfpoint{-0.0\pgf@circ@res@step}{0.00\pgf@circ@res@step}}{\pgfpoint{+0.4\pgf@circ@res@step}{+0.25\pgf@circ@res@step}}%
+    % Poti:
+    \pgfpathcircle{\pgfpoint{-0.30\pgf@circ@res@step}{-0.20\pgf@circ@res@step}}{0.075\pgf@circ@res@step}%
+    \pgfusepath{draw}
+    % Switch:
+    \pgfpathrectangle{\pgfpoint{-0.9\pgf@circ@res@step}{0.00\pgf@circ@res@step}}{\pgfpoint{+0.15\pgf@circ@res@step}{+0.25\pgf@circ@res@step}}%
+    \pgfpathmoveto{\pgfpoint{-0.90\pgf@circ@res@step}{0.125\pgf@circ@res@step}}
+    \pgfpathlineto{\pgfpoint{-0.75\pgf@circ@res@step}{0.125\pgf@circ@res@step}}
+    \pgfusepath{draw}
+}
+
 %% converters help function
 %% definition for styling the DC symbols (GitHub issue #680)
 \ctikzset{blocks dc in segments/.initial=1}
@@ -1574,6 +1908,11 @@
 \pgfcirc@activate@bipole@simple{l}{lowpass}
 \pgfcirc@activate@bipole@simple{l}{lowpass2}
 \pgfcirc@activate@bipole@simple{l}{allpass}
+\pgfcirc@activate@bipole@simple{l}{vallpass}
+\pgfcirc@activate@bipole@simple{l}{bgenerator}
+\pgfcirc@activate@bipole@simple{l}{qgenerator}
+\pgfcirc@activate@bipole@simple{l}{cgenerator}
+\pgfcirc@activate@bipole@simple{l}{ngenerator}
 \pgfcirc@activate@bipole@simple{l}{adc}
 \pgfcirc@activate@bipole@simple{l}{dac}
 \pgfcirc@activate@bipole@simple{l}{dsp}
@@ -1587,10 +1926,18 @@
 \pgfcirc@activate@bipole@simple{l}{vtattenuator}
 \pgfcirc@activate@bipole@simple{l}{phaseshifter}
 \pgfcirc@activate@bipole@simple{l}{vphaseshifter}
+\pgfcirc@activate@bipole@simple{l}{biast}
+\pgfcirc@activate@bipole@simple{l}{sinetable}
+\pgfcirc@activate@bipole@simple{l}{register}
 \pgfcirc@activate@bipole@simple{l}{detector}
 \pgfcirc@activate@bipole@simple{l}{saturation}
 \pgfcirc@activate@bipole@simple{l}{sigmoid}
 \pgfcirc@activate@bipole@simple{l}{allornothing}
+\pgfcirc@activate@bipole@simple{l}{camera}
+\pgfcirc@activate@bipole@simple{l}{tvset}
+\pgfcirc@activate@bipole@simple{l}{trx}
+\pgfcirc@activate@bipole@simple{l}{swr}
+\pgfcirc@activate@bipole@simple{l}{power}
 \pgfcirc@activate@bipole@simple{l}{fiber}
 \pgfcirc@activate@bipole@simple{l}{sacdc}
 \pgfcirc@activate@bipole@simple{l}{sdcac}
