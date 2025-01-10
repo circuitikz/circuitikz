@@ -1,8 +1,10 @@
 <!--- CircuiTikz - Changelog --->
 The major changes among the different CircuiTikZ versions are listed here. See <https://github.com/circuitikz/circuitikz/commits> for a full list of changes.
 
-* Version 1.7.1 (unreleased)
-    
+* Version 1.7.1 (2025-01-10)
+
+    Various new blocks have been added, and several fixes have been applied (the barrier one is slightly backward-incompatible...).
+
     - Added a flag to have German style TVS (suggested by [Dr. Matthias Jung](https://github.com/circuitikz/circuitikz/issues/836), implemented by Romano)
     - Added many blocks all over the map (suggested by [Dr. Matthias Jung](https://github.com/circuitikz/circuitikz/issues/693), with tweaks by Romano)
     - Fix for straight voltage on `open` bipoles (reported by [Oliver Wallscheid on GitHub](https://github.com/circuitikz/circuitikz/issues/821))
