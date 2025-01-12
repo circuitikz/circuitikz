@@ -1,6 +1,10 @@
 <!--- CircuiTikz - Changelog --->
 The major changes among the different CircuiTikZ versions are listed here. See <https://github.com/circuitikz/circuitikz/commits> for a full list of changes.
 
+* Version 1.7.2 (unreleased)
+
+    - Bump version
+
 * Version 1.7.1 (2025-01-10)
 
     Various new blocks have been added, and several fixes have been applied (the barrier one is slightly backward-incompatible...).
