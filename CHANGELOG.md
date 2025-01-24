@@ -3,7 +3,7 @@ The major changes among the different CircuiTikZ versions are listed here. See <
 
 * Version 1.7.2 (unreleased)
 
-    - Bump version
+    - Fix leaking filament in `bulb` bipole
 
 * Version 1.7.1 (2025-01-10)
 
