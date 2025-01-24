@@ -16,7 +16,7 @@
 \providecommand\DeclareRelease[3]{}
 \providecommand\DeclareCurrentRelease[2]{}
 
-\def\pgfcircversion{1.7.2-unreleased-bc6854d}
+\def\pgfcircversion{1.7.2-unreleased-30b4c8a}
 \def\pgfcircversiondate{2025/01/24}
 
 \DeclareRelease{0.4}{2012/12/20}{circuitikz-0.4-body.tex}
@@ -11735,6 +11735,8 @@
 %
 \ctikzset{bipoles/bulb/height/.initial=.8}
 \ctikzset{bipoles/bulb/width/.initial=.8}
+\ctikzset{bipoles/wbulb/height/.initial=.8}
+\ctikzset{bipoles/wbulb/width/.initial=.8}
 % suggested by @bogger33, see https://github.com/circuitikz/circuitikz/issues/793
 \ctikzset{bipoles/neonlampcc/height/.initial=.60}
 \ctikzset{bipoles/neonlampac/height/.initial=.60}
@@ -12103,6 +12105,44 @@
     \pgfpathlineto{\pgfpoint{0.8\pgf@circ@res@right}{\pgf@circ@res@zero}}
     \pgfusepath{draw}
 }%
+% Wiggly bulbm see https://github.com/circuitikz/circuitikz/issues/845
+\pgfcircdeclarebipolescaled{misc}
+{}
+{\ctikzvalof{bipoles/wbulb/height}}
+{wbulb}
+{\ctikzvalof{bipoles/wbulb/height}}
+{\ctikzvalof{bipoles/wbulb/width}}
+{%
+    % circles are smaller than the size of the component, for historical reasons.
+    % Join the circle to the wires
+    \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@zero}}
+    \pgfpathlineto{\pgfpoint{0.8\pgf@circ@res@left}{\pgf@circ@res@zero}}
+    \pgfpathmoveto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@zero}}
+    \pgfpathlineto{\pgfpoint{0.8\pgf@circ@res@right}{\pgf@circ@res@zero}}
+    \pgfusepath{draw}
+    \pgf@circ@setlinewidth{bipoles}{\pgfstartlinewidth}
+    \pgfpathellipse{\pgfpointorigin}{\pgfpoint{0}{0.8\pgf@circ@res@up}}{\pgfpoint{0.8\pgf@circ@res@left}{0}}
+    \pgf@circ@draworfill
+    \pgfpathmoveto{\pgfpoint{0.8\pgf@circ@res@left}{\pgf@circ@res@zero}}
+    % CP: Control Point; FP: Final Point
+    \pgfpathcurveto
+        {\pgfpoint{0.5\pgf@circ@res@left}{+0pt}}                   % CP1
+        {\pgfpoint{0.4\pgf@circ@res@left}{0.6\pgf@circ@res@left}}  % CP2
+        {\pgfpoint{+0pt}{+0pt}}                                    % FPA
+    \pgfpathcurveto
+        {\pgfpoint{.2\pgf@circ@res@right}{.2\pgf@circ@res@right}}  % CP3
+        {\pgfpoint{.2\pgf@circ@res@right}{0.6\pgf@circ@res@right}} % CP4
+        {\pgfpoint{+0pt}{0.6\pgf@circ@res@right}}                  % FPB
+    \pgfpathcurveto
+        {\pgfpoint{.2\pgf@circ@res@left}{0.6\pgf@circ@res@right}}  % symmetric to CP4
+        {\pgfpoint{.2\pgf@circ@res@left}{.2\pgf@circ@res@right}}   % symmetric to CP3
+        {\pgfpoint{+0pt}{+0pt}}                                    % same as FPA
+    \pgfpathcurveto
+        {\pgfpoint{0.4\pgf@circ@res@right}{0.6\pgf@circ@res@left}} % symmetric to CP2
+        {\pgfpoint{0.5\pgf@circ@res@right}{+0pt}}                  % symmetric to CP1
+        {\pgfpoint{0.8\pgf@circ@res@right}{\pgf@circ@res@zero}}    % symmetric to FPB
+    \pgfusepath{draw}
+}%
 % neon lamps, suggested by @bogger33 https://github.com/circuitikz/circuitikz/issues/793
 % implemented by Romano
 % double-cathode (capacitor) style
@@ -12213,6 +12253,7 @@
 \pgfcirc@activate@bipole@simple{l}{neonlampac}
 \pgfcirc@activate@bipole@simple{l}{sparkgap}
 \pgfcirc@activate@bipole@simple{l}{bulb}
+\pgfcirc@activate@bipole@simple{l}{wbulb}
 \pgfcirc@activate@bipole@simple{l}{squid}
 \pgfcirc@activate@bipole@simple{l}{barrier}
 \pgfcirc@activate@bipole@simple{l}{openbarrier}
