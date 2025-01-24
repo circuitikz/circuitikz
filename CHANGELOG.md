@@ -4,6 +4,7 @@ The major changes among the different CircuiTikZ versions are listed here. See <
 * Version 1.7.2 (unreleased)
 
     - Fix leaking filament in `bulb` bipole
+    - New component: Wiggly bulb (suggested by [Sebastiano](https://github.com/circuitikz/circuitikz/issues/845))
 
 * Version 1.7.1 (2025-01-10)
 
