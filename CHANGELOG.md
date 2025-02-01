@@ -5,6 +5,7 @@ The major changes among the different CircuiTikZ versions are listed here. See <
 
     - Fix leaking filament in `bulb` bipole
     - New component: Wiggly bulb (suggested by [Sebastiano](https://github.com/circuitikz/circuitikz/issues/845))
+    - Allow to set the index position for square instruments (by [Julien Labbé](https://github.com/circuitikz/circuitikz/pull/848))  
 
 * Version 1.7.1 (2025-01-10)
 
