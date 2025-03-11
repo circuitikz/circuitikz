@@ -16,7 +16,7 @@
 \startmodule[circuitikzgit]
 \usemodule[tikz]
 
-\def\pgfcircversion{1.7.2-unreleased-f86d228}
+\def\pgfcircversion{1.7.2-unreleased-9c0e972}
 \def\pgfcircversiondate{2025/03/11}
 \writestatus{loading}{\pgfcircversiondate{} The CircuiTikz circuit drawing package version \pgfcircversion}
 
@@ -6257,6 +6257,14 @@
 \ctikzset{sources/symbol/rotate/.initial={90}}
 \ctikzset{csources/symbol/rotate/.initial={90}}
 
+% % % oo autotransformer
+\ctikzset{bipoles/oosourceatrans/height/.initial=.6}
+\ctikzset{bipoles/oosourceatrans/width/.initial=.5}
+\ctikzset{bipoles/oosourceatrans/circlesize/.initial=.6}%circlesize+circleoffset should be =1
+% we do not use the offset here; the circle is "seated" to the right side
+% \ctikzset{bipoles/oosourceatrans/circleoffset/.initial=.4}%circlesize+circleoffset should be =1
+\ctikzset{bipoles/oosourceatrans/vectorgroupscale/.initial=1.2}% better if it's a bit bigger
+
 % % % ootransformer
 \ctikzset{bipoles/oosourcetrans/height/.initial=.6}
 \ctikzset{bipoles/oosourcetrans/width/.initial=.6}
@@ -6938,6 +6946,65 @@
         \pgfpathlineto{\pgfpointpolar{-60}{\pgf@circ@res@up}}
         \pgfusepath{stroke}
     \endpgfscope
+}
+% % % % round three-phase auto transformer
+\pgfcircdeclarebipolescaled{sources}
+{
+    \anchor{centerprim}{
+        \northeast
+        \advance\pgf@x by -\ctikzvalof{bipoles/oosourceatrans/circlesize}\pgf@y
+        \pgf@y=0pt\relax
+    }
+    \anchor{symbolprim}{
+        \northeast
+        \advance\pgf@x by -\ctikzvalof{bipoles/oosourceatrans/circlesize}\pgf@y
+        \pgf@y=0pt\relax
+    }
+}
+{\ctikzvalof{bipoles/oosourceatrans/height}}
+{oosourceatrans}
+{\ctikzvalof{bipoles/oosourceatrans/height}}
+{\ctikzvalof{bipoles/oosourceatrans/width}}
+{
+    % we do not use the offset here; the circle is "seated" to the right side
+    \pgf@circ@setlinewidth{bipoles}{\pgfstartlinewidth}
+    \pgf@circ@res@other=\dimexpr\pgf@circ@res@right-\ctikzvalof{bipoles/oosourceatrans/circlesize}\pgf@circ@res@up\relax
+    \pgfpathcircle{\pgfpoint{\pgf@circ@res@other}{0}}
+        {\ctikzvalof{bipoles/oosourceatrans/circlesize}\pgf@circ@res@up}
+    \pgf@circ@draworfill
+    % draw arc
+    \pgfpathmoveto{\pgfpoint{\pgf@circ@res@other}%
+        {\ctikzvalof{bipoles/oosourceatrans/circlesize}*\pgf@circ@res@up}}
+    \pgfpathcurveto{\pgfpoint{0.3\pgf@circ@res@left}{\ctikzvalof{bipoles/oosourceatrans/circlesize}\pgf@circ@res@up}}
+        {\pgfpoint{0.5\pgf@circ@res@left}{\ctikzvalof{bipoles/oosourceatrans/circlesize}\pgf@circ@res@up}}
+        {\pgfpoint{\pgf@circ@res@left}{0}}
+    \pgfusepath{draw}
+    % % %     % draw inner symbols
+    %%only (primary) winding
+    \ifpgf@circ@prim@delta
+        \pgfscope
+            \pgftransformxshift{\pgf@circ@res@other}
+            \pgf@circ@delta{\ctikzvalof{bipoles/oosourceatrans/vectorgroupscale}}
+        \endpgfscope
+
+    \else\ifpgf@circ@prim@wye
+        \pgfscope
+            \pgftransformxshift{\pgf@circ@res@other}
+            \pgf@circ@wye{\ctikzvalof{bipoles/oosourceatrans/vectorgroupscale}}
+        \endpgfscope
+
+        \else\ifpgf@circ@prim@eyw
+        \pgfscope
+        \pgftransformxshift{\pgf@circ@res@other}
+        \pgf@circ@eyw{\ctikzvalof{bipoles/oosourceatrans/vectorgroupscale}}
+        \endpgfscope
+
+    \else\ifpgf@circ@prim@zig
+        \pgfscope
+            \pgftransformxshift{\pgf@circ@res@other}
+            \pgf@circ@zig{\ctikzvalof{bipoles/oosourceatrans/vectorgroupscale}}
+        \endpgfscope
+    \fi\fi\fi\fi
 }
 % % % % round three-phase transformer
 \pgfcircdeclarebipolescaled{sources}
@@ -7835,6 +7902,10 @@
     \circuitikzbasekey/bipole/is voltageoutsideofsymbol=true}
 
 \pgfcirc@activate@bipole@simple@opt{v}{ooosource}{%
+    \circuitikzbasekey/bipole/is voltage=true,
+    \circuitikzbasekey/bipole/is voltageoutsideofsymbol=true}
+
+\pgfcirc@activate@bipole@simple@opt{v}{oosourceatrans}{%
     \circuitikzbasekey/bipole/is voltage=true,
     \circuitikzbasekey/bipole/is voltageoutsideofsymbol=true}
 
