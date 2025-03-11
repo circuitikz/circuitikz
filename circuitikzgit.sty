@@ -16,7 +16,7 @@
 \providecommand\DeclareRelease[3]{}
 \providecommand\DeclareCurrentRelease[2]{}
 
-\def\pgfcircversion{1.7.2-unreleased-9f6013c}
+\def\pgfcircversion{1.7.2-unreleased-f86d228}
 \def\pgfcircversiondate{2025/03/11}
 
 \DeclareRelease{0.4}{2012/12/20}{circuitikz-0.4-body.tex}
@@ -7165,6 +7165,7 @@
 {\ctikzvalof{bipoles/oosource/height}}
 {\ctikzvalof{bipoles/oosource/width}}
 {
+    % the offset is relative to the width (...@left/@right), and the size to the height (...@up/@down)
     \pgfpointorigin
     \pgf@circ@setlinewidth{bipoles}{\pgfstartlinewidth}
     \pgfpathcircle{\pgfpoint{\ctikzvalof{bipoles/oosource/circleoffset}\pgf@circ@res@left}{0}}
@@ -7183,10 +7184,12 @@
 \ctikzset{sources/symbol/wye scale/.initial={1}}
 \ctikzset{sources/symbol/eyw scale/.initial={1}}
 \ctikzset{sources/symbol/zig scale/.initial={1}}
+% Notice that the scale of the symbol should go with the size of the circle, which in the oo-type
+% components is linked to the .../height key, which translates in ...res@up and ...res@down
 % triangle
 \def\pgf@circ@delta#1{
     \pgfscope
-        \pgftransformscale{-.015*\ctikzvalof{\ctikzclass/symbol/delta scale}*\pgf@circ@res@left*#1}
+        \pgftransformscale{-.015*\ctikzvalof{\ctikzclass/symbol/delta scale}*\pgf@circ@res@up*#1}
         \def\pgfcircmathresult{\expandafter\pgf@circ@stripdecimals\pgf@circ@direction\pgf@nil}
             \pgftransformrotate{-\pgfcircmathresult}
 
@@ -7202,11 +7205,10 @@
         \pgfusepath{stroke}
     \endpgfscope
 }
-
 % star
 \def\pgf@circ@wye#1{
     \pgfscope
-        \pgftransformscale{-.015*\ctikzvalof{\ctikzclass/symbol/wye scale}*\pgf@circ@res@left*#1}
+        \pgftransformscale{-.015*\ctikzvalof{\ctikzclass/symbol/wye scale}*\pgf@circ@res@up*#1}
         \def\pgfcircmathresult{\expandafter\pgf@circ@stripdecimals\pgf@circ@direction\pgf@nil}
             \pgftransformrotate{-\pgfcircmathresult}
 
@@ -7220,11 +7222,10 @@
         \pgfusepath{stroke}
     \endpgfscope
 }
-
 % reverse star
 \def\pgf@circ@eyw#1{
 	\pgfscope
-		\pgftransformscale{-.015*\ctikzvalof{\ctikzclass/symbol/eyw scale}*\pgf@circ@res@left*#1}
+		\pgftransformscale{-.015*\ctikzvalof{\ctikzclass/symbol/eyw scale}*\pgf@circ@res@up*#1}
 		\def\pgfcircmathresult{\expandafter\pgf@circ@stripdecimals\pgf@circ@direction\pgf@nil}
 			\pgftransformrotate{-\pgfcircmathresult}
 
@@ -7238,11 +7239,10 @@
 		\pgfusepath{stroke}
 	\endpgfscope
 }
-
 % zigzag
 \def\pgf@circ@zig#1{
     \pgfscope
-        \pgftransformscale{-.015*\ctikzvalof{\ctikzclass/symbol/zig scale}*\pgf@circ@res@left*#1}
+        \pgftransformscale{-.015*\ctikzvalof{\ctikzclass/symbol/zig scale}*\pgf@circ@res@up*#1}
         \def\pgfcircmathresult{\expandafter\pgf@circ@stripdecimals\pgf@circ@direction\pgf@nil}
             \pgftransformrotate{-\pgfcircmathresult}
 
@@ -7262,7 +7262,6 @@
         \pgfusepath{stroke}
     \endpgfscope
 }
-
 % % % % round three-phase transformer
 \pgfcircdeclarebipolescaled{sources}
 {
@@ -7292,8 +7291,7 @@
 {\ctikzvalof{bipoles/oosourcetrans/height}}
 {\ctikzvalof{bipoles/oosourcetrans/width}}
 {
-
-    \pgfpointorigin
+    % the offset is relative to the width (...@left/@right), and the size to the height (...@up/@down)
     \pgf@circ@setlinewidth{bipoles}{\pgfstartlinewidth}
     \pgfpathcircle{\pgfpoint{\ctikzvalof{bipoles/oosourcetrans/circleoffset}\pgf@circ@res@left}{0}}
         {\ctikzvalof{bipoles/oosourcetrans/circlesize}\pgf@circ@res@up}
@@ -7357,9 +7355,8 @@
         \endpgfscope
     \fi\fi\fi\fi
 }
-
-
 % % % % ooosource for three phase transformer
+% This component is 3-way symmetric. It uses ONLY bipoles/ooosource/height for sizing
 \pgfcircdeclarebipolescaled{sources}
 {
     \anchor{right}{
@@ -7484,8 +7481,6 @@
 {\ctikzvalof{bipoles/ooosource/height}}
 {\ctikzvalof{bipoles/ooosource/height}}% Notice that here right=down and left=up
 {
-%     \pgf@circ@res@other = \ctikzvalof{bipoles/ooosource/vectorgroup} \pgf@circ@scaled@Rlen
-
 %     % filling
 %     left
     \pgf@circ@setlinewidth{bipoles}{\pgfstartlinewidth}
