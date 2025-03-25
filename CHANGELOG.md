@@ -1,9 +1,13 @@
 <!--- CircuiTikz - Changelog --->
 The major changes among the different CircuiTikZ versions are listed here. See <https://github.com/circuitikz/circuitikz/commits> for a full list of changes.
 
+* Version 1.7.3 (unreleased)
+
+    - Bump version number
+
 * Version 1.7.2 (2025-03-21)
 
-    A couple of new components (wiggly bulbs and a new "oO" type autotransformer), and several small corrections.
+    A couple of new components (wiggly bulbs and a new "oo" type autotransformer), and several small corrections.
 
     - Fix leaking filament in `bulb` bipole
     - Fix small incoherence between width/height in oo-type sources
