@@ -1948,6 +1948,51 @@ And finally do:
 \end{tikzpicture}
 \end{LTXexample}
 
+\subsubsection{Using \texttt{pic}s (with parameters)}
+
+\begingroup % to isolate the definition of pics/divider
+Since \texttt{v1.8.0}\footnote{See \href{https://github.com/circuitikz/circuitikz/issues/866}{this issue} for more details; be warned that they will \textbf{not} work at all in earlier versions.} you can also use the standard \TikZ{} \texttt{pic}s as subcircuits, with the advantage to be able to define (up to 9) parameters.
+
+\begin{LTXexample}[varwidth=true]
+\tikzset{pics/divider/.style n args={2}{
+code={
+    \draw (0,0) coordinate(-in) to[R=#1, -*] ++(2,0)
+    coordinate(-corner)
+    to[R=#2] ++(0,-2) node[tlground]{}
+    (-corner) -- ++(0.5,0) coordinate(-out);
+}}}
+\begin{tikzpicture}[]
+    \draw (0,0) pic(one){divider={$R_1$}{$R_2$}}
+        (one-out) pic(two){divider={$R_3$}{$R_4$}};
+    \node [above] at (one-corner) {$v_{12}$};
+\end{tikzpicture}
+\end{LTXexample}
+
+The main limitation of \texttt{pic}s is that natively they do not have options to place them with internal anchors, like the \texttt{anchor=\dots} options of nodes. Fortunately, Andrew Stacey's fine \href{https://ctan.org/pkg/tikzmark?lang=en}{\texttt{tikzmark} library} provides that function. You have to just add \verb!\usetikzlibrary{tikzmark}! in your preable, and then add the option to the pic invocation:
+
+\begin{lstlisting}[numbers=none]
+    ... pic[pic anchor=(-corner)] {divider=...}
+\end{lstlisting}
+
+Finally, if you want to rotate the pic (warning: lightly tested!) remember that you need \texttt{transform shape} to have a correct behavior.
+
+\tikzset{pics/divider/.style n args={2}{
+code={
+    \draw (0,0) coordinate(-in) to[R=#1, -*] ++(2,0)
+    coordinate(-corner)
+    to[R=#2] ++(0,-2) node[tlground]{}
+    (-corner) -- ++(0.5,0) coordinate(-out);
+}}}
+\begin{LTXexample}[varwidth=true]
+\begin{tikzpicture}[]
+    \draw (0,0)
+        pic(one){divider={$R_1$}{$R_2$}} (one-out)
+        pic[rotate=45, transform shape](two)
+            {divider={$R_A$}{$R_B$}};
+\end{tikzpicture}
+\end{LTXexample}
+\endgroup % to isolate the definition of pics/divider
+
 \subsubsection{Using macros}
 
 Sometimes, a good old \LaTeX{} macro can solve a problem instead of designing a new component.
