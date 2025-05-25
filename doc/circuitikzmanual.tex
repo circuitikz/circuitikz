@@ -215,7 +215,7 @@ Neither will it work with angle-changing scaling (when \texttt{xscale} is differ
 
 Correcting this will need a big rewrite of the path routines, and although the authors are thinking about solving it, don't hold your breath; it will need changing a lot of interwoven code (labels, voltages, currents and so on). Contributions and help would be highly appreciated.
 
-This same issue creates a lot of problems with compatibility between \Circuitikz{} and the new \texttt{pic} \TikZ\  feature, so basically don't put components into \texttt{pic}s.
+Hopefully most of the issues with compatibility between \Circuitikz{} and the \texttt{pic} \TikZ{} feature should have been solved in \texttt{v1.8.0}, but the feature is only lightly tested (see example~\ref{sec:example-pics}).
 
 Also, notice that several components will interact in a funny way with global path options. Depending on the specific component, some parameters are inherited by the internal shape, and some others are reset. This is not easy to fix in general. We want some options to go through --- fill color, dashed pattern for example --- and some others to stay only in the outer path; and if the background shape needs some option for drawing the internal shape, like for example a rounded corner, it \emph{must} reset the external option. So there is no perfect solution, although since \texttt{v1.5.0} the shapes have been ``robustified'', so that by default arced corners and arrows parameters will \emph{not} be propagated into the shape.
 Arrows with \texttt{to[]} components don't work, anyway, so basically avoid this situation.
@@ -268,6 +268,7 @@ The \texttt{use fpu reciprocal} key seems to have no side effects, but given tha
 Here, we will provide a list of incompatibilities between different versions of \Circuitikz. We will try to hold this list short, but sometimes it is easier to break with old syntax than include a lot of switches and compatibility layers. In general, changes that would invalidate a circuit (changes of polarity of components and so on) are almost always protected by a flag; the same is not true for purely aesthetic changes.
 If unsure, you can check the version in your local installation by using the macro \verb!\pgfcircversion{}!.
 \begin{itemize}
+    \item In version \texttt{1.8.0}, the path routines changed to allow using path-style components in \TikZ{}'s \texttt{pic}. The change is a big one, so a rollback point (see below) for \texttt{v1.7.2} has been added.
     \item In version \texttt{1.7.2}, the drawing of the ``double-zero'' source components \texttt{voosource}, \texttt{ioosource}, and \texttt{oosourcetran} changed so that now the circle radius depend on the height and not on the width. If you didn't play with internal parameters, that should be invisible.
     \item In version \texttt{1.7.1}, the default widths of \texttt{barrier} and \texttt{openbarrier} were reduced so that no wire is drawn as part of the symbols by default.
         This is accompanied by a change to the meanings of the configuration keys \texttt{bipoles/barrier/width}, \texttt{bipoles/barrier/height} and \texttt{bipoles/openbarrier/gap} (as well as the new key \texttt{bipoles/openbarrier/width}).
@@ -324,7 +325,7 @@ If unsure, you can check the version in your local installation by using the mac
 If you have older projects that show compatibility problems, you have two options:
 \begin{itemize}
     \item you can use an older version locally using the git-version and picking the correct commit from the repository (branch gh-pages) or the main GitHub site directly;
-    \item if you are using \LaTeX, the distribution has embedded several important old versions: \texttt{0.4}, \texttt{0.6}, \texttt{0.7}, \texttt{0.8.3}, \texttt{0.9.3}, \texttt{0.9.6}, \texttt{1.0}, \texttt{1.1.2}, \texttt{1.2.7}, and \texttt{1.4.6}.
+    \item if you are using \LaTeX, the distribution has embedded several important old versions: \texttt{0.4}, \texttt{0.6}, \texttt{0.7}, \texttt{0.8.3}, \texttt{0.9.3}, \texttt{0.9.6}, \texttt{1.0}, \texttt{1.1.2}, \texttt{1.2.7}, \texttt{1.4.6}, and \texttt{1.7.2}.
         To switch to use them, since \texttt{v1.4.0} you simply use the \href{https://www.latex-project.org/publications/2018-FMi-TUB-tb122mitt-version-rollback.pdf}{new LaTeX kernel rollback system}, changing your \verb|\usepackage| invocation to something like:
         \begin{lstlisting}[numbers=none]
             \usepackage[]{circuitikz}[=v0.8.3] % or v0.4, v0.6, ...
@@ -342,7 +343,7 @@ If you have older projects that show compatibility problems, you have two option
         which is an inferior solution because it can fool any package you use that depend on \texttt{circuitikz}.
 
         Either way, you have to take care of the options that may have changed between versions (and sometime styles, if you use them).
-    \item   if you are using  \ConTeXt, only versions \texttt{0.8.3}, \texttt{0.9.3},  \texttt{0.9.6}, \texttt{1.0}, \texttt{1.1.2}, \texttt{1.2.7}, and \texttt{1.4.6} are packaged; you can use it with
+    \item   if you are using  \ConTeXt, only versions \texttt{0.8.3}, \texttt{0.9.3},  \texttt{0.9.6}, \texttt{1.0}, \texttt{1.1.2}, \texttt{1.2.7}, \texttt{1.4.6}, and \texttt{1.7.2} are packaged; you can use it with
         \begin{lstlisting}[numbers=none]
             \usemodule[circuitikz-0.8.3]
         \end{lstlisting}
@@ -1946,6 +1947,51 @@ And finally do:
     \draw (a-out) -- \mydiv{b}{in}{$R_3$}{$R_4$};
 \end{tikzpicture}
 \end{LTXexample}
+
+\subsubsection{Using \texttt{pic}s (with parameters)}
+
+\begingroup % to isolate the definition of pics/divider
+Since \texttt{v1.8.0}\footnote{See \href{https://github.com/circuitikz/circuitikz/issues/866}{this issue} for more details; be warned that they will \textbf{not} work at all in earlier versions.} you can also use the standard \TikZ{} \texttt{pic}s as subcircuits, with the advantage to be able to define (up to 9) parameters.
+
+\begin{LTXexample}[varwidth=true]
+\tikzset{pics/divider/.style n args={2}{
+code={
+    \draw (0,0) coordinate(-in) to[R=#1, -*] ++(2,0)
+    coordinate(-corner)
+    to[R=#2] ++(0,-2) node[tlground]{}
+    (-corner) -- ++(0.5,0) coordinate(-out);
+}}}
+\begin{tikzpicture}[]
+    \draw (0,0) pic(one){divider={$R_1$}{$R_2$}}
+        (one-out) pic(two){divider={$R_3$}{$R_4$}};
+    \node [above] at (one-corner) {$v_{12}$};
+\end{tikzpicture}
+\end{LTXexample}
+
+The main limitation of \texttt{pic}s is that natively they do not have options to place them with internal anchors, like the \texttt{anchor=\dots} options of nodes. Fortunately, Andrew Stacey's fine \href{https://ctan.org/pkg/tikzmark?lang=en}{\texttt{tikzmark} library} provides that function. You have to just add \verb!\usetikzlibrary{tikzmark}! in your preable, and then add the option to the pic invocation:
+
+\begin{lstlisting}[numbers=none]
+    ... pic[pic anchor=(-corner)] {divider=...}
+\end{lstlisting}
+
+Finally, if you want to rotate the pic (warning: lightly tested!) remember that you need \texttt{transform shape} to have a correct behavior.
+
+\tikzset{pics/divider/.style n args={2}{
+code={
+    \draw (0,0) coordinate(-in) to[R=#1, -*] ++(2,0)
+    coordinate(-corner)
+    to[R=#2] ++(0,-2) node[tlground]{}
+    (-corner) -- ++(0.5,0) coordinate(-out);
+}}}
+\begin{LTXexample}[varwidth=true]
+\begin{tikzpicture}[]
+    \draw (0,0)
+        pic(one){divider={$R_1$}{$R_2$}} (one-out)
+        pic[rotate=45, transform shape](two)
+            {divider={$R_A$}{$R_B$}};
+\end{tikzpicture}
+\end{LTXexample}
+\endgroup % to isolate the definition of pics/divider
 
 \subsubsection{Using macros}
 
@@ -11162,6 +11208,49 @@ Here a series of examples, contributed by several people, is shown with their co
         to[tmultiwire] ++(.5,0) node[gridnode,anchor=left]{};
 \end{circuitikz}
 \end{LTXexample}
+
+\newpage
+\subsection{Using components in \texttt{pic}s (since \texttt{v1.8.0})}\label{sec:example-pics}
+
+\begin{LTXexample}[varwidth=true,pos=t]
+\tikzset{mypic/.pic = {
+    \draw (0,0) coordinate(-in)
+    % unnamed component
+    to[R=#1] ++(2,1)
+    % named component
+    to[leD*, diodes/scale=0.6, led arrows from cathode,
+        name=-led, l=label, v]
+    ++(2,-1) coordinate(-out);
+    }
+}
+\begin{tikzpicture}
+    \ctikzset{voltage=raised}
+    \draw (0,0) to[R] ++(2,1);
+    \begin{scope}[xshift=2cm,
+        name prefix=inner-
+        ]
+        \draw (0,0) to[R, name=r, i<] ++(2,1);
+    \end{scope}
+    \draw (4,0) pic(P){mypic=PR};
+    \node[circ] at (inner-r) {};
+    \node[circ, cyan] at (inner-r-Ipos) {};
+    \node[circ, red] at (P-led) {};
+    \node[circ, blue] at (P-ledlabel) {};
+    \node[circ, green] at (P-led-Vto) {};
+    \node[circ, purple] at (P-led-Vfrom) {};
+    \draw (4,0) pic[rotate=-60, scale=0.7, transform shape](P2){mypic=P2R};
+    \node[circ, red] at (P2-led) {};
+    \node[circ, blue] at (P2-ledlabel) {};
+    \node[circ, green] at (P2-led-Vto) {};
+    \node[circ, purple] at (P2-led-Vfrom) {};
+    %% extra data
+    \node[right] at (0, -1) {DIR: \ctikzgetdirection{inner-r}};
+    \node[right] at (0, -1.5) {ANC: \ctikzgetanchor{P-led}{Vlab}};
+    \node[right] at (0, -2) {Iarr: \ctikzgetdirection{inner-r-Iarrow}};
+    \node[right] at (0, -2.5) {LAB: \ctikzgetdirection{P2-ledlabel}};
+\end{tikzpicture}
+\end{LTXexample}
+
 
 % % changelog.tex will be updated by makefile from CHANGELOG.md
 \section{Changelog and Release Notes}
