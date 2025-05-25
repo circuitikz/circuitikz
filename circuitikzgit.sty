@@ -16,8 +16,8 @@
 \providecommand\DeclareRelease[3]{}
 \providecommand\DeclareCurrentRelease[2]{}
 
-\def\pgfcircversion{1.7.3-unreleased-0e2e924}
-\def\pgfcircversiondate{2025/04/29}
+\def\pgfcircversion{1.8.0-unreleased-83b0c92}
+\def\pgfcircversiondate{2025/05/25}
 
 \DeclareRelease{0.4}{2012/12/20}{circuitikz-0.4-body.tex}
 \DeclareRelease{v0.4}{2012/12/20}{circuitikz-0.4-body.tex}
@@ -39,6 +39,8 @@
 \DeclareRelease{v1.2.7}{2020/12/27}{circuitikz-1.2.7-body.tex}
 \DeclareRelease{1.4.6}{2022/02/04}{circuitikz-1.4.6-body.tex}
 \DeclareRelease{v1.4.6}{2022/02/04}{circuitikz-1.4.6-body.tex}
+\DeclareRelease{1.7.2}{2025/03/21}{circuitikz-1.7.2-body.tex}
+\DeclareRelease{v1.7.2}{2025/03/21}{circuitikz-1.7.2-body.tex}
 \DeclareCurrentRelease{\pgfcircversion}{\pgfcircversiondate}
 
 \ProvidesPackage{circuitikzgit}
@@ -2154,8 +2156,11 @@
             \pgfmathrandominteger{\pgf@circ@rand}{1000}{9999}
             \ctikzset{bipole/name = pgfcirc@#3\pgf@circ@rand} % create it (re-usage should not create problem, but...)
             \edef\pgfcirc@a@prefix{pgfcirc}% do not pollute the namespace for nothing
+            \edef\pgfcirc@m@prefix{pgfcirc}% do not pollute the namespace for nothing
         \else
-            \edef\pgfcirc@a@prefix{\ctikzvalof{bipole/name}}% for exporting v-i-f anchors
+            \edef\pgfcirc@a@prefix{\ctikzvalof{bipole/name}}% for exporting v-i-f anchors; use in nodes
+            % for exporting supporting macros, need name prefix
+            \edef\pgfcirc@m@prefix{\pgfkeysvalueof{/tikz/name prefix}\ctikzvalof{bipole/name}}
         \fi
     }
     % save start and stop values
@@ -2164,12 +2169,12 @@
     coordinate (\ctikzvalof{bipole/name}end) at (\tikztotarget)
     \pgfextra{
         % find the direction (angle) of the path
-        \pgfmathanglebetweenpoints{\pgfpointanchor{\ctikzvalof{bipole/name}start}{center}}
-            {\pgfpointanchor{\ctikzvalof{bipole/name}end}{center}}
+        \pgfmathanglebetweenpoints{\pgfpointanchor{\pgfkeysvalueof{/tikz/name prefix}\ctikzvalof{bipole/name}start}{center}}
+             {\pgfpointanchor{\pgfkeysvalueof{/tikz/name prefix}\ctikzvalof{bipole/name}end}{center}}
         \edef\pgf@circ@direction{\pgfmathresult}
         % the global macro  pgfcirc@whatever-direction is accessible as \ctikzgetdirection{whatever}
         % this gives access to the element path direction
-        \expandafter\xdef\csname pgfcirc@\pgfcirc@a@prefix-direction\endcsname{\pgf@circ@direction}
+        \expandafter\xdef\csname pgfcirc@\pgfcirc@m@prefix-direction\endcsname{\pgf@circ@direction}
     }
     % position the component in the middle of the path. We DO NOT MOVE the current position!
     node[#3#1, rotate=\pgf@circ@direction, yscale=\ctikzvalof{mirror value},
@@ -27083,8 +27088,8 @@
         \fi\fi
         \pgfmathparse{\ctikzvalof{bipole/#1/position}>0?\pgf@circ@direction+90:\pgf@circ@direction-90}%
         \edef\pgf@circ@labposangle{\expandafter\pgf@circ@stripdecimals\pgfmathresult\pgf@nil}%
-        \expandafter\xdef\csname pgfcirc@\pgfcirc@a@prefix#1-direction\endcsname{\pgfcirclabrot}%
-        \expandafter\xdef\csname pgfcirc@\pgfcirc@a@prefix-#1-anchor\endcsname{mid}%
+        \expandafter\xdef\csname pgfcirc@\pgfcirc@m@prefix#1-direction\endcsname{\pgfcirclabrot}%
+        \expandafter\xdef\csname pgfcirc@\pgfcirc@m@prefix-#1-anchor\endcsname{mid}%
     }
     % reset cm is not working correctly here
     % relative ++ movement disrupt to[] +()
@@ -27161,8 +27166,8 @@
             \fi
         \fi\fi
     \pgfextra{%
-        \expandafter\xdef\csname pgfcirc@\pgfcirc@a@prefix#1-direction\endcsname{0}%
-        \expandafter\xdef\csname pgfcirc@\pgfcirc@a@prefix-#1-anchor\endcsname{\pgf@circ@labanctext}%
+        \expandafter\xdef\csname pgfcirc@\pgfcirc@m@prefix#1-direction\endcsname{0}%
+        \expandafter\xdef\csname pgfcirc@\pgfcirc@m@prefix-#1-anchor\endcsname{\pgf@circ@labanctext}%
     }
     (pgfcirc@labelcoor) node[anchor=\pgf@circ@labanctext,
     inner sep=0.5\pgf@circ@res@temp, outer sep=0pt, \circuitikzbasekey/bipole #1 style,
@@ -27797,7 +27802,7 @@
         \fi\fi
 
         % export anchor position (if not needed, is always the same macro)
-        \expandafter\xdef\csname pgfcirc@\pgfcirc@a@prefix-Vlab-anchor\endcsname{\pgf@circ@bipole@voltage@label@anchor}
+        \expandafter\xdef\csname pgfcirc@\pgfcirc@m@prefix-Vlab-anchor\endcsname{\pgf@circ@bipole@voltage@label@anchor}
         % this must be set *before* changing for mirroring and inverting; in that case
         % the xscale/yscale parameters take it into account
         \ifpgf@circuit@bipole@voltage@below
@@ -28187,7 +28192,7 @@
         \fi
         \fi
         % export anchor position (if not needed, is always the same macro)
-        \expandafter\xdef\csname pgfcirc@\pgfcirc@a@prefix-Ilab-anchor\endcsname{\pgf@circ@dir}
+        \expandafter\xdef\csname pgfcirc@\pgfcirc@m@prefix-Ilab-anchor\endcsname{\pgf@circ@dir}
 
         \ifpgf@circuit@bipole@current@below
             \def\pgf@circ@bipole@current@label@where{-90}
@@ -28218,7 +28223,7 @@
     \fi
     coordinate (\pgfcirc@a@prefix-Ipos) at ($(\pgfcirc@a@prefix-Ifrom)! \ctikzvalof{current/distance} !(\pgfcirc@a@prefix-Ito)$)
     % export the current direction
-    \pgfextra{\expandafter\xdef\csname pgfcirc@\pgfcirc@a@prefix-Iarrow-direction\endcsname{\pgf@circ@rounded@dir}}
+    \pgfextra{\expandafter\xdef\csname pgfcirc@\pgfcirc@m@prefix-Iarrow-direction\endcsname{\pgf@circ@rounded@dir}}
     % if the current label is not empty (in which case we have already all the anchors)
     \pgf@circ@ifkeyempty{bipole/current/label/name}\else
     % put the arrow node
@@ -28425,7 +28430,7 @@
                 \def\pgf@circ@bipole@flow@label@where{+90}
         \fi
         % export anchor position (if not needed, is always the same macro)
-        \expandafter\xdef\csname pgfcirc@\pgfcirc@a@prefix-Flab-anchor\endcsname{\pgf@circ@dir}
+        \expandafter\xdef\csname pgfcirc@\pgfcirc@m@prefix-Flab-anchor\endcsname{\pgf@circ@dir}
     }
 
     \pgfextra{\def\pgf@temp{short}\edef\pgf@circ@temp{\ctikzvalof{bipole/kind}}}
@@ -28467,7 +28472,7 @@
     % coordinate (\pgfcirc@a@prefix-Fpos) at
     %     ([yshift=\flow@offset]$(\pgfcirc@a@prefix-Ffrom)! \ctikzvalof{flow/distance} !(\pgfcirc@a@prefix-Fto)$)
     % export the flow direction
-    \pgfextra{\expandafter\xdef\csname pgfcirc@\pgfcirc@a@prefix-Farrow-direction\endcsname{\pgf@circ@rounded@dir}}
+    \pgfextra{\expandafter\xdef\csname pgfcirc@\pgfcirc@m@prefix-Farrow-direction\endcsname{\pgf@circ@rounded@dir}}
     % if the flow label is not empty (in which case we have already all the anchors)
     \pgf@circ@ifkeyempty{bipole/flow/label/name}\else
         % the flow arrow is really a node "flowarrow", not a real arrow
