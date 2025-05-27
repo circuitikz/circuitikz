@@ -1,6 +1,10 @@
 <!--- CircuiTikz - Changelog --->
 The major changes among the different CircuiTikZ versions are listed here. See <https://github.com/circuitikz/circuitikz/commits> for a full list of changes.
 
+* Version 1.8.1 (2025-05-27)
+
+    - bump version number
+
 * Version 1.8.0 (2025-05-25)
 
     The change that deserves a version level bump is applied to the path logic, which fixes a longstanding bug (or lack of feature), which enables the embedding of `circuitikz` paths into pics (among other things; see the related issue).
