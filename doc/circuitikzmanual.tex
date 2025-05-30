@@ -1998,6 +1998,14 @@ For the curious, this is needed because before drawing the pic, `tikzmark` does 
 So, it saves their positions and adjusts them in the next run.
 With native subcircuits, the call to \verb!\ctikzsubcircuitactivate! is doing the same for every possible anchor \emph{before} using it.\footnote{Native shapes do not need that because you must define the anchor positions explicitly when defining the shape.}
 
+In some extreme conditions, when the \texttt{pic} is complex and there are many calculations (especially true in case of rotations), it could happens that the two-pass compilation can become unstable: that is, every time a slightly, invisible difference in coordinates is written out.
+That can confuse automatic compilations tools, like for example \texttt{latexmk}, and induce a very high number of recompilations or even errors.
+With a recent enough \texttt{tikzmark}\footnote{The version must be \textbf{greater} than \texttt{v1.15}, not yet released on May 30, 2025: see \href{https://github.com/loopspace/tikzmark/issues/21}{this GitHub issue for details}; use a development version if you need it --- the instructions are on the same GitHub project.} you can avoid this by rounding the precision of the coordinate calculations to, say, 2 decimal places (which is \qty{0.01}{pt}, basically invisible in normal conditions) with the option:
+
+\begin{lstlisting}[numbers=none]
+    ... pic[tikzmark round=2, rotate=45, pic anchor=(-corner)] {divider=...}
+\end{lstlisting}
+
 Finally, if you want to rotate the pic (warning: lightly tested!) remember that you need \texttt{transform shape} to have a correct behavior.
 
 \begin{LTXexample}[varwidth=true]
