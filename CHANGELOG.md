@@ -3,7 +3,8 @@ The major changes among the different CircuiTikZ versions are listed here. See <
 
 * Version 1.8.1 (2025-05-27)
 
-    - bump version number
+    - add Andrew Stacey's [`tikzmark` library](https://ctan.org/pkg/tikzmark?lang=en) to the manual
+    - documentation enhancements
 
 * Version 1.8.0 (2025-05-25)
 
