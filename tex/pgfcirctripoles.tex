@@ -2913,7 +2913,6 @@
 \pgfkeys{/tikz/no ferroel gate/.add code={}{\pgf@circuit@tr@ferroelfalse}}
 \ctikzset{no ferroel gate/.add code={}{\pgf@circuit@tr@ferroelfalse}}
 
-
 % Option draw bpt without base connection
 \newif\ifpgf@circuit@bpt@drawbase
 \pgf@circuit@bpt@drawbasetrue
@@ -2937,20 +2936,38 @@
 \pgfkeys{/tikz/nobulk/.add code={}{\pgf@circuit@bpt@drawbulkfalse}}
 \ctikzset{nobulk/.add code={}{\pgf@circuit@bpt@drawbulkfalse}}
 
+% FDSOI bulk connection symbol https://github.com/circuitikz/circuitikz/issues/871
+\newif\ifpgf@circuit@trans@fdsoi
+\pgf@circuit@trans@fdsoifalse
+\ctikzset{transistors/fdsoi/.is if=pgf@circuit@trans@fdsoi}
+\tikzset{fdsoi/.is if=pgf@circuit@trans@fdsoi}
+% in simplified fet, use a dot symbol for back gate
+\newif\ifpgf@circuit@trans@fdsoidot
+\pgf@circuit@trans@fdsoidotfalse
+\ctikzset{transistors/fdsoidot/.is if=pgf@circuit@trans@fdsoidot}
+\ctikzset{transistors/fdsoidot/.is choice}
+\ctikzset{transistores/fdsoidot/true/.code={\pgf@circuit@trans@fdsoitrue\pgf@circuit@trans@fdsoidottrue}}
+\ctikzset{transistores/fdsoidot/false/.code={\pgf@circuit@trans@fdsoifalse\pgf@circuit@trans@fdsoidotfalse}}
+\tikzset{fdsoidot/.code={\pgf@circuit@trans@fdsoitrue\pgf@circuit@trans@fdsoidottrue}}
+\tikzset{nofdsoidot/.code={\pgf@circuit@trans@fdsoifalse\pgf@circuit@trans@fdsoidotfalse}}
+
 % Option draw pmos with empty circle
 \newif\ifpgf@circuit@pmos@emptycircle
 \pgf@circuit@pmos@emptycirclefalse
 \ctikzset{tripoles/pmos style/.is choice}
 \pgfkeys{/tikz/emptycircle/.add code={}{\pgf@circuit@pmos@emptycircletrue}}
 \ctikzset{tripoles/pmos style/emptycircle/.add code={}{\pgf@circuit@pmos@emptycircletrue}}
+
 % Option draw pmos with no circle
 \newif\ifpgf@circuit@pmos@nocircle
 \pgf@circuit@pmos@nocirclefalse
 \pgfkeys{/tikz/nocircle/.add code={}{\pgf@circuit@pmos@nocircletrue}}
 \ctikzset{tripoles/pmos style/nocircle/.add code={}{\pgf@circuit@pmos@nocircletrue}}
+
 % back to normal
 \pgfkeys{/tikz/fullcircle/.add code={}{\pgf@circuit@pmos@emptycirclefalse\pgf@circuit@pmos@nocirclefalse}}
 \ctikzset{tripoles/pmos style/fullcircle/.add code={}{\pgf@circuit@pmos@emptycirclefalse\pgf@circuit@pmos@nocirclefalse}}
+
 % arrows at the end, the correct way
 \newif\ifpgf@circuit@trans@arrowatend
 \pgf@circuit@trans@arrowatendfalse
@@ -3443,7 +3460,6 @@
     \ctikzset{tripoles/ngfet/bodydiode scale=#1}%
 }}
 %%>>>
-
 
 %% definitions of transistor shapes%<<<
 %
@@ -4871,6 +4887,40 @@
 
 % Plain MOSes
 
+\def\pgfcirc@simplemos@drawbulk#1{%
+    \ifpgf@circuit@bpt@drawbulk % added by Burak Kelleci
+        \ifpgf@circuit@trans@fdsoi % FDSOI added by Romano Giannetti
+            \pgfpathmoveto{\pgfpoint{0.4*\ctikzvalof{tripoles/#1/base width}*\pgf@circ@res@left}
+            {\pgf@circ@res@up+\pgf@circ@res@down}}
+        \else
+            \pgfpathmoveto{\pgfpoint{\ctikzvalof{tripoles/#1/base width}*\pgf@circ@res@left}
+            {\pgf@circ@res@up+\pgf@circ@res@down}}
+        \fi
+        \pgfpathlineto{\pgfpoint{\pgf@circ@res@right+\pgfhorizontaltransformationadjustment*.5*\pgflinewidth}
+        {\pgf@circ@res@up+\pgf@circ@res@down}}
+        \pgfusepath{draw}
+        % back gate, with the same thickness than the main gate
+        \ifpgf@circuit@trans@fdsoi
+            \ifpgf@circuit@trans@fdsoidot
+                \pgfpathcircle{\pgfpoint
+                    {0.4*\ctikzvalof{tripoles/#1/base width}\pgf@circ@res@left}
+                    {\pgf@circ@res@up+\pgf@circ@res@down}}{\ctikzvalof{nodes width}*\pgf@circ@Rlen}
+                \pgfusepath{draw,fill}
+            \else
+                \pgfscope
+                    \pgfpathmoveto{\pgfpoint
+                    {0.4*\ctikzvalof{tripoles/#1/base width}*\pgf@circ@res@left}{1.2*\pgf@circ@res@up+\pgf@circ@res@down}}
+                    \pgfpathlineto{\pgfpoint
+                    {0.4*\ctikzvalof{tripoles/#1/base width}*\pgf@circ@res@left}{\pgf@circ@res@up+1.2*\pgf@circ@res@down}}
+                    \pgf@circ@setlinewidth{tripoles}{\pgflinewidth}
+                    \pgfusepath{draw}
+                \endpgfscope
+            \fi
+        \fi
+    \fi
+}
+
+
 \pgfcircdeclaretransistor{nmos}{
         \anchor{inner up}{
             \northeast
@@ -4922,7 +4972,7 @@
             \ifpgf@circuit@trans@arrowatend
                 \pgftransformshift{\pgfpoint
                     {\pgf@circ@res@right}%
-                    {\ctikzvalof{tripoles/pmos/gate height}\pgf@circ@res@down}%
+                    {\ctikzvalof{tripoles/nmos/gate height}\pgf@circ@res@down}%
                 }
                 \pgfnode{trarrow}{btip}{}{}{\pgfusepath{stroke}}
             \else
@@ -4951,14 +5001,7 @@
         \pgfusepath{draw}
     \fi
 
-    \ifpgf@circuit@bpt@drawbulk % added by Burak Kelleci
-        \pgfpathmoveto{\pgfpoint{\ctikzvalof{tripoles/nmos/base width}\pgf@circ@res@left}
-                {\pgf@circ@res@up+\pgf@circ@res@down}}
-        \pgfpathlineto{\pgfpoint{\pgf@circ@res@right+\pgfhorizontaltransformationadjustment*.5*\pgflinewidth}
-                {\pgf@circ@res@up+\pgf@circ@res@down}}
-        \pgfusepath{draw}
-    \fi
-
+    \pgfcirc@simplemos@drawbulk{nmos}
     \pgfcirc@ferroelectric{nmos}{0}
 }
 
@@ -5046,14 +5089,6 @@
         \pgfusepath{draw}
     \fi
 
-    \ifpgf@circuit@bpt@drawbulk % added by Burak Kelleci
-        \pgfpathmoveto{\pgfpoint{\ctikzvalof{tripoles/pmos/base width}\pgf@circ@res@left}
-                {\pgf@circ@res@up+\pgf@circ@res@down}}
-        \pgfpathlineto{\pgfpoint{\pgf@circ@res@right+\pgfhorizontaltransformationadjustment*.5*\pgflinewidth}
-                {\pgf@circ@res@up+\pgf@circ@res@down}}
-        \pgfusepath{draw}
-    \fi
-
     \ifpgf@circuit@pmos@nocircle\else
         % we are not scaling the circle with the MOS --- I think it's better to have it
         % coherent with the poles/nodes of the rest of the circuit.
@@ -5066,6 +5101,7 @@
         \pgfusepath{draw,fill}
     \fi
 
+    \pgfcirc@simplemos@drawbulk{pmos}
     \pgfcirc@ferroelectric{pmos}{0}
 }
 
@@ -5189,14 +5225,7 @@
         \pgfusepath{draw}
     \fi
 
-    \ifpgf@circuit@bpt@drawbulk % added by Burak Kelleci
-        \pgfpathmoveto{\pgfpoint{\ctikzvalof{tripoles/nmosd/base width}\pgf@circ@res@left-\ctikzvalof{tripoles/nmosd/depletion width}*\pgf@circ@res@left}
-                {\pgf@circ@res@up+\pgf@circ@res@down}}
-        \pgfpathlineto{\pgfpoint{\pgf@circ@res@right+\pgfhorizontaltransformationadjustment*.5*\pgflinewidth}
-                {\pgf@circ@res@up+\pgf@circ@res@down}}
-        \pgfusepath{draw}
-    \fi
-
+    \pgfcirc@simplemos@drawbulk{nmosd}
     \pgfcirc@ferroelectric{nmosd}{\ctikzvalof{tripoles/nmosd/depletion width}}
 }
 
@@ -5300,14 +5329,6 @@
         \pgfusepath{draw}
     \fi
 
-    \ifpgf@circuit@bpt@drawbulk % added by Burak Kelleci
-        \pgfpathmoveto{\pgfpoint{\ctikzvalof{tripoles/pmosd/base width}\pgf@circ@res@left-\ctikzvalof{tripoles/nmosd/depletion width}*\pgf@circ@res@left}
-                {\pgf@circ@res@up+\pgf@circ@res@down}}
-        \pgfpathlineto{\pgfpoint{\pgf@circ@res@right+\pgfhorizontaltransformationadjustment*.5*\pgflinewidth}
-                {\pgf@circ@res@up+\pgf@circ@res@down}}
-        \pgfusepath{draw}
-    \fi
-
     \ifpgf@circuit@pmos@nocircle\else
         % we are not scaling the circle with the MOS --- I think it's better to have it
         % coherent with the poles/nodes of the rest of the circuit.
@@ -5320,6 +5341,7 @@
         \pgfusepath{draw,fill}
     \fi
 
+    \pgfcirc@simplemos@drawbulk{pmosd}
     \pgfcirc@ferroelectric{pmosd}{\ctikzvalof{tripoles/pmosd/depletion width}}
 }
 %% HEMT FET Transistor
@@ -5450,7 +5472,6 @@
     \pgfcirc@transistorcircle
     % fill the gap color if requested
     \pgfcirc@fillgategap{#1}
-
     %top connection
     \pgfpathmoveto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@up+\pgfverticaltransformationadjustment*.5*\pgflinewidth}}
     \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}
@@ -5489,12 +5510,32 @@
         \pgfusepath{draw}
     \endpgfscope
     %Bulk connection line
-    \pgfpathmoveto{\pgfpoint
-        {\ctikzvalof{tripoles/#1/base width}\pgf@circ@res@left}
-    {\pgf@circ@res@up+\pgf@circ@res@down}}
+    \ifpgf@circuit@trans@fdsoi
+        \pgfpathmoveto{\pgfpoint
+        {\ctikzvalof{tripoles/#1/base width}*\pgf@circ@res@left}{\pgf@circ@res@up+\pgf@circ@res@down}}
+        % beware, fixed numbers here. The 0.5 MUST coincide with @@final below in arrow positioning
+        \pgfpathlineto{\pgfpoint
+        {0.5*\ctikzvalof{tripoles/#1/base width}*\pgf@circ@res@left}{\pgf@circ@res@up+\pgf@circ@res@down}}
+        \pgfpathmoveto{\pgfpoint
+        {0.3*\ctikzvalof{tripoles/#1/base width}*\pgf@circ@res@left}{\pgf@circ@res@up+\pgf@circ@res@down}}
+    \else
+        \pgfpathmoveto{\pgfpoint
+        {\ctikzvalof{tripoles/#1/base width}\pgf@circ@res@left}{\pgf@circ@res@up+\pgf@circ@res@down}}
+    \fi
     \pgfpathlineto{\pgfpoint{\pgf@circ@res@right+\pgfhorizontaltransformationadjustment*.5*\pgflinewidth}
-    {\pgf@circ@res@up+\pgf@circ@res@down}}
-
+        {\pgf@circ@res@up+\pgf@circ@res@down}}
+    \pgfusepath{draw}
+    % back gate, with the same thickness than the main gate
+    \ifpgf@circuit@trans@fdsoi
+        \pgfscope
+            \pgfpathmoveto{\pgfpoint
+            {0.3*\ctikzvalof{tripoles/#1/base width}*\pgf@circ@res@left}{1.2*\pgf@circ@res@up+\pgf@circ@res@down}}
+            \pgfpathlineto{\pgfpoint
+            {0.3*\ctikzvalof{tripoles/#1/base width}*\pgf@circ@res@left}{\pgf@circ@res@up+1.2*\pgf@circ@res@down}}
+            \pgf@circ@setlinewidth{tripoles}{\pgflinewidth}
+            \pgfusepath{draw}
+        \endpgfscope
+    \fi
     %bottom connection
     \pgfpathmoveto{\pgfpoint
         {\ctikzvalof{tripoles/#1/base width}\pgf@circ@res@left}
@@ -5503,7 +5544,6 @@
     {\ctikzvalof{tripoles/#1/gate height}\pgf@circ@res@down}}
     \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@down-\pgfverticaltransformationadjustment*.5*\pgflinewidth}}
     \pgfusepath{draw}
-
     %draw thick gate line
     \pgfscope%%% gate line
         \pgfpathmoveto{\pgfpoint
@@ -5524,19 +5564,25 @@
         \pgf@circ@setlinewidth{tripoles}{\pgflinewidth}
         \pgfusepath{draw}
     \endpgfscope
-
     % arrows
     \pgfscope
         \pgfslopedattimetrue
         \pgfallowupsidedownattimetrue
         \pgfresetnontranslationattimefalse
-        \ifpgf@circuit@trans@arrowatend
+        % this is an OR, see https://tex.stackexchange.com/a/29906/38080
+        % I love TeX...
+        \edef\@@final{1.0} %position in the bulk line
+        \ifnum\ifpgf@circuit@trans@arrowatend 1\else\ifpgf@circuit@trans@fdsoi 1\else 0 \fi\fi =1 %
                 \ifpgf@circuit@trans@ntype
                     \edef\@@anchor{tip}
                     \edef\@@pos{1.0}
                 \else
                     \edef\@@anchor{btip}
                     \edef\@@pos{0.0}
+                    \ifpgf@circuit@trans@fdsoi
+                        \edef\@@pos{1.0}
+                        \edef\@@final{0.5}% this MUST coincide with the bulk drawing above
+                    \fi
                 \fi
         \else
             \edef\@@anchor{center}\edef\@@pos{0.6}
@@ -5547,7 +5593,7 @@
             {\pgf@circ@res@up+\pgf@circ@res@down}%
             }{%
             \pgfpoint%
-            {\ctikzvalof{tripoles/#1/base width}\pgf@circ@res@left}%
+            {\@@final*\ctikzvalof{tripoles/#1/base width}*\pgf@circ@res@left}%
             {\pgf@circ@res@up+\pgf@circ@res@down}%
         }
         \ifpgf@circuit@trans@ntype
@@ -5556,7 +5602,6 @@
         \fi
         \pgfnode{trarrow}{\@@anchor}{}{}{\pgfusepath{stroke}}
     \endpgfscope
-
     % GATE CONNECTION
     \ifpgf@circuit@bpt@drawgate
         \pgfscope %% gate connection
@@ -5582,9 +5627,7 @@
             \pgfusepath{draw}
         \endpgfscope
     \fi
-
     \pgfcirc@ferroelectric{#1}{0}
-
 }
 
 \long\def\pgfdeclaretransistorwrapperaddbulk#1#2#3{

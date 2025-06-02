@@ -4,6 +4,7 @@ The major changes among the different CircuiTikZ versions are listed here. See <
 * Version 1.8.1 (2025-05-27)
 
     - add Andrew Stacey's [`tikzmark` library](https://ctan.org/pkg/tikzmark?lang=en) to the manual
+    - add FDSOI MOSFETs, [suggested by Raphael Nägele](https://github.com/circuitikz/circuitikz/issues/871)
     - documentation enhancements
 
 * Version 1.8.0 (2025-05-25)
