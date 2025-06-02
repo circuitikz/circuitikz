@@ -2913,7 +2913,6 @@
 \pgfkeys{/tikz/no ferroel gate/.add code={}{\pgf@circuit@tr@ferroelfalse}}
 \ctikzset{no ferroel gate/.add code={}{\pgf@circuit@tr@ferroelfalse}}
 
-
 % Option draw bpt without base connection
 \newif\ifpgf@circuit@bpt@drawbase
 \pgf@circuit@bpt@drawbasetrue
@@ -2942,6 +2941,15 @@
 \pgf@circuit@trans@fdsoifalse
 \ctikzset{transistors/fdsoi/.is if=pgf@circuit@trans@fdsoi}
 \tikzset{fdsoi/.is if=pgf@circuit@trans@fdsoi}
+% in simplified fet, use a dot symbol for back gate
+\newif\ifpgf@circuit@trans@fdsoidot
+\pgf@circuit@trans@fdsoidotfalse
+\ctikzset{transistors/fdsoidot/.is if=pgf@circuit@trans@fdsoidot}
+\ctikzset{transistors/fdsoidot/.is choice}
+\ctikzset{transistores/fdsoidot/true/.code={\pgf@circuit@trans@fdsoitrue\pgf@circuit@trans@fdsoidottrue}}
+\ctikzset{transistores/fdsoidot/false/.code={\pgf@circuit@trans@fdsoifalse\pgf@circuit@trans@fdsoidotfalse}}
+\tikzset{fdsoidot/.code={\pgf@circuit@trans@fdsoitrue\pgf@circuit@trans@fdsoidottrue}}
+\tikzset{nofdsoidot/.code={\pgf@circuit@trans@fdsoifalse\pgf@circuit@trans@fdsoidotfalse}}
 
 % Option draw pmos with empty circle
 \newif\ifpgf@circuit@pmos@emptycircle
@@ -4879,6 +4887,40 @@
 
 % Plain MOSes
 
+\def\pgfcirc@simplemos@drawbulk#1{%
+    \ifpgf@circuit@bpt@drawbulk % added by Burak Kelleci
+        \ifpgf@circuit@trans@fdsoi % FDSOI added by Romano Giannetti
+            \pgfpathmoveto{\pgfpoint{0.4*\ctikzvalof{tripoles/#1/base width}*\pgf@circ@res@left}
+            {\pgf@circ@res@up+\pgf@circ@res@down}}
+        \else
+            \pgfpathmoveto{\pgfpoint{\ctikzvalof{tripoles/#1/base width}*\pgf@circ@res@left}
+            {\pgf@circ@res@up+\pgf@circ@res@down}}
+        \fi
+        \pgfpathlineto{\pgfpoint{\pgf@circ@res@right+\pgfhorizontaltransformationadjustment*.5*\pgflinewidth}
+        {\pgf@circ@res@up+\pgf@circ@res@down}}
+        \pgfusepath{draw}
+        % back gate, with the same thickness than the main gate
+        \ifpgf@circuit@trans@fdsoi
+            \ifpgf@circuit@trans@fdsoidot
+                \pgfpathcircle{\pgfpoint
+                    {0.4*\ctikzvalof{tripoles/#1/base width}\pgf@circ@res@left}
+                    {\pgf@circ@res@up+\pgf@circ@res@down}}{\ctikzvalof{nodes width}*\pgf@circ@Rlen}
+                \pgfusepath{draw,fill}
+            \else
+                \pgfscope
+                    \pgfpathmoveto{\pgfpoint
+                    {0.4*\ctikzvalof{tripoles/#1/base width}*\pgf@circ@res@left}{1.2*\pgf@circ@res@up+\pgf@circ@res@down}}
+                    \pgfpathlineto{\pgfpoint
+                    {0.4*\ctikzvalof{tripoles/#1/base width}*\pgf@circ@res@left}{\pgf@circ@res@up+1.2*\pgf@circ@res@down}}
+                    \pgf@circ@setlinewidth{tripoles}{\pgflinewidth}
+                    \pgfusepath{draw}
+                \endpgfscope
+            \fi
+        \fi
+    \fi
+}
+
+
 \pgfcircdeclaretransistor{nmos}{
         \anchor{inner up}{
             \northeast
@@ -4930,7 +4972,7 @@
             \ifpgf@circuit@trans@arrowatend
                 \pgftransformshift{\pgfpoint
                     {\pgf@circ@res@right}%
-                    {\ctikzvalof{tripoles/pmos/gate height}\pgf@circ@res@down}%
+                    {\ctikzvalof{tripoles/nmos/gate height}\pgf@circ@res@down}%
                 }
                 \pgfnode{trarrow}{btip}{}{}{\pgfusepath{stroke}}
             \else
@@ -4959,14 +5001,7 @@
         \pgfusepath{draw}
     \fi
 
-    \ifpgf@circuit@bpt@drawbulk % added by Burak Kelleci
-        \pgfpathmoveto{\pgfpoint{\ctikzvalof{tripoles/nmos/base width}\pgf@circ@res@left}
-                {\pgf@circ@res@up+\pgf@circ@res@down}}
-        \pgfpathlineto{\pgfpoint{\pgf@circ@res@right+\pgfhorizontaltransformationadjustment*.5*\pgflinewidth}
-                {\pgf@circ@res@up+\pgf@circ@res@down}}
-        \pgfusepath{draw}
-    \fi
-
+    \pgfcirc@simplemos@drawbulk{nmos}
     \pgfcirc@ferroelectric{nmos}{0}
 }
 
@@ -5054,14 +5089,6 @@
         \pgfusepath{draw}
     \fi
 
-    \ifpgf@circuit@bpt@drawbulk % added by Burak Kelleci
-        \pgfpathmoveto{\pgfpoint{\ctikzvalof{tripoles/pmos/base width}\pgf@circ@res@left}
-                {\pgf@circ@res@up+\pgf@circ@res@down}}
-        \pgfpathlineto{\pgfpoint{\pgf@circ@res@right+\pgfhorizontaltransformationadjustment*.5*\pgflinewidth}
-                {\pgf@circ@res@up+\pgf@circ@res@down}}
-        \pgfusepath{draw}
-    \fi
-
     \ifpgf@circuit@pmos@nocircle\else
         % we are not scaling the circle with the MOS --- I think it's better to have it
         % coherent with the poles/nodes of the rest of the circuit.
@@ -5074,6 +5101,7 @@
         \pgfusepath{draw,fill}
     \fi
 
+    \pgfcirc@simplemos@drawbulk{pmos}
     \pgfcirc@ferroelectric{pmos}{0}
 }
 
@@ -5197,14 +5225,7 @@
         \pgfusepath{draw}
     \fi
 
-    \ifpgf@circuit@bpt@drawbulk % added by Burak Kelleci
-        \pgfpathmoveto{\pgfpoint{\ctikzvalof{tripoles/nmosd/base width}\pgf@circ@res@left-\ctikzvalof{tripoles/nmosd/depletion width}*\pgf@circ@res@left}
-                {\pgf@circ@res@up+\pgf@circ@res@down}}
-        \pgfpathlineto{\pgfpoint{\pgf@circ@res@right+\pgfhorizontaltransformationadjustment*.5*\pgflinewidth}
-                {\pgf@circ@res@up+\pgf@circ@res@down}}
-        \pgfusepath{draw}
-    \fi
-
+    \pgfcirc@simplemos@drawbulk{nmosd}
     \pgfcirc@ferroelectric{nmosd}{\ctikzvalof{tripoles/nmosd/depletion width}}
 }
 
@@ -5308,14 +5329,6 @@
         \pgfusepath{draw}
     \fi
 
-    \ifpgf@circuit@bpt@drawbulk % added by Burak Kelleci
-        \pgfpathmoveto{\pgfpoint{\ctikzvalof{tripoles/pmosd/base width}\pgf@circ@res@left-\ctikzvalof{tripoles/nmosd/depletion width}*\pgf@circ@res@left}
-                {\pgf@circ@res@up+\pgf@circ@res@down}}
-        \pgfpathlineto{\pgfpoint{\pgf@circ@res@right+\pgfhorizontaltransformationadjustment*.5*\pgflinewidth}
-                {\pgf@circ@res@up+\pgf@circ@res@down}}
-        \pgfusepath{draw}
-    \fi
-
     \ifpgf@circuit@pmos@nocircle\else
         % we are not scaling the circle with the MOS --- I think it's better to have it
         % coherent with the poles/nodes of the rest of the circuit.
@@ -5328,6 +5341,7 @@
         \pgfusepath{draw,fill}
     \fi
 
+    \pgfcirc@simplemos@drawbulk{pmosd}
     \pgfcirc@ferroelectric{pmosd}{\ctikzvalof{tripoles/pmosd/depletion width}}
 }
 %% HEMT FET Transistor
