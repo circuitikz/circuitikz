@@ -16,8 +16,8 @@
 \providecommand\DeclareRelease[3]{}
 \providecommand\DeclareCurrentRelease[2]{}
 
-\def\pgfcircversion{1.8.1-unreleased-09910ed}
-\def\pgfcircversiondate{2025/06/02}
+\def\pgfcircversion{1.8.1-unreleased-5c7055e}
+\def\pgfcircversiondate{2025/06/07}
 
 \DeclareRelease{0.4}{2012/12/20}{circuitikz-0.4-body.tex}
 \DeclareRelease{v0.4}{2012/12/20}{circuitikz-0.4-body.tex}
@@ -20660,7 +20660,139 @@
 
         \pgfusepath{draw}
     }
-}% %>>>
+}
+
+% plain gm mono amplifier, no symbols, one input
+\pgfdeclareshape{plain gm mono amp}
+{
+    \savedmacro{\ctikzclass}{\edef\ctikzclass{amplifiers}}
+    \saveddimen{\scaledRlen}{\pgfmathsetlength{\pgf@x}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}}
+    \anchor{center}{\pgfpointorigin}
+    \savedanchor\northwest{%
+        \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
+        \pgf@y=\ctikzvalof{tripoles/gm amp/height}\pgf@circ@scaled@Rlen
+        \pgf@y=.5\pgf@y
+        \pgf@x=-\ctikzvalof{tripoles/gm amp/width}\pgf@circ@scaled@Rlen
+        \pgf@x=.5\pgf@x
+    }
+    \anchor{east}{ \northwest \pgf@y=0pt \pgf@x=-\pgf@x  }
+    \anchor{west}{ \northwest \pgf@y=0pt }
+    \anchor{south}{ \northwest \pgf@x=0pt \pgf@y=-\pgf@y }
+    \anchor{north}{ \northwest \pgf@x=0pt }
+    \anchor{south west}{ \northwest \pgf@y=-\pgf@y }
+    \anchor{north east}{ \northwest \pgf@x=-\pgf@x }
+    \anchor{north west}{ \northwest }
+    \anchor{south east}{ \northwest \pgf@x=-\pgf@x \pgf@y=-\pgf@y }
+    \savedanchor\left{%
+        \pgf@y=0pt
+    }
+    \savedanchor\inOne{
+        \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
+        \pgf@x=-\ctikzvalof{tripoles/gm amp/width}\pgf@circ@scaled@Rlen
+        \pgf@x=.5\pgf@x
+        \pgf@y=0pt\relax
+    }
+    \anchor{in}{
+        \inOne
+    }
+    \savedanchor\leftedge{%
+        \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
+        \pgf@x=-\ctikzvalof{tripoles/gm amp/width}\pgf@circ@scaled@Rlen
+        \pgf@x=.5\pgf@x
+        \pgf@x = \ctikzvalof{tripoles/gm amp/port width}\pgf@x
+        \pgf@y=0pt
+    }
+    \anchor{leftedge}{\leftedge}
+    \anchor{rightedge}{\leftedge \pgf@x =-\pgf@x }
+    \anchor{bin}{
+        \inOne
+        \pgf@ya=\pgf@y \leftedge \pgf@y=\pgf@ya
+    }
+    \anchor{bout}{
+        \leftedge
+        \pgf@y=0pt
+        \pgf@x=-\pgf@x
+    }
+
+    \savedanchor\up{%
+        \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
+        \pgf@y=\ctikzvalof{tripoles/gm amp/height}\pgf@circ@scaled@Rlen
+        \pgf@y=.5\pgf@y
+        \pgf@x=-\ctikzvalof{tripoles/gm amp/width}\pgf@circ@scaled@Rlen
+        \pgf@x=.5\pgf@x
+        \pgf@circ@res@up = \pgf@y
+        \pgf@circ@res@right = -\pgf@x
+        \pgf@circ@res@left = \pgf@x
+        \pgfpointlineattime{
+            \ctikzvalof{tripoles/gm amp/up pos}}{
+            \pgfpoint{
+            \ctikzvalof{tripoles/gm amp/port width}\pgf@circ@res@left}
+        {\pgf@circ@res@up}}
+        {\pgfpoint{\ctikzvalof{tripoles/gm amp/port width}\pgf@circ@res@right}{\ctikzvalof{tripoles/gm amp/height 2}\pgf@circ@res@up}}
+    }
+    \anchor{up}{
+        \up
+    }
+    \anchor{down}{
+        \up
+        \pgf@y=-\pgf@y
+    }
+    \anchor{out}{
+        \northwest
+        \pgf@y=0pt
+        \pgf@x=-\pgf@x
+    }
+
+    \anchor{text}{
+        \ifpgf@circ@center@text
+            \pgf@x=\dimexpr -.6\wd\pgfnodeparttextbox\relax
+        \else
+            \leftedge
+            \pgfmathsetlength{\pgf@x}{\pgf@x + \ctikzvalof{left text distance}}
+        \fi
+        \pgf@y=\dimexpr.5\dp\pgfnodeparttextbox-.5\ht\pgfnodeparttextbox\relax
+    }
+    \pgf@circ@draw@component{
+        \pgf@circ@setcolor
+
+        \northwest
+        \pgf@circ@res@up = \pgf@y
+        \pgf@circ@res@down = -\pgf@y
+        \pgf@circ@res@right = -\pgf@x
+        \pgf@circ@res@left = \pgf@x
+
+        \pgfscope
+            \newdimen\pgf@circ@res@right@double
+                        \pgf@circ@res@right@double=2\pgf@circ@res@right
+
+            \pgf@circ@setlinewidth{tripoles}{\pgflinewidth}
+            \pgftransformxshift{\ctikzvalof{tripoles/gm amp/port width}\pgf@circ@res@left}
+            \pgf@circ@res@step=\pgf@circ@res@right
+            \advance\pgf@circ@res@step by -\pgf@circ@res@left
+            \pgf@circ@res@step=\ctikzvalof{tripoles/gm amp/port width}\pgf@circ@res@step
+
+            \pgfpathmoveto{\pgfpoint{\ctikzvalof{tripoles/gm amp/port width}\pgf@circ@res@right@double}{0}}
+            \pgfpathlineto{\pgfpoint{\ctikzvalof{tripoles/gm amp/port width}\pgf@circ@res@right@double}{\ctikzvalof{tripoles/gm amp/height 2}\pgf@circ@res@up}}
+            \pgfpathlineto{\pgfpoint{0pt}{\pgf@circ@res@up}}
+            \pgfpathlineto{\pgfpoint{0pt}{\pgf@circ@res@down}}
+            \pgfpathlineto{\pgfpoint{\ctikzvalof{tripoles/gm amp/port width}\pgf@circ@res@right@double}{\ctikzvalof{tripoles/gm amp/height 2}\pgf@circ@res@down}}
+            \pgfpathclose
+            \pgf@circ@draworfill
+        \endpgfscope
+        \pgfpathmoveto{\pgfpoint
+            {\pgf@circ@res@left}
+        {0pt}}
+        \pgfpathlineto{\pgfpoint
+            {\ctikzvalof{tripoles/gm amp/port width}\pgf@circ@res@left}
+        {0pt}}
+
+        \pgfpathmoveto{\pgfpoint{\pgf@circ@res@right}{0pt}}
+        \pgfpathlineto{\pgfpoint{\ctikzvalof{tripoles/gm amp/port width}\pgf@circ@res@right}{0pt}}
+
+        \pgfusepath{draw}
+    }
+}
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Tubes and magnetron
