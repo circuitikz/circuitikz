@@ -5,6 +5,7 @@ The major changes among the different CircuiTikZ versions are listed here. See <
 
     - add Andrew Stacey's [`tikzmark` library](https://ctan.org/pkg/tikzmark?lang=en) to the manual
     - documentation enhancements
+    - New component: `plain gm mono amp` (added by [Matthias Schweikardt](https://github.com/circuitikz/circuitikz/pull/873))
 
 * Version 1.8.0 (2025-05-25)
 
