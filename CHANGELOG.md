@@ -1,12 +1,14 @@
 <!--- CircuiTikz - Changelog --->
 The major changes among the different CircuiTikZ versions are listed here. See <https://github.com/circuitikz/circuitikz/commits> for a full list of changes.
 
-* Version 1.8.1 (2025-05-27)
+* Version 1.8.1 (2025-06-15)
+
+    Minor changes: better documentation on using `pic`s for subcircuits, a new style of MOSFETs, completing the "plain" amplifiers.
 
     - add Andrew Stacey's [`tikzmark` library](https://ctan.org/pkg/tikzmark?lang=en) to the manual
     - add FDSOI MOSFETs, [suggested by Raphael Nägele](https://github.com/circuitikz/circuitikz/issues/871)
-    - documentation enhancements
     - New component: `plain gm mono amp` (added by [Matthias Schweikardt](https://github.com/circuitikz/circuitikz/pull/873))
+    - documentation enhancements
 
 * Version 1.8.0 (2025-05-25)
 
