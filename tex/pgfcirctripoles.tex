@@ -3673,6 +3673,35 @@
             \pgf@xa=-\ctikzvalof{tripoles/#1/width}\pgf@circ@scaled@Rlen
             \pgf@x=\circlebase\pgf@xa
         }
+        \saveddimen{\circletextoffset}{
+            \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
+            % repeat the extrabodydiodelen (grrr, you can't use other saveddimens... )
+            \pgf@circ@res@other=0pt\relax
+            \ifpgf@circuit@fet@bodydiode
+                % try to put the text to the right of the flyback diode
+                \pgfmathsetlength{\pgf@circ@res@other}{(
+                    \ctikzvalof{tripoles/#1/bodydiode distance}*
+                    \ctikzvalof{tripoles/#1/width} +
+                    \ctikzvalof{tripoles/#1/bodydiode scale}*
+                    \ctikzvalof{bipoles/diode/height}/2
+                )*\pgf@circ@scaled@Rlen}
+            \fi
+            \ifpgf@circ@trcircle
+                % in this case, the  offset that wins is the circle one
+                % left
+                \pgf@xa=-\ctikzvalof{tripoles/#1/width}\pgf@circ@scaled@Rlen
+                \pgf@xa=\circlebase\pgf@xa % this is the base point of the circle
+                % northeast
+                \pgf@yb=\ctikzvalof{tripoles/#1/height}\pgf@circ@scaled@Rlen % y of the left point of circle
+                \pgf@yb=.5\pgf@yb
+                \pgf@xb=\pgf@circ@res@other % this is the x of the right points of the circle
+                %
+                \pgf@yb=\ctikzvalof{tripoles/#1/bodydiode conn}\pgf@yb %this is #3 of the circle
+                % find the position of the text as 2*\circleradius+ \circleleft
+                \pgfmathsetlength{\pgf@circ@res@other}{2*((\pgf@xb)-(\pgf@xa)+(\pgf@yb)*(\pgf@yb)/((\pgf@xb)-(\pgf@xa)))/2*\scalecircleradius + \pgf@xa}
+            \fi
+            \pgf@x=\pgf@circ@res@other
+        }
         \anchor{circle center}{
             \pgf@y=0pt\pgf@x=\circleleft\advance\pgf@x by\circleradius
         }
@@ -3757,15 +3786,7 @@
             \northeast
             \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
             \ifpgf@circuit@transisors@fixlabels
-                \ifpgf@circuit@fet@bodydiode
-                    \advance \pgf@x by \extrabodydiodelen
-                \fi
-                \ifpgf@circ@trcircle
-                    \left\pgf@xa=\pgf@x
-                    \pgfmathsetlength{\pgf@x}{\circleleft+2*\circleradius}
-                    % \advance \pgf@x by \circleradius
-                \fi
-                % add a bit of space to avoid central (substrate) terminal if drawn
+                \advance \pgf@x by \circletextoffset
                 \advance\pgf@x by 0.05\pgf@circ@scaled@Rlen\relax
                 \pgf@y=\dimexpr.5\dp\pgfnodeparttextbox-.5\ht\pgfnodeparttextbox\relax
             \else
@@ -4753,17 +4774,34 @@
                 \ctikzvalof{tripoles/#1/width}*\pgf@circ@scaled@Rlen}
             \advance \pgf@x by \pgf@xa
         }
+        \saveddimen{\gfettextoffset}{
+            \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
+            \pgf@x=0pt
+            \ifpgf@circuit@fet@bodydiode
+                % try to put the text to the right of the flyback diode
+                \pgfmathsetlength{\pgf@x}{(
+                    \ctikzvalof{tripoles/#1/bodydiode distance}*
+                    \ctikzvalof{tripoles/#1/width} +
+                    \ctikzvalof{tripoles/#1/bodydiode scale}*
+                    \ctikzvalof{bipoles/diode/height}/2
+                )*\pgf@circ@scaled@Rlen}
+            \else
+                \pgfmathsetlength{\pgf@xa}{\ctikzvalof{tripoles/#1/base width}*
+                    \ctikzvalof{tripoles/#1/width}*\pgf@circ@scaled@Rlen}
+                \advance \pgf@x by \pgf@xa
+            \fi
+        }
         \anchor{text}{% need a different text: no circle, shift to the right
             \northeast
             \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
             \ifpgf@circuit@transisors@fixlabels
-                \ifpgf@circuit@fet@bodydiode
-                    \advance \pgf@x by \extrabodydiodelen
-                \else
-                    \pgfmathsetlength{\pgf@xa}{\ctikzvalof{tripoles/#1/base width}*
-                        \ctikzvalof{tripoles/#1/width}*\pgf@circ@scaled@Rlen}
-                    \advance \pgf@x by \pgf@xa
-                \fi
+                % \ifpgf@circuit@fet@bodydiode
+                    \advance \pgf@x by \gfettextoffset
+                % \else
+                    % \pgfmathsetlength{\pgf@xa}{\ctikzvalof{tripoles/#1/base width}*
+                        % \ctikzvalof{tripoles/#1/width}*\pgf@circ@scaled@Rlen}
+                    % \advance \pgf@x by \pgf@xa
+                % \fi
                 % no circle for gfets
                 % add a bit of space to avoid central (substrate) terminal if drawn
                 \advance\pgf@x by 0.05\pgf@circ@scaled@Rlen\relax
