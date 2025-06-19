@@ -1,6 +1,10 @@
 <!--- CircuiTikz - Changelog --->
 The major changes among the different CircuiTikZ versions are listed here. See <https://github.com/circuitikz/circuitikz/commits> for a full list of changes.
 
+* Version 1.8.2 (unreleased)
+
+    - Bump the version number
+
 * Version 1.8.1 (2025-06-15)
 
     Minor changes: better documentation on using `pic`s for subcircuits, a new style of MOSFETs, completing the "plain" amplifiers.
