@@ -3791,9 +3791,7 @@
                 \pgfmathsetlength{\pgf@x}{\pgf@xb+2*\pgf@circ@res@other}
             \fi
         }
-        \anchor{text}{
-            \textanchor
-        }
+        \anchor{text}{\textanchor}
         \anchor{pathstart}{ % south
             \northeast
             \pgf@y=-\pgf@y
@@ -7889,17 +7887,20 @@
         \pgf@y=0pt
         \pgf@x=-0.7\pgf@x
     }
-
-    \anchor{text}{
+    \savedanchor{\textanchor}{
         \ifpgf@circ@center@text
             \pgf@x=\dimexpr -.6\wd\pgfnodeparttextbox\relax
         \else
-            \northwest
+            \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
+            \pgf@y=\ctikzvalof{bipoles/buffer/height}\pgf@circ@scaled@Rlen
+            \pgf@y=.5\pgf@y
+            \pgf@x=-\ctikzvalof{bipoles/buffer/width}\pgf@circ@scaled@Rlen
+            \pgf@x=.5\pgf@x
             \pgfmathsetlength{\pgf@x}{0.7*\pgf@x + \ctikzvalof{left text distance}}
         \fi
         \pgf@y=\dimexpr.5\dp\pgfnodeparttextbox-.5\ht\pgfnodeparttextbox\relax
     }
-
+    \anchor{text}{\textanchor}
     \pgf@circ@draw@component{
         \pgf@circ@setcolor
 
@@ -8410,11 +8411,12 @@
         %\pgfpointorigin
         %\pgfpathmoveto{\pgfpointpolar{75}{\pgf@circ@res@step}}%not working in a scaled tikzpicture
     }
-    \anchor{text}{
+    \savedanchor{\textanchor}{
         \pgfpointorigin
         \advance \pgf@x by -.5\wd\pgfnodeparttextbox
         \advance \pgf@y by -.5\ht\pgfnodeparttextbox
     }
+    \anchor{text}{\textanchor}
     \anchor{left}{%
         \northwest
         \pgf@y=0pt
@@ -8748,10 +8750,20 @@
         % geo anchors based on north-west
         \pgfcirc@northwest@symmetric@geoanchors
         % text anchor
-        \anchor{text}{%
-            \northwest\pgf@x=-\pgf@x
+        \savedanchor{\textanchor}{%
+            %% \northwest
+            \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
+            \pgf@circ@res@up=\ctikzvalof{tubes/height}\pgf@circ@scaled@Rlen
+            \pgf@circ@res@right=\ctikzvalof{tubes/width}\pgf@circ@scaled@Rlen
+            % x and y should be half the Rlen
+            \pgf@y=\pgf@circ@res@up
+            \pgf@y=.5\pgf@y
+            \pgf@x=-\pgf@circ@res@right
+            \pgf@x=.5\pgf@x
+            \pgf@x=-\pgf@x
             \pgf@y=-.5\ht\pgfnodeparttextbox
         }
+        \anchor{text}{\textanchor}
         % specific anchors
         \anchor{anode} {%
             \northwest
