@@ -25,7 +25,8 @@
     }
     % geo anchors based on north-east
     \pgfcirc@northeast@symmetric@geoanchors
-    \anchor{text}{\pgfpoint{-.5\wd\pgfnodeparttextbox}{\dimexpr.5\dp\pgfnodeparttextbox-.5\ht\pgfnodeparttextbox}}
+    \savedanchor{\textanchor}{\pgfpoint{-.5\wd\pgfnodeparttextbox}{\dimexpr.5\dp\pgfnodeparttextbox-.5\ht\pgfnodeparttextbox}}
+    \anchor{text}{\textanchor}
     \anchor{center}{
         \pgfpointorigin
     }
@@ -475,10 +476,12 @@
     \anchor{north west}{\northeast\pgf@x=-\pgf@x}
     \anchor{south east}{\northeast\pgf@y=-\pgf@y}
     \anchor{south west}{\northeast\pgf@y=-\pgf@y\pgf@x=-\pgf@x}
-    \anchor{text}{% text centered above
+    \savedanchor{\textanchor}{%
+        % text centered above
         \pgfpointorigin
         \pgfpoint{-.5\wd\pgfnodeparttextbox}{\dimexpr.5\dp\pgfnodeparttextbox+.5\ht\pgfnodeparttextbox}
     }
+    \anchor{text}{\textanchor}
     \anchor{center}{
         \pgfpointorigin
     }
@@ -669,10 +672,12 @@
     \anchor{plug center}{\northeast\pgf@y=0pt\divide\pgf@x by 3 }
     \anchor{socket center}{\northeast\pgf@y=0pt\pgf@x=-0.333333\pgf@x}
     % put the node text above and centered
-    \anchor{text}{\pgfextracty{\pgf@circ@res@up}{\northeast}
-        \pgfpoint{-.5\wd\pgfnodeparttextbox}{
-            \dimexpr.5\ht\pgfnodeparttextbox+\pgf@circ@res@up\relax
-        }
+    \savedanchor{\textoffset}{%
+        \pgfpoint{-.5\wd\pgfnodeparttextbox}{.5\ht\pgfnodeparttextbox}
+    }
+    \anchor{text}{\pgfextractx{\pgf@xa}{\textoffset}\pgfextracty{\pgf@ya}{\textoffset}%
+        \pgfextracty{\pgf@circ@res@up}{\northeast}%
+        \pgfpoint{\pgf@xa}{\pgf@ya+\pgf@circ@res@up}%
     }
 }
 {\ctikzvalof{bipoles/iecconn/height}}%symmetrical
@@ -751,11 +756,14 @@
     \anchor{center}{\northwest\pgf@y=0pt}
     \anchor{socket center}{\northwest\pgf@y=0pt}
     % put the node text above and to the left, ignore depth
-    \anchor{text}{%
+    \savedanchor{\textoffset}{%
+        \pgfpoint{-.5\wd\pgfnodeparttextbox}{.5\ht\pgfnodeparttextbox}
+    }
+    \anchor{text}{\pgfextracty{\pgf@ya}{\textoffset}%
         \pgfextractx{\pgf@circ@res@left}{\northwest}
         \pgfextracty{\pgf@circ@res@up}{\northwest}
         \pgfpoint{-\pgf@circ@res@left}{%
-            .5\ht\pgfnodeparttextbox+\pgf@circ@res@up
+            \pgf@ya+\pgf@circ@res@up
         }%
     }%
 }{% drawing
@@ -767,11 +775,14 @@
     \anchor{center}{\northwest\pgf@y=0pt}
     \anchor{socket center}{\northwest\pgf@y=0pt\pgf@x=-\pgf@x}
     % put the node text above and to the left, ignore depth
-    \anchor{text}{%
+    \savedanchor{\textoffset}{%
+        \pgfpoint{-\wd\pgfnodeparttextbox}{.5\ht\pgfnodeparttextbox}
+    }
+    \anchor{text}{\pgfextractx{\pgf@xa}{\textoffset}\pgfextracty{\pgf@ya}{\textoffset}%
         \pgfextractx{\pgf@circ@res@left}{\northwest}
         \pgfextracty{\pgf@circ@res@up}{\northwest}
-        \pgfpoint{-\wd\pgfnodeparttextbox+\pgf@circ@res@left}{%
-            .5\ht\pgfnodeparttextbox+\pgf@circ@res@up
+        \pgfpoint{\pgf@xa+\pgf@circ@res@left}{%
+            \pgf@ya+\pgf@circ@res@up
         }%
     }%
 }{% drawing
@@ -784,11 +795,14 @@
         \anchor{center}{\northwest\pgf@y=0pt}
         % put the node text above and to the right, ignore depth
         % the text is higher to match the iec socket position
-        \anchor{text}{%
+        \savedanchor{\textoffset}{%
+            \pgfpoint{-\wd\pgfnodeparttextbox}{.5\ht\pgfnodeparttextbox}
+        }
+        \anchor{text}{\pgfextractx{\pgf@xa}{\textoffset}\pgfextracty{\pgf@ya}{\textoffset}%
             \pgfextractx{\pgf@circ@res@left}{\northwest}
             \pgfextracty{\pgf@circ@res@up}{\northwest}
-            \pgfpoint{-\wd\pgfnodeparttextbox+\pgf@circ@res@left}{
-              .5\ht\pgfnodeparttextbox+2\pgf@circ@res@up
+            \pgfpoint{\pgf@xa+\pgf@circ@res@left}{
+              \pgf@ya+2\pgf@circ@res@up
             }
         }
 }
@@ -797,11 +811,14 @@
         \anchor{center}{\northwest\pgf@y=0pt}
         % put the node text above and to the right, ignore depth
         % the text is higher to match the iec socket position
-        \anchor{text}{%
+        \savedanchor{\textoffset}{%
+            \pgfpoint{-.5\wd\pgfnodeparttextbox}{.5\ht\pgfnodeparttextbox}
+        }
+        \anchor{text}{\pgfextracty{\pgf@ya}{\textoffset}%
             \pgfextractx{\pgf@circ@res@left}{\northwest}
             \pgfextracty{\pgf@circ@res@up}{\northwest}
             \pgfpoint{-\pgf@circ@res@left}{
-              .5\ht\pgfnodeparttextbox+2\pgf@circ@res@up
+              \pgf@ya+2\pgf@circ@res@up
             }
         }
 }
@@ -828,10 +845,12 @@
     % geo-anchors
     \pgfcirc@northwest@symmetric@geoanchors
     % put the node text above and centered
-    \anchor{text}{\pgfextracty{\pgf@circ@res@up}{\northwest}
-        \pgfpoint{-.5\wd\pgfnodeparttextbox}{
-            \dimexpr.5\dp\pgfnodeparttextbox+.5\ht\pgfnodeparttextbox+\pgf@circ@res@up\relax
-        }
+    \savedanchor{\textoffset}{%
+        \pgfpoint{-.5\wd\pgfnodeparttextbox}{.5\dp\pgfnodeparttextbox+.5\ht\pgfnodeparttextbox}
+    }
+    \anchor{text}{\pgfextractx{\pgf@xa}{\textoffset}\pgfextracty{\pgf@ya}{\textoffset}%
+        \pgfextracty{\pgf@circ@res@up}{\northwest}
+        \pgfpoint{\pgf@xa}{\pgf@ya+\pgf@circ@res@up}
     }
     \anchorborder{
         \pgf@circ@res@left=\pgf@x
