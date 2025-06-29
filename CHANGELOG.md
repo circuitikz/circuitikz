@@ -3,7 +3,11 @@ The major changes among the different CircuiTikZ versions are listed here. See <
 
 * Version 1.8.2 (unreleased)
 
-    - Bump the version number
+    Another significant change for Circuitikz's internals: all the text anchors of the components are now stable, meaning they are meaningful after the component has been drawn. That was the case only for part of the components. It *shouldn't* affect anything for standard usage, but according to the Ti*k*Z manual, this is "the way".
+
+    - Stabilize all the text anchors (problem [reported by user `@JPWiedemann` on GitHub](https://github.com/circuitikz/circuitikz/pull/876), while coding the [Circuitikz GUI](https://github.com/Circuit2TikZ/CircuiTikZ-Designer)
+    - Fix text anchors for blocks `oscillator` and `gridnode`, which were completely bogus
+    - Documentation fixes for text anchors
 
 * Version 1.8.1 (2025-06-15)
 
