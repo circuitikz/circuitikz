@@ -16,8 +16,8 @@
 \providecommand\DeclareRelease[3]{}
 \providecommand\DeclareCurrentRelease[2]{}
 
-\def\pgfcircversion{1.8.2-unreleased-eeb54e0}
-\def\pgfcircversiondate{2025/06/19}
+\def\pgfcircversion{1.8.2-unreleased-68b380f}
+\def\pgfcircversiondate{2025/06/30}
 
 \DeclareRelease{0.4}{2012/12/20}{circuitikz-0.4-body.tex}
 \DeclareRelease{v0.4}{2012/12/20}{circuitikz-0.4-body.tex}
@@ -536,7 +536,6 @@
     \endpgfscope
 }
 %>>>
-
 
 %% Macros for basic drawing%<<<
 %
@@ -1122,7 +1121,7 @@
             \pgf@y=\ht\pgfnodeparttextbox
             \pgf@x=-.5\wd\pgfnodeparttextbox
         }
-        \anchor{text}{ \textanchor }
+        \anchor{text}{\textanchor}
         \anchorborder{%
             \ifpgf@circuit@bipole@inverted
                 \pgf@circ@res@left=-\pgf@x
@@ -1158,10 +1157,8 @@
 }% %>>>
 
 %% anchor adjustment macros%<<<
-
 % Extend the border anchor position by the specified factors on the right-top (north east corner)
 % and the left-down (southwest border). Argument must be number (possibly decimal) without sign
-
 \def\pgfcirc@border@extend@full#1#2#3#4{% right, top, left, down
     \anchorborder{%
         \ifpgf@circuit@bipole@inverted
@@ -1180,11 +1177,8 @@
         \fi
     }
 }
-
 % Just up and down (very common)
 \def\pgfcirc@border@extend@updown#1#2{\pgfcirc@border@extend@full{1}{#1}{1}{#2}}%
-
-
 % set of symmetrical, geographical anchors when a \northwest saved anchor is available
 \long\def\pgfcirc@northwest@symmetric@geoanchors{%
     \anchor{right}{\northwest\pgf@y=0pt\pgf@x=-\pgf@x}
@@ -2434,7 +2428,8 @@
     }
     % geo anchors based on north-east
     \pgfcirc@northeast@symmetric@geoanchors
-    \anchor{text}{\pgfpoint{-.5\wd\pgfnodeparttextbox}{\dimexpr.5\dp\pgfnodeparttextbox-.5\ht\pgfnodeparttextbox}}
+    \savedanchor{\textanchor}{\pgfpoint{-.5\wd\pgfnodeparttextbox}{\dimexpr.5\dp\pgfnodeparttextbox-.5\ht\pgfnodeparttextbox}}
+    \anchor{text}{\textanchor}
     \anchor{center}{
         \pgfpointorigin
     }
@@ -2884,10 +2879,12 @@
     \anchor{north west}{\northeast\pgf@x=-\pgf@x}
     \anchor{south east}{\northeast\pgf@y=-\pgf@y}
     \anchor{south west}{\northeast\pgf@y=-\pgf@y\pgf@x=-\pgf@x}
-    \anchor{text}{% text centered above
+    \savedanchor{\textanchor}{%
+        % text centered above
         \pgfpointorigin
         \pgfpoint{-.5\wd\pgfnodeparttextbox}{\dimexpr.5\dp\pgfnodeparttextbox+.5\ht\pgfnodeparttextbox}
     }
+    \anchor{text}{\textanchor}
     \anchor{center}{
         \pgfpointorigin
     }
@@ -3078,10 +3075,12 @@
     \anchor{plug center}{\northeast\pgf@y=0pt\divide\pgf@x by 3 }
     \anchor{socket center}{\northeast\pgf@y=0pt\pgf@x=-0.333333\pgf@x}
     % put the node text above and centered
-    \anchor{text}{\pgfextracty{\pgf@circ@res@up}{\northeast}
-        \pgfpoint{-.5\wd\pgfnodeparttextbox}{
-            \dimexpr.5\ht\pgfnodeparttextbox+\pgf@circ@res@up\relax
-        }
+    \savedanchor{\textoffset}{%
+        \pgfpoint{-.5\wd\pgfnodeparttextbox}{.5\ht\pgfnodeparttextbox}
+    }
+    \anchor{text}{\pgfextractx{\pgf@xa}{\textoffset}\pgfextracty{\pgf@ya}{\textoffset}%
+        \pgfextracty{\pgf@circ@res@up}{\northeast}%
+        \pgfpoint{\pgf@xa}{\pgf@ya+\pgf@circ@res@up}%
     }
 }
 {\ctikzvalof{bipoles/iecconn/height}}%symmetrical
@@ -3160,11 +3159,14 @@
     \anchor{center}{\northwest\pgf@y=0pt}
     \anchor{socket center}{\northwest\pgf@y=0pt}
     % put the node text above and to the left, ignore depth
-    \anchor{text}{%
+    \savedanchor{\textoffset}{%
+        \pgfpoint{-.5\wd\pgfnodeparttextbox}{.5\ht\pgfnodeparttextbox}
+    }
+    \anchor{text}{\pgfextracty{\pgf@ya}{\textoffset}%
         \pgfextractx{\pgf@circ@res@left}{\northwest}
         \pgfextracty{\pgf@circ@res@up}{\northwest}
         \pgfpoint{-\pgf@circ@res@left}{%
-            .5\ht\pgfnodeparttextbox+\pgf@circ@res@up
+            \pgf@ya+\pgf@circ@res@up
         }%
     }%
 }{% drawing
@@ -3176,11 +3178,14 @@
     \anchor{center}{\northwest\pgf@y=0pt}
     \anchor{socket center}{\northwest\pgf@y=0pt\pgf@x=-\pgf@x}
     % put the node text above and to the left, ignore depth
-    \anchor{text}{%
+    \savedanchor{\textoffset}{%
+        \pgfpoint{-\wd\pgfnodeparttextbox}{.5\ht\pgfnodeparttextbox}
+    }
+    \anchor{text}{\pgfextractx{\pgf@xa}{\textoffset}\pgfextracty{\pgf@ya}{\textoffset}%
         \pgfextractx{\pgf@circ@res@left}{\northwest}
         \pgfextracty{\pgf@circ@res@up}{\northwest}
-        \pgfpoint{-\wd\pgfnodeparttextbox+\pgf@circ@res@left}{%
-            .5\ht\pgfnodeparttextbox+\pgf@circ@res@up
+        \pgfpoint{\pgf@xa+\pgf@circ@res@left}{%
+            \pgf@ya+\pgf@circ@res@up
         }%
     }%
 }{% drawing
@@ -3193,11 +3198,14 @@
         \anchor{center}{\northwest\pgf@y=0pt}
         % put the node text above and to the right, ignore depth
         % the text is higher to match the iec socket position
-        \anchor{text}{%
+        \savedanchor{\textoffset}{%
+            \pgfpoint{-\wd\pgfnodeparttextbox}{.5\ht\pgfnodeparttextbox}
+        }
+        \anchor{text}{\pgfextractx{\pgf@xa}{\textoffset}\pgfextracty{\pgf@ya}{\textoffset}%
             \pgfextractx{\pgf@circ@res@left}{\northwest}
             \pgfextracty{\pgf@circ@res@up}{\northwest}
-            \pgfpoint{-\wd\pgfnodeparttextbox+\pgf@circ@res@left}{
-              .5\ht\pgfnodeparttextbox+2\pgf@circ@res@up
+            \pgfpoint{\pgf@xa+\pgf@circ@res@left}{
+              \pgf@ya+2\pgf@circ@res@up
             }
         }
 }
@@ -3206,11 +3214,14 @@
         \anchor{center}{\northwest\pgf@y=0pt}
         % put the node text above and to the right, ignore depth
         % the text is higher to match the iec socket position
-        \anchor{text}{%
+        \savedanchor{\textoffset}{%
+            \pgfpoint{-.5\wd\pgfnodeparttextbox}{.5\ht\pgfnodeparttextbox}
+        }
+        \anchor{text}{\pgfextracty{\pgf@ya}{\textoffset}%
             \pgfextractx{\pgf@circ@res@left}{\northwest}
             \pgfextracty{\pgf@circ@res@up}{\northwest}
             \pgfpoint{-\pgf@circ@res@left}{
-              .5\ht\pgfnodeparttextbox+2\pgf@circ@res@up
+              \pgf@ya+2\pgf@circ@res@up
             }
         }
 }
@@ -3237,10 +3248,12 @@
     % geo-anchors
     \pgfcirc@northwest@symmetric@geoanchors
     % put the node text above and centered
-    \anchor{text}{\pgfextracty{\pgf@circ@res@up}{\northwest}
-        \pgfpoint{-.5\wd\pgfnodeparttextbox}{
-            \dimexpr.5\dp\pgfnodeparttextbox+.5\ht\pgfnodeparttextbox+\pgf@circ@res@up\relax
-        }
+    \savedanchor{\textoffset}{%
+        \pgfpoint{-.5\wd\pgfnodeparttextbox}{.5\dp\pgfnodeparttextbox+.5\ht\pgfnodeparttextbox}
+    }
+    \anchor{text}{\pgfextractx{\pgf@xa}{\textoffset}\pgfextracty{\pgf@ya}{\textoffset}%
+        \pgfextracty{\pgf@circ@res@up}{\northwest}
+        \pgfpoint{\pgf@xa}{\pgf@ya+\pgf@circ@res@up}
     }
     \anchorborder{
         \pgf@circ@res@left=\pgf@x
@@ -3580,16 +3593,17 @@
     \anchor{center}{\pgfpointorigin}
     \anchor{left}{\pgfpointorigin}
     \anchor{right}{\pgfpointorigin}
-    \anchor{text}{
+    \savedanchor{\textanchor}{
         \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
         \pgf@circ@res@step=\ctikzvalof{monopoles/vcc/width}\pgf@circ@scaled@Rlen
+        %% this moves simply extends the bounding box. Clunky, but cannot be removed for compatibility
         \pgfpathmoveto{\pgfpoint{-.5\wd\pgfnodeparttextbox}{2\pgf@circ@res@step+2\ht\pgfnodeparttextbox}}
-        \pgfpathmoveto{\pgfpoint{.5\wd\pgfnodeparttextbox}{2\pgf@circ@res@step+2\ht\pgfnodeparttextbox}}
-        \pgf@x=0pt
+        \pgfpathmoveto{\pgfpoint{.5\wd\pgfnodeparttextbox}{2\pgf@circ@res@step+2\ht\pgfnodeparttextbox}}\pgf@x=0pt
         \pgf@y=2\pgf@circ@res@step
         \advance \pgf@y by 0.5\ht\pgfnodeparttextbox
         \pgf@x=-.5\wd\pgfnodeparttextbox
     }
+    \anchor{text}{\textanchor}
     \pgf@circ@draw@component{
         \pgf@circ@scaled@Rlen=\scaledRlen
         \pgf@circ@res@step=\ctikzvalof{monopoles/vcc/width}\pgf@circ@scaled@Rlen
@@ -3641,17 +3655,17 @@
     \anchor{center}{\pgfpointorigin}
     \anchor{left}{\pgfpointorigin}
     \anchor{right}{\pgfpointorigin}
-    \anchor{text}{
+    \savedanchor{\textanchor}{
         \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
         \pgf@circ@res@step=\ctikzvalof{monopoles/vcc/width}\pgf@circ@scaled@Rlen
+        %% this moves simply extends the bounding box. Clunky, but cannot be removed for compatibility
         \pgfpathmoveto{\pgfpoint{-.5\wd\pgfnodeparttextbox}{-2\pgf@circ@res@step-2\ht\pgfnodeparttextbox}}
-        \pgfpathmoveto{\pgfpoint{.5\wd\pgfnodeparttextbox}{-2\pgf@circ@res@step-2\ht\pgfnodeparttextbox}}
-        \pgf@x=0pt
+        \pgfpathmoveto{\pgfpoint{.5\wd\pgfnodeparttextbox}{-2\pgf@circ@res@step-2\ht\pgfnodeparttextbox}}\pgf@x=0pt
         \pgf@y=-2\pgf@circ@res@step
         \advance \pgf@y by -1.5\ht\pgfnodeparttextbox
         \pgf@x=-.5\wd\pgfnodeparttextbox
     }
-
+    \anchor{text}{\textanchor}
     \pgf@circ@draw@component{
         \pgf@circ@scaled@Rlen=\scaledRlen
         \pgf@circ@res@step=\ctikzvalof{monopoles/vcc/width}\pgf@circ@scaled@Rlen
@@ -3785,9 +3799,15 @@
     \anchor{south west}{\northeast\pgf@x=0cm\pgf@y=-\pgf@y}
     \anchor{center}{\pgfpointorigin}
     % this is not exact, but it's better than nothing
-    \anchor{text}{\northeast\pgf@xa=\pgf@x\pgf@ya=\pgf@y
-        \pgfpoint{\dimexpr-.5\wd\pgfnodeparttextbox+.8\pgf@xa}
-        {\dimexpr-.5\dp\pgfnodeparttextbox+.5\ht\pgfnodeparttextbox+\pgf@ya}}
+    % corrected for stable text; probably should take into account depth
+    \savedanchor{\textoffset}{%
+        \pgfpoint{-.5\wd\pgfnodeparttextbox}
+        {-.5\dp\pgfnodeparttextbox+.5\ht\pgfnodeparttextbox}%
+    }
+    \anchor{text}{\pgfextractx{\pgf@xa}{\textoffset}\pgfextracty{\pgf@ya}{\textoffset}%
+        \northeast\pgf@x=0.8\pgf@x\advance\pgf@x by \pgf@xa
+        \advance\pgf@y by \pgf@ya
+    }
     \pgf@circ@draw@component{
         \pgfstartlinewidth=\pgflinewidth
 
@@ -3866,9 +3886,11 @@
         \pgf@x=\pgf@circ@res@step
         \pgf@y=\pgf@circ@res@step
     }
-    \anchor{text}{
-        \northeast
-        \pgf@y=\dimexpr\pgf@y+.5\dp\pgfnodeparttextbox-.5\ht\pgfnodeparttextbox\relax
+    \savedanchor{\textoffset}{%
+        \pgf@y=\dimexpr+.5\dp\pgfnodeparttextbox-.5\ht\pgfnodeparttextbox\relax
+    }
+    \anchor{text}{\pgfextracty{\pgf@ya}{\textoffset}%
+        \northeast\advance\pgf@y by \pgf@ya
     }
     \anchor{top}{\northeast\pgf@x=0pt}
     \anchor{right}{\northeast\pgf@y=0pt}
@@ -3916,9 +3938,12 @@
         \pgf@x=\pgf@circ@res@step
         \pgf@y=\pgf@circ@res@step
     }
-    \anchor{text}{
-        \northeast
-        \pgf@y=\dimexpr\pgf@y+.5\dp\pgfnodeparttextbox-.5\ht\pgfnodeparttextbox\relax
+    % text in the same position as waves
+    \savedanchor{\textoffset}{%
+        \pgf@y=\dimexpr+.5\dp\pgfnodeparttextbox-.5\ht\pgfnodeparttextbox\relax
+    }
+    \anchor{text}{\pgfextracty{\pgf@ya}{\textoffset}%
+        \northeast\advance\pgf@y by \pgf@ya
     }
     \anchor{top}{\northeast\pgf@x=0pt}
     \anchor{right}{\northeast\pgf@y=0pt}
@@ -3968,11 +3993,16 @@
         \pgf@x=\pgf@circ@res@step
         \pgf@y=2\pgf@circ@res@step
     }
-    \anchor{text}{
+    % stabilize all the factors in the text anchor position
+    \savedmacro{\labelxanchor}{\edef\labelxanchor{\ctikzvalof{monopoles/bareantenna/label/xanchor}}}
+    \savedmacro{\labelyanchor}{\edef\labelyanchor{\ctikzvalof{monopoles/bareantenna/label/yanchor}}}
+    \savedanchor{\textoffset}{%
+        \pgf@y=\dimexpr+.5\dp\pgfnodeparttextbox-.5\ht\pgfnodeparttextbox\relax
+    }
+    \anchor{text}{\pgfextracty{\pgf@ya}{\textoffset}%
         \northeast
-        \pgf@x=\ctikzvalof{monopoles/bareantenna/label/xanchor}\pgf@x
-        \pgf@y=\ctikzvalof{monopoles/bareantenna/label/yanchor}\pgf@y
-        \pgf@y=\dimexpr\pgf@y+.5\dp\pgfnodeparttextbox-.5\ht\pgfnodeparttextbox\relax
+        \pgf@x=\labelxanchor\pgf@x
+        \pgf@y=\dimexpr\labelyanchor\pgf@y+\pgf@ya\relax
     }
     \anchor{top}{\northeast\pgf@x=0pt}
     \anchor{right}{\northeast\pgf@y=0.5\pgf@y}
@@ -4002,9 +4032,12 @@
         \pgf@x=\pgf@circ@res@step
         \pgf@y=\pgf@circ@res@other
     }
-    \anchor{text}{
+    \savedanchor{\textoffset}{%
+        \pgf@y=\dimexpr+.5\dp\pgfnodeparttextbox-.5\ht\pgfnodeparttextbox\relax
+    }
+    \anchor{text}{\pgfextracty{\pgf@ya}{\textoffset}%
         \northeast
-        \pgf@y=\dimexpr.5\pgf@y+.5\dp\pgfnodeparttextbox-.5\ht\pgfnodeparttextbox\relax
+        \pgf@y=\dimexpr.5\pgf@y+\pgf@ya\relax
     }
     \anchor{top}{\northeast\pgf@x=0pt}
     \anchor{right}{\northeast\pgf@y=0.5\pgf@y}
@@ -4055,12 +4088,17 @@
         \pgf@x=4.2\pgf@circ@res@step
         \pgf@y=\pgf@circ@res@step
     }
-    \anchor{text}{
+    % stabilize all the factors in the text anchor position
+    \savedmacro{\labelxanchor}{\edef\labelxanchor{\ctikzvalof{monopoles/bareantenna/label/xanchor}}}
+    \savedmacro{\labelyanchor}{\edef\labelyanchor{\ctikzvalof{monopoles/bareantenna/label/yanchor}}}
+    \savedanchor{\textoffset}{%
+        \pgf@x=\wd\pgfnodeparttextbox
+        \pgf@y=\dimexpr+.5\dp\pgfnodeparttextbox-.5\ht\pgfnodeparttextbox\relax
+    }
+    \anchor{text}{\pgfextractx{\pgf@xa}{\textoffset}\pgfextracty{\pgf@ya}{\textoffset}%
         \northeast
-        \pgf@x=\ctikzvalof{monopoles/bareantenna/label/xanchor}\pgf@x
-        \pgf@y=\ctikzvalof{monopoles/bareantenna/label/yanchor}\pgf@y
-        \pgf@x=\dimexpr-\pgf@x-\wd\pgfnodeparttextbox\relax
-        \pgf@y=\dimexpr\pgf@y+.5\dp\pgfnodeparttextbox-.5\ht\pgfnodeparttextbox\relax
+        \pgf@x=\dimexpr-\labelxanchor\pgf@x-\pgf@xa\relax
+        \pgf@y=\dimexpr\labelyanchor\pgf@y+\pgf@ya\relax
     }
     \anchor{waves}{\savedwaves}
     \anchor{top}{\northeast\pgf@x=0pt}
@@ -4097,11 +4135,16 @@
         \pgf@x=-4.2\pgf@circ@res@step
         \pgf@y=\pgf@circ@res@step
     }
-    \anchor{text}{
+    % stabilize all the factors in the text anchor position
+    \savedmacro{\labelxanchor}{\edef\labelxanchor{\ctikzvalof{monopoles/bareantenna/label/xanchor}}}
+    \savedmacro{\labelyanchor}{\edef\labelyanchor{\ctikzvalof{monopoles/bareantenna/label/yanchor}}}
+    \savedanchor{\textoffset}{%
+        \pgf@y=\dimexpr+.5\dp\pgfnodeparttextbox-.5\ht\pgfnodeparttextbox\relax
+    }
+    \anchor{text}{\pgfextracty{\pgf@ya}{\textoffset}%
         \northeast
-        \pgf@x=\ctikzvalof{monopoles/bareantenna/label/xanchor}\pgf@x
-        \pgf@y=\ctikzvalof{monopoles/bareantenna/label/yanchor}\pgf@y
-        \pgf@y=\dimexpr\pgf@y+.5\dp\pgfnodeparttextbox-.5\ht\pgfnodeparttextbox\relax
+        \pgf@x=\labelxanchor\pgf@x
+        \pgf@y=\dimexpr\labelyanchor\pgf@y+\pgf@ya\relax
     }
     \anchor{waves}{\savedwaves}
     \anchor{top}{\northeast\pgf@x=0pt}
@@ -4156,10 +4199,13 @@
     \anchor{arc}{\arcpos}
     \anchor{top right}{\topright}
     \anchor{top left}{\topright\pgf@x=-\pgf@x}
-    \anchor{text}{
+    \savedanchor{\textoffset}{%
+        \pgf@y=\dimexpr.5\dp\pgfnodeparttextbox-.5\ht\pgfnodeparttextbox\relax
+    }
+    \anchor{text}{\pgfextracty{\pgf@ya}{\textoffset}%
         \northeast
         \advance\pgf@x by 4pt\relax
-        \pgf@y=\dimexpr0.5\pgf@y+.5\dp\pgfnodeparttextbox-.5\ht\pgfnodeparttextbox\relax
+        \pgf@y=\dimexpr0.5\pgf@y+\pgf@ya\relax
     }
     \anchor{top}{\northeast\pgf@x=0pt}
     \anchor{right}{\northeast\pgf@y=0.5\pgf@y}
@@ -4238,10 +4284,13 @@
     \anchor{left}{\northwest\pgf@y=0pt\relax}
     \anchor{right}{\southeast\pgf@y=0pt\relax}
     % put the node text above and centered
-    \anchor{text}{\pgfextracty{\pgf@circ@res@up}{\northwest}
-        \pgfpoint{-.5\wd\pgfnodeparttextbox}{
-            \dimexpr.5\dp\pgfnodeparttextbox+.5\ht\pgfnodeparttextbox+\pgf@circ@res@up\relax
-        }
+    \savedanchor{\textoffset}{%
+        \pgfpoint{-.5\wd\pgfnodeparttextbox}%
+            {.5\dp\pgfnodeparttextbox+.5\ht\pgfnodeparttextbox}%
+    }
+    \anchor{text}{\pgfextractx{\pgf@xa}{\textoffset}\pgfextracty{\pgf@ya}{\textoffset}%
+        \pgfextracty{\pgf@circ@res@up}{\northwest}%
+        \pgfpoint{\pgf@xa}{\pgf@ya+\pgf@circ@res@up}%
     }
     \pgf@circ@draw@component{
         \pgfextracty{\pgf@circ@res@up}{\northwest}
@@ -4287,10 +4336,13 @@
     \anchor{left}{\pgfpointorigin}
     \anchor{right}{\pgfpointorigin}
     % put the node text above and centered
-    \anchor{text}{\pgfextracty{\pgf@circ@res@up}{\northwest}
-        \pgfpoint{-.5\wd\pgfnodeparttextbox}{
-            \dimexpr.5\dp\pgfnodeparttextbox+.5\ht\pgfnodeparttextbox+\pgf@circ@res@up\relax
-        }
+    \savedanchor{\textoffset}{%
+        \pgfpoint{-.5\wd\pgfnodeparttextbox}%
+            {.5\dp\pgfnodeparttextbox+.5\ht\pgfnodeparttextbox}%
+    }
+    \anchor{text}{\pgfextractx{\pgf@xa}{\textoffset}\pgfextracty{\pgf@ya}{\textoffset}%
+        \pgfextracty{\pgf@circ@res@up}{\northwest}%
+        \pgfpoint{\pgf@xa}{\pgf@ya+\pgf@circ@res@up}%
     }
     \pgf@circ@draw@component{
         \pgfextracty{\pgf@circ@res@up}{\northwest}
@@ -4343,12 +4395,13 @@
     \anchor{center}{\northwest\pgf@y=0pt\relax}
     \anchor{left}{\northwest\pgf@y=0pt\relax}
     \anchor{right}{\southeast\pgf@y=0pt\relax}
-    % put the node text above and centered
-    \anchor{text}{\pgfextracty{\pgf@circ@res@up}{\northwest}
+    % put the node text inside and centered
+    \savedanchor{\textanchor}{
         \pgfpoint{-.5\wd\pgfnodeparttextbox}{
             \dimexpr-.5\dp\pgfnodeparttextbox-.5\ht\pgfnodeparttextbox\relax
         }
     }
+    \anchor{text}{\textanchor}
     \pgf@circ@draw@component{
         \pgfextracty{\pgf@circ@res@up}{\northwest}
         \pgfextractx{\pgf@circ@res@right}{\southeast}
@@ -4394,10 +4447,13 @@
     \anchor{north west}{\northeast\pgf@circ@res@step=\pgf@x\pgf@x=-\pgf@x\pgf@circ@shift@antenna@xy{0}{2}}
     \anchor{south east}{\northeast\pgf@circ@res@step=\pgf@x\pgf@y=-\pgf@y\pgf@circ@shift@antenna@xy{0}{4}}
     \anchor{south west}{\northeast\pgf@circ@res@step=\pgf@x\pgf@y=-\pgf@y\pgf@x=-\pgf@x\pgf@circ@shift@antenna@xy{0}{4}}
-    \anchor{text}{
+    % stabilize all the factors in the text anchor position
+    \savedmacro{\labelxanchor}{\edef\labelxanchor{\ctikzvalof{monopoles/antenna/label/xanchor}}}
+    \savedmacro{\labelyanchor}{\edef\labelyanchor{\ctikzvalof{monopoles/antenna/label/yanchor}}}
+    \anchor{text}{% stable, but this text label position is not taking into account the text size.
         \northeast
-        \pgf@x=\ctikzvalof{monopoles/antenna/label/xanchor}\pgf@x
-        \pgf@y=\ctikzvalof{monopoles/antenna/label/yanchor}\pgf@y
+        \pgf@x=\labelxanchor\pgf@x
+        \pgf@y=\labelyanchor\pgf@y
     }
     \pgf@circ@draw@component{
         \pgfstartlinewidth=\pgflinewidth
@@ -4445,10 +4501,13 @@
     \anchor{north west}{\northeast\pgf@circ@res@step=\pgf@x\pgf@x=-\pgf@x\pgf@circ@shift@antenna@xy{1}{2}}
     \anchor{south east}{\northeast\pgf@circ@res@step=\pgf@x\pgf@y=-\pgf@y\pgf@circ@shift@antenna@xy{4}{4}}
     \anchor{south west}{\northeast\pgf@circ@res@step=\pgf@x\pgf@y=-\pgf@y\pgf@x=-\pgf@x\pgf@circ@shift@antenna@xy{1}{4}}
-    \anchor{text}{
+    % stabilize all the factors in the text anchor position
+    \savedmacro{\labelxanchor}{\edef\labelxanchor{\ctikzvalof{monopoles/txantenna/label/xanchor}}}
+    \savedmacro{\labelyanchor}{\edef\labelyanchor{\ctikzvalof{monopoles/txantenna/label/yanchor}}}
+    \anchor{text}{% stable, but this text label position is not taking into account the text size.
         \northeast
-        \pgf@x=\ctikzvalof{monopoles/txantenna/label/xanchor}\pgf@x
-        \pgf@y=\ctikzvalof{monopoles/txantenna/label/yanchor}\pgf@y
+        \pgf@x=\labelxanchor\pgf@x
+        \pgf@y=\labelyanchor\pgf@y
     }
     \pgf@circ@draw@component{
         \pgfstartlinewidth=\pgflinewidth
@@ -4507,10 +4566,13 @@
     \anchor{north west}{\northeast\pgf@circ@res@step=\pgf@x\pgf@x=-\pgf@x\pgf@circ@shift@antenna@xy{1}{2}}
     \anchor{south east}{\northeast\pgf@circ@res@step=\pgf@x\pgf@y=-\pgf@y\pgf@circ@shift@antenna@xy{4}{4}}
     \anchor{south west}{\northeast\pgf@circ@res@step=\pgf@x\pgf@y=-\pgf@y\pgf@x=-\pgf@x\pgf@circ@shift@antenna@xy{1}{4}}
-    \anchor{text}{
+    % stabilize all the factors in the text anchor position
+    \savedmacro{\labelxanchor}{\edef\labelxanchor{\ctikzvalof{monopoles/rxantenna/label/xanchor}}}
+    \savedmacro{\labelyanchor}{\edef\labelyanchor{\ctikzvalof{monopoles/rxantenna/label/yanchor}}}
+    \anchor{text}{% stable, but this text label position is not taking into account the text size.
         \northeast
-        \pgf@x=\ctikzvalof{monopoles/rxantenna/label/xanchor}\pgf@x
-        \pgf@y=\ctikzvalof{monopoles/rxantenna/label/yanchor}\pgf@y
+        \pgf@x=\labelxanchor\pgf@x
+        \pgf@y=\labelyanchor\pgf@y
     }
     \pgf@circ@draw@component{
         \pgfstartlinewidth=\pgflinewidth
@@ -4571,13 +4633,15 @@
     \anchor{south east}{\northeast\pgf@y=0pt\relax}
     \anchor{south west}{\pgfpointorigin}
     \anchor{center}{\pgfpointorigin}
-    \anchor{text}{
+    % text under the black triangle
+    \savedanchor{\textanchor}{
         \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
         \pgf@x=\ctikzvalof{monopoles/match/width}\pgf@circ@scaled@Rlen
         \pgf@x=1.5\pgf@x
         \advance \pgf@x by -.5\wd\pgfnodeparttextbox
         \pgf@y=-1.5\ht\pgfnodeparttextbox
     }
+    \anchor{text}{\textanchor}
     \pgf@circ@draw@component{
         \pgf@circ@scaled@Rlen=\scaledRlen
         \pgf@circ@res@step=\ctikzvalof{monopoles/match/width}\pgf@circ@scaled@Rlen
@@ -10364,14 +10428,16 @@
         \pgfmathsetlength{\pgf@y}{\ctikzvalof{proximeter/width}*\ctikzvalof{\ctikzclass/scale}*\pgf@circ@Rlen}
         \pgf@x=\pgf@y
     }
-    \anchor{center}{\pgfpointorigin}
-    % geo anchors based on north-east
-    \pgfcirc@northeast@symmetric@geoanchors
-    \anchor{text}{%
-        \northeast
+    \savedanchor\textanchor{%
+        \pgfmathsetlength{\pgf@y}{\ctikzvalof{proximeter/width}*\ctikzvalof{\ctikzclass/scale}*\pgf@circ@Rlen}
+        \pgf@x=\pgf@y
         \pgf@x=\dimexpr -.5\wd\pgfnodeparttextbox\relax
         \advance\pgf@y by .6\ht\pgfnodeparttextbox\relax
     }
+    \anchor{center}{\pgfpointorigin}
+    % geo anchors based on north-east
+    \pgfcirc@northeast@symmetric@geoanchors
+    \anchor{text}{\textanchor}
     \anchor{hlines ne}{%
         \northeast
         \pgf@y=\hlinepos\pgf@y
@@ -10466,9 +10532,12 @@
             \anchor{cin}{\southwest\pgf@y=0cm}
             \anchor{out}{\northeast \pgf@y=0cm\advance\pgf@x by \radius}
             \anchor{in}{\southwest\pgf@y=0cm\advance\pgf@x by -\radius}
-            \anchor{text}{\northeast
-                \pgf@x=\dimexpr -.5\wd\pgfnodeparttextbox\relax
-                \advance\pgf@y by .6\ht\pgfnodeparttextbox\relax
+            \savedanchor{\textoffset}{%
+                \pgf@x=-.5\wd\pgfnodeparttextbox % (set)
+                \pgf@y=.6\ht\pgfnodeparttextbox  % (sum)
+            }
+            \anchor{text}{\pgfextractx{\pgf@xa}{\textoffset}\pgfextracty{\pgf@ya}{\textoffset}%
+                \northeast \pgf@x=\pgf@xa \advance\pgf@y by \pgf@ya
             }
             \anchor{top arc}{\northeast
                 \pgf@circ@res@other=\pgf@x
@@ -10677,9 +10746,12 @@
         {
             \anchor{out}{\northeast \pgf@y=0cm}
             \anchor{in}{\southwest\pgf@y=0cm}
-            \anchor{text}{\northeast
-                \pgf@x=\dimexpr -.5\wd\pgfnodeparttextbox\relax
-                \advance\pgf@y by .6\ht\pgfnodeparttextbox\relax
+            \savedanchor{\textoffset}{%
+                \pgf@x=-.5\wd\pgfnodeparttextbox % (set)
+                \pgf@y=.6\ht\pgfnodeparttextbox  % (sum)
+            }
+            \anchor{text}{\pgfextractx{\pgf@xa}{\textoffset}\pgfextracty{\pgf@ya}{\textoffset}%
+                \northeast \pgf@x=\pgf@xa \advance\pgf@y by \pgf@ya
             }
         }
         {\ctikzvalof{bipoles/solder jumper/height}}
@@ -10715,9 +10787,12 @@
             \anchor{tap}{\northeast\pgf@x=0cm}
             \anchor{tap up}{\northeast\pgf@x=0cm}
             \anchor{tap down}{\northeast\pgf@x=0cm\pgf@y=-\pgf@y}
-            \anchor{text}{\northeast
-                \pgf@x=\dimexpr -.5\wd\pgfnodeparttextbox\relax
-                \advance\pgf@y by .6\ht\pgfnodeparttextbox\relax
+            \savedanchor{\textoffset}{%
+                \pgf@x=-.5\wd\pgfnodeparttextbox % (set)
+                \pgf@y=.6\ht\pgfnodeparttextbox  % (sum)
+            }
+            \anchor{text}{\pgfextractx{\pgf@xa}{\textoffset}\pgfextracty{\pgf@ya}{\textoffset}%
+                \northeast \pgf@x=\pgf@xa \advance\pgf@y by \pgf@ya
             }
         }
         {\ctikzvalof{bipoles/solder jumper/height}}
@@ -10930,16 +11005,23 @@
 % default waveform (backward compatible)
 \ctikzset{bipoles/oscope/waveform/.initial=ramps}
 
+\def\pgf@circ@instruments@text@anchors{%
+    % put the node text above and centered
+    \savedanchor{\textoffset}{%
+        \pgf@x=-.5\wd\pgfnodeparttextbox % (set)
+        \pgf@y=\dimexpr .5\dp\pgfnodeparttextbox+.5\ht\pgfnodeparttextbox\relax % (sum)
+    }
+    \anchor{text}{\pgfextractx{\pgf@xa}{\textoffset}\pgfextracty{\pgf@ya}{\textoffset}
+        \pgfextracty{\pgf@circ@res@up}{\northeast}
+        \pgfpoint{\pgf@xa}{\pgf@circ@res@up+\pgf@ya}
+    }
+}
+
 \pgfcircdeclarebipolescaled{instruments}
 {
     \anchor{in 1}{\southwest\pgf@y=0.75\pgf@y\pgf@x=0.4\pgf@x}
     \anchor{in 2}{\southwest\pgf@y=0.75\pgf@y\pgf@x=-0.4\pgf@x}
-    % put the node text above and centered
-    \anchor{text}{\pgfextracty{\pgf@circ@res@up}{\northeast}
-        \pgfpoint{-.5\wd\pgfnodeparttextbox}{
-            \dimexpr.5\dp\pgfnodeparttextbox+.5\ht\pgfnodeparttextbox+\pgf@circ@res@up\relax
-        }
-    }
+    \pgf@circ@instruments@text@anchors
 }
 {\ctikzvalof{bipoles/oscope/height}}
 {oscope}
@@ -11071,12 +11153,7 @@
 {
     \anchor{in 1}{\southwest\pgf@y=0.75\pgf@y\pgf@x=0.4\pgf@x}
     \anchor{in 2}{\southwest\pgf@y=0.75\pgf@y\pgf@x=-0.4\pgf@x}
-    % put the node text above and centered
-    \anchor{text}{\pgfextracty{\pgf@circ@res@up}{\northeast}
-        \pgfpoint{-.5\wd\pgfnodeparttextbox}{
-            \dimexpr.5\dp\pgfnodeparttextbox+.5\ht\pgfnodeparttextbox+\pgf@circ@res@up\relax
-        }
-    }
+    \pgf@circ@instruments@text@anchors
 }
 {\ctikzvalof{bipoles/smeter/height}}
 {smeter}
@@ -11133,11 +11210,7 @@
         \anchor{v+}{\southwest\pgf@x=0.6\pgf@x}
         \anchor{v-}{\southwest\pgf@x=-0.6\pgf@x}
         % put the node text above and centered
-        \anchor{text}{\pgfextracty{\pgf@circ@res@up}{\northeast}
-            \pgfpoint{-.5\wd\pgfnodeparttextbox}{
-                \dimexpr.5\dp\pgfnodeparttextbox+.5\ht\pgfnodeparttextbox+\pgf@circ@res@up\relax
-            }
-        }
+        \pgf@circ@instruments@text@anchors
     }
     {\ctikzvalof{bipoles/qmeter/depth}}
     {#1}
@@ -11235,12 +11308,14 @@
 \pgfcircdeclarebipolescaled{instruments}
 {
     \anchor{i}{\northeast\pgf@x=0pt\relax}
-    \anchor{text}{
+    \savedanchor{\textoffset}{%
+        \pgf@x=-.5\wd\pgfnodeparttextbox % (set)
+        \pgf@y=\dimexpr .5\dp\pgfnodeparttextbox+.5\ht\pgfnodeparttextbox\relax % (sum)
+    }
+    \anchor{text}{\pgfextractx{\pgf@xa}{\textoffset}\pgfextracty{\pgf@ya}{\textoffset}
         \pgfextracty{\pgf@circ@res@up}{\northeast}
         \pgfextractx{\pgf@circ@res@left}{\northeast}
-        \pgfpoint{-.5\wd\pgfnodeparttextbox+\pgf@circ@res@left}{
-            \dimexpr.5\dp\pgfnodeparttextbox+.5\ht\pgfnodeparttextbox+\pgf@circ@res@up\relax
-        }
+        \pgfpoint{\pgf@xa+\pgf@circ@res@left}{\pgf@circ@res@up+\pgf@ya}
     }
 }
 {\ctikzvalof{bipoles/iloop/height}}
@@ -11305,12 +11380,14 @@
         \pgfpointpolar{75}{\pgf@circ@res@step and \pgf@circ@res@other}
         \pgf@y=\pgf@circ@res@up
     }
-    \anchor{text}{
+    \savedanchor{\textoffset}{%
+        \pgf@x=-.5\wd\pgfnodeparttextbox % (set)
+        \pgf@y=\dimexpr .5\dp\pgfnodeparttextbox+.5\ht\pgfnodeparttextbox\relax % (sum)
+    }
+    \anchor{text}{\pgfextractx{\pgf@xa}{\textoffset}\pgfextracty{\pgf@ya}{\textoffset}
         \pgfextracty{\pgf@circ@res@up}{\northeast}
         \pgfextractx{\pgf@circ@res@left}{\northeast}
-        \pgfpoint{-.5\wd\pgfnodeparttextbox+\pgf@circ@res@left}{
-            \dimexpr.5\dp\pgfnodeparttextbox+.5\ht\pgfnodeparttextbox+\pgf@circ@res@up\relax
-        }
+        \pgfpoint{\pgf@xa+\pgf@circ@res@left}{\pgf@circ@res@up+\pgf@ya}
     }
 }
 {\ctikzvalof{bipoles/iloop/height}}
@@ -11607,11 +11684,11 @@
     \anchor{center}{
         \pgfpointorigin
     }
-    \anchor{text}{
-        \pgfpointorigin
-        \advance \pgf@x by -.5\wd\pgfnodeparttextbox
-        \advance \pgf@y by -.5\ht\pgfnodeparttextbox
+    \savedanchor{\textanchor}{%
+        \pgf@x=-.5\wd\pgfnodeparttextbox % (set)
+        \pgf@y=-.5\ht\pgfnodeparttextbox  % (set)
     }
+    \anchor{text}{\textanchor}
     \anchor{left}{%
         \northwest
         \pgf@y=0pt
@@ -12814,7 +12891,8 @@
     \savedanchor\origin{\pgfpoint{\ctikzvalof{tripoles/american #1 port/origin}\pgf@circ@res@right}{0pt}}
 
     \anchor{center}{\origin}% for backwards compatibility
-    \anchor{text}{\pgfpoint{-.5\wd\pgfnodeparttextbox}{\dimexpr.5\dp\pgfnodeparttextbox-.5\ht\pgfnodeparttextbox}}
+    \savedanchor{\textanchor}{\pgfpoint{-.5\wd\pgfnodeparttextbox}{\dimexpr.5\dp\pgfnodeparttextbox-.5\ht\pgfnodeparttextbox}}
+    \anchor{text}{\textanchor}
 
     % create input anchors
     \expandafter\pgfutil@g@addto@macro\csname pgf@sh@s@american #1 port\endcsname{%
@@ -13287,11 +13365,12 @@
         \pgfpointborderrectangle{\pgfpoint{\pgf@xa}{\pgf@ya}}
             {\pgfpoint{-\pgf@circ@res@left}{\pgf@circ@res@up}}
     }
-    \anchor{text}{%
+    \savedanchor{\textanchor}{%
         % centered and a bit to the left (it's a triangle)!
         \pgf@x=\dimexpr -.6\wd\pgfnodeparttextbox\relax
         \pgf@y=\dimexpr.5\dp\pgfnodeparttextbox-.5\ht\pgfnodeparttextbox\relax
     }
+    \anchor{text}{\textanchor}
     \pgf@circ@draw@component{
         \pgf@circ@setcolor
 
@@ -13431,11 +13510,12 @@
         \pgfpointborderrectangle{\pgfpoint{\pgf@xa}{\pgf@ya}}
             {\pgfpoint{-\pgf@circ@res@left}{\pgf@circ@res@up}}
     }
-    \anchor{text}{%
+    \savedanchor{\textanchor}{%
         % centered and a bit to the left (it's a triangle)!
         \pgf@x=\dimexpr -.6\wd\pgfnodeparttextbox\relax
         \pgf@y=\dimexpr.5\dp\pgfnodeparttextbox-.5\ht\pgfnodeparttextbox\relax
     }
+    \anchor{text}{\textanchor}
     \pgf@circ@draw@component{
         \pgf@circ@setcolor
 
@@ -13567,11 +13647,12 @@
         \pgfpointborderrectangle{\pgfpoint{\pgf@xa}{\pgf@ya}}
             {\pgfpoint{-\pgf@circ@res@left}{\pgf@circ@res@up}}
     }
-    \anchor{text}{%
+    \savedanchor{\textanchor}{%
         % centered and a bit to the left (it's a triangle)!
         \pgf@x=\dimexpr -.6\wd\pgfnodeparttextbox\relax
         \pgf@y=\dimexpr.5\dp\pgfnodeparttextbox-.5\ht\pgfnodeparttextbox\relax
     }
+    \anchor{text}{\textanchor}
     \pgf@circ@draw@component{
         \pgf@circ@setcolor
 
@@ -13723,11 +13804,12 @@
         \pgfpointborderrectangle{\pgfpoint{\pgf@xa}{\pgf@ya}}
             {\pgfpoint{-\pgf@circ@res@left}{\pgf@circ@res@up}}
     }
-    \anchor{text}{%
+    \savedanchor{\textanchor}{%
         % centered and a bit to the left (it's a triangle)!
         \pgf@x=\dimexpr -.6\wd\pgfnodeparttextbox\relax
         \pgf@y=\dimexpr.5\dp\pgfnodeparttextbox-.5\ht\pgfnodeparttextbox\relax
     }
+    \anchor{text}{\textanchor}
     \pgf@circ@draw@component{
         \pgf@circ@setcolor
 
@@ -13860,7 +13942,8 @@
 
     \anchor{center}{\origin}% for backwards compatibility
     % the text anchor overlaps the logic symbol
-    \anchor{text}{\pgfpoint{-.5\wd\pgfnodeparttextbox}{\dimexpr.5\dp\pgfnodeparttextbox-.5\ht\pgfnodeparttextbox}}%
+    \savedanchor{\textanchor}{\pgfpoint{-.5\wd\pgfnodeparttextbox}{\dimexpr.5\dp\pgfnodeparttextbox-.5\ht\pgfnodeparttextbox}}%
+    \anchor{text}{\textanchor}
     % create input anchors
     \ifnum#3=1\relax
         \anchor{in}{\southwest\pgfpoint{\pgf@x}{0pt}}% or \step
@@ -14365,7 +14448,7 @@
             \def\inners{\the\pgf@circ@count@b}%
         }%
         \anchor{center}{\pgfpointorigin}
-        \anchor{text}{
+        \savedanchor{\textanchor}{%
             \ifpgf@circ@center@text
                 \pgfpoint{-.5\wd\pgfnodeparttextbox}{\dimexpr.5\dp\pgfnodeparttextbox-.5\ht\pgfnodeparttextbox}
             \else
@@ -14374,6 +14457,7 @@
                 \pgfpoint{\pgf@circ@res@left + \ctikzvalof{left text distance}}{\dimexpr.5\dp\pgfnodeparttextbox-.5\ht\pgfnodeparttextbox}
             \fi
         }
+        \anchor{text}{\textanchor}
         % create input anchors
         \expandafter\pgfutil@g@addto@macro\csname pgf@sh@s@ieeestd #1 port\endcsname{%
             \pgf@circ@count@a=\inputs
@@ -14691,7 +14775,7 @@
             \pgf@y=\pgf@circ@res@up
         }
         \anchor{center}{\pgfpointorigin}
-        \anchor{text}{
+        \savedanchor{\textanchor}{%
             \ifpgf@circ@center@text
                 \pgfpoint{-.5\wd\pgfnodeparttextbox}{\dimexpr.5\dp\pgfnodeparttextbox-.5\ht\pgfnodeparttextbox}
             \else
@@ -14699,6 +14783,7 @@
                 \pgfpoint{-0.8660254*\pgf@circ@res@temp + \ctikzvalof{left text distance}}{\dimexpr.5\dp\pgfnodeparttextbox-.5\ht\pgfnodeparttextbox}
             \fi
         }
+        \anchor{text}{\textanchor}
         % input anchors
         \anchor{in}{\bodyleft\pgf@y=0pt\advance\pgf@x by-\pinlen}
         \anchor{in 1}{\bodyleft\pgf@y=0pt\advance\pgf@x by-\pinlen}
@@ -15032,7 +15117,7 @@
             \pgfmathsetlength{\pgf@y}{#2*\pgf@circ@res@temp*\ctikzvalof{tgate scale}}
         }
         \anchor{center}{\pgfpointorigin}
-        \anchor{text}{
+        \savedanchor{\textanchor}{%
             \ifpgf@circ@center@text
                 \pgfpoint{-.5\wd\pgfnodeparttextbox}{\dimexpr.5\dp\pgfnodeparttextbox-.5\ht\pgfnodeparttextbox}
             \else
@@ -15040,6 +15125,7 @@
                 \pgfpoint{-0.8660254*\pgf@circ@res@temp + \ctikzvalof{left text distance}}{\dimexpr.5\dp\pgfnodeparttextbox-.5\ht\pgfnodeparttextbox}
             \fi
         }
+        \anchor{text}{\textanchor}
         % input anchors
         \anchor{in}{\bodyleft\pgf@y=0pt\advance\pgf@x by-\pinlen}
         \anchor{in 1}{\bodyleft\pgf@y=0pt\advance\pgf@x by-\pinlen}
@@ -16024,20 +16110,6 @@
                 \edef\circlebase{\ctikzvalof{transistor circle/default base in}}
             }}
         % \savedmacro{\thistypeoftr}{\edef\thistypeoftr{#1}}
-        \saveddimen{\extrabodydiodelen}{
-            \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
-            \ifpgf@circuit@fet@bodydiode
-                % try to put the text to the right of the flyback diode
-                \pgfmathsetlength{\pgf@x}{(
-                    \ctikzvalof{tripoles/#1/bodydiode distance}*
-                    \ctikzvalof{tripoles/#1/width} +
-                    \ctikzvalof{tripoles/#1/bodydiode scale}*
-                    \ctikzvalof{bipoles/diode/height}/2
-                )*\pgf@circ@scaled@Rlen}
-            \else
-                \pgf@x=0pt\relax
-            \fi
-        }
         \savedmacro{\scalecircleradius}{
             \edef\scalecircleradius{\ctikzvalof{transistor circle/scale circle radius}}
         }
@@ -16071,6 +16143,49 @@
             \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
             \pgf@xa=-\ctikzvalof{tripoles/#1/width}\pgf@circ@scaled@Rlen
             \pgf@x=\circlebase\pgf@xa
+        }
+        \savedanchor{\textanchor}{
+            %% \northeast
+            \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
+            \pgf@y=\ctikzvalof{tripoles/#1/height}\pgf@circ@scaled@Rlen
+            \pgf@y=.5\pgf@y
+            \pgf@x=0pt
+            % extrabodydiodelen computed here
+            \ifpgf@circuit@transisors@fixlabels
+                % \typeout{DEBUG: Saving base text anchor for transistors, with fix}
+                \pgf@circ@res@other=0pt\relax
+                \ifpgf@circuit@fet@bodydiode
+                    % try to put the text to the right of the flyback diode
+                    \pgfmathsetlength{\pgf@circ@res@other}{(
+                        \ctikzvalof{tripoles/#1/bodydiode distance}*
+                        \ctikzvalof{tripoles/#1/width} +
+                        \ctikzvalof{tripoles/#1/bodydiode scale}*
+                        \ctikzvalof{bipoles/diode/height}/2
+                    )*\pgf@circ@scaled@Rlen}
+                \fi
+                \ifpgf@circ@trcircle
+                    % in this case, the  offset that wins is the circle one
+                    % left
+                    \pgf@xa=-\ctikzvalof{tripoles/#1/width}\pgf@circ@scaled@Rlen
+                    \pgf@xa=\circlebase\pgf@xa % this is the base point of the circle
+                    % northeast
+                    \pgf@yb=\ctikzvalof{tripoles/#1/height}\pgf@circ@scaled@Rlen % y of the left point of circle
+                    \pgf@yb=.5\pgf@yb
+                    \pgf@xb=\pgf@circ@res@other % this is the x of the right points of the circle
+                    %
+                    \pgf@yb=\ctikzvalof{tripoles/#1/bodydiode conn}\pgf@yb %this is #3 of the circle
+                    % find the position of the text as 2*\circleradius+ \circleleft
+                    \pgfmathsetlength{\pgf@circ@res@other}{2*((\pgf@xb)-(\pgf@xa)+(\pgf@yb)*(\pgf@yb)/((\pgf@xb)-(\pgf@xa)))/2*\scalecircleradius + \pgf@xa}
+                \fi
+                \pgf@x=\pgf@circ@res@other
+                \advance\pgf@x by 0.05\pgf@circ@scaled@Rlen\relax
+                \pgf@y=\dimexpr.5\dp\pgfnodeparttextbox-.5\ht\pgfnodeparttextbox\relax
+            \else % fixlabels
+                % \typeout{DEBUG: Saving base text anchor for transistors, without fix}
+                \pgf@y=.7\pgf@y
+                \pgf@x= \pgf@circ@scaled@Rlen
+                \pgf@x=0.1\pgf@x
+            \fi
         }
         \anchor{circle center}{
             \pgf@y=0pt\pgf@x=\circleleft\advance\pgf@x by\circleradius
@@ -16152,27 +16267,7 @@
                 \pgfmathsetlength{\pgf@x}{\pgf@xb+2*\pgf@circ@res@other}
             \fi
         }
-        \anchor{text}{
-            \northeast
-            \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
-            \ifpgf@circuit@transisors@fixlabels
-                \ifpgf@circuit@fet@bodydiode
-                    \advance \pgf@x by \extrabodydiodelen
-                \fi
-                \ifpgf@circ@trcircle
-                    \left\pgf@xa=\pgf@x
-                    \pgfmathsetlength{\pgf@x}{\circleleft+2*\circleradius}
-                    % \advance \pgf@x by \circleradius
-                \fi
-                % add a bit of space to avoid central (substrate) terminal if drawn
-                \advance\pgf@x by 0.05\pgf@circ@scaled@Rlen\relax
-                \pgf@y=\dimexpr.5\dp\pgfnodeparttextbox-.5\ht\pgfnodeparttextbox\relax
-            \else
-                \pgf@y=.7\pgf@y
-                \pgf@x= \pgf@circ@scaled@Rlen
-                \pgf@x=0.1\pgf@x
-            \fi
-        }
+        \anchor{text}{\textanchor}
         \anchor{pathstart}{ % south
             \northeast
             \pgf@y=-\pgf@y
@@ -16744,7 +16839,25 @@
         \anchor{south west}{\southwest}
         \anchor{south east}{\southeast}
 
-        \anchor{text}{\northeast\pgf@y=\dimexpr.5\dp\pgfnodeparttextbox-.5\ht\pgfnodeparttextbox\relax}
+        \savedanchor{\textanchor}{%
+            %% \northeast
+            \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
+            \pgfmathsetlength{\pgf@circ@res@step}{%
+                \ctikzvalof{tripoles/bjt/height}*\ctikzvalof{tripoles/bjt/multi height}*
+                \ctikzvalof{\ctikzclass/scale}*\pgf@circ@Rlen}
+            \ifnum\cdir> 0
+                \edef\numup{\numC}\edef\numdown{\numE}
+            \else
+                \edef\numup{\numE}\edef\numdown{\numC}
+            \fi
+            \pgfmathsetlength{\pgf@y}{0.5*\ctikzvalof{tripoles/bjt/height}\pgf@circ@scaled@Rlen
+                + (\numup-1)*\pgf@circ@res@step+\pgfverticaltransformationadjustment*.5*\pgflinewidth
+                + \ctikzvalof{tripoles/bjt/pins width}*\ctikzvalof{\ctikzclass/scale}*\pgf@circ@Rlen}
+            \pgf@x=\ctikzvalof{tripoles/bjt/width}\pgf@circ@scaled@Rlen
+            \pgf@x=.5\pgf@x
+            \pgf@y=\dimexpr.5\dp\pgfnodeparttextbox-.5\ht\pgfnodeparttextbox\relax
+        }
+        \anchor{text}{\textanchor}
         \anchor{B}{\northeast\pgf@y=0cm\pgf@x=-\pgf@x\advance\pgf@x by -\external}
         \anchor{base}{\basedimension\pgf@y=0cm\pgf@x=-\pgf@x\advance\pgf@x by -\external}
         \anchor{nobase}{\basedimension\pgf@y=0cm\pgf@x=-\pgf@x}
@@ -17152,17 +17265,34 @@
                 \ctikzvalof{tripoles/#1/width}*\pgf@circ@scaled@Rlen}
             \advance \pgf@x by \pgf@xa
         }
-        \anchor{text}{% need a different text: no circle, shift to the right
-            \northeast
+        \savedanchor{\textanchor}{
+            % need a different text: no circle, shift to the right
+            %% \northeast
             \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
+            \pgf@y=\ctikzvalof{tripoles/#1/height}\pgf@circ@scaled@Rlen
+            \pgf@y=.5\pgf@y
+            \pgf@x=0pt
+            %% \gfettextoffset calculation here
+            \ifpgf@circuit@fet@bodydiode
+                % try to put the text to the right of the flyback diode
+                \pgfmathsetlength{\pgf@circ@res@other}{(
+                    \ctikzvalof{tripoles/#1/bodydiode distance}*
+                    \ctikzvalof{tripoles/#1/width} +
+                    \ctikzvalof{tripoles/#1/bodydiode scale}*
+                    \ctikzvalof{bipoles/diode/height}/2
+                )*\pgf@circ@scaled@Rlen}
+            \else
+                \pgfmathsetlength{\pgf@circ@res@other}{\ctikzvalof{tripoles/#1/base width}*
+                    \ctikzvalof{tripoles/#1/width}*\pgf@circ@scaled@Rlen}
+            \fi
             \ifpgf@circuit@transisors@fixlabels
-                \ifpgf@circuit@fet@bodydiode
-                    \advance \pgf@x by \extrabodydiodelen
-                \else
-                    \pgfmathsetlength{\pgf@xa}{\ctikzvalof{tripoles/#1/base width}*
-                        \ctikzvalof{tripoles/#1/width}*\pgf@circ@scaled@Rlen}
-                    \advance \pgf@x by \pgf@xa
-                \fi
+                % \ifpgf@circuit@fet@bodydiode
+                    \advance \pgf@x by \pgf@circ@res@other
+                % \else
+                    % \pgfmathsetlength{\pgf@xa}{\ctikzvalof{tripoles/#1/base width}*
+                        % \ctikzvalof{tripoles/#1/width}*\pgf@circ@scaled@Rlen}
+                    % \advance \pgf@x by \pgf@xa
+                % \fi
                 % no circle for gfets
                 % add a bit of space to avoid central (substrate) terminal if drawn
                 \advance\pgf@x by 0.05\pgf@circ@scaled@Rlen\relax
@@ -17173,6 +17303,7 @@
                 \pgf@x=0.1\pgf@x
             \fi
         }
+        \anchor{text}{\textanchor}
     }
     {
         % no circle for gfets (clearly!)
@@ -18585,6 +18716,35 @@
 %%>>>
 
 %% Nodes for amplifiers%<<<
+%% Amplifiers should be rewritten from scratch to factor out common things.
+%% Better, if there where a anchor alias facility, rewrite them in terms of muxdemux-es
+%%
+%% Macro support for border anchors
+\def\pgf@circ@amps@leftedge#1{%
+    \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
+    \pgf@x=-\ctikzvalof{tripoles/#1/width}\pgf@circ@scaled@Rlen
+    \pgf@x=.5\pgf@x
+    \pgf@x = \ctikzvalof{tripoles/#1/port width}\pgf@x
+    \pgf@y=0pt\relax
+}
+\def\pgf@circ@amps@setup@letfedge#1{%
+    \savedanchor\leftedge{%
+        \pgf@circ@amps@leftedge{#1}
+    }
+    \anchor{leftedge}{\leftedge}
+}
+\def\pgf@circ@amps@setup@text#1{%
+    \savedanchor{\textanchor}{%
+        \ifpgf@circ@center@text
+            \pgf@x=\dimexpr -.6\wd\pgfnodeparttextbox\relax
+        \else
+            \pgf@circ@amps@leftedge{#1}
+            \pgfmathsetlength{\pgf@x}{\pgf@x + \ctikzvalof{left text distance}}
+        \fi
+        \pgf@y=\dimexpr.5\dp\pgfnodeparttextbox-.5\ht\pgfnodeparttextbox\relax
+    }
+    \anchor{text}{\textanchor}
+}
 %% operational and instrumentation amplifiers
 
 \pgfdeclareshape{op amp}
@@ -18686,16 +18846,7 @@
         \left
         \pgf@x=-\pgf@x
     }
-
-    % support for border anchors
-    \savedanchor\leftedge{%
-        \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
-        \pgf@x=-\ctikzvalof{tripoles/op amp/width}\pgf@circ@scaled@Rlen
-        \pgf@x=.5\pgf@x
-        \pgf@x = \ctikzvalof{tripoles/op amp/port width}\pgf@x
-        \pgf@y=0pt
-    }
-    \anchor{leftedge}{\leftedge}
+    \pgf@circ@amps@setup@letfedge{op amp}
     \anchor{rightedge}{\leftedge \pgf@x =-\pgf@x }
     \anchor{bin up}{
         \inOneFixed
@@ -18725,17 +18876,7 @@
     \anchor{north east}{ \northwest \pgf@x=-\pgf@x }
     \anchor{north west}{ \northwest }
     \anchor{south east}{ \northwest \pgf@x=-\pgf@x \pgf@y=-\pgf@y }
-
-    \anchor{text}{
-        \ifpgf@circ@center@text
-            \pgf@x=\dimexpr -.6\wd\pgfnodeparttextbox\relax
-        \else
-            \leftedge
-            \pgfmathsetlength{\pgf@x}{\pgf@x + \ctikzvalof{left text distance}}
-        \fi
-        \pgf@y=\dimexpr.5\dp\pgfnodeparttextbox-.5\ht\pgfnodeparttextbox\relax
-    }
-
+    \pgf@circ@amps@setup@text{op amp}
     \pgf@circ@draw@component{
         \pgf@circ@setcolor
         \northwest
@@ -18863,14 +19004,7 @@
         \pgf@x=-\pgf@x
     }
     % support for border anchors
-    \savedanchor\leftedge{%
-        \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
-        \pgf@x=-\ctikzvalof{tripoles/en amp/width}\pgf@circ@scaled@Rlen
-        \pgf@x=.5\pgf@x
-        \pgf@x = \ctikzvalof{tripoles/en amp/port width}\pgf@x
-        \pgf@y=0pt
-    }
-    \anchor{leftedge}{\leftedge}
+    \pgf@circ@amps@setup@letfedge{en amp}
     \anchor{rightedge}{\leftedge \pgf@x =-\pgf@x }
     \anchor{bin up}{
         \inOneFixed
@@ -18900,16 +19034,7 @@
     \anchor{north east}{ \northwest \pgf@x=-\pgf@x }
     \anchor{north west}{ \northwest }
     \anchor{south east}{ \northwest \pgf@x=-\pgf@x \pgf@y=-\pgf@y }
-    \anchor{text}{
-        \ifpgf@circ@center@text
-            \pgf@x=\dimexpr -.6\wd\pgfnodeparttextbox\relax
-        \else
-            \leftedge
-            \pgfmathsetlength{\pgf@x}{\pgf@x + \ctikzvalof{left text distance}}
-        \fi
-        \pgf@y=\dimexpr.5\dp\pgfnodeparttextbox-.5\ht\pgfnodeparttextbox\relax
-    }
-
+    \pgf@circ@amps@setup@text{en amp}
     \pgf@circ@draw@component{
         \pgf@circ@setcolor
         \northwest
@@ -19064,14 +19189,7 @@
         \pgf@x=-\ctikzvalof{tripoles/fd op amp/port width}\pgf@x
     }
     % support for border anchors
-    \savedanchor\leftedge{%
-        \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
-        \pgf@x=-\ctikzvalof{tripoles/fd op amp/width}\pgf@circ@scaled@Rlen
-        \pgf@x=.5\pgf@x
-        \pgf@x = \ctikzvalof{tripoles/fd op amp/port width}\pgf@x
-        \pgf@y=0pt
-    }
-    \anchor{leftedge}{\leftedge}
+    \pgf@circ@amps@setup@letfedge{fd op amp}
     \anchor{rightedge}{\leftedge \pgf@x =-\pgf@x }
     \anchor{bin up}{
         \inOneFixed
@@ -19142,15 +19260,7 @@
     \anchor{north east}{ \northwest \pgf@x=-\ctikzvalof{tripoles/fd op amp/port width}\pgf@x }
     \anchor{north west}{ \northwest }
     \anchor{south east}{ \northwest \pgf@x=-\ctikzvalof{tripoles/fd op amp/port width}\pgf@x \pgf@y=-\pgf@y }
-    \anchor{text}{
-        \ifpgf@circ@center@text
-            \pgf@x=\dimexpr -.6\wd\pgfnodeparttextbox\relax
-        \else
-            \leftedge
-            \pgfmathsetlength{\pgf@x}{\pgf@x + \ctikzvalof{left text distance}}
-        \fi
-        \pgf@y=\dimexpr.5\dp\pgfnodeparttextbox-.5\ht\pgfnodeparttextbox\relax
-    }
+    \pgf@circ@amps@setup@text{fd op amp}
     \pgf@circ@draw@component{
         \pgf@circ@setcolor
 
@@ -19396,14 +19506,7 @@
         \pgf@y=-\pgf@y
     }
     % support for border anchors
-    \savedanchor\leftedge{%
-        \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
-        \pgf@x=-\ctikzvalof{tripoles/fd inst amp/width}\pgf@circ@scaled@Rlen
-        \pgf@x=.5\pgf@x
-        \pgf@x = \ctikzvalof{tripoles/fd inst amp/port width}\pgf@x
-        \pgf@y=0pt
-    }
-    \anchor{leftedge}{\leftedge}
+    \pgf@circ@amps@setup@letfedge{fd inst amp}
     \anchor{rightedge}{\leftedge \pgf@x =-\pgf@x }
     \anchor{bin up}{
         \inOneFixed
@@ -19458,16 +19561,7 @@
     \anchor{north east}{ \northwest \pgf@x=-\pgf@x }
     \anchor{north west}{ \northwest }
     \anchor{south east}{ \northwest \pgf@x=-\pgf@x \pgf@y=-\pgf@y }
-    \anchor{text}{
-        \ifpgf@circ@center@text
-            \pgf@x=\dimexpr -.6\wd\pgfnodeparttextbox\relax
-        \else
-            \leftedge
-            \pgfmathsetlength{\pgf@x}{\pgf@x + \ctikzvalof{left text distance}}
-        \fi
-        \pgf@y=\dimexpr.5\dp\pgfnodeparttextbox-.5\ht\pgfnodeparttextbox\relax
-    }
-
+    \pgf@circ@amps@setup@text{fd inst amp}
     % let's start drawing the component
     \pgf@circ@draw@component{
         \pgf@circ@setcolor
@@ -19623,14 +19717,7 @@
         \pgf@x=-\pgf@x
     }
     % support for border anchors
-    \savedanchor\leftedge{%
-        \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
-        \pgf@x=-\ctikzvalof{tripoles/gm amp/width}\pgf@circ@scaled@Rlen
-        \pgf@x=.5\pgf@x
-        \pgf@x = \ctikzvalof{tripoles/gm amp/port width}\pgf@x
-        \pgf@y=0pt
-    }
-    \anchor{leftedge}{\leftedge}
+    \pgf@circ@amps@setup@letfedge{gm amp}
     \anchor{rightedge}{\leftedge \pgf@x =-\pgf@x }
     \anchor{bin up}{
         \inOneFixed
@@ -19667,16 +19754,7 @@
     \anchor{north east}{ \northwest \pgf@x=-\pgf@x }
     \anchor{north west}{ \northwest }
     \anchor{south east}{ \northwest \pgf@x=-\pgf@x \pgf@y=-\pgf@y }
-
-    \anchor{text}{
-        \ifpgf@circ@center@text
-            \pgf@x=\dimexpr -.6\wd\pgfnodeparttextbox\relax
-        \else
-            \leftedge
-            \pgfmathsetlength{\pgf@x}{\pgf@x + \ctikzvalof{left text distance}}
-        \fi
-        \pgf@y=\dimexpr.5\dp\pgfnodeparttextbox-.5\ht\pgfnodeparttextbox\relax
-    }
+    \pgf@circ@amps@setup@text{gm amp}
     \pgf@circ@draw@component{
         \pgf@circ@setcolor
 
@@ -19850,14 +19928,7 @@
         \pgf@x=-\pgf@x
     }
     % support for border anchors
-    \savedanchor\leftedge{%
-        \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
-        \pgf@x=-\ctikzvalof{tripoles/inst amp/width}\pgf@circ@scaled@Rlen
-        \pgf@x=.5\pgf@x
-        \pgf@x = \ctikzvalof{tripoles/inst amp/port width}\pgf@x
-        \pgf@y=0pt
-    }
-    \anchor{leftedge}{\leftedge}
+    \pgf@circ@amps@setup@letfedge{inst amp}
     \anchor{rightedge}{\leftedge \pgf@x =-\pgf@x }
     \anchor{bin up}{
         \inOneFixed
@@ -19894,17 +19965,7 @@
     \anchor{north east}{ \northwest \pgf@x=-\pgf@x }
     \anchor{north west}{ \northwest }
     \anchor{south east}{ \northwest \pgf@x=-\pgf@x \pgf@y=-\pgf@y }
-
-    \anchor{text}{
-        \ifpgf@circ@center@text
-            \pgf@x=\dimexpr -.6\wd\pgfnodeparttextbox\relax
-        \else
-            \leftedge
-            \pgfmathsetlength{\pgf@x}{\pgf@x + \ctikzvalof{left text distance}}
-        \fi
-        \pgf@y=\dimexpr.5\dp\pgfnodeparttextbox-.5\ht\pgfnodeparttextbox\relax
-    }
-
+    \pgf@circ@amps@setup@text{inst amp}
     % let's start drawing the component
     \pgf@circ@draw@component{
         \pgf@circ@setcolor
@@ -20120,14 +20181,7 @@
         \pgf@x=-\pgf@x
     }
     % support for border anchors
-    \savedanchor\leftedge{%
-        \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
-        \pgf@x=-\ctikzvalof{tripoles/inst amp ra/width}\pgf@circ@scaled@Rlen
-        \pgf@x=.5\pgf@x
-        \pgf@x = \ctikzvalof{tripoles/inst amp ra/port width}\pgf@x
-        \pgf@y=0pt
-    }
-    \anchor{leftedge}{\leftedge}
+    \pgf@circ@amps@setup@letfedge{inst amp ra}
     \anchor{rightedge}{\leftedge \pgf@x =-\pgf@x }
     \anchor{bin up}{
         \inOneFixed
@@ -20182,17 +20236,7 @@
     \anchor{north east}{ \northwest \pgf@x=-\pgf@x }
     \anchor{north west}{ \northwest }
     \anchor{south east}{ \northwest \pgf@x=-\pgf@x \pgf@y=-\pgf@y }
-
-    \anchor{text}{
-        \ifpgf@circ@center@text
-            \pgf@x=\dimexpr -.6\wd\pgfnodeparttextbox\relax
-        \else
-            \leftedge
-            \pgfmathsetlength{\pgf@x}{\pgf@x + \ctikzvalof{left text distance}}
-        \fi
-        \pgf@y=\dimexpr.5\dp\pgfnodeparttextbox-.5\ht\pgfnodeparttextbox\relax
-    }
-
+    \pgf@circ@amps@setup@text{inst amp ra}
     % drawing of the component
     \pgf@circ@draw@component{
         \pgf@circ@setcolor
@@ -20319,17 +20363,20 @@
         \pgf@y=0pt
         \pgf@x=-0.7\pgf@x
     }
-
-    \anchor{text}{
+    \savedanchor{\textanchor}{
         \ifpgf@circ@center@text
             \pgf@x=\dimexpr -.6\wd\pgfnodeparttextbox\relax
         \else
-            \northwest
+            \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
+            \pgf@y=\ctikzvalof{bipoles/buffer/height}\pgf@circ@scaled@Rlen
+            \pgf@y=.5\pgf@y
+            \pgf@x=-\ctikzvalof{bipoles/buffer/width}\pgf@circ@scaled@Rlen
+            \pgf@x=.5\pgf@x
             \pgfmathsetlength{\pgf@x}{0.7*\pgf@x + \ctikzvalof{left text distance}}
         \fi
         \pgf@y=\dimexpr.5\dp\pgfnodeparttextbox-.5\ht\pgfnodeparttextbox\relax
     }
-
+    \anchor{text}{\textanchor}
     \pgf@circ@draw@component{
         \pgf@circ@setcolor
 
@@ -20419,14 +20466,7 @@
         \pgf@y=-\pgf@y
     }
     % support for border anchors
-    \savedanchor\leftedge{%
-        \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
-        \pgf@x=-\ctikzvalof{tripoles/plain amp/width}\pgf@circ@scaled@Rlen
-        \pgf@x=.5\pgf@x
-        \pgf@x = \ctikzvalof{tripoles/plain amp/port width}\pgf@x
-        \pgf@y=0pt
-    }
-    \anchor{leftedge}{\leftedge}
+    \pgf@circ@amps@setup@letfedge{plain amp}
     \anchor{rightedge}{\leftedge \pgf@x =-\pgf@x }
     \anchor{bin up}{
         \inOneFixed
@@ -20480,17 +20520,7 @@
         \pgf@y=0pt
         \pgf@x=-\pgf@x
     }
-
-    \anchor{text}{
-        \ifpgf@circ@center@text
-            \pgf@x=\dimexpr -.6\wd\pgfnodeparttextbox\relax
-        \else
-            \leftedge
-            \pgfmathsetlength{\pgf@x}{\pgf@x + \ctikzvalof{left text distance}}
-        \fi
-        \pgf@y=\dimexpr.5\dp\pgfnodeparttextbox-.5\ht\pgfnodeparttextbox\relax
-    }
-
+    \pgf@circ@amps@setup@text{plain amp}
     \pgf@circ@draw@component{
         \pgf@circ@setcolor
 
@@ -20569,13 +20599,7 @@
         \inOne
     }
     % support for border anchors
-    \savedanchor\leftedge{%
-        \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
-        \pgf@x=-\ctikzvalof{tripoles/plain amp/width}\pgf@circ@scaled@Rlen
-        \pgf@x=.5\pgf@x
-        \pgf@x = \ctikzvalof{tripoles/plain amp/port width}\pgf@x
-        \pgf@y=0pt
-    }
+    \pgf@circ@amps@setup@letfedge{plain amp}% Warning: plain mono amp using plain amp settings
     \anchor{leftedge}{\leftedge}
     \anchor{rightedge}{\leftedge \pgf@x =-\pgf@x }
     \anchor{bin}{
@@ -20616,16 +20640,17 @@
         \pgf@y=0pt
         \pgf@x=-\pgf@x
     }
-
-    \anchor{text}{
+    \pgf@circ@amps@setup@text{plain amp}% Warning: plain mono amp using plain amp settings
+    \savedanchor{\textanchor}{%
         \ifpgf@circ@center@text
             \pgf@x=\dimexpr -.6\wd\pgfnodeparttextbox\relax
         \else
-            \leftedge
+            \pgf@circ@amps@leftedge{plain amp}% Warning: plain mono amp using plain amp settings
             \pgfmathsetlength{\pgf@x}{\pgf@x + \ctikzvalof{left text distance}}
         \fi
         \pgf@y=\dimexpr.5\dp\pgfnodeparttextbox-.5\ht\pgfnodeparttextbox\relax
     }
+    \anchor{text}{\textanchor}
     \pgf@circ@draw@component{
         \pgf@circ@setcolor
 
@@ -20695,14 +20720,7 @@
     \anchor{in}{
         \inOne
     }
-    \savedanchor\leftedge{%
-        \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
-        \pgf@x=-\ctikzvalof{tripoles/gm amp/width}\pgf@circ@scaled@Rlen
-        \pgf@x=.5\pgf@x
-        \pgf@x = \ctikzvalof{tripoles/gm amp/port width}\pgf@x
-        \pgf@y=0pt
-    }
-    \anchor{leftedge}{\leftedge}
+    \pgf@circ@amps@setup@letfedge{gm amp}% Warning plain gm mono amp using gm amp settings
     \anchor{rightedge}{\leftedge \pgf@x =-\pgf@x }
     \anchor{bin}{
         \inOne
@@ -20742,16 +20760,7 @@
         \pgf@y=0pt
         \pgf@x=-\pgf@x
     }
-
-    \anchor{text}{
-        \ifpgf@circ@center@text
-            \pgf@x=\dimexpr -.6\wd\pgfnodeparttextbox\relax
-        \else
-            \leftedge
-            \pgfmathsetlength{\pgf@x}{\pgf@x + \ctikzvalof{left text distance}}
-        \fi
-        \pgf@y=\dimexpr.5\dp\pgfnodeparttextbox-.5\ht\pgfnodeparttextbox\relax
-    }
+    \pgf@circ@amps@setup@text{gm amp}% Warning plain gm mono amp using gm amp settings
     \pgf@circ@draw@component{
         \pgf@circ@setcolor
 
@@ -20878,11 +20887,12 @@
         %\pgfpointorigin
         %\pgfpathmoveto{\pgfpointpolar{75}{\pgf@circ@res@step}}%not working in a scaled tikzpicture
     }
-    \anchor{text}{
+    \savedanchor{\textanchor}{
         \pgfpointorigin
         \advance \pgf@x by -.5\wd\pgfnodeparttextbox
         \advance \pgf@y by -.5\ht\pgfnodeparttextbox
     }
+    \anchor{text}{\textanchor}
     \anchor{left}{%
         \northwest
         \pgf@y=0pt
@@ -21216,10 +21226,20 @@
         % geo anchors based on north-west
         \pgfcirc@northwest@symmetric@geoanchors
         % text anchor
-        \anchor{text}{%
-            \northwest\pgf@x=-\pgf@x
+        \savedanchor{\textanchor}{%
+            %% \northwest
+            \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
+            \pgf@circ@res@up=\ctikzvalof{tubes/height}\pgf@circ@scaled@Rlen
+            \pgf@circ@res@right=\ctikzvalof{tubes/width}\pgf@circ@scaled@Rlen
+            % x and y should be half the Rlen
+            \pgf@y=\pgf@circ@res@up
+            \pgf@y=.5\pgf@y
+            \pgf@x=-\pgf@circ@res@right
+            \pgf@x=.5\pgf@x
+            \pgf@x=-\pgf@x
             \pgf@y=-.5\ht\pgfnodeparttextbox
         }
+        \anchor{text}{\textanchor}
         % specific anchors
         \anchor{anode} {%
             \northwest
@@ -21842,10 +21862,13 @@
         \anchor{inner dot B2}{\innerdot\pgf@y=-\pgf@y}
         \anchor{outer dot B2}{\outerdot\pgf@y=-\pgf@y}
         % text above
-        \anchor{text}{
+        \savedanchor{\textoffset}{%
+            \pgf@x= -.5\wd\pgfnodeparttextbox  % (set)
+            \pgf@y= .6\ht\pgfnodeparttextbox   % (sum)
+        }
+        \anchor{text}{\pgfextractx{\pgf@xa}{\textoffset}\pgfextracty{\pgf@ya}{\textoffset}
             \northwest
-            \pgf@x=\dimexpr -.5\wd\pgfnodeparttextbox\relax
-            \advance\pgf@y by .6\ht\pgfnodeparttextbox\relax
+            \pgf@x=\pgf@xa \advance\pgf@y by \pgf@ya
         }
         #3%
         \pgf@circ@draw@component{
@@ -22108,10 +22131,13 @@
         \anchor{inner dot B2}{\innerdot\pgf@y=-\pgf@y}
         \anchor{outer dot B2}{\outerdot\pgf@y=-\pgf@y}
         % text above
-        \anchor{text}{
+        \savedanchor{\textoffset}{%
+            \pgf@x= -.5\wd\pgfnodeparttextbox  % (set)
+            \pgf@y= .6\ht\pgfnodeparttextbox   % (sum)
+        }
+        \anchor{text}{\pgfextractx{\pgf@xa}{\textoffset}\pgfextracty{\pgf@ya}{\textoffset}
             \northwest
-            \pgf@x=\dimexpr -.5\wd\pgfnodeparttextbox\relax
-            \advance\pgf@y by .6\ht\pgfnodeparttextbox\relax
+            \pgf@x=\pgf@xa \advance\pgf@y by \pgf@ya
         }
         #3%
         \pgf@circ@draw@component{
@@ -23695,9 +23721,14 @@
     \anchor{right down}{\northwest\pgf@x=-\pgf@x\pgf@y=-0.5\pgf@y}
     \anchor{right up}{\northwest\pgf@x=-\pgf@x\pgf@y=0.5\pgf@y}
     \anchor{left up}{\northwest\pgf@y=0.5\pgf@y}
-    \anchor{text}{\northwest
-        \advance\pgf@y\dimexpr-.5\dp\pgfnodeparttextbox+.5\ht\pgfnodeparttextbox\relax
-        \pgf@x=-.5\wd\pgfnodeparttextbox\relax}
+    \savedanchor{\textoffset}{%
+        \pgf@x= -.5\wd\pgfnodeparttextbox  % (set)
+        \pgf@y= \dimexpr-.5\dp\pgfnodeparttextbox+.5\ht\pgfnodeparttextbox\relax % (sum)
+    }
+    \anchor{text}{\pgfextractx{\pgf@xa}{\textoffset}\pgfextracty{\pgf@ya}{\textoffset}
+        \northwest
+        \pgf@x=\pgf@xa \advance\pgf@y by \pgf@ya
+    }
 }
 % draw the body rectangle and circle if and when needed
 \def\pgf@circ@circular@rf@box@circle{%
@@ -23787,11 +23818,13 @@
     % build the anchor set --- the center of an oscillator is on the  right
     \anchor{center}{\northwest\pgf@y=0pt\pgf@x=-\pgf@x}
     \pgf@circ@circular@rf@anchors{oscillator}
-    % border anchors
-    \anchor{text}{
-        \pgf@x=-2\pgf@x
-        \advance \pgf@x by -.5\wd\pgfnodeparttextbox
-        \advance \pgf@y by -1.5\ht\pgfnodeparttextbox
+    % text anchor, in the south-east corner
+    \savedanchor{\textheight}{%
+        \pgf@y= \ht\pgfnodeparttextbox %
+    }
+    \anchor{text}{\pgfextracty{\pgf@ya}{\textheight}
+        \northwest \pgf@x=-1.1\pgf@x \pgf@y=-\pgf@y
+        \advance\pgf@y by -0.1\pgf@ya
     }
     \pgf@circ@draw@component{
         \pgf@circ@setcolor
@@ -23863,10 +23896,13 @@
     \anchor{right down}{\northwest\pgf@x=-\pgf@x\pgf@y=-0.5\pgf@y}
     \anchor{right up}{\northwest\pgf@x=-\pgf@x\pgf@y=0.5\pgf@y}
     \anchor{left up}{\northwest\pgf@y=0.5\pgf@y}
-    \anchor{text}{
-        \pgf@x=-2\pgf@x
-        \advance \pgf@x by -.5\wd\pgfnodeparttextbox
-        \advance \pgf@y by -1.5\ht\pgfnodeparttextbox
+    % text anchor, in the south-east corner
+    \savedanchor{\textheight}{%
+        \pgf@y= \ht\pgfnodeparttextbox %
+    }
+    \anchor{text}{\pgfextracty{\pgf@ya}{\textheight}
+        \northwest \pgf@x=-1.1\pgf@x \pgf@y=-\pgf@y
+        \advance\pgf@y by -0.1\pgf@ya
     }
     \pgf@circ@draw@component{
         \pgf@circ@setcolor
@@ -23937,10 +23973,13 @@
     \anchor{right down}{\northwest\pgf@x=-\pgf@x\pgf@y=-0.5\pgf@y}
     \anchor{right up}{\northwest\pgf@x=-\pgf@x\pgf@y=0.5\pgf@y}
     \anchor{left up}{\northwest\pgf@y=0.5\pgf@y}
-    \anchor{text}{
+    \savedanchor{\textoffset}{%
+        \pgf@y =  0.5\ht\pgfnodeparttextbox % (add)
+        \pgf@x = -0.5\wd\pgfnodeparttextbox % (set)
+    }
+    \anchor{text}{\pgfextractx{\pgf@xa}{\textoffset}\pgfextracty{\pgf@ya}{\textoffset}%
         \northwest
-        \advance \pgf@y by 0.5\ht\pgfnodeparttextbox
-        \pgf@x=-.5\wd\pgfnodeparttextbox
+        \pgf@x = \pgf@xa \advance \pgf@y by \pgf@ya
     }
     \pgf@circ@draw@component{
         \pgf@circ@setcolor
@@ -24017,10 +24056,13 @@
     \anchor{right down}{\northwest\pgf@x=-\pgf@x\pgf@y=-0.5\pgf@y}
     \anchor{right up}{\northwest\pgf@x=-\pgf@x\pgf@y=0.5\pgf@y}
     \anchor{left up}{\northwest\pgf@y=0.5\pgf@y}
-    \anchor{text}{
+    \savedanchor{\textoffset}{%
+        \pgf@y =  0.5\ht\pgfnodeparttextbox % (add)
+        \pgf@x = -0.5\wd\pgfnodeparttextbox % (set)
+    }
+    \anchor{text}{\pgfextractx{\pgf@xa}{\textoffset}\pgfextracty{\pgf@ya}{\textoffset}%
         \northwest
-        \advance \pgf@y by 0.5\ht\pgfnodeparttextbox
-        \pgf@x=-.5\wd\pgfnodeparttextbox
+        \pgf@x = \pgf@xa \advance \pgf@y by \pgf@ya
     }
     \pgf@circ@draw@component{
         \pgf@circ@setcolor
@@ -24107,11 +24149,11 @@
     \anchor{right down}{\northwest\pgf@x=-\pgf@x\pgf@y=-0.5\pgf@y}
     \anchor{right up}{\northwest\pgf@x=-\pgf@x\pgf@y=0.5\pgf@y}
     \anchor{left up}{\northwest\pgf@y=0.5\pgf@y}
-    \anchor{text}{
-        \northwest
-        \pgf@y=-.5\ht\pgfnodeparttextbox
-        \pgf@x=-.2\wd\pgfnodeparttextbox
+    \savedanchor{\textanchor}{%
+        \pgf@y = -.5\ht\pgfnodeparttextbox % (set)
+        \pgf@x = -.2\wd\pgfnodeparttextbox % (set)
     }
+    \anchor{text}{\textanchor}
     \pgf@circ@draw@component{
         \pgf@circ@setcolor
         \pgf@circ@scaled@Rlen=\scaledRlen
@@ -24152,7 +24194,7 @@
     }
 }
 
-%% couplers generics
+%% four-ports generics
 \long\def\pgfcircdeclarefourport#1#2{
     \pgfdeclareshape{#1}{
         \savedmacro{\ctikzclass}{\edef\ctikzclass{blocks}}
@@ -24183,10 +24225,13 @@
         \anchor{2}{\northwest\pgf@x=-\pgf@x\pgf@y=-0.5\pgf@y}
         \anchor{3}{\northwest\pgf@x=-\pgf@x\pgf@y=0.5\pgf@y}
         \anchor{4}{\northwest\pgf@y=0.5\pgf@y}
-        \anchor{text}{
+        \savedanchor{\textoffset}{%
+            \pgf@y =  0.5\ht\pgfnodeparttextbox % (add)
+            \pgf@x = -0.5\wd\pgfnodeparttextbox % (set)
+        }
+        \anchor{text}{\pgfextractx{\pgf@xa}{\textoffset}\pgfextracty{\pgf@ya}{\textoffset}%
             \northwest
-            \advance \pgf@y by 0.5\ht\pgfnodeparttextbox
-            \pgf@x=-.5\wd\pgfnodeparttextbox
+            \pgf@x = \pgf@xa \advance \pgf@y by \pgf@ya
         }
         \pgf@circ@draw@component{
             \pgf@circ@setcolor
@@ -24285,10 +24330,13 @@
     \anchor{in}{ \northwest \pgf@y=0pt }
     \anchor{mod}{ \northwest \pgf@x=0pt }
     \anchor{out}{ \northwest \pgf@x=-\pgf@x \pgf@y=0pt }
-    \anchor{text}{
+    \savedanchor{\textoffset}{%
+        \pgf@y =  0.5\ht\pgfnodeparttextbox % (add)
+        \pgf@x = -0.5\wd\pgfnodeparttextbox % (set)
+    }
+    \anchor{text}{\pgfextractx{\pgf@xa}{\textoffset}\pgfextracty{\pgf@ya}{\textoffset}%
         \northwest
-        \advance \pgf@y by 0.5\ht\pgfnodeparttextbox
-        \pgf@x=-.5\wd\pgfnodeparttextbox
+        \pgf@x = \pgf@xa \advance \pgf@y by \pgf@ya
     }
     \pgf@circ@draw@component{
         \pgf@circ@setcolor
@@ -24501,14 +24549,14 @@
           \expandafter\pgf@circ@pins@list
           \expandafter{\pgf@circ@temp}%
       }%
-    \savedanchor\centerpoint{%
+    \savedanchor\textanchor{%
         \pgf@x=-.5\wd\pgfnodeparttextbox%
         \pgf@y=-.5\ht\pgfnodeparttextbox%
         \advance\pgf@y by+.5\dp\pgfnodeparttextbox%
     }%
     \savedanchor\origin{\pgfpoint{0pt}{0pt}}
     \anchor{center}{\origin}
-    \anchor{text}{\centerpoint}% to adjust text
+    \anchor{text}{\textanchor}% to adjust text
     \saveddimen\height{%
         \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
         \pgfmathsetlength\pgf@x{((\numpins)
@@ -24734,14 +24782,14 @@
           \expandafter\pgf@circ@pins@list
           \expandafter{\pgf@circ@temp}%
       }%
-    \savedanchor\centerpoint{%
+    \savedanchor\textanchor{%
         \pgf@x=-.5\wd\pgfnodeparttextbox%
         \pgf@y=-.5\ht\pgfnodeparttextbox%
         \advance\pgf@y by+.5\dp\pgfnodeparttextbox%
     }%
     \savedanchor\origin{\pgfpoint{0pt}{0pt}}
     \anchor{center}{\origin}
-    \anchor{text}{\centerpoint}% to adjust text
+    \anchor{text}{\textanchor}% to adjust text
     \saveddimen\height{%
         \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
         \pgfmathsetlength\pgf@x{((\numpins+2)
@@ -25643,14 +25691,14 @@
     \saveddimen{\scaledRlen}{\pgfmathsetlength{\pgf@x}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}}
     \savedmacro{\thisshape}{\def\thisshape{\tikz@fig@name}}
     \savedmacro\numpins{\def\numpins{6}}
-    \savedanchor\centerpoint{%
+    \savedanchor\textanchor{%
         \pgf@x=-.5\wd\pgfnodeparttextbox%
         \pgf@y=-.5\ht\pgfnodeparttextbox%
         \advance\pgf@y by+.5\dp\pgfnodeparttextbox%
     }%
     \savedanchor\origin{\pgfpoint{0pt}{0pt}}
     \anchor{center}{\origin}
-    \anchor{text}{\centerpoint}% to adjust text
+    \anchor{text}{\textanchor}% to adjust text
     \saveddimen\height{%
         \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
         \pgfmathsetlength\pgf@x{((\numpins)
@@ -26005,8 +26053,13 @@
     \anchor{w}{\pgfpointorigin}
     \anchor{left}{\pgfpointorigin}
     \anchor{right}{\northeast\pgf@y=0pt }
-    \anchor{text}{\northeast\advance \pgf@x by 2pt
-        \pgf@y=\dimexpr.5\dp\pgfnodeparttextbox-.5\ht\pgfnodeparttextbox\relax}% to adjust text
+    \savedanchor{\textoffset}{%
+        \pgf@y=\dimexpr.5\dp\pgfnodeparttextbox-.5\ht\pgfnodeparttextbox\relax % (set)
+    }
+    \anchor{text}{\pgfextracty{\pgf@ya}{\textoffset}
+        \northeast\advance \pgf@x by 2pt
+        \pgf@y=\pgf@ya
+    }
     \pgf@circ@draw@component{%
         \northeast
         \pgf@circ@res@up=\pgf@y
@@ -26292,7 +26345,7 @@
         \divide\pgf@y by 2
         \pgf@yb = \insethright \advance\pgf@y by \pgf@yb
         \divide\pgf@y by 2 \pgf@y=-\pgf@y \pgf@x=0pt\relax}
-    \anchor{text}{%
+    \savedanchor{\textanchor}{%
         \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
         \pgfmathsetlength\pgf@x{\ctikzvalof{multipoles/muxdemux/base len}*
           \ctikzvalof{multipoles/muxdemux/inset w}*\pgf@circ@scaled@Rlen/2}
@@ -26300,6 +26353,7 @@
         \pgf@y=-.5\ht\pgfnodeparttextbox%
         \advance\pgf@y by+.5\dp\pgfnodeparttextbox%
     }%
+    \anchor{text}{\textanchor}
     \pgf@circ@draw@component{%
         \topleft
         \pgf@circ@res@up = \pgf@y
