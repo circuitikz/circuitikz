@@ -5759,14 +5759,16 @@
         \pgfmathsetlength{\pgf@y}{\ctikzvalof{proximeter/width}*\ctikzvalof{\ctikzclass/scale}*\pgf@circ@Rlen}
         \pgf@x=\pgf@y
     }
-    \anchor{center}{\pgfpointorigin}
-    % geo anchors based on north-east
-    \pgfcirc@northeast@symmetric@geoanchors
-    \anchor{text}{%
-        \northeast
+    \savedanchor\textanchor{%
+        \pgfmathsetlength{\pgf@y}{\ctikzvalof{proximeter/width}*\ctikzvalof{\ctikzclass/scale}*\pgf@circ@Rlen}
+        \pgf@x=\pgf@y
         \pgf@x=\dimexpr -.5\wd\pgfnodeparttextbox\relax
         \advance\pgf@y by .6\ht\pgfnodeparttextbox\relax
     }
+    \anchor{center}{\pgfpointorigin}
+    % geo anchors based on north-east
+    \pgfcirc@northeast@symmetric@geoanchors
+    \anchor{text}{\textanchor}
     \anchor{hlines ne}{%
         \northeast
         \pgf@y=\hlinepos\pgf@y
@@ -5861,9 +5863,12 @@
             \anchor{cin}{\southwest\pgf@y=0cm}
             \anchor{out}{\northeast \pgf@y=0cm\advance\pgf@x by \radius}
             \anchor{in}{\southwest\pgf@y=0cm\advance\pgf@x by -\radius}
-            \anchor{text}{\northeast
-                \pgf@x=\dimexpr -.5\wd\pgfnodeparttextbox\relax
-                \advance\pgf@y by .6\ht\pgfnodeparttextbox\relax
+            \savedanchor{\textoffset}{%
+                \pgf@x=-.5\wd\pgfnodeparttextbox % (set)
+                \pgf@y=.6\ht\pgfnodeparttextbox  % (sum)
+            }
+            \anchor{text}{\pgfextractx{\pgf@xa}{\textoffset}\pgfextracty{\pgf@ya}{\textoffset}%
+                \northeast \pgf@x=\pgf@xa \advance\pgf@y by \pgf@ya
             }
             \anchor{top arc}{\northeast
                 \pgf@circ@res@other=\pgf@x
@@ -6072,9 +6077,12 @@
         {
             \anchor{out}{\northeast \pgf@y=0cm}
             \anchor{in}{\southwest\pgf@y=0cm}
-            \anchor{text}{\northeast
-                \pgf@x=\dimexpr -.5\wd\pgfnodeparttextbox\relax
-                \advance\pgf@y by .6\ht\pgfnodeparttextbox\relax
+            \savedanchor{\textoffset}{%
+                \pgf@x=-.5\wd\pgfnodeparttextbox % (set)
+                \pgf@y=.6\ht\pgfnodeparttextbox  % (sum)
+            }
+            \anchor{text}{\pgfextractx{\pgf@xa}{\textoffset}\pgfextracty{\pgf@ya}{\textoffset}%
+                \northeast \pgf@x=\pgf@xa \advance\pgf@y by \pgf@ya
             }
         }
         {\ctikzvalof{bipoles/solder jumper/height}}
@@ -6110,9 +6118,12 @@
             \anchor{tap}{\northeast\pgf@x=0cm}
             \anchor{tap up}{\northeast\pgf@x=0cm}
             \anchor{tap down}{\northeast\pgf@x=0cm\pgf@y=-\pgf@y}
-            \anchor{text}{\northeast
-                \pgf@x=\dimexpr -.5\wd\pgfnodeparttextbox\relax
-                \advance\pgf@y by .6\ht\pgfnodeparttextbox\relax
+            \savedanchor{\textoffset}{%
+                \pgf@x=-.5\wd\pgfnodeparttextbox % (set)
+                \pgf@y=.6\ht\pgfnodeparttextbox  % (sum)
+            }
+            \anchor{text}{\pgfextractx{\pgf@xa}{\textoffset}\pgfextracty{\pgf@ya}{\textoffset}%
+                \northeast \pgf@x=\pgf@xa \advance\pgf@y by \pgf@ya
             }
         }
         {\ctikzvalof{bipoles/solder jumper/height}}
@@ -6325,16 +6336,23 @@
 % default waveform (backward compatible)
 \ctikzset{bipoles/oscope/waveform/.initial=ramps}
 
+\def\pgf@circ@instruments@text@anchors{%
+    % put the node text above and centered
+    \savedanchor{\textoffset}{%
+        \pgf@x=-.5\wd\pgfnodeparttextbox % (set)
+        \pgf@y=\dimexpr .5\dp\pgfnodeparttextbox+.5\ht\pgfnodeparttextbox\relax % (sum)
+    }
+    \anchor{text}{\pgfextractx{\pgf@xa}{\textoffset}\pgfextracty{\pgf@ya}{\textoffset}
+        \pgfextracty{\pgf@circ@res@up}{\northeast}
+        \pgfpoint{\pgf@xa}{\pgf@circ@res@up+\pgf@ya}
+    }
+}
+
 \pgfcircdeclarebipolescaled{instruments}
 {
     \anchor{in 1}{\southwest\pgf@y=0.75\pgf@y\pgf@x=0.4\pgf@x}
     \anchor{in 2}{\southwest\pgf@y=0.75\pgf@y\pgf@x=-0.4\pgf@x}
-    % put the node text above and centered
-    \anchor{text}{\pgfextracty{\pgf@circ@res@up}{\northeast}
-        \pgfpoint{-.5\wd\pgfnodeparttextbox}{
-            \dimexpr.5\dp\pgfnodeparttextbox+.5\ht\pgfnodeparttextbox+\pgf@circ@res@up\relax
-        }
-    }
+    \pgf@circ@instruments@text@anchors
 }
 {\ctikzvalof{bipoles/oscope/height}}
 {oscope}
@@ -6466,12 +6484,7 @@
 {
     \anchor{in 1}{\southwest\pgf@y=0.75\pgf@y\pgf@x=0.4\pgf@x}
     \anchor{in 2}{\southwest\pgf@y=0.75\pgf@y\pgf@x=-0.4\pgf@x}
-    % put the node text above and centered
-    \anchor{text}{\pgfextracty{\pgf@circ@res@up}{\northeast}
-        \pgfpoint{-.5\wd\pgfnodeparttextbox}{
-            \dimexpr.5\dp\pgfnodeparttextbox+.5\ht\pgfnodeparttextbox+\pgf@circ@res@up\relax
-        }
-    }
+    \pgf@circ@instruments@text@anchors
 }
 {\ctikzvalof{bipoles/smeter/height}}
 {smeter}
@@ -6528,11 +6541,7 @@
         \anchor{v+}{\southwest\pgf@x=0.6\pgf@x}
         \anchor{v-}{\southwest\pgf@x=-0.6\pgf@x}
         % put the node text above and centered
-        \anchor{text}{\pgfextracty{\pgf@circ@res@up}{\northeast}
-            \pgfpoint{-.5\wd\pgfnodeparttextbox}{
-                \dimexpr.5\dp\pgfnodeparttextbox+.5\ht\pgfnodeparttextbox+\pgf@circ@res@up\relax
-            }
-        }
+        \pgf@circ@instruments@text@anchors
     }
     {\ctikzvalof{bipoles/qmeter/depth}}
     {#1}
@@ -6630,12 +6639,14 @@
 \pgfcircdeclarebipolescaled{instruments}
 {
     \anchor{i}{\northeast\pgf@x=0pt\relax}
-    \anchor{text}{
+    \savedanchor{\textoffset}{%
+        \pgf@x=-.5\wd\pgfnodeparttextbox % (set)
+        \pgf@y=\dimexpr .5\dp\pgfnodeparttextbox+.5\ht\pgfnodeparttextbox\relax % (sum)
+    }
+    \anchor{text}{\pgfextractx{\pgf@xa}{\textoffset}\pgfextracty{\pgf@ya}{\textoffset}
         \pgfextracty{\pgf@circ@res@up}{\northeast}
         \pgfextractx{\pgf@circ@res@left}{\northeast}
-        \pgfpoint{-.5\wd\pgfnodeparttextbox+\pgf@circ@res@left}{
-            \dimexpr.5\dp\pgfnodeparttextbox+.5\ht\pgfnodeparttextbox+\pgf@circ@res@up\relax
-        }
+        \pgfpoint{\pgf@xa+\pgf@circ@res@left}{\pgf@circ@res@up+\pgf@ya}
     }
 }
 {\ctikzvalof{bipoles/iloop/height}}
@@ -6700,12 +6711,14 @@
         \pgfpointpolar{75}{\pgf@circ@res@step and \pgf@circ@res@other}
         \pgf@y=\pgf@circ@res@up
     }
-    \anchor{text}{
+    \savedanchor{\textoffset}{%
+        \pgf@x=-.5\wd\pgfnodeparttextbox % (set)
+        \pgf@y=\dimexpr .5\dp\pgfnodeparttextbox+.5\ht\pgfnodeparttextbox\relax % (sum)
+    }
+    \anchor{text}{\pgfextractx{\pgf@xa}{\textoffset}\pgfextracty{\pgf@ya}{\textoffset}
         \pgfextracty{\pgf@circ@res@up}{\northeast}
         \pgfextractx{\pgf@circ@res@left}{\northeast}
-        \pgfpoint{-.5\wd\pgfnodeparttextbox+\pgf@circ@res@left}{
-            \dimexpr.5\dp\pgfnodeparttextbox+.5\ht\pgfnodeparttextbox+\pgf@circ@res@up\relax
-        }
+        \pgfpoint{\pgf@xa+\pgf@circ@res@left}{\pgf@circ@res@up+\pgf@ya}
     }
 }
 {\ctikzvalof{bipoles/iloop/height}}
@@ -7002,11 +7015,11 @@
     \anchor{center}{
         \pgfpointorigin
     }
-    \anchor{text}{
-        \pgfpointorigin
-        \advance \pgf@x by -.5\wd\pgfnodeparttextbox
-        \advance \pgf@y by -.5\ht\pgfnodeparttextbox
+    \savedanchor{\textanchor}{%
+        \pgf@x=-.5\wd\pgfnodeparttextbox % (set)
+        \pgf@y=-.5\ht\pgfnodeparttextbox  % (set)
     }
+    \anchor{text}{\textanchor}
     \anchor{left}{%
         \northwest
         \pgf@y=0pt
