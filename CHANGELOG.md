@@ -8,6 +8,7 @@ The major changes among the different CircuiTikZ versions are listed here. See <
     - Stabilize all the text anchors (problem [reported by user `@JPWiedemann` on GitHub](https://github.com/circuitikz/circuitikz/pull/876), while coding the [Circuitikz GUI](https://github.com/Circuit2TikZ/CircuiTikZ-Designer)
     - Fix text anchors for blocks `oscillator` and `gridnode`, which were completely bogus
     - Documentation fixes for text anchors
+    - Better index entries (use *seealso*, hyperlink in every entry). Thanks to David Carlisle for the hint.
 
 * Version 1.8.1 (2025-06-15)
 
