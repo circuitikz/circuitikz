@@ -16,8 +16,8 @@
 \startmodule[circuitikzgit]
 \usemodule[tikz]
 
-\def\pgfcircversion{1.8.2-unreleased-d6c02c7}
-\def\pgfcircversiondate{2025/07/02}
+\def\pgfcircversion{1.8.2-unreleased-9d2e5aa}
+\def\pgfcircversiondate{2025/07/07}
 \writestatus{loading}{\pgfcircversiondate{} The CircuiTikz circuit drawing package version \pgfcircversion}
 
 
@@ -909,12 +909,18 @@
 % like amplifiers)
 %
 \newif\ifpgf@circ@center@text\pgf@circ@center@texttrue
+% when "center" is false, in the case of transistors, up or down?
+\newif\ifpgf@circ@up@text\pgf@circ@up@texttrue
 \tikzset{component text/.is choice}%
 \tikzset{component text/center/.code={\pgf@circ@center@texttrue}}%
 \tikzset{component text/left/.code={\pgf@circ@center@textfalse}}%
+\tikzset{component text/up/.code={\pgf@circ@center@textfalse\pgf@circ@up@texttrue}}%
+\tikzset{component text/down/.code={\pgf@circ@center@textfalse\pgf@circ@up@textfalse}}%
 \ctikzset{component text/.is choice}%
 \ctikzset{component text/center/.code={\pgf@circ@center@texttrue}}%
 \ctikzset{component text/left/.code={\pgf@circ@center@textfalse}}%
+\ctikzset{component text/up/.code={\pgf@circ@center@textfalse\pgf@circ@up@texttrue}}%
+\ctikzset{component text/down/.code={\pgf@circ@center@textfalse\pgf@circ@up@textfalse}}%
 \ctikzset{left text distance/.initial=0.3em}%
 %>>>
 
@@ -15854,8 +15860,20 @@
                 \fi
                 \pgf@x=\pgf@circ@res@other
                 \advance\pgf@x by 0.05\pgf@circ@scaled@Rlen\relax
-                \pgf@y=\dimexpr.5\dp\pgfnodeparttextbox-.5\ht\pgfnodeparttextbox\relax
-            \else % fixlabels
+                \ifpgf@circ@center@text
+                    \pgf@y=0pt
+                \else % if the text is not on the center line, can be up or down
+                    \ifpgf@circ@trcircle
+                        \pgf@y = 0.7\pgf@y
+                        \advance \pgf@y by 0.3\pgf@x
+                        \pgf@x = 0.7\pgf@x
+                    \else
+                        \pgf@y=0.7\pgf@y
+                    \fi
+                    \ifpgf@circ@up@text\else\pgf@y=-\pgf@y\fi
+                \fi
+                \advance\pgf@y by \dimexpr.5\dp\pgfnodeparttextbox-.5\ht\pgfnodeparttextbox\relax
+            \else % fixlabels; legacy transistor text here
                 % \typeout{DEBUG: Saving base text anchor for transistors, without fix}
                 \pgf@y=.7\pgf@y
                 \pgf@x= \pgf@circ@scaled@Rlen
@@ -16513,7 +16531,6 @@
         \anchor{north west}{\northeast\pgf@ya=\pgf@y\southwest\pgf@y=\pgf@ya}
         \anchor{south west}{\southwest}
         \anchor{south east}{\southeast}
-
         \savedanchor{\textanchor}{%
             %% \northeast
             \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
@@ -16525,12 +16542,24 @@
             \else
                 \edef\numup{\numE}\edef\numdown{\numC}
             \fi
-            \pgfmathsetlength{\pgf@y}{0.5*\ctikzvalof{tripoles/bjt/height}\pgf@circ@scaled@Rlen
-                + (\numup-1)*\pgf@circ@res@step+\pgfverticaltransformationadjustment*.5*\pgflinewidth
-                + \ctikzvalof{tripoles/bjt/pins width}*\ctikzvalof{\ctikzclass/scale}*\pgf@circ@Rlen}
             \pgf@x=\ctikzvalof{tripoles/bjt/width}\pgf@circ@scaled@Rlen
-            \pgf@x=.5\pgf@x
-            \pgf@y=\dimexpr.5\dp\pgfnodeparttextbox-.5\ht\pgfnodeparttextbox\relax
+            \ifpgf@circ@center@text
+                \pgf@y=0pt
+                \pgf@x=.5\pgf@x
+            \else
+                \ifpgf@circ@up@text
+                    \pgfmathsetlength{\pgf@y}{0.5*\ctikzvalof{tripoles/bjt/height}\pgf@circ@scaled@Rlen
+                    + (\numup-1)*\pgf@circ@res@step+\pgfverticaltransformationadjustment*.5*\pgflinewidth
+                    + \ctikzvalof{tripoles/bjt/pins width}*\ctikzvalof{\ctikzclass/scale}*\pgf@circ@Rlen}
+                \else
+                    \pgfmathsetlength{\pgf@y}{0.5*\ctikzvalof{tripoles/bjt/height}\pgf@circ@scaled@Rlen
+                    + (\numdown-1)*\pgf@circ@res@step+\pgfverticaltransformationadjustment*.5*\pgflinewidth
+                    + \ctikzvalof{tripoles/bjt/pins width}*\ctikzvalof{\ctikzclass/scale}*\pgf@circ@Rlen}
+                    \pgf@y=-\pgf@y
+                \fi
+                \pgf@y=0.95\pgf@y
+            \fi
+            \advance\pgf@y by \dimexpr.5\dp\pgfnodeparttextbox-.5\ht\pgfnodeparttextbox\relax
         }
         \anchor{text}{\textanchor}
         \anchor{B}{\northeast\pgf@y=0cm\pgf@x=-\pgf@x\advance\pgf@x by -\external}
@@ -16961,17 +16990,15 @@
                     \ctikzvalof{tripoles/#1/width}*\pgf@circ@scaled@Rlen}
             \fi
             \ifpgf@circuit@transisors@fixlabels
-                % \ifpgf@circuit@fet@bodydiode
-                    \advance \pgf@x by \pgf@circ@res@other
-                % \else
-                    % \pgfmathsetlength{\pgf@xa}{\ctikzvalof{tripoles/#1/base width}*
-                        % \ctikzvalof{tripoles/#1/width}*\pgf@circ@scaled@Rlen}
-                    % \advance \pgf@x by \pgf@xa
-                % \fi
-                % no circle for gfets
-                % add a bit of space to avoid central (substrate) terminal if drawn
+                \advance \pgf@x by \pgf@circ@res@other
+                \ifpgf@circ@center@text
+                    \pgf@y=0pt
+                \else % if the text is not on the center line, can be up or down
+                    \pgf@y=0.7\pgf@y
+                    \ifpgf@circ@up@text\else\pgf@y=-\pgf@y\fi
+                \fi
                 \advance\pgf@x by 0.05\pgf@circ@scaled@Rlen\relax
-                \pgf@y=\dimexpr.5\dp\pgfnodeparttextbox-.5\ht\pgfnodeparttextbox\relax
+                \advance\pgf@y by \dimexpr.5\dp\pgfnodeparttextbox-.5\ht\pgfnodeparttextbox\relax
             \else
                 \pgf@y=.7\pgf@y
                 \pgf@x= \pgf@circ@scaled@Rlen
