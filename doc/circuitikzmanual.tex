@@ -4628,6 +4628,64 @@ Notice the use of the utility functions \verb|\ctikzflip{|\texttt{\textsl{x,y,xy
 \end{circuitikz}
 \end{LTXexample}
 
+There is a situation where using the legacy position makes sense: if you have a transistor with a bulk pin, and you need to connect that pin to something outside the component:
+
+\begin{LTXexample}[varwidth=true]
+\begin{circuitikz}[scale=0.8, transform shape]
+    \draw (0,0) node [nigfetebulk](T1){T1} (T1.S) node[ground]{}
+        (T1.bulk) -- ++(0.5, 0) node[vee]{};
+    \draw (2,0) node [nigfetebulk, legacy transistors text](T2){T2}
+        (T2.S) node[ground]{}
+        (T2.bulk) -- ++(0.5, 0) node[vee]{};
+\end{circuitikz}
+\end{LTXexample}
+
+You can use the \texttt{legacy transistors text} to position the label ``up'', near the drain (or source, whichever is up) of the transistor --- but then we have a problem, if you use, for example, a transistor circle (it works by chance with the standard sizes, but if you change the size of the circle, you'll have problems:)
+
+\begin{LTXexample}[varwidth=true]
+\begin{circuitikz}[scale=0.8, transform shape]
+    \ctikzset{legacy transistors text, tr circle}
+    \draw (0,0) node [nigfetebulk](T1){T1} (T1.S) node[ground]{}
+    (T1.bulk) -- ++(0.5, 0) node[vee]{}
+    (0,-3) node [pigfetebulk](P1){P1} (P1.D) node[ground]{};
+    \ctikzset{transistor circle/scale circle radius=1.3}
+    \draw (2,0) node [nigfetebulk](T2){T2}
+    (2,-3) node [pigfetebulk](P2){P2} (P2.D) node[ground]{}
+    (T2.S) node[ground]{}
+    (T2.bulk) -- ++(0.8, 0) node[vee]{};
+\end{circuitikz}
+\end{LTXexample}
+
+Since version \texttt{1.8.2} you can solve this with \IndexKey[component text: up/down]{component text=up} (or \texttt{down}, default \texttt{center}).
+This flag will move the text label of the transistors near the upper (or lower, respectively) terminal, a bit offset to the right.
+The value of this flag is taken into account only for transistors (at least, for now).
+
+\begin{LTXexample}[varwidth=true]
+\begin{circuitikz}
+    \ctikzset{component text=up, tr circle}
+    \draw (0,0) node [nigfetebulk](T1){T1}
+    (T1.S) node[ground]{}
+    (T1.bulk) -- ++(0.5, 0) node[vee]{}
+    (0,-3) node [pigfetebulk, component text=down](P1){P1}
+    (P1.D) node[ground]{};
+    \ctikzset{transistor circle/scale circle radius=1.6}
+    \draw (2,0) node [nigfetebulk](T2){T2}
+    (2,-3) node [pigfetebulk, component text=down](P2){P2}
+    (P2.D) node[ground]{}
+    (T2.S) node[ground]{}
+    (T2.bulk) -- ++(1.2, 0) node[vee]{};
+\end{circuitikz}
+\end{LTXexample}
+
+\begin{LTXexample}[varwidth=true]
+\begin{circuitikz}
+\draw (0,0) node[bjtnpn, emitters=2,
+    component text=up](B){pB} ++(2,0)
+    node[bjtnpn](C){pC} (B.nobase) -- (C.base)
+    ++(2,1); %adjust bounding box
+\end{circuitikz}
+\end{LTXexample}
+
 \subsubsection{Transistors customization}\label{sec:styling-transistors}
 
 \paragraph{Size.} You can change the scale of all the transistors by setting the key \IndexKey{transistors/scale} (default \texttt{1.0}).
