@@ -4801,6 +4801,97 @@
 \pgfcircdeclaretriac{fulltriac}{0}
 \pgfcircdeclaretriac{emptytriac}{1}
 
+
+% IGCT : contributed by Paul Sacco
+
+\def\pgfcircdeclareIGCT#1#2#3{%name, fill (0-> black; 1-empty), gate position (1: catode, -1: anode)
+    \pgfcircdeclarebipolescaled{diodes}
+    {
+        \savedmacro{\gatekink}{\edef\gatekink{\ctikzvalof{tripoles/thyristor/gate kink}}}
+        \anchor{gate}{\northeast\pgf@x=\gatekink\pgf@x\pgf@x=#3\pgf@x}
+        \anchor{G}{\northeast\pgf@x=\gatekink\pgf@x\pgf@x=#3\pgf@x}
+        \anchor{anode}{\southwest\pgf@y=0cm}
+        \anchor{cathode}{\northeast\pgf@y=0cm }
+    }
+    {\ctikzvalof{tripoles/thyristor/height 2}}
+    {#1}
+    {\ctikzvalof{tripoles/thyristor/height}}
+    {\ctikzvalof{tripoles/thyristor/width}}
+    {
+        \pgf@circ@res@other = \ctikzvalof{tripoles/thyristor/diode width left}\pgf@circ@res@left
+        \pgf@circ@res@step = \ctikzvalof{tripoles/thyristor/diode width right}\pgf@circ@res@right
+
+        \pgfscope
+            % draw the thick parts here (shifted horizontally)
+            \pgf@circ@setlinewidth{bipoles}{\pgfstartlinewidth}
+            % draw the basic triangle
+            \pgfpathmoveto{\pgfpoint{\pgf@circ@res@step}{0pt}}
+
+            \pgfpathlineto{\pgfpoint{\pgf@circ@res@other}{-\pgf@circ@res@down}}
+            \pgfpathlineto{\pgfpoint{\pgf@circ@res@other}{\pgf@circ@res@down}}
+            \pgfpathlineto{\pgfpoint{\pgf@circ@res@step}{0pt}}
+            \pgfpathclose
+            \ifnum#2=0\relax
+                \pgfusepath{draw,fill}
+            \else
+                \pgf@circ@draworfill
+            \fi
+            % draw the vertical bar + IGCT symbol
+            \pgfsetroundjoin
+            \pgfpathmoveto{\pgfpoint{\pgf@circ@res@step}{-\pgf@circ@res@down}}
+            \pgfpathlineto{\pgfpoint{\pgf@circ@res@step}{\pgf@circ@res@down}}
+    			\pgfpathlineto{\pgfpoint{cos{45}*2*\pgf@circ@res@step /5}{cos{45}*2*\pgf@circ@res@down/5}}
+    	
+            \pgfusepath{draw}
+        \endpgfscope
+
+        % back to normal linewidth
+        % stroke if needed
+        \ifpgf@circuit@bipole@strokedsymbol
+            \pgfpathmoveto{\pgfpoint{\pgf@circ@res@step}{0pt}}
+            \pgfpathlineto{\pgfpoint{\pgf@circ@res@other}{0pt}}
+            \pgfusepath{draw}
+        \fi
+
+        % draw the gate thing;
+        %
+    \pgfpathmoveto{\pgfpoint
+        {\pgf@circ@res@step}
+        {\ctikzvalof{tripoles/thyristor/gate height}*\ctikzvalof{tripoles/thyristor/diode height}*\pgf@circ@res@up}
+    }
+    \pgfpathlineto{\pgfpoint
+        {\ctikzvalof{tripoles/thyristor/gate kink}*\pgf@circ@res@right}
+        {\ctikzvalof{tripoles/thyristor/diode height}\pgf@circ@res@up}
+    }
+    \pgfpathlineto{\pgfpoint
+        {\ctikzvalof{tripoles/thyristor/gate kink}*\pgf@circ@res@right}
+        {\pgf@circ@res@up}
+    }
+    % draw bar line.
+    \pgfpathmoveto{\pgfpoint
+        {(\ctikzvalof{tripoles/thyristor/gate kink}-\ctikzvalof{tripoles/thyristor/gto bar width})*\pgf@circ@res@right}
+        {(1+\ctikzvalof{tripoles/thyristor/diode height})*0.5*\pgf@circ@res@up}
+    }
+    \pgfpathlineto{\pgfpoint
+        {(\ctikzvalof{tripoles/thyristor/gate kink}+\ctikzvalof{tripoles/thyristor/gto bar width})*\pgf@circ@res@right}
+        {(1+\ctikzvalof{tripoles/thyristor/diode height})*0.5*\pgf@circ@res@up}
+    } 
+    \pgfusepath{draw}
+
+        % draw the leads in/out
+        \pgfpathmoveto{\pgfpoint{\pgf@circ@res@other}{0pt}}
+        \pgfpathlineto{\pgfpoint{\pgf@circ@res@left}{0pt}}
+
+        \pgfpathmoveto{\pgfpoint{\pgf@circ@res@step}{0pt}}
+        \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{0pt}}
+
+        \pgfusepath{draw}
+    }
+}
+
+\pgfcircdeclareIGCT{fulligct}{0}{1}
+\pgfcircdeclareIGCT{emptyigct}{1}{1}
+
 % end of shape definitions for diodes%>>>
 
 %% Paths definitions for Diodes%<<<
@@ -4840,6 +4931,8 @@
     \pgfcirc@style@to@style{#1 gtobar}{GTOb#2}
     \pgfcirc@activate@bipole{l}{#1agtobar}{#1agtobar}{#1 agtobar}
     \pgfcirc@style@to@style{#1 agtobar}{aGTOb#2}
+    \pgfcirc@activate@bipole{l}{#1igct}{#1igct}{#1 igct}
+    \pgfcirc@style@to@style{#1 igct}{IGCT#2}
     \pgfcirc@activate@bipole{l}{#1triac}{#1triac}{#1 triac}
     \pgfcirc@style@to@style{#1 triac}{Tr#2}
 }
@@ -4880,6 +4973,9 @@
     \pgfcirc@style@to@style{#1 gtobar}{GTOb#2}
     \pgfcirc@node@to@style{l}{emptyagtobar}{#1 agtobar}{\circuitikzbasekey/bipole/is strokedsymbol=true}
     \pgfcirc@style@to@style{#1 agtobar}{aGTOb#2}
+    \pgfcirc@style@to@style{#1 igct}{IGCT#2}
+    \pgfcirc@node@to@style{l}{emptyigct}{#1 igct}{\circuitikzbasekey/bipole/is strokedsymbol=true}
+    \pgfcirc@style@to@style{#1 igct}{IGCT#2}
     \pgfcirc@node@to@style{l}{emptytriac}{#1 triac}{\circuitikzbasekey/bipole/is strokedsymbol=true}
     \pgfcirc@style@to@style{#1 triac}{Tr#2}
     \pgfcirc@node@to@style{l}{emptytvsdiode}{#1 tvsdiode}{\circuitikzbasekey/bipole/is strokedsymbol=true}
@@ -4922,6 +5018,8 @@
 \pgfcirc@style@to@style{gtobar}{GTOb}
 \pgfcirc@style@to@style{\pgfcircdiodestylemacro agtobar}{agtobar}
 \pgfcirc@style@to@style{agtobar}{aGTOb}
+\pgfcirc@style@to@style{\pgfcircdiodestylemacro igct}{igct}
+\pgfcirc@style@to@style{igct}{IGCT}
 \pgfcirc@style@to@style{\pgfcircdiodestylemacro triac}{triac}
 \pgfcirc@style@to@style{triac}{Tr}
 % %>>>
