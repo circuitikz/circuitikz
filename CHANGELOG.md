@@ -1,6 +1,10 @@
 <!--- CircuiTikz - Changelog --->
 The major changes among the different CircuiTikZ versions are listed here. See <https://github.com/circuitikz/circuitikz/commits> for a full list of changes.
 
+* Version 1.8.3 (unreleased)
+
+    - Bump version number
+
 * Version 1.8.2 (2025-07-08)
 
     Another significant change for Circuitikz's internals: all the text anchors of the components are now stable, meaning they are meaningful after the component has been drawn. That was the case only for part of the components. It *shouldn't* affect anything for standard usage, but according to the Ti*k*Z manual, this is "the way".
