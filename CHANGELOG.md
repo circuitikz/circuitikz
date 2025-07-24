@@ -3,6 +3,7 @@ The major changes among the different CircuiTikZ versions are listed here. See <
 
 * Version 1.8.3 (unreleased)
 
+    - Add IGCT thyristors by [Paul Sacco](https://github.com/circuitikz/circuitikz/pull/881)
     - Fix encoding of the manual, removing some latin1 chars and converting to utf8. Why that was working is a mystery.
 
 * Version 1.8.2 (2025-07-08)
