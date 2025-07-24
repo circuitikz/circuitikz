@@ -16,8 +16,8 @@
 \providecommand\DeclareRelease[3]{}
 \providecommand\DeclareCurrentRelease[2]{}
 
-\def\pgfcircversion{1.8.3-unreleased-1f5633b}
-\def\pgfcircversiondate{2025/07/23}
+\def\pgfcircversion{1.8.3-unreleased-4ab2a0d}
+\def\pgfcircversiondate{2025/07/24}
 
 \DeclareRelease{0.4}{2012/12/20}{circuitikz-0.4-body.tex}
 \DeclareRelease{v0.4}{2012/12/20}{circuitikz-0.4-body.tex}
@@ -7300,20 +7300,20 @@
 }
 % reverse star
 \def\pgf@circ@eyw#1{
-	\pgfscope
-		\pgftransformscale{-.015*\ctikzvalof{\ctikzclass/symbol/eyw scale}*\pgf@circ@res@up*#1}
-		\def\pgfcircmathresult{\expandafter\pgf@circ@stripdecimals\pgf@circ@direction\pgf@nil}
-			\pgftransformrotate{-\pgfcircmathresult}
+        \pgfscope
+                \pgftransformscale{-.015*\ctikzvalof{\ctikzclass/symbol/eyw scale}*\pgf@circ@res@up*#1}
+                \def\pgfcircmathresult{\expandafter\pgf@circ@stripdecimals\pgf@circ@direction\pgf@nil}
+                        \pgftransformrotate{-\pgfcircmathresult}
 
-		\pgf@circ@setlinewidth{bipoles}{\pgfstartlinewidth}
-		\pgf@circ@set@relative@thickness{symbol/thickness}
-		\pgfpathmoveto{\pgfpoint{0}{\pgf@circ@res@up}}
-		\pgfpathlineto{\pgfpointorigin}
-		\pgfpathlineto{\pgfpointpolar{30}{\pgf@circ@res@down}}
-		\pgfpathmoveto{\pgfpointorigin}
-		\pgfpathlineto{\pgfpointpolar{150}{\pgf@circ@res@down}}
-		\pgfusepath{stroke}
-	\endpgfscope
+                \pgf@circ@setlinewidth{bipoles}{\pgfstartlinewidth}
+                \pgf@circ@set@relative@thickness{symbol/thickness}
+                \pgfpathmoveto{\pgfpoint{0}{\pgf@circ@res@up}}
+                \pgfpathlineto{\pgfpointorigin}
+                \pgfpathlineto{\pgfpointpolar{30}{\pgf@circ@res@down}}
+                \pgfpathmoveto{\pgfpointorigin}
+                \pgfpathlineto{\pgfpointpolar{150}{\pgf@circ@res@down}}
+                \pgfusepath{stroke}
+        \endpgfscope
 }
 % zigzag
 \def\pgf@circ@zig#1{
@@ -9205,7 +9205,6 @@
 
 %%% Thyristors in general
 
-
 \def\pgfcircdeclarethyristor#1#2#3#4{%name, fill (0-> black; 1-empty), gate position (1: catode, -1: anode), extra code
     \pgfcircdeclarebipolescaled{diodes}
     {
@@ -9222,13 +9221,11 @@
     {
         \pgf@circ@res@other = \ctikzvalof{tripoles/thyristor/diode width left}\pgf@circ@res@left
         \pgf@circ@res@step = \ctikzvalof{tripoles/thyristor/diode width right}\pgf@circ@res@right
-
         \pgfscope
             % draw the thick parts here (shifted horizontally)
             \pgf@circ@setlinewidth{bipoles}{\pgfstartlinewidth}
             % draw the basic triangle
             \pgfpathmoveto{\pgfpoint{\pgf@circ@res@step}{0pt}}
-
             \pgfpathlineto{\pgfpoint{\pgf@circ@res@other}{-\pgf@circ@res@down}}
             \pgfpathlineto{\pgfpoint{\pgf@circ@res@other}{\pgf@circ@res@down}}
             \pgfpathlineto{\pgfpoint{\pgf@circ@res@step}{0pt}}
@@ -9244,7 +9241,6 @@
             \pgfpathlineto{\pgfpoint{\pgf@circ@res@step}{-\pgf@circ@res@down}}
             \pgfusepath{draw}
         \endpgfscope
-
         % back to normal linewidth
         % stroke if needed
         \ifpgf@circuit@bipole@strokedsymbol
@@ -9252,17 +9248,13 @@
             \pgfpathlineto{\pgfpoint{\pgf@circ@res@other}{0pt}}
             \pgfusepath{draw}
         \fi
-
         % draw the gate thing;
         #4%
-
         % draw the leads in/out
         \pgfpathmoveto{\pgfpoint{\pgf@circ@res@other}{0pt}}
         \pgfpathlineto{\pgfpoint{\pgf@circ@res@left}{0pt}}
-
         \pgfpathmoveto{\pgfpoint{\pgf@circ@res@step}{0pt}}
         \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{0pt}}
-
         \pgfusepath{draw}
     }
 }
@@ -9476,6 +9468,91 @@
 \pgfcircdeclaretriac{fulltriac}{0}
 \pgfcircdeclaretriac{emptytriac}{1}
 
+% IGCT : contributed by Paul Sacco
+
+\def\pgfcircdeclareIGCT#1#2#3{%name, fill (0-> black; 1-empty), gate position (1: catode, -1: anode)
+    \pgfcircdeclarebipolescaled{diodes}
+    {
+        \savedmacro{\gatekink}{\edef\gatekink{\ctikzvalof{tripoles/thyristor/gate kink}}}
+        \anchor{gate}{\northeast\pgf@x=\gatekink\pgf@x\pgf@x=#3\pgf@x}
+        \anchor{G}{\northeast\pgf@x=\gatekink\pgf@x\pgf@x=#3\pgf@x}
+        \anchor{anode}{\southwest\pgf@y=0cm}
+        \anchor{cathode}{\northeast\pgf@y=0cm }
+    }
+    {\ctikzvalof{tripoles/thyristor/height 2}}
+    {#1}
+    {\ctikzvalof{tripoles/thyristor/height}}
+    {\ctikzvalof{tripoles/thyristor/width}}
+    {
+        \pgf@circ@res@other = \ctikzvalof{tripoles/thyristor/diode width left}\pgf@circ@res@left
+        \pgf@circ@res@step = \ctikzvalof{tripoles/thyristor/diode width right}\pgf@circ@res@right
+        \pgfscope
+            % draw the thick parts here (shifted horizontally)
+            \pgf@circ@setlinewidth{bipoles}{\pgfstartlinewidth}
+            % draw the basic triangle
+            \pgfpathmoveto{\pgfpoint{\pgf@circ@res@step}{0pt}}
+            \pgfpathlineto{\pgfpoint{\pgf@circ@res@other}{-\pgf@circ@res@down}}
+            \pgfpathlineto{\pgfpoint{\pgf@circ@res@other}{\pgf@circ@res@down}}
+            \pgfpathlineto{\pgfpoint{\pgf@circ@res@step}{0pt}}
+            \pgfpathclose
+            \ifnum#2=0\relax
+                \pgfusepath{draw,fill}
+            \else
+                \pgf@circ@draworfill
+            \fi
+            % draw the vertical bar + IGCT symbol
+            \pgfsetroundjoin
+            \pgfpathmoveto{\pgfpoint{\pgf@circ@res@step}{-\pgf@circ@res@down}}
+            \pgfpathlineto{\pgfpoint{\pgf@circ@res@step}{\pgf@circ@res@down}}
+            % compute the endpoint of the line starting from the bottom of the bar
+            % and landing perpendicular to the lower part of the triangle
+            \pgfmathsetmacro{\@@alpha}{atan(-\pgf@circ@res@down/(\pgf@circ@res@step-\pgf@circ@res@other))}
+            \pgfmathsetmacro{\@@len}{-\pgf@circ@res@down*sin(\@@alpha)}
+            \pgfpathlineto{\pgfpoint{\pgf@circ@res@step-\@@len*cos(\@@alpha)}{-\@@len*sin(\@@alpha)}}
+            \pgfusepath{draw}
+        \endpgfscope
+        % back to normal linewidth
+        % stroke if needed
+        \ifpgf@circuit@bipole@strokedsymbol
+            \pgfpathmoveto{\pgfpoint{\pgf@circ@res@step}{0pt}}
+            \pgfpathlineto{\pgfpoint{\pgf@circ@res@other}{0pt}}
+            \pgfusepath{draw}
+        \fi
+        % draw the gate thing;
+        \pgfpathmoveto{\pgfpoint
+            {\pgf@circ@res@step}
+            {\ctikzvalof{tripoles/thyristor/gate height}*\ctikzvalof{tripoles/thyristor/diode height}*\pgf@circ@res@up}
+        }
+        \pgfpathlineto{\pgfpoint
+            {\ctikzvalof{tripoles/thyristor/gate kink}*\pgf@circ@res@right}
+            {\ctikzvalof{tripoles/thyristor/diode height}\pgf@circ@res@up}
+        }
+        \pgfpathlineto{\pgfpoint
+            {\ctikzvalof{tripoles/thyristor/gate kink}*\pgf@circ@res@right}
+            {\pgf@circ@res@up}
+        }
+        % draw bar line.
+        \pgfpathmoveto{\pgfpoint
+            {(\ctikzvalof{tripoles/thyristor/gate kink}-\ctikzvalof{tripoles/thyristor/gto bar width})*\pgf@circ@res@right}
+            {(1+\ctikzvalof{tripoles/thyristor/diode height})*0.5*\pgf@circ@res@up}
+        }
+        \pgfpathlineto{\pgfpoint
+            {(\ctikzvalof{tripoles/thyristor/gate kink}+\ctikzvalof{tripoles/thyristor/gto bar width})*\pgf@circ@res@right}
+            {(1+\ctikzvalof{tripoles/thyristor/diode height})*0.5*\pgf@circ@res@up}
+        }
+        \pgfusepath{draw}
+        % draw the leads in/out
+        \pgfpathmoveto{\pgfpoint{\pgf@circ@res@other}{0pt}}
+        \pgfpathlineto{\pgfpoint{\pgf@circ@res@left}{0pt}}
+        \pgfpathmoveto{\pgfpoint{\pgf@circ@res@step}{0pt}}
+        \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{0pt}}
+        \pgfusepath{draw}
+    }
+}
+
+\pgfcircdeclareIGCT{fulligct}{0}{1}
+\pgfcircdeclareIGCT{emptyigct}{1}{1}
+
 % end of shape definitions for diodes%>>>
 
 %% Paths definitions for Diodes%<<<
@@ -9515,6 +9592,8 @@
     \pgfcirc@style@to@style{#1 gtobar}{GTOb#2}
     \pgfcirc@activate@bipole{l}{#1agtobar}{#1agtobar}{#1 agtobar}
     \pgfcirc@style@to@style{#1 agtobar}{aGTOb#2}
+    \pgfcirc@activate@bipole{l}{#1igct}{#1igct}{#1 igct}
+    \pgfcirc@style@to@style{#1 igct}{IGCT#2}
     \pgfcirc@activate@bipole{l}{#1triac}{#1triac}{#1 triac}
     \pgfcirc@style@to@style{#1 triac}{Tr#2}
 }
@@ -9555,6 +9634,8 @@
     \pgfcirc@style@to@style{#1 gtobar}{GTOb#2}
     \pgfcirc@node@to@style{l}{emptyagtobar}{#1 agtobar}{\circuitikzbasekey/bipole/is strokedsymbol=true}
     \pgfcirc@style@to@style{#1 agtobar}{aGTOb#2}
+    \pgfcirc@style@to@style{#1 igct}{IGCT#2}
+    \pgfcirc@node@to@style{l}{emptyigct}{#1 igct}{\circuitikzbasekey/bipole/is strokedsymbol=true}
     \pgfcirc@node@to@style{l}{emptytriac}{#1 triac}{\circuitikzbasekey/bipole/is strokedsymbol=true}
     \pgfcirc@style@to@style{#1 triac}{Tr#2}
     \pgfcirc@node@to@style{l}{emptytvsdiode}{#1 tvsdiode}{\circuitikzbasekey/bipole/is strokedsymbol=true}
@@ -9597,6 +9678,8 @@
 \pgfcirc@style@to@style{gtobar}{GTOb}
 \pgfcirc@style@to@style{\pgfcircdiodestylemacro agtobar}{agtobar}
 \pgfcirc@style@to@style{agtobar}{aGTOb}
+\pgfcirc@style@to@style{\pgfcircdiodestylemacro igct}{igct}
+\pgfcirc@style@to@style{igct}{IGCT}
 \pgfcirc@style@to@style{\pgfcircdiodestylemacro triac}{triac}
 \pgfcirc@style@to@style{triac}{Tr}
 % %>>>
@@ -12127,14 +12210,14 @@
 {\ctikzvalof{bipoles/relais/height}}
 {\ctikzvalof{bipoles/relais/width}}
 {
-	\pgfpathrectanglecorners{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@up}}{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@down}}
-	\pgf@circ@setlinewidth{bipoles}{\pgfstartlinewidth}
-	\pgf@circ@draworfill
-	\pgfscope
-	\pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@up}}
-	\pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@down}}
-	\pgfusepath{draw}
-	\endpgfscope
+        \pgfpathrectanglecorners{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@up}}{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@down}}
+        \pgf@circ@setlinewidth{bipoles}{\pgfstartlinewidth}
+        \pgf@circ@draworfill
+        \pgfscope
+        \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@up}}
+        \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@down}}
+        \pgfusepath{draw}
+        \endpgfscope
 }
 
 %% SQUID added by Cor Molenaar 5 March 2010
