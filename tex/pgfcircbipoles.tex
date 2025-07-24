@@ -2625,20 +2625,20 @@
 }
 % reverse star
 \def\pgf@circ@eyw#1{
-	\pgfscope
-		\pgftransformscale{-.015*\ctikzvalof{\ctikzclass/symbol/eyw scale}*\pgf@circ@res@up*#1}
-		\def\pgfcircmathresult{\expandafter\pgf@circ@stripdecimals\pgf@circ@direction\pgf@nil}
-			\pgftransformrotate{-\pgfcircmathresult}
+        \pgfscope
+                \pgftransformscale{-.015*\ctikzvalof{\ctikzclass/symbol/eyw scale}*\pgf@circ@res@up*#1}
+                \def\pgfcircmathresult{\expandafter\pgf@circ@stripdecimals\pgf@circ@direction\pgf@nil}
+                        \pgftransformrotate{-\pgfcircmathresult}
 
-		\pgf@circ@setlinewidth{bipoles}{\pgfstartlinewidth}
-		\pgf@circ@set@relative@thickness{symbol/thickness}
-		\pgfpathmoveto{\pgfpoint{0}{\pgf@circ@res@up}}
-		\pgfpathlineto{\pgfpointorigin}
-		\pgfpathlineto{\pgfpointpolar{30}{\pgf@circ@res@down}}
-		\pgfpathmoveto{\pgfpointorigin}
-		\pgfpathlineto{\pgfpointpolar{150}{\pgf@circ@res@down}}
-		\pgfusepath{stroke}
-	\endpgfscope
+                \pgf@circ@setlinewidth{bipoles}{\pgfstartlinewidth}
+                \pgf@circ@set@relative@thickness{symbol/thickness}
+                \pgfpathmoveto{\pgfpoint{0}{\pgf@circ@res@up}}
+                \pgfpathlineto{\pgfpointorigin}
+                \pgfpathlineto{\pgfpointpolar{30}{\pgf@circ@res@down}}
+                \pgfpathmoveto{\pgfpointorigin}
+                \pgfpathlineto{\pgfpointpolar{150}{\pgf@circ@res@down}}
+                \pgfusepath{stroke}
+        \endpgfscope
 }
 % zigzag
 \def\pgf@circ@zig#1{
@@ -4530,7 +4530,6 @@
 
 %%% Thyristors in general
 
-
 \def\pgfcircdeclarethyristor#1#2#3#4{%name, fill (0-> black; 1-empty), gate position (1: catode, -1: anode), extra code
     \pgfcircdeclarebipolescaled{diodes}
     {
@@ -4547,13 +4546,11 @@
     {
         \pgf@circ@res@other = \ctikzvalof{tripoles/thyristor/diode width left}\pgf@circ@res@left
         \pgf@circ@res@step = \ctikzvalof{tripoles/thyristor/diode width right}\pgf@circ@res@right
-
         \pgfscope
             % draw the thick parts here (shifted horizontally)
             \pgf@circ@setlinewidth{bipoles}{\pgfstartlinewidth}
             % draw the basic triangle
             \pgfpathmoveto{\pgfpoint{\pgf@circ@res@step}{0pt}}
-
             \pgfpathlineto{\pgfpoint{\pgf@circ@res@other}{-\pgf@circ@res@down}}
             \pgfpathlineto{\pgfpoint{\pgf@circ@res@other}{\pgf@circ@res@down}}
             \pgfpathlineto{\pgfpoint{\pgf@circ@res@step}{0pt}}
@@ -4569,7 +4566,6 @@
             \pgfpathlineto{\pgfpoint{\pgf@circ@res@step}{-\pgf@circ@res@down}}
             \pgfusepath{draw}
         \endpgfscope
-
         % back to normal linewidth
         % stroke if needed
         \ifpgf@circuit@bipole@strokedsymbol
@@ -4577,17 +4573,13 @@
             \pgfpathlineto{\pgfpoint{\pgf@circ@res@other}{0pt}}
             \pgfusepath{draw}
         \fi
-
         % draw the gate thing;
         #4%
-
         % draw the leads in/out
         \pgfpathmoveto{\pgfpoint{\pgf@circ@res@other}{0pt}}
         \pgfpathlineto{\pgfpoint{\pgf@circ@res@left}{0pt}}
-
         \pgfpathmoveto{\pgfpoint{\pgf@circ@res@step}{0pt}}
         \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{0pt}}
-
         \pgfusepath{draw}
     }
 }
@@ -4819,13 +4811,11 @@
     {
         \pgf@circ@res@other = \ctikzvalof{tripoles/thyristor/diode width left}\pgf@circ@res@left
         \pgf@circ@res@step = \ctikzvalof{tripoles/thyristor/diode width right}\pgf@circ@res@right
-
         \pgfscope
             % draw the thick parts here (shifted horizontally)
             \pgf@circ@setlinewidth{bipoles}{\pgfstartlinewidth}
             % draw the basic triangle
             \pgfpathmoveto{\pgfpoint{\pgf@circ@res@step}{0pt}}
-
             \pgfpathlineto{\pgfpoint{\pgf@circ@res@other}{-\pgf@circ@res@down}}
             \pgfpathlineto{\pgfpoint{\pgf@circ@res@other}{\pgf@circ@res@down}}
             \pgfpathlineto{\pgfpoint{\pgf@circ@res@step}{0pt}}
@@ -4839,10 +4829,13 @@
             \pgfsetroundjoin
             \pgfpathmoveto{\pgfpoint{\pgf@circ@res@step}{-\pgf@circ@res@down}}
             \pgfpathlineto{\pgfpoint{\pgf@circ@res@step}{\pgf@circ@res@down}}
-    			\pgfpathlineto{\pgfpoint{cos{45}*2*\pgf@circ@res@step /5}{cos{45}*2*\pgf@circ@res@down/5}}
+            % compute the endpoint of the line starting from the bottom of the bar
+            % and landing perpendicular to the lower part of the triangle
+            \pgfmathsetmacro{\@@alpha}{atan(-\pgf@circ@res@down/(\pgf@circ@res@step-\pgf@circ@res@other))}
+            \pgfmathsetmacro{\@@len}{-\pgf@circ@res@down*sin(\@@alpha)}
+            \pgfpathlineto{\pgfpoint{\pgf@circ@res@step-\@@len*cos(\@@alpha)}{-\@@len*sin(\@@alpha)}}
             \pgfusepath{draw}
         \endpgfscope
-
         % back to normal linewidth
         % stroke if needed
         \ifpgf@circuit@bipole@strokedsymbol
@@ -4850,39 +4843,34 @@
             \pgfpathlineto{\pgfpoint{\pgf@circ@res@other}{0pt}}
             \pgfusepath{draw}
         \fi
-
         % draw the gate thing;
-        %
-    \pgfpathmoveto{\pgfpoint
-        {\pgf@circ@res@step}
-        {\ctikzvalof{tripoles/thyristor/gate height}*\ctikzvalof{tripoles/thyristor/diode height}*\pgf@circ@res@up}
-    }
-    \pgfpathlineto{\pgfpoint
-        {\ctikzvalof{tripoles/thyristor/gate kink}*\pgf@circ@res@right}
-        {\ctikzvalof{tripoles/thyristor/diode height}\pgf@circ@res@up}
-    }
-    \pgfpathlineto{\pgfpoint
-        {\ctikzvalof{tripoles/thyristor/gate kink}*\pgf@circ@res@right}
-        {\pgf@circ@res@up}
-    }
-    % draw bar line.
-    \pgfpathmoveto{\pgfpoint
-        {(\ctikzvalof{tripoles/thyristor/gate kink}-\ctikzvalof{tripoles/thyristor/gto bar width})*\pgf@circ@res@right}
-        {(1+\ctikzvalof{tripoles/thyristor/diode height})*0.5*\pgf@circ@res@up}
-    }
-    \pgfpathlineto{\pgfpoint
-        {(\ctikzvalof{tripoles/thyristor/gate kink}+\ctikzvalof{tripoles/thyristor/gto bar width})*\pgf@circ@res@right}
-        {(1+\ctikzvalof{tripoles/thyristor/diode height})*0.5*\pgf@circ@res@up}
-    }
-    \pgfusepath{draw}
-
+        \pgfpathmoveto{\pgfpoint
+            {\pgf@circ@res@step}
+            {\ctikzvalof{tripoles/thyristor/gate height}*\ctikzvalof{tripoles/thyristor/diode height}*\pgf@circ@res@up}
+        }
+        \pgfpathlineto{\pgfpoint
+            {\ctikzvalof{tripoles/thyristor/gate kink}*\pgf@circ@res@right}
+            {\ctikzvalof{tripoles/thyristor/diode height}\pgf@circ@res@up}
+        }
+        \pgfpathlineto{\pgfpoint
+            {\ctikzvalof{tripoles/thyristor/gate kink}*\pgf@circ@res@right}
+            {\pgf@circ@res@up}
+        }
+        % draw bar line.
+        \pgfpathmoveto{\pgfpoint
+            {(\ctikzvalof{tripoles/thyristor/gate kink}-\ctikzvalof{tripoles/thyristor/gto bar width})*\pgf@circ@res@right}
+            {(1+\ctikzvalof{tripoles/thyristor/diode height})*0.5*\pgf@circ@res@up}
+        }
+        \pgfpathlineto{\pgfpoint
+            {(\ctikzvalof{tripoles/thyristor/gate kink}+\ctikzvalof{tripoles/thyristor/gto bar width})*\pgf@circ@res@right}
+            {(1+\ctikzvalof{tripoles/thyristor/diode height})*0.5*\pgf@circ@res@up}
+        }
+        \pgfusepath{draw}
         % draw the leads in/out
         \pgfpathmoveto{\pgfpoint{\pgf@circ@res@other}{0pt}}
         \pgfpathlineto{\pgfpoint{\pgf@circ@res@left}{0pt}}
-
         \pgfpathmoveto{\pgfpoint{\pgf@circ@res@step}{0pt}}
         \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{0pt}}
-
         \pgfusepath{draw}
     }
 }
@@ -7547,14 +7535,14 @@
 {\ctikzvalof{bipoles/relais/height}}
 {\ctikzvalof{bipoles/relais/width}}
 {
-	\pgfpathrectanglecorners{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@up}}{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@down}}
-	\pgf@circ@setlinewidth{bipoles}{\pgfstartlinewidth}
-	\pgf@circ@draworfill
-	\pgfscope
-	\pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@up}}
-	\pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@down}}
-	\pgfusepath{draw}
-	\endpgfscope
+        \pgfpathrectanglecorners{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@up}}{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@down}}
+        \pgf@circ@setlinewidth{bipoles}{\pgfstartlinewidth}
+        \pgf@circ@draworfill
+        \pgfscope
+        \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@up}}
+        \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@down}}
+        \pgfusepath{draw}
+        \endpgfscope
 }
 
 %% SQUID added by Cor Molenaar 5 March 2010
