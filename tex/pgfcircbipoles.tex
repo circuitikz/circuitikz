@@ -1920,10 +1920,6 @@
 \ctikzset{bipoles/pvmodule/width/.initial=1.20}
 \ctikzset{bipoles/isource/height/.initial=.60}
 \ctikzset{bipoles/isource/width/.initial=.60}
-\ctikzset{bipoles/oosource/height/.initial=.60}
-\ctikzset{bipoles/oosource/width/.initial=.60}
-\ctikzset{bipoles/oosource/circlesize/.initial=.65}%circlesize+circleoffset should be =1
-\ctikzset{bipoles/oosource/circleoffset/.initial=.35}%circlesize+circleoffset should be =1
 \ctikzset{bipoles/dcisource/angle/.initial=80}
 \ctikzset{bipoles/dcisource/height/.initial=.60}
 \ctikzset{bipoles/dcisource/width/.initial=.60}
@@ -1977,6 +1973,19 @@
 \ctikzset{csources/symbol/thickness/.initial={1}}
 \ctikzset{sources/symbol/rotate/.initial={90}}
 \ctikzset{csources/symbol/rotate/.initial={90}}
+
+% % % basic oosources
+\ctikzset{bipoles/oosource/height/.initial=.39} % 0.65*0.6 to maintain the original size
+\ctikzset{bipoles/oosource/width/.initial=.60}
+% this is only needed to fix a horrible code in one example of the manual before v1.8.3
+\ctikzset{bipoles/oosource/circlesize/.code={%
+        \pgfmathsetmacro{\@@hack@oo@h}{0.6*#1}\ctikzset{bipoles/oosource/height=\@@hack@oo@h}
+        \pgfutil@packagewarning{circuitikz}{Do not use circlesize with oo-style source! Use width and height}
+}}
+\ctikzset{bipoles/oosource/circleoffset/.code={%
+        \pgfmathsetmacro{\@@hack@oo@w}{0.6*#1+0.3}\ctikzset{bipoles/oosource/width=\@@hack@oo@w}
+        \pgfutil@packagewarning{circuitikz}{Do not use circleoffset with oo-style source! Use width and height}
+}}
 
 % % % oo autotransformer
 \ctikzset{bipoles/oosourceatrans/height/.initial=.6}
@@ -2553,13 +2562,13 @@
 {
     \anchor{centerprim}{
         \northeast
+        \advance \pgf@x by -\pgf@y \pgf@x=-\pgf@x
         \pgf@y=0pt\relax
-        \pgf@x=-\ctikzvalof{bipoles/oosource/circleoffset}\pgf@x
     }
     \anchor{centersec}{
         \northeast
+        \advance \pgf@x by -\pgf@y
         \pgf@y=0pt\relax
-        \pgf@x=\ctikzvalof{bipoles/oosource/circleoffset}\pgf@x
     }
 }
 {\ctikzvalof{bipoles/oosource/height}}
@@ -2568,16 +2577,15 @@
 {\ctikzvalof{bipoles/oosource/width}}
 {
     % the offset is relative to the width (...@left/@right), and the size to the height (...@up/@down)
+    % the height is the circle size; the width will decide how far away the two circles are drawn
     \pgf@circ@setlinewidth{bipoles}{\pgfstartlinewidth}
-    \pgfpathcircle{\pgfpoint{\ctikzvalof{bipoles/oosource/circleoffset}\pgf@circ@res@left}{0}}
-        {\ctikzvalof{bipoles/oosource/circlesize}\pgf@circ@res@up}
+    \pgfpathcircle{\pgfpoint{\pgf@circ@res@left+\pgf@circ@res@up}{0}}{\pgf@circ@res@up}
     \pgf@circ@maybefill
-    \pgfpathcircle{\pgfpoint{\ctikzvalof{bipoles/oosource/circleoffset}\pgf@circ@res@right}{0}}
-        {\ctikzvalof{bipoles/oosource/circlesize}\pgf@circ@res@up}
+    \pgfpathcircle{\pgfpoint{\pgf@circ@res@right-\pgf@circ@res@up}{0}}{\pgf@circ@res@up}
     \pgf@circ@draworfill
-    \pgfpathcircle{\pgfpoint{\ctikzvalof{bipoles/oosource/circleoffset}\pgf@circ@res@left}{0}}
-        {\ctikzvalof{bipoles/oosource/circlesize}\pgf@circ@res@up}
+    \pgfpathcircle{\pgfpoint{\pgf@circ@res@left+\pgf@circ@res@up}{0}}{\pgf@circ@res@up}
     \pgfusepath{draw}
+
 }
 
 % % % winding symbols
@@ -2596,9 +2604,6 @@
 
         \pgf@circ@setlinewidth{bipoles}{\pgfstartlinewidth}
         \pgf@circ@set@relative@thickness{symbol/thickness}
-        % \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@down}}
-        % \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@down}}
-        % \pgfpathlineto{\pgfpoint{0}{.866\pgf@circ@res@up}}
         \pgfpathmoveto{\pgfpointpolar{90}{\pgf@circ@res@up}}
         \pgfpathlineto{\pgfpointpolar{-30}{\pgf@circ@res@up}}
         \pgfpathlineto{\pgfpointpolar{-150}{\pgf@circ@res@up}}
