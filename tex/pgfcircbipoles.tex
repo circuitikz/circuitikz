@@ -2003,8 +2003,8 @@
 % % % oootransformer
 \ctikzset{bipoles/ooosource/height/.initial=.6}
 \ctikzset{bipoles/ooosource/circlesize/.initial=.55}%circlesize+circleoffset should be =1
-\ctikzset{bipoles/ooosource/circleoffset/.initial=.45}%circlesize+circleoffset should be =1
 \ctikzset{bipoles/ooosource/vectorgroupscale/.initial=1}
+\ctikzset{bipoles/oosourcetrans/vectorgroupoffset/.initial=0.6}
 
 % % % primary windings
 \newif\ifpgf@circ@prim@delta
@@ -2818,18 +2818,26 @@
 }
 % % % % ooosource for three phase transformer
 % This component is 3-way symmetric. It uses ONLY bipoles/ooosource/height for sizing
+% And the height is not *exactly* the height of the shape --- with default parameters
+% the real height is 0.939 the "height" parameter (sin(60)+0.55(1-sin(60))
+% that makes the geo-anchor slightly off, but...
 \pgfcircdeclarebipolescaled{sources}
 {
+    \savedmacro{\circlesize}{\edef\circlesize{%
+        \ctikzvalof{bipoles/ooosource/circlesize}}%
+    }
+    \savedmacro{\circleoffset}{%
+        \pgfmathparse{1.0-\ctikzvalof{bipoles/ooosource/circlesize}}%
+        \edef\circleoffset{\pgfmathresult}%
+    }
+    \savedmacro{\vectorgroupoffset}{\edef\vectorgroupoffset{%
+        \ctikzvalof{bipoles/oosourcetrans/vectorgroupoffset}}}
     \anchor{right}{
             \northeast
             \pgf@y=0pt
-            \pgfmathparse{
-                \ctikzvalof{bipoles/ooosource/circleoffset}* sin(30) +
-    %%the sqrt must be > 0, the circles have to intersect
-                sqrt(
-                    pow(\ctikzvalof{bipoles/ooosource/circlesize},2) -
-                    pow(\ctikzvalof{bipoles/ooosource/circleoffset}*cos(30),2)
-                )
+            \pgfmathparse{ \circleoffset* sin(30) +
+            %%the sqrt must be > 0, the circles have to intersect
+                sqrt(pow(\circlesize,2) - pow(\circleoffset*cos(30),2))
             }
             \pgf@x=\pgfmathresult\pgf@x
     }
@@ -2837,20 +2845,22 @@
             \northeast
             \pgf@y=0pt
     }
-    \savedanchor{\centerprim}{
+    \savedanchor{\centerprim}{% remove me
             \pgf@circ@scaled@Rlen=\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen
             \pgf@circ@res@other=\ctikzvalof{bipoles/ooosource/height}\pgf@circ@scaled@Rlen
-            \pgf@circ@res@other=-\ctikzvalof{bipoles/ooosource/circleoffset}\pgf@circ@res@other
+            \pgf@circ@res@other=-\circleoffset\pgf@circ@res@other
             \pgf@y=0pt
             \pgf@x=.5\pgf@circ@res@other
     }
     \anchor{centerprim}{
-            \centerprim
+        \northeast
+        \pgf@x=\circleoffset\pgf@x\pgf@x=-\pgf@x
+        \pgf@y=0pt
     }
     \savedanchor{\centersec}{
             \pgf@circ@scaled@Rlen=\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen
             \pgf@circ@res@other=\ctikzvalof{bipoles/ooosource/height}\pgf@circ@scaled@Rlen
-            \pgf@circ@res@other=-\ctikzvalof{bipoles/ooosource/circleoffset}\pgf@circ@res@other
+            \pgf@circ@res@other=-\circleoffset\pgf@circ@res@other
             \pgfpointpolar{60}{.5\pgf@circ@res@other}
             \pgf@y=-\pgf@y
             \pgf@x=-\pgf@x
@@ -2861,7 +2871,7 @@
     \savedanchor{\centertert}{
             \pgf@circ@scaled@Rlen=\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen
             \pgf@circ@res@other=\ctikzvalof{bipoles/ooosource/height}\pgf@circ@scaled@Rlen
-            \pgf@circ@res@other=-\ctikzvalof{bipoles/ooosource/circleoffset}\pgf@circ@res@other
+            \pgf@circ@res@other=-\circleoffset\pgf@circ@res@other
             \pgfpointpolar{60}{.5\pgf@circ@res@other}
             \pgf@y=\pgf@y
             \pgf@x=-\pgf@x
@@ -2873,68 +2883,68 @@
     \anchor{prim1}{
             \pgf@circ@scaled@Rlen=\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen
             \pgf@circ@res@other=\ctikzvalof{bipoles/ooosource/height}\pgf@circ@scaled@Rlen
-            \pgf@circ@res@other=\ctikzvalof{bipoles/ooosource/circlesize}\pgf@circ@res@other
+            \pgf@circ@res@other=\circlesize\pgf@circ@res@other
             \pgfpointadd{\centerprim}{\pgfpointpolar{135}{.5\pgf@circ@res@other}}
     }
     \anchor{prim2}{
             \pgf@circ@scaled@Rlen=\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen
             \pgf@circ@res@other=\ctikzvalof{bipoles/ooosource/height}\pgf@circ@scaled@Rlen
-            \pgf@circ@res@other=\ctikzvalof{bipoles/ooosource/circlesize}\pgf@circ@res@other
+            \pgf@circ@res@other=\circlesize\pgf@circ@res@other
             \pgfpointadd{\centerprim}{\pgfpointpolar{-135}{.5\pgf@circ@res@other}}
     }
     \anchor{sec1}{
             \pgf@circ@scaled@Rlen=\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen
             \pgf@circ@res@other=\ctikzvalof{bipoles/ooosource/height}\pgf@circ@scaled@Rlen
-            \pgf@circ@res@other=\ctikzvalof{bipoles/ooosource/circlesize}\pgf@circ@res@other
+            \pgf@circ@res@other=\circlesize\pgf@circ@res@other
             \pgfpointadd{\centersec}{\pgfpointpolar{0}{.5\pgf@circ@res@other}}
     }
     \anchor{sec2}{
             \pgf@circ@scaled@Rlen=\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen
             \pgf@circ@res@other=\ctikzvalof{bipoles/ooosource/height}\pgf@circ@scaled@Rlen
-            \pgf@circ@res@other=\ctikzvalof{bipoles/ooosource/circlesize}\pgf@circ@res@other
+            \pgf@circ@res@other=\circlesize\pgf@circ@res@other
             \pgfpointadd{\centersec}{\pgfpointpolar{45}{.5\pgf@circ@res@other}}
     }
     \anchor{sec3}{
             \pgf@circ@scaled@Rlen=\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen
             \pgf@circ@res@other=\ctikzvalof{bipoles/ooosource/height}\pgf@circ@scaled@Rlen
-            \pgf@circ@res@other=\ctikzvalof{bipoles/ooosource/circlesize}\pgf@circ@res@other
+            \pgf@circ@res@other=\circlesize\pgf@circ@res@other
             \pgfpointadd{\centersec}{\pgfpointpolar{90}{.5\pgf@circ@res@other}}
     }
     \anchor{tert1}{
             \pgf@circ@scaled@Rlen=\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen
             \pgf@circ@res@other=\ctikzvalof{bipoles/ooosource/height}\pgf@circ@scaled@Rlen
-            \pgf@circ@res@other=\ctikzvalof{bipoles/ooosource/circlesize}\pgf@circ@res@other
+            \pgf@circ@res@other=\circlesize\pgf@circ@res@other
             \pgfpointadd{\centertert}{\pgfpointpolar{0}{.5\pgf@circ@res@other}}
     }
     \anchor{tert2}{
             \pgf@circ@scaled@Rlen=\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen
             \pgf@circ@res@other=\ctikzvalof{bipoles/ooosource/height}\pgf@circ@scaled@Rlen
-            \pgf@circ@res@other=\ctikzvalof{bipoles/ooosource/circlesize}\pgf@circ@res@other
+            \pgf@circ@res@other=\circlesize\pgf@circ@res@other
             \pgfpointadd{\centertert}{\pgfpointpolar{-45}{.5\pgf@circ@res@other}}
     }
     \anchor{tert3}{
             \pgf@circ@scaled@Rlen=\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen
             \pgf@circ@res@other=\ctikzvalof{bipoles/ooosource/height}\pgf@circ@scaled@Rlen
-            \pgf@circ@res@other=\ctikzvalof{bipoles/ooosource/circlesize}\pgf@circ@res@other
+            \pgf@circ@res@other=\circlesize\pgf@circ@res@other
             \pgfpointadd{\centertert}{\pgfpointpolar{-90}{.5\pgf@circ@res@other}}
     }
     % symbol "center" anchors
     \anchor{symbolprim}{
         \northeast
         \pgf@y=0pt
-        \pgf@x=-0.6\pgf@x
+        \pgf@x=-\vectorgroupoffset\pgf@x
     }
     \anchor{symbolsec}{
         \northeast
         \pgf@ya=\pgf@y
         \pgf@xa=\pgf@x
-        \pgfpointpolar{60}{0.6\pgf@ya}
+        \pgfpointpolar{60}{\vectorgroupoffset\pgf@ya}
     }
     \anchor{symboltert}{
         \northeast
         \pgf@ya=\pgf@y
         \pgf@xa=\pgf@x
-        \pgfpointpolar{-60}{0.6\pgf@ya}
+        \pgfpointpolar{-60}{\vectorgroupoffset\pgf@ya}
     }
 }
 {\ctikzvalof{bipoles/ooosource/height}}
@@ -2942,110 +2952,98 @@
 {\ctikzvalof{bipoles/ooosource/height}}
 {\ctikzvalof{bipoles/ooosource/height}}% Notice that here right=down and left=up
 {
-%     % filling
-%     left
+    % notice that all the length "res" are the same for now. To avoid confusion,
+    % we use a different lenght:
+    \pgf@circ@res@other=\pgf@circ@res@up
+    % \typeout{SIZE,OFFSET:\circlesize,\circleoffset,\the\pgf@circ@res@up}
+    % filling
+    % left
     \pgf@circ@setlinewidth{bipoles}{\pgfstartlinewidth}
-        \pgfpathcircle{\pgfpoint{\ctikzvalof{bipoles/ooosource/circleoffset}\pgf@circ@res@left}{0}}{\ctikzvalof{bipoles/ooosource/circlesize}\pgf@circ@res@left}
+        \pgfpathcircle{\pgfpoint{-\circleoffset\pgf@circ@res@other}{0}}{\circlesize\pgf@circ@res@other}
     \pgf@circ@maybefill
-
     % up
     \pgfscope
-        \pgfpathcircle{\pgfpointpolar{60}{\ctikzvalof{bipoles/ooosource/circleoffset}\pgf@circ@res@right}}{\ctikzvalof{bipoles/ooosource/circlesize}\pgf@circ@res@right}
+        \pgfpathcircle{\pgfpointpolar{60}{\circleoffset\pgf@circ@res@other}}{\circlesize\pgf@circ@res@other}
         \pgf@circ@maybefill
     \endpgfscope
-%     down
+    % down
     \pgfscope
-        \pgfpathcircle{\pgfpointpolar{-60}{\ctikzvalof{bipoles/ooosource/circleoffset}\pgf@circ@res@right}}{\ctikzvalof{bipoles/ooosource/circlesize}\pgf@circ@res@right}
+        \pgfpathcircle{\pgfpointpolar{-60}{\circleoffset\pgf@circ@res@other}}{\circlesize\pgf@circ@res@other}
         \pgf@circ@draworfill
     \endpgfscope
-
-%     drawing
+    %  drawing
     % left
-    \pgfpathcircle{\pgfpoint{\ctikzvalof{bipoles/ooosource/circleoffset}\pgf@circ@res@left}{0}}{\ctikzvalof{bipoles/ooosource/circlesize}\pgf@circ@res@left}
+    \pgfpathcircle{\pgfpoint{-\circleoffset\pgf@circ@res@other}{0}}{\circlesize\pgf@circ@res@other}
     \pgfusepath{draw}
-
     % up
     \pgfscope
-        \pgfpathcircle{\pgfpointpolar{60}{\ctikzvalof{bipoles/ooosource/circleoffset}\pgf@circ@res@right}}{\ctikzvalof{bipoles/ooosource/circlesize}\pgf@circ@res@right}
+        \pgfpathcircle{\pgfpointpolar{60}{\circleoffset\pgf@circ@res@other}}{\circlesize\pgf@circ@res@other}
         \pgfusepath{draw}
     \endpgfscope
-
 % % %     draw inner symbols
-
 % %     primary winding
     \ifpgf@circ@prim@delta
         \pgfscope
-            \pgftransformxshift{.6\pgf@circ@res@left}
+            \pgftransformxshift{-\vectorgroupoffset\pgf@circ@res@other}
             \pgf@circ@delta{\ctikzvalof{bipoles/ooosource/vectorgroupscale}}
         \endpgfscope
-
     \else\ifpgf@circ@prim@wye
         \pgfscope
-            \pgftransformxshift{.6\pgf@circ@res@left}
+            \pgftransformxshift{-\vectorgroupoffset\pgf@circ@res@other}
             \pgf@circ@wye{\ctikzvalof{bipoles/ooosource/vectorgroupscale}}
         \endpgfscope
-
         \else\ifpgf@circ@prim@eyw
         \pgfscope
-        \pgftransformxshift{.6\pgf@circ@res@left}
+        \pgftransformxshift{-\vectorgroupoffset\pgf@circ@res@other}
         \pgf@circ@eyw{\ctikzvalof{bipoles/ooosource/vectorgroupscale}}
         \endpgfscope
-
     \else\ifpgf@circ@prim@zig
         \pgfscope
-            \pgftransformxshift{.6\pgf@circ@res@left}
+            \pgftransformxshift{-\vectorgroupoffset\pgf@circ@res@other}
             \pgf@circ@zig{\ctikzvalof{bipoles/ooosource/vectorgroupscale}}
         \endpgfscope
     \fi\fi\fi\fi
-
 % %     secondary winding
     \ifpgf@circ@sec@delta
         \pgfscope
-            \pgftransformshift{\pgfpointpolar{60}{0.6\pgf@circ@res@right}}
+            \pgftransformshift{\pgfpointpolar{60}{\vectorgroupoffset\pgf@circ@res@other}}
             \pgf@circ@delta{\ctikzvalof{bipoles/ooosource/vectorgroupscale}}
         \endpgfscope
-
     \else\ifpgf@circ@sec@wye
         \pgfscope
-            \pgftransformshift{\pgfpointpolar{60}{0.6\pgf@circ@res@right}}
+            \pgftransformshift{\pgfpointpolar{60}{\vectorgroupoffset\pgf@circ@res@other}}
             \pgf@circ@wye{\ctikzvalof{bipoles/ooosource/vectorgroupscale}}
         \endpgfscope
-
         \else\ifpgf@circ@sec@eyw
         \pgfscope
-        \pgftransformshift{\pgfpointpolar{60}{0.6\pgf@circ@res@right}}
+        \pgftransformshift{\pgfpointpolar{60}{\vectorgroupoffset\pgf@circ@res@other}}
         \pgf@circ@eyw{\ctikzvalof{bipoles/ooosource/vectorgroupscale}}
         \endpgfscope
-
     \else\ifpgf@circ@sec@zig
         \pgfscope
-            \pgftransformshift{\pgfpointpolar{60}{0.6\pgf@circ@res@right}}
+            \pgftransformshift{\pgfpointpolar{60}{\vectorgroupoffset\pgf@circ@res@other}}
             \pgf@circ@zig{\ctikzvalof{bipoles/ooosource/vectorgroupscale}}
         \endpgfscope
     \fi\fi\fi\fi
-
 % %     tertiary winding
     \ifpgf@circ@tert@delta
         \pgfscope
-            \pgftransformshift{\pgfpointpolar{-60}{0.6\pgf@circ@res@right}}
+            \pgftransformshift{\pgfpointpolar{-60}{\vectorgroupoffset\pgf@circ@res@other}}
             \pgf@circ@delta{\ctikzvalof{bipoles/ooosource/vectorgroupscale}}
         \endpgfscope
-
     \else\ifpgf@circ@tert@wye
         \pgfscope
-            \pgftransformshift{\pgfpointpolar{-60}{0.6\pgf@circ@res@right}}
+            \pgftransformshift{\pgfpointpolar{-60}{\vectorgroupoffset\pgf@circ@res@other}}
             \pgf@circ@wye{\ctikzvalof{bipoles/ooosource/vectorgroupscale}}
         \endpgfscope
-
         \else\ifpgf@circ@tert@eyw
         \pgfscope
-        \pgftransformshift{\pgfpointpolar{-60}{0.6\pgf@circ@res@right}}
+        \pgftransformshift{\pgfpointpolar{-60}{\vectorgroupoffset\pgf@circ@res@other}}
         \pgf@circ@eyw{\ctikzvalof{bipoles/ooosource/vectorgroupscale}}
         \endpgfscope
-
     \else\ifpgf@circ@tert@zig
         \pgfscope
-            \pgftransformshift{\pgfpointpolar{-60}{0.6\pgf@circ@res@right}}
+            \pgftransformshift{\pgfpointpolar{-60}{\vectorgroupoffset\pgf@circ@res@other}}
             \pgf@circ@zig{\ctikzvalof{bipoles/ooosource/vectorgroupscale}}
         \endpgfscope
     \fi\fi\fi\fi
