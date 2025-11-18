@@ -3029,10 +3029,10 @@ Notice that if you choose the dashed style, the noise sources are fillable:
 		\footnotetext{Added by André Alves in \texttt{v1.3.5}}
     \circuitdescbip*[oosource]{ioosource}{Double Zero style current source}{}
     \circuitdescbip*[oosource]{voosource}{Double Zero style voltage source}{}
-    \circuitdescbip*[oosourceatrans]{oosourceatrans}{auto-transformer source\footnotemark}{}(centerprim/90/0.3)
+    \circuitdescbip*[oosourceatrans]{oosourceatrans}{auto-transformer source\footnotemark}{}(centerprim/90/0.4, primup/30/0.2, primdown/-30/0.2)
         \footnotetext{The \texttt{oosourceatrans} component has been suggested by \href{https://github.com/circuitikz/circuitikz/issues/852}{Max Börjesson on GitHub}}
-    \circuitdescbip*[oosourcetrans]{oosourcetrans}{transformer source\footnotemark}{}(centerprim/90/0.3, centersec/-90/0.3)
-        \footnotetext{The \texttt{oosourcetrans} and \texttt{ooosource} components have been added by \href{https://github.com/circuitikz/circuitikz/pull/397}{user \texttt{@olfline} on GitHub}}.
+    \circuitdescbip*[oosourcetrans]{oosourcetrans}{transformer source\footnotemark}{}(centerprim/90/0.4, centersec/-90/0.4, secup/30/0.2, secdown/-30/0.2, primup/150/0.2, primdown/210/0.2)
+        \footnotetext{The \texttt{oosourcetrans} and \texttt{ooosource} components have been added by \href{https://github.com/circuitikz/circuitikz/pull/397}{user \texttt{@olfline} on GitHub}}
     \begingroup
         \ctikzset{sources/scale=1.5}
         \circuitdescbip*[ooosource]{ooosource}{transformer with three windings\footnotemark}{}(left/175/0.2, right/5/0.7, prim1/130/.2, prim2/-130/.2, sec1/35/.2, sec2/60/.2, sec3/90/.2, tert1/0/.2, tert2/-45/.2, tert3/-90/.2, centerprim/92/0.8, centersec/35/0.9, centertert/-35/0.8)
@@ -3137,6 +3137,22 @@ Notice that the size of the double-circle sources (and of the triple-circle one)
 \end{circuitikz}
 \end{LTXexample}
 
+Alternatively, you can use the key \IndexKey{ootrans size} (which has possible values \texttt{small} and \texttt{large}, default \texttt{small}) to change the sizes of \texttt{oosourcetrans}, \texttt{oosourceatrans}, and \texttt{ooosource} so that they match the size of a normal source.
+
+\begin{LTXexample}[varwidth=true]
+\begin{circuitikz}
+    \draw[color=red] (0,2) to[esource] ++(2,0);
+    \draw (0,2) to[oosourcetrans] ++(2,0)
+    to [oosourceatrans] ++(2,0)
+    to [ooosource] ++(2,0);
+    \ctikzset{ootrans size=large}
+    \draw[color=red] (0,0) to[esource] ++(2,0);
+    \draw (0,0) to[oosourcetrans] ++(2,0)
+    to [oosourceatrans] ++(2,0)
+    to [ooosource] ++(2,0);
+\end{circuitikz}
+\end{LTXexample}
+
 \paragraph{Waveform symbols.}
 Internal symbols of sinusoidal, triangular and square sources are drawn with the same line thickness as the component by default. You can modify this by setting the key \IndexKey{sources/symbol/thickness} for independent sources and the corresponding \texttt{csource/...} for dependent ones. The value used here is relative to the component (i.e. the circle) value.
 
@@ -3223,6 +3239,20 @@ the waveform ones (see above). Additionally, you can scale them up and down by c
 \end{circuitikz}
 \end{LTXexample}
 
+\paragraph{Rotating the three-phase symbols.}
+You have several keys to rotate, locally or globally, the three-phase symbols\footnote{Suggested by \href{https://github.com/circuitikz/circuitikz/issues/886}{Jakob Leide}}.
+The symbols can be rotated (with effect on every symbol of that type) with the key \IndexKey{sources/symbol/delta rot} and similar ones for \texttt{eyw}, \texttt{wye} and \texttt{zig}.
+Additionally, you can rotate the symbol on a specific winding by usin the key \IndexKey{sources/symbol/prim rot} and similar ones for \texttt{sec}, \texttt{tert} and \texttt{upper}.
+
+\begin{LTXexample}[varwidth=true, basicstyle=\small\ttfamily]
+\begin{circuitikz}[scale=1.5, transform shape]
+    \draw (0,0) to[oosourcetrans, prim=delta, sec=delta,
+    sources/symbol/sec rot=180] ++(2,0);
+    \draw (0,-1) to[ooosource, prim=eyw, sec=delta,
+    tert=delta, sources/symbol/delta rot=180] ++(2,0);
+\end{circuitikz}
+\end{LTXexample}
+
 \subsubsection{Source borders}
 
 Unfortunately, the border of the sources is only easily accessed if some anchor is provided.
@@ -3254,6 +3284,52 @@ A similar approach can be used for dependent sources. Just remember that the anc
     \end{tikzpicture}
 \end{LTXexample}
 
+\paragraph{Additional winding.}
+The \texttt{oosourcetrans} and \texttt{oosourceatrans} components admit an additional winding, called \emph{upper} winding\footnote{Suggested by \href{https://github.com/circuitikz/circuitikz/issues/886}{Jakob Leide}}.
+It can be added by specifying the key \IndexKey{oo upper winding}; you can pass an additional parameter specifying the size (relative to the symbol circle size) of the added circle. The default is \texttt{0.7}, but even the default can be changed by setting the key \IndexKey{bipoles/oosourcetrans/upper circle size default}. The height of the additional winding can be tweaked with the key \IndexKey{bipoles/oosourcetrans/upper circle offset} (default \texttt{\ctikzvalof{bipoles/oosourcetrans/upper circle offset}}, which tries to mimic the shape of \texttt{ooosource}).
+
+\begin{LTXexample}[varwidth=true, basicstyle=\small\ttfamily]
+\begin{circuitikz}[scale=1.5, transform shape]
+    \draw (0,0) to[oosourcetrans, prim=delta, o-o, name=a,
+        sources/symbol/delta rot=180,
+        oo upper winding, upper=delta, sec=wye,
+        ] ++(2,0);
+    \draw (a.centerprim) -- ++(210:0.4) node[ground]{};
+    \draw (a.uppertop) -- ++(90:0.1) node[vcc]{};
+    \draw [red] (a.symbolupper) to[short,-o] ++(45:0.5);
+    \draw (0,-1) to[oosourcetrans, oo upper winding=1
+        ] ++(2,0);
+\end{circuitikz}
+\end{LTXexample}
+
+\paragraph{Additional winding anchors.}
+When using the upper winding, you have several additional anchors available.
+
+\begin{LTXexample}[varwidth=true, basicstyle=\small\ttfamily]
+\begin{circuitikz}[scale=1.5, transform shape,
+    smallsquare/.style={red, draw, inner sep=1pt}]
+    \draw (0,0) to[oosourcetrans, oo upper winding=0.85,
+        name=a, fill=cyan!30,upper=wye,
+        sources/symbol/upper rot=-90] ++(2,0);
+        \foreach\anc/\ang in {centerupper/-45, uppertop/90,
+            topright/30, topleft/150, symbolupper/210}
+        \draw[red] (a.\anc) node[smallsquare]{} -- ++(\ang:0.5)
+            ++(\ang:0.1) node[font=\tiny\ttfamily,]{\anc};
+\end{circuitikz}
+\end{LTXexample}
+
+\begin{LTXexample}[varwidth=true, basicstyle=\small\ttfamily]
+\begin{circuitikz}[scale=1.5, transform shape,
+    smallsquare/.style={red, draw, inner sep=1pt}]
+    \draw (0,0) to[oosourceatrans, oo upper winding=0.75,
+        name=a, fill=cyan!30,prim=delta,upper=delta,
+        sources/symbol/upper rot=180] ++(2,0);
+        \foreach\anc/\ang in {centerupper/-45, uppertop/90,
+            topright/30, topleft/150, symbolupper/210}
+        \draw[red] (a.\anc) node[smallsquare]{} -- ++(\ang:0.5)
+            ++(\ang:0.1) node[font=\tiny\ttfamily,]{\anc};
+\end{circuitikz}
+\end{LTXexample}
 
 \subsection{Instruments}
 \subsubsection{Basic round instruments}
