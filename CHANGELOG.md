@@ -3,11 +3,13 @@ The major changes among the different CircuiTikZ versions are listed here. See <
 
 * Version 1.8.3 (unreleased)
     
-    This version fixes oo-type sources and transformers. They used parameters different from width and height to define the shape, and the anchors were not stable. Additionally it adds several capabilities to them (anchors, additional windings, and so on.)
+    The main highlight of this version is the fix of the oo-type sources and transformers. They used parameters different from width and height to define the shape, and the anchors were not stable (and some of them were plain wrong). It also adds several capabilities to them (anchors, additional windings, and so on).
+    Additionally, a couple of generic shapes (AC/DC symbols) have been added.
     
     - Fix definition and stabilize anchors of oo- and ooo-type components.
     - Add anchors, additional winding, global scale switch and symbol rotation to the oo-type component, suggested by [Jakob Leide](https://github.com/circuitikz/circuitikz/issues/886)
     - Add IGCT thyristors by [Paul Sacco](https://github.com/circuitikz/circuitikz/pull/881)
+    - Add ac/dc symbols (by Romano)
     - Fix encoding of the manual, removing some latin1 chars and converting to utf8. Why that was working is a mystery.
 
 * Version 1.8.2 (2025-07-08)
