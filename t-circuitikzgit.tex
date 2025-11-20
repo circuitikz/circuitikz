@@ -16,8 +16,8 @@
 \startmodule[circuitikzgit]
 \usemodule[tikz]
 
-\def\pgfcircversion{1.8.3-unreleased-3f4ed54}
-\def\pgfcircversiondate{2025/11/18}
+\def\pgfcircversion{1.8.3-unreleased-945444a}
+\def\pgfcircversiondate{2025/11/20}
 \writestatus{loading}{\pgfcircversiondate{} The CircuiTikz circuit drawing package version \pgfcircversion}
 
 
@@ -2975,6 +2975,98 @@
     }
 }
 % %>>>
+
+% misc shapes (ac/dc symbols) %%<<<
+% dc symbol
+\ctikzset{dc symbol/width/.initial=0.3}
+\ctikzset{dc symbol/height/.initial=0.15}
+\ctikzset{dc symbol/segments/.initial=2}
+\ctikzset{dc symbol/text offset/.initial=6pt}
+\tikzset{dc symbol segments/.code={\ctikzset{dc symbol/segments=#1}}}
+\pgfdeclareshape{dc symbol}{
+    \savedmacro{\ctikzclass}{\edef\ctikzclass{misc}}
+    \saveddimen{\scaledRlen}{\pgfmathsetlength{\pgf@x}{\ctikzvalof{misc/scale}\pgf@circ@Rlen}}
+    \anchor{center}{\pgfpointorigin}
+    \savedanchor\northeast{%
+        \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{misc/scale}\pgf@circ@Rlen}
+        \pgf@x=\ctikzvalof{dc symbol/width}\pgf@circ@scaled@Rlen
+        \pgf@y=\ctikzvalof{dc symbol/height}\pgf@circ@scaled@Rlen
+        \pgf@x=.5\pgf@x\pgf@y=.5\pgf@y
+    }
+    \savedanchor{\textanchor}{
+        % above (add a bit of space)
+        \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{misc/scale}\pgf@circ@Rlen}
+        \pgf@ya=\ctikzvalof{ac symbol/height}\pgf@circ@scaled@Rlen
+        \pgfpoint{-.5\wd\pgfnodeparttextbox}{\dimexpr -0.5\dp\pgfnodeparttextbox-.5\ht\pgfnodeparttextbox}
+        \advance\pgf@y by \pgf@ya\advance\pgf@y by \ctikzvalof{dc symbol/text offset}
+    }
+    \anchor{text}{\textanchor}
+    \pgfcirc@northeast@symmetric@geoanchors
+    \pgf@circ@draw@component{
+        \pgfscope
+            \pgf@circ@setcolor
+            \pgf@circ@setlinewidth{bipoles}{\pgfstartlinewidth}
+            \pgfextractx{\pgf@circ@res@right}{\northeast}
+            \pgfextracty{\pgf@circ@res@up}{\northeast}
+            \pgf@circ@res@left=-\pgf@circ@res@right
+            \pgf@circ@res@down=-\pgf@circ@res@up
+            % upper line
+            \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@up}}
+            \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@up}}
+            \pgfusepath{draw}
+            % lower line
+            \edef\@@dashes{\ctikzvalof{dc symbol/segments}}
+            \ifnum\@@dashes>1
+                \pgfmathsetlength{\pgf@circ@res@other}{2*\pgf@circ@res@right/(2*(\@@dashes-1)+1)}
+                \pgfsetdash{{\pgf@circ@res@other}{\pgf@circ@res@other}}{0pt}
+            \fi
+            \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@down}}
+            \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@down}}
+            \pgfusepath{draw}
+        \endpgfscope
+    }
+}
+% ac symbol
+\ctikzset{ac symbol/width/.initial=0.3}
+\ctikzset{ac symbol/height/.initial=0.15}
+\ctikzset{ac symbol/segments/.initial=2}
+\ctikzset{ac symbol/text offset/.initial=6pt}
+\pgfdeclareshape{ac symbol}{
+    \savedmacro{\ctikzclass}{\edef\ctikzclass{misc}}
+    \saveddimen{\scaledRlen}{\pgfmathsetlength{\pgf@x}{\ctikzvalof{misc/scale}\pgf@circ@Rlen}}
+    \anchor{center}{\pgfpointorigin}
+    \savedanchor\northeast{%
+        \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{misc/scale}\pgf@circ@Rlen}
+        \pgf@x=\ctikzvalof{ac symbol/width}\pgf@circ@scaled@Rlen
+        \pgf@y=\ctikzvalof{ac symbol/height}\pgf@circ@scaled@Rlen
+        \pgf@x=.5\pgf@x\pgf@y=.5\pgf@y
+    }
+    \savedanchor{\textanchor}{
+        % above (add a bit of space)
+        \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{misc/scale}\pgf@circ@Rlen}
+        \pgf@ya=\ctikzvalof{ac symbol/height}\pgf@circ@scaled@Rlen
+        \pgfpoint{-.5\wd\pgfnodeparttextbox}{\dimexpr-0.5\dp\pgfnodeparttextbox-.5\ht\pgfnodeparttextbox}
+        \advance\pgf@y by \pgf@ya\advance\pgf@y by \ctikzvalof{ac symbol/text offset}
+    }
+    \anchor{text}{\textanchor}
+    \pgfcirc@northeast@symmetric@geoanchors
+    \pgf@circ@draw@component{
+        \pgfscope
+            \pgf@circ@setcolor
+            \pgf@circ@setlinewidth{bipoles}{\pgfstartlinewidth}
+            \pgfextractx{\pgf@circ@res@right}{\northeast}
+            \pgfextracty{\pgf@circ@res@up}{\northeast}
+            % draw the sine waveform
+            \pgfpathmoveto{\pgfpoint{-\pgf@circ@res@right}{0\pgf@circ@res@up}}
+            \pgfpathsine{\pgfpoint{.5\pgf@circ@res@right}{\pgf@circ@res@up}}
+            \pgfpathcosine{\pgfpoint{.5\pgf@circ@res@right}{-\pgf@circ@res@up}}
+            \pgfpathsine{\pgfpoint{.5\pgf@circ@res@right}{-\pgf@circ@res@up}}
+            \pgfpathcosine{\pgfpoint{.5\pgf@circ@res@right}{\pgf@circ@res@up}}
+            \pgfusepath{draw}
+        \endpgfscope
+    }
+}
+%>>>
 
 % vim: set fdm=marker fmr=%<<<,%>>>:
 %%%---------- close: tex/pgfcircshapes
