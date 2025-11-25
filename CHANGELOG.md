@@ -1,6 +1,10 @@
 <!--- CircuiTikz - Changelog --->
 The major changes among the different CircuiTikZ versions are listed here. See <https://github.com/circuitikz/circuitikz/commits> for a full list of changes.
 
+* Version 1.8.4 (unreleased)
+
+    - Bump the version number
+
 * Version 1.8.3 (2025-11-23)
     
     The main highlight of this version is the fix of the oo-type sources and transformers. They used parameters different from width and height to define the shape, and the anchors were not stable (and some of them were plain wrong). It also adds several capabilities to them (anchors, additional windings, and so on).
