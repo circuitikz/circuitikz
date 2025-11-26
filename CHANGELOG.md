@@ -3,7 +3,7 @@ The major changes among the different CircuiTikZ versions are listed here. See <
 
 * Version 1.8.4 (unreleased)
 
-    - Bump the version number
+    - Minor fixes in the manual (thanks [quark67](https://github.com/circuitikz/circuitikz/issues/891)!)
 
 * Version 1.8.3 (2025-11-23)
     
