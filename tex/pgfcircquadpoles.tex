@@ -643,7 +643,71 @@
 \ctikzset{bipoles/tacdc/width/.initial=.7}
 \ctikzset{bipoles/tdcac/width/.initial=.7}
 \ctikzset{quadpoles/gridnode/width/.initial=.7} %not sure if quadpole?
-
+% plot-type filters
+\ctikzset{bipoles/lowpassp/width/.initial=.7}
+\ctikzset{bipoles/highpassp/width/.initial=.7}
+\ctikzset{bipoles/bandpassp/width/.initial=.7}
+\ctikzset{bipoles/bandstopp/width/.initial=.7}
+\ctikzset{bipoles/resonantp/width/.initial=.7}
+\ctikzset{bipoles/notchp/width/.initial=.7}
+% plot-type filters grid options
+\ctikzset{blocks/filter grid/.is family}
+\ctikzset{blocks/filter grid/dash/.initial={{0.04cm}{0.04cm}}}
+\ctikzset{blocks/filter grid/color/.initial=default}
+\ctikzset{blocks/filter grid/thickness/.initial=0.5}
+\ctikzset{blocks/filter grid/opacity/.initial=0.3}
+\ctikzset{blocks/filter plot/relative thickness/.initial=2}
+\ctikzset{blocks/filter plot/rounding/.initial=0.15}
+% set up plot-type drawing
+\def\pgfcirc@setup@plot@filters{%
+    \pgfcirc@twoport@draw@logax
+    \edef\@@tmp{\ctikzvalof{blocks/filter plot/relative thickness}}
+    \pgfsetlinewidth{\@@tmp\pgflinewidth}
+    \edef\@@tmp{\ctikzvalof{blocks/filter plot/rounding}}
+    \pgfsetcornersarced{\pgfpoint{\@@tmp\pgf@circ@res@step}{\@@tmp\pgf@circ@res@step}}
+}
+% draw a fake log-log grid for scale
+\def\pgfcirc@twoport@draw@logax{%
+    \pgfscope
+        \edef\@@opacity{\ctikzvalof{blocks/filter grid/opacity}}
+        \ifdim\@@opacity pt>0pt
+            \pgfmathsetmacro{\@@scale}{\pgf@circ@res@step/1cm}
+            \pgftransformxscale{\@@scale}
+            \pgftransformyscale{\@@scale}
+            % horizontal lin
+            \pgfpathmoveto{\pgfpoint{-0.8cm}{-0.8cm}}
+            \pgfpathlineto{\pgfpoint{0.8cm}{-0.8cm}}
+            \pgfpathmoveto{\pgfpoint{-0.8cm}{-0.4cm}}
+            \pgfpathlineto{\pgfpoint{0.8cm}{-0.4cm}}
+            \pgfpathmoveto{\pgfpoint{-0.8cm}{-0cm}}
+            \pgfpathlineto{\pgfpoint{0.8cm}{-0cm}}
+            \pgfpathmoveto{\pgfpoint{-0.8cm}{0.4cm}}
+            \pgfpathlineto{\pgfpoint{0.8cm}{0.4cm}}
+            \pgfpathmoveto{\pgfpoint{-0.8cm}{0.8cm}}
+            \pgfpathlineto{\pgfpoint{0.8cm}{0.8cm}}
+            % vertical
+            \pgfpathmoveto{\pgfpoint{-0.8cm}{-0.8cm}}
+            \pgfpathlineto{\pgfpoint{-0.8cm}{0.8cm}}
+            \pgfpathmoveto{\pgfpoint{-0.3cm}{-0.8cm}}
+            \pgfpathlineto{\pgfpoint{-0.3cm}{0.8cm}}
+            \pgfpathmoveto{\pgfpoint{-0.1cm}{-0.8cm}}
+            \pgfpathlineto{\pgfpoint{-0.1cm}{0.8cm}}
+            \pgfpathmoveto{\pgfpoint{-0cm}{-0.8cm}}
+            \pgfpathlineto{\pgfpoint{-0cm}{0.8cm}}
+            \pgfpathmoveto{\pgfpoint{0.5cm}{-0.8cm}}
+            \pgfpathlineto{\pgfpoint{0.5cm}{0.8cm}}
+            \pgfpathmoveto{\pgfpoint{0.7cm}{-0.8cm}}
+            \pgfpathlineto{\pgfpoint{0.7cm}{0.8cm}}
+            \pgfpathmoveto{\pgfpoint{0.8cm}{-0.8cm}}
+            \pgfpathlineto{\pgfpoint{0.8cm}{0.8cm}}
+            %
+            \pgf@circ@subset@thickness{blocks/filter grid}
+            \pgf@circ@subset@color@dash{blocks/filter grid}
+            \pgfsetstrokeopacity{\@@opacity}
+            \pgfusepath{draw}
+        \fi
+    \endpgfscope
+}
 %>>>
 
 %% Node shapes definition for path-style block diagrams%<<<
@@ -719,6 +783,8 @@
     \pgftext[center,x=0,y=0,]{\tiny\ttfamily\pgf@circ@direction > \@@rotation}
 }
 %
+\ctikzset{blocks/inner thickness/.initial=1}
+\ctikzset{blocks/inner color/.initial=default}
 \def\pgfcirc@twoport@setup#1{%
     \pgf@circ@res@step = #1\pgf@circ@scaled@Rlen%6 is the real width parameter
     \divide \pgf@circ@res@step by 2
@@ -787,6 +853,9 @@
         \ifpgf@circuit@full@dashed\else\pgfsetdash{}{0pt}\fi
         \pgf@circ@inputarrow
         \pfgcirc@twoport@rotate@inner@symbol
+        % set inner symbol options
+        \pgf@circ@subset@color{blocks/inner color}
+        \pgf@circ@set@relative@thickness{inner thickness}
         #7
     }
 }
@@ -808,6 +877,9 @@
         % draw solid line for inner symbol if no box is drawn and not fully dashed
         \ifpgf@circuit@full@dashed\else\pgfsetdash{}{0pt}\fi
         \pgf@circ@inputarrow
+        % set inner symbol options
+        \pgf@circ@subset@color{blocks/inner color}
+        \pgf@circ@set@relative@thickness{inner thickness}
         #7
     }
 }
@@ -1900,6 +1972,98 @@
 
 \pgfcirc@activate@bipole@simple{l}{fiber}
 %
+% plot-type filters
+%
+%% lowpassg filter
+\pgfcirc@define@twoports{blocks}
+{}
+{\ctikzvalof{bipoles/lowpassp/width}}
+{lowpassp}
+{\ctikzvalof{bipoles/lowpassp/width}}
+{\ctikzvalof{bipoles/lowpassp/width}}
+{
+    \pgfcirc@setup@plot@filters
+    \pgfpathmoveto{\pgfpoint{-0.7\pgf@circ@res@step}{0.6\pgf@circ@res@step}}
+    \pgfpathlineto{\pgfpoint{0\pgf@circ@res@step}{0.6\pgf@circ@res@step}}
+    \pgfpathlineto{\pgfpoint{ 0.7\pgf@circ@res@step}{-0.6\pgf@circ@res@step}}
+    \pgfusepath{draw}
+}
+%% highpassg filter
+\pgfcirc@define@twoports{blocks}
+{}
+{\ctikzvalof{bipoles/highpassp/width}}
+{highpassp}
+{\ctikzvalof{bipoles/highpassp/width}}
+{\ctikzvalof{bipoles/highpassp/width}}
+{
+    \pgfcirc@setup@plot@filters
+    \pgfpathmoveto{\pgfpoint{-0.7\pgf@circ@res@step}{-0.6\pgf@circ@res@step}}
+    \pgfpathlineto{\pgfpoint{0\pgf@circ@res@step}{0.6\pgf@circ@res@step}}
+    \pgfpathlineto{\pgfpoint{ 0.7\pgf@circ@res@step}{0.6\pgf@circ@res@step}}
+    \pgfusepath{draw}
+}
+%% bandpassg filter
+\pgfcirc@define@twoports{blocks}
+{}
+{\ctikzvalof{bipoles/bandpassp/width}}
+{bandpassp}
+{\ctikzvalof{bipoles/bandpassp/width}}
+{\ctikzvalof{bipoles/bandpassp/width}}
+{
+    \pgfcirc@setup@plot@filters
+    \pgfpathmoveto{\pgfpoint{-0.7\pgf@circ@res@step}{-0.6\pgf@circ@res@step}}
+    \pgfpathlineto{\pgfpoint{-0.4\pgf@circ@res@step}{0.6\pgf@circ@res@step}}
+    \pgfpathlineto{\pgfpoint{ 0.4\pgf@circ@res@step}{0.6\pgf@circ@res@step}}
+    \pgfpathlineto{\pgfpoint{ 0.7\pgf@circ@res@step}{-0.6\pgf@circ@res@step}}
+    \pgfusepath{draw}
+}
+%% bandstopg filter
+\pgfcirc@define@twoports{blocks}
+{}
+{\ctikzvalof{bipoles/bandstopp/width}}
+{bandstopp}
+{\ctikzvalof{bipoles/bandstopp/width}}
+{\ctikzvalof{bipoles/bandstopp/width}}
+{
+    \pgfcirc@setup@plot@filters
+    \pgfpathmoveto{\pgfpoint{-0.7\pgf@circ@res@step}{0.6\pgf@circ@res@step}}
+    \pgfpathlineto{\pgfpoint{-0.4\pgf@circ@res@step}{-0.6\pgf@circ@res@step}}
+    \pgfpathlineto{\pgfpoint{ 0.4\pgf@circ@res@step}{-0.6\pgf@circ@res@step}}
+    \pgfpathlineto{\pgfpoint{ 0.7\pgf@circ@res@step}{0.6\pgf@circ@res@step}}
+    \pgfusepath{draw}
+}
+%% notch filter
+\pgfcirc@define@twoports{blocks}
+{}
+{\ctikzvalof{bipoles/resonantp/width}}
+{resonantp}
+{\ctikzvalof{bipoles/resonantp/width}}
+{\ctikzvalof{bipoles/resonantp/width}}
+{
+    \pgfcirc@setup@plot@filters
+    \pgfpathmoveto{\pgfpoint{-0.7\pgf@circ@res@step}{-0.6\pgf@circ@res@step}}
+    \pgfpathlineto{\pgfpoint{-0.15\pgf@circ@res@step}{-0.6\pgf@circ@res@step}}
+    \pgfpathlineto{\pgfpoint{0\pgf@circ@res@step}{0.7\pgf@circ@res@step}}
+    \pgfpathlineto{\pgfpoint{ 0.15\pgf@circ@res@step}{-0.6\pgf@circ@res@step}}
+    \pgfpathlineto{\pgfpoint{ 0.7\pgf@circ@res@step}{-0.6\pgf@circ@res@step}}
+    \pgfusepath{draw}
+}
+%% notch filter
+\pgfcirc@define@twoports{blocks}
+{}
+{\ctikzvalof{bipoles/notchp/width}}
+{notchp}
+{\ctikzvalof{bipoles/notchp/width}}
+{\ctikzvalof{bipoles/notchp/width}}
+{
+    \pgfcirc@setup@plot@filters
+    \pgfpathmoveto{\pgfpoint{-0.7\pgf@circ@res@step}{0.6\pgf@circ@res@step}}
+    \pgfpathlineto{\pgfpoint{-0.15\pgf@circ@res@step}{0.6\pgf@circ@res@step}}
+    \pgfpathlineto{\pgfpoint{0\pgf@circ@res@step}{-0.7\pgf@circ@res@step}}
+    \pgfpathlineto{\pgfpoint{ 0.15\pgf@circ@res@step}{0.6\pgf@circ@res@step}}
+    \pgfpathlineto{\pgfpoint{ 0.7\pgf@circ@res@step}{0.6\pgf@circ@res@step}}
+    \pgfusepath{draw}
+}
 % %>>>
 
 %% Path definitions for Blocks%<<<
@@ -1952,6 +2116,12 @@
 \pgfcirc@activate@bipole@simple{l}{tacdc}
 \pgfcirc@activate@bipole@simple{l}{tdcac}
 \pgfcirc@activate@bipole@simple{l}{tacac}
+\pgfcirc@activate@bipole@simple{l}{lowpassp}
+\pgfcirc@activate@bipole@simple{l}{highpassp}
+\pgfcirc@activate@bipole@simple{l}{bandpassp}
+\pgfcirc@activate@bipole@simple{l}{bandstopp}
+\pgfcirc@activate@bipole@simple{l}{notchp}
+\pgfcirc@activate@bipole@simple{l}{resonantp}
 % %>>>
 
 %% Node shapes for  Block elements %<<<

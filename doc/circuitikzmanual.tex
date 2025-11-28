@@ -4210,6 +4210,8 @@ For example, and audio jack can be drawn like this:
     \circuitdescbip*{bandstop}{bandstop}{}
     \circuitdescbip*{highpass}{highpass}{}
     \circuitdescbip*{lowpass}{lowpass}{}
+    \circuitdescbip*{highpass2}{simplified highpass (with only 2 waves)}{}
+    \circuitdescbip*{lowpass2}{simplified lowpass (with only 2 waves)}{}
     \circuitdescbip*{allpass}{allpass}{}
     \circuitdescbip*{vallpass}{variable allpass\footnotemark}{}
     \footnotetext{This block, as well as \texttt{bgenerator}, \texttt{cgenerator}, \texttt{qgenerator}, \texttt{ngenerator},
@@ -4219,8 +4221,6 @@ For example, and audio jack can be drawn like this:
     \circuitdescbip*{qgenerator}{Crystal generator (use \texttt{t=\dots} to specify text)}{}
     \circuitdescbip*{cgenerator}{Clock generator}{}
     \circuitdescbip*{ngenerator}{Generic generator (use \texttt{t=\dots} to specify text)}{}
-    \circuitdescbip*{highpass2}{simplified highpass (with only 2 waves)}{}
-    \circuitdescbip*{lowpass2}{simplified lowpass (with only 2 waves)}{}
     \circuitdescbip*{adc}{A/D converter}{}
     \circuitdescbip*{dac}{D/A converter}{}
     \circuitdescbip*{dsp}{DSP}{}
@@ -4251,6 +4251,20 @@ For example, and audio jack can be drawn like this:
     \circuitdescbip*{tacdc}{three phases AC/DC converter}{}(ac up in/135/.3, ac mid in/185/.3, ac down in/-135/.3, dc up out/45/.3, dc down out/-35/.3)
     \circuitdescbip*{tdcac}{three phases AC/DC converter}{}(ac up out/45/0.1, ac mid out/-5/.3, ac down out/-45/.1, dc up in/135/.3, dc down in/185/.3)
     \circuitdescbip*{tacac}{three phases AC/DC converter}{}(ac up in/135/.3, ac mid in/185/.3, ac down in/-135/.3, ac up out/45/.3, ac mid out/-5/.3, ac down out/-45/.3)
+\end{groupdesc}
+
+Filters blocks have an alternative, Bode-diagram-like appearance.
+Their names end in \texttt{p}, as a mnemonic for ``plot''.
+By default, they have a ``fake'' semi-logarithmic grid to convey the hint that the diagram is a frequency response one, to separate them from similar drawings as, for example, saturation.
+The grid can be removed or customized, see section~\ref{sec:block-filter-grid-cust}.
+
+\begin{groupdesc}
+    \circuitdescbip*{lowpassp}{lowpass, plot style}{}
+    \circuitdescbip*{highpassp}{highpass, plot style}{}
+    \circuitdescbip*{bandpassp}{bandpass, plot style}{}
+    \circuitdescbip*{bandstopp}{bandstop, plot style}{}
+    \circuitdescbip*{resonantp}{resonant, plot style}{}
+    \circuitdescbip*{notchp}{notch, plot style}{}
 \end{groupdesc}
 
 Blocks to draw TV/radio system schematics, contributed by \href{https://github.com/circuitikz/circuitikz/pull/693}{Dr. Matthias Jung}.
@@ -4573,6 +4587,55 @@ You can change the general style for the DC symbol using the key \IndexKey{block
         ++(2,0) to[sdcac] ++(2,0);
 \end{tikzpicture}
 \end{LTXexample}
+
+\paragraph{Blocks inner drawing.}
+Most of the inner block drawings can be customized, without affecting the external box, with the keys \IndexKey{blocks/inner color} (default \texttt{default}, which means ``don't change color'') and \IndexKey{blocks/inner thickness} (default \texttt{1}; this is relative to the class-specified thickness).
+
+\begin{LTXexample}[varwidth=true]
+\begin{circuitikz} \draw
+  (0,0) to[short,o-] ++(0.3,0)
+  to[lowpass,>, blocks/inner color=red ] ++(2,0)
+  to[lowpassp,>, blocks/inner thickness=4,
+    blocks/filter grid/thickness=0.25] ++(2,0)
+  to[short,-o] ++(0.3,0);
+\end{circuitikz}
+\end{LTXexample}
+
+\paragraph{Block filter grid customization.}\label{sec:block-filter-grid-cust}
+In the ``plot''-type filter blocks, you can change the appearance of the fake semi-logarithmic grid using the following parameters (with \verb!\ctikzset!, under the family \IndexKey{blocks/filter grid/})
+
+\begin{center}
+    \begin{tabular}{>{\ttfamily}l>{\ttfamily}lp{8cm}}
+        \toprule
+     parameter &  default & description  \\
+     \midrule
+     thickness & 0.5 & line thickness, this is relative to the \texttt{inner thickness} setting for the block \\
+     color & default & stroke color: \texttt{default} is the same as the component color (\texttt{inner color} if it's set) \\
+     dash & \{\{0.04cm\}\{0.04cm\}\} & dash pattern: none means solid line, default means keep the global pattern\footnotemark \\
+     opacity & 0.3 & stroke opacity for the grid. Using \texttt{0} will suppress the drawing of the grid completely. \\
+        \bottomrule
+    \end{tabular}
+    \footnotetext{Follows the syntax of the pattern sequence \texttt{\textbackslash pgfsetdash} --- see \TikZ{} manual for details; phase is always zero. Basically you pass pairs of dash-length -- blank-length dimensions, see the examples. Notice that the dimensions are not exactly \unit{cm}: the length are scaled so that \qty{1}{cm} is really the block width.}
+\end{center}
+
+Additionally, the \IndexKey{blocks/filter plot/relative thickness} (default \ctikzvalof{blocks/filter plot/relative thickness}) will change the relative thickness (with respect to the class thickness, or \texttt{inner thickness} if set) of the ``frequency response'' sketch line.
+
+Finally, the plots are by default rounded\footnote{This, and the hint for the new filter shapes, were suggested by \href{https://chat.stackexchange.com/transcript/message/68537036\#68537036}{@cis on the TeX-SX chat}.}, but you can choose to have them with sharp edges setting the key \IndexKey{blocks/filter plot/rounding} to \texttt{0} (the default value is \texttt{0.15}).
+
+\begin{LTXexample}[varwidth=true]
+    \begin{circuitikz} \draw
+        (0,0) to[lowpassp=\qty{1}{\kHz},
+        blocks/filter grid/color=red,
+        blocks/filter grid/dash=none,
+        blocks/filter grid/thickness=1] ++(2,0)
+        to[notchp=\qty{50}{\hertz},
+        blocks/filter grid/opacity=0,
+        blocks/filter plot/relative thickness=1,
+        blocks/filter plot/rounding=0] ++(2,0);
+    \end{circuitikz}
+\end{LTXexample}
+
+
 
 \subsection{Transistors}
 

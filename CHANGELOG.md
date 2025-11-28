@@ -3,13 +3,16 @@ The major changes among the different CircuiTikZ versions are listed here. See <
 
 * Version 1.8.4 (unreleased)
 
+    The main highlights of this release is a new appearance (optional!) for blocks representing filters, and some option to add style to the inner drawings of (most) blocks.
+
+    - Add a new set of filter blocks, add options for inner block drawings (by Romano)
     - Minor fixes in the manual (thanks [quark67](https://github.com/circuitikz/circuitikz/issues/891)!)
 
 * Version 1.8.3 (2025-11-23)
-    
+
     The main highlight of this version is the fix of the oo-type sources and transformers. They used parameters different from width and height to define the shape, and the anchors were not stable (and some of them were plain wrong). It also adds several capabilities to them (anchors, additional windings, and so on).
     Additionally, IGT thyristors and a couple of generic shapes (AC/DC symbols) have been added.
-    
+
     - Add anchors, additional winding, global scale switch and symbol rotation to the oo-type component, suggested by [Jakob Leide](https://github.com/circuitikz/circuitikz/issues/886)
     - Add IGCT thyristors by [Paul Sacco](https://github.com/circuitikz/circuitikz/pull/881)
     - Add ac/dc symbols (by Romano)
