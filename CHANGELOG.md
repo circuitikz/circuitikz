@@ -6,6 +6,7 @@ The major changes among the different CircuiTikZ versions are listed here. See <
     The main highlights of this release is a new appearance (optional!) for blocks representing filters, and some option to add style to the inner drawings of (most) blocks.
 
     - Add a new set of filter blocks, add options for inner block drawings (by Romano)
+    - Add the option to *not* draw the wiper in rotary switches, suggested by [@kabenyuk and @cis in this Q&A](https://tex.stackexchange.com/questions/755499/circuitkiz-customize-the-style-of-the-rotary-switch-position-display)
     - Minor fixes in the manual (thanks [quark67](https://github.com/circuitikz/circuitikz/issues/891)!)
 
 * Version 1.8.3 (2025-11-23)
