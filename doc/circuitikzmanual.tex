@@ -3830,19 +3830,19 @@ As shown in the example above, the \texttt{dc symbols} has an additional options
 Additionally, you can change the relative thickness of the bottom line with the key \texttt{dc symbols/relative thickness} (default \texttt{1}).
 
 \begin{LTXexample}[varwidth=true, basicstyle=\small\ttfamily]
-    \begin{tikzpicture}
+    \begin{tikzpicture}[scale=2, transform shape]
     \tikzset{my dc symbol/.style={
         dc symbol,
-        circuitikz/misc/thickness=3,
+        circuitikz/misc/thickness=4,
         circuitikz/dc symbol/height=0.1,
         circuitikz/dc symbol/width=0.2,
         circuitikz/dc symbol/relative thickness=.5,
         circuitikz/dc symbol/segments=3
     }}
     \node (A) at (0,0) {A}; \node (V) at (1,0) {V};
-    % standard
-    \node [dc symbol, above, circuitikz/misc/thickness=4] at (A.north) {};
-    % tweaked
+    % standard and customized
+    \node [dc symbol, above,
+        circuitikz/misc/thickness=4] at (A.north) {};
     \node [my dc symbol, above] at (V.north) {};
 \end{tikzpicture}
 \end{LTXexample}
@@ -4594,19 +4594,23 @@ Moreover, the key \IndexKey{dashed blocks pattern} (default \verb|{{1mm}{1mm}}|)
 \paragraph{Dashing the DC symbol in blocks.}
 The symbol for the DC side can be different across countries,\footnote{Head-up from \href{https://github.com/circuitikz/circuitikz/issues/680}{user \texttt{@dbstf} on GitHub}} with different kind of dashing on the bottom line.
 Moreover, sometimes the dashing is used to convey different meanings (like rectified sinusoidal or stabilized DC).
-You can change the general style for the DC symbol using the key \IndexKey{blocks dc segments}; using~\texttt{1} (default) will use a continuous line; using \texttt{2} you will have the international-styled symbol, and with~\texttt{3} the English one (you can use higher numbers; the only restriction is that it must be strictly greater than \texttt{0}).  You can also change the input and output part separately with the keys \IndexKey{blocks dc in segments} and \IndexKey{blocks dc out segments} (see the following example). The \texttt{inner blocks dashed} option overrides these ones.
+You can change the general style for the DC symbol using the key \IndexKey{blocks dc segments}; using~\texttt{1} (default) will use a continuous line; using \texttt{2} you will have the international-styled symbol, and with~\texttt{3} the English one (you can use higher numbers; the only restriction is that it must be strictly greater than \texttt{0}).  You can also change the input and output part separately with the keys \IndexKey{blocks dc in segments} and \IndexKey{blocks dc out segments} (see the following example). The \texttt{inner blocks dashed} can have strange interaction with these ones.
 
-\begin{LTXexample}[varwidth=true]
-\begin{tikzpicture}[scale=0.9]
+
+\begin{LTXexample}[varwidth=true, basicstyle=\footnotesize\ttfamily]
+\begin{tikzpicture}[scale=0.8]
     \ctikzset{blocks dc segments=3}
     \draw (0,2) to[sacdc] ++(2,0) to[sdcdc]
         ++(2,0) to[sdcac] ++(2,0);
     \ctikzset{blocks dc segments=1}
-    \draw (0,0) to[sacdc, blocks dc out segments=2]
-        ++(2,0) to[sdcdc, blocks dc in segments=2]
+    \draw[dashed] (0,0) to[sacdc, blocks dc out segments=2]
+        ++(2,0) to[sdcdc, blocks dc in segments=2,
+            inner blocks dashed,
+            dashed blocks pattern={{0.4pt}{0.4pt}}]
         ++(2,0) to[sdcac] ++(2,0);
 \end{tikzpicture}
 \end{LTXexample}
+
 
 \paragraph{Blocks inner drawing.}
 Most of the inner block drawings can be customized, without affecting the external box, with the keys \IndexKey{blocks/inner color} (default \texttt{default}, which means ``don't change color'') and \IndexKey{blocks/inner thickness} (default \texttt{1}; this is relative to the class-specified thickness).

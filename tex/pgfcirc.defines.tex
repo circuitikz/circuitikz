@@ -262,6 +262,22 @@
 %
 \def\ctikz@hook@start@draw@default{\pgf@circ@reset@arrows@rounded}
 %
+% we can't use dash pattern (not easily) to draw a fixed number of dashes.
+% See https://github.com/circuitikz/circuitikz/issues/897
+%
+\def\pgf@circ@do@n@hdashes#1#2#3#4{%
+    % this does the following: draw #1 dashes, each of length #2
+    % separated by a blank space of the same length
+    % starting from (#3, #4) and going horizontal
+    \pgf@circ@count@a=0 %
+    \pgfmathloop%
+    \ifnum\pgf@circ@count@a<#1 %
+        \pgfpathmoveto{\pgfpointadd{\pgfpoint{#3}{#4}}{\pgfpoint{(2*\pgf@circ@count@a)*(#2)}{0pt}}}
+        \pgfpathlineto{\pgfpointadd{\pgfpoint{#3}{#4}}{\pgfpoint{(2*\pgf@circ@count@a+1)*(#2)}{0pt}}}
+        \advance\pgf@circ@count@a by 1\relax%
+    \repeatpgfmathloop
+}
+%
 %
 %>>>
 
