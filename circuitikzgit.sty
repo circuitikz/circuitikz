@@ -16,7 +16,7 @@
 \providecommand\DeclareRelease[3]{}
 \providecommand\DeclareCurrentRelease[2]{}
 
-\def\pgfcircversion{1.8.4-unreleased-984e216}
+\def\pgfcircversion{1.8.4-unreleased-30fe7c2}
 \def\pgfcircversiondate{2025/12/01}
 
 \DeclareRelease{0.4}{2012/12/20}{circuitikz-0.4-body.tex}
@@ -618,6 +618,22 @@
 %% arced corners.
 %
 \def\ctikz@hook@start@draw@default{\pgf@circ@reset@arrows@rounded}
+%
+% we can't use dash pattern (not easily) to draw a fixed number of dashes.
+% See https://github.com/circuitikz/circuitikz/issues/897
+%
+\def\pgf@circ@do@n@hdashes#1#2#3#4{%
+    % this does the following: draw #1 dashes, each of length #2
+    % separated by a blank space of the same length
+    % starting from (#3, #4) and going horizontal
+    \pgf@circ@count@a=0 %
+    \pgfmathloop%
+    \ifnum\pgf@circ@count@a<#1 %
+        \pgfpathmoveto{\pgfpointadd{\pgfpoint{#3}{#4}}{\pgfpoint{(2*\pgf@circ@count@a)*(#2)}{0pt}}}
+        \pgfpathlineto{\pgfpointadd{\pgfpoint{#3}{#4}}{\pgfpoint{(2*\pgf@circ@count@a+1)*(#2)}{0pt}}}
+        \advance\pgf@circ@count@a by 1\relax%
+    \repeatpgfmathloop
+}
 %
 %
 %>>>
@@ -3357,10 +3373,11 @@
             \edef\@@dashes{\ctikzvalof{dc symbol/segments}}
             \ifnum\@@dashes>1
                 \pgfmathsetlength{\pgf@circ@res@other}{2*\pgf@circ@res@right/(2*(\@@dashes-1)+1)}
-                \pgfsetdash{{\pgf@circ@res@other}{\pgf@circ@res@other}}{0pt}
+                \pgf@circ@do@n@hdashes{\@@dashes}{\pgf@circ@res@other}{\pgf@circ@res@left}{\pgf@circ@res@down}
+            \else
+                \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@down}}
+                \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@down}}
             \fi
-            \pgfpathmoveto{\pgfpoint{\pgf@circ@res@left}{\pgf@circ@res@down}}
-            \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@down}}
             \pgfusepath{draw}
         \endpgfscope
     }
@@ -23767,21 +23784,27 @@
 \def\pgf@circ@twoport@converter@dc#1#2{%
     \pgfscope
     \pgftransformshift{\pgfpoint{#1\pgf@circ@res@step}{#2\pgf@circ@res@step}}
+    % upper line, always continuos
     \pgfpathmoveto{\pgfpoint{-0.25\pgf@circ@res@step}{0.125\pgf@circ@res@step}}
     \pgfpathlineto{\pgfpoint{0.25\pgf@circ@res@step}{0.125\pgf@circ@res@step}}
     \pgfusepath{draw}
-    \ifpgf@circuit@full@dashed\else % do not apply the specific dash if fully dashing
-        \edef\@@up{\ctikzvalof{blocks dc in segments}}
-        \edef\@@down{\ctikzvalof{blocks dc out segments}}
-        \ifdim\dimexpr#1\pgf@circ@res@step\relax<0pt
-            \pgfmathsetlength{\pgf@circ@res@other}{\pgf@circ@res@step/(4*\@@up-2)}
-        \else
-            \pgfmathsetlength{\pgf@circ@res@other}{\pgf@circ@res@step/(4*\@@down-2)}
-        \fi
-        \pgfsetdash{{\pgf@circ@res@other}{\pgf@circ@res@other}}{0pt}
+    % lower line, may be dashed
+    % let us dash everything is needed (this is a change from before)
+    \ifdim\dimexpr#1\pgf@circ@res@step\relax<0pt
+        % this is the upper side
+        \edef\@@tmp{\ctikzvalof{blocks dc in segments}}
+    \else
+        % this is the lower side
+        \edef\@@tmp{\ctikzvalof{blocks dc out segments}}
     \fi
-    \pgfpathmoveto{\pgfpoint{-0.25\pgf@circ@res@step}{-0.125\pgf@circ@res@step}}
-    \pgfpathlineto{\pgfpoint{0.25\pgf@circ@res@step}{-0.125\pgf@circ@res@step}}
+        \pgfmathsetlength{\pgf@circ@res@other}{\pgf@circ@res@step/(4*\@@tmp-2)}
+    \ifnum\@@tmp>1
+        % we can't use dash here; the dash length is not scaled
+        \pgf@circ@do@n@hdashes{\@@tmp}{\pgf@circ@res@other}{-0.25\pgf@circ@res@step}{-0.125\pgf@circ@res@step}
+    \else
+        \pgfpathmoveto{\pgfpoint{-0.25\pgf@circ@res@step}{-0.125\pgf@circ@res@step}}
+        \pgfpathlineto{\pgfpoint{0.25\pgf@circ@res@step}{-0.125\pgf@circ@res@step}}
+    \fi
     \pgfusepath{draw}
     \endpgfscope
 }
