@@ -16,8 +16,8 @@
 \providecommand\DeclareRelease[3]{}
 \providecommand\DeclareCurrentRelease[2]{}
 
-\def\pgfcircversion{1.8.4-unreleased-7d335cc}
-\def\pgfcircversiondate{2026/01/01}
+\def\pgfcircversion{1.8.4-unreleased-32a9472}
+\def\pgfcircversiondate{2026/01/03}
 
 \DeclareRelease{0.4}{2012/12/20}{circuitikz-0.4-body.tex}
 \DeclareRelease{v0.4}{2012/12/20}{circuitikz-0.4-body.tex}
@@ -24574,10 +24574,15 @@
 }
 
 %% gridnode
+\pgfkeys{tikz/gridlines/.code={\ctikzset{blocks/gridnode/gridlines=#1}}}
+\pgfkeys{tikz/gridlines/.default=\ctikzvalof{blocks/gridnode/gridlines}}
+\ctikzset{blocks/gridnode/gridlines/.initial=7}
+
 \pgfdeclareshape{gridnode}
 {
     \savedmacro{\ctikzclass}{\edef\ctikzclass{blocks}}
     \saveddimen{\scaledRlen}{\pgfmathsetlength{\pgf@x}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}}
+    \savedmacro{\gridlines}{\edef\gridlines{\ctikzvalof{blocks/gridnode/gridlines}}}
     \savedanchor\northwest{
         \pgfmathsetlength{\pgf@circ@scaled@Rlen}{\ctikzvalof{\ctikzclass/scale}\pgf@circ@Rlen}
             \pgf@y=\ctikzvalof{quadpoles/gridnode/width}\pgf@circ@scaled@Rlen
@@ -24626,23 +24631,29 @@
         \pgfsetarrows{-} %never draw arrows
         \pgfstartlinewidth=\pgflinewidth
         % draw grid
-        \foreach \line in {-1,-.5,...,1}
-        {
-            \pgfpathmoveto{\pgfpoint{\line\pgf@circ@res@right}{\pgf@circ@res@up}}
-            \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{\line\pgf@circ@res@up}}
-            %
-            \pgfpathmoveto{\pgfpoint{\line\pgf@circ@res@right}{\pgf@circ@res@up}}
-            \pgfpathlineto{\pgfpoint{\pgf@circ@res@left}{\line\pgf@circ@res@down}}
+        \ifodd\gridlines
+        	\edef\gridmiddleline{\numexpr(\gridlines+1)/2\relax}
+        \else
+        	\edef\gridmiddleline{\numexpr\gridlines/2+1\relax}
+       	\fi
+        
+	    \foreach \line in {\gridmiddleline,...,\gridlines}
+       	{
+        	\pgfmathsetmacro\relpos{4*\line/(\gridlines+1) - 3}
+           	\pgfpathmoveto{\pgfpoint{\relpos\pgf@circ@res@right}{\pgf@circ@res@up}}
+           	\pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{\relpos\pgf@circ@res@up}}
+           	\pgfpathmoveto{\pgfpoint{\relpos\pgf@circ@res@left}{\pgf@circ@res@up}}
+	        \pgfpathlineto{\pgfpoint{\pgf@circ@res@left}{\relpos\pgf@circ@res@up}}
         }
         %prevent from draw the inner cross twice
-        \foreach \line in {-.5,0,...,.5}
-        {
-            \pgfpathmoveto{\pgfpoint{\line\pgf@circ@res@right}{\pgf@circ@res@down}}
-            \pgfpathlineto{\pgfpoint{\pgf@circ@res@left}{\line\pgf@circ@res@up}}
-            %
-            \pgfpathmoveto{\pgfpoint{\line\pgf@circ@res@right}{\pgf@circ@res@down}}
-            \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{\line\pgf@circ@res@down}}
-        }
+	    \foreach \line in {1,...,\numexpr\gridmiddleline-1\relax}
+	    {
+        	\pgfmathsetmacro\relpos{1 - 4*\line/(\gridlines+1)}
+	        \pgfpathmoveto{\pgfpoint{\relpos\pgf@circ@res@right}{\pgf@circ@res@down}}
+	        \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{\relpos\pgf@circ@res@down}}
+	        \pgfpathmoveto{\pgfpoint{\relpos\pgf@circ@res@left}{\pgf@circ@res@down}}
+		    \pgfpathlineto{\pgfpoint{\pgf@circ@res@left}{\relpos\pgf@circ@res@down}}
+      	}
         \pgfusepath{draw}
     }
 }
