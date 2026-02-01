@@ -16,8 +16,8 @@
 \startmodule[circuitikzgit]
 \usemodule[tikz]
 
-\def\pgfcircversion{1.8.5-unreleased-b45915d}
-\def\pgfcircversiondate{2026/01/30}
+\def\pgfcircversion{1.8.5-unreleased-2333803}
+\def\pgfcircversiondate{2026/02/01}
 \writestatus{loading}{\pgfcircversiondate{} The CircuiTikz circuit drawing package version \pgfcircversion}
 
 
@@ -22681,15 +22681,77 @@
 \ctikzset{blocks/filter grid/opacity/.initial=0.3}
 \ctikzset{blocks/filter plot/relative thickness/.initial=2}
 \ctikzset{blocks/filter plot/rounding/.initial=0.15}
+% Switch the plot-type filter to ideal shapes
+\newif\ifpgf@circuit@idealfilter
+\ctikzset{ideal filter/.is if=pgf@circuit@idealfilter}%
+\tikzset{ideal filter/.is if=pgf@circuit@idealfilter}%
+% Add small "0" and "1" to ideal filters plots
+\newif\ifpgf@circuit@idealfilter@numbers
+\ctikzset{ideal filter numbers/.is if=pgf@circuit@idealfilter@numbers}%
+\tikzset{ideal filter numbers/.is if=pgf@circuit@idealfilter@numbers}%
+\ctikzset{ideal filter number low/.initial={0}}
+\ctikzset{ideal filter number high/.initial={1}}
 % set up plot-type drawing
 \def\pgfcirc@setup@plot@filters{%
-    \pgfcirc@twoport@draw@logax
+    \ifpgf@circuit@idealfilter
+        \pgfcirc@twoport@draw@linax
+    \else
+        \pgfcirc@twoport@draw@logax
+    \fi
     \edef\@@tmp{\ctikzvalof{blocks/filter plot/relative thickness}}
     \pgfsetlinewidth{\@@tmp\pgflinewidth}
-    \edef\@@tmp{\ctikzvalof{blocks/filter plot/rounding}}
-    \pgfsetcornersarced{\pgfpoint{\@@tmp\pgf@circ@res@step}{\@@tmp\pgf@circ@res@step}}
+    % ideal filters are "square"
+    \ifpgf@circuit@idealfilter\else
+        \edef\@@tmp{\ctikzvalof{blocks/filter plot/rounding}}
+        \pgfsetcornersarced{\pgfpoint{\@@tmp\pgf@circ@res@step}{\@@tmp\pgf@circ@res@step}}
+    \fi
 }
-% draw a fake log-log grid for scale
+% draw a fake lin-lin grid for ideal plot-type filters
+\def\pgfcirc@twoport@draw@linax{%
+    \pgfscope
+        \edef\@@opacity{\ctikzvalof{blocks/filter grid/opacity}}
+        \ifdim\@@opacity pt>0pt
+            \pgfmathsetmacro{\@@scale}{\pgf@circ@res@step/1cm}
+            \pgftransformxscale{\@@scale}
+            \pgftransformyscale{\@@scale}
+            \def\@@gridx{0.7cm}\def\@@gridy{0.6cm}
+            % horizontal lin
+            \pgfpathmoveto{\pgfpoint{-\@@gridx}{-\@@gridy}}
+            \pgfpathlineto{\pgfpoint{\@@gridx}{-\@@gridy}}
+            \pgfpathmoveto{\pgfpoint{-\@@gridx}{-0.5*\@@gridy}}
+            \pgfpathlineto{\pgfpoint{\@@gridx}{-0.5*\@@gridy}}
+            \pgfpathmoveto{\pgfpoint{-\@@gridx}{0cm}}
+            \pgfpathlineto{\pgfpoint{\@@gridx}{0cm}}
+            \pgfpathmoveto{\pgfpoint{-\@@gridx}{0.5*\@@gridy}}
+            \pgfpathlineto{\pgfpoint{\@@gridx}{0.5*\@@gridy}}
+            \pgfpathmoveto{\pgfpoint{-\@@gridx}{\@@gridy}}
+            \pgfpathlineto{\pgfpoint{\@@gridx}{\@@gridy}}
+            % vertical lin
+            \pgfpathmoveto{\pgfpoint{-\@@gridx}{-\@@gridy}}
+            \pgfpathlineto{\pgfpoint{-\@@gridx}{\@@gridy}}
+            \pgfpathmoveto{\pgfpoint{-0.5*\@@gridx}{-\@@gridy}}
+            \pgfpathlineto{\pgfpoint{-0.5*\@@gridx}{\@@gridy}}
+            \pgfpathmoveto{\pgfpoint{0cm}{-\@@gridy}}
+            \pgfpathlineto{\pgfpoint{0cm}{\@@gridy}}
+            \pgfpathmoveto{\pgfpoint{0.5*\@@gridx}{-\@@gridy}}
+            \pgfpathlineto{\pgfpoint{0.5*\@@gridx}{\@@gridy}}
+            \pgfpathmoveto{\pgfpoint{\@@gridx}{-\@@gridy}}
+            \pgfpathlineto{\pgfpoint{\@@gridx}{\@@gridy}}
+            %
+            \pgf@circ@subset@thickness{blocks/filter grid}
+            \pgf@circ@subset@color@dash{blocks/filter grid}
+            \pgfsetstrokeopacity{\@@opacity}
+            \pgfusepath{draw}
+            \ifpgf@circuit@idealfilter@numbers
+                \pgftext[right,at={\pgfpoint{-\@@gridx}{-\@@gridy}}]{%
+                    \scriptsize\ctikzvalof{ideal filter number low}\kern1pt}
+                \pgftext[right,at={\pgfpoint{-\@@gridx}{\@@gridy}}]{%
+                    \scriptsize\ctikzvalof{ideal filter number high}\kern1pt}
+            \fi
+        \fi
+    \endpgfscope
+}
+% draw a fake log-dB(lin) grid for plot-style filters
 \def\pgfcirc@twoport@draw@logax{%
     \pgfscope
         \edef\@@opacity{\ctikzvalof{blocks/filter grid/opacity}}
@@ -22702,8 +22764,8 @@
             \pgfpathlineto{\pgfpoint{0.8cm}{-0.8cm}}
             \pgfpathmoveto{\pgfpoint{-0.8cm}{-0.4cm}}
             \pgfpathlineto{\pgfpoint{0.8cm}{-0.4cm}}
-            \pgfpathmoveto{\pgfpoint{-0.8cm}{-0cm}}
-            \pgfpathlineto{\pgfpoint{0.8cm}{-0cm}}
+            \pgfpathmoveto{\pgfpoint{-0.8cm}{0cm}}
+            \pgfpathlineto{\pgfpoint{0.8cm}{0cm}}
             \pgfpathmoveto{\pgfpoint{-0.8cm}{0.4cm}}
             \pgfpathlineto{\pgfpoint{0.8cm}{0.4cm}}
             \pgfpathmoveto{\pgfpoint{-0.8cm}{0.8cm}}
@@ -22715,8 +22777,8 @@
             \pgfpathlineto{\pgfpoint{-0.3cm}{0.8cm}}
             \pgfpathmoveto{\pgfpoint{-0.1cm}{-0.8cm}}
             \pgfpathlineto{\pgfpoint{-0.1cm}{0.8cm}}
-            \pgfpathmoveto{\pgfpoint{-0cm}{-0.8cm}}
-            \pgfpathlineto{\pgfpoint{-0cm}{0.8cm}}
+            \pgfpathmoveto{\pgfpoint{0cm}{-0.8cm}}
+            \pgfpathlineto{\pgfpoint{0cm}{0.8cm}}
             \pgfpathmoveto{\pgfpoint{0.5cm}{-0.8cm}}
             \pgfpathlineto{\pgfpoint{0.5cm}{0.8cm}}
             \pgfpathmoveto{\pgfpoint{0.7cm}{-0.8cm}}
@@ -24001,12 +24063,11 @@
         \pgfpathlineto{\pgfpoint{\pgf@circ@res@right}{\pgf@circ@res@zero}}
 	\pgfusepath{draw}
 }
-
 \pgfcirc@activate@bipole@simple{l}{fiber}
 %
 % plot-type filters
 %
-%% lowpassg filter
+%% lowpass plot-type filter
 \pgfcirc@define@twoports{blocks}
 {}
 {\ctikzvalof{bipoles/lowpassp/width}}
@@ -24016,11 +24077,16 @@
 {
     \pgfcirc@setup@plot@filters
     \pgfpathmoveto{\pgfpoint{-0.7\pgf@circ@res@step}{0.6\pgf@circ@res@step}}
-    \pgfpathlineto{\pgfpoint{0\pgf@circ@res@step}{0.6\pgf@circ@res@step}}
-    \pgfpathlineto{\pgfpoint{ 0.7\pgf@circ@res@step}{-0.6\pgf@circ@res@step}}
+    \pgfpathlineto{\pgfpoint{0pt}{0.6\pgf@circ@res@step}}
+    \ifpgf@circuit@idealfilter
+        \pgfpathlineto{\pgfpoint{ 0pt}{-0.6\pgf@circ@res@step}}
+        \pgfpathlineto{\pgfpoint{ 0.7\pgf@circ@res@step}{-0.6\pgf@circ@res@step}}
+    \else
+        \pgfpathlineto{\pgfpoint{ 0.7\pgf@circ@res@step}{-0.6\pgf@circ@res@step}}
+    \fi
     \pgfusepath{draw}
 }
-%% highpassg filter
+%% highpass plot-type filter
 \pgfcirc@define@twoports{blocks}
 {}
 {\ctikzvalof{bipoles/highpassp/width}}
@@ -24030,11 +24096,14 @@
 {
     \pgfcirc@setup@plot@filters
     \pgfpathmoveto{\pgfpoint{-0.7\pgf@circ@res@step}{-0.6\pgf@circ@res@step}}
-    \pgfpathlineto{\pgfpoint{0\pgf@circ@res@step}{0.6\pgf@circ@res@step}}
+    \ifpgf@circuit@idealfilter
+        \pgfpathlineto{\pgfpoint{0pt}{-0.6\pgf@circ@res@step}}
+    \fi
+    \pgfpathlineto{\pgfpoint{0pt}{0.6\pgf@circ@res@step}}
     \pgfpathlineto{\pgfpoint{ 0.7\pgf@circ@res@step}{0.6\pgf@circ@res@step}}
     \pgfusepath{draw}
 }
-%% bandpassg filter
+%% bandpass plot-type filter
 \pgfcirc@define@twoports{blocks}
 {}
 {\ctikzvalof{bipoles/bandpassp/width}}
@@ -24044,12 +24113,19 @@
 {
     \pgfcirc@setup@plot@filters
     \pgfpathmoveto{\pgfpoint{-0.7\pgf@circ@res@step}{-0.6\pgf@circ@res@step}}
-    \pgfpathlineto{\pgfpoint{-0.4\pgf@circ@res@step}{0.6\pgf@circ@res@step}}
-    \pgfpathlineto{\pgfpoint{ 0.4\pgf@circ@res@step}{0.6\pgf@circ@res@step}}
-    \pgfpathlineto{\pgfpoint{ 0.7\pgf@circ@res@step}{-0.6\pgf@circ@res@step}}
+    \ifpgf@circuit@idealfilter
+        \pgfpathlineto{\pgfpoint{-0.35\pgf@circ@res@step}{-0.6\pgf@circ@res@step}}
+        \pgfpathlineto{\pgfpoint{-0.35\pgf@circ@res@step}{0.6\pgf@circ@res@step}}
+        \pgfpathlineto{\pgfpoint{0.35\pgf@circ@res@step}{0.6\pgf@circ@res@step}}
+        \pgfpathlineto{\pgfpoint{0.35\pgf@circ@res@step}{-0.6\pgf@circ@res@step}}
+    \else
+        \pgfpathlineto{\pgfpoint{-0.4\pgf@circ@res@step}{0.6\pgf@circ@res@step}}
+        \pgfpathlineto{\pgfpoint{ 0.4\pgf@circ@res@step}{0.6\pgf@circ@res@step}}
+    \fi
+    \pgfpathlineto{\pgfpoint{0.7\pgf@circ@res@step}{-0.6\pgf@circ@res@step}}
     \pgfusepath{draw}
 }
-%% bandstopg filter
+%% bandstop plot-type filter
 \pgfcirc@define@twoports{blocks}
 {}
 {\ctikzvalof{bipoles/bandstopp/width}}
@@ -24059,12 +24135,19 @@
 {
     \pgfcirc@setup@plot@filters
     \pgfpathmoveto{\pgfpoint{-0.7\pgf@circ@res@step}{0.6\pgf@circ@res@step}}
-    \pgfpathlineto{\pgfpoint{-0.4\pgf@circ@res@step}{-0.6\pgf@circ@res@step}}
-    \pgfpathlineto{\pgfpoint{ 0.4\pgf@circ@res@step}{-0.6\pgf@circ@res@step}}
-    \pgfpathlineto{\pgfpoint{ 0.7\pgf@circ@res@step}{0.6\pgf@circ@res@step}}
+    \ifpgf@circuit@idealfilter
+        \pgfpathlineto{\pgfpoint{-0.35\pgf@circ@res@step}{0.6\pgf@circ@res@step}}
+        \pgfpathlineto{\pgfpoint{-0.35\pgf@circ@res@step}{-0.6\pgf@circ@res@step}}
+        \pgfpathlineto{\pgfpoint{0.35\pgf@circ@res@step}{-0.6\pgf@circ@res@step}}
+        \pgfpathlineto{\pgfpoint{0.35\pgf@circ@res@step}{0.6\pgf@circ@res@step}}
+    \else
+        \pgfpathlineto{\pgfpoint{-0.4\pgf@circ@res@step}{-0.6\pgf@circ@res@step}}
+        \pgfpathlineto{\pgfpoint{ 0.4\pgf@circ@res@step}{-0.6\pgf@circ@res@step}}
+    \fi
+    \pgfpathlineto{\pgfpoint{0.7\pgf@circ@res@step}{0.6\pgf@circ@res@step}}
     \pgfusepath{draw}
 }
-%% notch filter
+%% resonant plot-type filter
 \pgfcirc@define@twoports{blocks}
 {}
 {\ctikzvalof{bipoles/resonantp/width}}
@@ -24074,13 +24157,19 @@
 {
     \pgfcirc@setup@plot@filters
     \pgfpathmoveto{\pgfpoint{-0.7\pgf@circ@res@step}{-0.6\pgf@circ@res@step}}
-    \pgfpathlineto{\pgfpoint{-0.15\pgf@circ@res@step}{-0.6\pgf@circ@res@step}}
-    \pgfpathlineto{\pgfpoint{0\pgf@circ@res@step}{0.7\pgf@circ@res@step}}
-    \pgfpathlineto{\pgfpoint{ 0.15\pgf@circ@res@step}{-0.6\pgf@circ@res@step}}
+    \ifpgf@circuit@idealfilter
+        \pgfpathlineto{\pgfpoint{0pt}{-0.6\pgf@circ@res@step}}
+        \pgfpathlineto{\pgfpoint{0pt}{0.6\pgf@circ@res@step}}
+        \pgfpathlineto{\pgfpoint{ 0pt}{-0.6\pgf@circ@res@step}}
+    \else
+        \pgfpathlineto{\pgfpoint{-0.15\pgf@circ@res@step}{-0.6\pgf@circ@res@step}}
+        \pgfpathlineto{\pgfpoint{0pt}{0.7\pgf@circ@res@step}}
+        \pgfpathlineto{\pgfpoint{ 0.15\pgf@circ@res@step}{-0.6\pgf@circ@res@step}}
+    \fi
     \pgfpathlineto{\pgfpoint{ 0.7\pgf@circ@res@step}{-0.6\pgf@circ@res@step}}
     \pgfusepath{draw}
 }
-%% notch filter
+%% notch plot-type filter
 \pgfcirc@define@twoports{blocks}
 {}
 {\ctikzvalof{bipoles/notchp/width}}
@@ -24090,9 +24179,15 @@
 {
     \pgfcirc@setup@plot@filters
     \pgfpathmoveto{\pgfpoint{-0.7\pgf@circ@res@step}{0.6\pgf@circ@res@step}}
-    \pgfpathlineto{\pgfpoint{-0.15\pgf@circ@res@step}{0.6\pgf@circ@res@step}}
-    \pgfpathlineto{\pgfpoint{0\pgf@circ@res@step}{-0.7\pgf@circ@res@step}}
-    \pgfpathlineto{\pgfpoint{ 0.15\pgf@circ@res@step}{0.6\pgf@circ@res@step}}
+    \ifpgf@circuit@idealfilter
+        \pgfpathlineto{\pgfpoint{0pt}{0.6\pgf@circ@res@step}}
+        \pgfpathlineto{\pgfpoint{0pt}{-0.6\pgf@circ@res@step}}
+        \pgfpathlineto{\pgfpoint{ 0pt}{0.6\pgf@circ@res@step}}
+    \else
+        \pgfpathlineto{\pgfpoint{-0.15\pgf@circ@res@step}{0.6\pgf@circ@res@step}}
+        \pgfpathlineto{\pgfpoint{0pt}{-0.7\pgf@circ@res@step}}
+        \pgfpathlineto{\pgfpoint{ 0.15\pgf@circ@res@step}{0.6\pgf@circ@res@step}}
+    \fi
     \pgfpathlineto{\pgfpoint{ 0.7\pgf@circ@res@step}{0.6\pgf@circ@res@step}}
     \pgfusepath{draw}
 }
