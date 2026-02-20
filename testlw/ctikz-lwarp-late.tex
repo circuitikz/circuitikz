@@ -1,0 +1,104 @@
+\makeatletter
+\renewcommand*\pushdollarcat
+{%
+    \edef\popdollarcat
+    {%
+        \unexpanded{\catcode`\$}=\the\catcode`\$%
+        \def\noexpand\popdollarcat
+        {\unexpanded\expandafter{\popdollarcat}}%
+    }%
+    \catcode`\$=3
+}
+% HTML: reimplement ctikzExample using a verbatim-to-file capture
+\renewenvironment{ctikzExample}
+% Start verbatim capture of the environment body to a file:
+{\enverb{key-set=ctikz/examples, oarg-not-enverb, more-ignore=0}}
+{%
+    \par\medskip\noindent
+    \ctikz@ex@onlycodeTF{}{\begin{minipage}[t]{0.49\linewidth}}%
+        \enverbListing{lstlisting}{}%
+    \ctikz@ex@onlycodeTF{}{\end{minipage}\hfill}%
+    \ctikz@ex@onlycodeTF{}
+    {%
+        \begin{minipage}[t]{0.49\linewidth}
+            \fboxsep=6pt
+            \fboxrule=0.8pt
+            \fcolorbox{cyan}{white}
+            {%
+                \begin{minipage}[t]
+                    {\dimeval{\linewidth-2\fboxsep-2\fboxrule}}%
+                    \ctikz@ex@restore\ctikz@ex@dorestore
+                    \ctikz@ex@execute
+                \end{minipage}%
+            }%
+        \end{minipage}
+    }%
+    \ctikz@ex@store\ctikz@ex@dostore
+    \ctikz@ex@execOutsideTF
+    {\global\let\ctikz@ex@codeOutside\enverbBody}%
+    {}%
+    \par\medskip
+}%
+\renewcommand{\twopartbox}[2]{%
+    \par\noindent
+    \fbox{%
+        \makebox[0.30\linewidth][l]{#1}%
+        \hspace{1em}%
+        \makebox[0.66\linewidth][l]{\RaggedRight\hbadness=9500 #2}%
+    }%
+    \par\medskip
+}
+\AtBeginDocument{% lwarp loads cleveref and then warns about this. Silence, please.
+  \@ifpackageloaded{cleveref}{%
+    \crefname{paragraph}{section}{sections}%
+    \Crefname{paragraph}{Section}{Sections}%
+  }{}%
+}
+
+% This part is to fix the problems that lwarp has with \ctikzsubcircuitactivate
+% A no-op replacement for lwarp's lateximage environment, swallowing up to TWO optional args.
+\newcommand*\ctikz@DisableLateximageEnv{%
+  % Define begin-macro \lateximage to eat optional args if present:
+  \def\lateximage{%
+    \@ifnextchar[{\ctikz@lateximage@optA}{\ctikz@lateximage@done}%
+  }%
+  \def\ctikz@lateximage@optA[##1]{%
+    \@ifnextchar[{\ctikz@lateximage@optB}{\ctikz@lateximage@done}%
+  }%
+  \def\ctikz@lateximage@optB[##1]{%
+    \ctikz@lateximage@done
+  }%
+  \def\ctikz@lateximage@done{}%
+  \let\endlateximage\relax
+}
+
+% Convenience wrapper: run code with lateximage disabled
+\newcommand{\ctikz@DisableLateximage}[1]{%
+  \begingroup
+    \ctikz@DisableLateximageEnv
+    #1%
+  \endgroup
+}
+
+\pgfutil@protected\def\ctikzsubcircuitdef#1#2#3{%
+    \expandafter\gdef\csname #1@Anchor\endcsname{}%
+    \expandafter\gdef\csname #1@setanchors\endcsname{%
+        \ctikz@DisableLateximage{%
+            \setbox\ctikz@scratchbox=\vbox{%
+            \tikzpicture
+            \draw (0,0) \csname#1\endcsname{T-#1}{};
+            \foreach [count=\i] \anchor in {#2}
+            % reference anchor is -center
+            \draw (0,{2-\i/2}) let \p1 = ($(T-#1-subckt@reference)-(T-#1-\anchor)$) in
+            node[right]{\anchor: \x1,\y1 \expandafter\xdef\csname #1@Anchor\anchor\endcsname{++(\x1,\y1)}};
+            \endtikzpicture
+        }%
+    }
+    }%
+    \expandafter\gdef\csname#1\endcsname##1##2{%
+        \csname #1@Anchor##2\endcsname coordinate(##1-subckt@reference)#3%
+    }%
+}
+\long\def\ctikzsubcircuitactivate#1{\csname #1@setanchors\endcsname}
+
+\makeatother
