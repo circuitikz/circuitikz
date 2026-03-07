@@ -973,12 +973,24 @@
     \pgfcirc@twoport@draw@splitline
     %
     \pgf@circ@text@strokecolor
-    \ifnum\@@rotation<145
-        \pgftext[center,x=0.45\pgf@circ@res@left,y=0.45\pgf@circ@res@up]{\pgfcirc@tin}
-        \pgftext[center,x=0.45\pgf@circ@res@right,y=0.45\pgf@circ@res@down]{\pgfcirc@tout}
+    % see where we want the text to reside
+    \ifpgf@circ@center@text
+        \ifnum\@@rotation<145
+            \pgftext[center,x=0.45\pgf@circ@res@left,y=0.45\pgf@circ@res@up]{\pgfcirc@tin}
+            \pgftext[center,x=0.45\pgf@circ@res@right,y=0.45\pgf@circ@res@down]{\pgfcirc@tout}
+        \else
+            \pgftext[center,x=0.45\pgf@circ@res@left,y=0.45\pgf@circ@res@up]{\pgfcirc@tout}
+            \pgftext[center,x=0.45\pgf@circ@res@right,y=0.45\pgf@circ@res@down]{\pgfcirc@tin}
+        \fi
     \else
-        \pgftext[center,x=0.45\pgf@circ@res@left,y=0.45\pgf@circ@res@up]{\pgfcirc@tout}
-        \pgftext[center,x=0.45\pgf@circ@res@right,y=0.45\pgf@circ@res@down]{\pgfcirc@tin}
+        \edef\@@dist{\ctikzvalof{border text distance}}
+        \ifnum\@@rotation<145
+            \pgftext[top,left,x=\pgf@circ@res@left+\@@dist,y=\pgf@circ@res@up-\@@dist]{\pgfcirc@tin}
+            \pgftext[bottom,right,x=\pgf@circ@res@right-\@@dist,y=\pgf@circ@res@down+\@@dist]{\pgfcirc@tout}
+        \else
+            \pgftext[top,left,x=\pgf@circ@res@left+\@@dist,y=\pgf@circ@res@up-\@@dist]{\pgfcirc@tout}
+            \pgftext[bottom,right,x=\pgf@circ@res@right-\@@dist,y=\pgf@circ@res@down+\@@dist]{\pgfcirc@tin}
+        \fi
     \fi
 }
 %% bandpass filter
