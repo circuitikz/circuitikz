@@ -16,8 +16,8 @@
 \providecommand\DeclareRelease[3]{}
 \providecommand\DeclareCurrentRelease[2]{}
 
-\def\pgfcircversion{1.8.6-unreleased-9f0a12a}
-\def\pgfcircversiondate{2026/02/27}
+\def\pgfcircversion{1.8.6-unreleased-6e5b23e}
+\def\pgfcircversiondate{2026/03/08}
 
 \DeclareRelease{0.4}{2012/12/20}{circuitikz-0.4-body.tex}
 \DeclareRelease{v0.4}{2012/12/20}{circuitikz-0.4-body.tex}
@@ -1281,6 +1281,11 @@
 \ctikzset{component text/up/.code={\pgf@circ@center@textfalse\pgf@circ@up@texttrue}}%
 \ctikzset{component text/down/.code={\pgf@circ@center@textfalse\pgf@circ@up@textfalse}}%
 \ctikzset{left text distance/.initial=0.3em}%
+% used by blocks (twoportsplit for now)
+\ctikzset{border text distance/.initial=2pt}
+\ctikzset{component text/border/.code={\pgf@circ@center@textfalse}}%
+\tikzset{border text distance/.code={\ctikzset{border text distance=#1}}}
+\tikzset{component text/border/.code={\pgf@circ@center@textfalse}}%
 %>>>
 
 %% voltage direction options%<<<1
@@ -23321,12 +23326,24 @@
     \pgfcirc@twoport@draw@splitline
     %
     \pgf@circ@text@strokecolor
-    \ifnum\@@rotation<145
-        \pgftext[center,x=0.45\pgf@circ@res@left,y=0.45\pgf@circ@res@up]{\pgfcirc@tin}
-        \pgftext[center,x=0.45\pgf@circ@res@right,y=0.45\pgf@circ@res@down]{\pgfcirc@tout}
+    % see where we want the text to reside
+    \ifpgf@circ@center@text
+        \ifnum\@@rotation<145
+            \pgftext[center,x=0.45\pgf@circ@res@left,y=0.45\pgf@circ@res@up]{\pgfcirc@tin}
+            \pgftext[center,x=0.45\pgf@circ@res@right,y=0.45\pgf@circ@res@down]{\pgfcirc@tout}
+        \else
+            \pgftext[center,x=0.45\pgf@circ@res@left,y=0.45\pgf@circ@res@up]{\pgfcirc@tout}
+            \pgftext[center,x=0.45\pgf@circ@res@right,y=0.45\pgf@circ@res@down]{\pgfcirc@tin}
+        \fi
     \else
-        \pgftext[center,x=0.45\pgf@circ@res@left,y=0.45\pgf@circ@res@up]{\pgfcirc@tout}
-        \pgftext[center,x=0.45\pgf@circ@res@right,y=0.45\pgf@circ@res@down]{\pgfcirc@tin}
+        \edef\@@dist{\ctikzvalof{border text distance}}
+        \ifnum\@@rotation<145
+            \pgftext[top,left,x=\pgf@circ@res@left+\@@dist,y=\pgf@circ@res@up-\@@dist]{\pgfcirc@tin}
+            \pgftext[bottom,right,x=\pgf@circ@res@right-\@@dist,y=\pgf@circ@res@down+\@@dist]{\pgfcirc@tout}
+        \else
+            \pgftext[top,left,x=\pgf@circ@res@left+\@@dist,y=\pgf@circ@res@up-\@@dist]{\pgfcirc@tout}
+            \pgftext[bottom,right,x=\pgf@circ@res@right-\@@dist,y=\pgf@circ@res@down+\@@dist]{\pgfcirc@tin}
+        \fi
     \fi
 }
 %% bandpass filter
