@@ -4616,6 +4616,49 @@ Each block determines where the text is added:
 \end{circuitikz}
 \end{ctikzExample}
 
+For the \IndexKey{twoportsplit} block, you can change how the text is positioned using the key (shared with amplifiers and logic ports, so better use it locally) \IndexKey{component text} (default value \texttt{center}), which gives the standard positioning (text centered in each one of the triangles in which the block is divided).
+If you set it to the value \texttt{border}, the text will be positioned at the corner (upper left or bottom right, depending on orientation) with a distance set by \IndexKey{border text distance} (default \texttt{\ctikzvalof{border text distance}}).
+This option makes it easy to define additional blocks, like these \href{https://github.com/circuitikz/circuitikz/issues/925}{suggested by Matthias Jung}:
+
+\begin{ctikzExample}[only code, exec outside]
+% define a macro to draw a "safe" four-dot symbol
+% basic LaTeX pictures are usable inside TikZ nodes,
+% no nesting problems.
+\newcommand{\fourdots}{%
+    \begingroup
+    \setlength{\unitlength}{0.8mm}%
+    \begin{picture}(4,4)(-2,-2)
+        \put(-2,0){\line(1,0){4}}
+        \put(0,-2){\line(0,1){4}}
+        \multiput(-1,1)(2,0){2}{\circle*{1}}
+        \multiput(-1,-1)(2,0){2}{\circle*{1}}
+    \end{picture}%
+    \endgroup
+}
+% define the new blocks
+\tikzset{%
+    tinysplits/.style 2 args={twoportsplit,
+        component text=border, border text distance=3pt,
+        t1={\tiny\ttfamily #1}, t2={\tiny\ttfamily #2}},
+    source coder/.style={tinysplits={0101}{01}},
+    channel coder/.style={tinysplits={01}{01+01}},
+    mapper/.style={tinysplits={01}{\fourdots}},
+}
+\end{ctikzExample}
+
+\begin{ctikzExample}
+\begin{circuitikz}
+ \draw (0,0)
+        to[source coder, >] ++(2.5,0)
+        to[channel coder, >] ++(0,2.5)
+        to[mapper, >] ++(-2.5,0)
+        to[source coder,>] ++(0,-2.5)
+        ;
+\end{circuitikz}
+\end{ctikzExample}
+
+
+
 \paragraph{Box option}
 \label{par:box-option}
 Several devices have the possibility to add a box around them with the \IndexKey{box} or \IndexKey{boxed} option. The inner symbol scales down to fit inside the box. For the ``circled'' devices (mixer, adder, oscillator and circulator) the inner circle is normally drawn, unless you use the \IndexKey{box only} or \IndexKey{boxed only} option.\footnote{Since 1.5.0, suggested by \href{https://github.com/circuitikz/circuitikz/issues/621}{GitHub user myzinsky}}
