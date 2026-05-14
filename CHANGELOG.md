@@ -8,6 +8,7 @@ The major changes among the different CircuiTikZ versions are listed here. See <
 
     - New manual style, with new example code based on `enverb` (mainly by [Jonathan P. Spratte](https://github.com/circuitikz/circuitikz/pull/920))
     - New option `border` for `component text` that applies to the `twoportsplit` component
+    - New option `jfet gate height` to move the vertical position of JFET gate, triggered by [this question by Vector](https://tex.stackexchange.com/q/762783/38080)
 
 * Version 1.8.5 (2026-02-4)
 
