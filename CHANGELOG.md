@@ -10,6 +10,7 @@ The major changes among the different CircuiTikZ versions are listed here. See <
     - New option `border` for `component text` that applies to the `twoportsplit` component
     - New option `jfet gate height` to move the vertical position of JFET gate, triggered by [this question by Vector](https://tex.stackexchange.com/q/762783/38080)
     - New options for relative gate thickness in FETs and MOSFETs, and rounded caps for transistors; suggested by [Michael Köfinger et al.](https://github.com/circuitikz/circuitikz/issues/934)
+    - Fixed a nasty bug with `ooosourcetrans`, thanks to [user sputeanus](https://github.com/circuitikz/circuitikz/issues/935) for spotting it
 
 * Version 1.8.5 (2026-02-4)
 
