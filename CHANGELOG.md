@@ -1,7 +1,7 @@
 <!--- CircuiTikz - Changelog --->
 The major changes among the different CircuiTikZ versions are listed here. See <https://github.com/circuitikz/circuitikz/commits> for a full list of changes.
 
-* Version 1.8.6 (unreleased)
+* Version 1.8.6 (2026-05-24)
 
     A shiny new style for the manual, with a new example code implementation by Jonathan P. Spratte, based on [the package `enverb`](https://ctan.org/pkg/enverb?lang=en). The manual now avoid writing *hundreds* of auxiliary files, and compiles significantly faster. Additionally, now the manual can be compiled with `lwarp`, enabling the creation of a pure-HTML version.
     Additionally, a new option to simplify building custom blocks, thanks to a [suggestion by Matthias Jung](https://github.com/circuitikz/circuitikz/issues/925)
@@ -10,7 +10,7 @@ The major changes among the different CircuiTikZ versions are listed here. See <
     - New option `border` for `component text` that applies to the `twoportsplit` component
     - New option `jfet gate height` to move the vertical position of JFET gate, triggered by [this question by Vector](https://tex.stackexchange.com/q/762783/38080)
     - New options for relative gate thickness in FETs and MOSFETs, and rounded caps for transistors; suggested by [Michael Köfinger et al.](https://github.com/circuitikz/circuitikz/issues/934)
-    - Fixed a nasty bug with `ooosourcetrans`, thanks to [user sputeanus](https://github.com/circuitikz/circuitikz/issues/935) for spotting it
+    - Fixed a nasty bug with `ooosourcetrans`, thanks to [user sputeanus](https://github.com/circuitikz/circuitikz/issues/935) for spotting it.
 
 * Version 1.8.5 (2026-02-4)
 
