@@ -378,8 +378,9 @@
 }
 %% New circuit description macros
 \newcommand{\twopartbox}[2]{%
-    \leavevmode\null\par\noindent\fbox{\parbox[c]{0.32\linewidth}{#1}\hfill
-    \parbox[c]{0.66\linewidth}{\RaggedRight\hbadness=9500 #2}\par\noindent}%
+    \leavevmode\null\par\noindent\fbox{%
+        \parbox[c]{0.32\linewidth}{\hfuzz100pt\hbadness9500\relax #1}\hfill
+        \parbox[c]{0.65\linewidth}{\RaggedRight\hbadness=9900 #2}\par\noindent}%
 }
 % filling color for filled-enabled component
 \colorlet{fillcol}{cyan!30!white}
@@ -401,7 +402,7 @@
 % optional between []: internal nodes specification list
 \NewDocumentCommand{\circuitdesc}{s O{1} m m m d() d[]}
 {
-    \twopartbox{%
+    \unskip\twopartbox{%
         \begin{circuitikz}[]
             \IfBooleanTF{#1}{%
                 \draw (0,0) node[#3,scale=#2, fill=fillcol](N){#5};
@@ -423,6 +424,7 @@
         } (\texttt{node[\detokenize{#3}]\IfValueT{#7}{(N)}\{\detokenize{#5}\}}). \index{#3}%
         \checkclass{N}%
     }%
+    \ignorespaces
 }
 % description of a path-style bipole component:
 % optional: main name, if different from above
@@ -434,7 +436,7 @@
 %                                    1 2 3 4   5 6 7   8
 \NewDocumentCommand{\circuitdescbip}{s o m d<> m m d() d[]}
 {%
-    \index{#3}%
+    \unskip\index{#3}%
     \foreach \i in {#6} {\index{\i|seealso{#3}} }%
     \twopartbox{%
         \begin{circuitikz}
@@ -463,6 +465,7 @@
         }
         \ifthenelse{\equal{#6}{}}{ }{ Aliases: \texttt{#6}. }\checkclass{B}%
     }%
+    \ignorespaces
 }
 % command to add the content to the index
 \NewDocumentCommand{\IndexKey}{O{#2} m}{%
