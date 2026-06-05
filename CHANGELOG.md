@@ -1,6 +1,10 @@
 <!--- CircuiTikz - Changelog --->
 The major changes among the different CircuiTikZ versions are listed here. See <https://github.com/circuitikz/circuitikz/commits> for a full list of changes.
 
+* Version 1.8.7 (unreleased)
+
+    - Minor fixes to the manual formatting: avoid overfull lines
+
 * Version 1.8.6 (2026-05-24)
 
     A shiny new style for the manual, with a new example code implementation by Jonathan P. Spratte, based on [the package `enverb`](https://ctan.org/pkg/enverb?lang=en). The manual now avoid writing *hundreds* of auxiliary files, and compiles significantly faster. Additionally, now the manual can be compiled with `lwarp`, enabling the creation of a pure-HTML version.
