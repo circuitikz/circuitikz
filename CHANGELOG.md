@@ -3,7 +3,7 @@ The major changes among the different CircuiTikZ versions are listed here. See <
 
 * Version 1.8.7 (unreleased)
 
-    - Minor fixes to the manual formatting: avoid overfull lines
+    - Minor fixes to the manual formatting: avoid overfull lines, change the voltage direction table code to play nicer with the html code
 
 * Version 1.8.6 (2026-05-24)
 
