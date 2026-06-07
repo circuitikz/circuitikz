@@ -3,7 +3,10 @@ The major changes among the different CircuiTikZ versions are listed here. See <
 
 * Version 1.8.7 (unreleased)
 
-    - Minor fixes to the manual formatting: avoid overfull lines, change the voltage direction table code to play nicer with the html code
+    Quite a bit of work on the [HTML version of the manual](https://rmano.github.io/circuitikz/index.html), and a new three-phase symbol.
+
+    - New three-phase symbol `xdelta` (extended delta), [suggested by user sputeanus on GitHub](https://github.com/circuitikz/circuitikz/issues/940)
+    - Minor fixes to the manual formatting: avoid overfull lines, change the voltage direction table code to play nicer with the html code, and fix code snippet rendering.
 
 * Version 1.8.6 (2026-05-24)
 
