@@ -15,8 +15,8 @@ The pull request should:
 * be based on the `master` branch of the `circuitikz` repository;
 * have a text explaining the content of the request clearly;
 * be specific: please avoid a big pull request touching a lot of different places and with a lot of different objectives; that would make the history unclear; 
-* if the pull request is an enhancement, or a new component, or new options, it must add the corresponding info to the manual (`circuitikzmanual.tex` in the `doc` directory) and CHANGELOG.md; please check that it compiles correctly against your changes (see Appendix 1);
-* also, add the attribution to your work in the manual and/or CHANGELOG.md (you have a lot of examples --- from a short phrase in the text, to a simple footnote, often with the appropriate links to the PR/issue).
+* if the pull request is an enhancement, or a new component, or new options, it must add the corresponding info to the manual (`circuitikzmanual.tex` in the `doc` directory) and `CHANGELOG.md`; please check that it compiles correctly against your changes (see Appendix 1);
+* also, add the attribution to your work in the manual and/or `CHANGELOG.md` (you have a lot of examples --- from a short phrase in the text, to a simple footnote, often with the appropriate links to the PR/issue).
 
 # Other way of contributing
 
@@ -54,7 +54,7 @@ So I go to a directory of my choice, for example, `~/software/myforks/` and clon
 
 ```
 cd ~/sofware/myforks
-git clone git@github.com:Rmano/circuitikz.git
+git clone git@github.com:circuitikz/circuitikz.git
 
 ```
 Now I have my local, personal copy of `circuitikz` on my computer, in the folder `~/software/myforks/circuitikz`. Let's tell this copy where the upstream version is, to simplify keeping it in sync (this step is optional; you can do it via the GitHub interface, but I think it's easier to have it available in the local repository).
