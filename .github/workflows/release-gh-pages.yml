@@ -1,0 +1,46 @@
+name: Release gh-pages entry
+
+on:
+  release:
+    types:
+      - published
+
+permissions:
+  contents: write
+
+jobs:
+  release-gh-pages:
+    name: Build, deploy, and update release list
+    runs-on: ubuntu-24.04
+
+    if: github.event.release.prerelease == false
+
+    steps:
+      - name: Checkout release tag
+        uses: actions/checkout@v5
+        with:
+          ref: ${{ github.event.release.tag_name }}
+          fetch-depth: 0
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            build-essential \
+            texlive-pictures \
+            texlive-science \
+            texlive-plain-generic \
+            texlive-latex-extra \
+            lmodern \
+            pandoc \
+            zip
+
+      - name: Full manual build
+        run: make manual-git
+
+      - name: Deploy generated release files and update index
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RELEASE_NAME: ${{ github.event.release.name }}
+          RELEASE_TAG: ${{ github.event.release.tag_name }}
+        run: tools/deploy-release-gha.sh
