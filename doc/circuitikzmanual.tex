@@ -197,7 +197,7 @@ instead of \texttt{circuitikz}. This is also advantageous for ``future resilienc
 
 A similar approach for \ConTeXt\ is available, with the file \texttt{t-circuitikzgit.tex}; the compatibility in this case is not guaranteed, but provided on a \emph{best effort} base.
 
-This manual has been typeset with \Circuitikz{} \pgfcircversion{} (\pgfcircversiondate) on \TikZ{} \pgfversion{} (\pgfversiondate).
+This manual has been typeset with \Circuitikz{} \pgfcircversion{} (\pgfcircversiondate) on \TikZ{} \pgfversion{} (\pgfversiondate), using global options \texttt{[\chosenvoltoption, siunitix]}.
 
 \subsection{Incompatible packages}\label{sec:incompatible-packages}
 
@@ -393,8 +393,9 @@ Circuit people are very opinionated about their symbols. In order to satisfy the
 
 There are arguably way too many options in \Circuitikz, as you can see in the following list. Since version \texttt{1.0}, it is recommended to just use the basic ones --- voltage directions (you \textbf{should} specify one of them), \texttt{siunitx} (only for \LaTeX{}), the global style (\texttt{american} or \texttt{european}) and use styles (see~\ref{sec:styling}) for the remaining options.
 
-The standard options are set by historical reason, and reflect the preferences of the author that introduced them. For example you get this:
+The standard options are set by historical reason, and reflect the preferences of the author that introduced them. For example you get this (the default voltage orientation, see~\ref{curr-and-volt}, is \texttt{noold}) :
 
+\begingroup\ctikzset{voltage dir=noold}
 \begin{ctikzExample}
 \begin{circuitikz}
     \draw (0,0) to[R=2<\ohm>, i=?, v=84<\volt>] (2,0) --
@@ -402,25 +403,29 @@ The standard options are set by historical reason, and reflect the preferences o
     -- (0,0);
 \end{circuitikz}
 \end{ctikzExample}
+\endgroup
 
 Feel free to load the package with your own cultural options:
 
+\begingroup\ctikzset{voltage dir=RP, american}
 \begin{center}
     \begin{tabular}{ll}\toprule
         \LaTeX                & \ConTeXt \\ \midrule
-        \verb!\usepackage[american]{circuitikz}! & \verb!\usemodule[circuitikz][american]!\\
+        \scriptsize\verb!\usepackage[american, RPvoltages]{circuitikz}! &
+        \scriptsize\verb!\usemodule[circuitikz][american, RPvoltages]!\\
         \bottomrule
     \end{tabular}
 \end{center}
 
 \begin{ctikzExample}
 \begin{circuitikz}
-    [circuitikz/voltage=american, circuitikz/resistor=american] % line not printed
     \draw (0,0) to[R=2<\ohm>, i=?, v=84<\volt>] (2,0) --
     (2,2) to[V<=84<\volt>] (0,2)
     -- (0,0);
 \end{circuitikz}
 \end{ctikzExample}
+\endgroup
+
 
 \textbf{However}, most of the global package options are not available in \ConTeXt; in that case you can always use the appropriate \verb|\tikzset{}| or \verb|\IndexKey{}| command after loading the package.
 
@@ -502,11 +507,11 @@ Before even starting with  \Circuitikz{} you should be sure to have understood t
 \dots but obviously a good knowledge of \TikZ{} will help you a lot. Remember, a circuit drawn with \Circuitikz{} is nothing more than a \texttt{tikzpicture} with an (albeit powerful and extended) set of shapes and commodity macros.
 
 Said that, to draw a circuit, you have to load the  \Circuitikz{} package; this can be done with
-\begin{lstlisting}
-    \usepackage[siunitx, RPvoltages]{circuitikz}
+\begin{lstlisting}[escapechar=@]
+    \usepackage[siunitx, @\chosenvoltoption@]{circuitikz}
 \end{lstlisting}
-somewhere in your document preamble. It will load automatically the needed packages if not already done before.
-
+somewhere in your document preamble. It will load automatically the needed packages if not already done before. The manual has been printed supposing the options shown above.
+ 
 \subsection{Getting started with \Circuitikz: a current shunt}
 \label{sec:getting-started-with}
 
