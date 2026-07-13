@@ -1,0 +1,169 @@
+% breadboard.sty
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{breadboard}[2024/04/20 Custom package for breadboard]
+
+\RequirePackage{circuitikz}
+
+\newcommand{\holesep}{0.5}
+\newcommand{\longsep}{3*\holesep}
+\newcommand{\leftmargindist}{0.5}
+\newcommand{\rightmargindist}{0.5}
+\newcommand{\topmargindist}{0.5}
+\newcommand{\bottommargindist}{0.25}
+\newcommand{\holedims}{1mm}
+\newcommand{\xstartcoord}{0}
+\newcommand{\ystartcoord}{0-\bottommargindist}
+
+\newcommand{\wire}[6][]{
+  \pgfmathsetmacro{\ycoordstart}{#4} % Evaluate the y-coordinate expression
+  \pgfmathsetmacro{\ycoordend}{#6} % Evaluate the y-coordinate expression
+  \draw[wire=#2] (#3,\ycoordstart) edge[#1] (#5,\ycoordend);
+  \node[hole=#2, minimum width=1mm] at (#3,\ycoordstart){};
+  \node[hole=#2, minimum width=1mm] at (#5,\ycoordend){};
+}
+
+\newcommand{\resistor}[7]{ % Syntax: \resistor{x1}{y1}{x2}{y2}{resistance}{unit}{kind}
+  \pgfmathsetmacro{\xstart}{#1} % Evaluate the y-coordinate expression
+  \pgfmathsetmacro{\xend}{#3} % Evaluate the y-coordinate expression
+  \pgfmathsetmacro{\ystart}{#2} % Evaluate the y-coordinate expression
+  \pgfmathsetmacro{\yend}{#4} % Evaluate the y-coordinate expression
+  \pgfmathsetmacro{\resistance}{#5} % Evaluate the resistance expression
+  \def\unit{#6} % Evaluate the unit expression
+  \def\kind{#7} % Store the unit
+  \draw (\xstart,\ystart) to[R, l={$\resistance\,\unit$}, \kind] (\xend,\yend);
+}
+
+\newcommand{\capacitor}[6]{ % Syntax: \resistor{x1}{y1}{x2}{y2}{resistance}{unit}
+  \pgfmathsetmacro{\xstart}{#1} % Evaluate the y-coordinate expression
+  \pgfmathsetmacro{\xend}{#3} % Evaluate the y-coordinate expression
+  \pgfmathsetmacro{\ystart}{#2} % Evaluate the y-coordinate expression
+  \pgfmathsetmacro{\yend}{#4} % Evaluate the y-coordinate expression
+  \pgfmathsetmacro{\capacity}{#5} % Evaluate the resistance expression
+  \def\unit{#6} % Evaluate the unit expression
+  \draw (\xstart,\ystart) to[C, l={$\capacity\,\unit$}] (\xend,\yend);
+}
+
+\newcommand{\diode}[6]{ % Syntax: \diode{x1}{y1}{x2}{y2}{label}[optional]
+    \pgfmathsetmacro{\xstart}{#1} % Evaluate the x-coordinate expression
+    \pgfmathsetmacro{\xend}{#3} % Evaluate the x-coordinate expression
+    \pgfmathsetmacro{\ystart}{#2} % Evaluate the y-coordinate expression
+    \pgfmathsetmacro{\yend}{#4} % Evaluate the y-coordinate expression
+    \def\label{#5} % Evaluate the label expression
+    \def\pos{#6}
+    \draw (\xstart,\ystart) to[D*, l=\label, pos=\pos] (\xend,\yend);
+}
+
+
+\newcommand{\chip}[6]{%
+    \ctikzset{multipoles/thickness=1} % Set the thickness of the chip
+    \ctikzset{multipoles/external pins thickness=2} % Set the thickness of the external pins
+    \ctikzset{multipoles/dipchip/pin spacing=0.17}
+    \ctikzset{multipoles/dipchip/width = 0.53}
+    % Calculate half the number of pins
+    \pgfmathsetmacro\halfpins{#3/2}
+    % Draw the chip
+    \draw(#1, #2) node[dipchip,
+               num pins=#3,
+               anchor = pin 1,
+               hide numbers,
+               external pins width=0,
+               external pad fraction=0](C){};
+    % Add labels next to each pin of the chip
+    \foreach \pin/\label in {#5} {
+        % Set the label position based on the pin number
+        \pgfmathsetmacro\pinposition{\pin > \halfpins ? "below" : "above"}
+        % Set the label alignment based on the pin position
+        \pgfmathsetmacro\labelalignment{\pin > \halfpins ? "east" : "west"}
+        \pgfmathsetmacro\xshift{\pin > \halfpins ? "1mm" : "-1mm"}
+        \node [\pinposition, font=\tiny, anchor=\labelalignment, xshift=\xshift] at (C.bpin \pin) {\label};
+    }
+    % Rotate the description
+    \node [centered, font=\tiny, rotate=#6] at (C.center) {#4};
+}
+
+\newcommand{\ycoord}[1]{\ystartcoord-\bottommargindist+(66-#1)*\holesep}
+\newcommand{\xcoord}[1]{{\xstartcoord+#1*\holesep}}
+
+\tikzset{
+  hole/.style = {fill = #1, rectangle, minimum width = \holedims, minimum height = \holedims, inner sep = 0mm},
+  wire/.style = {draw = #1, line width = .5mm},
+  label/.style = {rotate = #1, black!50!white, font=\sffamily, anchor = south},
+  sign/.style = {color = #1, font=\sffamily},
+}
+
+\circuitikzset{
+    resistors/scale=0.4,
+    diodes/scale=0.35,   % Adjust the default scale of diodes
+    capacitors/scale=0.35
+}
+
+\newcommand{\drawBreadBoard}[1]{%
+    \begin{circuitikz}[x=5mm,y=5mm]
+    \draw[fill=black!05!white] (\xcoord{-2},\ystartcoord) rectangle (25*\holesep,64*\holesep+2*\holesep);
+     
+    % Outmost left power strip for plus
+    \node[sign=red]  at (\xstartcoord,{\ycoord{2}}) {+};
+    \draw[wire=red]  (\xstartcoord,{\ycoord{66}+2*\bottommargindist}) -- (\xcoord{0},{\ycoord{3}});
+     
+    % Holes in-between left + and - left power strip
+     \foreach \yi in {1,...,62}{
+     \node[hole=black]  at (\xcoord{1},\yi*\holesep){};
+     \node[hole=black]  at (\xcoord{2},\yi*\holesep){};
+     }
+     
+    % Left power strip for minus
+    \node[sign=blue]  at (\xcoord{3}, {\ycoord{2}}) {-};
+    \draw[wire=blue]  (\xcoord{3},{\ycoord{66}+2*\bottommargindist}) -- (\xcoord{3},{\ycoord{3}});
+     
+    % Holes for A-B-C-D-E columns
+    \foreach \yi in {1,...,64}{
+        \foreach \xi in {6,7,...,10}{
+            \node[hole=black] at (\xcoord{\xi},{\ycoord{\yi}}){};
+        }
+    }
+    
+    % Label A, B, C, D, E column
+      \foreach \m/\xi in {A/6,B/7,C/8,D/9,E/10}{
+        \node[label=0] at ( \xcoord{\xi},{\ycoord{1}}) {\m};
+      }
+    
+    % Gap / Indent between E and F column
+    \draw[fill=lightgray] (\xcoord{10.5},\ystartcoord+\bottommargindist) rectangle (\xcoord{12.5},64.5*\holesep);
+    
+    % Holes for F-G-H-I-J columns
+    \foreach \yi in {1,...,64}{
+        \foreach \xi in {13,14,...,17}{
+            \node[hole=black] at (\xcoord{\xi},{\ycoord{\yi}}){};
+        }
+    }
+    
+    % Label F, G, H, I and J column
+      \foreach \m/\xi in {F/13,G/14,H/15,I/16,J/17}{
+        \node[label=0] at ( \xcoord{\xi},{\ycoord{1}}) {\m};
+      }
+    
+    % Right power strip for plus
+    \node[sign=red]  at (\xcoord{20},{\ycoord{2}}) {+};
+    \draw[wire=red]  (\xcoord{20},{\ycoord{66}+2*\bottommargindist}) -- (\xcoord{20},{\ycoord{3}});
+    
+    % Holes in-between left + and -  right power strip
+     \foreach \yi in {1,...,62}{
+     \node[hole=black]  at (\xcoord{21},\yi*\holesep){};
+     \node[hole=black]  at (\xcoord{22},\yi*\holesep){};
+     }
+     
+    % Right power strip for -
+     \node[sign=blue]  at (\xcoord{23}, {\ycoord{2}}) {-};
+     \draw[wire=blue]  (\xcoord{23},{\ycoord{66}+2*\bottommargindist}) -- (\xcoord{23},{\ycoord{3}});
+     
+    % Label rows 1, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60
+      \foreach \m/\yi in {1,5,10,...,60}{
+        \node[label=0, anchor=center] at (\xcoord{5}, {\ycoord{\yi}}) {\m};
+        \node[label=0, anchor=center] at (\xcoord{18},  {\ycoord{\yi}}) {\m};
+      }
+      
+    #1 % Additional TikZ code
+    \end{circuitikz}
+}
+
+\endinput
