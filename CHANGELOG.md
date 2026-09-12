@@ -1,13 +1,14 @@
 <!--- CircuiTikz - Changelog --->
 The major changes among the different CircuiTikZ versions are listed here. See <https://github.com/circuitikz/circuitikz/commits> for a full list of changes.
 
-* Version 1.8.7 (unreleased)
+* Version 1.8.7 (2026-09-12)
 
     Quite a bit of work on the [HTML version of the manual](https://rmano.github.io/circuitikz/index.html), and a new three-phase symbol.
+    Also fixes a bit of manual formatting and a wrong anchor that no one used...
 
     - New three-phase symbol `xdelta` (extended delta), [suggested by user sputeanus on GitHub](https://github.com/circuitikz/circuitikz/issues/940)
-    - Fix `nogate` anchor on some transistor [(without gates, but well...)](https://github.com/circuitikz/circuitikz/issues/949)
-    - Minor fixes to the manual formatting: avoid overfull lines, change the voltage direction table code to play nicer with the html code, improve some example, and fix code snippet rendering.
+    - Fix `nogate` anchor on some transistors [(without gates, but well...)](https://github.com/circuitikz/circuitikz/issues/949)
+    - Minor fixes to the manual formatting: avoid overfull lines, change the voltage direction table code to play nicer with the html code, improve some examples, and fix code snippet rendering.
 
 * Version 1.8.6 (2026-05-24)
 
