@@ -1,6 +1,10 @@
 <!--- CircuiTikz - Changelog --->
 The major changes among the different CircuiTikZ versions are listed here. See <https://github.com/circuitikz/circuitikz/commits> for a full list of changes.
 
+* Version 1.8.8 (unreleased)
+
+    Version bump
+
 * Version 1.8.7 (2026-09-12)
 
     Quite a bit of work on the [HTML version of the manual](https://rmano.github.io/circuitikz/index.html), and a new three-phase symbol.
